@@ -1,0 +1,20 @@
+name: 💣 Bug
+title: 'Bug: '
+description: bug template
+labels: bug
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Chat2DB Version
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: |
+        If the current behavior is a bug, please provide the steps to reproduce and if possible a minimal demo of the problem and error log.
+        清晰的描述遇到的问题，并建议附上错误截图及错误日志。
+    validations:
+      required: true

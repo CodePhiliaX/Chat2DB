@@ -1,0 +1,42 @@
+#name: Test
+#
+#on: [ push, pull_request ]
+#
+#jobs:
+#  test:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        include:
+#          - os: windows-latest
+##          - os: macos-latest
+##            arch: amd64
+##          - os: macos-latest
+##            arch: arm64
+##            variant: v8
+#    runs-on: ${{ matrix.os }}
+#    steps:
+#      - name: Check out Git repository
+#        uses: actions/checkout@main
+#
+#      # 安装jre Windows
+#      - name: Install Jre for Windows
+#        uses: actions/setup-java@main
+#        with:
+#          java-version: "17"
+#          distribution: "temurin"
+#          java-package: "jre"
+#
+#      # java.security 开放tls1 Windows
+#      - name: Enable tls1
+#        run: |
+#          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+#          cat "${{ env.JAVA_HOME }}/conf/security/java.security"
+#
+##
+##      # 编译服务端java版本
+##      - name: Build Java
+##        run: mvn clean package -B '-Dmaven.test.skip=true' -f ali-dbhub-server/pom.xml
+#
+##      - name: Test with Maven
+##        run: mvn test -B -Dmaven.test.skip=false -pl ali-dbhub-server-test -am -f ali-dbhub-server/pom.xml

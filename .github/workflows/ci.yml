@@ -1,0 +1,23 @@
+ name: Java CI
+
+ on: [ push, pull_request ]
+
+ jobs:
+   test:
+     runs-on: ubuntu-latest
+     steps:
+       - name: Check out Git repository
+         uses: actions/checkout@main
+       - name: Install Java and Maven
+         uses: actions/setup-java@main
+         with:
+           java-version: '17'
+           distribution: 'adopt'
+           cache: 'maven'
+       # 安装各种数据库 用于测试
+       - name: Docker Compose Action
+         uses: isbang/compose-action@v1.4.1
+         with:
+           compose-file: "./docker/test/docker-compose.yml"
+       - name: Test with Maven
+         run: mvn test -B -Dmaven.test.skip=false -pl ali-dbhub-server-test -am -f ali-dbhub-server/pom.xml
