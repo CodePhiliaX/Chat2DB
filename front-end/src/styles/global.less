@@ -1,0 +1,139 @@
+// @import '../theme/dark.less';
+// @import '../theme/light.less';
+// @import '../theme/primaryColor.less';
+
+html,
+body {
+  height: 100%;
+  color: var(--color-text);
+  font-size: var(--font-size);
+}
+
+:root {
+  height: 100%;
+  overflow: overlay; /*滚动条会覆盖在页面之上*/
+  background-color: var(--color-bg);
+}
+
+// 修改账号密码自动回填后input背景变色问题
+input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-text) !important; // 填充状态下的字体颜色
+  transition: background-color 0s 9999999999s;
+  caret-color: var(--color-text); // 光标的颜色
+}
+
+// ::-webkit-scrollbar {
+//   width: 6px;
+//   height: 6px;
+// }
+
+// ::-webkit-scrollbar-thumb {
+//   background-color: var(--color-bg);
+//   border-radius: 3px;
+// }
+
+// ::-webkit-scrollbar-button {
+//   width: 0;
+//   height: 0;
+//   background: transparent;
+// }
+
+// ::-webkit-scrollbar-track {
+//   background: transparent;
+// }
+
+// ::-webkit-scrollbar-corner {
+//   background: transparent;
+// }
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+ul,
+ol,
+li {
+  list-style: none;
+}

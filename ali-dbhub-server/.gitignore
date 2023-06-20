@@ -1,0 +1,30 @@
+target/
+!.mvn/com.alibaba.grow.common.wrapper/maven-com.alibaba.grow.common.wrapper.jar
+rebel.xml
+rebel-remote.xml
+.gradle
+.flattened-pom.xml
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+
+## 前端打包生成的代码 不用提交到github,
+# /ali-dbhub-server-start/src/main/resources/static/front/

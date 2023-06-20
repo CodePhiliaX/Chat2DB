@@ -1,0 +1,98 @@
+.page {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.layoutLeft {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 80px;
+  background-color: var(--color-bg-elevated);
+  user-select: none;
+  overflow: hidden;
+}
+
+.dargBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  -webkit-app-region: drag; //set electron this region Can drag
+  z-index: -10;
+  pointer-events: none;
+}
+
+.brandLogo {
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 30px auto 10px;
+  cursor: pointer;
+}
+
+.navList {
+  flex: 1;
+  width: 100px;
+  padding: 0px 20px;
+  box-sizing: border-box;
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 3px;
+    color: var(--color-text);
+    cursor: pointer;
+
+    .icon {
+      font-size: 28px;
+    }
+
+    &:last-of-type {
+      margin-bottom: 0px;
+    }
+
+    &:hover {
+      background: var(--color-bg-hover);
+    }
+  }
+
+  .activeNav {
+    color: var(--color-primary);
+  }
+}
+
+.footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.layoutRight {
+  flex: 1;
+  overflow: hidden;
+}
+
+.main {
+  position: relative;
+  min-height: 100vh;
+}
+
+.componentBox {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}

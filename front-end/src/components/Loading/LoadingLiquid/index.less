@@ -1,0 +1,48 @@
+.box {
+  svg {
+    width: 0;
+    height: 0;
+  }
+}
+
+.loading {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  filter: url(#gooey);
+}
+
+.loading span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: loading 4s ease-in-out infinite;
+  /* var函数用来插入css变量的值，css变量名称以--开头 */
+  animation-delay: calc(0.2s * var(--i));
+}
+
+.loading span::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(50% - 20px);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(#fce4ec, #03a9f4);
+  border-radius: 50%;
+  box-shadow: 0 0 30px #03a9f4;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50%,
+  100% {
+    transform: rotate(360deg);
+  }
+}

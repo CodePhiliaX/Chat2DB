@@ -1,0 +1,32 @@
+/**
+ * alibaba.com Inc.
+ * Copyright (c) 2004-2023 All Rights Reserved.
+ */
+package com.alibaba.dbhub.server.web.api.controller.data.source.request;
+
+import lombok.Data;
+
+/**
+ * @author jipengfei
+ * @version : SSHTestRequest.java
+ */
+@Data
+public class SSHTestRequest {
+    private boolean use;
+
+    private String hostName;
+
+    private String port;
+
+    private String userName;
+
+    private String localPort;
+
+    private String authenticationType;
+
+    private String password;
+
+    private String keyFile;
+
+    private String passphrase;
+}

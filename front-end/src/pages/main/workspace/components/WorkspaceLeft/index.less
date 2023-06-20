@@ -1,0 +1,68 @@
+@import '../../../../../styles/var.less';
+
+.box {
+  height: 100%;
+  background-color: var(--color-bg-elevated);
+  border-left: 1px solid var(--color-border);
+  padding: 10px 20px 0px;
+  box-sizing: border-box;
+  min-width: 200px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.box_left_save {
+}
+
+.box_left_connection {
+}
+
+.select_database_box {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  .current_database {
+    flex: 1;
+    width: 0px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    i {
+      flex-shrink: 0;
+      margin-left: 10px;
+    }
+    .name {
+      max-width: 90%;
+      .f-single-line();
+    }
+  }
+
+  .other_operations {
+    flex-shrink: 0;
+  }
+
+  .icon_box {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.cascader_popup {
+  :global {
+    .ant-cascader-menu-item-content {
+      font-weight: 400 !important;
+    }
+  }
+}
+
+.tree{
+  margin: 0px -10px;
+}

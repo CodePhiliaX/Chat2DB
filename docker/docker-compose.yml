@@ -1,0 +1,7 @@
+version: '3'
+services:
+  chat2db:
+    image: chat2db/chat2db:latest
+    container_name: chat2db-latest
+    ports:
+      - "10824:10824"

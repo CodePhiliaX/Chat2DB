@@ -1,0 +1,50 @@
+// @import '../../var.less';
+
+.box {
+  display: flex;
+  .divider {
+    width: 1px;
+    position: relative;
+  }
+
+  .dividerCenter {
+    position: absolute;
+    width: 6px;
+    top: 0px;
+    bottom: 0px;
+    z-index: 100;
+    transform: translateX(-50%);
+    &:hover {
+      background-color: var(--color-primary-bg);
+      cursor: col-resize;
+    }
+  }
+  .dragging {
+  }
+}
+
+.box_column {
+  flex-direction: column;
+  .divider {
+    height: 1px;
+    width: 100%;
+    position: relative;
+  }
+
+  .dividerCenter {
+    height: 6px;
+    width: auto;
+    top: 0px;
+    right: 0px;
+    left: 0;
+    z-index: 100;
+    transform: translateY(-50%);
+    &:hover {
+      cursor: row-resize;
+    }
+  }
+}
+
+.displayDivider {
+  display: none;
+}

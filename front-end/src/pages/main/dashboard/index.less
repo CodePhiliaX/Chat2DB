@@ -1,0 +1,91 @@
+.box {
+  display: flex;
+  background-color: var(--color-bg);
+  height: 100%;
+  width: 100%;
+  font-family: Helvetica;
+}
+
+.boxLeft {
+  min-width: 200px;
+  max-width: 400px;
+  height: 100%;
+  padding-top: 20px;
+  background-color: var(--color-bg-container);
+}
+
+.createDashboardBtn {
+  width: 100%;
+  // margin: 0 10px 20px 10px;
+  margin-bottom: 20px;
+  padding: 0 12px;
+}
+
+.boxLeftTitle {
+  font-size: 20px;
+  // color: rgba(0, 0, 0);
+  line-height: 24px;
+  font-weight: 500;
+  margin-bottom: 40px;
+  padding-left: 24px;
+}
+
+.boxLeftItem {
+  font-size: 14px;
+  padding-left: 24px;
+  line-height: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .boxLeftItemIcon {
+    display: none;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--color-bg-elevated);
+
+    .boxLeftItemIcon {
+      display: block;
+    }
+  }
+}
+
+
+.activeItem {
+  background-color: var(--color-bg-elevated);
+}
+
+
+.boxRight {
+  flex: 1;
+  padding: 24px 40px;
+  overflow-y: auto;
+  padding-bottom: 60px;
+}
+
+.boxRightTitle {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  margin-bottom: 24px;
+}
+
+.boxRightContent {}
+
+.boxRightContentRow {
+
+  display: flex;
+}
+
+.boxRightContentColumn {
+  flex: 1;
+  margin-right: 20px;
+
+  &:last-child {
+    margin-right: 0px;
+  }
+}

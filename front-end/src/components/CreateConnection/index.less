@@ -1,0 +1,139 @@
+@import '../../styles/var.less';
+
+.box {
+  position: relative;
+  min-height: 100%;
+}
+
+.loadingContent {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connectionBox {
+  width: 100%;
+  padding: 20px 20%;
+}
+
+.title {
+  // position: sticky;
+  // top: 0;
+  // z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+  font-size: 26px;
+  text-align: center;
+  margin: 0 0px 30px 0px;
+  i {
+    font-size: 20px;
+    margin-right: 10px;
+    color: var(--color-primary);
+  }
+}
+
+.form {
+  :global {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    .ant-form-item-label {
+      width: var(--form-label-width);
+    }
+  }
+}
+
+.extendInfoBox .form {
+  :global {
+    .custom-form-item {
+      > div > div:nth-of-type(1) {
+        width: 200px;
+      }
+    }
+  }
+}
+
+.labelTextAlign {
+  :global {
+    .custom-form-item {
+      > div > div:nth-of-type(1) {
+        text-align: right;
+      }
+    }
+  }
+}
+
+.formFooter {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  margin-bottom: 50px;
+  .cancel {
+    margin-right: 20px;
+    .f-button();
+  }
+
+  .rightButton {
+    display: flex;
+  }
+
+  .test,
+  .save,
+  .cancel {
+    .f-button();
+  }
+}
+
+.tabsBox {
+  margin-bottom: 20px;
+}
+
+.testSSHConnect {
+  margin: 10px 0px;
+  display: flex;
+  align-items: center;
+  i {
+    margin-right: 10px;
+    color: var(--success-color);
+  }
+  .testSSHConnectText {
+    font-size: 12px;
+    color: var(--color-primary);
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.extendTable {
+  max-height: 300px;
+  overflow-y: scroll;
+  input {
+    border: 0px;
+  }
+  :global {
+    .custom-input[disabled],
+    .custom-input-disabled {
+      background-color: transparent;
+    }
+    .custom-table-tbody > tr.custom-table-row:hover > td {
+      background-color: transparent;
+    }
+    .custom-input {
+      padding: 0px;
+    }
+    .custom-input:focus {
+      border: 0px;
+      box-shadow: none;
+    }
+    thead .custom-table-cell {
+      box-sizing: content-box;
+      height: 28px;
+    }
+  }
+}

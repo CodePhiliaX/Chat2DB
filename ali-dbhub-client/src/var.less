@@ -1,0 +1,63 @@
+@themeColor: var(--custom-primary-color); // 主题色
+
+.f-single-line() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.f-lines(@lines) {
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  box-orient: vertical;
+  -webkit-line-clamp: @lines;
+  line-clamp: @lines;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.f-icon-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 32px;
+  width: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-text-45);
+
+  &:hover {
+    background-color: var(--color-bg-hover);
+  }
+
+  i {
+    font-size: 22px;
+  }
+}
+
+.f-fill-absolute {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.f-button {
+  display: flex !important;
+  align-items: center;
+  span {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+  }
+}
+
+@keyframes loading-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

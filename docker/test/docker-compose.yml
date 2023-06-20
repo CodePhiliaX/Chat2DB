@@ -1,0 +1,82 @@
+version: '3'
+services:
+  # 连接地址：jdbc:mysql://localhost:3306 用户名：root  密码：ali_dbhub 端口：3306 默认数据库：ali_dbhub_test
+  mysql:
+    image: mysql:latest
+    restart: always
+    container_name: mysql-latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ali_dbhub
+      MYSQL_DATABASE: ali_dbhub_test
+      TZ: Asia/Shanghai
+    ports:
+      - 3306:3306
+  # 连接地址：jdbc:postgresql://localhost:5432/ali_dbhub_test, 用户名:ali_dbhub, 密码:ali_dbhub 端口：5432 默认数据库：ali_dbhub_test
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    container_name: postgres-alpine
+    environment:
+      POSTGRES_USER: ali_dbhub
+      POSTGRES_PASSWORD: ali_dbhub
+      POSTGRES_DB: ali_dbhub_test
+      TZ: Asia/Shanghai
+    ports:
+      - 5432:5432
+  # 连接地址：jdbc:oracle:thin:@localhost:1521:XE,  用户名:system, 密码:ali_dbhub
+  # 默认数据库XEPDB1 启动会快很多
+  oracle:
+    image: gvenzl/oracle-xe:slim-faststart
+    restart: always
+    container_name: oracle-latest
+    environment:
+      ORACLE_DATABASE: XEPDB1
+      ORACLE_PASSWORD: ali_dbhub
+      TZ: Asia/Shanghai
+    ports:
+      - 1521:1521
+  redis:
+    image: redis:7
+    container_name: redis7
+    restart: always
+    # 挂载映射，可以让数据或配置持久化
+    volumes:
+      #＜本地配置文件＞：
+      - $PWD/redis/redis.conf:/etc/redis/redis. conf:ro
+      - $PWD/redis/data:/data
+      - $PWD/redis/logs:/logs
+   # command: redis-server/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    #服务名称
+
+    # jdbc:mariadb://localhost:3303 ? user=root&password=ali_dbhub
+  mariadb:
+    image: mariadb:10.5.5
+    container_name: "mariadb1"
+    restart: always
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "ali_dbhub"
+      MYSQL_ROOT_PASSWORD: "ali_dbhub"
+      TZ: "Asia/Shanghai"
+    ports:
+      - "3304:3304"
+
+  clickhouse-server:
+    # image：指定镜像，可以为镜像名称或镜像id，如果本地没有该镜像，compose会尝试pull该镜像
+    image: yandex/clickhouse-server
+    # container_name：指定容器名称，默认为 项目名称_服务名称_序号 的格式
+    container_name: clickhouse
+    # hostname：指定容器主机名
+    hostname: clickhouse
+    # networks配置该容器连接的网络，指定到文件末尾定义的networks
+    # ports：暴露端口信息，格式为 宿主机端口:容器端口；仅指定容器端口时，宿主机会随机选择端口，类似于docker run -p
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9004:9004"
+    # expose：暴露端口，但不映射到宿主机，所以外部无法访问该端口，仅能容器内部访问使用
+    expose:
+      - 9009
+    # volumes：数据卷挂载路径设置，类似于docker run --volumn=hostdir:containerDir，也可指定文件权限

@@ -1,0 +1,64 @@
+@import '../../styles/var.less';
+
+.box {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.empty {
+  width: 200px;
+  height: 200px;
+  // background-image: url('../../assets/no-data.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.error {
+  width: 200px;
+  height: 200px;
+  // background-image: url('../../assets/error.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.errorText {
+  font-size: 14px;
+  color: var(--error-color);
+  text-align: center;
+  transform: translateY(-20px);
+}
+
+.successBox {
+  .errorBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  // .success {
+  //   width: 200px;
+  //   height: 200px;
+  //   background-image: url('../../assets/error.png');
+  //   background-size: cover;
+  //   background-repeat: no-repeat;
+  // }
+
+  .successText {
+    font-size: 14px;
+    color: var(--success-color);
+    text-align: center;
+    transform: translateY(-20px);
+  }
+}

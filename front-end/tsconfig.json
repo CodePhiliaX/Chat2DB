@@ -1,0 +1,7 @@
+{
+  "extends": "./src/.umi/tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "jsx": "react",
+  },
+}

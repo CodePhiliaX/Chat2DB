@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>编组备份 3</title>
+    <defs>
+        <linearGradient x1="103.409056%" y1="45.6636592%" x2="0%" y2="56.7844134%" id="linearGradient-1">
+            <stop stop-color="#9254DE" offset="0%"></stop>
+            <stop stop-color="#597EF7" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="78.8755101%" x2="-16.736587%" y2="45.9186916%" id="linearGradient-2">
+            <stop stop-color="#9254DE" offset="0%"></stop>
+            <stop stop-color="#597EF7" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="60.525759%" x2="0%" y2="8.04063429%" id="linearGradient-3">
+            <stop stop-color="#9254DE" offset="0%"></stop>
+            <stop stop-color="#597EF7" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="连接管理" transform="translate(-349.000000, -99.000000)">
+            <g id="编组-11" transform="translate(349.000000, 98.000000)">
+                <g id="编组-2" transform="translate(0.000000, 1.000000)">
+                    <rect id="矩形" x="0" y="0" width="16" height="16"></rect>
+                    <circle id="椭圆形" stroke="url(#linearGradient-1)" stroke-width="1.5" cx="8" cy="8" r="7.25"></circle>
+                    <circle id="椭圆形" stroke="url(#linearGradient-2)" stroke-width="1.5" cx="5.81818182" cy="8" r="5.06818182"></circle>
+                    <circle id="椭圆形" stroke="url(#linearGradient-3)" stroke-width="1.5" cx="8" cy="8" r="2.88636364"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

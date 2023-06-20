@@ -1,0 +1,1 @@
+docker build --no-cache -f docker/Dockerfile -t chat2db/chat2db:v1.0.111-dev .

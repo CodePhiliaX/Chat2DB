@@ -1,0 +1,33 @@
+{
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.iconTheme": "vscode-icons-mac",
+  "editor.fontSize": 14,
+  "editor.tabSize": 2,
+  // 自动格式化
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "prettier.bracketSpacing": true, // 在对象，数组括号与文字之间加空格 "{ foo: bar }"
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.mergeEditor": false,
+  "cSpell.words": [
+    "antd",
+    "Appstore",
+    "Cascader",
+    "CLICKHOUSE",
+    "datas",
+    "datasource",
+    "dbhub",
+    "Iconfont",
+    "JDBC",
+    "KEYPAIR",
+    "SQLSERVER",
+    "USERANDPASSWORD",
+    "uuidv",
+    "wireframe"
+  ]
+}
