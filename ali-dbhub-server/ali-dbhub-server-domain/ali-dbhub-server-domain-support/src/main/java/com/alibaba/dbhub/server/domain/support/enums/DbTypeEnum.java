@@ -9,11 +9,16 @@ import com.alibaba.dbhub.server.domain.support.dialect.common.model.SpiExample;
 import com.alibaba.dbhub.server.domain.support.dialect.db2.DB2MetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.dm.DMMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.h2.H2MetaSchemaSupport;
+import com.alibaba.dbhub.server.domain.support.dialect.hive.HiveMetaSchemaSupport;
+import com.alibaba.dbhub.server.domain.support.dialect.kingbase.KingBaseSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.mariadb.MariaDBMetaSchemaSupport;
+import com.alibaba.dbhub.server.domain.support.dialect.mongodb.MongodbMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.mysql.MysqlMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.oceanbase.OceanBaseMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.oracle.OracleMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.postgresql.PostgresqlMetaSchemaSupport;
+import com.alibaba.dbhub.server.domain.support.dialect.presto.PrestoMetaSchemaSupport;
+import com.alibaba.dbhub.server.domain.support.dialect.redis.RedisMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.sqlite.SQLiteMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.dialect.sqlserver.SqlServerMetaSchemaSupport;
 import com.alibaba.dbhub.server.tools.base.enums.BaseEnum;
@@ -41,67 +46,91 @@ public enum DbTypeEnum implements BaseEnum<String> {
     /**
      * MySQL
      */
-    MYSQL("MySQL", "com.mysql.cj.jdbc.Driver", "mysql-connector-j-8.0.33.jar"),
+    MYSQL("MySQL"),
 
     /**
      * PostgreSQL
      */
-    POSTGRESQL("PostgreSQL", "org.postgresql.Driver", "postgresql-42.5.1.jar"),
+    POSTGRESQL("PostgreSQL"),
 
     /**
      * Oracle
      */
-    ORACLE("Oracle", "oracle.jdbc.driver.OracleDriver", "ojdbc8-19.3.0.0.jar,orai18n-19.3.0.0.jar"),
+    ORACLE("Oracle"),
 
     /**
      * SQLServer
      */
-    SQLSERVER("SQLServer", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "mssql-jdbc-11.2.1.jre17.jar"),
+    SQLSERVER("SQLServer"),
 
     /**
      * SQLite
      */
-    SQLITE("SQLite", "org.sqlite.JDBC", "sqlite-jdbc-3.39.3.0.jar"),
+    SQLITE("SQLite"),
 
     /**
      * H2
      */
-    H2("H2", "org.h2.Driver", "h2-2.1.214.jar"),
+    H2("H2"),
 
     /**
      * ADB MySQL
      */
-    ADB_POSTGRESQL("PostgreSQL", "org.postgresql.Driver", ""),
+    ADB_POSTGRESQL("PostgreSQL"),
 
     /**
      * ClickHouse
      */
-    CLICKHOUSE("ClickHouse", "ru.yandex.clickhouse.ClickHouseDriver", "clickhouse-jdbc-0.4.1.jar"),
+    CLICKHOUSE("ClickHouse"),
 
     /**
      * OceanBase
      */
-    OCEANBASE("OceanBase", "com.oceanbase.jdbc.Driver", "oceanbase-client-2.4.2.jar"),
+    OCEANBASE("OceanBase"),
 
     /**
      * DB2
      */
-    DB2("DB2", "com.ibm.db2.jcc.DB2Driver", ""),
+    DB2("DB2"),
 
     /**
      * MMARIADB
      */
-    MARIADB("MariaDB", "org.mariadb.jdbc.Driver", "mariadb-java-client-3.0.8.jar"),
+    MARIADB("MariaDB"),
 
     /**
      * DM 达梦
      */
-    DM("DM", "dm.jdbc.driver.DmDriver", "DmJdbcDriver18-8.1.2.141.jar");
+    DM("DM"),
+
+
+    /**
+     * MONGODB
+     */
+    MONGODB("Mongodb"),
+
+    /**
+     * PRESTO
+     */
+    PRESTO("Presto"),
+
+    /**
+     * HIVE
+     */
+    HIVE("Hive"),
+
+
+    /**
+     * REDIS
+     */
+    REDIS("Redis"),
+
+    /**
+     * KingBase
+     */
+    KINGBASE("KingBase");
 
     final String description;
-    final String className;
-
-    final String jar;
 
     private static Map<DbTypeEnum, MetaSchema> META_SCHEMA_MAP = new HashMap<>();
 
@@ -117,12 +146,15 @@ public enum DbTypeEnum implements BaseEnum<String> {
         META_SCHEMA_MAP.put(CLICKHOUSE, new ClickhouseMetaSchemaSupport());
         META_SCHEMA_MAP.put(DB2, new DB2MetaSchemaSupport());
         META_SCHEMA_MAP.put(DM, new DMMetaSchemaSupport());
+        META_SCHEMA_MAP.put(MONGODB, new MongodbMetaSchemaSupport());
+        META_SCHEMA_MAP.put(PRESTO, new PrestoMetaSchemaSupport());
+        META_SCHEMA_MAP.put(REDIS, new RedisMetaSchemaSupport());
+        META_SCHEMA_MAP.put(KINGBASE, new KingBaseSchemaSupport());
+        META_SCHEMA_MAP.put(HIVE, new HiveMetaSchemaSupport());
     }
 
-    DbTypeEnum(String description, String className, String jar) {
+    DbTypeEnum(String description) {
         this.description = description;
-        this.className = className;
-        this.jar = jar;
     }
 
     /**
@@ -195,6 +227,9 @@ public enum DbTypeEnum implements BaseEnum<String> {
             case DM:
                 SpiExample = SpiExample.builder().createTable(MYSQL_CREATE_TABLE_SIMPLE).alterTable(
                     MYSQL_ALTER_TABLE_SIMPLE).build();
+                break;
+            case PRESTO:
+                SpiExample = SpiExample.builder().createTable("").alterTable("").build();
                 break;
             default:
         }

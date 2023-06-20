@@ -35,7 +35,7 @@ public class ConnectionInfoHandler {
 
 
     @Around("within(@com.alibaba.dbhub.server.web.api.aspect.ConnectionInfoAspect *)")
-    public Object businessExceptionHandler(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+    public Object connectionInfoHandler(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         try {
             Object[] params = proceedingJoinPoint.getArgs();
             if (params != null && params.length > 0) {

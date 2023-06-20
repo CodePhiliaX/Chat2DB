@@ -13,13 +13,13 @@ contextBridge.exposeInMainWorld('myAPI', {
       const data = buffer.toString('utf8');
       if (data.toString().indexOf('Started Application') !== -1) {
         console.log('load success');
-        // TODO: 
+        // TODO:
         // window.location.href = 'http://localhost:10824';
       }
     });
     ls.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
-      alert('启动服务异常');
+      //alert('启动服务异常');
     });
     ls.on('close', (code) => {
       console.log(`child process exited with code ${code}`);

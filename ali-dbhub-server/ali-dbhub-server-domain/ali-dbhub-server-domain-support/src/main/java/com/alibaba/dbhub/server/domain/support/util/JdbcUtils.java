@@ -51,7 +51,11 @@ public class JdbcUtils {
         if (dbType == null) {
             return null;
         }
-        return DbType.valueOf(dbType.getCode().toLowerCase());
+        try {
+            return DbType.valueOf(dbType.getCode().toLowerCase());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -245,4 +249,5 @@ public class JdbcUtils {
         dataSourceConnect.setDescription("成功");
         return dataSourceConnect;
     }
+
 }

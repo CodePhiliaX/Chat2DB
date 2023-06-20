@@ -3,7 +3,7 @@ import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import Button from '@/components/Button';
-import { Modal, Radio, Input, message, Select, Tooltip } from 'antd';
+import { Modal, Radio, Input, message, Select, Tooltip, notification } from 'antd';
 import i18n from '@/i18n';
 import { imghub } from '@/utils/imghub';
 import configService, { IChatGPTConfig } from '@/service/config';
@@ -134,6 +134,83 @@ export default memo<IProps>(function Setting({ className, text }) {
       themeMedia.removeListener(change)
     }
   }, [])
+
+  useEffect(()=>{
+    getVersions();
+  },[])
+
+  const close = () => {};
+
+  function getVersions(){
+    try{
+      const time = +(localStorage.getItem('update-hint-time')||0);
+      const nowTime = new Date().getTime();
+      if(time < nowTime){
+        const xhr = new XMLHttpRequest();
+        xhr.withCredentials = true;
+        xhr.open('GET', `http://test.sqlgpt.cn/gateway/client/version/check`);
+        xhr.onload = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              var responseText = xhr.responseText;
+              openNotification(JSON.parse(responseText));
+              const time = new Date().getTime() + 2*60*60*1000;
+              localStorage.setItem('update-hint-time',time.toString())
+              // 处理返回值
+            } else {
+              // 请求失败的处理
+            }
+          }
+        };
+        xhr.send();
+      }
+    }
+    catch{
+
+    }
+  }
+  
+  const openNotification = (responseText:any) => {
+    try{
+      if(responseText.version !== '1.0.11'){
+        const key = `open${Date.now()}`;
+        
+        function updateHint(){
+          notification.close(key);
+          const time = new Date().getTime() + 24*60*60*1000;
+          localStorage.setItem('update-hint-time',time.toString());
+        }
+    
+        function go(){
+          window.open('https://chat2db.opensource.alibaba.com/docs/guides/download');
+          notification.close(key);
+        }
+    
+        const btn = (
+          <div className={styles.updateHint}>
+            <div className={styles.later} onClick={ updateHint }>
+              稍后提醒我
+            </div>
+            <a target="_blank" href={responseText.downloadLink} className={styles.go} >
+              前往更新
+            </a>
+          </div>
+          
+        );
+    
+        notification.open({
+          message: '更新提醒',
+          description: `监测到最新版本 v${responseText.version}`,
+          btn,
+          key,
+          onClose: close,
+        });
+      }
+    }
+    catch{
+
+    }
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -267,7 +344,7 @@ export function SettingAI() {
           <Input placeholder='非必填，用于设置请求OPENAI接口时的HTTP代理host' value={chatgptConfig.httpProxyHost} onChange={(e) => { setChatgptConfig({ ...chatgptConfig, httpProxyHost: e.target.value }) }} />
         </div>
         <div className={styles.title}>
-          HTTP Proxy Prot
+          HTTP Proxy Port
         </div>
         <div className={classnames(styles.content, styles.chatGPTKey)}>
           <Input placeholder='非必填，用于设置请求OPENAI接口时的HTTP代理port' value={chatgptConfig.httpProxyPort} onChange={(e) => { setChatgptConfig({ ...chatgptConfig, httpProxyPort: e.target.value }) }} />

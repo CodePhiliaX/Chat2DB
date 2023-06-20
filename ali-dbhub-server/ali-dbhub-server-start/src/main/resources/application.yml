@@ -43,6 +43,10 @@ ali:
       - https://oss-chat2db.alibaba.com/lib/h2-2.1.214.jar
       - https://oss-chat2db.alibaba.com/lib/DmJdbcDriver18-8.1.2.141.jar
       - https://oss-chat2db.alibaba.com/lib/HikariCP-4.0.3.jar
+      - https://oss-chat2db.alibaba.com/lib/redis-jdbc-driver-1.3.jar
+      - https://oss-chat2db.alibaba.com/lib/kingbase8-8.6.0.jar
+      - https://oss-chat2db.alibaba.com/lib/hive-jdbc-3.1.2-standalone.jar
+      - https://oss-chat2db.alibaba.com/lib/mongo-jdbc-standalone-1.18.jar
 # flywaydb 输出执行sql的日志
 logging:
   level:

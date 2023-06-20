@@ -157,3 +157,33 @@
 .aiSqlSourceTitle {
   margin-right: 20px;
 }
+
+.updateHint{
+  display: flex;
+  justify-content: space-between;
+}
+
+.later{
+  cursor: pointer;
+
+}
+
+.go{
+  cursor: pointer;
+  margin-left: 20px;
+  color: var(--custom-primary-color);
+  &:hover{
+    text-decoration: underline;
+  }
+}
+
+:global{
+  .ant-notification-notice{
+    background-color: var(--color-bg-300);
+    border-radius: 10px;
+    color: var(--color-text);
+  }
+  .ant-notification-notice-message,.ant-notification-notice-close{
+    color: var(--color-text);
+  }
+}

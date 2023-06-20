@@ -4,7 +4,6 @@
  */
 package com.alibaba.dbhub.server.domain.support.dialect.oceanbase;
 
-import com.alibaba.dbhub.server.domain.support.dialect.BaseMetaSchema;
 import com.alibaba.dbhub.server.domain.support.dialect.MetaSchema;
 import com.alibaba.dbhub.server.domain.support.dialect.mysql.MysqlMetaSchemaSupport;
 import com.alibaba.dbhub.server.domain.support.enums.DbTypeEnum;

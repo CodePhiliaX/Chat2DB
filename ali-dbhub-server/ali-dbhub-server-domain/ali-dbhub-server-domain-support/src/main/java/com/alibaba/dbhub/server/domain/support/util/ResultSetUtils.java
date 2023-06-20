@@ -81,7 +81,7 @@ public class ResultSetUtils {
         tableColumn.setNullable(resultSet.getInt("NULLABLE") == 1);
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
         tableColumn.setAutoIncrement("YES".equals(resultSet.getString("IS_AUTOINCREMENT")));
-        tableColumn.setGeneratedColumn("YES".equals(resultSet.getString("IS_GENERATEDCOLUMN")));
+        //tableColumn.setGeneratedColumn("YES".equals(resultSet.getString("IS_GENERATEDCOLUMN")));
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
         tableColumn.setDecimalDigits(resultSet.getInt("DECIMAL_DIGITS"));
         tableColumn.setNumPrecRadix(resultSet.getInt("NUM_PREC_RADIX"));

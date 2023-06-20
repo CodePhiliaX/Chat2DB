@@ -169,11 +169,11 @@ export default function DatabaseQuery(props: IProps) {
 
 
       const timer = setTimeout(() => {
-        
+
       }, 1000);
 
       clearInterval(timer)
-      
+
     } catch {}
   };
 

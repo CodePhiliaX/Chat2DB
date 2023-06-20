@@ -28,4 +28,22 @@ public class DbhubSQLParserUtils extends SQLParserUtils {
             return "\"" + tableName + "\"";
         }
     }
+
+    public static String format(String dbType, String tableName) {
+        if (DbTypeEnum.MYSQL.getCode().equalsIgnoreCase(dbType)) {
+            return "`" + tableName + "`";
+        } else if (DbTypeEnum.ORACLE.getCode().equalsIgnoreCase(dbType)) {
+            return "\"" + tableName + "\"";
+        } else if (DbTypeEnum.POSTGRESQL.getCode().equalsIgnoreCase(dbType)) {
+            return "\"" + tableName + "\"";
+        } else if (DbTypeEnum.SQLITE.getCode().equalsIgnoreCase(dbType)) {
+            return "\"" + tableName + "\"";
+        } else if (DbTypeEnum.SQLSERVER.getCode().equalsIgnoreCase(dbType)) {
+            return "[" + tableName + "]";
+        } else if (DbTypeEnum.H2.getCode().equalsIgnoreCase(dbType)) {
+            return "\"" + tableName + "\"";
+        } else {
+            return "\"" + tableName + "\"";
+        }
+    }
 }

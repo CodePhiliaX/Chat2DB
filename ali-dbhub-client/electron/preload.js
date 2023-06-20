@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld('myAPI', {
     });
     ls.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
-      alert('启动服务异常');
+      // alert('启动服务异常');
     });
     ls.on('close', (code) => {
       console.log(`child process exited with code ${code}`);

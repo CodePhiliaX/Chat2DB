@@ -28,11 +28,11 @@ const LNKConfig: INavItem[] = [
     icon: '\ue80a',
     path: '/sql-history'
   },
-  {
-    title: 'chatRobot',
-    icon: "\ue70e",
-    path: '/chat'
-  },
+  // {
+  //   title: 'chatRobot',
+  //   icon: "\ue70e",
+  //   path: '/chat'
+  // },
   // {
   //   title: '后台管理',
   //   icon: "\ue66d",

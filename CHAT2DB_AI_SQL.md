@@ -3,10 +3,18 @@ Chat2DB包含一系列基于ChatGPT的AI SQL使用功能，主要包括自然语
 ## 使用配置
 ### 点击设置
 <a><img src="https://img.alicdn.com/imgextra/i2/O1CN01hecdtO1acLegtiP9k_!!6000000003350-2-tps-2400-1600.png" width="100%"/></a>
-### 配置OPENAI_API_KEY
-使用ChatSql功能之前必须配置OPENAI_API_KEY，也可在客户端中设置代理HOST和PORT
-<a><img src="https://img.alicdn.com/imgextra/i2/O1CN01mkVmEd1FTY7SBG6Lq_!!6000000000488-0-tps-1212-788.jpg" width="100%"/></a>
-
+### 配置AI
+#### 配置OPENAI
+使用OPENAI的ChatSql功能需要满足两个条件
+- 配置OPENAI_API_KEY，如没有OPENAI_API_KEY可加入答疑群根据群公告指引获取chat2db自定义key
+- 客户端网络可以连接到OPENAI官网，如果本地VPN未能全局生效，可以通过在客户端中设置网络代理HOST和PORT来保证网络连通性
+<a><img src="https://img.alicdn.com/imgextra/i2/O1CN01anrJMI1FEtSBbmTau_!!6000000000456-0-tps-1594-964.jpg" width="100%"/></a>
+#### 配置自定义AI
+- 自定义AI可以是用户自己部署的任意AI模型，例如ChatGLM、ChatGPT、文心一言、通义千问等等，但是自定义的接口输入和输出需要符合自定义的协议规范才可快速使用，否则可能需要二次开发。代码中提供了两个DEMO，只需要配置自定义AI接口地址，以及接口是否流式输出即可查看。具体使用中可以参考DEMO接口来编写自定义接口，或者直接在DEMO接口中进行二次开发，封装自己的自定义接口
+- 自定义的流式输出接口配置DEMO
+<a><img src="https://img.alicdn.com/imgextra/i1/O1CN01xMqnRH1DlkdSekvSF_!!6000000000257-0-tps-591-508.jpg" width="100%"/></a>
+- 自定义的非流式输出接口配置DEMO
+<a><img src="https://img.alicdn.com/imgextra/i1/O1CN01JqmbGo1fW0GAQhRu4_!!6000000004013-0-tps-587-489.jpg" width="100%"/></a>
 ## 自然语言转SQL
 ### 功能描述
 输入自然语言，选中执行并传入查询相关的表结构信息，则会返回相应的SQL

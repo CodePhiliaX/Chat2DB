@@ -38,7 +38,7 @@ export function useUpdateEffect(fn: Function, arr: any[]) {
 }
 
 export function useTheme() {
-  let theme = localStorage.getItem('theme')
+  let theme = localStorage.getItem('theme') || 'dark'
   if (theme === 'followOs') {
     theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
   }

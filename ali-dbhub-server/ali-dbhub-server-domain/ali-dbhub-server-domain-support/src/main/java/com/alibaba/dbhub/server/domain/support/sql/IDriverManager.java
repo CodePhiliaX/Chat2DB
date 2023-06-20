@@ -16,11 +16,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.dbhub.server.domain.support.enums.DbTypeEnum;
 import com.alibaba.dbhub.server.domain.support.enums.DriverTypeEnum;
 import com.alibaba.dbhub.server.domain.support.model.DriverEntry;
 import com.alibaba.dbhub.server.domain.support.util.JdbcJarUtils;
 import com.alibaba.fastjson2.JSON;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +60,11 @@ public class IDriverManager {
         Map<String, Object> properties)
         throws SQLException {
         Properties info = new Properties();
-        if (user != null) {
+        if (StringUtils.isNotEmpty(user)) {
             info.put("user", user);
         }
 
-        if (password != null) {
+        if (StringUtils.isNotEmpty(password)) {
             info.put("password", password);
         }
         info.putAll(properties);
@@ -87,8 +89,11 @@ public class IDriverManager {
                 return con;
             }
         } catch (SQLException var7) {
-            if (reason == null) {
-                reason = var7;
+            Connection con = tryConnectionAgain(driverTypeEnum.getDbTypeEnum() ,driverEntry, url, info);
+            if (con != null) {
+                return con;
+            } else {
+                throw var7;
             }
         }
 
@@ -99,6 +104,17 @@ public class IDriverManager {
             DriverManager.println("getConnection: no suitable driver found for " + url);
             throw new SQLException("No suitable driver found for " + url, "08001");
         }
+    }
+
+    private static Connection tryConnectionAgain(DbTypeEnum dbTypeEnum, DriverEntry driverEntry, String url,
+        Properties info) throws SQLException {
+        if (DbTypeEnum.MYSQL.equals(dbTypeEnum)) {
+            if (!info.containsKey("useSSL")) {
+                info.put("useSSL", "false");
+            }
+            return driverEntry.getDriver().connect(url, info);
+        }
+        return null;
     }
 
     private static DriverEntry getJDBCDriver(DriverTypeEnum driverTypeEnum)
