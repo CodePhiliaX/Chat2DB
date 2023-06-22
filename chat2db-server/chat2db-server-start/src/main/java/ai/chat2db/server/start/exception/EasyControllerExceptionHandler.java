@@ -2,7 +2,7 @@ package ai.chat2db.server.start.exception;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import com.alibaba.fastjson2.JSON;
 
 import ai.chat2db.server.start.exception.convertor.BindExceptionConvertor;
 import ai.chat2db.server.start.exception.convertor.BusinessExceptionConvertor;
@@ -17,9 +17,8 @@ import ai.chat2db.server.tools.base.excption.SystemException;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.common.exception.NeedLoggedInBusinessException;
 import ai.chat2db.server.tools.common.exception.RedirectBusinessException;
-import com.alibaba.fastjson2.JSON;
-
 import com.google.common.collect.Maps;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;

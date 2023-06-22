@@ -5,12 +5,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.OrderByDirectionEnum;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;

@@ -1,6 +1,6 @@
 package ai.chat2db.server.web.api.controller.rdb.request;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 

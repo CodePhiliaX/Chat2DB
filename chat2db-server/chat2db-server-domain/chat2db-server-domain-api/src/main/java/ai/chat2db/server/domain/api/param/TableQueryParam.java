@@ -2,7 +2,7 @@ package ai.chat2db.server.domain.api.param;
 
 import java.io.Serial;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.wrapper.param.QueryParam;
 

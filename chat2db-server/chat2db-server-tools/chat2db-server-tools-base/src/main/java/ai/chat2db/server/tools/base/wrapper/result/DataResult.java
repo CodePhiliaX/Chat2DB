@@ -3,13 +3,13 @@ package ai.chat2db.server.tools.base.wrapper.result;
 import java.io.Serializable;
 import java.util.function.Function;
 
-import javax.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
 import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
