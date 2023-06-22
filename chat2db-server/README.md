@@ -18,4 +18,4 @@ I18nUtils.getMessage("dataSource.sqlAnalysisError")
 ### 国际化中文乱码
 Editor -> File Encodeings -> Defualt encoding for properties files: 改成 utf-8
 ### 编辑国际化文件
-必须安装插件 `Resource Bundle Editor`,然后点击`messages.properties`，下方有个`Resource Bundle` 就可以编辑了。
+建议安装插件 `Resource Bundle Editor`去编辑，,点击`messages.properties`，下方有个`Resource Bundle` 就可以编辑了。
