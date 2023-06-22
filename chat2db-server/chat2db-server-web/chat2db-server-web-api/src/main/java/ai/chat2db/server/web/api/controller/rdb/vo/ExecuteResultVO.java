@@ -2,7 +2,6 @@ package ai.chat2db.server.web.api.controller.rdb.vo;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.support.enums.SqlTypeEnum;
 
 import lombok.Data;
 
@@ -47,7 +46,6 @@ public class ExecuteResultVO {
     /**
      * sql 类型
      *
-     * @see SqlTypeEnum
      */
     private String sqlType;
 

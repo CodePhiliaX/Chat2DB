@@ -4,14 +4,15 @@
  */
 package ai.chat2db.server.web.api.controller;
 
-import ai.chat2db.server.domain.support.sql.SSHManager;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.AliDbhubProperties;
-
+import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.spi.sql.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,9 @@ public class SystemController {
      */
     @GetMapping
     public DataResult<String> get() {
+        log.info("locale:{}", LocaleContextHolder.getLocale());
+        log.info("error message:{}", I18nUtils.getMessage("common.systemError"));
+        log.info("error message:{}", I18nUtils.getMessage("common.paramDetailError", new Object[] {"参数呀"}));
         return DataResult.of("success");
     }
 

@@ -1,19 +1,18 @@
 package ai.chat2db.server.domain.api.param;
 
-import java.util.List;
-import java.util.Map;
 
+import ai.chat2db.spi.model.KeyValue;
+import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.model.SSLInfo;
 import jakarta.validation.constraints.NotNull;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.model.SSHInfo;
-import ai.chat2db.server.domain.support.model.SSLInfo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 /**
  * 数据源测试参数

@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 
 import jakarta.validation.constraints.NotNull;
@@ -39,8 +36,6 @@ public class ListResult<T> implements Serializable, Result<T> {
 
     /**
      * 错误编码
-     *
-     * @see CommonErrorEnum
      */
     private String errorCode;
     /**
@@ -100,17 +95,6 @@ public class ListResult<T> implements Serializable, Result<T> {
         result.errorMessage = errorMessage;
         result.success = Boolean.TRUE;
         return result;
-    }
-
-    /**
-     * 构建异常返回列表
-     *
-     * @param errorEnum 错误枚举
-     * @param <T>       需要构建的对象类型
-     * @return 返回的列表
-     */
-    public static <T> ListResult<T> error(BaseErrorEnum errorEnum) {
-        return error(errorEnum.getCode(), errorEnum.getDescription());
     }
 
     /**

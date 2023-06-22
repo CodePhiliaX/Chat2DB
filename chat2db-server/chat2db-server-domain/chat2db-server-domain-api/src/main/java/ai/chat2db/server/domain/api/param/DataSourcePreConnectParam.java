@@ -5,10 +5,7 @@ import java.util.Map;
 
 import jakarta.validation.constraints.NotNull;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.model.SSHInfo;
-import ai.chat2db.server.domain.support.model.SSLInfo;
+import ai.chat2db.spi.model.*;
 
 import lombok.Data;
 
@@ -44,7 +41,6 @@ public class DataSourcePreConnectParam {
 
     /**
      * 连接类型
-     * @see DbTypeEnum
      */
     @NotNull
     private String type;

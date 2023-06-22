@@ -2,9 +2,8 @@ package ai.chat2db.server.tools.common.exception;
 
 import java.io.Serial;
 
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.common.enums.ErrorEnum;
-
 import lombok.Getter;
 
 /**
@@ -16,9 +15,9 @@ import lombok.Getter;
 public class NeedLoggedInBusinessException extends BusinessException {
 
     @Serial
-    private static final long serialVersionUID = 4481325884589199804L;
+    private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     public NeedLoggedInBusinessException() {
-        super(ErrorEnum.NEED_LOGGED_IN);
+        super("common.needLoggedIn");
     }
 }

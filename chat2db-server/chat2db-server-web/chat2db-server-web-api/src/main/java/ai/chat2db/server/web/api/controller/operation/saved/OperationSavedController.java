@@ -11,7 +11,6 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.operation.saved.converter.OperationWebConverter;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationQueryRequest;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version DdlManageController.java, v 0.1 2022年09月16日 19:59 moji Exp $
  * @date 2022/09/16
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/operation/saved")
 @RestController
 public class OperationSavedController {

@@ -9,7 +9,6 @@ import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.operation.log.converter.OperationLogWebConverter;
 import ai.chat2db.server.web.api.controller.operation.log.request.OperationLogCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.log.request.OperationLogQueryRequest;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version HistoryManageController.java, v 0.1 2022年09月18日 10:55 moji Exp $
  * @date 2022/09/18
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/operation/log")
 @RestController
 public class OperationLogController {

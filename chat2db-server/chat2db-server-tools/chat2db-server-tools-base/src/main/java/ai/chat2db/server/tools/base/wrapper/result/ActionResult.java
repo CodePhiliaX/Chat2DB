@@ -1,11 +1,9 @@
 package ai.chat2db.server.tools.base.wrapper.result;
 
+import java.io.Serial;
 import java.io.Serializable;
 
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 public class ActionResult implements Serializable, Result {
+    @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
      * 是否成功
@@ -103,26 +102,6 @@ public class ActionResult implements Serializable, Result {
         result.errorMessage = errorMessage;
         result.success = Boolean.FALSE;
         return result;
-    }
-
-    /**
-     * 返回失败
-     *
-     * @param errorEnum 错误枚举
-     * @return 运行结果
-     */
-    public static ActionResult fail(BaseErrorEnum errorEnum) {
-        return fail(errorEnum.getCode(), errorEnum.getDescription());
-    }
-
-    /**
-     * 返回失败
-     *
-     * @param errorEnum 错误枚举
-     * @return 运行结果
-     */
-    public static ActionResult fail(BaseErrorEnum errorEnum, String errorMessage) {
-        return fail(errorEnum.getCode(), errorMessage);
     }
 
 }

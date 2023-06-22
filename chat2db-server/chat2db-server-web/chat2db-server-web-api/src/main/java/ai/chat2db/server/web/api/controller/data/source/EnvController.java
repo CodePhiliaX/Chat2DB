@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.data.source.vo.EnvVO;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version EnvController.java, v 0.1 2022年09月18日 14:04 moji Exp $
  * @date 2022/09/18
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/env")
 @RestController
 public class EnvController {

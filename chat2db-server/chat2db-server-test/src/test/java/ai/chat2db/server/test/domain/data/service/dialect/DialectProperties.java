@@ -2,7 +2,6 @@ package ai.chat2db.server.test.domain.data.service.dialect;
 
 import java.util.Date;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 
 
 /**
@@ -17,7 +16,7 @@ public interface DialectProperties {
      *
      * @return
      */
-    DbTypeEnum getDbType();
+    String getDbType();
 
     /**
      * 连接

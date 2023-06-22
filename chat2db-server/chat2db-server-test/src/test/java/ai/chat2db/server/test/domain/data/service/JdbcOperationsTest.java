@@ -3,6 +3,8 @@ package ai.chat2db.server.test.domain.data.service;
 import java.util.Date;
 import java.util.List;
 
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.Header;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
@@ -11,9 +13,6 @@ import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.ExecuteResult;
-import ai.chat2db.server.domain.support.model.Header;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
 import ai.chat2db.server.test.domain.data.utils.TestUtils;
@@ -58,7 +57,7 @@ public class JdbcOperationsTest extends BaseTest {
     @Order(1)
     public void execute() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
 
@@ -67,7 +66,7 @@ public class JdbcOperationsTest extends BaseTest {
                 dialectProperties.getDbType(), dialectProperties.getDatabaseName(), dataSourceId, consoleId);
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -136,12 +135,12 @@ public class JdbcOperationsTest extends BaseTest {
     public void dropTable() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
             try {
-                DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+                String dbTypeEnum = dialectProperties.getDbType();
                 Long dataSourceId = TestUtils.nextLong();
                 Long consoleId = TestUtils.nextLong();
 
                 DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-                dataSourceCreateParam.setType(dbTypeEnum.getCode());
+                dataSourceCreateParam.setType(dbTypeEnum);
                 dataSourceCreateParam.setUrl(dialectProperties.getUrl());
                 dataSourceCreateParam.setUser(dialectProperties.getUsername());
                 dataSourceCreateParam.setPassword(dialectProperties.getPassword());

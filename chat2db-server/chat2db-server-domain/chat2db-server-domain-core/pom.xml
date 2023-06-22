@@ -30,9 +30,18 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-tools-common</artifactId>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ai.chat2db</groupId>-->
+<!--            <artifactId>chat2db-server-domain-support</artifactId>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-server-domain-support</artifactId>
+            <artifactId>chat2db-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2b-mysql</artifactId>
+            <version>${revision}</version>
         </dependency>
     </dependencies>
 </project>

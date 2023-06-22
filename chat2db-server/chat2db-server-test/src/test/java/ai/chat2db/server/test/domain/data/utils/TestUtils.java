@@ -2,10 +2,9 @@ package ai.chat2db.server.test.domain.data.utils;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.sql.DbhubContext;
-import ai.chat2db.server.domain.support.sql.ConnectInfo;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 
 /**
  * 测试工具类
@@ -58,10 +57,10 @@ public class TestUtils {
         connectInfo.setUrl(dialectProperties.getUrl());
         connectInfo.setDatabase(dialectProperties.getDatabaseName());
         connectInfo.setConsoleOwn(false);
-        DbhubContext.putContext(connectInfo);
+        Chat2DBContext.putContext(connectInfo);
     }
 
     public static void remove(){
-        DbhubContext.removeContext();
+        Chat2DBContext.removeContext();
     }
 }

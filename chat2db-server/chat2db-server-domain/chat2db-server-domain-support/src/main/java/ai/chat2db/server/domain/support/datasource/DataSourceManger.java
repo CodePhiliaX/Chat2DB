@@ -18,7 +18,7 @@ import com.alibaba.fastjson2.JSON;
 
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * @author jipengfei

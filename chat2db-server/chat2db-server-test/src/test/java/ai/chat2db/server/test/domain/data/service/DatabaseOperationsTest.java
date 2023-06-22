@@ -2,13 +2,12 @@ package ai.chat2db.server.test.domain.data.service;
 
 import java.util.List;
 
+import ai.chat2db.spi.model.Database;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.Database;
 import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
@@ -40,7 +39,7 @@ public class DatabaseOperationsTest extends BaseTest {
     @Order(1)
     public void queryAll() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
 
             // 准备上下文
@@ -49,7 +48,7 @@ public class DatabaseOperationsTest extends BaseTest {
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());

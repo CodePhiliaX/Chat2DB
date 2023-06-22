@@ -32,10 +32,10 @@ public class ExampleOperationsTest extends BaseTest {
     @Order(1)
     public void example() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DataResult<String> createTable = tableService.createTableExample(dialectProperties.getDbType().getCode());
+            DataResult<String> createTable = tableService.createTableExample(dialectProperties.getDbType());
             log.info("返回建表语句:{}", createTable);
             Assertions.assertNotNull(createTable, "查询样例失败");
-            DataResult<String> alterTable = tableService.alterTableExample(dialectProperties.getDbType().getCode());
+            DataResult<String> alterTable = tableService.alterTableExample(dialectProperties.getDbType());
             log.info("返回建修改表语句:{}", alterTable);
             Assertions.assertNotNull(alterTable, "查询样例失败");
         }

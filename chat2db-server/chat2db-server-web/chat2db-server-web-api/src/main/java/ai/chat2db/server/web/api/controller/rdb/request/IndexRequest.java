@@ -2,7 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.support.enums.IndexTypeEnum;
+import ai.chat2db.spi.enums.IndexTypeEnum;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 
 import lombok.AllArgsConstructor;
