@@ -1,8 +1,7 @@
 package ai.chat2db.server.test.common;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.sql.DbhubContext;
-import ai.chat2db.server.domain.support.sql.ConnectInfo;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.server.start.Application;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @TestMethodOrder(value = MethodOrderer.OrderAnnotation.class)
 public abstract class BaseTest {
 
-    public void putConnect(String url, String username, String password, DbTypeEnum dbType, String database,
+    public void putConnect(String url, String username, String password, String dbType, String database,
         Long dataSourceId, Long consoleId) {
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setUser(username);
@@ -31,10 +30,10 @@ public abstract class BaseTest {
         connectInfo.setUrl(url);
         connectInfo.setDatabase(database);
         connectInfo.setConsoleOwn(false);
-        DbhubContext.putContext(connectInfo);
+        Chat2DBContext.putContext(connectInfo);
     }
 
     public void removeConnect() {
-        DbhubContext.removeContext();
+        Chat2DBContext.removeContext();
     }
 }

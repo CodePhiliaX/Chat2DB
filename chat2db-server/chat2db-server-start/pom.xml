@@ -28,10 +28,6 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-domain-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-server-domain-support</artifactId>
-        </dependency>
 
         <!-- 日志用logback -->
         <dependency>

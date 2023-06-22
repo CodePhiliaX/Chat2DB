@@ -4,10 +4,10 @@
  */
 package ai.chat2db.server.web.api.controller;
 
-import ai.chat2db.server.domain.support.sql.SSHManager;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.AliDbhubProperties;
 
+import ai.chat2db.spi.sql.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

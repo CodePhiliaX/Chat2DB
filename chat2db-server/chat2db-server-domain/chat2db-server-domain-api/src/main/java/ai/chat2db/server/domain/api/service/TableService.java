@@ -2,10 +2,7 @@ package ai.chat2db.server.domain.api.service;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.support.model.Sql;
-import ai.chat2db.server.domain.support.model.Table;
-import ai.chat2db.server.domain.support.model.TableColumn;
-import ai.chat2db.server.domain.support.model.TableIndex;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;

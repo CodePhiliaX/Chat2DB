@@ -4,7 +4,7 @@
  */
 package ai.chat2db.server.web.api.controller.data.source.converter;
 
-import ai.chat2db.server.domain.support.model.SSHInfo;
+import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.server.web.api.controller.data.source.request.SSHTestRequest;
 
 import org.mapstruct.Mapper;

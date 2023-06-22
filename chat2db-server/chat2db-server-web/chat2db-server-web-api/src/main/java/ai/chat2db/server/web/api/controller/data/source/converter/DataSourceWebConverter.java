@@ -5,7 +5,7 @@ import java.util.List;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.support.model.Database;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;

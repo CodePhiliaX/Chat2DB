@@ -1,25 +1,22 @@
 package ai.chat2db.server.test.domain.data.service;
 
-import java.util.List;
-
-import jakarta.annotation.Resource;
-
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
 import ai.chat2db.server.test.domain.data.utils.TestUtils;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import com.alibaba.fastjson2.JSON;
-
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * 数据源测试
@@ -37,13 +34,13 @@ public class SQLExecutorOperationsTest extends BaseTest {
     @Order(1)
     public void createAndClose() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, null);
             // 创建
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -61,12 +58,12 @@ public class SQLExecutorOperationsTest extends BaseTest {
     @Order(2)
     public void test() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
 
             // 创建
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getErrorUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -79,16 +76,16 @@ public class SQLExecutorOperationsTest extends BaseTest {
     @Order(3)
     public void createDataSource(){
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            if(!dialectProperties.getDbType().equals(DbTypeEnum.CLICKHOUSE)){
+            if(!dialectProperties.getDbType().equals("CLICKHOUSE")){
                 continue;
             }
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, null);
             // 创建
             DataSourceCreateParam dataSourceCreateParam = new DataSourceCreateParam();
             dataSourceCreateParam.setAlias(dialectProperties.getDbType()+"_unittest_"+dialectProperties.getDbType());
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUserName(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());

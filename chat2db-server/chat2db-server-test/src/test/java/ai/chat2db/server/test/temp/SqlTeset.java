@@ -3,6 +3,8 @@ package ai.chat2db.server.test.temp;
 import java.util.ArrayList;
 import java.util.List;
 
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.Sql;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
@@ -12,9 +14,6 @@ import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.ExecuteResult;
-import ai.chat2db.server.domain.support.model.Sql;
 import ai.chat2db.server.domain.api.param.SqlAnalyseParam;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.MysqlDialectProperties;
@@ -45,13 +44,13 @@ public class SqlTeset extends BaseTest {
         // 创建
         DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
-        dataSourceCreateParam.setType(DbTypeEnum.MYSQL.getCode());
+        dataSourceCreateParam.setType("MYSQL");
         dataSourceCreateParam.setUrl(mysqlDialectProperties.getUrl());
         dataSourceCreateParam.setUser(mysqlDialectProperties.getUsername());
         dataSourceCreateParam.setPassword(mysqlDialectProperties.getPassword());
         ActionResult actionResult = dataSourceService.preConnect(dataSourceCreateParam);
 
-        DataResult<String> createTable = tableService.createTableExample(DbTypeEnum.MYSQL.getCode());
+        DataResult<String> createTable = tableService.createTableExample("MYSQL");
         log.info("sql1：{}", createTable.getData());
         SqlAnalyseParam sqlAnalyseParam = new SqlAnalyseParam();
         sqlAnalyseParam.setDataSourceId(1L);
