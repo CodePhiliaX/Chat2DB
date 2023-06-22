@@ -6,7 +6,7 @@ spring:
     # 展示sql
     show-sql: true
   messages:
-    basename: i18n/messages/messages
+    basename: i18n/messages
     encoding: UTF-8
     fallbackToSystemLocale: true
   jmx:
@@ -76,3 +76,8 @@ chatgpt:
   version: GPT35
   context:
     length: 4
+
+# Print the HTTP log
+logbook:
+  include:
+    - /api/**

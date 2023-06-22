@@ -1,8 +1,5 @@
 package ai.chat2db.server.tools.base.excption;
 
-
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
-
 import lombok.Data;
 
 /**
@@ -15,38 +12,31 @@ import lombok.Data;
 public class SystemException extends RuntimeException {
 
     /**
-     * 异常的编码
+     * The encoding of the exception
      */
     private String code;
+    /**
+     * Exception information parameters
+     */
+    private Object[] args;
 
-    public SystemException(String message) {
-        this(CommonErrorEnum.COMMON_SYSTEM_ERROR, message);
+    public SystemException() {
+        this("common.systemError");
     }
 
-    public SystemException(String message, Throwable throwable) {
-        this(CommonErrorEnum.COMMON_SYSTEM_ERROR, message, throwable);
+    public SystemException(String code) {
+        this(code, null);
     }
 
-    public SystemException(String code, String message) {
-        super(message);
+    public SystemException(String code, Object[] args) {
+        super(code);
         this.code = code;
+        this.args = args;
     }
 
-    public SystemException(BaseErrorEnum errorEnum, String message, Throwable throwable) {
-        super(message, throwable);
-        this.code = errorEnum.getCode();
-    }
-
-    public SystemException(BaseErrorEnum errorEnum) {
-        this(errorEnum.getCode(), errorEnum.getDescription());
-    }
-
-    public SystemException(BaseErrorEnum errorEnum, String message) {
-        this(errorEnum.getCode(), message);
-    }
-
-    public SystemException(BaseErrorEnum errorEnum, Throwable throwable) {
-        super(errorEnum.getDescription(), throwable);
-        this.code = errorEnum.getCode();
+    public SystemException(String code, Object[] args, Throwable throwable) {
+        super(code, throwable);
+        this.code = code;
+        this.args = args;
     }
 }

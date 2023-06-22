@@ -33,6 +33,8 @@
         <module>chat2db-server-test</module>
         <module>chat2db-server-tools</module>
         <module>chat2db-server-web</module>
+        <module>chat2db-spi</module>
+        <module>chat2db-plugins</module>
     </modules>
 
     <dependencyManagement>
@@ -68,17 +70,26 @@
                 <artifactId>chat2db-server-domain-repository</artifactId>
                 <version>${revision}</version>
             </dependency>
-            <dependency>
-                <groupId>ai.chat2db</groupId>
-                <artifactId>chat2db-server-domain-support</artifactId>
-                <version>${revision}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>ai.chat2db</groupId>-->
+<!--                <artifactId>chat2db-server-domain-support</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>ai.chat2db</groupId>
                 <artifactId>chat2db-server-start</artifactId>
                 <version>${revision}</version>
             </dependency>
-
+            <dependency>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-spi</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-plugins</artifactId>
+                <version>${revision}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
@@ -146,7 +157,7 @@
             <!-- Sa-Token 权限认证，在线文档：https://sa-token.cc -->
             <dependency>
                 <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-spring-boot-starter</artifactId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
                 <version>1.34.0</version>
             </dependency>
             <!-- Sa-Token 整合 jwt -->
@@ -192,6 +203,12 @@
                 <version>0.12.0</version>
             </dependency>
 
+            <!-- https://mvnrepository.com/artifact/org.zalando/logbook-spring-boot-starter -->
+            <dependency>
+                <groupId>org.zalando</groupId>
+                <artifactId>logbook-spring-boot-starter</artifactId>
+                <version>3.1.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

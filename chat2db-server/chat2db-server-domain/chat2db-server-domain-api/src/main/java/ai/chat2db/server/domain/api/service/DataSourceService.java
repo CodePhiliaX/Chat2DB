@@ -10,7 +10,7 @@ import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
-import ai.chat2db.server.domain.support.model.Database;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;

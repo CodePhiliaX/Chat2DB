@@ -7,8 +7,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
@@ -39,8 +37,6 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
 
     /**
      * 错误编码
-     *
-     * @see CommonErrorEnum
      */
     private String errorCode;
     /**
@@ -233,17 +229,6 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
         result.errorMessage = errorMessage;
         result.success = Boolean.FALSE;
         return result;
-    }
-
-    /**
-     * 返回查询异常信息
-     *
-     * @param errorEnum 错误枚举
-     * @param <T>       返回的对象
-     * @return 分页返回对象
-     */
-    public static <T> PageResult<T> error(BaseErrorEnum errorEnum) {
-        return error(errorEnum.getCode(), errorEnum.getDescription());
     }
 
     /**

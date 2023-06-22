@@ -1,9 +1,6 @@
 package ai.chat2db.server.domain.api.enums;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import ai.chat2db.server.domain.support.dialect.MetaSchema;
 import ai.chat2db.server.tools.base.enums.BaseEnum;
 
 import lombok.Getter;
@@ -29,7 +26,6 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
 
     final String description;
 
-    private static Map<AiSqlSourceEnum, MetaSchema> META_SCHEMA_MAP = new HashMap<>();
 
     AiSqlSourceEnum(String description) {
         this.description = description;

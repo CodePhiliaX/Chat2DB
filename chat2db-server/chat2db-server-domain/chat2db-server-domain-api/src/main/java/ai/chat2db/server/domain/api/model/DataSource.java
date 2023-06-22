@@ -2,11 +2,9 @@ package ai.chat2db.server.domain.api.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.model.SSHInfo;
-import ai.chat2db.server.domain.support.model.SSLInfo;
+
+import ai.chat2db.spi.model.*;
 
 import lombok.Data;
 

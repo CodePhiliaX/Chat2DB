@@ -4,8 +4,7 @@ import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
 import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
 import ai.chat2db.server.domain.api.param.SchemaQueryParam;
-import ai.chat2db.server.domain.support.model.Database;
-import ai.chat2db.server.domain.support.model.Schema;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 

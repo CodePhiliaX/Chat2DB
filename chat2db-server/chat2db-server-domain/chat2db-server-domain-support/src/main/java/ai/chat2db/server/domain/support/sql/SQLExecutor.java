@@ -176,7 +176,7 @@ public class SQLExecutor {
      * @return
      * @throws SQLException
      */
-    public ExecuteResult execute(final String sql) throws SQLException {
+    public ExecuteResult execute(String sql) throws SQLException {
         return execute(sql, getConnection());
     }
 

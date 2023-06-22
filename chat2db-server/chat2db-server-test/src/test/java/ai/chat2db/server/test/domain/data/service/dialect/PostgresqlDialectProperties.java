@@ -6,7 +6,6 @@ package ai.chat2db.server.test.domain.data.service.dialect;
 
 import java.util.Date;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
@@ -21,8 +20,8 @@ import org.springframework.stereotype.Component;
 public class PostgresqlDialectProperties implements DialectProperties {
 
     @Override
-    public DbTypeEnum getDbType() {
-        return DbTypeEnum.POSTGRESQL;
+    public String getDbType() {
+        return "POSTGRESQL";
     }
 
     @Override

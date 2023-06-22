@@ -1,20 +1,32 @@
 package ai.chat2db.server.domain.core.impl;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.PagerUtils;
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.parser.SQLParserUtils;
+
 import ai.chat2db.server.domain.api.param.DlCountParam;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.param.SqlAnalyseParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.server.domain.support.enums.SqlTypeEnum;
-import ai.chat2db.server.domain.support.model.ExecuteResult;
-import ai.chat2db.server.domain.support.sql.DbhubContext;
-import ai.chat2db.server.domain.support.sql.SQLExecutor;
-import ai.chat2db.server.domain.support.util.JdbcUtils;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.base.excption.DatasourceErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import ai.chat2db.spi.enums.SqlTypeEnum;
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.JdbcUtils;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
@@ -26,12 +38,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * @author moji
@@ -52,10 +58,10 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         sqlAnalyseParam.setDataSourceId(param.getDataSourceId());
         sqlAnalyseParam.setSql(param.getSql());
         DbType dbType =
-            JdbcUtils.parse2DruidDbType(DbhubContext.getConnectInfo().getDbType());
+            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         List<String> sqlList = SQLParserUtils.splitAndRemoveComment(param.getSql(), dbType);
         if (CollectionUtils.isEmpty(sqlList)) {
-            throw new BusinessException(DatasourceErrorEnum.SQL_ANALYSIS_ERROR);
+            throw new BusinessException("dataSource.sqlAnalysisError");
         }
 
         List<ExecuteResult> result = new ArrayList<>();
@@ -112,7 +118,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         DbType dbType =
-            JdbcUtils.parse2DruidDbType(DbhubContext.getConnectInfo().getDbType());
+            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
         // 解析sql分页
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);

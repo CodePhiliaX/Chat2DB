@@ -6,9 +6,8 @@ package ai.chat2db.server.web.api.aspect;
 
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.sql.ConnectInfo;
-import ai.chat2db.server.domain.support.sql.DbhubContext;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.server.tools.base.excption.SystemException;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;
@@ -45,17 +44,17 @@ public class ConnectionInfoHandler {
                         Long dataSourceId = ((DataSourceConsoleRequestInfo)param).getDataSourceId();
                         Long consoleId = ((DataSourceConsoleRequestInfo)param).getConsoleId();
                         String database = ((DataSourceConsoleRequestInfo)param).getDatabaseName();
-                        DbhubContext.putContext(toInfo(dataSourceId, database, consoleId));
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId));
                     } else if (param instanceof DataSourceBaseRequestInfo) {
                         Long dataSourceId = ((DataSourceBaseRequestInfo)param).getDataSourceId();
                         String database = ((DataSourceBaseRequestInfo)param).getDatabaseName();
-                        DbhubContext.putContext(toInfo(dataSourceId, database));
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database));
                     }
                 }
             }
             return proceedingJoinPoint.proceed();
         } finally {
-            DbhubContext.removeContext();
+            Chat2DBContext.removeContext();
         }
     }
 
@@ -71,7 +70,7 @@ public class ConnectionInfoHandler {
         connectInfo.setConsoleId(consoleId);
         connectInfo.setDataSourceId(dataSourceId);
         connectInfo.setPassword(dataSource.getPassword());
-        connectInfo.setDbType(DbTypeEnum.getByName(dataSource.getType()));
+        connectInfo.setDbType(dataSource.getType());
         connectInfo.setUrl(dataSource.getUrl());
         connectInfo.setDatabase(database);
         connectInfo.setConsoleOwn(false);

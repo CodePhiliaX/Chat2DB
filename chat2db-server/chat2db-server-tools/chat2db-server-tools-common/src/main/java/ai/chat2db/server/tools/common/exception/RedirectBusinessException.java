@@ -1,8 +1,9 @@
 package ai.chat2db.server.tools.common.exception;
 
-import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.common.enums.ErrorEnum;
+import java.io.Serial;
 
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
+import ai.chat2db.server.tools.base.excption.BusinessException;
 import lombok.Getter;
 
 /**
@@ -13,11 +14,12 @@ import lombok.Getter;
 @Getter
 public class RedirectBusinessException extends BusinessException {
 
-    private static final long serialVersionUID = -7370118120765115377L;
+    @Serial
+    private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     private final String redirect;
 
     public RedirectBusinessException(String redirect) {
-        super(ErrorEnum.REDIRECT);
+        super("common.redirect");
         this.redirect = redirect;
     }
 }

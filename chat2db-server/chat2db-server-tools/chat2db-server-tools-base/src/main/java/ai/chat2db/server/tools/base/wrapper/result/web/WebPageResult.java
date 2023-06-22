@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 
@@ -165,17 +164,6 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
         result.errorMessage = errorMessage;
         result.success = Boolean.FALSE;
         return result;
-    }
-
-    /**
-     * 返回查询异常信息
-     *
-     * @param errorEnum 错误枚举
-     * @param <T>       返回的对象
-     * @return 分页返回对象
-     */
-    public static <T> WebPageResult<T> error(BaseErrorEnum errorEnum) {
-        return error(errorEnum.getCode(), errorEnum.getDescription());
     }
 
     /**

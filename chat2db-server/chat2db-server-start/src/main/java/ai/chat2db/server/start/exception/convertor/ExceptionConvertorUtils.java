@@ -4,6 +4,7 @@ import java.util.List;
 
 import ai.chat2db.server.tools.base.constant.SymbolConstant;
 
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -29,7 +30,7 @@ public class ExceptionConvertorUtils {
 
         int index = 1;
         StringBuilder msg = new StringBuilder();
-        msg.append("请检查以下信息：");
+        msg.append(I18nUtils.getMessage("common.paramCheckError"));
         for (ObjectError e : errors) {
             msg.append(index++);
             // 得到错误消息

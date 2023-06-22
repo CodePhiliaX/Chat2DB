@@ -8,7 +8,6 @@ import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
@@ -37,13 +36,13 @@ public class ConsoleOperationsTest extends BaseTest {
     @Order(1)
     public void createAndClose() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, consoleId);
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -69,13 +68,13 @@ public class ConsoleOperationsTest extends BaseTest {
     @Order(2)
     public void createAfterDataSourceClose() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, consoleId);
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -91,13 +90,13 @@ public class ConsoleOperationsTest extends BaseTest {
     @Order(3)
     public void closeDataSourceAfterCreateConsole() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, consoleId);
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());

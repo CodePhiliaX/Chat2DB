@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.rest.model.RestAiCompletion;
-
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.sse.ConsoleEventSourceListener;
@@ -25,7 +23,6 @@ import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * 自定义AI接口client
@@ -96,11 +93,11 @@ public class RestAiStreamClient {
     public void streamCompletions(RestAiCompletion completion, EventSourceListener eventSourceListener) {
         if (Objects.isNull(eventSourceListener)) {
             log.error("参数异常：EventSourceListener不能为空");
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
         if (StringUtils.isBlank(completion.getPrompt())) {
             log.error("参数异常：Prompt不能为空");
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
         try {
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
@@ -114,7 +111,7 @@ public class RestAiStreamClient {
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
         } catch (Exception e) {
             log.error("请求参数解析异常", e);
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
     }
 
@@ -127,7 +124,7 @@ public class RestAiStreamClient {
     public void nonStreamCompletions(RestAiCompletion completion, EventSourceListener eventSourceListener) {
         if (StringUtils.isBlank(completion.getPrompt())) {
             log.error("参数异常：Prompt不能为空");
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -159,7 +156,7 @@ public class RestAiStreamClient {
 
         } catch (Exception e) {
             log.error("请求参数解析异常", e);
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
     }
 

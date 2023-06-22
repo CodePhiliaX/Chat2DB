@@ -1,14 +1,12 @@
 package ai.chat2db.server.web.api.controller.data.source.request;
 
 import java.util.List;
-import java.util.Map;
 
 import jakarta.validation.constraints.NotNull;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.model.SSHInfo;
-import ai.chat2db.server.domain.support.model.SSLInfo;
+import ai.chat2db.spi.model.KeyValue;
+import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.model.SSLInfo;
 
 import lombok.Data;
 
@@ -43,8 +41,7 @@ public class DataSourceTestRequest {
     private String password;
 
     /**
-     * 连接类型
-     * @see DbTypeEnum
+     * 数据库连接类型
      */
     @NotNull
     private String type;

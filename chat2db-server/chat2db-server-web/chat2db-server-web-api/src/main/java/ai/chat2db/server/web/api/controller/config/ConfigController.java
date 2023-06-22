@@ -13,7 +13,6 @@ import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.config.request.ChatGptSystemConfigRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author jipengfei
  * @version : ConfigController.java
  */
-@BusinessExceptionAspect
 @ConnectionInfoAspect
 @RequestMapping("/api/config")
 @RestController
