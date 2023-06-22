@@ -2,13 +2,12 @@ package ai.chat2db.server.web.api.aspect;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import com.alibaba.fastjson2.JSON;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
-import com.alibaba.fastjson2.JSON;
-
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;

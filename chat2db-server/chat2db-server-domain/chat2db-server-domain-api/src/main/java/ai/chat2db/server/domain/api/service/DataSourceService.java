@@ -2,7 +2,7 @@ package ai.chat2db.server.domain.api.service;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;

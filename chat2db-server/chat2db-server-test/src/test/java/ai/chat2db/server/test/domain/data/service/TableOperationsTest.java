@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;

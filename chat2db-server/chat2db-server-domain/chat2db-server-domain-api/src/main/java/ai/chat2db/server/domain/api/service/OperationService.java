@@ -1,6 +1,6 @@
 package ai.chat2db.server.domain.api.service;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.domain.api.model.Operation;
 import ai.chat2db.server.domain.api.param.OperationPageQueryParam;

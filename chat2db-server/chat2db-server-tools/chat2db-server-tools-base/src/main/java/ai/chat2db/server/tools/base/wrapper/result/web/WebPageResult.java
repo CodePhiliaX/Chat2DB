@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;

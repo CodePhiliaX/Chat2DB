@@ -2,15 +2,14 @@ package ai.chat2db.server.domain.api.service;
 
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import ai.chat2db.server.domain.api.model.Chart;
 import ai.chat2db.server.domain.api.param.ChartCreateParam;
 import ai.chat2db.server.domain.api.param.ChartUpdateParam;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author moji

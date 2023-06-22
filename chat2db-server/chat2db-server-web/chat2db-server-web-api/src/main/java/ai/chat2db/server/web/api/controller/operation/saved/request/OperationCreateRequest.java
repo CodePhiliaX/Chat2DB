@@ -1,6 +1,6 @@
 package ai.chat2db.server.web.api.controller.operation.saved.request;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.tools.base.enums.StatusEnum;

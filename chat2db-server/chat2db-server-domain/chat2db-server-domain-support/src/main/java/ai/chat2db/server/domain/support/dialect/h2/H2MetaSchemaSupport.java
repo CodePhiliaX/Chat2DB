@@ -12,13 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.NotEmpty;
-
 import ai.chat2db.server.domain.support.dialect.BaseMetaSchema;
 import ai.chat2db.server.domain.support.dialect.MetaSchema;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.sql.SQLExecutor;
-
+import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 
 /**

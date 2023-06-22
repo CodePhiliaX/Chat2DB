@@ -6,8 +6,6 @@ package ai.chat2db.server.domain.support.dialect;
 
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
-
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.model.Function;
 import ai.chat2db.server.domain.support.model.Procedure;
@@ -15,6 +13,7 @@ import ai.chat2db.server.domain.support.model.Table;
 import ai.chat2db.server.domain.support.model.TableColumn;
 import ai.chat2db.server.domain.support.model.TableIndex;
 import ai.chat2db.server.domain.support.model.Trigger;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author jipengfei

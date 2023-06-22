@@ -2,7 +2,7 @@ package ai.chat2db.server.test.domain.data.service;
 
 import java.util.List;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;

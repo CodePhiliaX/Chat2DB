@@ -2,7 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 
 import java.io.Serial;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.wrapper.request.PageQueryRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;

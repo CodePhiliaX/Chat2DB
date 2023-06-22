@@ -3,7 +3,7 @@ package ai.chat2db.server.web.api.controller.data.source.request;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.model.KeyValue;

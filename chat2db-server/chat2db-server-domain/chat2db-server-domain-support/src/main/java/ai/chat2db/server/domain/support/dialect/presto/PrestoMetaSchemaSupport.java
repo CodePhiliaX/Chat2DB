@@ -4,11 +4,11 @@
  */
 package ai.chat2db.server.domain.support.dialect.presto;
 
-import javax.validation.constraints.NotEmpty;
 
 import ai.chat2db.server.domain.support.dialect.BaseMetaSchema;
 import ai.chat2db.server.domain.support.dialect.MetaSchema;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author jipengfei

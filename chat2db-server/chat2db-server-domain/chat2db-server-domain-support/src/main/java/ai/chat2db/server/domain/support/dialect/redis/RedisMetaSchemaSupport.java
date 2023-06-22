@@ -8,14 +8,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
-
 import ai.chat2db.server.domain.support.dialect.BaseMetaSchema;
 import ai.chat2db.server.domain.support.dialect.MetaSchema;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.model.Table;
 import ai.chat2db.server.domain.support.sql.SQLExecutor;
 
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
 /**

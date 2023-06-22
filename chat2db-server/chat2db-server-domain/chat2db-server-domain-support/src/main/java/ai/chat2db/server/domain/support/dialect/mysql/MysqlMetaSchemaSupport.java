@@ -6,14 +6,11 @@ package ai.chat2db.server.domain.support.dialect.mysql;
 
 import java.sql.SQLException;
 
-import javax.validation.constraints.NotEmpty;
-
 import ai.chat2db.server.domain.support.dialect.BaseMetaSchema;
 import ai.chat2db.server.domain.support.dialect.MetaSchema;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.sql.SQLExecutor;
-import com.alibaba.druid.sql.parser.DbhubSQLParserUtils;
-
+import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 
 import static com.alibaba.druid.sql.parser.DbhubSQLParserUtils.format;

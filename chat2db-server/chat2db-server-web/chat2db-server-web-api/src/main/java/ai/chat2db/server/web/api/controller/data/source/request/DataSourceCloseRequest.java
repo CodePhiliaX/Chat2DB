@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.data.source.request;
 
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.Data;
 
