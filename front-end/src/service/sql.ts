@@ -6,6 +6,7 @@ export interface IGetListParams extends IPageParams  {
   dataSourceId: number;
   databaseName: string;
   schemaName?: string;
+  databaseType?: DatabaseTypeCode;
 }
 
 export interface IExecuteSqlParams {

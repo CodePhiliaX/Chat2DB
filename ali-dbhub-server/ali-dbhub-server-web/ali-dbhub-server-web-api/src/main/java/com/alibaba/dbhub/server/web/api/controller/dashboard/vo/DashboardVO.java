@@ -1,6 +1,7 @@
 package com.alibaba.dbhub.server.web.api.controller.dashboard.vo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -42,4 +43,8 @@ public class DashboardVO {
      */
     private String schema;
 
+    /**
+     * 图表ID列表
+     */
+    private List<Long> chartIds;
 }

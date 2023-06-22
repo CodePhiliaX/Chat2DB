@@ -158,7 +158,8 @@ export interface ISavedConsole {
   dataSourceId: number;
   databaseName: string;
   dataSourceName: string;
-  type: DatabaseTypeCode;
+  schemaName: string;
+  databaseType: DatabaseTypeCode;
   status: string;
   connectable: boolean;
 }
