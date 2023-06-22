@@ -9,15 +9,15 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.alibaba.dbhub</groupId>
-    <artifactId>ali-dbhub-server-parent</artifactId>
+    <groupId>ai.chat2db</groupId>
+    <artifactId>chat2db-server-parent</artifactId>
     <packaging>pom</packaging>
     <version>${revision}</version>
-    <name>ali-dbhub-server-parent</name>
+    <name>chat2db-server-parent</name>
 
     <properties>
         <!-- 当前项目的版本 用了flatten 仅修改这一个地方即可-->
-        <revision>1.0.0-SNAPSHOT</revision>
+        <revision>2.0.0-SNAPSHOT</revision>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <java.version>17</java.version>
@@ -28,54 +28,54 @@
     </properties>
 
     <modules>
-        <module>ali-dbhub-server-domain</module>
-        <module>ali-dbhub-server-start</module>
-        <module>ali-dbhub-server-test</module>
-        <module>ali-dbhub-server-tools</module>
-        <module>ali-dbhub-server-web</module>
+        <module>chat2db-server-domain</module>
+        <module>chat2db-server-start</module>
+        <module>chat2db-server-test</module>
+        <module>chat2db-server-tools</module>
+        <module>chat2db-server-web</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
             <!-- 自带的包 -->
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-tools-base</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-tools-base</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-tools-common</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-tools-common</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-web-api</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-web-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-domain-api</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-domain-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-domain-core</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-domain-core</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-domain-repository</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-domain-repository</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-domain-support</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-domain-support</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.alibaba.dbhub</groupId>
-                <artifactId>ali-dbhub-server-start</artifactId>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-start</artifactId>
                 <version>${revision}</version>
             </dependency>
 
