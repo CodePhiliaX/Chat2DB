@@ -7,6 +7,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 
 /**
  * i18n utility
@@ -14,6 +15,7 @@ import org.springframework.lang.Nullable;
  * @author Jiaju Zhuang
  */
 @Slf4j
+@Component
 public class I18nUtils implements InitializingBean {
     public static final String DEFAULT_message_Code="";
     @Resource
