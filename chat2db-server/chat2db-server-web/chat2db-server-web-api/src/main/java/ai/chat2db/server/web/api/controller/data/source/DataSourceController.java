@@ -2,9 +2,6 @@ package ai.chat2db.server.web.api.controller.data.source;
 
 import java.util.List;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
@@ -38,8 +35,9 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceUpdate
 import ai.chat2db.server.web.api.controller.data.source.request.SSHTestRequest;
 import ai.chat2db.server.web.api.controller.data.source.vo.DataSourceVO;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
-
 import com.jcraft.jsch.Session;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;

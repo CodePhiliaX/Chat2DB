@@ -9,7 +9,6 @@ import java.util.List;
 import ai.chat2db.server.domain.support.model.Table;
 import ai.chat2db.server.domain.support.model.TableColumn;
 import ai.chat2db.server.domain.support.model.TableIndexColumn;
-
 import org.apache.ibatis.annotations.Param;
 
 /**

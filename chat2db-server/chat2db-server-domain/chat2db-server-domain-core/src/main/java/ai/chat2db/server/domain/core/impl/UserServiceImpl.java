@@ -2,21 +2,19 @@ package ai.chat2db.server.domain.core.impl;
 
 import java.util.Objects;
 
-import javax.annotation.Resource;
-
 import ai.chat2db.server.domain.api.model.User;
+import ai.chat2db.server.domain.api.param.UserQueryParam;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.UserConverter;
 import ai.chat2db.server.domain.repository.entity.DbhubUserDO;
 import ai.chat2db.server.domain.repository.mapper.DbhubUserMapper;
-import ai.chat2db.server.domain.api.param.UserQueryParam;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 /**

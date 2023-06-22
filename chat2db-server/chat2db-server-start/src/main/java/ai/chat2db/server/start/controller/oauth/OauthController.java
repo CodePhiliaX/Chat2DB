@@ -1,6 +1,6 @@
 package ai.chat2db.server.start.controller.oauth;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.service.UserService;

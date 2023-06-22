@@ -1,6 +1,6 @@
 package ai.chat2db.server.start.controller.oauth.request;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

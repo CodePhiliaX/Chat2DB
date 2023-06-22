@@ -3,10 +3,10 @@ package ai.chat2db.server.tools.base.wrapper.request;
 import java.io.Serial;
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;

@@ -3,9 +3,7 @@ package ai.chat2db.server.start.config.config;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.alibaba.fastjson2.JSON;
 
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.service.UserService;
@@ -15,12 +13,12 @@ import ai.chat2db.server.tools.common.exception.RedirectBusinessException;
 import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
-import com.alibaba.fastjson2.JSON;
-
 import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.spring.SpringMVCUtil;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaFoxUtil;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -113,9 +111,7 @@ public class DbhubWebMvcConfigurer implements WebMvcConfigurer {
                             //throw new NeedLoggedInBusinessException();
                         } else {
                             throw new RedirectBusinessException(
-                                "/login-a#/login?callback=" + SaFoxUtil.joinParam(
-                                    SpringMVCUtil.getRequest().getRequestURI(),
-                                    SpringMVCUtil.getRequest().getQueryString()));
+                                "/login-a#/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(), request.getQueryString()));
                         }
                     }
                     return true;
