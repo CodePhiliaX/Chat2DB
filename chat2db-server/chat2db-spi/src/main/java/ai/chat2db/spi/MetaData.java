@@ -6,14 +6,13 @@ package ai.chat2db.spi;
 
 import java.util.List;
 
-import javax.validation.constraints.NotEmpty;
-
 import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.Trigger;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * Get database metadata information.

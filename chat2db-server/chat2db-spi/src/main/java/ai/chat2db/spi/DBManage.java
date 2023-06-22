@@ -4,7 +4,7 @@
  */
 package ai.chat2db.spi;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author jipengfei
