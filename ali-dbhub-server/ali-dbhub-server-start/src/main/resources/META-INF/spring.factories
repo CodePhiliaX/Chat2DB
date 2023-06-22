@@ -1,3 +1,0 @@
-org.springframework.context.ApplicationListener=\
-com.alibaba.dbhub.server.start.config.listener.ManageApplicationListener,\
-com.alibaba.dbhub.server.start.config.listener.FailedEventApplicationListener
