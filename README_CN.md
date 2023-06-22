@@ -1,20 +1,26 @@
-
 <h1 align="center">Chat2DB</h1>
 
 <div align="center">
 
-🔥🔥🔥 智能且多功能的SQL客户端和报表工具，适用于各种数据库
+ 智能且多功能的SQL客户端和报表工具，适用于各种数据库
+
+[![License](https://img.shields.io/github/license/alibaba/fastjson2?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Java support](https://img.shields.io/badge/Java-17+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
+[![GitHub release](https://img.shields.io/github/release/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/fork)
+[![GitHub Contributors](https://img.shields.io/github/contributors/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/graphs/contributors)
 
 </div>
 
 <div align="center">
 <p align="center"><b>分享 Chat2DB  </b></p>
 <p align="center">
-<a href="https://twitter.com/intent/tweet?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB&hashtags=ChatGPT,AGI,SQL%20Client,Reporting%20tool" target="blank" > <img src="https://img.shields.io/twitter/follow/_Chat2DB?label=Share Repo on Twitter&style=social" alt=""/> </a> 
-<a href="https://t.me/share/url?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Telegram&logo=Telegram&style=social&url=https://github.com/chat2db/Chat2DB" alt="Share on Telegram"/></a>
-<a href="https://api.whatsapp.com/send?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%20https://github.com/chat2db/Chat2DB"><img src="https://img.shields.io/twitter/url?label=whatsapp&logo=whatsapp&style=social&url=https://github.com/chat2db/Chat2DB" /></a>
-<a href="https://www.reddit.com/submit?url=https://github.com/chat2db/Chat2DB&title=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities." target="blank"><img src="https://img.shields.io/twitter/url?label=Reddit&logo=Reddit&style=social&url=https://github.com/chat2db/Chat2DB" alt="Share on Reddit"/></a>
-<a href="mailto:?subject=Check%20this%20GitHub%20repository%20out.&body=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%3A%0Ahttps://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Gmail&logo=Gmail&style=social&url=https://github.com/chat2db/Chat2DB"/></a>
+<a href="https://twitter.com/intent/tweet?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/alibaba/Chat2DB&hashtags=ChatGPT,AGI,SQL%20Client,Reporting%20tool" target="blank" > <img src="https://img.shields.io/twitter/follow/_Chat2DB?label=Share Repo on Twitter&style=social" alt=""/> </a> 
+<a href="https://t.me/share/url?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/alibaba/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Telegram&logo=Telegram&style=social&url=https://github.com/alibaba/Chat2DB" alt="Share on Telegram"/></a>
+<a href="https://api.whatsapp.com/send?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%20https://github.com/alibaba/Chat2DB"><img src="https://img.shields.io/twitter/url?label=whatsapp&logo=whatsapp&style=social&url=https://github.com/alibaba/Chat2DB" /></a>
+<a href="https://www.reddit.com/submit?url=https://github.com/alibaba/Chat2DB&title=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities." target="blank"><img src="https://img.shields.io/twitter/url?label=Reddit&logo=Reddit&style=social&url=https://github.com/alibaba/Chat2DB" alt="Share on Reddit"/></a>
+<a href="mailto:?subject=Check%20this%20GitHub%20repository%20out.&body=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%3A%0Ahttps://github.com/alibaba/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Gmail&logo=Gmail&style=social&url=https://github.com/alibaba/Chat2DB"/></a>
 </p>
 
 **许可说明**: Chat2DB开源内容仅供个人免费使用，如想将该项目用于商业用途，请先联系该项目作者。
@@ -80,13 +86,13 @@ Languages： 中文 | [English](README.md) | [日本語](README_JA.md)
 ## 🔥 AI配置
 ### 使用ChatGPT
 方式一（推荐）：使用OPENAI的ChatSql功能需要满足两个条件
-- 1、需要有一个OpenAI的key：OPENAI_API_KEY
+- 1、需要有一个openAI的key：OPENAI_API_KEY
 - 2、客户端网络可以连接到OPENAI官网，国内需要科学上网。注意：如果本地VPN未能全局生效，可以通过在客户端中设置网络代理HOST和PORT来保证网络连通性
 - 
   <a><img src="https://img.alicdn.com/imgextra/i2/O1CN01anrJMI1FEtSBbmTau_!!6000000000456-0-tps-1594-964.jpg" width="60%"/></a>
 
 方式二（推荐）：使用我们提供了一个统一的代理服务。
-- 1、不需要opeanAI的key
+- 1、不需要openAI的key
 - 2、不需要代理，不需要VPN只要可以联网即可使用。
 
 为了方便大家更快速的使用AI的能力，可以关注微信公众号，回复"AI" 获得我们的自定义API_KEY，申请完成之后参考下图进行配置即可进行使用
@@ -119,7 +125,7 @@ Languages： 中文 | [English](README.md) | [日本語](README_JA.md)
 ## 💻 本地调试
 - git clone到本地
 ```bash
-$ git clone git@github.com:chat2db/Chat2DB.git
+$ git clone git@github.com:alibaba/Chat2DB.git
 ```
 - 前端安装
 ```bash
@@ -173,7 +179,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 ## 📑 文档
 
 * <a href="https://chat2db.opensource.alibaba.com">官方文档</a>
-* <a href="https://github.com/chat2db/Chat2DB/issues">Issue </a>
+* <a href="https://github.com/alibaba/ali-dbhub/issues">Issue</a>
 
 ##  常见问题
 
@@ -183,7 +189,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 解决办法：手动下载相关驱动放入到 ~/.chat2db/jdbc-lib 目录下
 
-下载链接 参考：<a href="https://github.com/chat2db/Chat2DB/blob/main/ali-dbhub-server/ali-dbhub-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
+下载链接 参考：<a href="https://github.com/alibaba/Chat2DB/blob/main/ali-dbhub-server/ali-dbhub-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-8.0.30.jar
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-5.1.47.jar
 - https://oss-chat2db.alibaba.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar
@@ -198,10 +204,10 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 
 ## Stargazers
-[![Stargazers repo roster for @chat2db/Chat2DB](https://reporoster.com/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
+[![Stargazers repo roster for @alibaba/Chat2DB](https://reporoster.com/stars/alibaba/Chat2DB)](https://github.com/alibaba/Chat2DB/stargazers)
 
 ## Forkers
-[![Forkers repo roster for @chat2db/Chat2DB](https://reporoster.com/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
+[![Forkers repo roster for @alibaba/Chat2DB](https://reporoster.com/forks/alibaba/Chat2DB)](https://github.com/alibaba/Chat2DB/network/members)
 
 ## ☎️ 联系我们
 
@@ -220,7 +226,17 @@ QQ:863576619
 ## ❤️ 致谢
 感谢所有为Chat2DB贡献力量的同学们~
 
-<a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
+<a href="https://github.com/alibaba/ali-dbhub/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=alibaba/Chat2DB" />
+</a>
+
+## Star History
+
+<a href="https://star-history.com/#alibaba/chat2db&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date" />
+  </picture>
 </a>
 

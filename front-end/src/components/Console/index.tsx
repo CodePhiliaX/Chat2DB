@@ -1,13 +1,14 @@
 import { formatParams, uuid } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin } from 'antd';
-import React, { ForwardedRef, useMemo, useRef, useState } from 'react';
+import React, { ForwardedRef, useEffect, useMemo, useRef, useState } from 'react';
 import ChatInput from './ChatInput';
 import Editor, { IExportRefFunction } from './MonacoEditor';
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import MonacoEditor from 'react-monaco-editor';
+import { useReducerContext } from '@/pages/main/workspace/index'
 
 import styles from './index.less';
 import Loading from '../Loading/Loading';
@@ -34,15 +35,30 @@ interface IProps {
   hasAiChat: boolean;
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
   hasAi2Lang: boolean;
+  value?: string;
+  executeParams: {
+    databaseName: string;
+    dataSourceId: number;
+    type: DatabaseTypeCode;
+    consoleId: number;
+    schemaName?: string;
+    consoleName: string;
+  }
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true } = props;
+  const { hasAiChat = true, value, executeParams } = props;
   const uid = useMemo(() => uuid(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
-  const [context, setContext] = useState('123123');
+  const [context, setContext] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const { state, dispatch } = useReducerContext();
+  const { currentWorkspaceData } = state;
+
+  useEffect(() => {
+    setContext(value);
+  }, [value])
 
   const onPressChatInput = (value: string) => {
     const params = formatParams({
@@ -66,6 +82,7 @@ function Console(props: IProps) {
         console.log('handleMessage', error);
       }
     };
+
     const handleError = (error: any) => {
       console.error('Error:', error);
     };
@@ -87,30 +104,21 @@ function Console(props: IProps) {
       return;
     }
 
-    // let p = {
-    //   sql: sqlContent,
-    //   type: DatabaseTypeCode.MYSQL,
-    //   consoleId: 1,
-    //   dataSourceId: 1,
-    //   databaseName: 'haha',
-    //   schemaName: windowTab?.schemaName,
-    // };
-    // sqlServer
-    //   .executeSql(p)
-    //   .then((res) => {
-    //     let p = {
-    //       dataSourceId: windowTab?.dataSourceId,
-    //       databaseName: windowTab?.databaseName,
-    //       name: windowTab?.name,
-    //       ddl: sql,
-    //       type: windowTab.DBType,
-    //     };
-    //     historyServer.createHistory(p);
-    //     // setManageResultDataList(res);
-    //   })
-    //   .catch((error) => {
-    //     // setManageResultDataList([]);
-    //   });
+    let p = {
+      sql: sqlContent,
+      ...executeParams,
+    };
+    sqlServer.executeSql(p).then((res) => {
+      console.log(res)
+      let p = {
+        ...executeParams,
+        ddl: sqlContent
+      };
+      historyServer.createHistory(p);
+      // setManageResultDataList(res);
+    }).catch((error) => {
+      // setManageResultDataList([]);
+    });
   };
 
   const saveWindowTab = () => {
@@ -156,7 +164,7 @@ function Console(props: IProps) {
         {hasAiChat && <ChatInput onPressEnter={onPressChatInput} />}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
         <Editor
-          id={0}
+          id={uid}
           ref={editorRef}
           value={context}
           onChange={(v) => setContext(v)}

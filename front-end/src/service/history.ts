@@ -1,6 +1,7 @@
 import createRequest from "./base";
-import { IPageResponse,IPageParams,IHistoryRecord, IWindowTab, ISavedConsole } from '@/types';
-import { DatabaseTypeCode, ConsoleStatus, TabOpened } from '@/utils/constants'
+// import { IPageResponse,IPageParams,IHistoryRecord, IWindowTab, ISavedConsole } from '@/types';
+// import { DatabaseTypeCode, ConsoleStatus, TabOpened } from '@/utils/constants'
+import {ISaveConsole,IConsole,IPageResponse} from '@/typings/common';
 
 export interface IGetHistoryListParams extends IPageParams  {
   dataSourceId?: string;
@@ -33,9 +34,9 @@ const getWindowTab = createRequest<{id:string}, number>('/api/operation/saved/:i
 
 const updateWindowTab = createRequest<IUpdateWindowParams, number>('/api/operation/saved/update',{method: 'post'});
 
-const getSaveList = createRequest<IGetHistoryListParams, IPageResponse<ISavedConsole>>('/api/operation/saved/list',{});
+const getSaveList = createRequest<IGetHistoryListParams, IPageResponse<ISaveConsole>>('/api/operation/saved/list',{});
 
-const deleteWindowTab = createRequest<{id:string}, string>('/api/operation/saved/:id',{method: 'delete'});
+const deleteWindowTab = createRequest<{id: number}, string>('/api/operation/saved/:id',{method: 'delete'});
 
 const createHistory = createRequest<ISaveBasicInfo, void>('/api/operation/log/create',{method: 'post'});
 
