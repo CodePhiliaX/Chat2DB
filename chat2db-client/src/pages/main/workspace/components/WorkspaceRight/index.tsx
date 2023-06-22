@@ -194,7 +194,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
           onChange={onChange}
           onEdit={onEdit}
           type="editable-card"
-          items={consoleList?.map((t, i) => {
+          items={(consoleList || [])?.map((t, i) => {
             return {
               label: t.name,
               key: t.id + '',
