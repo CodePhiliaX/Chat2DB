@@ -11,13 +11,13 @@ export enum IChartType {
 
 export interface IDashboardItem {
   id: number;
-  name: string;
-  description: string;
+  name?: string;
+  description?: string;
   /** 保存图表布局 二维数据 number[][]  */
-  schema: string;
+  schema?: string;
   chartIds?: number[];
-  gmtModified: number;
-  gmtCreate: number;
+  gmtModified?: number;
+  gmtCreate?: number;
 }
 
 // export interface IChartDataItem {
@@ -34,23 +34,23 @@ export interface IDashboardItem {
 export interface IChartItem {
   id?: number;
   /** 图表名称 */
-  name: string;
+  name?: string;
   /** 图表描述 */
-  description: string;
+  description?: string;
   /** 图表参数 */
-  schema: string;
+  schema?: string;
   /** 图表类型  */
   chartType?: IChartType;
   /** 数据源连接ID */
-  dataSourceId: number;
+  dataSourceId?: number;
   /** 数据库类型 */
   type?: string;
   /** db名称 */
-  databaseName: string;
+  databaseName?: string;
   /** ddl内容 */
-  ddl: string;
+  ddl?: string;
   /** 是否链接 */
-  connectable: boolean;
+  connectable?: boolean;
   /** sql返回数据 */
   sqlData?: any;
 }

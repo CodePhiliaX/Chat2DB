@@ -48,10 +48,11 @@ public class DashboardServiceImpl implements DashboardService {
     public DataResult<Long> create(DashboardCreateParam param) {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
+        param.setDeleted(YesOrNoEnum.NO.getLetter());
         DashboardDO dashboardDO = dashboardConverter.param2do(param);
-        long id = dashboardMapper.insert(dashboardDO);
-        insertDashboardRelation(id, param.getChartIds());
-        return DataResult.of(id);
+        dashboardMapper.insert(dashboardDO);
+        insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
+        return DataResult.of(dashboardDO.getId());
     }
 
     @Override
@@ -71,6 +72,11 @@ public class DashboardServiceImpl implements DashboardService {
             return DataResult.empty();
         }
         Dashboard dashboard = dashboardConverter.do2model(dashboardDO);
+        LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DashboardChartRelationDO::getDashboardId, id);
+        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
+        List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
+        dashboard.setChartIds(chartIds);
         return DataResult.of(dashboard);
     }
 
@@ -127,6 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.like(DashboardDO::getName, param.getSearchKey());
         }
+        queryWrapper.eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter());
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<DashboardDO> page = new Page<>(start, offset);

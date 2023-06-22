@@ -25,10 +25,7 @@ const antdLightTheme = {
   antdPrimaryColor,
   token: {
     ...commonToken,
-    wireframe: true,
     colorBgBase: '#fff',
-    borderRadius: 4,
-    borderRadiusLG: '12px',
     colorBgContainer: '#fff',
     colorBgElevated: '#F8F9FA',
     colorBorder: '#d3d3d4',
