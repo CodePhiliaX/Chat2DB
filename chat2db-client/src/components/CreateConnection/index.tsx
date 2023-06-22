@@ -474,7 +474,7 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
 
   useEffect(() => {
     const backfillDataExtendInfo =
-      backfillData?.extendInfo.map((t, i) => {
+      (backfillData?.extendInfo || []).map((t, i) => {
         return {
           key: i,
           label: t.key,

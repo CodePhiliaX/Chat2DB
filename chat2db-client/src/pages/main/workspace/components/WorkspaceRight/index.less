@@ -6,9 +6,15 @@
   left: 0;
   right: 0;
   bottom: 0;
+  :global {
+    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: #000 !important;
+      font-weight: bold;
+    }
+  }
 }
 
-.consoleBox{
+.consoleBox {
   position: absolute;
   top: 40px;
   left: 0;
@@ -17,11 +23,11 @@
   display: none;
 }
 
-.tabBox{
+.tabBox {
   padding: 10px 10px 0px;
 }
 
-.activeConsoleBox{
+.activeConsoleBox {
   display: block;
 }
 
