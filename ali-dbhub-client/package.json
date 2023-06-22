@@ -14,8 +14,8 @@
     "test": "umi-test",
     "test:coverage": "umi-test --coverage",
     "electron": "electron .",
-    "build:prod": "mkdir -p ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static && rm -rf ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front && cross-env UMI_ENV=prod cross-env UMI_PublicPath=${npm_config_publicPath} umi build && mv dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front",
-    "build:prod-window": "mkdir ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static && rmdir ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front && cross-env UMI_ENV=prod cross-env UMI_PublicPath=${npm_config_publicPath} umi build && move dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front",
+    "build:prod": "mkdir -p ../chat2db-server/ali-dbhub-server-start/src/main/resources/static && rm -rf ../chat2db-server/ali-dbhub-server-start/src/main/resources/static/front && cross-env UMI_ENV=prod cross-env UMI_PublicPath=${npm_config_publicPath} umi build && mv dist ../chat2db-server/ali-dbhub-server-start/src/main/resources/static/front",
+    "build:prod-window": "mkdir ../chat2db-server/ali-dbhub-server-start/src/main/resources/static && rmdir ../chat2db-server/ali-dbhub-server-start/src/main/resources/static/front && cross-env UMI_ENV=prod cross-env UMI_PublicPath=${npm_config_publicPath} umi build && move dist ../chat2db-server/ali-dbhub-server-start/src/main/resources/static/front",
     "build:desktop": "cross-env UMI_ENV=desktop cross-env APP_VERSION=${npm_config_appVersion} cross-env APP_PORT=${npm_config_appPort} umi build"
   },
   "gitHooks": {

@@ -18,12 +18,12 @@ yarn.lock
 
 ### Mac
 .DS_Store
-/ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front/*
+/chat2db-server/ali-dbhub-server-start/src/main/resources/static/front/*
 
 ### docker 数据不用上传
 /docker/redis/data/*
 /docker/test/reds/*
 /docker/test/mongodb/*
-/ali-dbhub-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/src/main/resources/lib/*
-/ali-dbhub-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/lib/*
+/chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/src/main/resources/lib/*
+/chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/lib/*
 /lib
