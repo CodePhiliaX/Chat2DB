@@ -9,7 +9,6 @@ import ai.chat2db.server.domain.api.service.ChartService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.dashboard.converter.ChartWebConverter;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartCreateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartQueryRequest;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version ChartController.java, v 0.1 2022年09月18日 10:55 moji Exp $
  * @date 2022/09/18
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/chart")
 @RestController
 public class ChartController {

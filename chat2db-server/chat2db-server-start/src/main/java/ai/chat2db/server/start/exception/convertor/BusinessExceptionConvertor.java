@@ -2,6 +2,7 @@ package ai.chat2db.server.start.exception.convertor;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 
 /**
  * BusinessException
@@ -12,6 +13,6 @@ public class BusinessExceptionConvertor implements ExceptionConvertor<BusinessEx
 
     @Override
     public ActionResult convert(BusinessException exception) {
-        return ActionResult.fail(exception.getCode(), exception.getMessage());
+        return ActionResult.fail(exception.getCode(), I18nUtils.getMessage(exception.getCode()));
     }
 }

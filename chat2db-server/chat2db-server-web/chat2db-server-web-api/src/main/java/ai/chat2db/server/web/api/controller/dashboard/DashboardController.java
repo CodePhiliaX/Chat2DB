@@ -11,7 +11,6 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.dashboard.converter.DashboardWebConverter;
 import ai.chat2db.server.web.api.controller.dashboard.request.DashboardCreateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.DashboardUpdateRequest;
@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version DashboardController.java, v 0.1 2022年09月18日 10:55 moji Exp $
  * @date 2022/09/18
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/dashboard")
 @RestController
 public class DashboardController {

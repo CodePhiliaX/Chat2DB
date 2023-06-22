@@ -1,8 +1,8 @@
 package ai.chat2db.server.start.exception.convertor;
 
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 /**
@@ -14,6 +14,6 @@ public class MaxUploadSizeExceededExceptionConvertor implements ExceptionConvert
 
     @Override
     public ActionResult convert(MaxUploadSizeExceededException exception) {
-        return ActionResult.fail(CommonErrorEnum.MAX_UPLOAD_SIZE);
+        return ActionResult.fail("common.maxUploadSize", I18nUtils.getMessage("common.maxUploadSize"));
     }
 }

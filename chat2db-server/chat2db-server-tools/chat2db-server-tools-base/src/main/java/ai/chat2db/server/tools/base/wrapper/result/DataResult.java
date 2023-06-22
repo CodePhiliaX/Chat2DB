@@ -5,8 +5,6 @@ import java.util.function.Function;
 
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.BaseErrorEnum;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.Result;
 
 import jakarta.validation.constraints.NotNull;
@@ -100,16 +98,6 @@ public class DataResult<T> implements Serializable, Result<T> {
         return result;
     }
 
-    /**
-     * 构建异常返回
-     *
-     * @param errorEnum 错误枚举
-     * @param <T>       需要构建的对象类型
-     * @return 返回的结果
-     */
-    public static <T> DataResult<T> error(BaseErrorEnum errorEnum) {
-        return error(errorEnum.getCode(), errorEnum.getDescription());
-    }
 
     /**
      * 判断是否存在数据

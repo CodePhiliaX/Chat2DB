@@ -22,7 +22,6 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
@@ -56,7 +55,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version MysqlTableManageController.java, v 0.1 2022年09月16日 17:41 moji Exp $
  * @date 2022/09/16
  */
-@BusinessExceptionAspect
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/ddl")
 @RestController

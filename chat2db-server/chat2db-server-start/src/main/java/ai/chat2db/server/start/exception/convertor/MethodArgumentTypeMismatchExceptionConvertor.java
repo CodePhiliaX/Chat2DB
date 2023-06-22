@@ -1,8 +1,8 @@
 package ai.chat2db.server.start.exception.convertor;
 
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
@@ -15,6 +15,6 @@ public class MethodArgumentTypeMismatchExceptionConvertor
 
     @Override
     public ActionResult convert(MethodArgumentTypeMismatchException exception) {
-        return ActionResult.fail(CommonErrorEnum.PARAM_ERROR, "请输入正确的数据格式");
+        return ActionResult.fail("common.paramError", I18nUtils.getMessage("common.paramError"));
     }
 }

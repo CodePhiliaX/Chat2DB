@@ -18,9 +18,8 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.model.TableColumn;
-import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.base.excption.CommonErrorEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
@@ -34,7 +33,6 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.util.OpenAIClient;
-
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Lists;
@@ -202,12 +200,12 @@ public class ChatController {
         SseEmitter sseEmitter = new SseEmitter(CHAT_TIMEOUT);
         String uid = headers.get("uid");
         if (StrUtil.isBlank(uid)) {
-            throw new BusinessException(CommonErrorEnum.COMMON_SYSTEM_ERROR);
+            throw new ParamBusinessException("uid");
         }
 
         //提示消息不得为空
         if (StringUtils.isBlank(queryRequest.getMessage())) {
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException("message");
         }
 
         if (useOpenAI()) {
@@ -258,7 +256,7 @@ public class ChatController {
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
             log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
                 prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
-            throw new BusinessException(CommonErrorEnum.PARAM_ERROR);
+            throw new ParamBusinessException();
         }
 
         GptVersionType modelType = EasyEnumUtils.getEnum(GptVersionType.class, gptVersion);

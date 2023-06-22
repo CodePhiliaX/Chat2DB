@@ -13,6 +13,7 @@ import ai.chat2db.server.tools.common.exception.RedirectBusinessException;
 import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaFoxUtil;
@@ -27,8 +28,6 @@ import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static ai.chat2db.server.tools.common.enums.ErrorEnum.NEED_LOGGED_IN;
-
 /**
  * web项目配置
  *
@@ -36,7 +35,7 @@ import static ai.chat2db.server.tools.common.enums.ErrorEnum.NEED_LOGGED_IN;
  */
 @Configuration
 @Slf4j
-public class DbhubWebMvcConfigurer implements WebMvcConfigurer {
+public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
 
     /**
      * api前缀
@@ -46,7 +45,8 @@ public class DbhubWebMvcConfigurer implements WebMvcConfigurer {
     /**
      * 全局放行的url
      */
-    private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**", "/api/system"};
+    private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**",
+        "/api/system"};
 
     @Resource
     private UserService userService;
@@ -106,12 +106,12 @@ public class DbhubWebMvcConfigurer implements WebMvcConfigurer {
                         String path = SaHolder.getRequest().getRequestPath();
                         if (path.startsWith(API_PREFIX)) {
                             response.getWriter().println(JSON.toJSONString(
-                                ActionResult.fail(NEED_LOGGED_IN.getCode(), NEED_LOGGED_IN.getDescription())));
+                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"))));
                             return false;
-                            //throw new NeedLoggedInBusinessException();
                         } else {
                             throw new RedirectBusinessException(
-                                "/login-a#/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(), request.getQueryString()));
+                                "/login-a#/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(),
+                                    request.getQueryString()));
                         }
                     }
                     return true;
@@ -125,6 +125,7 @@ public class DbhubWebMvcConfigurer implements WebMvcConfigurer {
             .excludePathPatterns("/**/*-a")
             // _a结尾的统一放行
             .excludePathPatterns("/**/*_a");
+
     }
 
     private String buildHeaderString(HttpServletRequest request) {

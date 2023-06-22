@@ -11,7 +11,6 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import ai.chat2db.server.web.api.aspect.BusinessExceptionAspect;
 import ai.chat2db.server.web.api.controller.user.converter.UserWebConverter;
 import ai.chat2db.server.web.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.web.api.controller.user.request.UserQueryRequest;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author jipengfei
  * @version : UserController.java
  */
-@BusinessExceptionAspect
 @RequestMapping("/api/user")
 @RestController
 public class UserController {
