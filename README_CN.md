@@ -19,7 +19,7 @@
 
 **许可说明**: Chat2DB开源内容仅供个人免费使用，如想将该项目用于商业用途，请先联系该项目作者。
 
-Languages： 中文 [English](README.md)
+Languages： 中文 | [English](README.md) | [日本語](README_JA.md)
 </div>
 
 ## 📖 简介

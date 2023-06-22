@@ -19,7 +19,7 @@
 
 **License Notation**: Chat2DB is constructed and distributed for personal and non-commercial use only. For commercial use of this project, please contact corresponding authors.
 
-Languages： English | [中文](README_CN.md)
+Languages： English | [中文](README_CN.md) | [日本語](README_JA.md)
 </div>
 
 ## 📖 Introduction
