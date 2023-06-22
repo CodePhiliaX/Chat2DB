@@ -25,7 +25,8 @@ export function InjectThemeVar(token: { [key in string]: string }, theme: ThemeT
     const attributeName = camelToDash(t);
     let value = token[t];
     // 将需要px的数字带上px
-    if(t === 'fontSize'){
+    const joinPxArr = ['borderRadiusLG','fontSize']
+    if(joinPxArr.includes(t)){
       value = value + 'px'
     }
     css = css +`--${attributeName}: ${value};\n`

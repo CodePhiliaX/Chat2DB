@@ -10,6 +10,8 @@ import LoadingContent from '@/components/Loading/LoadingContent';
 // import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { databaseMap } from '@/constants/database';
+import { useReducerContext } from '@/pages/main/workspace';
+import { workspaceActionType } from '@/pages/main/workspace/context';
 // import { DatabaseContext } from '@/context/database';
 
 interface IProps {
@@ -70,12 +72,13 @@ function TreeNode(props: TreeNodeIProps) {
   const [showChildren, setShowChildren] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
+  const { state, dispatch } = useReducerContext();
 
   function loadData(data: ITreeNode) {
     const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
     treeNodeConfig.getChildren?.({
       ...data,
-      ...(data.getChildrenParams || {})
+      ...(data.extraParams || {}),
     }).then(res => {
       if (res.length) {
         setTimeout(() => {
@@ -85,6 +88,7 @@ function TreeNode(props: TreeNodeIProps) {
         }, 200);
       }
       else {
+        // 处理树可能出现不连续的情况 
         // if (treeNodeConfig.next) {
         //   data.pretendNodeType = treeNodeConfig.next;
         //   loadData(data);
@@ -139,7 +143,7 @@ function TreeNode(props: TreeNodeIProps) {
     if (treeNodeType === TreeNodeType.DATA_SOURCE) {
       return databaseMap[data.databaseType!]?.icon
     } else {
-      return switchIcon[treeNodeType]?.[showChildren ? 'unfoldIcon' : 'icon'] || '\ue62c'
+      return switchIcon[treeNodeType]?.[showChildren ? 'unfoldIcon' : 'icon'] || switchIcon[treeNodeType]?.icon
     }
   }
 
@@ -155,7 +159,10 @@ function TreeNode(props: TreeNodeIProps) {
 
   function nodeDoubleClick() {
     if (data.treeNodeType === TreeNodeType.TABLE || data.treeNodeType === TreeNodeType.COLUMN) {
-      // setDblclickNodeData(data);
+      dispatch({
+        type: workspaceActionType.DBLCLICK_TREE_NODE,
+        payload: data
+      });
     } else {
       handleClick(data);
     }

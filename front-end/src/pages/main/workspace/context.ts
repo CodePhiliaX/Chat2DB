@@ -1,18 +1,24 @@
-import {getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
+import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
+import { ITreeNode } from '@/typings/tree';
+import { TreeNodeType } from '@/constants/tree';
+import { DatabaseTypeCode } from '@/constants/database';
 
-export type ICurrentDatabase = {
-  databaseSourceName?: string;
-  dataSourceId?: number;
-  databaseName?: string;
+export type ICurrentWorkspaceData = {
+  dataSourceId: number;
+  databaseSourceName: string;
+  databaseName: string;
+  databaseType: DatabaseTypeCode;
   schemaName?: string;
 }
 
 export interface IState {
-  currentDatabase: ICurrentDatabase;
+  currentWorkspaceData: ICurrentWorkspaceData;
+  dblclickTreeNodeData: ITreeNode | undefined;
 }
 
 export enum workspaceActionType {
-  CURRENT_DATABASE = 'currentDatabase',
+  CURRENT_WORKSPACE_DATA = 'currentWorkspaceData',
+  DBLCLICK_TREE_NODE = 'dblclickTreeNodeData',
 }
 
 export interface IAction {
@@ -20,23 +26,29 @@ export interface IAction {
   payload?: any;
 }
 
-export const initState = {
-  currentDatabase: getCurrentWorkspaceDatabase()
+export const initState: IState = {
+  currentWorkspaceData: getCurrentWorkspaceDatabase(),
+  dblclickTreeNodeData: undefined
 }
 
-export const reducer = (preState: IState, action: IAction ) => {
+export const reducer = (preState: IState, action: IAction) => {
   const { type, payload } = action;
 
-  switch(type) {
-    case workspaceActionType.CURRENT_DATABASE:
-      return changeCurrentDatabase(preState,payload);
+  switch (type) {
+    case workspaceActionType.CURRENT_WORKSPACE_DATA:
+      return changeCurrentWorkspaceData(preState, payload);
+    case workspaceActionType.DBLCLICK_TREE_NODE:
+      return {
+        ...preState,
+        dblclickTreeNodeData: payload
+      }
   }
 }
 
-function changeCurrentDatabase(preState:IState, payload:any){
+function changeCurrentWorkspaceData(preState: IState, payload: any) {
   setCurrentWorkspaceDatabase(payload);
   return {
     ...preState,
-    currentDatabase: payload,
+    currentWorkspaceData: payload,
   }
 }

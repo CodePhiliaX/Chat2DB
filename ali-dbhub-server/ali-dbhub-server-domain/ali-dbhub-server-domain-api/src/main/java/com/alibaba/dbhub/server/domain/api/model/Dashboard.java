@@ -1,6 +1,7 @@
 package com.alibaba.dbhub.server.domain.api.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Data;
 
@@ -51,5 +52,10 @@ public class Dashboard {
      * 用户id
      */
     private Long userId;
+
+    /**
+     * 图表ID列表
+     */
+    private List<Long> chartIds;
 
 }

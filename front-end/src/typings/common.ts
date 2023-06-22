@@ -6,3 +6,28 @@ export interface IPageResponse<T> {
   total: number;
   hasNextPage?: boolean;
 }
+
+export interface ISaveConsole {
+  id: number;
+  name: string;
+  ddl: string;
+  dataSourceId: number;
+  databaseName: string;
+  dataSourceName: string;
+  schemaName: string;
+  type: DatabaseTypeCode;
+  status: string;
+  connectable: boolean;
+}
+
+export interface IConsole {
+  id: number;
+  name: string;
+  ddl: string;
+  dataSourceId: number;
+  databaseName: string;
+  dataSourceName: string;
+  schemaName: string;
+  databaseType: DatabaseTypeCode;
+  status: string;
+}

@@ -55,8 +55,8 @@ public class ChartServiceImpl implements ChartService {
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
         ChartDO chartDO = chartConverter.param2do(param);
-        long id = chartMapper.insert(chartDO);
-        return DataResult.of(id);
+        chartMapper.insert(chartDO);
+        return DataResult.of(chartDO.getId());
     }
 
     @Override

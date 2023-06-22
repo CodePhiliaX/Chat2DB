@@ -25,10 +25,7 @@ const antDarkTheme = {
   antdPrimaryColor,
   token: {
     ...commonToken,
-    wireframe: true,
     colorBgBase: '#0a0b0c',
-    borderRadius: 4,
-    borderRadiusLG: '12px',
     colorBgContainer: '#0a0b0c',
     colorBgElevated: '#131418',
     colorBorder: '#36373a',

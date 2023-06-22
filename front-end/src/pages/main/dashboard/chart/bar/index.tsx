@@ -1,33 +1,42 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import * as charts from 'echarts';
 import ReactEcharts from 'echarts-for-react';
 import './index.less';
 type EChartsOption = charts.EChartsOption;
 
-const BarChart = (props, ref) => {
+interface IProps {
+  data?: {
+    xAxis: string[];
+    yAxis: any[];
+  };
+}
+
+const BarChart = (props: IProps, ref) => {
   const barRef = useRef<any>(null);
-  const getOption = () => {
-    const option: EChartsOption = {
+
+  const option: EChartsOption = useMemo(
+    () => ({
       xAxis: {
         type: 'category',
-        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        data: props?.data?.xAxis ?? [],
       },
       yAxis: {
         type: 'value',
       },
       series: [
         {
-          data: [120, 200, 150, 80, 70, 110, 130],
+          data: props?.data?.yAxis ?? [],
           type: 'bar',
         },
       ],
-    };
-    return option;
-  };
+    }),
+    [props.data],
+  );
+
   useImperativeHandle(ref, () => ({
     getEchartsInstance: () => barRef.current.getEchartsInstance(),
   }));
-  return <ReactEcharts ref={barRef} option={getOption()} opts={{ renderer: 'svg' }} />;
+  return <ReactEcharts ref={barRef} option={option} opts={{ renderer: 'svg' }} />;
 };
 
 export default forwardRef(BarChart);
