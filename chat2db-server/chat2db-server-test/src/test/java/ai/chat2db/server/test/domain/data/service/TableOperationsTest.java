@@ -13,14 +13,8 @@ import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.domain.support.enums.CollationEnum;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.enums.IndexTypeEnum;
-import ai.chat2db.server.domain.support.model.Sql;
-import ai.chat2db.server.domain.support.model.Table;
-import ai.chat2db.server.domain.support.model.TableColumn;
-import ai.chat2db.server.domain.support.model.TableIndex;
-import ai.chat2db.server.domain.support.model.TableIndexColumn;
+import ai.chat2db.spi.enums.*;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
@@ -70,7 +64,7 @@ public class TableOperationsTest extends BaseTest {
     @Order(1)
     public void table() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
-            DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+            String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
 
@@ -80,7 +74,7 @@ public class TableOperationsTest extends BaseTest {
 
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
-            dataSourceCreateParam.setType(dbTypeEnum.getCode());
+            dataSourceCreateParam.setType(dbTypeEnum);
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
@@ -106,13 +100,13 @@ public class TableOperationsTest extends BaseTest {
                 .databaseName(dialectProperties.getDatabaseName())
                 .tableName(dialectProperties.toCase(TABLE_NAME))
                 .build();
-            if (dialectProperties.getDbType() == DbTypeEnum.POSTGRESQL) {
+            if (dialectProperties.getDbType() == "POSTGRESQL") {
                 showCreateTableParam.setSchemaName("public");
             }
 
             DataResult<String> createTable = tableService.showCreateTable(showCreateTableParam);
             log.info("建表语句:{}", createTable.getData());
-            if (dialectProperties.getDbType() != DbTypeEnum.H2) {
+            if (dialectProperties.getDbType() != "H2") {
                 Assertions.assertTrue(createTable.getData().contains(dialectProperties.toCase(TABLE_NAME)),
                     "查询表结构失败");
             }
@@ -122,7 +116,7 @@ public class TableOperationsTest extends BaseTest {
             tablePageQueryParam.setDataSourceId(dataSourceId);
             tablePageQueryParam.setDatabaseName(dialectProperties.getDatabaseName());
             tablePageQueryParam.setTableName(dialectProperties.toCase(TABLE_NAME));
-            if (dialectProperties.getDbType() == DbTypeEnum.POSTGRESQL) {
+            if (dialectProperties.getDbType() == "POSTGRESQL") {
                 tablePageQueryParam.setSchemaName("public");
             }
             List<Table> tableList = tableService.pageQuery(tablePageQueryParam, TableSelector.builder()
@@ -133,14 +127,14 @@ public class TableOperationsTest extends BaseTest {
             Assertions.assertNotEquals(0L, tableList.size(), "查询表结构失败");
             Table table = tableList.get(0);
             // Assertions.assertEquals(dialectProperties.toCase(TABLE_NAME), table.getName(), "查询表结构失败");
-            if (dialectProperties.getDbType() != DbTypeEnum.POSTGRESQL) {
+            if (dialectProperties.getDbType() != "POSTGRESQL") {
                 Assertions.assertEquals("测试表", table.getComment(), "查询表结构失败");
             }
             TableQueryParam tableQueryParam = new TableQueryParam();
             tableQueryParam.setTableName(table.getName());
             tableQueryParam.setDataSourceId(dataSourceId);
             tableQueryParam.setDatabaseName(dialectProperties.getDatabaseName());
-            if (dialectProperties.getDbType() == DbTypeEnum.POSTGRESQL) {
+            if (dialectProperties.getDbType() == "POSTGRESQL") {
                 tableQueryParam.setSchemaName("public");
             }
             List<TableColumn> columnList = tableService.queryColumns(tableQueryParam);
@@ -156,7 +150,7 @@ public class TableOperationsTest extends BaseTest {
             Assertions.assertTrue(string.getNullable(), "查询表结构失败");
             Assertions.assertEquals("DATA", TestUtils.unWrapperDefaultValue(string.getDefaultValue()),
                 "查询表结构失败");
-            if (dialectProperties.getDbType() == DbTypeEnum.POSTGRESQL) {
+            if (dialectProperties.getDbType() == "POSTGRESQL") {
                 tablePageQueryParam.setSchemaName("public");
             }
             List<TableIndex> tableIndexList = tableService.queryIndexes(tableQueryParam);
@@ -208,7 +202,7 @@ public class TableOperationsTest extends BaseTest {
     }
 
     private void testBuildSql(DialectProperties dialectProperties, Long dataSourceId, Long consoleId) {
-        if (dialectProperties.getDbType() != DbTypeEnum.MYSQL) {
+        if (dialectProperties.getDbType() != "MYSQL") {
             log.error("目前测试案例只支持mysql");
             return;
         }
@@ -469,12 +463,12 @@ public class TableOperationsTest extends BaseTest {
     public void dropTable() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
             try {
-                DbTypeEnum dbTypeEnum = dialectProperties.getDbType();
+                String dbTypeEnum = dialectProperties.getDbType();
                 Long dataSourceId = TestUtils.nextLong();
                 Long consoleId = TestUtils.nextLong();
 
                 DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
-                dataSourceCreateParam.setType(dbTypeEnum.getCode());
+                dataSourceCreateParam.setType(dbTypeEnum);
                 dataSourceCreateParam.setUrl(dialectProperties.getUrl());
                 dataSourceCreateParam.setUser(dialectProperties.getUsername());
                 dataSourceCreateParam.setPassword(dialectProperties.getPassword());

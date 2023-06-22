@@ -2,7 +2,6 @@ package ai.chat2db.server.web.api.controller.operation.log.request;
 
 import jakarta.validation.constraints.NotNull;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 
 import lombok.Data;
@@ -22,7 +21,6 @@ public class OperationLogCreateRequest extends DataSourceBaseRequest {
 
     /**
      * ddl类型
-     * @see DbTypeEnum
      */
     @NotNull
     private String type;

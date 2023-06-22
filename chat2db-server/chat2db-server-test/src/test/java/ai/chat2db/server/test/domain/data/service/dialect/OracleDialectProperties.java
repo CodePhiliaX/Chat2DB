@@ -2,7 +2,6 @@ package ai.chat2db.server.test.domain.data.service.dialect;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +10,8 @@ import java.util.Date;
 public class OracleDialectProperties implements DialectProperties {
 
     @Override
-    public DbTypeEnum getDbType() {
-        return DbTypeEnum.ORACLE;
+    public String getDbType() {
+        return "ORACLE";
     }
 
     @Override

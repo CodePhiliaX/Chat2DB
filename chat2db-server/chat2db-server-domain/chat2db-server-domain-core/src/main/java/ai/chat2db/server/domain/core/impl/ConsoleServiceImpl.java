@@ -3,7 +3,8 @@ package ai.chat2db.server.domain.core.impl;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
-import ai.chat2db.server.domain.support.sql.SQLExecutor;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class ConsoleServiceImpl implements ConsoleService {
     @Override
     public ActionResult createConsole(ConsoleConnectParam param) {
-        SQLExecutor.getInstance().connectDatabase(param.getDatabaseName());
+        Chat2DBContext.getDBManage().connectDatabase(param.getDatabaseName());
         return ActionResult.isSuccess();
     }
 

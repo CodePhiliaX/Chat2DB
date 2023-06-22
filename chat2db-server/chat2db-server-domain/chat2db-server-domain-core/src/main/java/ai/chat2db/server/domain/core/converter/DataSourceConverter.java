@@ -148,12 +148,12 @@ public abstract class DataSourceConverter {
 
     @Mapping(target = "password", expression = "java(decryptString(dataSourceDO))")
     @Mapping(target = "ssh",
-        expression = "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getSsh(),ai.chat2db.server"
-            + ".domain.support.model.SSHInfo.class))")
+        expression = "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getSsh(),ai.chat2db.spi"
+            + ".model.SSHInfo.class))")
     @Mapping(target = "ssl",
         expression =
-            "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getSsl(),ai.chat2db.server.domain"
-                + ".support.model.SSLInfo"
+            "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getSsl(),ai.chat2db.spi"
+                + ".model.SSLInfo"
                 + ".class))")
     @Mapping(target = "extendInfo",
         expression = "java(com.alibaba.fastjson2.JSON.parseArray(dataSourceDO.getExtendInfo(),KeyValue.class))")

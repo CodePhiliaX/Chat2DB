@@ -16,19 +16,19 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.DataSourceConnect;
-import ai.chat2db.server.domain.support.model.Database;
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.sql.DbhubContext;
-import ai.chat2db.server.domain.support.sql.SQLExecutor;
-import ai.chat2db.server.domain.support.util.JdbcUtils;
+import ai.chat2db.spi.config.DriverConfig;
+import ai.chat2db.spi.model.DataSourceConnect;
+import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.JdbcUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -117,10 +117,15 @@ public class DataSourceServiceImpl implements DataSourceService {
     public ActionResult preConnect(DataSourcePreConnectParam param)  {
         DataSourceTestParam testParam
             = dataSourceConverter.param2param(param);
+
+        DriverConfig driverConfig = new DriverConfig();
+        driverConfig.setJdbcDriver(param.getDriver());
+        driverConfig.setJdbcDriverClass(param.getDriver());//todo
+
         DataSourceConnect dataSourceConnect = JdbcUtils.testConnect(testParam.getUrl(), testParam.getHost(),
             testParam.getPort(),
-            testParam.getUsername(), testParam.getPassword(), DbTypeEnum.getByName(testParam.getDbType()),
-            param.getJdbc(), param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
+            testParam.getUsername(), testParam.getPassword(),testParam.getDbType(),
+                driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
             return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription());
         }
@@ -131,7 +136,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     public ListResult<Database> connect(Long id) {
         DatabaseQueryAllParam queryAllParam = new DatabaseQueryAllParam();
         queryAllParam.setDataSourceId(id);
-        List<String> databases = DbhubContext.getMetaSchema().databases();
+        List<String> databases = Chat2DBContext.getMetaData().databases();
         return ListResult.of(EasyCollectionUtils.toList(databases, name -> Database.builder().name(name).build()));
     }
 

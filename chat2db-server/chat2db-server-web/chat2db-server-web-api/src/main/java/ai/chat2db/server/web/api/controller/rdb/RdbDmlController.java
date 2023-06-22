@@ -4,7 +4,7 @@ import java.util.List;
 
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.server.domain.support.model.ExecuteResult;
+import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;

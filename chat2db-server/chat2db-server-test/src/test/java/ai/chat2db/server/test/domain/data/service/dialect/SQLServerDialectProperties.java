@@ -4,14 +4,12 @@
  */
 package ai.chat2db.server.test.domain.data.service.dialect;
 
-import java.util.Date;
-
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * @author jipengfei
@@ -20,8 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SQLServerDialectProperties implements DialectProperties{
     @Override
-    public DbTypeEnum getDbType() {
-        return DbTypeEnum.SQLSERVER;
+    public String getDbType() {
+        return "SQLSERVER";
     }
 
     @Override

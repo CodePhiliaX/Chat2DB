@@ -1,11 +1,10 @@
 package ai.chat2db.server.domain.api.param;
 
 import java.util.List;
-import java.util.Map;
 
-import ai.chat2db.server.domain.support.model.KeyValue;
-import ai.chat2db.server.domain.support.model.SSHInfo;
-import ai.chat2db.server.domain.support.model.SSLInfo;
+import ai.chat2db.spi.model.KeyValue;
+import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.model.SSLInfo;
 
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package ai.chat2db.server.web.api.controller.rdb.vo;
 
-import ai.chat2db.server.domain.support.enums.ColumnTypeEnum;
+import ai.chat2db.spi.enums.ColumnTypeEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

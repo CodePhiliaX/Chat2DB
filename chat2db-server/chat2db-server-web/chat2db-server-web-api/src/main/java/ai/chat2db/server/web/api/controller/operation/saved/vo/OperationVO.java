@@ -1,6 +1,5 @@
 package ai.chat2db.server.web.api.controller.operation.saved.vo;
 
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 
 import lombok.Data;
 
@@ -49,7 +48,6 @@ public class OperationVO {
 
     /**
      * ddl语言类型
-     * @see DbTypeEnum
      */
     private String type;
 

@@ -16,8 +16,7 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.domain.support.enums.DbTypeEnum;
-import ai.chat2db.server.domain.support.model.TableColumn;
+import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
@@ -401,9 +400,9 @@ public class ChatController {
     private String buildPrompt(ChatQueryRequest queryRequest) {
         // 查询schema信息
         DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
-        String dataSourceType = DbTypeEnum.MYSQL.getCode();
-        if (StringUtils.isNotBlank(dataSourceType)) {
-            dataSourceType = dataResult.getData().getType();
+        String dataSourceType = dataResult.getData().getType();
+        if (StringUtils.isBlank(dataSourceType)) {
+            dataSourceType = "MYSQL";
         }
         TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
         Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
