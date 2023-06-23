@@ -1,6 +1,6 @@
-const electronReload = require('electron-reload');
 const { DEV_WEB_URL } = require('./constants');
 const path = require('path');
+const url = require('url');
 
 /**
  * 加载主进程前端资源
@@ -12,11 +12,11 @@ function loadMainResource(mainWindow) {
     mainWindow.webContents.openDevTools();
 
     // 监听应用程序根路径下的所有文件，当文件发生修改时，自动刷新应用程序
-    electronReload(path.join(__dirname, '..'));
+    require('electron-reload')(path.join(__dirname, '..'));
   } else {
     mainWindow.loadURL(
       url.format({
-        pathname: path.join(__dirname, './dist/index.html'),
+        pathname: path.join(__dirname, '../..', './dist/index.html'),
         protocol: 'file:',
         slashes: true,
       }),

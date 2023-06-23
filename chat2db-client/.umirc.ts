@@ -19,8 +19,12 @@ const chainWebpack = (config: any, { webpack }: any) => {
 
 export default defineConfig({
   title: 'Chat2DB',
+  history: {
+    type: 'hash',
+  },
   base: '/',
   publicPath: '/',
+  hash: false,
   routes: [
     { path: '/demo', component: '@/pages/demo' },
     { path: '/connections', component: 'main' },
@@ -39,4 +43,5 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
 });

@@ -350,10 +350,10 @@ function RenderForm(props: IRenderFormProps) {
     if (keyName === 'host' && !aliasChanged) {
       newData.alias = '@' + keyValue;
     }
-    console.log({
-      ...dataObj,
-      ...newData,
-    });
+    // console.log({
+    //   ...dataObj,
+    //   ...newData,
+    // });
     form.setFieldsValue({
       ...dataObj,
       ...newData,

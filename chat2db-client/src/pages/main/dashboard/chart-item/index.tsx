@@ -25,8 +25,6 @@ const handleSQLResult2ChartData = (data) => {
   return mockData;
 };
 
-console.log('xxx', handleSQLResult2ChartData(data[0]));
-
 function countArrayElements<T>(arr: T[]): { name: T; value: number }[] {
   const counts = new Map<T, number>();
   // 统计每个元素出现的次数

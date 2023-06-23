@@ -5,7 +5,7 @@ const path = require('path');
 
 contextBridge.exposeInMainWorld('myAPI', {
   startServerForSpawn: async () => {
-    const path1 = path.join(__dirname, `app/${JAVA_APP_NAME}`);
+    const javaPath = path.join(__dirname, '../..', `./static/${JAVA_APP_NAME}`);
 
     const productName = await ipcRenderer.invoke('get-product-name');
 
@@ -13,12 +13,12 @@ contextBridge.exposeInMainWorld('myAPI', {
 
     console.log('productName:', productName, isTest);
 
-    const child = spawn(path.join(__dirname, JAVA_PATH), [
+    const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
       '-jar',
       '-Xmx512M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
-      path1,
+      javaPath,
     ]);
 
     child.stdout.on('data', (buffer) => {
@@ -30,7 +30,6 @@ contextBridge.exposeInMainWorld('myAPI', {
     });
     child.stderr.on('data', (data) => {
       console.error(`stderr: ${data}`);
-      // alert('启动服务异常');
     });
     child.on('close', (code) => {
       console.log(`child process exited with code ${code}`);
