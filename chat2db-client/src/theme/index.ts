@@ -1,6 +1,6 @@
 import antdDarkTheme from './dark';
 import antdLightTheme from './light';
-import { ThemeType, PrimaryColorType} from "@/constants/common";
+import { ThemeType, PrimaryColorType } from "@/constants/common";
 import { ITheme } from '@/typings/theme';
 import lodash from 'lodash';
 
@@ -25,11 +25,11 @@ export function InjectThemeVar(token: { [key in string]: string }, theme: ThemeT
     const attributeName = camelToDash(t);
     let value = token[t];
     // 将需要px的数字带上px
-    const joinPxArr = ['borderRadiusLG','fontSize']
-    if(joinPxArr.includes(t)){
+    const joinPxArr = ['fontSize', 'borderRadius']
+    if (joinPxArr.includes(t)) {
       value = value + 'px'
     }
-    css = css +`--${attributeName}: ${value};\n`
+    css = css + `--${attributeName}: ${value};\n`
   })
 
   const container = `html[theme='${theme}'],html[primary-color='${primaryColor}']{
@@ -44,7 +44,6 @@ export function InjectThemeVar(token: { [key in string]: string }, theme: ThemeT
   window._AppThemePack = token;
 }
 
-function camelToDash(str:string) {
+function camelToDash(str: string) {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
-
