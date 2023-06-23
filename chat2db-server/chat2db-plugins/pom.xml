@@ -15,6 +15,21 @@
 
     <modules>
         <module>chat2b-mysql</module>
+        <module>chat2db-sqlserver</module>
+        <module>chat2db-postgresql</module>
+        <module>chat2db-oracle</module>
+        <module>chat2db-sqlite</module>
+        <module>chat2db-h2</module>
+        <module>chat2db-clickhouse</module>
+        <module>chat2db-oceanbase</module>
+        <module>chat2db-db2</module>
+        <module>chat2db-mariadb</module>
+        <module>chat2db-dm</module>
+        <module>chat2db-mongodb</module>
+        <module>chat2db-presto</module>
+        <module>chat2db-hive</module>
+        <module>chat2db-redis</module>
+        <module>chat2db-kingbase</module>
     </modules>
 
 </project>
