@@ -2,6 +2,8 @@ spring:
   # 默认开发环境
   profiles:
     active: dev
+  main:
+    lazy-initialization: true
   jpa:
     # 展示sql
     show-sql: true
