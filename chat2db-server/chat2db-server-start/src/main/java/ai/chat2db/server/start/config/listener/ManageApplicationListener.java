@@ -2,10 +2,10 @@ package ai.chat2db.server.start.config.listener;
 
 import java.time.Duration;
 
-import ai.chat2db.server.tools.base.enums.SystemEnvironmentEnum;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import com.alibaba.fastjson2.JSON;
 
+import ai.chat2db.server.tools.base.enums.SystemEnvironmentEnum;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.utils.TypeReference;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class ManageApplicationListener implements ApplicationListener<Applicatio
         try {
             dataResult = Forest.get("http://127.0.0.1:" + serverPort + "/api/system/get-version-a")
                 .connectTimeout(Duration.ofMillis(50))
-                .readTimeout(Duration.ofSeconds(1))
+                .readTimeout(Duration.ofMillis(100))
                 .execute(new TypeReference<>() {});
         } catch (Exception e) {
             // 抛出异常 代表没有旧的启动 或者旧的不靠谱
