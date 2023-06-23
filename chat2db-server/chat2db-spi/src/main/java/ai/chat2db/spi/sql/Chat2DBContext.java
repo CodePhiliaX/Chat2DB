@@ -46,6 +46,10 @@ public class Chat2DBContext {
         }
     }
 
+    public static DriverConfig getDefaultDriverConfig(String dbType){
+        return PLUGIN_MAP.get(dbType).getDBConfig().getDefaultDriverConfig();
+    }
+
     /**
      * 获取当前线程的ContentContext
      *
