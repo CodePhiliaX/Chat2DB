@@ -15,8 +15,7 @@
 ### Visual Studio Code ###
 package-lock.json
 yarn.lock
-/node_modules/.package-lock.json
-/node_modules/.yarn-integrity
+/node_modules
 
 ### Mac
 .DS_Store
