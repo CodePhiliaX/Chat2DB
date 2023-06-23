@@ -15,7 +15,7 @@ public interface EasyToolsConstant {
     /**
      * 最大分页大小
      */
-    int MAX_PAGE_SIZE = 500;
+    int MAX_PAGE_SIZE = 1000;
 
     /**
      * 序列化id

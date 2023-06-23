@@ -46,6 +46,10 @@ public class Chat2DBContext {
         }
     }
 
+    public static DriverConfig getDefaultDriverConfig(String dbType) {
+        return PLUGIN_MAP.get(dbType).getDBConfig().getDefaultDriverConfig();
+    }
+
     /**
      * 获取当前线程的ContentContext
      *
@@ -59,7 +63,7 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getMetaData();
     }
 
-    public static DBConfig getDBConfig(){
+    public static DBConfig getDBConfig() {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBConfig();
     }
 
@@ -99,9 +103,15 @@ public class Chat2DBContext {
             if (session != null) {
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
             }
+            DriverConfig config = connectInfo.getDriverConfig();
+            if (config == null) {
+                config = getDefaultDriverConfig(connectInfo.getDbType());
+                connectInfo.setDriverConfig(config);
+            }
+
             connection = getConnect(url, host, port, connectInfo.getUser(),
-                connectInfo.getPassword(), connectInfo.getDbType(),
-                connectInfo.getDriverConfig(), ssh, connectInfo.getExtendMap());
+                    connectInfo.getPassword(), connectInfo.getDbType(),
+                    connectInfo.getDriverConfig(), ssh, connectInfo.getExtendMap());
         } catch (Exception e1) {
             log.error("getConnect error", e1);
             if (connection != null) {
@@ -135,8 +145,8 @@ public class Chat2DBContext {
      * @return
      */
     private static Connection getConnect(String url, String host, String port,
-        String userName, String password, String dbType,
-        DriverConfig jdbc, SSHInfo ssh, Map<String, Object> properties) throws SQLException {
+                                         String userName, String password, String dbType,
+                                         DriverConfig jdbc, SSHInfo ssh, Map<String, Object> properties) throws SQLException {
         // 创建连接
         return IDriverManager.getConnection(url, userName, password, jdbc, properties);
 

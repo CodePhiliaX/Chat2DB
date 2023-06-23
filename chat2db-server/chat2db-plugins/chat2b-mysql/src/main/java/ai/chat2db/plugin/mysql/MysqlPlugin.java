@@ -20,6 +20,6 @@ public class MysqlPlugin implements Plugin {
 
     @Override
     public DBManage getDBManage() {
-        return null;
+        return new MysqlDBManage();
     }
 }
