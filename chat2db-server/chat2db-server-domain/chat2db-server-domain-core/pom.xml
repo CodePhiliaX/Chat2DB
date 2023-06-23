@@ -10,7 +10,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-
     <artifactId>chat2db-server-domain-core</artifactId>
 
     <dependencies>
@@ -41,6 +40,86 @@
         <dependency>
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2b-mysql</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-clickhouse</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-db2</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-dm</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-h2</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-hive</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-kingbase</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-mariadb</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-mongodb</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-oceanbase</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-oracle</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-postgresql</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-presto</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-redis</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-sqlite</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-sqlserver</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>
