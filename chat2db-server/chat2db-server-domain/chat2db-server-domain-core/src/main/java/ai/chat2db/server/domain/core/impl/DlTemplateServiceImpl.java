@@ -27,12 +27,6 @@ import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
-import com.alibaba.druid.DbType;
-import com.alibaba.druid.sql.PagerUtils;
-import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -123,7 +117,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         // 解析sql分页
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
         if (!(sqlStatement instanceof SQLSelectStatement)) {
-            throw new BusinessException("当前sql不是查询语句");
+            throw new BusinessException("dataSource.sqlAnalysisError");
         }
         sql = PagerUtils.count(sql, dbType);
         ExecuteResult executeResult = execute(sql);
