@@ -8,7 +8,9 @@
     "build": "npm run build:web && npm run build:main",
     "build:main": "cross-env NODE_ENV=development electron-builder",
     "build:main:prod": "cross-env NODE_ENV=production electron-builder",
+    "build:prod": "npm run build:web:prod && npm run build:main:prod",
     "build:web": "umi build",
+    "build:web:prod": "cross-env UMI_ENV=prod cross-env APP_VERSION=${npm_config_appVersion} cross-env APP_PORT=${npm_config_appPort} umi build",
     "postinstall": "umi setup",
     "lint": "umi lint",
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
@@ -59,9 +61,10 @@
       "output": "release/"
     },
     "productName": "Chat2DB",
-    "asar": true,
+    "asar": false,
     "files": [
       "dist/",
+      "static/",
       "src/main",
       "node_modules/",
       "package.json"

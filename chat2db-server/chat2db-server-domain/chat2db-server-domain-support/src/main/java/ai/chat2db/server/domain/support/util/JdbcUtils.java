@@ -180,7 +180,8 @@ public class JdbcUtils {
             if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
                 return DateUtil.format(rs.getDate(index), DEFAULT_DATETIME_FORMAT);
             }
-            return DateUtil.format(date, DEFAULT_DATETIME_FORMAT);
+//            return DateUtil.format(date, DEFAULT_DATETIME_FORMAT);
+            return null;
         }
         if (obj instanceof LocalDateTime localDateTime) {
             return localDateTime.toString();

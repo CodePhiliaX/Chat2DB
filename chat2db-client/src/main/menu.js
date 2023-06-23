@@ -1,4 +1,7 @@
 const i18n = require('./i18n');
+const { shell } = require('electron');
+const { mainWindow } = require('./index');
+
 const menuBar = [
   {
     label: 'Chat2DB',
@@ -37,8 +40,7 @@ const menuBar = [
     submenu: [
       {
         label: '打开日志',
-        accelerator:
-          process.platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+        accelerator: process.platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
         click() {
           const fileName = '.chat2db/logs/application.log';
           const url = path.join(os.homedir(), fileName);
@@ -47,8 +49,7 @@ const menuBar = [
       },
       {
         label: '打开控制台',
-        accelerator:
-          process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I',
+        accelerator: process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I',
         click() {
           mainWindow && mainWindow.toggleDevTools();
         },
