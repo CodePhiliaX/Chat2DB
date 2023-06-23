@@ -13,7 +13,7 @@ public class MysqlDBManage implements DBManage {
             return;
         }
         try {
-            SQLExecutor.getInstance().execute("use `" + database + "`;", null);
+            SQLExecutor.getInstance().execute("use `" + database + "`;");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

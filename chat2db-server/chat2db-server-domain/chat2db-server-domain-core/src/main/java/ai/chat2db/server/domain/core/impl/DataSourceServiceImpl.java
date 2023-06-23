@@ -114,17 +114,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public ActionResult preConnect(DataSourcePreConnectParam param)  {
+    public ActionResult preConnect(DataSourcePreConnectParam param) {
         DataSourceTestParam testParam
-            = dataSourceConverter.param2param(param);
+                = dataSourceConverter.param2param(param);
 
-        DriverConfig driverConfig = new DriverConfig();
-        driverConfig.setJdbcDriver(param.getDriver());
-        driverConfig.setJdbcDriverClass(param.getDriver());//todo
-
+// todo
+//        DriverConfig driverConfig = new DriverConfig();
+//        driverConfig.setJdbcDriver(param.getDriver());
+//        driverConfig.setJdbcDriverClass(param.getDriver());
+        DriverConfig driverConfig = Chat2DBContext.getDefaultDriverConfig(param.getType());
         DataSourceConnect dataSourceConnect = JdbcUtils.testConnect(testParam.getUrl(), testParam.getHost(),
-            testParam.getPort(),
-            testParam.getUsername(), testParam.getPassword(),testParam.getDbType(),
+                testParam.getPort(),
+                testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
                 driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
             return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription());
