@@ -72,6 +72,18 @@ jobs:
           java-package: "jre"
           architecture: "aarch64"
 
+      # java.security 开放tls1 Windows
+      - name: Enable tls1
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+
+      # java.security 开放tls1 macOS
+      - name: Enable tls1
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+
       # 复制jre Windows
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
