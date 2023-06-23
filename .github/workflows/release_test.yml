@@ -6,7 +6,7 @@ name: Build Test Client
 on:
   push:
     branches:
-      - 'release_test'
+      - "release_test"
 
 # Workflow's jobs
 # 一共需要3台电脑运行
@@ -70,19 +70,18 @@ jobs:
         run: |
           sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
 
-
       # 复制jre Windows
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
-          cp -r "${{ env.JAVA_HOME }}" ali-dbhub-client/electron/jre
+          cp -r "${{ env.JAVA_HOME }}" chat2db-client/static/jre
 
       # 复制jre macOS
       - name: Copy Jre for macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
-          cp -r $JAVA_HOME ali-dbhub-client/electron/jre
-          chmod -R 777 ali-dbhub-client/electron/jre/
+          cp -r $JAVA_HOME chat2db-client/static/jre
+          chmod -R 777 chat2db-client/static/jre/
 
       # 安装node
       - name: Install Node.js
@@ -101,11 +100,10 @@ jobs:
       # 构建静态文件信息
       - name: Npm install & build & copy
         run: |
-          cd ali-dbhub-client
+          cd chat2db-client
           npm install 
-          npm run build:desktop --appVersion=${{ steps.chat2db_version.outputs.substring }} --appPort=10822
-          cp -r dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front
-
+          npm run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }} --appPort=10822
+      # cp -r dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front
       # 编译服务端java版本
       - name: Build Java
         run: mvn clean package -B '-Dmaven.test.skip=true' -f ali-dbhub-server/pom.xml
@@ -113,20 +111,18 @@ jobs:
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          mkdir ali-dbhub-client/electron/app
-          cp ali-dbhub-server/ali-dbhub-server-start/target/ali-dbhub-server-start.jar ali-dbhub-client/electron/app/
+          cp ali-dbhub-server/ali-dbhub-server-start/target/ali-dbhub-server-start.jar chat2db-client/static/
 
       - name: npm install electron
         run: |
-          cd ali-dbhub-client/electron
-          cp -r ../dist ./
+          cd chat2db-client
 
       # windows
       - name: Build/release Electron app for Windows
         if: ${{ runner.os == 'Windows' }}
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          package_root: "ali-dbhub-client/electron"
+          package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
@@ -137,25 +133,24 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          package_root: "ali-dbhub-client/electron"
+          package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.win.publisherName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=1.0.${{ github.run_id }}-Test --mac --x64"
-      
+
       # amd64 notarization
       - name: Notarization amd64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
-          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file ali-dbhub-client/electron-build/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg
-
+          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg
 
       # macos arm64
       - name: Build/release Electron app for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         uses: samuelmeuli/action-electron-builder@v1
         with:
-          package_root: "ali-dbhub-client/electron"
+          package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
@@ -165,8 +160,7 @@ jobs:
       - name: Notarization arm64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
-          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file ali-dbhub-client/electron-build/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg
-
+          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg
 
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
@@ -175,8 +169,8 @@ jobs:
           mkdir oss_temp_file
           mkdir oss_temp_file/win
           mkdir oss_temp_file/win/x64
-          cp -r ali-dbhub-client/electron-build/* ./oss_temp_file/win/x64
-          ls ali-dbhub-client/electron-build/
+          cp -r chat2db-client/release/* ./oss_temp_file/win/x64
+          ls chat2db-client/release/
 
       # 准备要需要的数据 MacOS amd64
       - name: Prepare upload for MacOS amd64
@@ -187,11 +181,10 @@ jobs:
           mkdir oss_temp_file/jar/${{ github.run_id }}
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/amd
-          cp ali-dbhub-client/electron/app/ali-dbhub-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
-          cp -r ali-dbhub-client/electron-build/* ./oss_temp_file/mac/amd
-          ls ali-dbhub-client/electron-build/
+          cp chat2db-client/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
+          cp -r chat2db-client/release/* ./oss_temp_file/mac/amd
+          ls chat2db-client/release/
 
-          
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
@@ -199,8 +192,8 @@ jobs:
           mkdir oss_temp_file
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/arm
-          cp -r ali-dbhub-client/electron-build/* ./oss_temp_file/mac/arm
-          ls ali-dbhub-client/electron-build/
+          cp -r chat2db-client/release/* ./oss_temp_file/mac/arm
+          ls chat2db-client/release/
 
       # 把文件上传到OSS 方便下载
       - name: Set up oss utils
@@ -209,7 +202,7 @@ jobs:
           endpoint: "oss-accelerate.aliyuncs.com"
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          ossutil-version: 'latest'
+          ossutil-version: "latest"
       - name: Upload to oss
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db/test/
@@ -252,4 +245,3 @@ jobs:
               "title": "MacOS-arm64-test-构建完成通知",
               "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/alibaba/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg](https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg) "
             }
-
