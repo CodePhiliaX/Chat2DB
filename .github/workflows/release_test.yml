@@ -121,7 +121,6 @@ jobs:
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
-          yarn run build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822
 
       # windows
       - name: Build/release Electron app for Windows
@@ -132,7 +131,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
-          build_script_name: "build:main:prod"
+          build_script_name: "build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822"
           args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.extraMetadata.version=1.0.${{ github.run_id }}-Test --win --x64"
 
       # macos amd64
@@ -144,7 +143,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
-          build_script_name: "build:main:prod"
+          build_script_name: "build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822"
           args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.win.publisherName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=1.0.${{ github.run_id }}-Test --mac --x64"
 
       # amd64 notarization
@@ -162,7 +161,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
-          build_script_name: "build:main:prod"
+          build_script_name: "build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822"
           args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.extraMetadata.version=1.0.${{ github.run_id }}-Test --mac --arm64"
 
       # arm notarization
