@@ -4,17 +4,25 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const UMI_PublicPath = process.env.UMI_PublicPath || './';
 
 const chainWebpack = (config: any, { webpack }: any) => {
-  new webpack.DefinePlugin({
-  });
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
     {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
+
+  config.plugin('define').use(require('webpack').DefinePlugin, [
+    {
+      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
+      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
+    },
+  ]);
 };
 
 export default defineConfig({
-  // publicPath: './',
+  publicPath: UMI_PublicPath,
   chainWebpack,
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
+  define: {
+    'process.env.UMI_ENV': process.env.UMI_ENV,
+  }
 });
