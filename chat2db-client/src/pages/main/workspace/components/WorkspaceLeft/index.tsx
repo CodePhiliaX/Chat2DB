@@ -12,6 +12,7 @@ import { TreeNodeType } from '@/constants/tree';
 import { ITreeNode } from '@/typings/tree';
 import { useReducerContext } from '../../index';
 import { workspaceActionType } from '../../context';
+import i18n from '@/i18n';
 interface IProps {
   className?: string;
 }
@@ -22,11 +23,11 @@ export default memo<IProps>(function WorkspaceLeft(props) {
   return (
     <div className={classnames(styles.box, className)}>
       <div className={styles.header}>
-        <RenderSelectDatabase></RenderSelectDatabase>
+        <RenderSelectDatabase />
       </div>
       <div className={styles.save_box}>Save</div>
       <Divider />
-      <RenderTableBox></RenderTableBox>
+      <RenderTableBox />
     </div>
   );
 });
@@ -140,23 +141,22 @@ function RenderSelectDatabase() {
   }
 
   return (
-    <div className={styles.select_database_box}>
+    <div className={styles.selectDatabaseBox}>
       <Cascader
-        popupClassName={styles.cascader_popup}
+        popupClassName={styles.cascaderPopup}
         options={options}
         onChange={onChange}
         loadData={loadData}
         bordered={false}
         dropdownRender={dropdownRender}
-        placeholder={'xxxxxxx'}
       >
-        <div className={styles.current_database}>
-          <div className={styles.name}>{renderCurrentSelected()}</div>
+        <div className={styles.currentDatabase}>
+          <div className={styles.name}>{renderCurrentSelected() || <span style={{ 'opacity': 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>} </div>
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
-      <div className={styles.other_operations}>
-        <div className={styles.icon_box}>
+      <div className={styles.otherOperations}>
+        <div className={styles.iconBox}>
           <Iconfont code="&#xec08;" />
         </div>
       </div>

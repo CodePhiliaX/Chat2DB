@@ -4,25 +4,25 @@ import classnames from 'classnames';
 import styles from './index.less';
 
 let container = ''
-if (window._ENV === 'desktop') {
-  container = `
-    @font-face {
-      font-family: 'iconfont'; /* Project id 3633546 */
-      src: url('../../assets/font/iconfont.woff2') format('woff2'),
-        url('../../assets/font/iconfont.woff') format('woff'),
-        url('../../assets/font/iconfont.ttf') format('truetype');
-    }
-  `
-} else {
-  container = `
-    @font-face {
-      font-family: 'iconfont';  /* Project id 3633546 */
-      src: url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff2?t=1687102726036') format('woff2'),
-          url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff?t=1687102726036') format('woff'),
-          url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.ttf?t=1687102726036') format('truetype');
-    }
-  `
-}
+container = `
+  @font-face {
+    font-family: 'iconfont'; /* Project id 3633546 */
+    src: url('../../assets/font/iconfont.woff2') format('woff2'),
+      url('../../assets/font/iconfont.woff') format('woff'),
+      url('../../assets/font/iconfont.ttf') format('truetype');
+  }
+`
+// if (process.env.UMI_ENV === 'desktop') {
+// } else {
+//   container = `
+//     @font-face {
+//       font-family: 'iconfont';  /* Project id 3633546 */
+//       src: url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff2?t=1687102726036') format('woff2'),
+//           url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff?t=1687102726036') format('woff'),
+//           url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.ttf?t=1687102726036') format('truetype');
+//     }
+//   `
+// }
 let style = document.createElement("style");
 style.type = "text/css";
 document.head.appendChild(style);
