@@ -175,7 +175,9 @@ jobs:
           mkdir oss_temp_file
           mkdir oss_temp_file/win
           mkdir oss_temp_file/win/x64
-          cp -r chat2db-client/release/* ./oss_temp_file/win/x64
+          cp -r chat2db-client/release/*Setup*.exe ./oss_temp_file/win/x64
+          cp -r chat2db-client/release/*Setup*.exe.blockmap ./oss_temp_file/win/x64
+          cp -r chat2db-client/release/latest.yml ./oss_temp_file/win/x64
           ls chat2db-client/release/
 
       # 准备要需要的数据 MacOS amd64
@@ -188,8 +190,13 @@ jobs:
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/amd
           cp chat2db-client/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
-          cp -r chat2db-client/release/* ./oss_temp_file/mac/amd
+          cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/amd
+          cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/amd
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/amd
+          cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/amd
+          cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/amd
           ls chat2db-client/release/
+
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
@@ -198,7 +205,11 @@ jobs:
           mkdir oss_temp_file
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/arm
-          cp -r chat2db-client/release/* ./oss_temp_file/mac/arm
+          cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/arm
+          cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/arm
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/arm
+          cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/arm
+          cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/arm
           ls chat2db-client/release/
 
       # 把文件上传到OSS 方便下载
