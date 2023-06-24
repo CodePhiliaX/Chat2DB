@@ -215,7 +215,7 @@ public class SQLExecutor {
             }
             case REDIS -> {
                 try {
-                    execute("select " + database, null);
+                    execute("select " + database);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
