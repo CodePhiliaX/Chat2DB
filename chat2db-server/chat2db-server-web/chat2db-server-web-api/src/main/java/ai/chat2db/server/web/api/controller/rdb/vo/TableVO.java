@@ -32,4 +32,6 @@ public class TableVO {
      */
     private List<IndexVO> indexList;
 
+
+    private boolean pinned;
 }

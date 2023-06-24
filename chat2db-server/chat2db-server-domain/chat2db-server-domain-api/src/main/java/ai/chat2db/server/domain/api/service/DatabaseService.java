@@ -1,9 +1,8 @@
 package ai.chat2db.server.domain.api.service;
 
-import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
-import ai.chat2db.server.domain.api.param.SchemaOperationParam;
-import ai.chat2db.server.domain.api.param.SchemaQueryParam;
+import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.tools.base.wrapper.Result;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -31,6 +30,13 @@ public interface DatabaseService {
      * @return
      */
     ListResult<Schema> querySchema(SchemaQueryParam param);
+
+    /**
+     * query Database and Schema
+     * @param param
+     * @return
+     */
+    DataResult<MetaSchema> queryDatabaseSchema(MetaDataQueryParam param);
 
 
 
