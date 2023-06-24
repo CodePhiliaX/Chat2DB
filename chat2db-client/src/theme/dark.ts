@@ -25,6 +25,7 @@ const antDarkTheme = {
   antdPrimaryColor,
   token: {
     ...commonToken,
+    colorText: "rgb(241, 241, 244)",
     colorBgBase: '#0a0b0c',
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
     colorBgContainer: '#0a0b0c',

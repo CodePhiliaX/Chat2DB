@@ -94,8 +94,6 @@ export default memo<IProps>(function Connections(props) {
                       onClick: async ({ domEvent }) => {
                         domEvent.preventDefault();
                         await connectionService.remove({ id: key });
-                        // if (key === curConnection.id) {
-                        // }
                         setCurConnection({});
                         getConnectionList();
                       },
