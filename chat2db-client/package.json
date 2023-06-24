@@ -15,7 +15,7 @@
     "build:main": "cross-env NODE_ENV=development electron-builder",
     "build:main:prod": "cross-env NODE_ENV=production electron-builder",
     "build:web": "umi build",
-    "build:web:desktop": "cross-env UMI_ENV=desktop umi build",
+    "build:web:desktop": "cross-env UMI_ENV=desktop APP_VERSION=${npm_config_appVersion} cross-env APP_PORT=${npm_config_appPort} umi build",
     "build:web:prod": "cross-env UMI_ENV=prod cross-env APP_VERSION=${npm_config_appVersion} cross-env APP_PORT=${npm_config_appPort} umi build",
     "postinstall": "umi setup",
     "lint": "umi lint",
