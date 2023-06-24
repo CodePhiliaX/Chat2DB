@@ -13,6 +13,7 @@ import { ITreeNode } from '@/typings/tree';
 import { useReducerContext } from '../../index';
 import { workspaceActionType } from '../../context';
 import i18n from '@/i18n';
+import { IConsole } from '@/typings/common'
 interface IProps {
   className?: string;
 }
@@ -25,7 +26,7 @@ export default memo<IProps>(function WorkspaceLeft(props) {
       <div className={styles.header}>
         <RenderSelectDatabase />
       </div>
-      <div className={styles.save_box}>Save</div>
+      <RenderSaveBox></RenderSaveBox>
       <Divider />
       <RenderTableBox />
     </div>
@@ -167,10 +168,12 @@ function RenderSelectDatabase() {
 function RenderTableBox() {
   const { state, dispatch } = useReducerContext();
   const { currentWorkspaceData } = state;
-  const [initialData, setInitialData] = useState<ITreeNode[]>();
+  const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    getInitialData();
+    if(currentWorkspaceData.databaseName){
+      getInitialData();
+    }
   }, [currentWorkspaceData]);
 
   function getInitialData() {
@@ -186,13 +189,16 @@ function RenderTableBox() {
 
   return (
     <div className={styles.table_box}>
-      <Tree className={styles.tree} initialData={initialData}></Tree>
+      <div className={styles.left_box_title}>Table</div>
+      <LoadingContent data={initialData} handleEmpty>
+        <Tree className={styles.tree} initialData={initialData}></Tree>
+      </LoadingContent>
     </div>
   );
 }
 
 function RenderSaveBox() {
-  const [savedList, setSaveList] = useState<any>();
+  const [savedList, setSaveList] = useState<IConsole[]>([]);
   const { state, dispatch } = useReducerContext();
   const { currentWorkspaceData } = state;
 
@@ -214,8 +220,7 @@ function RenderSaveBox() {
   }
 
   return <div className={styles.save_box}>
-    <div>Saved</div>
-
+    <div className={styles.left_box_title}>Saved</div>
     <div className={styles.save_box_list}>
       <LoadingContent data={savedList} handleEmpty>
         {

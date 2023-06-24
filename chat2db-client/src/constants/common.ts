@@ -1,3 +1,18 @@
+export enum DatabaseTypeCode {
+  MYSQL = 'MYSQL',
+  ORACLE = 'ORACLE',
+  DB2 = 'DB2',
+  MONGODB = 'MONGODB',
+  REDIS = 'REDIS',
+  H2 = 'H2',
+  POSTGRESQL = 'POSTGRESQL',
+  SQLSERVER = 'SQLSERVER',
+  SQLITE = 'SQLITE',
+  MARIADB = 'MARIADB',
+  CLICKHOUSE = 'CLICKHOUSE',
+  DM = "DM",
+}
+
 export enum ThemeType {
   Light = 'light',
   Dark = 'dark',
@@ -13,9 +28,9 @@ export enum PrimaryColorType {
 export enum LangType {
   EN_US = 'en-us',
   ZH_CN = 'zh-cn'
-} 
+}
 
-export enum TabOpened {
+export enum ConsoleOpenedStatus {
   IS_OPEN = 'y',
   NOT_OPEN = 'n',
 }

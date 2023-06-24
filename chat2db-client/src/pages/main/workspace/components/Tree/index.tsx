@@ -45,25 +45,18 @@ function Tree(props: IProps) {
     }
   }
 
-  // useImperativeHandle(cRef, () => ({
-  //   getDataSource,
-  //   filtrationDataTree
-  // }))
-
   return <div className={classnames(className, styles.box)}>
-    <LoadingContent data={treeData}>
-      {
-        (searchedTreeData || treeData)?.map((item, index) => {
-          return <TreeNode
-            setTreeData={setTreeData}
-            key={item.name + index}
-            show={true}
-            level={0}
-            data={item}
-          />
-        })
-      }
-    </LoadingContent>
+    {
+      (searchedTreeData || treeData)?.map((item, index) => {
+        return <TreeNode
+          setTreeData={setTreeData}
+          key={item.name + index}
+          show={true}
+          level={0}
+          data={item}
+        />
+      })
+    }
   </div>
 };
 
