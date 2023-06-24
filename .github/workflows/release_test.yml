@@ -100,11 +100,11 @@ jobs:
           cache: "maven"
 
       # 构建静态文件信息
-      - name: Npm install & build & copy
+      - name: Yarn install & build & copy
         run: |
           cd chat2db-client
-          npm install 
-          npm run build:web:prod --appVersion=1.0.${{ github.run_id }} --appPort=10822
+          yarn install 
+          yarn run build:web:prod --appVersion=1.0.${{ github.run_id }} --appPort=10822
 
       # cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
       # 编译服务端java版本
@@ -116,7 +116,7 @@ jobs:
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
 
-      - name: npm install electron
+      - name: yarn install electron
         run: |
           cd chat2db-client
 
