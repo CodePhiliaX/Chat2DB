@@ -74,12 +74,14 @@ jobs:
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
+          mkdir chat2db-client/static
           cp -r "${{ env.JAVA_HOME }}" chat2db-client/static/jre
 
       # 复制jre macOS
       - name: Copy Jre for macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
+          mkdir chat2db-client/static
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
@@ -103,15 +105,15 @@ jobs:
           cd chat2db-client
           npm install 
           npm run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }} --appPort=10822
-      # cp -r dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front
+      # cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
       # 编译服务端java版本
       - name: Build Java
-        run: mvn clean package -B '-Dmaven.test.skip=true' -f ali-dbhub-server/pom.xml
+        run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp ali-dbhub-server/ali-dbhub-server-start/target/ali-dbhub-server-start.jar chat2db-client/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
 
       - name: npm install electron
         run: |
@@ -230,7 +232,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/alibaba/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg](https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/ali-dbhub-server-start.jar](https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/ali-dbhub-server-start.jar) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/alibaba/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg](https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.jar) "
             }
 
       # 构建完成通知

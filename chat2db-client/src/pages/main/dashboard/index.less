@@ -1,9 +1,10 @@
+@import '../../../styles/var.less';
+
 .box {
   display: flex;
   background-color: var(--color-bg);
   height: 100%;
   width: 100%;
-  font-family: Helvetica;
 }
 
 .boxLeft {
@@ -23,14 +24,22 @@
 
 .boxLeftTitle {
   font-size: 20px;
-  // color: rgba(0, 0, 0);
   line-height: 24px;
   font-weight: 500;
   margin-bottom: 40px;
-  padding-left: 24px;
+  padding-left: 20px;
   padding-right: 8px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+.plusIcon {
+  font-size: 18px;
+  padding: 2px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--color-hover-bg);
+  }
 }
 
 .boxLeftItem {
@@ -56,11 +65,9 @@
   }
 }
 
-
 .activeItem {
   background-color: var(--color-bg-elevated);
 }
-
 
 .boxRight {
   flex: 1;
@@ -78,10 +85,10 @@
   margin-bottom: 24px;
 }
 
-.boxRightContent {}
+.boxRightContent {
+}
 
 .boxRightContentRow {
-
   display: flex;
 }
 
