@@ -122,6 +122,12 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>1.5.5.Final</version>
             </dependency>
+            <!-- 确保先生成lombok 再生成mapstruct -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-mapstruct-binding</artifactId>
+                <version>0.2.0</version>
+            </dependency>
 
             <!-- 自带数据库 -->
             <dependency>
@@ -165,6 +171,12 @@
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-jwt</artifactId>
                 <version>1.34.0</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>hutool-jwt</artifactId>
+                        <groupId>cn.hutool</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- http -->
@@ -172,6 +184,24 @@
                 <groupId>com.dtflys.forest</groupId>
                 <artifactId>forest-spring-boot-starter</artifactId>
                 <version>1.5.32</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>httpclient</artifactId>
+                        <groupId>org.apache.httpcomponents</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>httpclient-cache</artifactId>
+                        <groupId>org.apache.httpcomponents</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>httpcore</artifactId>
+                        <groupId>org.apache.httpcomponents</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>httpmime</artifactId>
+                        <groupId>org.apache.httpcomponents</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- 数据库版本管理 -->
@@ -224,6 +254,20 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 确保先生成lombok 再生成mapstruct -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 
     <build>

@@ -22,7 +22,7 @@
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:main:prod": "cross-env NODE_ENV=production electron .",
-    "start:web": "cross-env  umi dev"
+    "start:web": "umi dev"
   },
   "dependencies": {
     "ahooks": "^3.7.7",
@@ -69,7 +69,8 @@
     "productName": "Chat2DB",
     "asar": false,
     "files": [
-      "dist/",
+      "dist/**/*",
+      "!node_modules",
       "static/",
       "src/main",
       "package.json"
