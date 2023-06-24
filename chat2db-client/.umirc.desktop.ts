@@ -19,10 +19,10 @@ const chainWebpack = (config: any, { webpack }: any) => {
 };
 
 export default defineConfig({
-  // publicPath: './',
+  publicPath: UMI_PublicPath,
   chainWebpack,
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   define: {
-    'process.env.UMI_ENV': 'desktop'
+    'process.env.UMI_ENV': process.env.UMI_ENV,
   }
 });

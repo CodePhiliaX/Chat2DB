@@ -45,5 +45,7 @@ export default defineConfig({
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   favicons: ['logo.ico'],
-
+  define: {
+    'process.env.UMI_ENV': process.env.UMI_ENV,
+  }
 });

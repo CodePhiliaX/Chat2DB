@@ -1,3 +1,8 @@
 import 'umi/typings';
 
-// declare const process.env.UMI_ENV: string;
+declare namespace NodeJS {
+  interface ProcessEnv {
+    readonly NODE_ENV: 'development' | 'production'
+    readonly UMI_ENV: string
+  }
+}

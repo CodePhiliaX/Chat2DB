@@ -3,15 +3,16 @@ import classnames from 'classnames';
 // import desktopStyle from './desktop.less';
 import styles from './index.less';
 
-let container = ''
-container = `
-  @font-face {
-    font-family: 'iconfont'; /* Project id 3633546 */
-    src: url('../../assets/font/iconfont.woff2') format('woff2'),
-      url('../../assets/font/iconfont.woff') format('woff'),
-      url('../../assets/font/iconfont.ttf') format('truetype');
-  }
-`
+// let container = ''
+// container = `
+//   @font-face {
+//     font-family: 'iconfont'; /* Project id 3633546 */
+//     src: url('../../assets/font/iconfont.woff2') format('woff2'),
+//       url('../../assets/font/iconfont.woff') format('woff'),
+//       url('../../assets/font/iconfont.ttf') format('truetype');
+//   }
+// `
+
 // if (process.env.UMI_ENV === 'desktop') {
 // } else {
 //   container = `
@@ -23,10 +24,10 @@ container = `
 //     }
 //   `
 // }
-let style = document.createElement("style");
-style.type = "text/css";
-document.head.appendChild(style);
-style.appendChild(document.createTextNode(container));
+// let style = document.createElement("style");
+// style.type = "text/css";
+// document.head.appendChild(style);
+// style.appendChild(document.createTextNode(container));
 
 export default class Iconfont extends PureComponent<{
   code: string;
