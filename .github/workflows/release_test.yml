@@ -91,6 +91,7 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
+          cache-dependency-path: chat2db-client/yarn.lock
 
       # 安装java
       - name: Install Java and Maven
