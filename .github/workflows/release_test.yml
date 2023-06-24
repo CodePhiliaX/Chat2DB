@@ -211,7 +211,6 @@ jobs:
           cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/arm
           cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/arm
           ls chat2db-client/release/
-          ls chat2db-client/release/
 
       # 把文件上传到OSS 方便下载
       - name: Set up oss utils
