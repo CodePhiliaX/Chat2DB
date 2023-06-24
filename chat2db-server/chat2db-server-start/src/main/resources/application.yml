@@ -25,6 +25,9 @@ spring:
   web:
     resources:
       static-locations[0]: classpath:/static/
+  #  用于数据库表结构版本管理
+  flyway:
+    locations: classpath:db/migration
 ali:
   dbhub:
     version: 1.0.0
