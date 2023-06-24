@@ -69,7 +69,8 @@
     "productName": "Chat2DB",
     "asar": false,
     "files": [
-      "dist/",
+      "dist/**/*",
+      "!node_modules",
       "static/",
       "src/main",
       "package.json"
