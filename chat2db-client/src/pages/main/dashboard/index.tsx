@@ -17,7 +17,7 @@ import {
   updateChart,
   updateDashboard,
 } from '@/service/dashboard';
-import { MoreOutlined, PlusOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import i18n from '@/i18n';
 
@@ -234,7 +234,7 @@ function Chart(props: IProps) {
         <div className={styles.boxLeft}>
           <div className={styles.boxLeftTitle}>
             <div>{i18n('dashboard.title')}</div>
-            <PlusOutlined onClick={() => setOpenAddDashboard(true)} />
+            <Iconfont code="&#xe631;" className={styles.plusIcon} onClick={() => setOpenAddDashboard(true)} />
           </div>
           {renderLeft()}
         </div>
@@ -270,18 +270,13 @@ function Chart(props: IProps) {
         okText="Confirm"
         cancelText="Cancel"
       >
-        <Form form={form} autoComplete={'off'}>
+        <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} autoComplete={'off'}>
           <Form.Item label={'name'} name={'name'} rules={[{ required: true, message: 'Please input your name' }]}>
             <Input />
           </Form.Item>
           <Form.Item label={'description'} name={'description'}>
             <Input.TextArea />
           </Form.Item>
-          {/* <Form.Item>
-            <Button type="primary" onClick={onCheck}>
-              Check
-            </Button>
-          </Form.Item> */}
         </Form>
       </Modal>
     </>

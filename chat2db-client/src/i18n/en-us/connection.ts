@@ -17,4 +17,5 @@ export default {
   'connection.message.testSshConnection': 'Test the ssh connection',
   'connection.tableHeader.name': 'Name',
   'connection.tableHeader.value': 'Value',
+  'connection.menu.enterToWorkSpace': 'Go to DataSource',
 };

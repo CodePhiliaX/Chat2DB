@@ -9,7 +9,7 @@ import Tree from '../Tree';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { TreeNodeType } from '@/constants/tree';
-import { ITreeNode } from '@/typings/tree'
+import { ITreeNode } from '@/typings/tree';
 import { useReducerContext } from '../../index';
 import { workspaceActionType } from '../../context';
 interface IProps {
@@ -19,15 +19,25 @@ interface IProps {
 export default memo<IProps>(function WorkspaceLeft(props) {
   const { className } = props;
 
-  return <div className={classnames(styles.box, className)}>
-    <div className={styles.header}>
-      <RenderSelectDatabase></RenderSelectDatabase>
+  return (
+    <div className={classnames(styles.box, className)}>
+      <div className={styles.header}>
+        <RenderSelectDatabase></RenderSelectDatabase>
+      </div>
+      <div className={styles.save_box}>Save</div>
+      <Divider />
+      <RenderTableBox></RenderTableBox>
     </div>
+<<<<<<< HEAD
     <RenderSaveBox></RenderSaveBox>
     <Divider />
     <RenderTableBox></RenderTableBox>
   </div>
 })
+=======
+  );
+});
+>>>>>>> 92bbbb7a2c26113765f2a43d9fb6eaa27db66463
 
 interface Option {
   value: number;
@@ -49,18 +59,18 @@ function RenderSelectDatabase() {
       pageNo: 1,
       pageSize: 999,
     };
-    treeConfig[TreeNodeType.DATA_SOURCES].getChildren!(p).then(res => {
+    treeConfig[TreeNodeType.DATA_SOURCES].getChildren!(p).then((res) => {
       let newOptions: any = res.map((t) => {
         return {
           label: t.name,
           value: t.key,
           type: TreeNodeType.DATA_SOURCE,
           isLeaf: false,
-          databaseType: t.extraParams?.databaseType
+          databaseType: t.extraParams?.databaseType,
         };
       });
       setOptions(newOptions);
-    })
+    });
   }
 
   const onChange: any = (valueArr: any, selectedOptions: any) => {
@@ -74,36 +84,36 @@ function RenderSelectDatabase() {
       databaseSourceName: labelArr[0],
       databaseName: labelArr[1],
       schemaName: labelArr[2],
-      databaseType: selectedOptions[0].databaseType
-    }
+      databaseType: selectedOptions[0].databaseType,
+    };
 
     dispatch({
       type: workspaceActionType.CURRENT_WORKSPACE_DATA,
-      payload: currentWorkspaceData
+      payload: currentWorkspaceData,
     });
   };
 
   // 及联loadData
   const loadData = (selectedOptions: any) => {
     if (selectedOptions.length > 1) {
-      return
+      return;
     }
 
     const targetOption = selectedOptions[0];
     treeConfig[TreeNodeType.DATA_SOURCE].getChildren!({
-      id: targetOption.value
-    }).then(res => {
+      id: targetOption.value,
+    }).then((res) => {
       let newOptions = res.map((t) => {
         return {
           label: t.name,
           value: t.key,
           type: TreeNodeType.DATABASE,
-          databaseType: t.extraParams?.databaseType
+          databaseType: t.extraParams?.databaseType,
         };
       });
       targetOption.children = newOptions;
       setOptions([...(options || [])]);
-    })
+    });
 
     // TODO:根据后端字段 如果有SCHEMAS再去查询SCHEMAS
     // if (targetOption.type === TreeNodeType.SCHEMAS) {
@@ -122,7 +132,6 @@ function RenderSelectDatabase() {
     //   })
     // } else {
     // }
-
   };
 
   const dropdownRender = (menus: React.ReactNode) => (
@@ -134,7 +143,7 @@ function RenderSelectDatabase() {
 
   function renderCurrentSelected() {
     const { databaseName, schemaName, databaseSourceName } = currentWorkspaceData;
-    const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter(t => t);
+    const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
     return currentSelectedArr.join('/');
   }
 
@@ -147,16 +156,17 @@ function RenderSelectDatabase() {
         loadData={loadData}
         bordered={false}
         dropdownRender={dropdownRender}
+        placeholder={'xxxxxxx'}
       >
         <div className={styles.current_database}>
-          <div className={styles.name}>
-            {renderCurrentSelected()}
-          </div>
+          <div className={styles.name}>{renderCurrentSelected()}</div>
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
       <div className={styles.other_operations}>
-        <div className={styles.icon_box}><Iconfont code='&#xec08;' /></div>
+        <div className={styles.icon_box}>
+          <Iconfont code="&#xec08;" />
+        </div>
       </div>
     </div>
   );
@@ -169,22 +179,30 @@ function RenderTableBox() {
 
   useEffect(() => {
     getInitialData();
-  }, [currentWorkspaceData])
+  }, [currentWorkspaceData]);
 
   function getInitialData() {
     treeConfig[TreeNodeType.TABLES].getChildren!({
       pageNo: 1,
       pageSize: 999,
       ...currentWorkspaceData,
-      extraParams: currentWorkspaceData
-    }).then(res => {
+      extraParams: currentWorkspaceData,
+    }).then((res) => {
       setInitialData(res);
-    })
+    });
   }
 
+<<<<<<< HEAD
   return <div className={styles.table_box}>
     <Tree className={styles.tree} initialData={initialData}></Tree>
   </div>
+=======
+  return (
+    <div className={styles.table_box}>
+      <Tree className={styles.tree} initialData={initialData}></Tree>
+    </div>
+  );
+>>>>>>> 92bbbb7a2c26113765f2a43d9fb6eaa27db66463
 }
 
 function RenderSaveBox(){

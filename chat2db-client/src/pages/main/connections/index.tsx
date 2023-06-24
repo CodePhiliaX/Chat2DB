@@ -82,6 +82,13 @@ export default memo<IProps>(function Connections(props) {
                 menu={{
                   items: [
                     {
+                      key: 'EnterWorkSpace',
+                      label: i18n('connection.menu.enterToWorkSpace'),
+                      onClick: () => {
+                        window.location.replace('/workspace');
+                      },
+                    },
+                    {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
                       onClick: async ({ domEvent }) => {
