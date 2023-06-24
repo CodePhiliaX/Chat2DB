@@ -36,6 +36,7 @@ interface IProps {
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
   hasAi2Lang: boolean;
   value?: string;
+  onChangeValue?: Function;
   executeParams: {
     databaseName: string;
     dataSourceId: number;
@@ -48,7 +49,7 @@ interface IProps {
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, value, executeParams } = props;
+  const { hasAiChat = true, value, executeParams, onChangeValue } = props;
   const uid = useMemo(() => uuid(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -60,6 +61,10 @@ function Console(props: IProps) {
   useEffect(() => {
     setContext(value);
   }, [value]);
+
+  useEffect(()=>{
+    onChangeValue?.(value);
+  },[context])
 
   const onPressChatInput = (value: string) => {
     const params = formatParams({
@@ -126,7 +131,7 @@ function Console(props: IProps) {
       });
   };
 
-  const saveWindowTab = () => {
+  const saveConsole = () => {
     // let p = {
     //   id: windowTab.consoleId,
     //   name: windowTab?.name,
@@ -183,7 +188,7 @@ function Console(props: IProps) {
           <Button type="primary" style={{ marginRight: '10px' }} onClick={executeSQL}>
             RUN
           </Button>
-          <Button type="default" onClick={saveWindowTab}>
+          <Button type="default" onClick={saveConsole}>
             SAVE
           </Button>
         </div>
