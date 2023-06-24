@@ -28,16 +28,8 @@ export default memo<IProps>(function WorkspaceLeft(props) {
       <Divider />
       <RenderTableBox></RenderTableBox>
     </div>
-<<<<<<< HEAD
-    <RenderSaveBox></RenderSaveBox>
-    <Divider />
-    <RenderTableBox></RenderTableBox>
-  </div>
-})
-=======
   );
 });
->>>>>>> 92bbbb7a2c26113765f2a43d9fb6eaa27db66463
 
 interface Option {
   value: number;
@@ -192,53 +184,47 @@ function RenderTableBox() {
     });
   }
 
-<<<<<<< HEAD
-  return <div className={styles.table_box}>
-    <Tree className={styles.tree} initialData={initialData}></Tree>
-  </div>
-=======
   return (
     <div className={styles.table_box}>
       <Tree className={styles.tree} initialData={initialData}></Tree>
     </div>
   );
->>>>>>> 92bbbb7a2c26113765f2a43d9fb6eaa27db66463
 }
 
-function RenderSaveBox(){
-  const [savedList,setSaveList] = useState<any>();
-  const {state,dispatch} = useReducerContext();
-  const {currentWorkspaceData} = state;
+function RenderSaveBox() {
+  const [savedList, setSaveList] = useState<any>();
+  const { state, dispatch } = useReducerContext();
+  const { currentWorkspaceData } = state;
 
-  useEffect(()=>{
+  useEffect(() => {
     getSaveList();
-  },[currentWorkspaceData])
+  }, [currentWorkspaceData])
 
 
-  function getSaveList(){
+  function getSaveList() {
     let p = {
       pageNo: 1,
       pageSize: 999,
       ...currentWorkspaceData
     }
 
-    historyService.getSaveList(p).then(res=>{
+    historyService.getSaveList(p).then(res => {
       setSaveList(res.data)
     })
   }
 
   return <div className={styles.save_box}>
     <div>Saved</div>
-  
+
     <div className={styles.save_box_list}>
-    <LoadingContent data={savedList} handleEmpty>
-      {
-        savedList?.map(t=>{
-          return <div>
-            {t.name}
-          </div>
-        })
-      }
+      <LoadingContent data={savedList} handleEmpty>
+        {
+          savedList?.map(t => {
+            return <div>
+              {t.name}
+            </div>
+          })
+        }
       </LoadingContent>
     </div>
   </div>
