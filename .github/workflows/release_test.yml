@@ -104,7 +104,8 @@ jobs:
         run: |
           cd chat2db-client
           npm install 
-          npm run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }} --appPort=10822
+          npm run build:web:prod --appVersion=1.0.${{ github.run_id }} --appPort=10822
+
       # cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
       # 编译服务端java版本
       - name: Build Java
