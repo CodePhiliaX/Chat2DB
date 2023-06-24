@@ -7,23 +7,19 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-/**
- * 数据库
- *
- * @author Jiaju Zhuang
- */
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Database {
-    /**
-     * 数据库名字
-     */
-    private String name;
+public class MetaSchema {
 
     /**
-     * schema name
+     * database list
+     */
+    private List<Database> databases;
+
+    /**
+     * schema list
      */
     private List<Schema> schemas;
 }
