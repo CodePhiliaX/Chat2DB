@@ -70,6 +70,7 @@
     "asar": false,
     "files": [
       "dist/**/*",
+      "!node_modules",
       "static/",
       "src/main",
       "package.json"
