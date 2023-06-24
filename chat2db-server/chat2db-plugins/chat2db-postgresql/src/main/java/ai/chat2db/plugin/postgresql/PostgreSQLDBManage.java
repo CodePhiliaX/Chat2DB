@@ -11,7 +11,7 @@ public class PostgreSQLDBManage implements DBManage {
     @Override
     public void connectDatabase(String database) {
         try {
-            SQLExecutor.getInstance().execute("connect " + database + "");
+            SQLExecutor.getInstance().execute("SELECT pg_database_size('"+database+"');");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
