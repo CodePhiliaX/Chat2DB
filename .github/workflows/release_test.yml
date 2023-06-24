@@ -74,12 +74,14 @@ jobs:
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
+          mkdir chat2db-client/static
           cp -r "${{ env.JAVA_HOME }}" chat2db-client/static/jre
 
       # 复制jre macOS
       - name: Copy Jre for macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
+          mkdir chat2db-client/static
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
