@@ -17,4 +17,5 @@ export default {
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',
   'connection.tableHeader.value': '值',
+  'connection.menu.enterToWorkSpace': '前往数据源',
 }
