@@ -1,5 +1,6 @@
 export const commonToken = {
-  "wireframe": true,
-  "borderRadius": '4px',
-  "borderRadiusLG": '8px',
-}
+  fontSize1: 14,
+  wireframe: true,
+  borderRadius: 4,
+  borderRadiusLG: 12,
+};
