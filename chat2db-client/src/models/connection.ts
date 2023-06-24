@@ -21,7 +21,7 @@ export default {
                 connectionList: payload
             }
         },
-
+        
         // 设置当前选着的Connection
         setCurConnection(
             state: ConnectionState,
@@ -29,6 +29,7 @@ export default {
         ) {
             return { ...state, curConnection: payload }
         },
+
 
 
     }
