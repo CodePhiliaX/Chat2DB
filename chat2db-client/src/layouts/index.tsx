@@ -32,6 +32,8 @@ declare global {
   const __BUILD_TIME__: string;
 }
 
+console.log(process.env.UMI_ENV);
+
 window._ENV = process.env.UMI_ENV! || 'local';
 window._Lang = getLang();
 
