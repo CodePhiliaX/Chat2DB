@@ -107,7 +107,7 @@ jobs:
           cd chat2db-client
           yarn install 
           yarn run build:web:prod --appVersion=1.0.${{ github.run_id }} --appPort=10822
-          cp dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 编译服务端java版本
       - name: Build Java
