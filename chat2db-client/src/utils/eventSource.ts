@@ -12,11 +12,15 @@ const connectToEventSource = (params: {
     throw new Error('url, onMessage, and onError are required');
   }
 
-  const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, {
+  const DBHUB = localStorage.getItem('DBHUB');
+  const p = {
     headers: {
       uid,
-      DBHUB: localStorage.getItem('DBHUB') || ''
-    },
+      DBHUB,
+    }
+  }
+  const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, {
+    p
   });
 
   eventSource.onmessage = (event) => {
