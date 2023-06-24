@@ -289,17 +289,19 @@ export default connect(({ global }: { global: GlobalState }) => ({
 
 {
   /* 
-        <Button
-          onClick={() => {
-            props.dispatch({
-              type: 'global/updateSettings',
-              payload: {
-                theme: 'dark',
-                language: 'en',
-              },
-            });
-          }}
-        >
-          测试dva
-        </Button> */
+    <Button
+      onClick={() => {
+        props.dispatch({
+          type: 'global/updateSettings',
+          payload: {
+            theme: 'dark',
+            language: 'en',
+          },
+        });
+      }}
+    >
+      测试dva
+    </Button>
+        
+  */
 }

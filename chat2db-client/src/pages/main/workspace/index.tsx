@@ -29,10 +29,10 @@ export default memo<IProps>(function workspace(props) {
   return (
     <WorkspaceContext.Provider value={{ state, dispatch }}>
       <DraggableContainer className={styles.box}>
-        <div ref={draggableRef} className={styles.box_left}>
+        <div ref={draggableRef} className={styles.boxLeft}>
           <WorkspaceLeft />
         </div>
-        <div className={styles.box_right}>
+        <div className={styles.boxRight}>
           <WorkspaceRight />
         </div>
       </DraggableContainer>
