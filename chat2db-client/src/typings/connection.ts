@@ -13,9 +13,11 @@ export interface IConnectionDetails {
   user: string;
   password: string;
   type: DatabaseTypeCode;
-  tabOpened: 'y' | 'n';
+  ConsoleOpenedStatus: 'y' | 'n';
   EnvType: ConnectionEnv;
   extendInfo: IConnectionExtendInfoItem[];
   ssh: any;
   [key: string]: any;
 }
+
+export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>
