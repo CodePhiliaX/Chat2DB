@@ -12,6 +12,8 @@ import { IConnectionDetails } from '@/typings/connection';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
+import { connect } from 'umi';
+import { ConnectionState } from '@/models/connection';
 
 interface IMenu {
   key: number;
@@ -19,9 +21,9 @@ interface IMenu {
   icon: React.ReactNode;
   meta: IConnectionDetails;
 }
-interface IProps {}
+interface IProps { }
 
-export default memo<IProps>(function Connections(props) {
+function Connections(props: IProps) {
   const volatileRef = useRef<any>();
   const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
@@ -175,4 +177,7 @@ export default memo<IProps>(function Connections(props) {
       </div>
     </div>
   );
-});
+};
+
+
+export default connect(({ connection }: { connection: ConnectionState }) => (connection))(Connections);
