@@ -14,7 +14,7 @@ import Chat from './chat';
 
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
-
+console.log('UMI_ENV', process.env.UMI_ENV)
 const navConfig: INavItem[] = [
   {
     key: 'workspace',
