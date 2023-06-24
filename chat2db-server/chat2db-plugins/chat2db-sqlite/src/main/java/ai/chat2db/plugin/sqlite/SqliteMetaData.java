@@ -2,6 +2,8 @@ package ai.chat2db.plugin.sqlite;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.sql.SQLExecutor;
 import com.google.common.collect.Lists;
 
@@ -24,12 +26,12 @@ public class SqliteMetaData extends DefaultMetaService implements MetaData {
         });
     }
     @Override
-    public List<String> databases() {
-        return Lists.newArrayList("main");
+    public List<Database> databases() {
+        return Lists.newArrayList(Database.builder().name("main").build());
     }
 
     @Override
-    public List<String> schemas(String databaseName) {
+    public List<Schema> schemas(String databaseName) {
         return Lists.newArrayList();
     }
 }

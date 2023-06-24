@@ -8,12 +8,9 @@ import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Sql;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.web.api.controller.rdb.vo.*;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlRequest;
@@ -22,12 +19,6 @@ import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableDeleteRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableDetailQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableRequest;
-import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -199,4 +190,6 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract SchemaVO schemaDto2vo(Schema dto);
+
+    public abstract MetaSchemaVO metaSchemaDto2vo(MetaSchema data);
 }

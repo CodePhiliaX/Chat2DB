@@ -18,6 +18,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schema {
+
+    /**
+     * databaseName
+     */
+    private String databaseName;
     /**
      * 数据名字
      */

@@ -2,21 +2,12 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
-import ai.chat2db.server.domain.api.param.DropParam;
-import ai.chat2db.server.domain.api.param.SchemaOperationParam;
-import ai.chat2db.server.domain.api.param.SchemaQueryParam;
-import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
-import ai.chat2db.server.domain.api.param.TablePageQueryParam;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.server.domain.api.param.TableSelector;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.server.web.api.controller.rdb.vo.*;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -34,11 +25,6 @@ import ai.chat2db.server.web.api.controller.rdb.request.TableModifySqlRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableUpdateDdlQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateDatabaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateSchemaRequest;
-import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
@@ -89,7 +75,7 @@ public class RdbDdlController {
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-            request.getPageSize());
+                request.getPageSize());
     }
 
     /**
@@ -104,6 +90,20 @@ public class RdbDdlController {
         ListResult<Schema> tableColumns = databaseService.querySchema(queryParam);
         List<SchemaVO> tableVOS = rdbWebConverter.schemaDto2vo(tableColumns.getData());
         return ListResult.of(tableVOS);
+    }
+
+    /**
+     * 查询数据库里包含的database_schema_list
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/database_schema_list")
+    public DataResult<MetaSchemaVO> databaseSchemaList(@Valid DataSourceBaseRequest request) {
+        MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        DataResult<MetaSchema> result = databaseService.queryDatabaseSchema(queryParam);
+        MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
+        return DataResult.of(schemaDto2vo);
     }
 
     /**
@@ -139,7 +139,7 @@ public class RdbDdlController {
     @PostMapping("/modify_database")
     public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
         DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName())
-            .newDatabaseName(request.getNewDatabaseName()).build();
+                .newDatabaseName(request.getNewDatabaseName()).build();
         return databaseService.modifyDatabase(param);
     }
 
@@ -152,7 +152,7 @@ public class RdbDdlController {
     @PostMapping("/delete_schema")
     public ActionResult deleteSchema(@Valid @RequestBody DataSourceBaseRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).build();
+                .schemaName(request.getSchemaName()).build();
         return databaseService.deleteSchema(param);
     }
 
@@ -165,7 +165,7 @@ public class RdbDdlController {
     @PostMapping("/create_schema")
     public ActionResult createSchema(@Valid @RequestBody DataSourceBaseRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).build();
+                .schemaName(request.getSchemaName()).build();
         return databaseService.createSchema(param);
     }
 
@@ -178,7 +178,7 @@ public class RdbDdlController {
     @PostMapping("/modify_schema")
     public ActionResult modifySchema(@Valid @RequestBody UpdateSchemaRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
+                .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
         return databaseService.modifySchema(param);
     }
 
@@ -283,9 +283,9 @@ public class RdbDdlController {
     @GetMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid TableModifySqlRequest request) {
         return tableService.buildSql(
-                rdbWebConverter.tableRequest2param(request.getOldTable()),
-                rdbWebConverter.tableRequest2param(request.getNewTable()))
-            .map(rdbWebConverter::dto2vo);
+                        rdbWebConverter.tableRequest2param(request.getOldTable()),
+                        rdbWebConverter.tableRequest2param(request.getNewTable()))
+                .map(rdbWebConverter::dto2vo);
     }
 
     /**
