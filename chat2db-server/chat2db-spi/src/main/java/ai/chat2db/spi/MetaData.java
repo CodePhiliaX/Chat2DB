@@ -6,12 +6,7 @@ package ai.chat2db.spi;
 
 import java.util.List;
 
-import ai.chat2db.spi.model.Function;
-import ai.chat2db.spi.model.Procedure;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.model.*;
 import jakarta.validation.constraints.NotEmpty;
 
 /**
@@ -26,7 +21,7 @@ public interface MetaData {
      *
      * @return
      */
-    List<String> databases();
+    List<Database> databases();
 
     /**
      * Querying all schemas under a database
@@ -34,7 +29,7 @@ public interface MetaData {
      * @param databaseName
      * @return
      */
-    List<String> schemas(String databaseName);
+    List<Schema> schemas(String databaseName);
 
     /**
      * Querying DDL information

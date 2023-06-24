@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -203,13 +205,16 @@ public class SQLExecutor {
      * @param schemaName
      * @return
      */
-    public List<String> schemas(String databaseName, String schemaName) {
-        List<String> schemaList = Lists.newArrayList();
+    public List<Map<String,String>> schemas(String databaseName, String schemaName) {
+        List<Map<String,String>> schemaList = Lists.newArrayList();
         try {
             ResultSet resultSet = getConnection().getMetaData().getSchemas(databaseName, schemaName);
             if (resultSet != null) {
                 while (resultSet.next()) {
-                    schemaList.add(resultSet.getString("TABLE_SCHEM"));
+                    Map<String,String> map = new HashMap<>();
+                    map.put("name",resultSet.getString("TABLE_SCHEM"));
+                    map.put("databaseName",resultSet.getString("TABLE_CATALOG"));
+                    schemaList.add(map);
                 }
             }
         } catch (SQLException e) {

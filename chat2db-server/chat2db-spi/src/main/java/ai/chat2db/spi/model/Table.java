@@ -59,6 +59,9 @@ public class Table {
      */
     private String type;
 
-
+    /**
+     * 是否置顶
+     */
+    private boolean pinned;
 }
 

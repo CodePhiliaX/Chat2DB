@@ -2,6 +2,7 @@ package ai.chat2db.plugin.redis;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,15 +20,16 @@ public class RedisMetaData extends DefaultMetaService implements MetaData {
 
 
     @Override
-    public List<String> databases() {
-        List<String> databases = new ArrayList<>();
+    public List<Database> databases() {
+        List<Database> databases = new ArrayList<>();
         return SQLExecutor.getInstance().executeSql("config get databases", resultSet -> {
             try {
                 if (resultSet.next()) {
                     Object count = resultSet.getObject(2);
                     if(StringUtils.isNotBlank(count.toString())) {
                         for (int i = 0; i < Integer.parseInt(count.toString()); i++) {
-                            databases.add(String.valueOf(i));
+                            Database database = Database.builder().name(String.valueOf(i)).build();
+                            databases.add(database);
                         }
                     }
                 }
