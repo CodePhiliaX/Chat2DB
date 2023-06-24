@@ -39,7 +39,6 @@ const navConfig: INavItem[] = [
 ];
 
 const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
-
 function MainPage() {
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > 0 ? initPageIndex : 0]);
   function switchingNav(item: INavItem) {

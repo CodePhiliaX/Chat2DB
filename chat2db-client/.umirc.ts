@@ -45,4 +45,5 @@ export default defineConfig({
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   favicons: ['logo.ico'],
+
 });
