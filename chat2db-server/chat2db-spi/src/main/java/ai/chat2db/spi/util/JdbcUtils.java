@@ -177,9 +177,9 @@ public class JdbcUtils {
         }
         if (obj instanceof Date date) {
             if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
-                return DateUtil.format(rs.getDate(index), DEFAULT_DATETIME_FORMAT);
+                return DateUtil.formatDateTime(date);
             }
-            return DateUtil.format(date, DEFAULT_DATETIME_FORMAT);
+            return DateUtil.formatDate(date);
         }
         if (obj instanceof LocalDateTime localDateTime) {
             return localDateTime.toString();
