@@ -12,7 +12,7 @@ import { IConnectionDetails } from '@/typings/connection';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import { connect } from 'umi';
+import { connect, history } from 'umi';
 import { ConnectionState } from '@/models/connection';
 
 interface IMenu {
@@ -21,25 +21,38 @@ interface IMenu {
   icon: React.ReactNode;
   meta: IConnectionDetails;
 }
-interface IProps { }
+interface IProps {
+  connectionList: IConnectionDetails[];
+  curConnection: IConnectionDetails;
+  dispatch: (p: { type: string, payload: any }) => void
+
+}
 
 function Connections(props: IProps) {
+  const { connectionList } = props;
   const volatileRef = useRef<any>();
-  const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
+  // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
+
+
 
   useEffect(() => {
     getConnectionList();
   }, []);
 
-  function getConnectionList() {
+  const getConnectionList = async () => {
     let p = {
       pageNo: 1,
       pageSize: 999,
     };
-    connectionService.getList(p).then((res) => {
-      setConnectionList(res.data);
-    });
+    let res = await connectionService.getList(p)
+    // setConnectionList(res.data);
+
+    props.dispatch({
+      type: 'connection/setConnectionList',
+      payload: res.data,
+    })
+
   }
 
   function handleCreateConnections(database: IDatabase) {
@@ -87,7 +100,12 @@ function Connections(props: IProps) {
                       key: 'EnterWorkSpace',
                       label: i18n('connection.menu.enterToWorkSpace'),
                       onClick: () => {
-                        window.location.replace('/workspace');
+                        props.dispatch({
+                          type: 'connection/setCurConnection',
+                          payload: menu.meta,
+                        })
+                        history.push('/workspace')
+                        // window.location.replace('/workspace');
                       },
                     },
                     {
