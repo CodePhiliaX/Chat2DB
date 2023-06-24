@@ -30,7 +30,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
 
   useEffect(() => {
     getConsoleList();
-  }, []);
+  }, [currentWorkspaceData]);
 
   useEffect(() => {
     if (dblclickTreeNodeData) {
@@ -38,7 +38,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
       const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
       let flag = false;
 
-      consoleList?.map((i) => {
+      consoleList?.forEach((i) => {
         if (i.databaseName === databaseName && i.dataSourceId === dataSourceId) {
           flag = true;
           setActiveConsoleId(i.id);
@@ -84,6 +84,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
       pageNo: 1,
       pageSize: 999,
       tabOpened: TabOpened.IS_OPEN,
+      ...currentWorkspaceData,
     };
 
     historyService.getSaveList(p).then((res) => {
@@ -186,54 +187,62 @@ export default memo<IProps>(function WorkspaceRight(props) {
     }
   };
 
+  function render() {
+    return <div className={styles.ears}>
+      Chat2DB
+    </div>
+  }
+
   return (
     <div className={classnames(styles.box, className)}>
-      <div className={styles.tabBox}>
-        <Tabs
-          hideAdd
-          onChange={onChange}
-          onEdit={onEdit}
-          type="editable-card"
-          items={(consoleList || [])?.map((t, i) => {
-            return {
-              label: t.name,
-              key: t.id + '',
-            };
-          })}
-        />
-      </div>
-      {consoleList?.map((t, index) => {
-        return (
-          <div className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
-            <DraggableContainer layout="column" className={styles.boxRightCenter}>
-              <div ref={draggableRef} className={styles.boxRightConsole}>
-                <Console
-                  executeParams={{
-                    databaseName: currentWorkspaceData.databaseName,
-                    dataSourceId: currentWorkspaceData.dataSourceId,
-                    type: currentWorkspaceData.databaseType,
-                    schemaName: currentWorkspaceData?.schemaName,
-                    consoleId: t.id,
-                    consoleName: t.name,
-                  }}
-                  hasAiChat={true}
-                  hasAi2Lang={true}
-                  value={consoleValue}
-                  onExecuteSQL={(result) => {
-                    console.log('onExecuteSQL', result);
-                    setResultData(result);
-                  }}
-                />
-              </div>
-              <div className={styles.boxRightResult}>
-                <LoadingContent data={resultData} handleEmpty>
-                  <SearchResult manageResultDataList={resultData} />
-                </LoadingContent>
-              </div>
-            </DraggableContainer>
-          </div>
-        );
-      })}
+      <LoadingContent data={consoleList} handleEmpty empty={render()}>
+        <div className={styles.tabBox}>
+          <Tabs
+            hideAdd
+            onChange={onChange}
+            onEdit={onEdit}
+            type="editable-card"
+            items={(consoleList || [])?.map((t, i) => {
+              return {
+                label: t.name,
+                key: t.id + '',
+              };
+            })}
+          />
+        </div>
+        {consoleList?.map((t, index) => {
+          return (
+            <div className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
+              <DraggableContainer layout="column" className={styles.boxRightCenter}>
+                <div ref={draggableRef} className={styles.boxRightConsole}>
+                  <Console
+                    executeParams={{
+                      databaseName: currentWorkspaceData.databaseName,
+                      dataSourceId: currentWorkspaceData.dataSourceId,
+                      type: currentWorkspaceData.databaseType,
+                      schemaName: currentWorkspaceData?.schemaName,
+                      consoleId: t.id,
+                      consoleName: t.name,
+                    }}
+                    hasAiChat={true}
+                    hasAi2Lang={true}
+                    value={consoleValue}
+                    onExecuteSQL={(result) => {
+                      console.log('onExecuteSQL', result);
+                      setResultData(result);
+                    }}
+                  />
+                </div>
+                <div className={styles.boxRightResult}>
+                  <LoadingContent data={resultData} handleEmpty>
+                    <SearchResult manageResultDataList={resultData} />
+                  </LoadingContent>
+                </div>
+              </DraggableContainer>
+            </div>
+          );
+        })}
+      </LoadingContent>
     </div>
   );
 });

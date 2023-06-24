@@ -3,9 +3,11 @@ import styles from './index.less';
 import classnames from 'classnames';
 import { Cascader, Divider } from 'antd';
 import connectionService from '@/service/connection';
+import historyService from '@/service/history';
 import { treeConfig } from '../Tree/treeConfig';
 import Tree from '../Tree';
 import Iconfont from '@/components/Iconfont';
+import LoadingContent from '@/components/Loading/LoadingContent';
 import { TreeNodeType } from '@/constants/tree';
 import { ITreeNode } from '@/typings/tree'
 import { useReducerContext } from '../../index';
@@ -21,7 +23,7 @@ export default memo<IProps>(function WorkspaceLeft(props) {
     <div className={styles.header}>
       <RenderSelectDatabase></RenderSelectDatabase>
     </div>
-    <div className={styles.save_box}>Save</div>
+    <RenderSaveBox></RenderSaveBox>
     <Divider />
     <RenderTableBox></RenderTableBox>
   </div>
@@ -180,8 +182,46 @@ function RenderTableBox() {
     })
   }
 
-
   return <div className={styles.table_box}>
     <Tree className={styles.tree} initialData={initialData}></Tree>
+  </div>
+}
+
+function RenderSaveBox(){
+  const [savedList,setSaveList] = useState<any>();
+  const {state,dispatch} = useReducerContext();
+  const {currentWorkspaceData} = state;
+
+  useEffect(()=>{
+    getSaveList();
+  },[currentWorkspaceData])
+
+
+  function getSaveList(){
+    let p = {
+      pageNo: 1,
+      pageSize: 999,
+      ...currentWorkspaceData
+    }
+
+    historyService.getSaveList(p).then(res=>{
+      setSaveList(res.data)
+    })
+  }
+
+  return <div className={styles.save_box}>
+    <div>Saved</div>
+  
+    <div className={styles.save_box_list}>
+    <LoadingContent data={savedList} handleEmpty>
+      {
+        savedList?.map(t=>{
+          return <div>
+            {t.name}
+          </div>
+        })
+      }
+      </LoadingContent>
+    </div>
   </div>
 }

@@ -7,6 +7,13 @@ export interface IPageResponse<T> {
   hasNextPage?: boolean;
 }
 
+
+export interface IPageParams {
+  searchKey?: string;
+  pageNo: number;
+  pageSize: number;
+}
+
 export interface ISaveConsole {
   id: number;
   name: string;
