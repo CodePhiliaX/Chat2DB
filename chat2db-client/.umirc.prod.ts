@@ -22,6 +22,6 @@ export default defineConfig({
   publicPath: UMI_PublicPath,
   chainWebpack,
   define: {
-    'process.env.UMI_ENV': 'prod'
+    'process.env.UMI_ENV': process.env.UMI_ENV,
   }
 });
