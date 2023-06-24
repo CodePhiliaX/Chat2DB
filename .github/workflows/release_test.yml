@@ -90,6 +90,7 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 16
+          cache: 'yarn'
 
       # 安装java
       - name: Install Java and Maven
