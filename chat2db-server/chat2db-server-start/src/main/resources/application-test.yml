@@ -3,10 +3,6 @@ spring:
     # 配置自带数据库的相对路径
     url: jdbc:h2:~/.chat2db/db/chat2db_test;MODE=MYSQL
     driver-class-name: org.h2.Driver
-  # 用于数据库表结构版本管理
-  # 测试的表结构还是用dev的 ，但是有自己单独的库 确保多个客户端运行
-  flyway:
-    locations: classpath:db/migration/dev
   h2:
     console:
       enabled: true

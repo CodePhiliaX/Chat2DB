@@ -6,13 +6,12 @@ package ai.chat2db.server.web.api.aspect;
 
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
-import ai.chat2db.server.tools.base.excption.SystemException;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsoleRequestInfo;
-
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -61,8 +60,8 @@ public class ConnectionInfoHandler {
     public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId) {
         DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
         DataSource dataSource = result.getData();
-        if (!result.success() && dataSource != null) {
-            throw new SystemException("dataSourceId ERROR");
+        if (!result.success() && dataSource == null) {
+            throw new ParamBusinessException("dataSourceId");
         }
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setAlias(dataSource.getAlias());

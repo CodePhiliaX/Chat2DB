@@ -1,0 +1,169 @@
+{
+  "success": true,
+  "errorCode": null,
+  "errorMessage": null,
+  "data": [
+    {
+      "sql": "SELECT *\nFROM students\nLIMIT 500",
+      "description": "执行成功",
+      "message": null,
+      "success": true,
+      "headerList": [
+        {
+          "dataType": "NUMERIC",
+          "name": "id"
+        },
+        {
+          "dataType": "STRING",
+          "name": "name"
+        },
+        {
+          "dataType": "STRING",
+          "name": "gender"
+        },
+        {
+          "dataType": "DATETIME",
+          "name": "birthday"
+        },
+        {
+          "dataType": "STRING",
+          "name": "address"
+        },
+        {
+          "dataType": "STRING",
+          "name": "phone"
+        },
+        {
+          "dataType": "STRING",
+          "name": "email"
+        },
+        {
+          "dataType": "DATETIME",
+          "name": "create_time"
+        },
+        {
+          "dataType": "DATETIME",
+          "name": "update_time"
+        }
+      ],
+      "dataList": [
+        [
+          "1",
+          "张三",
+          "男",
+          null,
+          "北京市海淀区",
+          "12345678901",
+          "zhangsan@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "2",
+          "李四",
+          "男",
+          null,
+          "上海市浦东新区",
+          "12345678902",
+          "lisi@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "3",
+          "王五",
+          "女",
+          null,
+          "广州市天河区",
+          "12345678903",
+          "wangwu@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "4",
+          "赵六",
+          "男",
+          null,
+          "深圳市南山区",
+          "12345678904",
+          "zhaoliu@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "5",
+          "陈七",
+          "女",
+          null,
+          "武汉市江汉区",
+          "12345678905",
+          "chenqi@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "6",
+          "刘八",
+          "男",
+          null,
+          "成都市高新区",
+          "12345678906",
+          "liuba@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "7",
+          "魏九",
+          "女",
+          null,
+          "重庆市渝北区",
+          "12345678907",
+          "weijiu@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "8",
+          "孙十",
+          "男",
+          null,
+          "南京市鼓楼区",
+          "12345678908",
+          "sunshi@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "9",
+          "郑十一",
+          "男",
+          null,
+          "西安市雁塔区",
+          "12345678909",
+          "zhengshiyi@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ],
+        [
+          "10",
+          "许十二",
+          "女",
+          null,
+          "苏州市姑苏区",
+          "12345678910",
+          "xushier@example.com",
+          "2023-05-31 10:41:56.000",
+          "2023-05-31 10:41:56.000"
+        ]
+      ],
+      "sqlType": "SELECT",
+      "hasNextPage": false,
+      "pageNo": 1,
+      "pageSize": 500,
+      "duration": 6
+    }
+  ],
+  "traceId": null
+}
