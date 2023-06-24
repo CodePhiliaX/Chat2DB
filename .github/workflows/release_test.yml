@@ -120,6 +120,7 @@ jobs:
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
+          yarn run build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822
 
       # windows
       - name: Build/release Electron app for Windows
