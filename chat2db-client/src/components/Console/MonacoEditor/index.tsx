@@ -124,9 +124,9 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   useEffect(() => {
     const _ref = editorRef.current?.onDidChangeModelContent((e) => {
-      const curVal = editorRef.current.getValue();
-      if (props.onChange) props.onChange(curVal, e);
-      setEditorVal(curVal);
+      const curVal = editorRef.current?.getValue();
+      props.onChange?.(curVal || '', e);
+      setEditorVal(curVal || '');
     });
 
     return () => _ref && _ref.dispose();
