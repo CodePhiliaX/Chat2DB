@@ -21,7 +21,4 @@ const chainWebpack = (config: any, { webpack }: any) => {
 export default defineConfig({
   publicPath: UMI_PublicPath,
   chainWebpack,
-  define: {
-    'process.env.UMI_ENV': 'prod'
-  }
 });
