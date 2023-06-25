@@ -12,6 +12,8 @@ import { IConnectionDetails } from '@/typings/connection';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
+import { connect, history } from 'umi';
+import { ConnectionState } from '@/models/connection';
 
 interface IMenu {
   key: number;
@@ -19,25 +21,38 @@ interface IMenu {
   icon: React.ReactNode;
   meta: IConnectionDetails;
 }
-interface IProps {}
+interface IProps {
+  connectionList: IConnectionDetails[];
+  curConnection: IConnectionDetails;
+  dispatch: (p: { type: string, payload: any }) => void
 
-export default memo<IProps>(function Connections(props) {
+}
+
+function Connections(props: IProps) {
+  const { connectionList } = props;
   const volatileRef = useRef<any>();
-  const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
+  // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
+
+
 
   useEffect(() => {
     getConnectionList();
   }, []);
 
-  function getConnectionList() {
+  const getConnectionList = async () => {
     let p = {
       pageNo: 1,
       pageSize: 999,
     };
-    connectionService.getList(p).then((res) => {
-      setConnectionList(res.data);
-    });
+    let res = await connectionService.getList(p)
+    // setConnectionList(res.data);
+
+    props.dispatch({
+      type: 'connection/setConnectionList',
+      payload: res.data,
+    })
+
   }
 
   function handleCreateConnections(database: IDatabase) {
@@ -82,13 +97,23 @@ export default memo<IProps>(function Connections(props) {
                 menu={{
                   items: [
                     {
+                      key: 'EnterWorkSpace',
+                      label: i18n('connection.menu.enterToWorkSpace'),
+                      onClick: () => {
+                        props.dispatch({
+                          type: 'connection/setCurConnection',
+                          payload: menu.meta,
+                        })
+                        history.push('/workspace')
+                        // window.location.replace('/workspace');
+                      },
+                    },
+                    {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
                       onClick: async ({ domEvent }) => {
                         domEvent.preventDefault();
                         await connectionService.remove({ id: key });
-                        // if (key === curConnection.id) {
-                        // }
                         setCurConnection({});
                         getConnectionList();
                       },
@@ -170,4 +195,7 @@ export default memo<IProps>(function Connections(props) {
       </div>
     </div>
   );
-});
+};
+
+
+export default connect(({ connection }: { connection: ConnectionState }) => (connection))(Connections);

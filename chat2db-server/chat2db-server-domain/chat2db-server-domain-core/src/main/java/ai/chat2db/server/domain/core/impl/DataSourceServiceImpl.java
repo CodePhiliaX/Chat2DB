@@ -137,8 +137,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     public ListResult<Database> connect(Long id) {
         DatabaseQueryAllParam queryAllParam = new DatabaseQueryAllParam();
         queryAllParam.setDataSourceId(id);
-        List<String> databases = Chat2DBContext.getMetaData().databases();
-        return ListResult.of(EasyCollectionUtils.toList(databases, name -> Database.builder().name(name).build()));
+        List<Database> databases = Chat2DBContext.getMetaData().databases();
+        return ListResult.of(databases);
     }
 
     @Override

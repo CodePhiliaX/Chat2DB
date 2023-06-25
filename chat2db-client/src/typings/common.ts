@@ -1,4 +1,5 @@
 import { DatabaseTypeCode } from '@/constants/database';
+import { ConsoleOpenedStatus, ConsoleStatus } from '@/constants/common';
 export interface IPageResponse<T> {
   data: T[];
   pageNo: number;
@@ -7,17 +8,11 @@ export interface IPageResponse<T> {
   hasNextPage?: boolean;
 }
 
-export interface ISaveConsole {
-  id: number;
-  name: string;
-  ddl: string;
-  dataSourceId: number;
-  databaseName: string;
-  dataSourceName: string;
-  schemaName: string;
-  type: DatabaseTypeCode;
-  status: string;
-  connectable: boolean;
+
+export interface IPageParams {
+  searchKey?: string;
+  pageNo: number;
+  pageSize: number;
 }
 
 export interface IConsole {
@@ -28,6 +23,11 @@ export interface IConsole {
   databaseName: string;
   dataSourceName: string;
   schemaName: string;
-  databaseType: DatabaseTypeCode;
+  type: DatabaseTypeCode;
   status: string;
+  connectable: boolean;
+  tabOpened?: ConsoleOpenedStatus;
 }
+
+export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'schemaName'>
+

@@ -12,6 +12,7 @@ import { Button, Dropdown, Form, MenuProps, Select } from 'antd';
 import { initChartItem } from '..';
 import { deleteChart, getChartById } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
+import Console from '@/components/Console';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -57,6 +58,7 @@ interface IChartItemProps {
 function ChartItem(props: IChartItemProps) {
   const [chartData, setChartData] = useState<IChartItem>();
   const [chartMetaData, setChartMetaData] = useState<any>();
+  const [consoleValue, setConsoleValue] = useState<string>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [toggle, setToggle] = useState(false);
   const [form] = Form.useForm(); // 创建一个表单实例
@@ -176,7 +178,25 @@ function ChartItem(props: IChartItemProps) {
 
     return (
       <div className={styles.editorBlock}>
-        <div className={styles.editor}>编辑区域</div>
+        <div className={styles.editor}>
+          <Console
+            executeParams={{
+              // databaseName: currentWorkspaceData.databaseName,
+              // dataSourceId: currentWorkspaceData.dataSourceId,
+              // type: currentWorkspaceData.databaseType,
+              // schemaName: currentWorkspaceData?.schemaName,
+              // consoleId: t.id,
+              // consoleName: t.name,
+            }}
+            hasAiChat={true}
+            hasAi2Lang={false}
+            // value={consoleValue}
+            onExecuteSQL={(result) => {
+              console.log('onExecuteSQL', result);
+              // setResultData(result);
+            }}
+          />
+        </div>
         <Form
           form={form}
           labelCol={{ span: 6 }}

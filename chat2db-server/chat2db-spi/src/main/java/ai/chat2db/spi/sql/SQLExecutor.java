@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -69,32 +71,16 @@ public class SQLExecutor {
             return null;
         }
         log.info("execute:{}", sql);
-        Statement stmt = null;
-        try {
-            stmt = getConnection().createStatement();
+        try (Statement stmt = getConnection().createStatement();) {
             boolean query = stmt.execute(sql);
             // 代表是查询
             if (query) {
-                ResultSet rs = null;
-                try {
-                    rs = stmt.getResultSet();
+                try (ResultSet rs = stmt.getResultSet();) {
                     return function.apply(rs);
-                } finally {
-                    if (rs != null) {
-                        rs.close();
-                    }
                 }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
         }
         return null;
     }
@@ -111,10 +97,8 @@ public class SQLExecutor {
         log.info("execute:{}", sql);
 
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
-        Statement stmt = null;
-        try {
-            TimeInterval timeInterval=new TimeInterval();
-            stmt = connection.createStatement();
+        try (Statement stmt = connection.createStatement()) {
+            TimeInterval timeInterval = new TimeInterval();
             boolean query = stmt.execute(sql.replaceFirst(";", ""));
             executeResult.setDescription("执行成功");
             // 代表是查询
@@ -157,8 +141,6 @@ public class SQLExecutor {
                 // 修改或者其他
                 executeResult.setUpdateCount(stmt.getUpdateCount());
             }
-        } finally {
-            JdbcUtils.closeStatement(stmt);
         }
         return executeResult;
     }
@@ -182,15 +164,13 @@ public class SQLExecutor {
      */
     public List<String> databases() {
         List<String> tables = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getCatalogs();
+        try (ResultSet resultSet = getConnection().getMetaData().getCatalogs();) {
             if (resultSet != null) {
                 while (resultSet.next()) {
                     tables.add(resultSet.getString("TABLE_CAT"));
                 }
             }
         } catch (SQLException e) {
-            close();
             throw new RuntimeException(e);
         }
         return tables;
@@ -203,17 +183,18 @@ public class SQLExecutor {
      * @param schemaName
      * @return
      */
-    public List<String> schemas(String databaseName, String schemaName) {
-        List<String> schemaList = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getSchemas(databaseName, schemaName);
+    public List<Map<String, String>> schemas(String databaseName, String schemaName) {
+        List<Map<String, String>> schemaList = Lists.newArrayList();
+        try (ResultSet resultSet = getConnection().getMetaData().getSchemas(databaseName, schemaName)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
-                    schemaList.add(resultSet.getString("TABLE_SCHEM"));
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", resultSet.getString("TABLE_SCHEM"));
+                    map.put("databaseName", resultSet.getString("TABLE_CATALOG"));
+                    schemaList.add(map);
                 }
             }
         } catch (SQLException e) {
-            close();
             throw new RuntimeException(e);
         }
         return schemaList;
@@ -230,16 +211,14 @@ public class SQLExecutor {
      */
     public List<Table> tables(String databaseName, String schemaName, String tableName, String types[]) {
         List<Table> tables = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getTables(databaseName, schemaName, tableName,
-                    types);
+        try (ResultSet resultSet = getConnection().getMetaData().getTables(databaseName, schemaName, tableName,
+                types)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
                     tables.add(buildTable(resultSet));
                 }
             }
         } catch (SQLException e) {
-            close();
             throw new RuntimeException(e);
         }
         return tables;
@@ -256,16 +235,14 @@ public class SQLExecutor {
      */
     public List<TableColumn> columns(String databaseName, String schemaName, String tableName, String columnName) {
         List<TableColumn> tableColumns = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getColumns(databaseName, schemaName, tableName,
-                    columnName);
+        try (ResultSet resultSet = getConnection().getMetaData().getColumns(databaseName, schemaName, tableName,
+                columnName)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
                     tableColumns.add(buildColumn(resultSet));
                 }
             }
         } catch (Exception e) {
-            close();
             throw new RuntimeException(e);
         }
         return tableColumns;
@@ -281,10 +258,9 @@ public class SQLExecutor {
      */
     public List<TableIndex> indexes(String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
-        try {
+        try (ResultSet resultSet = getConnection().getMetaData().getIndexInfo(databaseName, schemaName, tableName, false,
+                false)) {
             List<TableIndexColumn> tableIndexColumns = Lists.newArrayList();
-            ResultSet resultSet = getConnection().getMetaData().getIndexInfo(databaseName, schemaName, tableName, false,
-                    false);
 
             while (resultSet != null && resultSet.next()) {
                 tableIndexColumns.add(buildTableIndexColumn(resultSet));
@@ -304,7 +280,6 @@ public class SQLExecutor {
                         tableIndices.add(tableIndex);
                     });
         } catch (SQLException e) {
-            close();
             throw new RuntimeException(e);
         }
         return tableIndices;
@@ -318,15 +293,13 @@ public class SQLExecutor {
      * @return
      */
     public List<ai.chat2db.spi.model.Function> functions(String databaseName,
-                                                                           String schemaName) {
+                                                         String schemaName) {
         List<ai.chat2db.spi.model.Function> functions = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getFunctions(databaseName, schemaName, null);
+        try (ResultSet resultSet = getConnection().getMetaData().getFunctions(databaseName, schemaName, null);) {
             while (resultSet != null && resultSet.next()) {
                 functions.add(buildFunction(resultSet));
             }
         } catch (Exception e) {
-            close();
             throw new RuntimeException(e);
         }
         return functions;
@@ -341,13 +314,11 @@ public class SQLExecutor {
      */
     public List<Procedure> procedures(String databaseName, String schemaName) {
         List<Procedure> procedures = Lists.newArrayList();
-        try {
-            ResultSet resultSet = getConnection().getMetaData().getProcedures(databaseName, schemaName, null);
+        try (ResultSet resultSet = getConnection().getMetaData().getProcedures(databaseName, schemaName, null)) {
             while (resultSet != null && resultSet.next()) {
                 procedures.add(buildProcedure(resultSet));
             }
         } catch (Exception e) {
-            close();
             throw new RuntimeException(e);
         }
         return procedures;
