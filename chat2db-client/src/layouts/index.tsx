@@ -33,6 +33,7 @@ declare global {
   const __ENV: string;
 }
 
+window._ENV = process.env.UMI_ENV! || 'local';
 window._Lang = getLang();
 
 const { getDesignToken, useToken } = theme;
