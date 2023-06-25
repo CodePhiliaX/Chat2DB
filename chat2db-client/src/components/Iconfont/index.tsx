@@ -6,12 +6,12 @@ import styles from './index.less';
 // 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
 if (__ENV === 'local') {
   let container = `
-    @font-face {
-      font-family: 'iconfont';  /* Project id 3633546 */
-      src: url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff2?t=1687102726036') format('woff2'),
-          url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff?t=1687102726036') format('woff'),
-          url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.ttf?t=1687102726036') format('truetype');
-    }
+  @font-face {
+    font-family: 'iconfont';  /* Project id 3633546 */
+    src: url('//at.alicdn.com/t/c/font_3633546_0ip5jtwa6g6.woff2?t=1687700061581') format('woff2'),
+         url('//at.alicdn.com/t/c/font_3633546_0ip5jtwa6g6.woff?t=1687700061581') format('woff'),
+         url('//at.alicdn.com/t/c/font_3633546_0ip5jtwa6g6.ttf?t=1687700061581') format('truetype');
+  }
   `
   let style = document.createElement("style");
   style.type = "text/css";

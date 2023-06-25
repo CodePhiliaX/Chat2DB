@@ -15,7 +15,7 @@ const antdPrimaryColor: IAntdPrimaryColor = {
     colorPrimary: '#51258f',
   },
   [PrimaryColorType.Polar_Blue]: {
-    colorPrimary: '#1677ff',
+    colorPrimary: '#597EF7',
   },
 };
 
