@@ -147,6 +147,13 @@ export default function CreateConnection(props: IProps) {
               ? i18n('common.message.modifySuccessfully')
               : i18n('common.message.addedSuccessfully'),
           );
+
+          if (type === submitType.SAVE) {
+            setBackfillData({
+              ...backfillData,
+              id: res,
+            });
+          }
         }
       })
       .finally(() => {
@@ -558,7 +565,7 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
           setData(newData);
         }
 
-        function blur() {}
+        function blur() { }
 
         if (index === data.length - 1) {
           return <Input onBlur={blur} disabled placeholder="<value>" onChange={change} value={value}></Input>;

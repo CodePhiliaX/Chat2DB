@@ -24,6 +24,5 @@ public class SchemaQueryParam {
     @NotNull
     private Long dataSourceId;
 
-    @NotNull
     private String dataBaseName;
 }

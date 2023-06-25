@@ -14,7 +14,7 @@ import Chat from './chat';
 
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
-
+console.log('UMI_ENV', process.env.UMI_ENV)
 const navConfig: INavItem[] = [
   {
     key: 'workspace',
@@ -39,7 +39,6 @@ const navConfig: INavItem[] = [
 ];
 
 const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
-
 function MainPage() {
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > 0 ? initPageIndex : 0]);
   function switchingNav(item: INavItem) {

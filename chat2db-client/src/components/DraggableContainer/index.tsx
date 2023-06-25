@@ -70,6 +70,8 @@ export default memo<IProps>(function DraggableContainer({
     clientStart: any,
     volatileBoxXY: any,
   ) => {
+    // TODO:当有多个拖动时有bug
+    return
     let computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 

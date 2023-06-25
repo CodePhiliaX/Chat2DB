@@ -3,13 +3,17 @@ import styles from './index.less';
 import classnames from 'classnames';
 import { Cascader, Divider } from 'antd';
 import connectionService from '@/service/connection';
+import historyService from '@/service/history';
 import { treeConfig } from '../Tree/treeConfig';
 import Tree from '../Tree';
 import Iconfont from '@/components/Iconfont';
+import LoadingContent from '@/components/Loading/LoadingContent';
 import { TreeNodeType } from '@/constants/tree';
-import { ITreeNode } from '@/typings/tree'
+import { ITreeNode } from '@/typings/tree';
 import { useReducerContext } from '../../index';
 import { workspaceActionType } from '../../context';
+import i18n from '@/i18n';
+import { IConsole } from '@/typings/common'
 interface IProps {
   className?: string;
 }
@@ -17,15 +21,17 @@ interface IProps {
 export default memo<IProps>(function WorkspaceLeft(props) {
   const { className } = props;
 
-  return <div className={classnames(styles.box, className)}>
-    <div className={styles.header}>
-      <RenderSelectDatabase></RenderSelectDatabase>
+  return (
+    <div className={classnames(styles.box, className)}>
+      <div className={styles.header}>
+        <RenderSelectDatabase />
+      </div>
+      <RenderSaveBox></RenderSaveBox>
+      <Divider />
+      <RenderTableBox />
     </div>
-    <div className={styles.save_box}>Save</div>
-    <Divider />
-    <RenderTableBox></RenderTableBox>
-  </div>
-})
+  );
+});
 
 interface Option {
   value: number;
@@ -47,18 +53,18 @@ function RenderSelectDatabase() {
       pageNo: 1,
       pageSize: 999,
     };
-    treeConfig[TreeNodeType.DATA_SOURCES].getChildren!(p).then(res => {
+    treeConfig[TreeNodeType.DATA_SOURCES].getChildren!(p).then((res) => {
       let newOptions: any = res.map((t) => {
         return {
           label: t.name,
           value: t.key,
           type: TreeNodeType.DATA_SOURCE,
           isLeaf: false,
-          databaseType: t.extraParams?.databaseType
+          databaseType: t.extraParams?.databaseType,
         };
       });
       setOptions(newOptions);
-    })
+    });
   }
 
   const onChange: any = (valueArr: any, selectedOptions: any) => {
@@ -72,36 +78,36 @@ function RenderSelectDatabase() {
       databaseSourceName: labelArr[0],
       databaseName: labelArr[1],
       schemaName: labelArr[2],
-      databaseType: selectedOptions[0].databaseType
-    }
+      databaseType: selectedOptions[0].databaseType,
+    };
 
     dispatch({
       type: workspaceActionType.CURRENT_WORKSPACE_DATA,
-      payload: currentWorkspaceData
+      payload: currentWorkspaceData,
     });
   };
 
   // 及联loadData
   const loadData = (selectedOptions: any) => {
     if (selectedOptions.length > 1) {
-      return
+      return;
     }
 
     const targetOption = selectedOptions[0];
     treeConfig[TreeNodeType.DATA_SOURCE].getChildren!({
-      id: targetOption.value
-    }).then(res => {
+      id: targetOption.value,
+    }).then((res) => {
       let newOptions = res.map((t) => {
         return {
           label: t.name,
           value: t.key,
           type: TreeNodeType.DATABASE,
-          databaseType: t.extraParams?.databaseType
+          databaseType: t.extraParams?.databaseType,
         };
       });
       targetOption.children = newOptions;
       setOptions([...(options || [])]);
-    })
+    });
 
     // TODO:根据后端字段 如果有SCHEMAS再去查询SCHEMAS
     // if (targetOption.type === TreeNodeType.SCHEMAS) {
@@ -120,7 +126,6 @@ function RenderSelectDatabase() {
     //   })
     // } else {
     // }
-
   };
 
   const dropdownRender = (menus: React.ReactNode) => (
@@ -132,29 +137,29 @@ function RenderSelectDatabase() {
 
   function renderCurrentSelected() {
     const { databaseName, schemaName, databaseSourceName } = currentWorkspaceData;
-    const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter(t => t);
+    const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
     return currentSelectedArr.join('/');
   }
 
   return (
-    <div className={styles.select_database_box}>
+    <div className={styles.selectDatabaseBox}>
       <Cascader
-        popupClassName={styles.cascader_popup}
+        popupClassName={styles.cascaderPopup}
         options={options}
         onChange={onChange}
         loadData={loadData}
         bordered={false}
         dropdownRender={dropdownRender}
       >
-        <div className={styles.current_database}>
-          <div className={styles.name}>
-            {renderCurrentSelected()}
-          </div>
+        <div className={styles.currentDatabase}>
+          <div className={styles.name}>{renderCurrentSelected() || <span style={{ 'opacity': 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>} </div>
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
-      <div className={styles.other_operations}>
-        <div className={styles.icon_box}><Iconfont code='&#xec08;' /></div>
+      <div className={styles.otherOperations}>
+        <div className={styles.iconBox}>
+          <Iconfont code="&#xec08;" />
+        </div>
       </div>
     </div>
   );
@@ -163,25 +168,69 @@ function RenderSelectDatabase() {
 function RenderTableBox() {
   const { state, dispatch } = useReducerContext();
   const { currentWorkspaceData } = state;
-  const [initialData, setInitialData] = useState<ITreeNode[]>();
+  const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    getInitialData();
-  }, [currentWorkspaceData])
+    if(currentWorkspaceData.databaseName){
+      getInitialData();
+    }
+  }, [currentWorkspaceData]);
 
   function getInitialData() {
     treeConfig[TreeNodeType.TABLES].getChildren!({
       pageNo: 1,
       pageSize: 999,
       ...currentWorkspaceData,
-      extraParams: currentWorkspaceData
-    }).then(res => {
+      extraParams: currentWorkspaceData,
+    }).then((res) => {
       setInitialData(res);
+    });
+  }
+
+  return (
+    <div className={styles.table_box}>
+      <div className={styles.left_box_title}>Table</div>
+      <LoadingContent data={initialData} handleEmpty>
+        <Tree className={styles.tree} initialData={initialData}></Tree>
+      </LoadingContent>
+    </div>
+  );
+}
+
+function RenderSaveBox() {
+  const [savedList, setSaveList] = useState<IConsole[]>([]);
+  const { state, dispatch } = useReducerContext();
+  const { currentWorkspaceData } = state;
+
+  useEffect(() => {
+    getSaveList();
+  }, [currentWorkspaceData])
+
+
+  function getSaveList() {
+    let p = {
+      pageNo: 1,
+      pageSize: 999,
+      ...currentWorkspaceData
+    }
+
+    historyService.getSaveList(p).then(res => {
+      setSaveList(res.data)
     })
   }
 
-
-  return <div className={styles.table_box}>
-    <Tree className={styles.tree} initialData={initialData}></Tree>
+  return <div className={styles.save_box}>
+    <div className={styles.left_box_title}>Saved</div>
+    <div className={styles.save_box_list}>
+      <LoadingContent data={savedList} handleEmpty>
+        {
+          savedList?.map(t => {
+            return <div>
+              {t.name}
+            </div>
+          })
+        }
+      </LoadingContent>
+    </div>
   </div>
 }

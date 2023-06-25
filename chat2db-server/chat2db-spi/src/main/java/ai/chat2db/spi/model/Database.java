@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * 数据库
  *
@@ -16,7 +18,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Database {
     /**
-     * 数据名字
+     * 数据库名字
      */
     private String name;
+
+    /**
+     * schema name
+     */
+    private List<Schema> schemas;
 }

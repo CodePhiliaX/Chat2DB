@@ -8,8 +8,8 @@
   bottom: 0;
   :global {
     .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: #000 !important;
-      font-weight: bold;
+      color: var(--color-text) !important;
+      font-weight: 400;
     }
   }
 }
@@ -31,18 +31,18 @@
   display: block;
 }
 
-.boxRightCenter {
-  height: 100%;
-}
-
-.boxRightConsole {
-  height: 50vh;
+.ears {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 120px;
+  font-weight: 900;
+  color: var(--color-text);
+  opacity: 0.15;
   overflow: hidden;
-}
-
-.boxRightResult {
-  border-top: 1px solid var(--color-border);
-  padding: 10px;
-  height: 0px;
-  flex: 1;
 }
