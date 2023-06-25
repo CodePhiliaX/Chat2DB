@@ -1,5 +1,5 @@
 import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
-import cs from 'classnames';
+import classnames from 'classnames';
 import i18n from '@/i18n';
 import CreateConnection from '@/components/CreateConnection';
 import Iconfont from '@/components/Iconfont';
@@ -80,15 +80,15 @@ function Connections(props: IProps) {
           return (
             <div
               key={key}
-              className={styles.menuItems}
+              className={classnames(styles.menuItem, {
+                [styles.menuItemActive]: curConnection.id === key,
+              })}
               onClick={() => {
                 setCurConnection(menu.meta);
               }}
             >
               <div
-                className={cs(styles.menuItemsTitle, {
-                  [styles.menuItemActive]: curConnection.id === key,
-                })}
+                className={classnames(styles.menuItemsTitle)}
               >
                 {icon}
                 <span style={{ marginLeft: '8px' }}>{label}</span>
@@ -135,15 +135,6 @@ function Connections(props: IProps) {
       <div ref={volatileRef} className={styles.layoutLeft}>
         <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
         {renderMenu()}
-        {/* <div className={styles.menuBox}>
-          <Menu
-            className={styles.menu}
-            mode="inline"
-            items={menuItems}
-            onClick={changeMenu}
-            selectedKeys={[checkedConnection!]}
-          ></Menu>
-        </div> */}
         <Button
           type="primary"
           className={styles.addConnection}
@@ -157,7 +148,7 @@ function Connections(props: IProps) {
       <div className={styles.layoutRight}>
         {curConnection && Object.keys(curConnection).length ? (
           <div
-            className={cs(styles.createConnections, {
+            className={classnames(styles.createConnections, {
               [styles.showCreateConnections]: Object.keys(curConnection).length,
             })}
           >
@@ -170,28 +161,31 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-          <div className={styles.dataBaseList}>
-            {databaseTypeList.map((t) => {
-              return (
-                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                  <div className={styles.databaseItemMain}>
-                    <div className={styles.databaseItemLeft}>
-                      <div className={styles.logoBox}>
-                        <Iconfont code={t.icon} />
+            <div className={styles.dataBaseList}>
+              {databaseTypeList.map((t) => {
+                return (
+                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                    <div className={styles.databaseItemMain}>
+                      <div className={styles.databaseItemLeft}>
+                        <div className={styles.logoBox}>
+                          <Iconfont code={t.icon} />
+                        </div>
+                        {t.name}
                       </div>
-                      {t.name}
-                    </div>
-                    <div className={styles.databaseItemRight}>
-                      <Iconfont code="&#xe631;" />
+                      <div className={styles.databaseItemRight}>
+                        <Iconfont code="&#xe631;" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-            <div className={styles.databaseItemSpacer}></div>
-            <div className={styles.databaseItemSpacer}></div>
-          </div>
-        )}
+                );
+              })}
+              {
+                Array.from({ length: 20 }).map(t => {
+                  return <div className={styles.databaseItemSpacer}></div>
+                })
+              }
+            </div>
+          )}
       </div>
     </div>
   );
