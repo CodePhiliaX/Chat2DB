@@ -72,6 +72,17 @@ Languages： English | [中文](README_CN.md)
 | TiDB          | Planning |
 | InfluxDB      | Planning |
 
+
+## 🌎 Selecting Default UI Language
+<a><img src="./document/image/language_settings_list.png" width="100%"/></a>
+
+**The native applications currently default to Chinese after install.**
+
+1. Open the settings panel by clicking on the gear icon button from the main menu (last item).
+2. The list of languages are below dark mode settings. The app will reload on language change.
+- *English is listed as "英文"*
+
+
 ## 🌰 Demo
 ### Create data source
   <a><img src="https://gw.alicdn.com/imgextra/i3/O1CN01PlpLYy1hIq5aMugpg_!!6000000004255-0-tps-3446-1750.jpg" width="100%"/></a>
