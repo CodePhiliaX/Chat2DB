@@ -125,7 +125,7 @@ export default memo<IProps>(function Setting({ className, text }) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-            <Iconfont code="&#xe795;"></Iconfont>
+            <Iconfont className={styles.settingIcon} code="&#xe795;"></Iconfont>
           )}
       </div>
       <Modal

@@ -18,17 +18,20 @@ console.log('UMI_ENV', process.env.UMI_ENV)
 const navConfig: INavItem[] = [
   {
     key: 'workspace',
-    icon: '\ue614',
+    icon: '\ue616',
+    iconFontSize: 16,
     component: <Workspace />,
   },
   {
     key: 'dashboard',
-    icon: '\ue612',
+    icon: '\ue616',
+    iconFontSize: 16,
     component: <Dashboard />,
   },
   {
     key: 'connections',
-    icon: '\ue744',
+    icon: '\ue622',
+    iconFontSize: 20,
     component: <DataSource />,
   },
   // {
@@ -55,7 +58,7 @@ function MainPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo onClick={() => { }} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
@@ -66,7 +69,7 @@ function MainPage() {
                 })}
                 onClick={switchingNav.bind(null, item)}
               >
-                <Iconfont className={styles.icon} code={item.icon} />
+                <Iconfont style={{ fontSize: `${item.iconFontSize}px` }} className={styles.icon} code={item.icon} />
                 {/* <div>{item.title}</div> */}
               </li>
             );
