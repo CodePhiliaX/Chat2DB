@@ -195,15 +195,6 @@ Please star and fork on GitHub before joining the group.
 Follow our WeChat public account
 <a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
 
-<a><img src="./document/qrcode/weixinqun1.png" width="30%"/></a>
-<a><img src="./document/qrcode/weixinqun2.png" width="30%"/></a>
-<a><img src="./document/qrcode/weixinqun3.png" width="30%"/></a>
-
-Ding Talk：9135032392
-
-QQ:863576619
-
-
 ## ❤️ Acknowledgements
 Thanks to all the students who contributed to Chat2DB~
 
