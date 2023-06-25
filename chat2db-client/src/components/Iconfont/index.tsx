@@ -3,19 +3,9 @@ import classnames from 'classnames';
 // import desktopStyle from './desktop.less';
 import styles from './index.less';
 
-let container = '';
-
-if (process.env.UMI_ENV === 'desktop') {
-  container = `
-    @font-face {
-      font-family: 'iconfont'; /* Project id 3633546 */
-      src: url('../../assets/font/iconfont.woff2') format('woff2'),
-        url('../../assets/font/iconfont.woff') format('woff'),
-        url('../../assets/font/iconfont.ttf') format('truetype');
-    }
-  `
-} else {
-  container = `
+// 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
+if (__ENV === 'local') {
+  let container = `
     @font-face {
       font-family: 'iconfont';  /* Project id 3633546 */
       src: url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff2?t=1687102726036') format('woff2'),
@@ -23,11 +13,12 @@ if (process.env.UMI_ENV === 'desktop') {
           url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.ttf?t=1687102726036') format('truetype');
     }
   `
+  let style = document.createElement("style");
+  style.type = "text/css";
+  document.head.appendChild(style);
+  style.appendChild(document.createTextNode(container));
 }
-let style = document.createElement("style");
-style.type = "text/css";
-document.head.appendChild(style);
-style.appendChild(document.createTextNode(container));
+
 
 export default class Iconfont extends PureComponent<{
   code: string;
