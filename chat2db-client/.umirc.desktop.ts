@@ -3,6 +3,8 @@ import { defineConfig } from 'umi';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const UMI_PublicPath = process.env.UMI_PublicPath || './';
 
+console.log('woshi','.umirc.desktop')
+
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
     {
@@ -22,7 +24,4 @@ export default defineConfig({
   // publicPath: './',
   chainWebpack,
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
-  define: {
-    'process.env.UMI_ENV': 'desktop'
-  }
 });

@@ -32,7 +32,10 @@ declare global {
   const __BUILD_TIME__: string;
 }
 
-window._ENV = process.env.UMI_ENV! || 'local';
+console.log(process.env.UMI_ENV)
+console.log(process.env)
+
+// window._ENV = process.env.UMI_ENV! || 'local';
 window._Lang = getLang();
 
 const { getDesignToken, useToken } = theme;
