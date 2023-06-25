@@ -23,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 public class OpenAIEventSourceListener extends EventSourceListener {
 
-    private SseEmitter sseEmitter;
+    private final SseEmitter sseEmitter;
 
     public OpenAIEventSourceListener(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
