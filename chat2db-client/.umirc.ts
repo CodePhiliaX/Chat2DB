@@ -9,13 +9,6 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
-
-  config.plugin('define').use(require('webpack').DefinePlugin, [
-    {
-      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
-      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
-    },
-  ]);
 };
 
 export default defineConfig({
@@ -44,11 +37,12 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  define: {
+    __ENV: process.env.UMI_ENV  ,
+    __BUILD_TIME__: formatDate(new Date(), 'yyyyMMddhhmmss'),
+    __APP_VERSION__: process.env.APP_VERSION || '0.0.0',
+  },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   favicons: ['logo.ico'],
-  define: {
-    'process.env': {
-      'UMI_ENV': process.env.UMI_ENV
-    }
-  }
+
 });

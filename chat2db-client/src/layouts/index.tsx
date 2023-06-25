@@ -30,6 +30,7 @@ declare global {
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
+  const __ENV: string;
 }
 
 window._ENV = process.env.UMI_ENV! || 'local';
