@@ -1,6 +1,7 @@
 import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+console.log(process.env.UMI_ENV)
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
@@ -46,6 +47,8 @@ export default defineConfig({
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   favicons: ['logo.ico'],
   define: {
-    'process.env.UMI_ENV': process.env.UMI_ENV,
+    'process.env': {
+      'UMI_ENV': process.env.UMI_ENV
+    }
   }
 });
