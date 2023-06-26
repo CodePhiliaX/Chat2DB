@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { uuid } from '@/utils/common';
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import { v4 as uuidv4 } from 'uuid';
 
 function useEventSource({ url }) {
-  const uid = useMemo(() => uuid(), []);
+  const uid = useMemo(() => uuidv4(), []);
   const [messages, setMessage] = useState('');
 
   useEffect(() => {
