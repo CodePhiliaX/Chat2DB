@@ -9,15 +9,10 @@ import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
 import { isEn } from '@/utils/check';
-import { ThemeType, PrimaryColorType, LangType } from '@/constants';
-import { InjectThemeVar } from '@/theme'
+import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
+import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
-import {
-  getLang,
-  getPrimaryColor,
-  getTheme,
-  setLang,
-} from '@/utils/localStorage';
+import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
 
 declare global {
   interface Window {
@@ -59,7 +54,6 @@ export default function Layout() {
   );
 }
 
-
 function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
@@ -67,7 +61,7 @@ function AppContainer() {
 
   useEffect(() => {
     InjectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
-  }, [token])
+  }, [token]);
 
   useLayoutEffect(() => {
     collectInitApp();
@@ -102,8 +96,7 @@ function AppContainer() {
     let theme = getTheme();
     if (theme === ThemeType.FollowOs) {
       theme =
-        (window.matchMedia &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
           ? ThemeType.Dark
           : ThemeType.Light) || ThemeType.Dark;
     }
@@ -119,14 +112,13 @@ function AppContainer() {
     }
   }
 
-  return <div className={styles.appContainer}>
-    {
-      initEnd &&
-      <div className={styles.app}>
-        <Outlet />
-      </div>
-    }
-  </div>
+  return (
+    <div className={styles.appContainer}>
+      {initEnd && (
+        <div className={styles.app}>
+          <Outlet />
+        </div>
+      )}
+    </div>
+  );
 }
-
-

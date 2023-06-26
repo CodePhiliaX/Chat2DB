@@ -1,4 +1,4 @@
-import createRequest from "./base";
+import createRequest from './base';
 import { IPageResponse, ITable, IPageParams } from '@/types';
 import { DatabaseTypeCode } from '@/constants';
 
@@ -10,10 +10,10 @@ export interface IGetListParams extends IPageParams {
 }
 
 export interface IExecuteSqlParams {
-  sql: string,
-  dataSourceId: number,
-  databaseName: string,
-  consoleId: number,
+  sql: string;
+  dataSourceId: number;
+  databaseName: string;
+  consoleId: number;
 }
 
 export interface IExecuteSqlResponse {
@@ -25,9 +25,9 @@ export interface IExecuteSqlResponse {
   dataList: any[];
 }
 export interface IConnectConsoleParams {
-  consoleId: number,
-  dataSourceId: number,
-  databaseName: string,
+  consoleId: number;
+  dataSourceId: number;
+  databaseName: string;
 }
 
 const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', {});
@@ -83,6 +83,10 @@ const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_
 const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get' });
 const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get' });
 
+const getDatabaseSchemaList = createRequest<{ dataSourceId: number; databaseName?: string; schemaName?: string }>(
+  '/api/rdb/ddl/database_schema_list',
+  { method: 'get' }
+);
 
 export default {
   getList,
@@ -96,5 +100,6 @@ export default {
   getColumnList,
   getIndexList,
   getKeyList,
-  getSchemaList
-}
+  getSchemaList,
+  getDatabaseSchemaList
+};

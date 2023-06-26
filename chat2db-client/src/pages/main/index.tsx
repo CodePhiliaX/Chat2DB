@@ -7,7 +7,7 @@ import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
 
-import DataSource from './connections';
+import DataSource from './connection';
 import Workspace from './workspace';
 import Dashboard from './dashboard';
 import Chat from './chat';

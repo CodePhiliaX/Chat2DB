@@ -12,7 +12,7 @@ import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import { connect, history } from 'umi';
-import { ConnectionState } from '@/models/connection';
+import { ConnectionModelType } from '@/models/connection';
 
 interface IMenu {
   key: number;
@@ -20,15 +20,22 @@ interface IMenu {
   icon: React.ReactNode;
   meta: IConnectionDetails;
 }
-interface IProps {
-  connectionList: IConnectionDetails[];
-  curConnection: IConnectionDetails;
-  dispatch: (p: { type: string, payload: any }) => void
 
+interface IProps {
+  connectionModel: {
+    connectionList: IConnectionDetails[];
+    curConnection: IConnectionDetails;
+  };
+  databaseModel: {
+    databaseAndSchemaList: any;
+  };
+  dispatch: (p: { type: `connection/${string}` | `database/${string}`; payload?: any }) => void;
 }
 
 function Connections(props: IProps) {
-  const { connectionList } = props;
+  console.log('props', props);
+  const { connectionModel, databaseModel, dispatch } = props;
+  const { connectionList } = connectionModel;
   const volatileRef = useRef<any>();
   // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
@@ -38,18 +45,10 @@ function Connections(props: IProps) {
   }, []);
 
   const getConnectionList = async () => {
-    let p = {
-      pageNo: 1,
-      pageSize: 999,
-    };
-    let res = await connectionService.getList(p)
-
-    props.dispatch({
-      type: 'connection/setConnectionList',
-      payload: res.data,
-    })
-
-  }
+    dispatch({
+      type: 'connection/fetchConnectionList',
+    });
+  };
 
   function handleCreateConnections(database: IDatabase) {
     setCurConnection({
@@ -83,9 +82,7 @@ function Connections(props: IProps) {
                 setCurConnection(menu.meta);
               }}
             >
-              <div
-                className={classnames(styles.menuItemsTitle)}
-              >
+              <div className={classnames(styles.menuItemsTitle)}>
                 {icon}
                 <span style={{ marginLeft: '8px' }}>{label}</span>
               </div>
@@ -95,13 +92,18 @@ function Connections(props: IProps) {
                   items: [
                     {
                       key: 'EnterWorkSpace',
-                      label: i18n('connection.menu.enterToWorkSpace'),
+                      label: i18n('connection.button.connect'),
                       onClick: () => {
-                        props.dispatch({
+                        dispatch({
                           type: 'connection/setCurConnection',
                           payload: menu.meta,
-                        })
-                        history.push('/workspace')
+                        });
+
+                        dispatch({
+                          type: 'database/fetchDatabaseAndSchemaList',
+                        });
+
+                        history.push('/workspace');
                         // window.location.replace('/workspace');
                       },
                     },
@@ -160,35 +162,35 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-            <div className={styles.dataBaseList}>
-              {databaseTypeList.map((t) => {
-                return (
-                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                    <div className={styles.databaseItemMain}>
-                      <div className={styles.databaseItemLeft}>
-                        <div className={styles.logoBox}>
-                          <Iconfont code={t.icon} />
-                        </div>
-                        {t.name}
+          <div className={styles.dataBaseList}>
+            {databaseTypeList.map((t) => {
+              return (
+                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                  <div className={styles.databaseItemMain}>
+                    <div className={styles.databaseItemLeft}>
+                      <div className={styles.logoBox}>
+                        <Iconfont code={t.icon} />
                       </div>
-                      <div className={styles.databaseItemRight}>
-                        <Iconfont code="&#xe631;" />
-                      </div>
+                      {t.name}
+                    </div>
+                    <div className={styles.databaseItemRight}>
+                      <Iconfont code="&#xe631;" />
                     </div>
                   </div>
-                );
-              })}
-              {
-                Array.from({ length: 5 }).map(t => {
-                  return <div className={styles.databaseItemSpacer}></div>
-                })
-              }
-            </div>
-          )}
+                </div>
+              );
+            })}
+            {Array.from({ length: 20 }).map((t) => {
+              return <div className={styles.databaseItemSpacer}></div>;
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
-
-export default connect(({ connection }: { connection: ConnectionState }) => (connection))(Connections);
+export default connect(({ connection, database }: { connection: ConnectionModelType; database: any }) => ({
+  connectionModel: connection,
+  databaseModel: database,
+}))(Connections);
