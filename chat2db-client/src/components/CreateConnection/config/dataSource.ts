@@ -1,4 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
+import { DatabaseTypeCode } from '@/constants';
 import { IConnectionConfig } from './types';
 import { InputType, AuthenticationType, SSHAuthenticationType, OperationColumn } from './enum';
 
@@ -170,7 +170,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -227,7 +227,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -262,7 +262,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -271,7 +271,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
               label: 'User&Password',
@@ -285,7 +285,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -363,7 +363,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -413,7 +413,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -440,7 +440,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -466,7 +466,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '30%',
-            
+
           }
         },
         {
@@ -486,7 +486,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -495,7 +495,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
               label: 'User&Password',
@@ -509,7 +509,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -553,7 +553,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -579,7 +579,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -629,7 +629,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -664,7 +664,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -673,7 +673,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
 
@@ -688,7 +688,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -741,7 +741,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -767,7 +767,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -835,7 +835,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -879,7 +879,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -888,7 +888,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
 
@@ -903,7 +903,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -956,7 +956,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -982,7 +982,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1073,7 +1073,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1099,7 +1099,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1149,7 +1149,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1184,7 +1184,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -1193,7 +1193,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
 
@@ -1208,7 +1208,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -1261,7 +1261,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1287,7 +1287,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1337,7 +1337,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1372,7 +1372,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -1381,7 +1381,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
 
@@ -1396,7 +1396,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -1450,7 +1450,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1462,7 +1462,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1488,7 +1488,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1537,7 +1537,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1572,7 +1572,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-        
+
                 },
                 {
                   defaultValue: '',
@@ -1581,7 +1581,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-        
+
                 },
               ],
               label: 'User&Password',
@@ -1594,7 +1594,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-            
+
           }
         },
         {
@@ -1647,7 +1647,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {
@@ -1673,7 +1673,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '70%',
-            
+
           }
         },
         {

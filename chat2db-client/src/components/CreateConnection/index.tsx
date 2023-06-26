@@ -5,10 +5,10 @@ import classnames from 'classnames';
 
 import connectionService from '@/service/connection';
 
-import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants/database';
+import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
-import { IConnectionDetails } from '@/typings/connection';
+import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
 import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse } from 'antd';

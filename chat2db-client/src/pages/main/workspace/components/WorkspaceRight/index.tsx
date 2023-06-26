@@ -3,9 +3,8 @@ import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console from '@/components/Console';
-import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment } from '@/constants/common';
-import { DatabaseTypeCode } from '@/constants/database';
-import { IConsole } from '@/typings/common';
+import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment, DatabaseTypeCode } from '@/constants';
+import { IConsole } from '@/typings';
 import historyService from '@/service/history';
 import { Button, Tabs } from 'antd';
 import { useReducerContext } from '@/pages/main/workspace';
@@ -30,7 +29,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
   }, [currentWorkspaceData]);
 
   useEffect(() => {
-    if(!dblclickTreeNodeData){
+    if (!dblclickTreeNodeData) {
       return
     }
     const { extraParams } = dblclickTreeNodeData;
@@ -223,7 +222,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
         </div>
         {consoleList?.map((t, index) => {
           return <div className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
-            <WorkspaceRightItem 
+            <WorkspaceRightItem
               data={
                 {
                   initDDL: t.ddl,

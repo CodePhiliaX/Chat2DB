@@ -9,7 +9,7 @@ import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
 import { isEn } from '@/utils/check';
-import { ThemeType, PrimaryColorType, LangType } from '@/constants/common';
+import { ThemeType, PrimaryColorType, LangType } from '@/constants';
 import { InjectThemeVar } from '@/theme'
 import styles from './index.less';
 import {

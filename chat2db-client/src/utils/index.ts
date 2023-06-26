@@ -1,5 +1,5 @@
-import { ThemeType } from '@/constants/common';
-import { ITreeNode } from '@/typings/tree';
+import { ThemeType } from '@/constants';
+import { ITreeNode } from '@/typings';
 
 export function getOsTheme() {
   return window.matchMedia &&

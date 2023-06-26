@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.less';
 import Loading from '../Loading/Loading';
-import { DatabaseTypeCode } from '@/constants/database';
+import { DatabaseTypeCode } from '@/constants';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -63,9 +63,9 @@ function Console(props: IProps) {
     setContext(value);
   }, [value]);
 
-  useEffect(()=>{
+  useEffect(() => {
     onChangeValue?.(value);
-  },[context])
+  }, [context])
 
   const onPressChatInput = (value: string) => {
     const params = formatParams({

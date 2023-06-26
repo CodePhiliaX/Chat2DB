@@ -1,4 +1,4 @@
-import { IConnectionDetails } from "@/typings/connection"
+import { IConnectionDetails } from "@/typings"
 
 export interface ConnectionState {
     curConnection: IConnectionDetails
@@ -21,7 +21,7 @@ export default {
                 connectionList: payload
             }
         },
-        
+
         // 设置当前选着的Connection
         setCurConnection(
             state: ConnectionState,

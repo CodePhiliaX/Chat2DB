@@ -1,12 +1,12 @@
-import React, { memo, useRef,useState, useEffect } from 'react';
+import React, { memo, useRef, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console from '@/components/Console';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import SearchResult from '@/components/SearchResult';
-import {DatabaseTypeCode} from '@/constants/common';
-import { IManageResultData } from '@/typings/database';
+import { DatabaseTypeCode } from '@/constants';
+import { IManageResultData } from '@/typings';
 import { useReducerContext } from '@/pages/main/workspace';
 
 interface IProps {
@@ -32,7 +32,7 @@ export default memo<IProps>(function WorkspaceRightItem(props) {
 
 
   useEffect(() => {
-    if(!dblclickTreeNodeData){
+    if (!dblclickTreeNodeData) {
       return
     }
     const { extraParams } = dblclickTreeNodeData;
@@ -48,12 +48,12 @@ export default memo<IProps>(function WorkspaceRightItem(props) {
     <DraggableContainer layout="column" className={styles.boxRightCenter}>
       <div ref={draggableRef} className={styles.boxRightConsole}>
         <Console
-          executeParams={{...data}}
+          executeParams={{ ...data }}
           hasAiChat={true}
           hasAi2Lang={true}
           value={consoleValue}
           onChangeValue={
-            (value:string)=>{
+            (value: string) => {
               setConsoleValue(value)
             }
           }

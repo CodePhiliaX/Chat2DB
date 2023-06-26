@@ -1,4 +1,4 @@
-import { LangType } from '@/constants/common'
+import { LangType } from '@/constants'
 import menu from './menu';
 import common from './common';
 import connection from './connection';

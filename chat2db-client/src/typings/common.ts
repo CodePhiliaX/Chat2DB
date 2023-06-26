@@ -1,5 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { ConsoleOpenedStatus, ConsoleStatus } from '@/constants/common';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
 export interface IPageResponse<T> {
   data: T[];
   pageNo: number;

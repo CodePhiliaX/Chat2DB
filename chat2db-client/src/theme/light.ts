@@ -1,5 +1,5 @@
 import { theme } from 'antd';
-import { PrimaryColorType } from '@/constants/common';
+import { PrimaryColorType } from '@/constants';
 import { commonToken } from './common';
 
 type IAntdPrimaryColor = {

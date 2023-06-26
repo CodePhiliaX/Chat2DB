@@ -1,7 +1,7 @@
 import antdDarkTheme from './dark';
 import antdLightTheme from './light';
-import { ThemeType, PrimaryColorType } from "@/constants/common";
-import { ITheme } from '@/typings/theme';
+import { ThemeType, PrimaryColorType } from "@/constants";
+import { ITheme } from '@/typings';
 import lodash from 'lodash';
 
 const antdThemeConfigs = {

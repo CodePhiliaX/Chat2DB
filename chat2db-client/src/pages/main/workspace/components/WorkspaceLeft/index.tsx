@@ -8,12 +8,12 @@ import { treeConfig } from '../Tree/treeConfig';
 import Tree from '../Tree';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import { TreeNodeType } from '@/constants/tree';
-import { ITreeNode } from '@/typings/tree';
+import { TreeNodeType } from '@/constants';
+import { ITreeNode } from '@/typings';
 import { useReducerContext } from '../../index';
 import { workspaceActionType } from '../../context';
 import i18n from '@/i18n';
-import { IConsole } from '@/typings/common'
+import { IConsole } from '@/typings'
 interface IProps {
   className?: string;
 }
@@ -171,7 +171,7 @@ function RenderTableBox() {
   const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    if(currentWorkspaceData.databaseName){
+    if (currentWorkspaceData.databaseName) {
       getInitialData();
     }
   }, [currentWorkspaceData]);

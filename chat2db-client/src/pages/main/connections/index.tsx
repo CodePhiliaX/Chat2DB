@@ -5,10 +5,9 @@ import CreateConnection from '@/components/CreateConnection';
 import Iconfont from '@/components/Iconfont';
 import connectionService from '@/service/connection';
 
-import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants/database';
+import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
 
-import { IDatabase } from '@/typings/database';
-import { IConnectionDetails } from '@/typings/connection';
+import { IDatabase, IConnectionDetails } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
