@@ -2,26 +2,12 @@ import mysqlLogo from '@/assets/img/databaseImg/mysql.png';
 import redisLogo from '@/assets/img/databaseImg/redis.png';
 import h2Logo from '@/assets/img/databaseImg/h2.png';
 import moreDBLogo from '@/assets/img/databaseImg/other.png';
-import { IDatabase } from '@/typings/database';
+import { IDatabase } from '@/typings';
+import { DatabaseTypeCode } from '@/constants'
 
 export enum ConnectionEnvType {
   DAILY = 'DAILY',
   PRODUCT = 'PRODUCT',
-}
-
-export enum DatabaseTypeCode {
-  MYSQL = 'MYSQL',
-  ORACLE = 'ORACLE',
-  DB2 = 'DB2',
-  MONGODB = 'MONGODB',
-  REDIS = 'REDIS',
-  H2 = 'H2',
-  POSTGRESQL = 'POSTGRESQL',
-  SQLSERVER = 'SQLSERVER',
-  SQLITE = 'SQLITE',
-  MARIADB = 'MARIADB',
-  CLICKHOUSE = 'CLICKHOUSE',
-  DM = "DM",
 }
 
 export const databaseMap: {

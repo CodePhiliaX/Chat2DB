@@ -10,10 +10,8 @@ import themeLightImg from '@/assets/img/theme-light.png';
 import themeAutoImg from '@/assets/img/theme-auto.png';
 import { getOsTheme } from '@/utils';
 import i18n, { currentLang } from '@/i18n';
-import { ThemeType } from '@/constants/common';
-import { LangType } from '@/constants/common';
+import { ThemeType, LangType, APP_NAME, GITHUB_URL } from '@/constants';
 import { useTheme } from '@/hooks';
-import { APP_NAME, GITHUB_URL } from '@/constants/appConfig';
 import { setLang as setLangLocalStorage } from '@/utils/localStorage'
 
 const { Option } = Select;

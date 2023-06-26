@@ -1,5 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { TableDataType } from '@/constants/table';
+import { DatabaseTypeCode, TableDataType } from '@/constants';
 
 export interface IDatabase {
   name: string;

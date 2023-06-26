@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
 import { getOsTheme } from '@/utils';
-import { ITheme } from '@/typings/theme';
-import { ThemeType, PrimaryColorType } from '@/constants/common';
+import { ITheme } from '@/typings';
+import { ThemeType, PrimaryColorType } from '@/constants';
 import {
   getPrimaryColor,
   getTheme,

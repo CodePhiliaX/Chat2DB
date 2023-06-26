@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Input, Modal, message } from 'antd';
 import { connect, Dispatch } from 'umi';
 import cs from 'classnames';
-import { IChartItem, IChartType, IDashboardItem } from '@/typings/dashboard';
+import { IChartItem, IChartType, IDashboardItem } from '@/typings';
 import DraggableContainer from '@/components/DraggableContainer';
 import Iconfont from '@/components/Iconfont';
 import ChartItem from './chart-item';

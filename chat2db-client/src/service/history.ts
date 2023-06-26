@@ -1,7 +1,7 @@
 import createRequest from "./base";
 // import { IPageResponse,IPageParams,IHistoryRecord, IWindowTab, ISavedConsole } from '@/types';
-import { ConsoleOpenedStatus, DatabaseTypeCode } from '@/constants/common'
-import { ICreateConsole, IConsole, IPageResponse, IPageParams } from '@/typings/common';
+import { ConsoleOpenedStatus, DatabaseTypeCode } from '@/constants'
+import { ICreateConsole, IConsole, IPageResponse, IPageParams } from '@/typings';
 
 export interface IGetSavedListParams extends IPageParams {
   dataSourceId?: string;

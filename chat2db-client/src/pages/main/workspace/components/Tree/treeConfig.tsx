@@ -1,5 +1,5 @@
-import { ITreeNode } from '@/typings/tree';
-import { TreeNodeType } from '@/constants/tree';
+import { ITreeNode } from '@/typings';
+import { TreeNodeType } from '@/constants';
 import connectionService from '@/service/connection';
 import mysqlServer, { ISchemaParams, IGetListParams, ITableParams } from '@/service/sql';
 

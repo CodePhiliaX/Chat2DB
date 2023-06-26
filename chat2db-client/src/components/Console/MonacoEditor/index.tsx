@@ -4,9 +4,8 @@ import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
-import { editorDefaultOptions } from '@/constants/monacoEditor';
+import { editorDefaultOptions, ThemeType } from '@/constants';
 import styles from './index.less';
-import { ThemeType } from '@/constants/common';
 import { monacoSqlAutocomplete } from './syntax-parser/plugin/monaco-plugin';
 
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;

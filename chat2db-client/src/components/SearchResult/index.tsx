@@ -6,9 +6,9 @@ import StateIndicator from '@/components/StateIndicator';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import MonacoEditor from '@/components/Console/MonacoEditor';
 import { Button, DatePicker, Input, Table, Modal, message } from 'antd';
-import { StatusType, TableDataType } from '@/constants/table';
+import { StatusType, TableDataType } from '@/constants';
 import { formatDate } from '@/utils/date';
-import { IManageResultData, ITableHeaderItem } from '@/typings/database';
+import { IManageResultData, ITableHeaderItem } from '@/typings';
 import styles from './index.less';
 
 interface IProps {
@@ -172,8 +172,8 @@ export function TableBox(props: ITableProps) {
       {dataList !== null ? (
         <Table bordered pagination={false} columns={columns} dataSource={tableData} size="small" />
       ) : (
-        <StateIndicator state="success" text="执行成功"/>
-      )}
+          <StateIndicator state="success" text="执行成功" />
+        )}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

@@ -1,6 +1,5 @@
 import { InputType, AuthenticationType, SSHAuthenticationType } from './enum';
-import { DatabaseTypeCode } from '@/constants/database';
-import { OperationColumn } from '@/components/Tree/treeConfig';
+import { DatabaseTypeCode, OperationColumn } from '@/constants';
 
 export type ISelect = {
   value?: AuthenticationType | SSHAuthenticationType | string;
@@ -18,7 +17,7 @@ export interface IFormItem {
   selected?: any;
   selects?: ISelect[];
   labelTextAlign?: 'right';
-  styles?:{
+  styles?: {
     width?: string; // 表单占用的长度 推荐百分比 默认值为 100%
     labelWidthEN?: string; // 英文环境下表单label的长度 推荐px 默认值为 70px
     labelWidthCN?: string; // 中文环境下表单label的长度 推荐px 默认值为 100px
@@ -43,7 +42,7 @@ export type IConnectionConfig = {
     value: any;
   }[],
   // TODO: 先取form里的配置，在取form.item的配置, 最后取默认值，目前没有取全局的
-  styles?:{
+  styles?: {
     width?: string; // 表单占用的长度 推荐百分比 默认值为 100%
     labelWidthEN?: string; // 英文环境下表单label的长度 推荐px 默认值为 70px
     labelWidthCN?: string; // 中文环境下表单label的长度 推荐px 默认值为 100px

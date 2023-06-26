@@ -1,6 +1,6 @@
 import createRequest from './base';
 import { IPageResponse, IPageParams } from '@/types';
-import { IUser } from '@/typings/user';
+import { IUser } from '@/typings';
 
 /** 用户登录接口 */
 const userLogin = createRequest<

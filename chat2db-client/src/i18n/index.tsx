@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { getLang } from '@/utils/localStorage';
-import { LangType } from '@/constants/common';
+import { LangType } from '@/constants';
 import zhCN from './zh-cn';
 import enUS from './en-us';
 

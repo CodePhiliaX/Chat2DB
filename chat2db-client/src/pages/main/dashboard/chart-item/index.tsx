@@ -1,4 +1,4 @@
-import { IChartItem, IChartType } from '@/typings/dashboard';
+import { IChartItem, IChartType } from '@/typings';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';

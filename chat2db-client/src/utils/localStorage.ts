@@ -1,5 +1,4 @@
-import { ThemeType, PrimaryColorType } from '@/constants/common';
-import { LangType } from '@/constants/common';
+import { ThemeType, PrimaryColorType, LangType } from '@/constants';
 import { ICurrentDatabase } from '@/pages/main/workspace/context';
 
 export function getLang(): LangType {
@@ -29,14 +28,14 @@ export function setPrimaryColor(primaryColor: PrimaryColorType) {
   return localStorage.setItem('primary-color', primaryColor);
 }
 
-export function setCurrentWorkspaceDatabase(value:ICurrentDatabase) {
+export function setCurrentWorkspaceDatabase(value: ICurrentDatabase) {
   return localStorage.setItem('current-workspace-database', JSON.stringify(value));
-}  
+}
 
-export function getCurrentWorkspaceDatabase():ICurrentDatabase {
+export function getCurrentWorkspaceDatabase(): ICurrentDatabase {
   const currentWorkspaceDatabase = localStorage.getItem('current-workspace-database');
   if (currentWorkspaceDatabase) {
-    return  JSON.parse(currentWorkspaceDatabase)
+    return JSON.parse(currentWorkspaceDatabase)
   }
   return {};
 }  
