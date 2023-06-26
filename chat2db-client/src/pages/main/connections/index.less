@@ -44,17 +44,32 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    padding: 10px;
+    padding: 8px;
+    margin-bottom: 4px;
     height: 20px;
     border-radius: 8px;
+
+    .menuItemsTitle {
+      flex: 1;
+      width: 0;
+      .f-single-line();
+    }
+  
+    .moreButton{
+      flex-shrink: 0;
+      display: none;
+      transform: rotate(90deg);
+    }
 
     &:hover {
       background-color: var(--color-hover-bg);
       border: var(--border-radius);
+      .moreButton{
+        display: block;
+      }
     }
   }
 
-  .menuItemsTitle {}
 
   .menuItemActive {
     color: var(--color-primary);
@@ -156,7 +171,7 @@
 .databaseItemSpacer {
   flex-grow: 1;
   width: 210px;
-  margin: 10px 20px;
+  margin: 0px 20px;
   padding: 0px 16px;
   box-sizing: border-box;
 }

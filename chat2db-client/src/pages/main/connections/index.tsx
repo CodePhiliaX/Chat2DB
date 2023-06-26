@@ -34,8 +34,6 @@ function Connections(props: IProps) {
   // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
 
-
-
   useEffect(() => {
     getConnectionList();
   }, []);
@@ -46,7 +44,6 @@ function Connections(props: IProps) {
       pageSize: 999,
     };
     let res = await connectionService.getList(p)
-    // setConnectionList(res.data);
 
     props.dispatch({
       type: 'connection/setConnectionList',
@@ -94,6 +91,7 @@ function Connections(props: IProps) {
                 <span style={{ marginLeft: '8px' }}>{label}</span>
               </div>
               <Dropdown
+                trigger={['click']}
                 menu={{
                   items: [
                     {
@@ -121,7 +119,9 @@ function Connections(props: IProps) {
                   ],
                 }}
               >
-                <MoreOutlined />
+                <div className={styles.moreButton}>
+                  <Iconfont code="&#xe601;"></Iconfont>
+                </div>
               </Dropdown>
             </div>
           );
@@ -180,7 +180,7 @@ function Connections(props: IProps) {
                 );
               })}
               {
-                Array.from({ length: 20 }).map(t => {
+                Array.from({ length: 5 }).map(t => {
                   return <div className={styles.databaseItemSpacer}></div>
                 })
               }
