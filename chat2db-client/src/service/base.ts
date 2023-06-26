@@ -89,7 +89,7 @@ request.interceptors.request.use((url, options) => {
 
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
-  if (window._ENV === 'desktop') {
+  if (__ENV === 'desktop') {
     const DBHUB = response.headers.get('DBHUB') || '';
     if (DBHUB) {
       localStorage.setItem('DBHUB', DBHUB);
