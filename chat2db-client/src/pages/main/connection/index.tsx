@@ -29,11 +29,10 @@ interface IProps {
   databaseModel: {
     databaseAndSchemaList: any;
   };
-  dispatch: (p: { type: `connection/${string}` | `database/${string}`; payload?: any }) => void;
+  dispatch: (p: { type: `connection/${string}` | `database/${string}`; payload ?: any }) => void;
 }
 
 function Connections(props: IProps) {
-  console.log('props', props);
   const { connectionModel, databaseModel, dispatch } = props;
   const { connectionList } = connectionModel;
   const volatileRef = useRef<any>();
@@ -87,24 +86,25 @@ function Connections(props: IProps) {
                 <span style={{ marginLeft: '8px' }}>{label}</span>
               </div>
               <Dropdown
-                trigger={['click']}
                 menu={{
                   items: [
                     {
                       key: 'EnterWorkSpace',
                       label: i18n('connection.button.connect'),
                       onClick: () => {
+                        // dispatch({
+                        //   type: 'connection/setCurConnection',
+                        //   payload: menu.meta,
+                        // });
+
                         dispatch({
-                          type: 'connection/setCurConnection',
-                          payload: menu.meta,
-                        });
+                          type: 'mainPage/updateCurPage',
+                          payload: 'workspace'
+                        })
 
                         dispatch({
                           type: 'database/fetchDatabaseAndSchemaList',
                         });
-
-                        history.push('/workspace');
-                        // window.location.replace('/workspace');
                       },
                     },
                     {
@@ -162,29 +162,29 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-          <div className={styles.dataBaseList}>
-            {databaseTypeList.map((t) => {
-              return (
-                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                  <div className={styles.databaseItemMain}>
-                    <div className={styles.databaseItemLeft}>
-                      <div className={styles.logoBox}>
-                        <Iconfont code={t.icon} />
+            <div className={styles.dataBaseList}>
+              {databaseTypeList.map((t) => {
+                return (
+                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                    <div className={styles.databaseItemMain}>
+                      <div className={styles.databaseItemLeft}>
+                        <div className={styles.logoBox}>
+                          <Iconfont code={t.icon} />
+                        </div>
+                        {t.name}
                       </div>
-                      {t.name}
-                    </div>
-                    <div className={styles.databaseItemRight}>
-                      <Iconfont code="&#xe631;" />
+                      <div className={styles.databaseItemRight}>
+                        <Iconfont code="&#xe631;" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-            {Array.from({ length: 20 }).map((t) => {
-              return <div className={styles.databaseItemSpacer}></div>;
-            })}
-          </div>
-        )}
+                );
+              })}
+              {Array.from({ length: 20 }).map((t) => {
+                return <div className={styles.databaseItemSpacer}></div>;
+              })}
+            </div>
+          )}
       </div>
     </div>
   );

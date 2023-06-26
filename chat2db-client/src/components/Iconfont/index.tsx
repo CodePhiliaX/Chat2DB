@@ -6,11 +6,12 @@ import styles from './index.less';
 // 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
 if (__ENV === 'local') {
   let container = `
+    /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
     @font-face {
       font-family: 'iconfont';  /* Project id 3633546 */
-      src: url('//at.alicdn.com/t/a/font_3633546_p80guyu8w2s.woff2?t=1687748230475') format('woff2'),
-          url('//at.alicdn.com/t/a/font_3633546_p80guyu8w2s.woff?t=1687748230475') format('woff'),
-          url('//at.alicdn.com/t/a/font_3633546_p80guyu8w2s.ttf?t=1687748230475') format('truetype');
+      src: url('//at.alicdn.com/t/c/font_3633546_h8vaafdnpbp.woff2?t=1687789960780') format('woff2'),
+          url('//at.alicdn.com/t/c/font_3633546_h8vaafdnpbp.woff?t=1687789960780') format('woff'),
+          url('//at.alicdn.com/t/c/font_3633546_h8vaafdnpbp.ttf?t=1687789960780') format('truetype');
     }
   `
   let style = document.createElement("style");
@@ -23,7 +24,7 @@ export default class Iconfont extends PureComponent<
   {
     code: string;
   } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
-> {
+  > {
   render() {
     return (
       <i {...this.props} className={classnames(this.props.className, styles.iconfont)}>

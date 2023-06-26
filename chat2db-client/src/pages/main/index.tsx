@@ -1,11 +1,13 @@
 import React, { useEffect, useState, PropsWithChildren } from 'react';
 import i18n from '@/i18n';
 import { Button } from 'antd';
-import { history } from 'umi';
+import { history, connect } from 'umi';
 import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
+import { MainState } from '@/models/main';
+import { findObjListValue } from '@/utils'
 
 import DataSource from './connection';
 import Workspace from './workspace';
@@ -14,7 +16,6 @@ import Chat from './chat';
 
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
-console.log('UMI_ENV', process.env.UMI_ENV)
 const navConfig: INavItem[] = [
   {
     key: 'workspace',
@@ -42,18 +43,44 @@ const navConfig: INavItem[] = [
 ];
 
 const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
-function MainPage() {
+
+interface IProps {
+  mainModel: MainState;
+  dispatch: any;
+}
+
+function MainPage(props: IProps) {
+  const { mainModel, dispatch } = props;
+  const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > 0 ? initPageIndex : 0]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'mainPage/updateCurPage',
+      payload: activeNav.key
+    })
+  }, [activeNav])
+
+  useEffect(() => {
+    if (curPage !== activeNav.key) {
+      const activeNav = navConfig[findObjListValue(navConfig, 'key', curPage)]
+      setActiveNav(activeNav)
+    }
+  }, [curPage])
+
   function switchingNav(item: INavItem) {
     // change url，but no page refresh
     window.history.pushState({}, "", item.key);
-
     if (item.openBrowser) {
       window.open(item.openBrowser);
     } else {
       setActiveNav(item);
     }
   }
+
+  useEffect(() => {
+
+  }, [])
 
   return (
     <div className={styles.page}>
@@ -96,4 +123,6 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default connect(({ mainPage }: { mainPage: MainState }) => ({
+  mainModel: mainPage,
+}))(MainPage);
