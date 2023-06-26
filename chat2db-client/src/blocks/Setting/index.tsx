@@ -123,7 +123,7 @@ export default memo<IProps>(function Setting({ className, text }) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-            <Iconfont className={styles.settingIcon} code="&#xe795;"></Iconfont>
+            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
           )}
       </div>
       <Modal
@@ -457,7 +457,7 @@ function AboutUs() {
       <div className={styles.brief}>
         <div className={styles.appName}>{APP_NAME}</div>
         <div className={styles.env}>
-          {i18n('setting.text.currentEnv')}:{window.__ENV}
+          {i18n('setting.text.currentEnv')}:{__ENV}
         </div>
         <div className={styles.version}>
           {i18n('setting.text.currentVersion')}:v{__APP_VERSION__} build
