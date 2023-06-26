@@ -22,7 +22,6 @@ import {
 declare global {
   interface Window {
     _Lang: string;
-    _ENV: string;
     _APP_PORT: string;
     _BUILD_TIME: string;
     _BaseURL: string;
@@ -33,9 +32,6 @@ declare global {
   const __ENV: string;
 }
 
-console.log(process.env.UMI_ENV);
-
-window._ENV = process.env.UMI_ENV! || 'local';
 window._Lang = getLang();
 
 const { getDesignToken, useToken } = theme;

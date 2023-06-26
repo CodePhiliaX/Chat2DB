@@ -24,8 +24,8 @@ const navConfig: INavItem[] = [
   },
   {
     key: 'dashboard',
-    icon: '\ue616',
-    iconFontSize: 16,
+    icon: '\ue629',
+    iconFontSize: 24,
     component: <Dashboard />,
   },
   {

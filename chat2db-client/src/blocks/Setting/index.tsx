@@ -459,7 +459,7 @@ function AboutUs() {
       <div className={styles.brief}>
         <div className={styles.appName}>{APP_NAME}</div>
         <div className={styles.env}>
-          {i18n('setting.text.currentEnv')}:{window._ENV}
+          {i18n('setting.text.currentEnv')}:{window.__ENV}
         </div>
         <div className={styles.version}>
           {i18n('setting.text.currentVersion')}:v{__APP_VERSION__} build
