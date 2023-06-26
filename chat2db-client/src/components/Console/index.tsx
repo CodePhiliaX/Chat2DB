@@ -1,4 +1,4 @@
-import { formatParams, uuid } from '@/utils/common';
+import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin } from 'antd';
 import React, { ForwardedRef, useEffect, useMemo, useRef, useState } from 'react';
@@ -9,6 +9,7 @@ import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import MonacoEditor from 'react-monaco-editor';
 import { useReducerContext } from '@/pages/main/workspace/index';
+import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.less';
 import Loading from '../Loading/Loading';
@@ -50,7 +51,7 @@ interface IProps {
 
 function Console(props: IProps) {
   const { hasAiChat = true, value, executeParams, onChangeValue } = props;
-  const uid = useMemo(() => uuid(), []);
+  const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
   const [context, setContext] = useState<string>();
