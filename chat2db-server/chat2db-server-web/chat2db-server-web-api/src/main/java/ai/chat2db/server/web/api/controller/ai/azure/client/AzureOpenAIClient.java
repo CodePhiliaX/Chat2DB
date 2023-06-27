@@ -1,0 +1,77 @@
+/**
+ * alibaba.com Inc.
+ * Copyright (c) 2004-2023 All Rights Reserved.
+ */
+package ai.chat2db.server.web.api.controller.ai.azure.client;
+
+import ai.chat2db.server.domain.api.model.Config;
+import ai.chat2db.server.domain.api.service.ConfigService;
+import ai.chat2db.server.web.api.util.ApplicationContextUtil;
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * @author jipengfei
+ * @version : OpenAIClient.java
+ */
+@Slf4j
+public class AzureOpenAIClient {
+
+    public static final String AZURE_CHATGPT_API_KEY = "azure.chatgpt.apiKey";
+
+    /**
+     * OPENAI接口域名
+     */
+    public static final String AZURE_CHATGPT_ENDPOINT = "azure.chatgpt.endpoint";
+
+    private static AzureOpenAiStreamClient OPEN_AI_CLIENT;
+    private static String apiKey;
+
+    public static AzureOpenAiStreamClient getInstance() {
+        if (OPEN_AI_CLIENT != null) {
+            return OPEN_AI_CLIENT;
+        } else {
+            return singleton();
+        }
+    }
+
+    private static AzureOpenAiStreamClient singleton() {
+        if (OPEN_AI_CLIENT == null) {
+            synchronized (AzureOpenAIClient.class) {
+                if (OPEN_AI_CLIENT == null) {
+                    refresh();
+                }
+            }
+        }
+        return OPEN_AI_CLIENT;
+    }
+
+    public static void refresh() {
+        String apikey = "";
+        String apiEndpoint = "";
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config apiHostConfig = configService.find(AZURE_CHATGPT_ENDPOINT).getData();
+        if (apiHostConfig != null) {
+            apiEndpoint = apiHostConfig.getContent();
+        }
+        Config config = configService.find(AZURE_CHATGPT_API_KEY).getData();
+        if (config != null) {
+            apikey = config.getContent();
+        }
+        log.info("refresh azure openai apikey:{}", maskApiKey(apikey));
+        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(apiKey, apiEndpoint);
+        apiKey = apikey;
+    }
+
+    private static String maskApiKey(String input) {
+        if (input == null) {
+            return input;
+        }
+
+        StringBuilder maskedString = new StringBuilder(input);
+        for (int i = input.length() / 2; i < input.length() / 2; i++) {
+            maskedString.setCharAt(i, '*');
+        }
+        return maskedString.toString();
+    }
+
+}
