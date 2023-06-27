@@ -6,7 +6,9 @@ import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
-import { MainState } from '@/models/mainPage';
+import { IMainPageType } from '@/models/mainPage';
+import { IWorkspaceModelType } from '@/models/workspace';
+import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils'
 
 import DataSource from './connection';
@@ -45,32 +47,50 @@ const navConfig: INavItem[] = [
 const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
 
 interface IProps {
-  mainModel: MainState;
+  mainModel: IMainPageType['state'];
+  workspaceModel: IWorkspaceModelType['state'];
+  connectionModel: IConnectionModelType['state'];
   dispatch: any;
 }
 
 function MainPage(props: IProps) {
-  const { mainModel, dispatch } = props;
+  const { mainModel, workspaceModel, connectionModel, dispatch } = props;
   const { curPage } = mainModel;
+  const { curConnection } = connectionModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > 0 ? initPageIndex : 0]);
 
   useEffect(() => {
+    // activeNav 发生变化，同步到全局状态管理
     dispatch({
       type: 'mainPage/updateCurPage',
       payload: activeNav.key
     })
+    // activeNav 发生变化 如果没有选中连接并且不在connections 那么需要跳转到 连接页面
+    // if (!curConnection?.id && activeNav.key !== 'connections') {
+    //   setActiveNav(navConfig[2]);
+    // }
+    // activeNav 变化 同步地址栏变化
+    // change url，but no page refresh
+    window.history.pushState({}, "", activeNav.key);
   }, [activeNav])
 
   useEffect(() => {
-    if (curPage !== activeNav.key) {
-      const activeNav = navConfig[findObjListValue(navConfig, 'key', curPage)]
-      setActiveNav(activeNav)
+    // 全局状态curPage发生变化，activeNav 需要同步变化
+    if (curPage && curPage !== activeNav.key) {
+      const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)]
+      setActiveNav(newActiveNav)
     }
   }, [curPage])
 
+  useEffect(() => {
+    if (curConnection?.id) {
+      dispatch({
+        type: 'workspace/fetchdatabaseAndSchema',
+      })
+    }
+  }, [curConnection])
+
   function switchingNav(item: INavItem) {
-    // change url，but no page refresh
-    window.history.pushState({}, "", item.key);
     if (item.openBrowser) {
       window.open(item.openBrowser);
     } else {
@@ -78,9 +98,6 @@ function MainPage(props: IProps) {
     }
   }
 
-  useEffect(() => {
-
-  }, [])
 
   return (
     <div className={styles.page}>
@@ -123,6 +140,8 @@ function MainPage(props: IProps) {
   );
 }
 
-export default connect(({ mainPage }: { mainPage: MainState }) => ({
+export default connect(({ mainPage, workspace, connection }: { mainPage: IMainPageType, workspace: IWorkspaceModelType, connection: IConnectionModelType }) => ({
   mainModel: mainPage,
+  workspaceModel: workspace,
+  connectionModel: connection,
 }))(MainPage);

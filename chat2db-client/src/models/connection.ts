@@ -2,6 +2,7 @@ import { IConnectionDetails } from '@/typings/connection';
 import { Effect, Reducer } from 'umi';
 import connectionService from '@/service/connection';
 import { IPageResponse } from '@/typings/common';
+import { getCurConnection } from '@/utils/localStorage';
 
 /**
  * 数据源相关 - 链接池、数据库、schema、表
@@ -28,7 +29,7 @@ export interface IConnectionModelType {
 const ConnectionModel: IConnectionModelType = {
   namespace: 'connection',
   state: {
-    curConnection: undefined,
+    curConnection: getCurConnection(),
     connectionList: [],
   },
   reducers: {
@@ -42,6 +43,7 @@ const ConnectionModel: IConnectionModelType = {
 
     // 设置当前选着的Connection
     setCurConnection(state, { payload }) {
+      localStorage.setItem('cur-connection',JSON.stringify(payload))
       return { ...state, curConnection: payload };
     },
 

@@ -1,19 +1,28 @@
-export interface MainState {
+import { Effect, Reducer } from 'umi';
+export interface IState {
   curPage: string;
 }
 
-const mainModel = {
+export interface IMainPageType {
+  namespace: 'mainPage',
+  state: IState,
+  reducers: {
+    updateCurPage: Reducer<IState>;
+  };
+}
+
+const MainPageModel: IMainPageType = {
   namespace: 'mainPage',
 
   state: {
-    curPage: 'connections',
+    curPage: '',
   },
 
   reducers: {
-    updateCurPage(state: MainState, { payload }: { payload: MainState['curPage'] }) {
+    updateCurPage(state, { payload }) {
       return { ...state, curPage: payload };
     },
   },
 };
 
-export default mainModel
+export default MainPageModel

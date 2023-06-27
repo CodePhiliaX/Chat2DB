@@ -72,10 +72,6 @@ function Connections(props: IProps) {
       type: 'mainPage/updateCurPage',
       payload: 'workspace'
     })
-
-    dispatch({
-      type: 'workspace/fetchdatabaseAndSchema',
-    });
   }
 
   const renderMenu = () => {
