@@ -16,12 +16,20 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AzureOpenAIClient {
 
+    /**
+     * AZURE OPENAI KEY
+     */
     public static final String AZURE_CHATGPT_API_KEY = "azure.chatgpt.apiKey";
 
     /**
-     * OPENAI接口域名
+     * AZURE OPENAI ENDPOINT
      */
     public static final String AZURE_CHATGPT_ENDPOINT = "azure.chatgpt.endpoint";
+
+    /**
+     * AZURE OPENAI DEPLOYMENT ID
+     */
+    public static final String AZURE_CHATGPT_DEPLOYMENT_ID = "azure.chatgpt.deployment.id";
 
     private static AzureOpenAiStreamClient OPEN_AI_CLIENT;
     private static String apiKey;
@@ -48,6 +56,7 @@ public class AzureOpenAIClient {
     public static void refresh() {
         String apikey = "";
         String apiEndpoint = "";
+        String deployId = "";
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config apiHostConfig = configService.find(AZURE_CHATGPT_ENDPOINT).getData();
         if (apiHostConfig != null) {
@@ -57,8 +66,12 @@ public class AzureOpenAIClient {
         if (config != null) {
             apikey = config.getContent();
         }
+        Config deployConfig = configService.find(AZURE_CHATGPT_DEPLOYMENT_ID).getData();
+        if (config != null) {
+            deployId = deployConfig.getContent();
+        }
         log.info("refresh azure openai apikey:{}", maskApiKey(apikey));
-        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(apiKey, apiEndpoint);
+        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(apiKey, apiEndpoint, deployId);
         apiKey = apikey;
     }
 

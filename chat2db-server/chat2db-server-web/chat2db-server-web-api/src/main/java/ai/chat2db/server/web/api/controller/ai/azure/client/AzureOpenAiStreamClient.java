@@ -28,6 +28,11 @@ import org.apache.commons.lang3.StringUtils;
 public class AzureOpenAiStreamClient {
 
     /**
+     * deployId
+     */
+    private String deployId;
+
+    /**
      * client
      */
     private OpenAIClient client;
@@ -38,7 +43,8 @@ public class AzureOpenAiStreamClient {
      * @param apiKey
      * @param endpoint
      */
-    public AzureOpenAiStreamClient(String apiKey, String endpoint) {
+    public AzureOpenAiStreamClient(String apiKey, String endpoint, String deployId) {
+        this.deployId = deployId;
         this.client = new OpenAIClientBuilder()
             .credential(new AzureKeyCredential(apiKey))
             .endpoint(endpoint)
@@ -48,11 +54,10 @@ public class AzureOpenAiStreamClient {
     /**
      * 问答接口 stream 形式
      *
-     * @param deployId
      * @param chatMessages
      * @param eventSourceListener
      */
-    public void streamCompletions(String deployId, List<ChatMessage> chatMessages, EventSourceListener eventSourceListener) {
+    public void streamCompletions(List<ChatMessage> chatMessages, EventSourceListener eventSourceListener) {
         if (CollectionUtils.isEmpty(chatMessages)) {
             log.error("参数异常：Azure Prompt不能为空");
             throw new ParamBusinessException("prompt");
