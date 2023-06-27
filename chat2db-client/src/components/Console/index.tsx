@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import styles from './index.less';
 import Loading from '../Loading/Loading';
 import { DatabaseTypeCode } from '@/constants';
+import Iconfont from '../Iconfont';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -185,11 +186,12 @@ function Console(props: IProps) {
       </Spin>
 
       <div className={styles.console_options_wrapper}>
-        <div>
-          <Button type="primary" style={{ marginRight: '10px' }} onClick={executeSQL}>
+        <div className={styles.console_options_left}>
+          <Button type="primary" className={styles.run_button} onClick={executeSQL}>
+            <Iconfont code='&#xe637;' />
             RUN
           </Button>
-          <Button type="default" onClick={saveConsole}>
+          <Button type="default" className={styles.save_button} onClick={saveConsole}>
             SAVE
           </Button>
         </div>

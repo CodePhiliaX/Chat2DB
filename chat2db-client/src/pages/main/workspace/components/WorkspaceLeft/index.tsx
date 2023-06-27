@@ -32,7 +32,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
         <RenderSelectDatabase />
       </div>
       <RenderSaveBox></RenderSaveBox>
-      <Divider />
+      <Divider className={styles.divider} />
       <RenderTableBox />
     </div>
   );
@@ -217,11 +217,11 @@ const RenderSaveBox = dvaModel(function (props: any) {
 
   return <div className={styles.save_box}>
     <div className={styles.left_box_title}>Saved</div>
-    <div className={styles.save_box_list}>
+    <div className={styles.saveBoxList}>
       <LoadingContent data={savedList} handleEmpty>
         {
           savedList?.map(t => {
-            return <div>
+            return <div className={styles.saveItem}>
               {t.name}
             </div>
           })

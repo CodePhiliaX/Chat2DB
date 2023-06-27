@@ -160,7 +160,27 @@ const WorkspaceRight = memo<IProps>(function (props) {
     if (action === 'remove') {
       closeWindowTab(key!);
     }
+    if (action === 'add') {
+      addConsole();
+    }
   };
+
+  const addConsole = () => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
+    let p = {
+      name: `new console${consoleList?.length}`,
+      ddl: consoleTopComment,
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName!,
+      schemaName: schemaName!,
+      type: databaseType,
+      status: ConsoleStatus.DRAFT,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    }
+    historyService.saveConsole(p).then(res => {
+      getConsoleList()
+    })
+  }
 
   const closeWindowTab = (key: number) => {
     let newActiveKey = activeConsoleId;
