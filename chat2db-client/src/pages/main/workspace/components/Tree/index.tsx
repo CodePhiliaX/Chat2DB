@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useRef, useContext, useState, useImperativeHandle } from 'react';
+import { connect } from 'umi'
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -9,9 +10,8 @@ import { TreeNodeType, databaseMap } from '@/constants';
 import LoadingContent from '@/components/Loading/LoadingContent';
 // import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
-import { useReducerContext } from '@/pages/main/workspace';
 import { workspaceActionType } from '@/pages/main/workspace/context';
-// import { DatabaseContext } from '@/context/database';
+import { IWorkspaceModelType } from '@/models/workspace'
 
 interface IProps {
   className?: string;
@@ -24,7 +24,13 @@ interface TreeNodeIProps {
   show: boolean;
   setTreeData: Function;
   showAllChildrenPenetrate?: boolean;
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
+
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace
+}))
 
 function Tree(props: IProps) {
   const { className, initialData } = props;
@@ -57,14 +63,21 @@ function Tree(props: IProps) {
       })
     }
   </div>
-};
+}
 
-function TreeNode(props: TreeNodeIProps) {
-  const { setTreeData, data, level, show = false, showAllChildrenPenetrate = false } = props;
+const TreeNode = dvaModel((props: TreeNodeIProps) => {
+  const {
+    setTreeData,
+    data,
+    level,
+    show = false,
+    showAllChildrenPenetrate = false,
+    dispatch,
+    workspaceModel
+  } = props;
   const [showChildren, setShowChildren] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
-  const { state, dispatch } = useReducerContext();
 
   function loadData(data: ITreeNode) {
     const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
@@ -123,13 +136,13 @@ function TreeNode(props: TreeNodeIProps) {
     }
   };
 
-  const renderMenu = () => {
-    return <TreeNodeRightClick
-      data={data}
-      setTreeData={setTreeData}
-      setIsLoading={setIsLoading}
-    />
-  }
+  // const renderMenu = () => {
+  //   return <TreeNodeRightClick
+  //     data={data}
+  //     setTreeData={setTreeData}
+  //     setIsLoading={setIsLoading}
+  //   />
+  // }
 
   const recognizeIcon = (treeNodeType: TreeNodeType) => {
     if (treeNodeType === TreeNodeType.DATA_SOURCE) {
@@ -152,7 +165,7 @@ function TreeNode(props: TreeNodeIProps) {
   function nodeDoubleClick() {
     if (data.treeNodeType === TreeNodeType.TABLE || data.treeNodeType === TreeNodeType.COLUMN) {
       dispatch({
-        type: workspaceActionType.DBLCLICK_TREE_NODE,
+        type: 'workspace/setDoubleClickTreeNodeData',
         payload: data
       });
     } else {
@@ -161,8 +174,6 @@ function TreeNode(props: TreeNodeIProps) {
   }
 
   return show ? <>
-    {/* <Dropdown overlay={renderMenu()} trigger={['contextMenu']}>
-    </Dropdown> */}
     <Tooltip placement="right" title={renderTitle(data)}>
       <div
         className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })} >
@@ -184,7 +195,7 @@ function TreeNode(props: TreeNodeIProps) {
                     <Iconfont code='&#xe6cd;' />
                   </div>
                   :
-                  <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xe608;' />
+                  <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xeb6d;' />
               }
               {/* <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xe608;' /> */}
             </div>
@@ -214,6 +225,6 @@ function TreeNode(props: TreeNodeIProps) {
       })
     }
   </> : <></>
-}
+})
 
 export default Tree;

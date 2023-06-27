@@ -21,9 +21,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
   const { className } = props;
   const [consoleList, setConsoleList] = useState<IConsole[]>();
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
-  const dblclickTreeNodeData = false;
   const { workspaceModel, dispatch } = props;
-  const { databaseAndSchema, curWorkspaceParams } = workspaceModel;
+  const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData } = workspaceModel;
 
 
   useEffect(() => {
@@ -31,10 +30,10 @@ const WorkspaceRight = memo<IProps>(function (props) {
   }, [curWorkspaceParams]);
 
   useEffect(() => {
-    if (!dblclickTreeNodeData) {
+    if (!doubleClickTreeNodeData) {
       return
     }
-    const { extraParams } = dblclickTreeNodeData;
+    const { extraParams } = doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
     let flag = false;
     const ddl = `SELECT * FROM ${tableName};`;
@@ -70,7 +69,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
         setConsoleList([...(consoleList || []), newConsole]);
       });
     }
-  }, [curWorkspaceParams]);
+  }, [doubleClickTreeNodeData]);
 
   function getConsoleList() {
     let p: any = {

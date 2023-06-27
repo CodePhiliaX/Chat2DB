@@ -87,17 +87,20 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
 
   const cascaderOptions = useMemo(() => {
     const res = handelDatabaseAndSchema(databaseAndSchema);
-    const curWorkspaceParams = {
-      dataSourceId: curConnection?.id,
-      databaseSourceName: curConnection?.alias,
-      databaseName: res?.[0]?.value,
-      schemaName: res?.[0]?.children?.[0]?.value,
-      databaseType: curConnection?.type,
-    };
-    dispatch({
-      type: 'workspace/setCurWorkspaceParams',
-      payload: curWorkspaceParams,
-    });
+    // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
+    if (!curWorkspaceParams.dataSourceId) {
+      const curWorkspaceParams = {
+        dataSourceId: curConnection?.id,
+        databaseSourceName: curConnection?.alias,
+        databaseName: res?.[0]?.value,
+        schemaName: res?.[0]?.children?.[0]?.value,
+        databaseType: curConnection?.type,
+      };
+      dispatch({
+        type: 'workspace/setCurWorkspaceParams',
+        payload: curWorkspaceParams,
+      });
+    }
     return res
   }, [databaseAndSchema])
 
@@ -147,33 +150,36 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
-      <div className={styles.otherOperations}>
+      {/* <div className={styles.otherOperations}>
         <div className={styles.iconBox}>
           <Iconfont code="&#xec08;" />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 })
 
-const RenderTableBox = dvaModel(function RenderTableBox(props: any) {
+const RenderTableBox = dvaModel(function (props: any) {
   const { workspaceModel } = props;
   const { curWorkspaceParams } = workspaceModel;
   const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    if (curWorkspaceParams.databaseName) {
+    if (curWorkspaceParams.dataSourceId) {
       getInitialData();
     }
   }, [curWorkspaceParams]);
 
   function getInitialData() {
+    console.log(curWorkspaceParams);
     treeConfig[TreeNodeType.TABLES].getChildren!({
       pageNo: 1,
       pageSize: 999,
       ...curWorkspaceParams,
       extraParams: curWorkspaceParams,
     }).then((res) => {
+      console.log(res)
+
       setInitialData(res);
     });
   }
@@ -188,7 +194,7 @@ const RenderTableBox = dvaModel(function RenderTableBox(props: any) {
   );
 })
 
-const RenderSaveBox = dvaModel(function RenderSaveBox(props: any) {
+const RenderSaveBox = dvaModel(function (props: any) {
   const [savedList, setSaveList] = useState<IConsole[]>([]);
   const { workspaceModel } = props;
   const { curWorkspaceParams } = workspaceModel;

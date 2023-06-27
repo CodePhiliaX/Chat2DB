@@ -1,8 +1,10 @@
+import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import { DatabaseTypeCode } from '@/constants';
 import { Effect, Reducer } from 'umi';
+import { ITreeNode } from '@/typings'
 
-export type ICurWorkspaceData = {
+export type ICurWorkspaceParams = {
   dataSourceId: number;
   databaseSourceName: string;
   databaseType: DatabaseTypeCode;
@@ -14,7 +16,9 @@ export interface IState {
   // 当前连接下的及联databaseAndSchema数据
   databaseAndSchema: MetaSchemaVO;
   // 当前工作区所需的参数
-  curWorkspaceParams: ICurWorkspaceData;
+  curWorkspaceParams: ICurWorkspaceParams;
+  // 双击树node节点
+  doubleClickTreeNodeData: ITreeNode | undefined;
 }
 
 export interface IWorkspaceModelType  {
@@ -23,6 +27,7 @@ export interface IWorkspaceModelType  {
   reducers: {
     setDatabaseAndSchema: Reducer<IState['databaseAndSchema']>;
     setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
+    setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
   };
   effects: {
     fetchdatabaseAndSchema: Effect;
@@ -34,7 +39,8 @@ const WorkspaceModel:IWorkspaceModelType = {
 
   state: {
     databaseAndSchema: {},
-    curWorkspaceParams: {} as ICurWorkspaceData
+    curWorkspaceParams: getCurrentWorkspaceDatabase(),
+    doubleClickTreeNodeData: undefined,
   },
 
   reducers: {
@@ -47,9 +53,17 @@ const WorkspaceModel:IWorkspaceModelType = {
     },
 
     setCurWorkspaceParams(state, { payload }) {
+      setCurrentWorkspaceDatabase(payload);
       return {
         ...state,
         curWorkspaceParams: payload,
+      };
+    },
+
+    setDoubleClickTreeNodeData(state, { payload }) {
+      return {
+        ...state,
+        doubleClickTreeNodeData: payload,
       };
     },
   },
