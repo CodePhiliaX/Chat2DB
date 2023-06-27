@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
-import { MainState } from '@/models/main';
+import { MainState } from '@/models/mainPage';
 import { findObjListValue } from '@/utils'
 
 import DataSource from './connection';

@@ -1,39 +1,44 @@
-import sqlService from '@/service/sql';
+import sqlService,{MetaSchemaVO} from '@/service/sql';
+import { Effect, Reducer } from 'umi';
 
-interface ISchema {
-  databaseName: string;
-  name: string;
-}
-interface IDatabase {
-  name: string;
-  schema: ISchema[];
+interface IState {
+  databaseAndSchema: MetaSchemaVO
 }
 
-const DatabaseModel = {
+export interface DatabaseModelType {
+  namespace: 'database';
+  state: IState;
+  reducers: {
+    setDatabaseAndSchema: Reducer<IState['databaseAndSchema']>;
+  };
+  effects: {
+    fetchdatabaseAndSchema: Effect;
+  };
+}
+
+const DatabaseModel:DatabaseModelType = {
   namespace: 'database',
   state: {
-    databaseAndSchemaList: [],
+    databaseAndSchema: {} ,
   },
 
   reducers: {
     // 设置 database schema 数据
-    setDatabaseAndSchemaList(state, { payload }) {
+    setDatabaseAndSchema(state, { payload }) {
       return {
         ...state,
-        databaseAndSchemaList: payload,
+        databaseAndSchema: payload,
       };
     },
   },
 
   effects: {
-    *fetchDatabaseAndSchemaList(p, { call, put }) {
-      console.log('fetchDatabaseAndSchemaList start', p);
-      const res = (yield sqlService.getDatabaseSchemaList({ dataSourceId: 2 })) as {
-        data: { database: IDatabase[]; schema: ISchema[] };
-      };
-      console.log('fetchDatabaseAndSchemaList end', res);
+    *fetchdatabaseAndSchema(p, action) {
+      const { call, put } = action
+      console.log(p,action)
+      const res = (yield sqlService.getDatabaseSchemaList({ dataSourceId: 2 }))
       yield put({
-        type: 'setDatabaseAndSchemaList',
+        type: 'setDatabaseAndSchema',
         payload: res,
       });
     },

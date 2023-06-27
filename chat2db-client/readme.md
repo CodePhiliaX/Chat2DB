@@ -8,6 +8,11 @@
 
 目录结构 tree ./ -L 2 -I node_modules
 
+## TS书写规范
+  1. 所有的interfase 与 type 必须已I开头
+    `interfase IState { name: string }` // good
+    `interfase State { name: string }` // bad
+  
 
 ## 如何使用国际化 
 

@@ -11,7 +11,7 @@ export interface ConnectionModelState {
   connectionList: IConnectionDetails[];
 }
 
-export interface ConnectionModelType {
+export interface IConnectionModelType {
   namespace: 'connection';
   state: ConnectionModelState;
   reducers: {
@@ -20,12 +20,12 @@ export interface ConnectionModelType {
     setCurConnection: Reducer<ConnectionModelState>;
   };
   effects: {
-    // setConnectionList: Effect;
+    fetchConnectionList: Effect;
   };
 }
 
 // const ConnectionModel:ConnectionModelType = {
-const ConnectionModel = {
+const ConnectionModel: IConnectionModelType = {
   namespace: 'connection',
   state: {
     curConnection: undefined,
@@ -33,7 +33,7 @@ const ConnectionModel = {
   },
   reducers: {
     // 设置连接池列表
-    setConnectionList(state: ConnectionModelState, { payload }: { payload: ConnectionModelState['connectionList'] }) {
+    setConnectionList(state, { payload }) {
       return {
         ...state,
         connectionList: payload,
@@ -41,7 +41,7 @@ const ConnectionModel = {
     },
 
     // 设置当前选着的Connection
-    setCurConnection(state: ConnectionModelState, { payload }: { payload: ConnectionModelState['curConnection'] }) {
+    setCurConnection(state, { payload }) {
       return { ...state, curConnection: payload };
     },
 
@@ -50,7 +50,6 @@ const ConnectionModel = {
   effects: {
     *fetchConnectionList(_, { call, put }) {
       const res = (yield connectionService.getList({ pageNo: 1, pageSize: 999 })) as IPageResponse<IConnectionDetails>;
-      console.log('fetchConnectionList==>', res.data);
       yield put({
         type: 'setConnectionList',
         payload: res.data,
