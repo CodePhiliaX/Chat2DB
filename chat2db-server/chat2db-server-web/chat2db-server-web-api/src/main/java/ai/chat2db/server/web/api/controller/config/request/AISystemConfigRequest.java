@@ -13,7 +13,7 @@ import lombok.Data;
  * @version : SystemConfigRequest.java
  */
 @Data
-public class ChatGptSystemConfigRequest {
+public class AISystemConfigRequest {
 
     /**
      * OpenAi APIKEY
@@ -56,4 +56,19 @@ public class ChatGptSystemConfigRequest {
      * 非必填，默认值为TRUE
      */
     private Boolean restAiStream = Boolean.TRUE;
+
+    /**
+     * Get Azure OpenAI key credential from the Azure Portal
+     */
+    private String azureApiKey;
+
+    /**
+     * Get Azure OpenAI endpoint from the Azure Portal
+     */
+    private String azureEndpoint;
+
+    /**
+     * deployment id of the deployed model
+     */
+    private String azureDeploymentId;
 }
