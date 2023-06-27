@@ -23,10 +23,10 @@ export interface IConsole {
   dataSourceName: string;
   schemaName: string;
   type: DatabaseTypeCode;
-  status: string;
+  status: ConsoleStatus;
   connectable: boolean;
   tabOpened?: ConsoleOpenedStatus;
 }
 
-export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'schemaName'>
+export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>
 
