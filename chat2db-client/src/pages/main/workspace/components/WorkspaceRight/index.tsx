@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment, DatabaseTypeCode } from '@/constants';
 import { IConsole } from '@/typings';
 import historyService from '@/service/history';
-import { Tabs } from 'antd';
+import Tabs from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 
@@ -152,27 +152,27 @@ const WorkspaceRight = memo<IProps>(function (props) {
     });
   }
 
-  function onChange(key: string) {
+  function onChange(key: number | string) {
     setActiveConsoleId(+key);
   }
 
-  const onEdit = (targetKey: any, action: 'add' | 'remove') => {
+  const onEdit = (action: 'add' | 'remove', key?: number) => {
     if (action === 'remove') {
-      closeWindowTab(targetKey);
+      closeWindowTab(key!);
     }
   };
 
-  const closeWindowTab = (targetKey: string) => {
+  const closeWindowTab = (key: number) => {
     let newActiveKey = activeConsoleId;
     let lastIndex = -1;
     consoleList?.forEach((item, i) => {
-      if (item.id === +targetKey) {
+      if (item.id === key) {
         lastIndex = i - 1;
       }
     });
 
-    const newPanes = consoleList?.filter((item) => item.id !== +targetKey) || [];
-    if (newPanes.length && newActiveKey === +targetKey) {
+    const newPanes = consoleList?.filter((item) => item.id !== key) || [];
+    if (newPanes.length && newActiveKey === key) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].id;
       } else {
@@ -183,11 +183,11 @@ const WorkspaceRight = memo<IProps>(function (props) {
     setActiveConsoleId(newActiveKey);
 
     let p: any = {
-      id: targetKey,
+      id: key,
       tabOpened: 'n',
     };
 
-    const window = consoleList?.find((t) => t.id === +targetKey);
+    const window = consoleList?.find((t) => t.id === key);
     if (!window?.status) {
       return;
     }
@@ -209,14 +209,12 @@ const WorkspaceRight = memo<IProps>(function (props) {
       <LoadingContent data={consoleList} handleEmpty empty={render()}>
         <div className={styles.tabBox}>
           <Tabs
-            hideAdd
             onChange={onChange}
             onEdit={onEdit}
-            type="editable-card"
-            items={(consoleList || [])?.map((t, i) => {
+            tabs={(consoleList || [])?.map((t, i) => {
               return {
                 label: t.name,
-                key: t.id + '',
+                value: t.id,
               };
             })}
           />
