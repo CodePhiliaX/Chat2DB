@@ -48,14 +48,15 @@
     margin-bottom: 4px;
     height: 20px;
     border-radius: 8px;
+    user-select: none;
 
     .menuItemsTitle {
       flex: 1;
       width: 0;
       .f-single-line();
     }
-  
-    .moreButton{
+
+    .moreButton {
       flex-shrink: 0;
       display: none;
       transform: rotate(90deg);
@@ -64,12 +65,11 @@
     &:hover {
       background-color: var(--color-hover-bg);
       border: var(--border-radius);
-      .moreButton{
+      .moreButton {
         display: block;
       }
     }
   }
-
 
   .menuItemActive {
     color: var(--color-primary);

@@ -2,7 +2,6 @@ export interface MainState {
   curPage: string;
 }
 
-//全局配置信息
 const mainModel = {
   namespace: 'mainPage',
 

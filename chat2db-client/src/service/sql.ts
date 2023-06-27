@@ -72,6 +72,20 @@ export interface ISchemaResponse {
   name: string;
 }
 
+export interface MetaSchemaVO {
+  databases?: Database[];
+  schemas?: Schema[];
+}
+
+export interface Database {
+  name: string;
+  schemas?: Schema[];
+}
+
+export interface Schema {
+  name: string;
+}
+
 const deleteTable = createRequest<ITableParams, void>('/api/rdb/ddl/delete', { method: 'post' });
 const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', { method: 'get' });
 const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/update/example', { method: 'get' });
@@ -83,7 +97,7 @@ const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_
 const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get' });
 const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get' });
 
-const getDatabaseSchemaList = createRequest<{ dataSourceId: number; databaseName?: string; schemaName?: string }>(
+const getDatabaseSchemaList = createRequest<{ dataSourceId: number; }, MetaSchemaVO>(
   '/api/rdb/ddl/database_schema_list',
   { method: 'get' }
 );

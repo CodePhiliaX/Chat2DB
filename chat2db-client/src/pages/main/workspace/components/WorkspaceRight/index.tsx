@@ -1,32 +1,34 @@
 import React, { memo, useRef, useEffect, useState } from 'react';
+import { connect } from 'umi'
 import styles from './index.less';
 import classnames from 'classnames';
-import DraggableContainer from '@/components/DraggableContainer';
-import Console from '@/components/Console';
 import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment, DatabaseTypeCode } from '@/constants';
 import { IConsole } from '@/typings';
 import historyService from '@/service/history';
-import { Button, Tabs } from 'antd';
-import { useReducerContext } from '@/pages/main/workspace';
-import { workspaceActionType } from '@/pages/main/workspace/context';
-import SearchResult from '@/components/SearchResult';
+import { Tabs } from 'antd';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 
+import { IWorkspaceModelType } from '@/models/workspace';
+
 interface IProps {
   className?: string;
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
 
-export default memo<IProps>(function WorkspaceRight(props) {
+const WorkspaceRight = memo<IProps>(function (props) {
   const { className } = props;
   const [consoleList, setConsoleList] = useState<IConsole[]>();
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
-  const { state, dispatch } = useReducerContext();
-  const { dblclickTreeNodeData, currentWorkspaceData } = state;
+  const dblclickTreeNodeData = false;
+  const { workspaceModel, dispatch } = props;
+  const { databaseAndSchema, curWorkspaceParams } = workspaceModel;
+
 
   useEffect(() => {
     getConsoleList();
-  }, [currentWorkspaceData]);
+  }, [curWorkspaceParams]);
 
   useEffect(() => {
     if (!dblclickTreeNodeData) {
@@ -68,14 +70,14 @@ export default memo<IProps>(function WorkspaceRight(props) {
         setConsoleList([...(consoleList || []), newConsole]);
       });
     }
-  }, [dblclickTreeNodeData]);
+  }, [curWorkspaceParams]);
 
   function getConsoleList() {
-    let p = {
+    let p: any = {
       pageNo: 1,
       pageSize: 999,
-      ConsoleOpenedStatus: ConsoleOpenedStatus.IS_OPEN,
-      ...currentWorkspaceData,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      ...curWorkspaceParams,
     };
 
     historyService.getSaveList(p).then((res) => {
@@ -183,7 +185,7 @@ export default memo<IProps>(function WorkspaceRight(props) {
 
     let p: any = {
       id: targetKey,
-      ConsoleOpenedStatus: 'n',
+      tabOpened: 'n',
     };
 
     const window = consoleList?.find((t) => t.id === +targetKey);
@@ -226,10 +228,10 @@ export default memo<IProps>(function WorkspaceRight(props) {
               data={
                 {
                   initDDL: t.ddl,
-                  databaseName: currentWorkspaceData.databaseName!,
-                  dataSourceId: currentWorkspaceData.dataSourceId!,
-                  type: currentWorkspaceData.databaseType!,
-                  schemaName: currentWorkspaceData?.schemaName!,
+                  databaseName: curWorkspaceParams.databaseName!,
+                  dataSourceId: curWorkspaceParams.dataSourceId!,
+                  type: curWorkspaceParams.databaseType!,
+                  schemaName: curWorkspaceParams?.schemaName!,
                   consoleId: t.id,
                   consoleName: t.name,
                 }
@@ -240,4 +242,10 @@ export default memo<IProps>(function WorkspaceRight(props) {
       </LoadingContent>
     </div>
   );
-});
+})
+
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace
+}))
+
+export default dvaModel(WorkspaceRight) 

@@ -11,8 +11,9 @@ import { IDatabase, IConnectionDetails } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import { connect, history } from 'umi';
-import { ConnectionModelType } from '@/models/connection';
+import { connect, history, Dispatch } from 'umi';
+import { IConnectionModelType } from '@/models/connection';
+import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IMenu {
   key: number;
@@ -22,18 +23,13 @@ interface IMenu {
 }
 
 interface IProps {
-  connectionModel: {
-    connectionList: IConnectionDetails[];
-    curConnection: IConnectionDetails;
-  };
-  databaseModel: {
-    databaseAndSchemaList: any;
-  };
-  dispatch: (p: { type: `connection/${string}` | `database/${string}`; payload ?: any }) => void;
+  connectionModel: IConnectionModelType['state'];
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
 
 function Connections(props: IProps) {
-  const { connectionModel, databaseModel, dispatch } = props;
+  const { connectionModel, workspaceModel, dispatch } = props;
   const { connectionList } = connectionModel;
   const volatileRef = useRef<any>();
   // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
@@ -66,19 +62,36 @@ function Connections(props: IProps) {
     [connectionList],
   );
 
+  const menuItemDoubleClick = (t: any) => {
+    dispatch({
+      type: 'connection/setCurConnection',
+      payload: t.meta,
+    });
+
+    dispatch({
+      type: 'mainPage/updateCurPage',
+      payload: 'workspace'
+    })
+
+    dispatch({
+      type: 'workspace/fetchdatabaseAndSchema',
+    });
+  }
+
   const renderMenu = () => {
     return (
       <div className={styles.menuBox}>
-        {(menuItems || []).map((menu) => {
-          const { key, label, icon } = menu;
+        {(menuItems || []).map((t) => {
+          const { key, label, icon } = t;
           return (
             <div
               key={key}
               className={classnames(styles.menuItem, {
                 [styles.menuItemActive]: curConnection.id === key,
               })}
+              onDoubleClick={menuItemDoubleClick.bind(null, t)}
               onClick={() => {
-                setCurConnection(menu.meta);
+                setCurConnection(t.meta);
               }}
             >
               <div className={classnames(styles.menuItemsTitle)}>
@@ -88,25 +101,6 @@ function Connections(props: IProps) {
               <Dropdown
                 menu={{
                   items: [
-                    {
-                      key: 'EnterWorkSpace',
-                      label: i18n('connection.button.connect'),
-                      onClick: () => {
-                        // dispatch({
-                        //   type: 'connection/setCurConnection',
-                        //   payload: menu.meta,
-                        // });
-
-                        dispatch({
-                          type: 'mainPage/updateCurPage',
-                          payload: 'workspace'
-                        })
-
-                        dispatch({
-                          type: 'database/fetchDatabaseAndSchemaList',
-                        });
-                      },
-                    },
                     {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
@@ -154,7 +148,7 @@ function Connections(props: IProps) {
             })}
           >
             <CreateConnection
-              connectionData={curConnection}
+              connectionData={curConnection as any}
               closeCreateConnection={() => {
                 setCurConnection({});
               }}
@@ -162,35 +156,35 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-            <div className={styles.dataBaseList}>
-              {databaseTypeList.map((t) => {
-                return (
-                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                    <div className={styles.databaseItemMain}>
-                      <div className={styles.databaseItemLeft}>
-                        <div className={styles.logoBox}>
-                          <Iconfont code={t.icon} />
-                        </div>
-                        {t.name}
+          <div className={styles.dataBaseList}>
+            {databaseTypeList.map((t) => {
+              return (
+                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                  <div className={styles.databaseItemMain}>
+                    <div className={styles.databaseItemLeft}>
+                      <div className={styles.logoBox}>
+                        <Iconfont code={t.icon} />
                       </div>
-                      <div className={styles.databaseItemRight}>
-                        <Iconfont code="&#xe631;" />
-                      </div>
+                      {t.name}
+                    </div>
+                    <div className={styles.databaseItemRight}>
+                      <Iconfont code="&#xe631;" />
                     </div>
                   </div>
-                );
-              })}
-              {Array.from({ length: 20 }).map((t) => {
-                return <div className={styles.databaseItemSpacer}></div>;
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+            {Array.from({ length: 20 }).map((t) => {
+              return <div className={styles.databaseItemSpacer}></div>;
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default connect(({ connection, database }: { connection: ConnectionModelType; database: any }) => ({
+export default connect(({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
   connectionModel: connection,
-  databaseModel: database,
+  workspaceModel: workspace,
 }))(Connections);

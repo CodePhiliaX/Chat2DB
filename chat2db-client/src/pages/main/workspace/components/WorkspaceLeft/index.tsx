@@ -1,26 +1,31 @@
-import React, { memo, useState, useEffect, useRef, useContext } from 'react';
-import styles from './index.less';
+import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
+import { connect } from 'umi'
+import i18n from '@/i18n';
 import classnames from 'classnames';
-import { Cascader, Divider } from 'antd';
-import connectionService from '@/service/connection';
-import historyService from '@/service/history';
-import { treeConfig } from '../Tree/treeConfig';
-import Tree from '../Tree';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import { Cascader, Divider } from 'antd';
+import historyService from '@/service/history';
+import { IConnectionModelType } from '@/models/connection';
+import { IWorkspaceModelType } from '@/models/workspace';
+import Tree from '../Tree';
+import { treeConfig } from '../Tree/treeConfig';
 import { TreeNodeType } from '@/constants';
 import { ITreeNode } from '@/typings';
-import { useReducerContext } from '../../index';
-import { workspaceActionType } from '../../context';
-import i18n from '@/i18n';
-import { IConsole } from '@/typings'
+import { IConsole } from '@/typings';
+import styles from './index.less';
+
 interface IProps {
   className?: string;
 }
 
-export default memo<IProps>(function WorkspaceLeft(props) {
-  const { className } = props;
+const dvaModel = connect(({ connection, workspace }: { connection: IConnectionModelType, workspace: IWorkspaceModelType }) => ({
+  connectionModel: connection,
+  workspaceModel: workspace
+}))
 
+const WorkspaceLeft = memo<IProps>(function (props) {
+  const { className } = props;
   return (
     <div className={classnames(styles.box, className)}>
       <div className={styles.header}>
@@ -34,38 +39,67 @@ export default memo<IProps>(function WorkspaceLeft(props) {
 });
 
 interface Option {
-  value: number;
+  value: string;
   label: string;
   children?: Option[];
 }
 
-function RenderSelectDatabase() {
-  const [options, setOptions] = useState<Option[]>();
-  const { state, dispatch } = useReducerContext();
-  const { currentWorkspaceData } = state;
+interface IProps {
+  connectionModel: IConnectionModelType['state'];
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
+}
 
-  useEffect(() => {
-    getDataSource();
-  }, []);
-
-  function getDataSource() {
-    let p = {
-      pageNo: 1,
-      pageSize: 999,
-    };
-    treeConfig[TreeNodeType.DATA_SOURCES].getChildren!(p).then((res) => {
-      let newOptions: any = res.map((t) => {
-        return {
-          label: t.name,
-          value: t.key,
-          type: TreeNodeType.DATA_SOURCE,
-          isLeaf: false,
-          databaseType: t.extraParams?.databaseType,
-        };
-      });
-      setOptions(newOptions);
-    });
+function handelDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
+  let newCascaderOptions: Option[] = [];
+  if (databaseAndSchema.databases) {
+    newCascaderOptions = databaseAndSchema.databases.map(t => {
+      let schemasList: Option[] = []
+      if (t.schemas) {
+        schemasList = t.schemas.map(t => {
+          return {
+            value: t.name,
+            label: t.name
+          }
+        })
+      }
+      return {
+        value: t.name,
+        label: t.name,
+        children: schemasList
+      }
+    })
+  } else if (databaseAndSchema?.schemas) {
+    newCascaderOptions = databaseAndSchema.schemas.map(t => {
+      return {
+        value: t.name,
+        label: t.name
+      }
+    })
   }
+  return newCascaderOptions
+}
+
+const RenderSelectDatabase = dvaModel(function (props: IProps) {
+  const { connectionModel, workspaceModel, dispatch } = props;
+  const { databaseAndSchema, curWorkspaceParams } = workspaceModel;
+  const { curConnection } = connectionModel;
+
+  const cascaderOptions = useMemo(() => {
+    const res = handelDatabaseAndSchema(databaseAndSchema);
+    const curWorkspaceParams = {
+      dataSourceId: curConnection?.id,
+      databaseSourceName: curConnection?.alias,
+      databaseName: res?.[0]?.value,
+      schemaName: res?.[0]?.children?.[0]?.value,
+      databaseType: curConnection?.type,
+    };
+    dispatch({
+      type: 'workspace/setCurWorkspaceParams',
+      payload: curWorkspaceParams,
+    });
+    return res
+  }, [databaseAndSchema])
 
   const onChange: any = (valueArr: any, selectedOptions: any) => {
     let labelArr: string[] = [];
@@ -73,70 +107,28 @@ function RenderSelectDatabase() {
       return t.label;
     });
 
-    const currentWorkspaceData = {
-      dataSourceId: valueArr[0],
-      databaseSourceName: labelArr[0],
-      databaseName: labelArr[1],
-      schemaName: labelArr[2],
-      databaseType: selectedOptions[0].databaseType,
+    const curWorkspaceParams = {
+      dataSourceId: curConnection?.id,
+      databaseSourceName: curConnection?.alias,
+      databaseName: labelArr[0],
+      schemaName: labelArr[1],
+      databaseType: curConnection?.type,
     };
 
     dispatch({
-      type: workspaceActionType.CURRENT_WORKSPACE_DATA,
-      payload: currentWorkspaceData,
+      type: 'workspace/setCurWorkspaceParams',
+      payload: curWorkspaceParams,
     });
-  };
-
-  // 及联loadData
-  const loadData = (selectedOptions: any) => {
-    if (selectedOptions.length > 1) {
-      return;
-    }
-
-    const targetOption = selectedOptions[0];
-    treeConfig[TreeNodeType.DATA_SOURCE].getChildren!({
-      id: targetOption.value,
-    }).then((res) => {
-      let newOptions = res.map((t) => {
-        return {
-          label: t.name,
-          value: t.key,
-          type: TreeNodeType.DATABASE,
-          databaseType: t.extraParams?.databaseType,
-        };
-      });
-      targetOption.children = newOptions;
-      setOptions([...(options || [])]);
-    });
-
-    // TODO:根据后端字段 如果有SCHEMAS再去查询SCHEMAS
-    // if (targetOption.type === TreeNodeType.SCHEMAS) {
-    //   treeConfig[TreeNodeType.DATA_SOURCE]?.getChildren({
-    //     id: targetOption.value
-    //   }).then(res => {
-    //     let newOptions = res.map((t) => {
-    //       return {
-    //         label: t.name,
-    //         value: t.name,
-    //         type: TreeNodeType.SCHEMAS
-    //       };
-    //     });
-    //     targetOption.children = newOptions;
-    //     setOptions([...(options || [])]);
-    //   })
-    // } else {
-    // }
   };
 
   const dropdownRender = (menus: React.ReactNode) => (
     <div>
       {menus}
-      {/* <div style={{ height: 0, opacity: 0 }}>The footer is not very short.</div> */}
     </div>
   );
 
   function renderCurrentSelected() {
-    const { databaseName, schemaName, databaseSourceName } = currentWorkspaceData;
+    const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
     const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
     return currentSelectedArr.join('/');
   }
@@ -145,9 +137,8 @@ function RenderSelectDatabase() {
     <div className={styles.selectDatabaseBox}>
       <Cascader
         popupClassName={styles.cascaderPopup}
-        options={options}
+        options={cascaderOptions}
         onChange={onChange}
-        loadData={loadData}
         bordered={false}
         dropdownRender={dropdownRender}
       >
@@ -163,25 +154,25 @@ function RenderSelectDatabase() {
       </div>
     </div>
   );
-}
+})
 
-function RenderTableBox() {
-  const { state, dispatch } = useReducerContext();
-  const { currentWorkspaceData } = state;
+const RenderTableBox = dvaModel(function RenderTableBox(props: any) {
+  const { workspaceModel } = props;
+  const { curWorkspaceParams } = workspaceModel;
   const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    if (currentWorkspaceData.databaseName) {
+    if (curWorkspaceParams.databaseName) {
       getInitialData();
     }
-  }, [currentWorkspaceData]);
+  }, [curWorkspaceParams]);
 
   function getInitialData() {
     treeConfig[TreeNodeType.TABLES].getChildren!({
       pageNo: 1,
       pageSize: 999,
-      ...currentWorkspaceData,
-      extraParams: currentWorkspaceData,
+      ...curWorkspaceParams,
+      extraParams: curWorkspaceParams,
     }).then((res) => {
       setInitialData(res);
     });
@@ -195,23 +186,22 @@ function RenderTableBox() {
       </LoadingContent>
     </div>
   );
-}
+})
 
-function RenderSaveBox() {
+const RenderSaveBox = dvaModel(function RenderSaveBox(props: any) {
   const [savedList, setSaveList] = useState<IConsole[]>([]);
-  const { state, dispatch } = useReducerContext();
-  const { currentWorkspaceData } = state;
+  const { workspaceModel } = props;
+  const { curWorkspaceParams } = workspaceModel;
 
   useEffect(() => {
     getSaveList();
-  }, [currentWorkspaceData])
-
+  }, [curWorkspaceParams])
 
   function getSaveList() {
-    let p = {
+    let p: any = {
       pageNo: 1,
       pageSize: 999,
-      ...currentWorkspaceData
+      ...curWorkspaceParams
     }
 
     historyService.getSaveList(p).then(res => {
@@ -233,4 +223,6 @@ function RenderSaveBox() {
       </LoadingContent>
     </div>
   </div>
-}
+})
+
+export default dvaModel(WorkspaceLeft)
