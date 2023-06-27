@@ -6,13 +6,13 @@ import styles from './index.less';
 // 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
 if (__ENV === 'local') {
   let container = `
-    /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
-    @font-face {
-      font-family: 'iconfont';  /* Project id 3633546 */
-      src: url('//at.alicdn.com/t/a/font_3633546_7qftabf6y8.woff2?t=1687853414741') format('woff2'),
-          url('//at.alicdn.com/t/a/font_3633546_7qftabf6y8.woff?t=1687853414741') format('woff'),
-          url('//at.alicdn.com/t/a/font_3633546_7qftabf6y8.ttf?t=1687853414741') format('truetype');
-    }
+  /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+  @font-face {
+    font-family: 'iconfont';  /* Project id 3633546 */
+    src: url('//at.alicdn.com/t/a/font_3633546_idhjlwx11v9.woff2?t=1687859839396') format('woff2'),
+         url('//at.alicdn.com/t/a/font_3633546_idhjlwx11v9.woff?t=1687859839396') format('woff'),
+         url('//at.alicdn.com/t/a/font_3633546_idhjlwx11v9.ttf?t=1687859839396') format('truetype');
+  }
   `
   let style = document.createElement("style");
   style.type = "text/css";

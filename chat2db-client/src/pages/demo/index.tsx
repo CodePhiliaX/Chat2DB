@@ -4,49 +4,35 @@ import { Button, Steps } from 'antd'
 import { LoadingOutlined, SmileOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
-import LazyLoading from '@/components/Loading/LazyLoading';
+import Tab from '@/components/Tab';
 
 
 export default function Demo() {
+  const tabs = [
+    {
+      label: 'components/121212',
+      value: 1
+    },
+    {
+      label: 'components/121212components/121212components/121212',
+      value: 2
+    },
+    {
+      label: 'components/121212components/121212components/121212components/121212components/121212components/121212',
+      value: 3
+    },
+    {
+      label: 'components/121212components/121212components/121212components/121212',
+      value: 4
+    },
+    {
+      label: 'components/121212',
+      value: 5
+    },
+  ]
   return <div className={styles.page}>
-    <Setting />
-    <div>
-      <Steps
-        items={[
-          {
-            title: 'Login',
-            status: 'finish',
-            icon: <UserOutlined />,
-          },
-          {
-            title: 'Verification',
-            status: 'finish',
-            icon: <SolutionOutlined />,
-          },
-          {
-            title: 'Pay',
-            status: 'process',
-            icon: <LoadingOutlined />,
-          },
-          {
-            title: 'Done',
-            status: 'wait',
-            icon: <SmileOutlined />,
-          },
-        ]}
-      />
-    </div>
-    <div>
-      <Button type="primary">我是button</Button>
-    </div>
-    <div>
-      <Button type="primary">我是button</Button>
-    </div>
-    <div>
-      <Button type="primary">我是button</Button>
-    </div>
-    <div>
-      <Button type="primary">我是button</Button>
-    </div>
+    <Tab
+      tabs={tabs}
+    />
   </div>
 }
