@@ -1,8 +1,9 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
-import { DatabaseTypeCode } from '@/constants';
+import historyService from '@/service/history'
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode } from '@/typings';
+import { ITreeNode, IConsole } from '@/typings';
 
 export type ICurWorkspaceParams = {
   dataSourceId: number;
@@ -14,11 +15,12 @@ export type ICurWorkspaceParams = {
 
 export interface IState {
   // 当前连接下的及联databaseAndSchema数据
-  databaseAndSchema: MetaSchemaVO;
+  databaseAndSchema: MetaSchemaVO | undefined;
   // 当前工作区所需的参数
   curWorkspaceParams: ICurWorkspaceParams;
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
+  consoleList: IConsole[];
 }
 
 export interface IWorkspaceModelType {
@@ -28,9 +30,11 @@ export interface IWorkspaceModelType {
     setDatabaseAndSchema: Reducer<IState['databaseAndSchema']>;
     setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
     setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
+    setConsoleList: Reducer<IState['consoleList']>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
+    fetchGetSavedConsole: Effect;
   };
 }
 
@@ -38,9 +42,10 @@ const WorkspaceModel: IWorkspaceModelType = {
   namespace: 'workspace',
 
   state: {
-    databaseAndSchema: {},
+    databaseAndSchema: undefined,
     curWorkspaceParams: getCurrentWorkspaceDatabase(),
     doubleClickTreeNodeData: undefined,
+    consoleList: []
   },
 
   reducers: {
@@ -66,16 +71,32 @@ const WorkspaceModel: IWorkspaceModelType = {
         doubleClickTreeNodeData: payload,
       };
     },
+
+    setConsoleList(state, { payload }) {
+      return {
+        ...state,
+        consoleList: payload,
+      };
+    },
   },
 
   effects: {
-    *fetchDatabaseAndSchema({ payload }, action) {
-      const { put } = action;
-      // ts-ignore
+    *fetchDatabaseAndSchema({ payload }, { put }) {
       const res = yield sqlService.getDatabaseSchemaList(payload);
       yield put({
         type: 'setDatabaseAndSchema',
         payload: res,
+      });
+    },
+    *fetchGetSavedConsole({ payload }, { put }) {
+      const res = yield historyService.getSavedConsoleList({
+        pageNo: 1,
+        pageSize: 999,
+        status: ConsoleStatus.RELEASE
+      });
+      yield put({
+        type: 'setConsoleList',
+        payload: res.data,
       });
     },
   },

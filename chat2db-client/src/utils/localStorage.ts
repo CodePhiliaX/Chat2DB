@@ -34,6 +34,7 @@ export function setCurrentWorkspaceDatabase(value: ICurWorkspaceParams) {
 
 export function getCurrentWorkspaceDatabase(): ICurWorkspaceParams {
   const curWorkspaceParams = localStorage.getItem('current-workspace-database');
+
   if (curWorkspaceParams) {
     return JSON.parse(curWorkspaceParams)
   }

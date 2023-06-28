@@ -22,6 +22,3 @@ export enum ConsoleStatus {
   DRAFT = 'DRAFT',
   RELEASE = 'RELEASE',
 }
-
-/** console顶部注释 */
-export const consoleTopComment = `-- Chat2DB自然语言转SQL等AI功能 >> https://github.com/alibaba/Chat2DB/blob/main/CHAT2DB_AI_SQL.md\n\n`;

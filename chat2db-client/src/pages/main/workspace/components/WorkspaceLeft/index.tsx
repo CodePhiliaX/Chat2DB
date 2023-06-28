@@ -10,10 +10,11 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
 import { treeConfig } from '../Tree/treeConfig';
-import { TreeNodeType } from '@/constants';
+import { TreeNodeType, ConsoleStatus } from '@/constants';
 import { ITreeNode } from '@/typings';
 import { IConsole } from '@/typings';
 import styles from './index.less';
+import { State } from '@/components/StateIndicator';
 
 interface IProps {
   className?: string;
@@ -52,8 +53,8 @@ interface IProps {
 
 function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
   let newCascaderOptions: Option[] = [];
-  if (databaseAndSchema.databases) {
-    newCascaderOptions = databaseAndSchema.databases.map(t => {
+  if (databaseAndSchema?.databases) {
+    newCascaderOptions = databaseAndSchema?.databases.map(t => {
       let schemasList: Option[] = []
       if (t.schemas) {
         schemasList = t.schemas.map(t => {
@@ -84,11 +85,12 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
   const { connectionModel, workspaceModel, dispatch } = props;
   const { databaseAndSchema, curWorkspaceParams } = workspaceModel;
   const { curConnection } = connectionModel;
+  const [currentSelectedName, setCurrentSelectedName] = useState('');
 
   const cascaderOptions = useMemo(() => {
     const res = handleDatabaseAndSchema(databaseAndSchema);
-    // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
-    if (!curWorkspaceParams.dataSourceId) {
+    if (!curWorkspaceParams?.dataSourceId || curWorkspaceParams?.dataSourceId !== curConnection?.id) {
+      // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
       const curWorkspaceParams = {
         dataSourceId: curConnection?.id,
         databaseSourceName: curConnection?.alias,
@@ -103,6 +105,14 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
     }
     return res
   }, [databaseAndSchema])
+
+  useEffect(() => {
+    if (curWorkspaceParams) {
+      const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
+      const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
+      setCurrentSelectedName(currentSelectedArr.join('/'));
+    }
+  }, [curWorkspaceParams])
 
   const onChange: any = (valueArr: any, selectedOptions: any) => {
     let labelArr: string[] = [];
@@ -130,12 +140,6 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
     </div>
   );
 
-  function renderCurrentSelected() {
-    const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
-    const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
-    return currentSelectedArr.join('/');
-  }
-
   return (
     <div className={styles.selectDatabaseBox}>
       <Cascader
@@ -146,7 +150,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
         dropdownRender={dropdownRender}
       >
         <div className={styles.currentDatabase}>
-          <div className={styles.name}>{renderCurrentSelected() || <span style={{ 'opacity': 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>} </div>
+          <div className={styles.name}>{currentSelectedName || <span style={{ 'opacity': 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>} </div>
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
@@ -165,7 +169,7 @@ const RenderTableBox = dvaModel(function (props: any) {
   const [initialData, setInitialData] = useState<ITreeNode[]>([]);
 
   useEffect(() => {
-    if (curWorkspaceParams.dataSourceId) {
+    if (curWorkspaceParams?.dataSourceId) {
       getInitialData();
     }
   }, [curWorkspaceParams]);
@@ -177,8 +181,6 @@ const RenderTableBox = dvaModel(function (props: any) {
       ...curWorkspaceParams,
       extraParams: curWorkspaceParams,
     }).then((res) => {
-      console.log(res)
-
       setInitialData(res);
     });
   }
@@ -194,32 +196,27 @@ const RenderTableBox = dvaModel(function (props: any) {
 })
 
 const RenderSaveBox = dvaModel(function (props: any) {
-  const [savedList, setSaveList] = useState<IConsole[]>([]);
-  const { workspaceModel } = props;
-  const { curWorkspaceParams } = workspaceModel;
+  const { workspaceModel, dispatch } = props;
+  const { curWorkspaceParams, consoleList } = workspaceModel;
 
   useEffect(() => {
-    getSaveList();
-  }, [curWorkspaceParams])
-
-  function getSaveList() {
-    let p: any = {
-      pageNo: 1,
-      pageSize: 999,
-      ...curWorkspaceParams
-    }
-
-    historyService.getSaveList(p).then(res => {
-      setSaveList(res.data)
+    dispatch({
+      type: 'workspace/fetchGetSavedConsole',
+      payload: {
+        pageNo: 1,
+        pageSize: 999,
+        status: ConsoleStatus.RELEASE,
+        ...curWorkspaceParams
+      }
     })
-  }
+  }, [curWorkspaceParams])
 
   return <div className={styles.save_box}>
     <div className={styles.left_box_title}>Saved</div>
     <div className={styles.saveBoxList}>
-      <LoadingContent data={savedList} handleEmpty>
+      <LoadingContent data={consoleList} handleEmpty>
         {
-          savedList?.map(t => {
+          consoleList?.map((t: IConsole) => {
             return <div key={t.id} className={styles.saveItem}>
               {t.name}
             </div>

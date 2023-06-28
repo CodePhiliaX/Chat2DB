@@ -17,14 +17,19 @@ export interface IOnchangeProps {
 interface IProps {
   className?: string;
   tabs: IOption[];
+  activeTab?: number;
   onChange: (key: IOption['value']) => void;
   onEdit: (action: 'add' | 'remove', key?: IOption['value']) => void;
 }
 
 export default memo<IProps>(function Tab(props) {
-  const { className, tabs, onChange, onEdit } = props;
+  const { className, tabs, onChange, onEdit, activeTab } = props;
   const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(tabs));
-  const [activeTab, setActiveTab] = useState(internalTabs[0]?.value);
+  const [internalActiveTab, setInternalActiveTab] = useState<number | undefined>(internalTabs[0]?.value);
+
+  useEffect(() => {
+    setInternalActiveTab(activeTab)
+  }, [activeTab])
 
   useEffect(() => {
     setInternalTabs(lodash.cloneDeep(tabs));
@@ -37,7 +42,7 @@ export default memo<IProps>(function Tab(props) {
   }
 
   function changeTab(data: IOption) {
-    setActiveTab(data.value);
+    setInternalActiveTab(data.value);
     onChange(data.value)
 
   }
@@ -53,7 +58,7 @@ export default memo<IProps>(function Tab(props) {
         {
           internalTabs.map(t => {
             return <div
-              className={classnames(styles.tabItem, { [styles.activeTab]: t.value === activeTab })}
+              className={classnames(styles.tabItem, { [styles.activeTab]: t.value === internalActiveTab })}
               key={t.value}
               onClick={changeTab.bind(null, t)}
             >
