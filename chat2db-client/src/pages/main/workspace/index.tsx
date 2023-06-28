@@ -15,7 +15,7 @@ interface IContext {
 }
 export const WorkspaceContext = React.createContext<IContext>({
   state: initState,
-  dispatch: () => {},
+  dispatch: () => { },
 });
 
 export const useReducerContext = () => {

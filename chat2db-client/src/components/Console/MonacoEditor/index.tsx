@@ -252,6 +252,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       });
     });
   };
+
   return <div ref={ref} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;
 }
 

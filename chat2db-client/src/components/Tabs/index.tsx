@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import lodash from 'lodash'
+import lodash from 'lodash';
 import styles from './index.less';
 
 export interface IOption {
