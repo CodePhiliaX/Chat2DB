@@ -3,6 +3,7 @@ export default {
   'common.text.is': 'no',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
+  'common.button.confirm': 'Confirm',
   'common.button.cancel': 'Cancel',
   'common.data.hour': '{1} {hour|hours}',
   'common.data.minute': '{1} {minute|minutes}',

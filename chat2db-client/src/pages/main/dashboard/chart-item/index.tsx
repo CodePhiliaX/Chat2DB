@@ -179,7 +179,7 @@ function ChartItem(props: IChartItemProps) {
     return (
       <div className={styles.editorBlock}>
         <div className={styles.editor}>
-          <Console
+          {/* <Console
             executeParams={{
               // databaseName: currentWorkspaceData.databaseName,
               // dataSourceId: currentWorkspaceData.dataSourceId,
@@ -195,7 +195,7 @@ function ChartItem(props: IChartItemProps) {
               console.log('onExecuteSQL', result);
               // setResultData(result);
             }}
-          />
+          /> */}
         </div>
         <Form
           form={form}

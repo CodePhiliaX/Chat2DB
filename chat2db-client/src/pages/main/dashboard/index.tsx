@@ -93,7 +93,10 @@ function Chart(props: IProps) {
         className={cs({ [styles.boxLeftItem]: true, [styles.activeItem]: curDashboard?.id === i.id })}
         onClick={() => onClickDashboardItem(i)}
       >
-        <div>{i.name}</div>
+        <div className={styles.itemTitle}>
+          <Iconfont code="&#xe60d;" style={{ marginRight: '8px' }} />
+          {i.name}
+        </div>
         <Dropdown
           menu={{
             items: [
@@ -126,7 +129,9 @@ function Chart(props: IProps) {
             ],
           }}
         >
-          <MoreOutlined />
+          <div className={styles.moreButton}>
+            <Iconfont code="&#xe601;" />
+          </div>
         </Dropdown>
       </div>
     ));
@@ -204,7 +209,7 @@ function Chart(props: IProps) {
             }}
             onAdd={() => {}}
           > */}
-          {chartList.map((rowData: number[], rowIndex: number) => (
+          {/* {chartList.map((rowData: number[], rowIndex: number) => (
             <div key={rowIndex} className={styles.boxRightContentRow}>
               {rowData.map((chartId: number, colIndex: number) => (
                 <div className={styles.boxRightContentColumn} style={{ width: `${100 / rowData.length}%` }}>
@@ -221,7 +226,7 @@ function Chart(props: IProps) {
                 </div>
               ))}
             </div>
-          ))}
+          ))} */}
           {/* </ReactSortable> */}
         </div>
       </>
@@ -238,11 +243,15 @@ function Chart(props: IProps) {
           </div>
           {renderLeft()}
         </div>
-        <div className={styles.boxRight}>{renderContent()}</div>
+        <div className={styles.boxRight}>
+          {
+            renderContent()
+          }
+        </div>
       </DraggableContainer>
 
       <Modal
-        title={form.getFieldValue('id') ? 'Edit Dashboard' : 'Add Dashboard'}
+        title={form.getFieldValue('id') ? i18n('dashboard.modal.editTitle') : i18n('dashboard.modal.addTitle')}
         open={openAddDashboard}
         onOk={async () => {
           try {
@@ -267,11 +276,15 @@ function Chart(props: IProps) {
           setOpenAddDashboard(false);
           form.setFieldsValue({});
         }}
-        okText="Confirm"
-        cancelText="Cancel"
+        okText={i18n('common.button.confirm')}
+        cancelText={i18n('common.button.cancel')}
       >
         <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} autoComplete={'off'}>
-          <Form.Item label={'name'} name={'name'} rules={[{ required: true, message: 'Please input your name' }]}>
+          <Form.Item
+            label={'name'}
+            name={'name'}
+            rules={[{ required: true, message: i18n('dashboard.modal.name.placeholder') }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item label={'description'} name={'description'}>
@@ -286,22 +299,3 @@ function Chart(props: IProps) {
 export default connect(({ global }: { global: GlobalState }) => ({
   settings: global.settings,
 }))(Chart);
-
-{
-  /* 
-    <Button
-      onClick={() => {
-        props.dispatch({
-          type: 'global/updateSettings',
-          payload: {
-            theme: 'dark',
-            language: 'en',
-          },
-        });
-      }}
-    >
-      测试dva
-    </Button>
-        
-  */
-}

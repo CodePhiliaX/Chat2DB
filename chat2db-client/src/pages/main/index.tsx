@@ -25,23 +25,23 @@ const navConfig: INavItem[] = [
     iconFontSize: 16,
     component: <Workspace />,
   },
-  // {
-  //   key: 'dashboard',
-  //   icon: '\ue629',
-  //   iconFontSize: 24,
-  //   component: <Dashboard />,
-  // },
-  // {
-  //   key: 'connections',
-  //   icon: '\ue622',
-  //   iconFontSize: 20,
-  //   component: <DataSource />,
-  // },
-  // {
-  //   key: 'github',
-  //   icon: '\ue885',
-  //   openBrowser: 'https://github.com/alibaba/Chat2DB',
-  // },
+  {
+    key: 'dashboard',
+    icon: '\ue629',
+    iconFontSize: 24,
+    component: <Dashboard />,
+  },
+  {
+    key: 'connections',
+    icon: '\ue622',
+    iconFontSize: 20,
+    component: <DataSource />,
+  },
+  {
+    key: 'github',
+    icon: '\ue885',
+    openBrowser: 'https://github.com/alibaba/Chat2DB',
+  },
 ];
 
 const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
@@ -85,7 +85,10 @@ function MainPage(props: IProps) {
   useEffect(() => {
     if (curConnection?.id) {
       dispatch({
-        type: 'workspace/fetchdatabaseAndSchema',
+        type: 'workspace/fetchDatabaseAndSchema',
+        payload: {
+          dataSourceId: curConnection.id
+        }
       })
     }
   }, [curConnection])
