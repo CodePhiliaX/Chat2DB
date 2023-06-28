@@ -32,4 +32,12 @@ public interface DlTemplateService {
      */
     DataResult<Long> count(DlCountParam param);
 
+    /**
+     * 数据源执行dl,分页操作
+     *
+     * @param param
+     * @return
+     */
+    ListResult<ExecuteResult> executePage(DlExecuteParam param);
+
 }

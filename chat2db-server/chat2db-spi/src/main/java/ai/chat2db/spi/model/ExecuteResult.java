@@ -84,4 +84,8 @@ public class ExecuteResult {
      * 执行持续时间
      */
     private Long duration;
+    /**
+     * 查询为总数
+     */
+    private Integer total;
 }
