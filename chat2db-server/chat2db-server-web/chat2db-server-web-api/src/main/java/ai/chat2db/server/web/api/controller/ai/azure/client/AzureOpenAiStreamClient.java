@@ -13,7 +13,6 @@ import com.azure.ai.openai.models.ChatMessage;
 import com.azure.ai.openai.models.CompletionsUsage;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.util.IterableStream;
-import com.unfbx.chatgpt.entity.chat.Message;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.sse.EventSourceListener;
 import org.apache.commons.collections4.CollectionUtils;
@@ -73,18 +72,16 @@ public class AzureOpenAiStreamClient {
 
             chatCompletionsStream.forEach(chatCompletions -> {
                 String text = "";
-                System.out.printf("Model ID=%s is created at %d.%n", chatCompletions.getId(),
+                log.info("Model ID={} is created at {}.", chatCompletions.getId(),
                     chatCompletions.getCreated());
                 for (ChatChoice choice : chatCompletions.getChoices()) {
                     ChatMessage message = choice.getDelta();
                     if (message != null) {
-                        log.info("Index: {}, Chat Role: {}.%n", choice.getIndex(), message.getRole());
+                        log.info("Index: {}, Chat Role: {}", choice.getIndex(), message.getRole());
                         text = message.getContent();
                     }
                 }
-                Message message = new Message();
                 if (StringUtils.isNotBlank(text)) {
-                    message.setContent(text);
                     eventSourceListener.onEvent(null, "[DATA]", null, text);
                 }
                 CompletionsUsage usage = chatCompletions.getUsage();
@@ -95,12 +92,13 @@ public class AzureOpenAiStreamClient {
                         usage.getCompletionTokens(), usage.getTotalTokens());
                 }
             });
-            eventSourceListener.onEvent(null, "[DONE]", null, "[DONE]");
             log.info("结束调用非流式输出自定义AI");
         } catch (Exception e) {
             log.error("请求参数解析异常", e);
             eventSourceListener.onFailure(null, e, null);
             throw new ParamBusinessException();
+        } finally {
+            eventSourceListener.onEvent(null, "[DONE]", null, "[DONE]");
         }
     }
 
