@@ -11,6 +11,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
@@ -52,15 +53,11 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
             sseEmitter.complete();
             return;
         }
-        ObjectMapper mapper = new ObjectMapper();
-        // 读取Json
-        Completions completionResponse = mapper.readValue(data, Completions.class);
-        String text = completionResponse.getChoices().get(0).getText() ;
         Message message = new Message();
-        if (text != null) {
-            message.setContent(text);
+        if (StringUtils.isNotBlank(data)) {
+            message.setContent(data);
             sseEmitter.send(SseEmitter.event()
-                .id(completionResponse.getId())
+                .id(null)
                 .data(message)
                 .reconnectTime(3000));
         }
