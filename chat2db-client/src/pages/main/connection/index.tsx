@@ -4,9 +4,7 @@ import i18n from '@/i18n';
 import CreateConnection from '@/components/CreateConnection';
 import Iconfont from '@/components/Iconfont';
 import connectionService from '@/service/connection';
-
 import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
-
 import { IDatabase, IConnectionDetails } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
@@ -62,7 +60,7 @@ function Connections(props: IProps) {
     [connectionList],
   );
 
-  const menuItemDoubleClick = (t: any) => {
+  const handleMenuItemDoubleClick = (t?: any) => {
     dispatch({
       type: 'connection/setCurConnection',
       payload: t.meta,
@@ -70,9 +68,9 @@ function Connections(props: IProps) {
 
     dispatch({
       type: 'mainPage/updateCurPage',
-      payload: 'workspace'
-    })
-  }
+      payload: 'workspace',
+    });
+  };
 
   const renderMenu = () => {
     return (
@@ -85,7 +83,7 @@ function Connections(props: IProps) {
               className={classnames(styles.menuItem, {
                 [styles.menuItemActive]: curConnection.id === key,
               })}
-              onDoubleClick={menuItemDoubleClick.bind(null, t)}
+              onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
               onClick={() => {
                 setCurConnection(t.meta);
               }}
@@ -97,6 +95,13 @@ function Connections(props: IProps) {
               <Dropdown
                 menu={{
                   items: [
+                    {
+                      key: 'EnterWorkSpace',
+                      label: i18n('connection.button.connect'),
+                      onClick: () => {
+                        handleMenuItemDoubleClick(t);
+                      },
+                    },
                     {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
@@ -180,7 +185,9 @@ function Connections(props: IProps) {
   );
 }
 
-export default connect(({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
-  connectionModel: connection,
-  workspaceModel: workspace,
-}))(Connections);
+export default connect(
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
+    connectionModel: connection,
+    workspaceModel: workspace,
+  }),
+)(Connections);

@@ -12,7 +12,7 @@
   max-width: 400px;
   height: 100%;
   padding-top: 20px;
-  background-color: var(--color-bg-container);
+  background-color: var(--color-bg-elevated);
 }
 
 .createDashboardBtn {
@@ -26,17 +26,19 @@
   font-size: 20px;
   line-height: 24px;
   font-weight: 500;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   padding-left: 20px;
   padding-right: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .plusIcon {
   font-size: 18px;
   padding: 2px;
   cursor: pointer;
+
   &:hover {
     background-color: var(--color-hover-bg);
   }
@@ -50,23 +52,34 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: var(--border-radius-l-g);
+  
+  .itemTitle{
+    font-weight: 400;
+    &:hover{
+      color: var(--color-primary);
+    }
+  }
 
-  .boxLeftItemIcon {
+  .moreButton {
+    flex-shrink: 0;
     display: none;
+    transform: rotate(90deg);
   }
 
   &:hover {
     cursor: pointer;
-    background-color: var(--color-bg-elevated);
+    background-color: var(--color-hover-bg);
 
-    .boxLeftItemIcon {
+    .moreButton {
       display: block;
     }
   }
 }
 
 .activeItem {
-  background-color: var(--color-bg-elevated);
+  color: var(--color-primary);
+  background-color: var(--color-hover-bg);
 }
 
 .boxRight {
@@ -85,8 +98,7 @@
   margin-bottom: 24px;
 }
 
-.boxRightContent {
-}
+.boxRightContent {}
 
 .boxRightContentRow {
   display: flex;

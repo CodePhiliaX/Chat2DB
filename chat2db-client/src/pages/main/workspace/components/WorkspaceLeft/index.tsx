@@ -50,7 +50,7 @@ interface IProps {
   dispatch: any;
 }
 
-function handelDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
+function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
   let newCascaderOptions: Option[] = [];
   if (databaseAndSchema.databases) {
     newCascaderOptions = databaseAndSchema.databases.map(t => {
@@ -86,7 +86,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
   const { curConnection } = connectionModel;
 
   const cascaderOptions = useMemo(() => {
-    const res = handelDatabaseAndSchema(databaseAndSchema);
+    const res = handleDatabaseAndSchema(databaseAndSchema);
     // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
     if (!curWorkspaceParams.dataSourceId) {
       const curWorkspaceParams = {

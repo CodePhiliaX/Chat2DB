@@ -3,6 +3,7 @@ export default {
   'common.text.is': '是',
   'common.button.affirm': '确认',
   'common.button.edit': '修改',
+  'common.button.confirm': '确认',
   'common.button.cancel': '取消',
   'common.data.hour': '{1}小时',
   'common.data.minute': '{1}分钟',
@@ -21,10 +22,10 @@ export default {
   'common.button.save': '保存',
   'common.button.取消execute': '执行',
   'common.message.successfulConfig': '配置成功',
-  'common.text.successful':'成功',
-  'common.text.failure':'失败',
-  'common.message.modifySuccessfully':'修改成功',
+  'common.text.successful': '成功',
+  'common.text.failure': '失败',
+  'common.message.modifySuccessfully': '修改成功',
   'common.message.addedSuccessfully': '添加成功',
-  'common.text.custom':'自定义',
-  'common.button.delete':'删除'
-}
+  'common.text.custom': '自定义',
+  'common.button.delete': '删除',
+};

@@ -2,7 +2,7 @@ import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/util
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import { DatabaseTypeCode } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode } from '@/typings'
+import { ITreeNode } from '@/typings';
 
 export type ICurWorkspaceParams = {
   dataSourceId: number;
@@ -10,7 +10,7 @@ export type ICurWorkspaceParams = {
   databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
-}
+};
 
 export interface IState {
   // 当前连接下的及联databaseAndSchema数据
@@ -21,20 +21,20 @@ export interface IState {
   doubleClickTreeNodeData: ITreeNode | undefined;
 }
 
-export interface IWorkspaceModelType  {
-  namespace: 'workspace',
-  state: IState,
+export interface IWorkspaceModelType {
+  namespace: 'workspace';
+  state: IState;
   reducers: {
     setDatabaseAndSchema: Reducer<IState['databaseAndSchema']>;
     setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
     setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
   };
   effects: {
-    fetchdatabaseAndSchema: Effect;
+    fetchDatabaseAndSchema: Effect;
   };
 }
 
-const WorkspaceModel:IWorkspaceModelType = {
+const WorkspaceModel: IWorkspaceModelType = {
   namespace: 'workspace',
 
   state: {
@@ -69,10 +69,10 @@ const WorkspaceModel:IWorkspaceModelType = {
   },
 
   effects: {
-    *fetchdatabaseAndSchema(p, action) {
-      const { call, put } = action
-      console.log(p,action)
-      const res = (yield sqlService.getDatabaseSchemaList({ dataSourceId: 2 }))
+    *fetchDatabaseAndSchema({ payload }, action) {
+      const { put } = action;
+      // ts-ignore
+      const res = yield sqlService.getDatabaseSchemaList(payload);
       yield put({
         type: 'setDatabaseAndSchema',
         payload: res,
@@ -81,4 +81,4 @@ const WorkspaceModel:IWorkspaceModelType = {
   },
 };
 
-export default WorkspaceModel
+export default WorkspaceModel;
