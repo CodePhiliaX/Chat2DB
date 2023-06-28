@@ -7,18 +7,18 @@ import { getCurConnection } from '@/utils/localStorage';
 /**
  * 数据源相关 - 链接池、数据库、schema、表
  */
-export interface ConnectionModelState {
+export interface IConnectionModelState {
   curConnection?: IConnectionDetails;
   connectionList: IConnectionDetails[];
 }
 
 export interface IConnectionModelType {
   namespace: 'connection';
-  state: ConnectionModelState;
+  state: IConnectionModelState;
   reducers: {
     // 设置连接池列表
-    setConnectionList: Reducer<ConnectionModelState>;
-    setCurConnection: Reducer<ConnectionModelState>;
+    setConnectionList: Reducer<IConnectionModelState>;
+    setCurConnection: Reducer<IConnectionModelState>;
   };
   effects: {
     fetchConnectionList: Effect;
