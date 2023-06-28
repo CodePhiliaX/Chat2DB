@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
-import Tabs from '@/components/Tabs';
+import Tabs from '@/components/Tabs2';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import LoadingContent from '@/components/Loading/LoadingContent';
@@ -13,7 +13,7 @@ import styles from './index.less';
 
 interface IProps {
   className?: string;
-  manageResultDataList: IManageResultData[];
+  manageResultDataList?: IManageResultData[];
 }
 
 interface DataType {
@@ -172,8 +172,8 @@ export function TableBox(props: ITableProps) {
       {dataList !== null ? (
         <Table bordered pagination={false} columns={columns} dataSource={tableData} size="small" />
       ) : (
-          <StateIndicator state="success" text="执行成功" />
-        )}
+        <StateIndicator state="success" text="执行成功" />
+      )}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

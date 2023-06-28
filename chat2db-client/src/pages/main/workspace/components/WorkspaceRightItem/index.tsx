@@ -30,8 +30,9 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const { className, data, workspaceModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
-  const [resultData, setResultData] = useState<IManageResultData[]>([]);
+  const [resultData, setResultData] = useState<IManageResultData[]>();
   const { doubleClickTreeNodeData } = workspaceModel;
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
@@ -58,15 +59,20 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
           executeParams={{ ...data }}
           hasAiChat={true}
           hasAi2Lang={true}
-          onExecuteSQL={(result) => {
-            setResultData(result);
+          onExecuteSQL={(res: any) => {
+            setResultData(res);
+            setShowResult(true);
           }}
         />
       </div>
+
       <div className={styles.boxRightResult}>
-        <LoadingContent data={resultData} handleEmpty>
-          <SearchResult manageResultDataList={resultData} />
-        </LoadingContent>
+        {
+          showResult &&
+          <LoadingContent data={resultData} handleEmpty>
+            <SearchResult manageResultDataList={resultData} />
+          </LoadingContent>
+        }
       </div>
     </DraggableContainer>
   </div>
