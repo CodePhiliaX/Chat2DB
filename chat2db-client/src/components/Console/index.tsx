@@ -111,6 +111,7 @@ function Console(props: IProps, ref: any) {
     if (!sqlContent) {
       sqlContent = editorRef?.current?.getAllContent();
     }
+
     if (!sqlContent) {
       return;
     }
@@ -119,22 +120,16 @@ function Console(props: IProps, ref: any) {
       sql: sqlContent,
       ...executeParams,
     };
-
-    sqlServer
-      .executeSql(p)
-      .then((res) => {
-        props.onExecuteSQL && props.onExecuteSQL(res);
-        // console.log(res)
-        let p: any = {
-          ...executeParams,
-          ddl: sqlContent,
-        };
-        historyServer.createHistory(p);
-        // setManageResultDataList(res);
-      })
-      .catch((error) => {
-        // setManageResultDataList([]);
-      });
+    props.onExecuteSQL?.(undefined);
+    sqlServer.executeSql(p).then((res) => {
+      props.onExecuteSQL?.(res);
+      // console.log(res)
+      let p: any = {
+        ...executeParams,
+        ddl: sqlContent,
+      };
+      historyServer.createHistory(p);
+    })
   };
 
   const saveConsole = (value?: string) => {
@@ -207,7 +202,7 @@ function Console(props: IProps, ref: any) {
           type="text"
           onClick={() => {
             const contextTmp = editorRef?.current?.getAllContent();
-            // setContext(format(contextTmp || ''));
+            editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
           }}
         >
           Format
