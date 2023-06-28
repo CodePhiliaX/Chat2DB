@@ -1,16 +1,20 @@
 import React, { memo, useRef, useState, useEffect } from 'react';
+import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
-import Console from '@/components/Console';
+import Console, { IAppendValue } from '@/components/Console';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode } from '@/constants';
 import { IManageResultData } from '@/typings';
-import { useReducerContext } from '@/pages/main/workspace';
+import { IWorkspaceModelType } from '@/models/workspace'
 
 interface IProps {
   className?: string;
+  isActive: boolean;
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
   data: {
     databaseName: string;
     dataSourceId: number;
@@ -22,41 +26,38 @@ interface IProps {
   };
 }
 
-export default memo<IProps>(function WorkspaceRightItem(props) {
-  const { className, data } = props;
+const WorkspaceRightItem = memo<IProps>(function (props) {
+  const { className, data, workspaceModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
-  const [consoleValue, setConsoleValue] = useState<string>(data.initDDL || '');
+  const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
-  const { state, dispatch } = useReducerContext();
-  const { dblclickTreeNodeData, currentWorkspaceData } = state;
-
+  const { doubleClickTreeNodeData } = workspaceModel;
 
   useEffect(() => {
-    if (!dblclickTreeNodeData) {
+    if (!doubleClickTreeNodeData) {
       return
     }
-    const { extraParams } = dblclickTreeNodeData;
-    const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
+    const { extraParams } = doubleClickTreeNodeData;
+    const { tableName } = extraParams || {};
     const ddl = `SELECT * FROM ${tableName};`;
-
-    if (data.databaseName === databaseName && data.dataSourceId === dataSourceId) {
-      setConsoleValue(`${consoleValue}\n${ddl}`)
+    if (isActive) {
+      setAppendValue({ text: ddl });
     }
-  }, [dblclickTreeNodeData]);
+    dispatch({
+      type: 'workspace/setDoubleClickTreeNodeData',
+      payload: ''
+    });
+  }, [doubleClickTreeNodeData]);
 
   return <div className={classnames(styles.box)}>
     <DraggableContainer layout="column" className={styles.boxRightCenter}>
       <div ref={draggableRef} className={styles.boxRightConsole}>
         <Console
+          isActive={isActive}
+          appendValue={appendValue}
           executeParams={{ ...data }}
           hasAiChat={true}
           hasAi2Lang={true}
-          value={consoleValue}
-          onChangeValue={
-            (value: string) => {
-              setConsoleValue(value)
-            }
-          }
           onExecuteSQL={(result) => {
             setResultData(result);
           }}
@@ -70,3 +71,9 @@ export default memo<IProps>(function WorkspaceRightItem(props) {
     </DraggableContainer>
   </div>
 })
+
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace
+}))
+
+export default dvaModel(WorkspaceRightItem)

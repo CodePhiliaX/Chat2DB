@@ -19,9 +19,9 @@ export interface IConsole {
   name: string;
   ddl: string;
   dataSourceId: number;
-  databaseName: string;
   dataSourceName: string;
-  schemaName: string;
+  databaseName?: string;
+  schemaName?: string;
   type: DatabaseTypeCode;
   status: ConsoleStatus;
   connectable: boolean;

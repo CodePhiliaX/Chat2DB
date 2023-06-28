@@ -3,7 +3,7 @@ import { connect } from 'umi'
 import styles from './index.less';
 import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment, DatabaseTypeCode } from '@/constants';
-import { IConsole } from '@/typings';
+import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import Tabs from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
@@ -24,52 +24,43 @@ const WorkspaceRight = memo<IProps>(function (props) {
   const { workspaceModel, dispatch } = props;
   const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData } = workspaceModel;
 
-
   useEffect(() => {
     getConsoleList();
   }, [curWorkspaceParams]);
 
   useEffect(() => {
-    if (!doubleClickTreeNodeData) {
+    // 这里只处理没有console的情况下
+    if (!doubleClickTreeNodeData || consoleList?.length) {
       return
     }
+
     const { extraParams } = doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
-    let flag = false;
     const ddl = `SELECT * FROM ${tableName};`;
-
-    consoleList?.forEach((i) => {
-      if (i.databaseName === databaseName && i.dataSourceId === dataSourceId) {
-        flag = true;
-        setActiveConsoleId(i.id);
-      }
+    const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
+    let p: any = {
+      name: name,
+      type: databaseType!,
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName,
+      schemaName: schemaName,
+      dataSourceName: dataSourceName!,
+      status: ConsoleStatus.DRAFT,
+      ddl,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    };
+    addConsole(p);
+    dispatch({
+      type: 'workspace/setDoubleClickTreeNodeData',
+      payload: ''
     });
-
-    if (!flag) {
-      const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
-      let p = {
-        name: name,
-        type: databaseType!,
-        dataSourceId: dataSourceId!,
-        databaseName: databaseName!,
-        schemaName: schemaName!,
-        dataSourceName: dataSourceName!,
-        status: ConsoleStatus.DRAFT,
-        ddl,
-        tabOpened: ConsoleOpenedStatus.IS_OPEN,
-        connectable: true,
-      };
-
-      historyService.saveConsole(p).then((res) => {
-        const newConsole: IConsole = {
-          id: res,
-          ...p,
-        };
-        setActiveConsoleId(newConsole.id);
-        setConsoleList([...(consoleList || []), newConsole]);
-      });
-    }
   }, [doubleClickTreeNodeData]);
+
+  useEffect(() => {
+    if (!consoleList?.length) {
+      setActiveConsoleId(undefined)
+    }
+  }, [consoleList])
 
   function getConsoleList() {
     let p: any = {
@@ -80,7 +71,6 @@ const WorkspaceRight = memo<IProps>(function (props) {
     };
 
     historyService.getSaveList(p).then((res) => {
-      let flag = false;
       const newWindowList: IConsole[] = [];
       res.data?.map((item, index) => {
         if (item.connectable) {
@@ -100,55 +90,15 @@ const WorkspaceRight = memo<IProps>(function (props) {
       });
 
       newWindowList.map((item: IConsole, index: number) => {
+        console.log(!activeConsoleId && index === 0)
+        console.log(activeConsoleId)
         if (!activeConsoleId && index === 0) {
           setActiveConsoleId(item.id);
         } else if (item.id === activeConsoleId) {
-          flag = true;
           setActiveConsoleId(item.id);
         }
       });
-
       setConsoleList(newWindowList);
-
-      // if (!flag) {
-      //   if (activeConsoleId) {
-      //     historyService.getWindowTab({ id: activeConsoleId }).then((res: any) => {
-      //       if (res.connectable) {
-      //         newWindowList.push({
-      //           id: res.id,
-      //           ddl: res.ddl,
-      //           name: res.name,
-      //           status: res.status,
-      //           type: res.type,
-      //           databaseName: res.databaseName,
-      //           dataSourceName: res.dataSourceName,
-      //           dataSourceId: res.dataSourceId,
-      //           schemaName: res.schemaName,
-      //           connectable: true,
-      //         });
-      //         setActiveConsoleId(res.id);
-      //         setConsoleList(newWindowList);
-      //       }
-      //     });
-      //   } else {
-      //     let p = {
-      //       name: 'default name',
-      //       ddl: 'string',
-      //       dataSourceId: currentWorkspaceData.dataSourceId,
-      //       databaseName: currentWorkspaceData.databaseName,
-      //       type: currentWorkspaceData.databaseType,
-      //       status: ConsoleStatus.DRAFT,
-      //       connectable: true,
-      //       tabOpened: ConsoleOpenedStatus.IS_OPEN
-      //     }
-      //     historyService.saveConsole(p).then(res => {
-      //       setActiveConsoleId(res);
-      //       // getConsoleList();
-      //     })
-      //   }
-      // } else {
-      //   setConsoleList(newWindowList);
-      // }
     });
   }
 
@@ -165,7 +115,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     }
   };
 
-  const addConsole = () => {
+  const addConsole = (params?: ICreateConsole) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
     let p = {
       name: `new console${consoleList?.length}`,
@@ -177,8 +127,9 @@ const WorkspaceRight = memo<IProps>(function (props) {
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
     }
-    historyService.saveConsole(p).then(res => {
-      getConsoleList()
+    historyService.saveConsole(params || p).then(res => {
+
+      getConsoleList();
     })
   }
 
@@ -242,6 +193,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
         {consoleList?.map((t, index) => {
           return <div key={t.id} className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
             <WorkspaceRightItem
+              isActive={activeConsoleId === t.id}
               data={
                 {
                   initDDL: t.ddl,

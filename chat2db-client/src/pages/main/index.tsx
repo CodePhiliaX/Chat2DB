@@ -40,6 +40,7 @@ const navConfig: INavItem[] = [
   {
     key: 'github',
     icon: '\ue885',
+    iconFontSize: 26,
     openBrowser: 'https://github.com/alibaba/Chat2DB',
   },
 ];
