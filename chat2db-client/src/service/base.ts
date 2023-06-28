@@ -1,5 +1,5 @@
 import { extend, ResponseError } from 'umi-request';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
@@ -58,7 +58,12 @@ const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
   const errorText = codeMessage[response.status] || response.statusText;
   const { status } = response;
   if (errorLevel === 'toast') {
-    message.error(`${status}: ${errorText}`);
+    notification.open({
+      type: 'error',
+      message: status,
+      description: errorText,
+    });
+    // message.error(`${status}: ${errorText}`);
   }
 };
 
@@ -148,7 +153,12 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           const { success, errorCode, errorMessage, data } = res;
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
-              message.error(`${errorCode}: ${errorMessage}`);
+              notification.open({
+                type: 'error',
+                message: errorCode,
+                description: errorMessage,
+              });
+              // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
             return;

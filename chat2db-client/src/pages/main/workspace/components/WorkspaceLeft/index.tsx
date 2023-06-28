@@ -171,7 +171,6 @@ const RenderTableBox = dvaModel(function (props: any) {
   }, [curWorkspaceParams]);
 
   function getInitialData() {
-    console.log(curWorkspaceParams);
     treeConfig[TreeNodeType.TABLES].getChildren!({
       pageNo: 1,
       pageSize: 999,
