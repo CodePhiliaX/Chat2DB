@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, notification } from 'antd';
@@ -8,11 +9,11 @@ import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import { v4 as uuidv4 } from 'uuid';
-
 import styles from './index.less';
 import Loading from '../Loading/Loading';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
+import { IWorkspaceModelType } from '@/models/workspace';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -54,10 +55,12 @@ interface IProps {
     consoleName: string;
   };
   onExecuteSQL: (value: any) => void;
+  workspaceModel: IWorkspaceModelType;
+  dispatch: any;
 }
 
 function Console(props: IProps, ref: any) {
-  const { hasAiChat = true, executeParams, appendValue, isActive } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, dispatch } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -138,17 +141,18 @@ function Console(props: IProps, ref: any) {
     const a = editorRef.current?.getAllContent()
 
     let p = {
-      ...executeParams,
       id: executeParams.consoleId,
-      name: executeParams.consoleName,
-      ddl: value || editorRef.current?.getAllContent()!,
+      status: ConsoleStatus.RELEASE
     };
-    historyServer.updateWindowTab(p).then((res) => {
-      // message.success('保存成功');
-      notification.open({
-        type: 'success',
-        message: '保存成功',
-      });
+    historyServer.updateSavedConsole(p).then((res) => {
+      message.success('保存成功');
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole'
+      })
+      // notification.open({
+      //   type: 'success',
+      //   message: '保存成功',
+      // });
     });
   };
 
@@ -213,4 +217,8 @@ function Console(props: IProps, ref: any) {
   );
 }
 
-export default Console;
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace
+}))
+
+export default dvaModel(Console);

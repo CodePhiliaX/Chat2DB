@@ -2,7 +2,7 @@ import React, { memo, useRef, useEffect, useState } from 'react';
 import { connect } from 'umi'
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment, DatabaseTypeCode } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import Tabs from '@/components/Tabs';
@@ -58,7 +58,19 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   useEffect(() => {
     if (!consoleList?.length) {
-      setActiveConsoleId(undefined)
+      setActiveConsoleId(undefined);
+    } else if (!activeConsoleId) {
+      setActiveConsoleId(consoleList[0].id);
+    } else {
+      let flag = false;
+      consoleList.forEach(t => {
+        if (t.id === activeConsoleId) {
+          flag = true
+        }
+      })
+      if (!flag) {
+        setActiveConsoleId(consoleList[consoleList.length - 1].id)
+      }
     }
   }, [consoleList])
 
@@ -70,7 +82,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       ...curWorkspaceParams,
     };
 
-    historyService.getSaveList(p).then((res) => {
+    historyService.getSavedConsoleList(p).then((res) => {
       const newWindowList: IConsole[] = [];
       res.data?.map((item, index) => {
         if (item.connectable) {
@@ -86,16 +98,6 @@ const WorkspaceRight = memo<IProps>(function (props) {
             schemaName: item.schemaName,
             connectable: true
           });
-        }
-      });
-
-      newWindowList.map((item: IConsole, index: number) => {
-        console.log(!activeConsoleId && index === 0)
-        console.log(activeConsoleId)
-        if (!activeConsoleId && index === 0) {
-          setActiveConsoleId(item.id);
-        } else if (item.id === activeConsoleId) {
-          setActiveConsoleId(item.id);
         }
       });
       setConsoleList(newWindowList);
@@ -119,7 +121,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
     let p = {
       name: `new console${consoleList?.length}`,
-      ddl: consoleTopComment,
+      ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
       schemaName: schemaName!,
@@ -128,7 +130,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
     }
     historyService.saveConsole(params || p).then(res => {
-
+      setActiveConsoleId(res);
       getConsoleList();
     })
   }
@@ -165,7 +167,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     if (window!.status === 'DRAFT') {
       historyService.deleteWindowTab({ id: window!.id });
     } else {
-      historyService.updateWindowTab(p);
+      historyService.updateSavedConsole(p);
     }
   };
 
@@ -182,6 +184,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
           <Tabs
             onChange={onChange}
             onEdit={onEdit}
+            activeTab={activeConsoleId}
             tabs={(consoleList || [])?.map((t, i) => {
               return {
                 label: t.name,
