@@ -1,4 +1,5 @@
 import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+
 export interface IPageResponse<T> {
   data: T[];
   pageNo: number;
@@ -6,7 +7,6 @@ export interface IPageResponse<T> {
   total: number;
   hasNextPage?: boolean;
 }
-
 
 export interface IPageParams {
   searchKey?: string;
@@ -28,5 +28,11 @@ export interface IConsole {
   tabOpened?: ConsoleOpenedStatus;
 }
 
-export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>
+export interface Option {
+  value: number | string;
+  label: string;
+  isLeaf?: boolean;
+  children?: Option[];
+}
 
+export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>;

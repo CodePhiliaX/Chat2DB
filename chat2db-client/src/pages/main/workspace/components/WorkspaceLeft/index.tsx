@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
-import { connect } from 'umi'
+import { connect } from 'umi';
 import i18n from '@/i18n';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -20,10 +20,12 @@ interface IProps {
   className?: string;
 }
 
-const dvaModel = connect(({ connection, workspace }: { connection: IConnectionModelType, workspace: IWorkspaceModelType }) => ({
-  connectionModel: connection,
-  workspaceModel: workspace
-}))
+const dvaModel = connect(
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
+    connectionModel: connection,
+    workspaceModel: workspace,
+  }),
+);
 
 const WorkspaceLeft = memo<IProps>(function (props) {
   const { className } = props;
@@ -54,31 +56,31 @@ interface IProps {
 function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
   let newCascaderOptions: Option[] = [];
   if (databaseAndSchema?.databases) {
-    newCascaderOptions = databaseAndSchema?.databases.map(t => {
-      let schemasList: Option[] = []
+    newCascaderOptions = (databaseAndSchema?.databases || []).map((t) => {
+      let schemasList: Option[] = [];
       if (t.schemas) {
-        schemasList = t.schemas.map(t => {
+        schemasList = t.schemas.map((t) => {
           return {
             value: t.name,
-            label: t.name
-          }
-        })
+            label: t.name,
+          };
+        });
       }
       return {
         value: t.name,
         label: t.name,
-        children: schemasList
-      }
-    })
+        children: schemasList,
+      };
+    });
   } else if (databaseAndSchema?.schemas) {
-    newCascaderOptions = databaseAndSchema.schemas.map(t => {
+    newCascaderOptions = (databaseAndSchema?.schemas || []).map((t) => {
       return {
         value: t.name,
-        label: t.name
-      }
-    })
+        label: t.name,
+      };
+    });
   }
-  return newCascaderOptions
+  return newCascaderOptions;
 }
 
 const RenderSelectDatabase = dvaModel(function (props: IProps) {
@@ -103,8 +105,8 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
         payload: curWorkspaceParams,
       });
     }
-    return res
-  }, [databaseAndSchema])
+    return res;
+  }, [databaseAndSchema]);
 
   useEffect(() => {
     if (curWorkspaceParams) {
@@ -112,7 +114,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
       const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
       setCurrentSelectedName(currentSelectedArr.join('/'));
     }
-  }, [curWorkspaceParams])
+  }, [curWorkspaceParams]);
 
   const onChange: any = (valueArr: any, selectedOptions: any) => {
     let labelArr: string[] = [];
@@ -134,11 +136,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
     });
   };
 
-  const dropdownRender = (menus: React.ReactNode) => (
-    <div>
-      {menus}
-    </div>
-  );
+  const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
 
   return (
     <div className={styles.selectDatabaseBox}>
@@ -150,7 +148,9 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
         dropdownRender={dropdownRender}
       >
         <div className={styles.currentDatabase}>
-          <div className={styles.name}>{currentSelectedName || <span style={{ 'opacity': 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>} </div>
+          <div className={styles.name}>
+            {currentSelectedName || <span style={{ opacity: 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>}{' '}
+          </div>
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
@@ -161,7 +161,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
       </div> */}
     </div>
   );
-})
+});
 
 const RenderTableBox = dvaModel(function (props: any) {
   const { workspaceModel } = props;
@@ -193,7 +193,7 @@ const RenderTableBox = dvaModel(function (props: any) {
       </LoadingContent>
     </div>
   );
-})
+});
 
 const RenderSaveBox = dvaModel(function (props: any) {
   const { workspaceModel, dispatch } = props;
@@ -206,25 +206,27 @@ const RenderSaveBox = dvaModel(function (props: any) {
         pageNo: 1,
         pageSize: 999,
         status: ConsoleStatus.RELEASE,
-        ...curWorkspaceParams
-      }
-    })
-  }, [curWorkspaceParams])
+        ...curWorkspaceParams,
+      },
+    });
+  }, [curWorkspaceParams]);
 
-  return <div className={styles.save_box}>
-    <div className={styles.left_box_title}>Saved</div>
-    <div className={styles.saveBoxList}>
-      <LoadingContent data={consoleList} handleEmpty>
-        {
-          consoleList?.map((t: IConsole) => {
-            return <div key={t.id} className={styles.saveItem}>
-              {t.name}
-            </div>
-          })
-        }
-      </LoadingContent>
+  return (
+    <div className={styles.save_box}>
+      <div className={styles.left_box_title}>Saved</div>
+      <div className={styles.saveBoxList}>
+        <LoadingContent data={consoleList} handleEmpty>
+          {consoleList?.map((t: IConsole) => {
+            return (
+              <div key={t.id} className={styles.saveItem}>
+                {t.name}
+              </div>
+            );
+          })}
+        </LoadingContent>
+      </div>
     </div>
-  </div>
-})
+  );
+});
 
-export default dvaModel(WorkspaceLeft)
+export default dvaModel(WorkspaceLeft);

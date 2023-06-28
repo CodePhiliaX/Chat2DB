@@ -1,18 +1,21 @@
-import { IChartItem, IChartType } from '@/typings';
+import { IChartItem, IChartType, IConnectionDetails } from '@/typings';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';
 import cs from 'classnames';
-import EchartsTest from '../echart-test';
 import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Form, MenuProps, Select } from 'antd';
+import { Button, Cascader, Dropdown, Form, MenuProps, Select } from 'antd';
 import { initChartItem } from '..';
 import { deleteChart, getChartById } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
 import Console from '@/components/Console';
+import Iconfont from '@/components/Iconfont';
+import sqlService, { MetaSchemaVO } from '@/service/sql';
+import { Option } from '@/typings/common';
+import { handleDatabaseAndSchema } from '@/utils/database';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -47,7 +50,7 @@ function countArrayElements<T>(arr: T[]): { name: T; value: number }[] {
 interface IChartItemProps {
   id: number;
   canAddRowItem: boolean;
-
+  connectionList: IConnectionDetails[];
   onDelete?: (id: number) => void;
   addChartTop?: () => void;
   addChartBottom?: () => void;
@@ -56,6 +59,11 @@ interface IChartItemProps {
 }
 
 function ChartItem(props: IChartItemProps) {
+  const { connectionList } = props;
+  const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
+  const [curConnection, setCurConnection] = useState<IConnectionDetails>();
+  const [consoleParams, setConsoleParams] = useState({});
+
   const [chartData, setChartData] = useState<IChartItem>();
   const [chartMetaData, setChartMetaData] = useState<any>();
   const [consoleValue, setConsoleValue] = useState<string>();
@@ -63,11 +71,47 @@ function ChartItem(props: IChartItemProps) {
   const [toggle, setToggle] = useState(false);
   const [form] = Form.useForm(); // 创建一个表单实例
   const chartRef = useRef<any>();
+  // const consoleParams = useRef({});
   const { id } = props;
 
   useEffect(() => {
     queryChartData();
   }, [id]);
+
+  useEffect(() => {
+    if (connectionList && connectionList.length > 0) {
+      setCurConnection(connectionList[0]);
+      setCascaderOption(
+        (connectionList || []).map((c) => ({
+          value: c.id,
+          label: c.alias,
+          isLeaf: false,
+        })),
+      );
+    }
+  }, [connectionList]);
+
+  useEffect(() => {
+    if (!curConnection) {
+      return;
+    }
+    setConsoleParams({
+      ...consoleParams,
+      dataSourceId: curConnection.id,
+      type: curConnection.type,
+    });
+
+    queryDatabaseAndSchemaList(curConnection.id);
+  }, [curConnection]);
+
+  const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
+    const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
+    const dataSource = (cascaderOption || []).find((c) => c.value === dataSourceId);
+    if (!dataSource) return;
+
+    dataSource.children = handleDatabaseAndSchema(res);
+    setCascaderOption([...cascaderOption]);
+  };
 
   const queryChartData = async () => {
     const { id } = props;
@@ -120,7 +164,7 @@ function ChartItem(props: IChartItemProps) {
       default:
         return (
           <div style={{ height: '120px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            图表占位区域
+            <Iconfont code="&#xe638;" className={styles.emptyDataImage} />
           </div>
         );
     }
@@ -158,8 +202,10 @@ function ChartItem(props: IChartItemProps) {
 
   const renderEmptyBlock = () => {
     return (
-      <div className={styles.emptyData}>
-        <div className={styles.emptyDataImage}>No Data</div>
+      <div className={styles.emptyChartBlock}>
+        <Iconfont code="&#xe638;" className={styles.emptyDataImage} />
+
+        <div className={styles.emptyDataText}>No date selected</div>
         <Button
           type="primary"
           onClick={() => {
@@ -179,30 +225,45 @@ function ChartItem(props: IChartItemProps) {
     return (
       <div className={styles.editorBlock}>
         <div className={styles.editor}>
-          {/* <Console
-            executeParams={{
-              // databaseName: currentWorkspaceData.databaseName,
-              // dataSourceId: currentWorkspaceData.dataSourceId,
-              // type: currentWorkspaceData.databaseType,
-              // schemaName: currentWorkspaceData?.schemaName,
-              // consoleId: t.id,
-              // consoleName: t.name,
-            }}
+          <Console
+            executeParams={consoleParams}
             hasAiChat={true}
             hasAi2Lang={false}
-            // value={consoleValue}
+            hasSaveBtn={false}
+            value={consoleValue}
             onExecuteSQL={(result) => {
               console.log('onExecuteSQL', result);
+              setChartData({
+                ...chartData,
+                sqlData: handleSQLResult2ChartData(result[0]),
+              });
               // setResultData(result);
             }}
-          /> */}
+          />
+
+          <Cascader
+            options={cascaderOption}
+            onChange={(value, selectedOptions) => {
+              console.log('onChange', selectedOptions);
+              (selectedOptions || []).forEach((o) => {
+                if (o.type) {
+                  setConsoleParams({
+                    ...consoleParams,
+                    [`${o.type}Name`]: o.value,
+                  });
+                }
+              });
+            }}
+            className={styles.dataSourceSelect}
+            // style={{ width: '100%' }}
+          />
         </div>
         <Form
           form={form}
-          labelCol={{ span: 6 }}
-          wrapperCol={{ span: 18 }}
+          labelCol={{ span: 8 }}
+          wrapperCol={{ span: 12 }}
           layout="horizontal"
-          style={{ minWidth: 280, width: '100%' }}
+          className={styles.chartParamsForm}
           autoComplete="off"
           onValuesChange={handleChartConfigChange}
         >
@@ -218,7 +279,7 @@ function ChartItem(props: IChartItemProps) {
           <Form.Item label={'xAxis'} name={'xAxis'}>
             <Select options={options} />
           </Form.Item>
-          <Form.Item label={'yAxis'} name={'yAxis'}>
+          <Form.Item label={'yAxis'} name={'yAxis'} hidden={form.getFieldValue('chartType') === IChartType.Pie}>
             <Select options={options} />
           </Form.Item>
         </Form>
@@ -278,9 +339,9 @@ function ChartItem(props: IChartItemProps) {
       <div className={styles.titleBar}>
         <div className={styles.title}>{chartData?.name}</div>
         <div>
-          <Button type="text" onClick={handleToggleData}>
+          {/* <Button type="text" onClick={handleToggleData}>
             {toggle ? '去掉数据' : '添加数据'}
-          </Button>
+          </Button> */}
           <Dropdown
             menu={{
               items: [
@@ -302,8 +363,8 @@ function ChartItem(props: IChartItemProps) {
           </Dropdown>
         </div>
       </div>
-      {chartData?.sqlData || isEditing ? <div>{renderChart()}</div> : renderEmptyBlock()}
-      {isEditing && <div>{renderEditorBlock()}</div>}
+      {chartData?.sqlData || isEditing ? renderChart() : renderEmptyBlock()}
+      {isEditing && renderEditorBlock()}
       <div>{props.id}</div>
     </div>
   );

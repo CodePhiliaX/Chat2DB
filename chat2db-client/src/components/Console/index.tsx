@@ -34,7 +34,7 @@ enum IPromptTypeText {
 export type IAppendValue = {
   text: any;
   range?: IRangeType;
-}
+};
 
 interface IProps {
   /** 是否是活跃的console，用于快捷键 */
@@ -44,23 +44,34 @@ interface IProps {
   /** 是否开启AI输入 */
   hasAiChat: boolean;
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
-  hasAi2Lang: boolean;
-  /** 运行或保存sql需要的父级参数 */
+  hasAi2Lang?: boolean;
+  hasSaveBtn?: boolean;
+  value?: string;
+  onChangeValue?: Function;
   executeParams: {
-    databaseName: string;
-    dataSourceId: number;
-    type: DatabaseTypeCode;
-    consoleId: number;
+    databaseName?: string;
+    dataSourceId?: number;
+    type?: DatabaseTypeCode;
+    consoleId?: number;
     schemaName?: string;
-    consoleName: string;
+    consoleName?: string;
   };
   onExecuteSQL: (value: any) => void;
   workspaceModel: IWorkspaceModelType;
   dispatch: any;
 }
 
-function Console(props: IProps, ref: any) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, dispatch } = props;
+function Console(props: IProps) {
+  const {
+    hasAiChat = true,
+    executeParams,
+    appendValue,
+    isActive,
+    dispatch,
+    hasSaveBtn = true,
+    value,
+    onChangeValue,
+  } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -70,7 +81,7 @@ function Console(props: IProps, ref: any) {
     if (appendValue) {
       editorRef?.current?.setValue(appendValue.text, appendValue.range);
     }
-  }, [appendValue])
+  }, [appendValue]);
 
   const onPressChatInput = (value: string) => {
     const params = formatParams({
@@ -99,7 +110,7 @@ function Console(props: IProps, ref: any) {
     };
 
     const closeEventSource = connectToEventSource({
-      url: `/api/ai/chat1?${params}`,
+      url: `/api/ai/chat?${params}`,
       uid,
       onMessage: handleMessage,
       onError: handleError,
@@ -133,17 +144,17 @@ function Console(props: IProps, ref: any) {
   };
 
   const saveConsole = (value?: string) => {
-    const a = editorRef.current?.getAllContent()
+    const a = editorRef.current?.getAllContent();
 
     let p = {
       id: executeParams.consoleId,
-      status: ConsoleStatus.RELEASE
+      status: ConsoleStatus.RELEASE,
     };
     historyServer.updateSavedConsole(p).then((res) => {
       message.success('保存成功');
       dispatch({
-        type: 'workspace/fetchGetSavedConsole'
-      })
+        type: 'workspace/fetchGetSavedConsole',
+      });
       // notification.open({
       //   type: 'success',
       //   message: '保存成功',
@@ -151,23 +162,26 @@ function Console(props: IProps, ref: any) {
     });
   };
 
-  const addAction = useMemo(() => ([
-    {
-      id: 'explainSQL',
-      label: '解释SQL',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_EXPLAIN, selectedText),
-    },
-    {
-      id: 'optimizeSQL',
-      label: '优化SQL',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_OPTIMIZER, selectedText),
-    },
-    {
-      id: 'changeSQL',
-      label: 'SQL转化',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_2_SQL, selectedText),
-    },
-  ]), [])
+  const addAction = useMemo(
+    () => [
+      {
+        id: 'explainSQL',
+        label: '解释SQL',
+        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_EXPLAIN, selectedText),
+      },
+      {
+        id: 'optimizeSQL',
+        label: '优化SQL',
+        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_OPTIMIZER, selectedText),
+      },
+      {
+        id: 'changeSQL',
+        label: 'SQL转化',
+        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_2_SQL, selectedText),
+      },
+    ],
+    [],
+  );
 
   const handleAIRelativeOperation = (id: string, selectedText: string) => {
     console.log('handleAIRelativeOperation', id, selectedText);
@@ -191,12 +205,14 @@ function Console(props: IProps, ref: any) {
       <div className={styles.console_options_wrapper}>
         <div className={styles.console_options_left}>
           <Button type="primary" className={styles.run_button} onClick={executeSQL}>
-            <Iconfont code='&#xe637;' />
+            <Iconfont code="&#xe637;" />
             RUN
           </Button>
-          <Button type="default" className={styles.save_button} onClick={() => { saveConsole() }}>
-            SAVE
-          </Button>
+          {hasSaveBtn && (
+            <Button type="default" className={styles.save_button} onClick={() => saveConsole()}>
+              SAVE
+            </Button>
+          )}
         </div>
         <Button
           type="text"
@@ -213,7 +229,7 @@ function Console(props: IProps, ref: any) {
 }
 
 const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace
-}))
+  workspaceModel: workspace,
+}));
 
 export default dvaModel(Console);

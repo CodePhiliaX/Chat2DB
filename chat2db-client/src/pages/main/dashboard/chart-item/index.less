@@ -98,7 +98,7 @@
 }
 
 
-.emptyData {
+.emptyChartBlock {
   width: 100%;
   padding: 20px 0;
   display: flex;
@@ -108,20 +108,45 @@
 }
 
 .emptyDataImage {
-  margin-bottom: 8px;
+  font-size: 56px;
+  color: #666666;
+  margin-bottom: 16px;
 }
+
+.emptyDataText {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.40);
+  line-height: 14px;
+  margin-bottom: 40px;
+}
+
 
 
 .editorBlock {
   display: flex;
-  border: 1px solid #eee;
+  // border: 1px solid #eee;
   flex-wrap: wrap;
 }
 
 .editor {
   flex: 1;
-  border-right: 1px solid #eee;
+  border: 1px solid #eee;
   min-width: 320px;
   min-height: 320px;
+  max-height: 640px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
 
+.dataSourceSelect {
+  position: absolute;
+  bottom: 8px;
+  right: 24px;
+}
+
+.chartParamsForm{
+  min-width: 280px;
+  padding: 20px;
+  border: 1px solid #eee;
 }
