@@ -25,18 +25,18 @@ const navConfig: INavItem[] = [
     iconFontSize: 16,
     component: <Workspace />,
   },
-  {
-    key: 'dashboard',
-    icon: '\ue629',
-    iconFontSize: 24,
-    component: <Dashboard />,
-  },
-  {
-    key: 'connections',
-    icon: '\ue622',
-    iconFontSize: 20,
-    component: <DataSource />,
-  },
+  // {
+  //   key: 'dashboard',
+  //   icon: '\ue629',
+  //   iconFontSize: 24,
+  //   component: <Dashboard />,
+  // },
+  // {
+  //   key: 'connections',
+  //   icon: '\ue622',
+  //   iconFontSize: 20,
+  //   component: <DataSource />,
+  // },
   // {
   //   key: 'github',
   //   icon: '\ue885',

@@ -170,8 +170,8 @@ function Connections(props: IProps) {
                 </div>
               );
             })}
-            {Array.from({ length: 20 }).map((t) => {
-              return <div className={styles.databaseItemSpacer}></div>;
+            {Array.from({ length: 20 }).map((t, index) => {
+              return <div key={index} className={styles.databaseItemSpacer}></div>;
             })}
           </div>
         )}

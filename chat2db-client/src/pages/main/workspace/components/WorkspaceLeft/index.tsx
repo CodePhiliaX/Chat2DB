@@ -221,7 +221,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
       <LoadingContent data={savedList} handleEmpty>
         {
           savedList?.map(t => {
-            return <div className={styles.saveItem}>
+            return <div key={t.id} className={styles.saveItem}>
               {t.name}
             </div>
           })

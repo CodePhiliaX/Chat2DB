@@ -8,7 +8,6 @@ import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import MonacoEditor from 'react-monaco-editor';
-import { useReducerContext } from '@/pages/main/workspace/index';
 import { v4 as uuidv4 } from 'uuid';
 
 import styles from './index.less';
@@ -57,8 +56,6 @@ function Console(props: IProps) {
   const editorRef = useRef<IExportRefFunction>();
   const [context, setContext] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
-  const { state, dispatch } = useReducerContext();
-  const { currentWorkspaceData } = state;
 
   useEffect(() => {
     setContext(value);
@@ -116,6 +113,7 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
+
     sqlServer
       .executeSql(p)
       .then((res) => {

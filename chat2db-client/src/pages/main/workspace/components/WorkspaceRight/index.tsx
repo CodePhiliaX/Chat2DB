@@ -240,7 +240,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
           />
         </div>
         {consoleList?.map((t, index) => {
-          return <div className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
+          return <div key={t.id} className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
             <WorkspaceRightItem
               data={
                 {
