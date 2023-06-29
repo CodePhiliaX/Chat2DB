@@ -60,6 +60,11 @@ function AppContainer() {
   const [appTheme, setAppTheme] = useTheme();
 
   useEffect(() => {
+    let date = new Date('2030-12-30 12:30:00').toUTCString();
+    document.cookie = `CHAT2DB.LOCALE=${getLang()};Expires=${date}`;
+  }, []);
+
+  useEffect(() => {
     InjectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
   }, [token]);
 

@@ -1,5 +1,6 @@
 import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
+import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 console.log(process.env.UMI_ENV);
 
@@ -34,7 +35,7 @@ export default defineConfig({
   proxy: {
     '/api': {
       target: 'http://127.0.0.1:10821',
-      changeOrigin: true,
+      changeOrigin: true
     },
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],

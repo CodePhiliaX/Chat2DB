@@ -56,7 +56,7 @@ interface IProps {
   };
   editorOptions: IEditorOptions;
   // onSQLContentChange: (v: string) => void;
-  onExecuteSQL: (result: any, sql: string) => void;
+  onExecuteSQL: (result: any, sql?: string) => void;
   workspaceModel: IWorkspaceModelType;
   dispatch: any;
 }
@@ -83,8 +83,14 @@ function Console(props: IProps) {
   }, [appendValue]);
 
   const onPressChatInput = (value: string) => {
+    const { dataSourceId, databaseName, schemaName } = executeParams;
     const params = formatParams({
       message: value,
+      dataSourceId,
+      databaseName,
+      schemaName,
+      //TODO:
+      promptType: IPromptType.NL_2_SQL,
     });
 
     // setIsLoading(true);
@@ -95,6 +101,7 @@ function Console(props: IProps) {
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
+          console.log('chatResult', chatResult.current);
           return;
         }
         chatResult.current += JSON.parse(message).content;
@@ -127,7 +134,7 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
-    // props.onExecuteSQL?.(undefined);
+    props.onExecuteSQL?.(undefined);
     sqlServer.executeSql(p).then((res) => {
       props.onExecuteSQL?.(res, sqlContent!);
       // console.log(res)
