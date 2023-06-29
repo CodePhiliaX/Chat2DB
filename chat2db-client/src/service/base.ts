@@ -87,7 +87,6 @@ request.interceptors.request.use((url, options) => {
   if (localStorage.getItem('DBHUB')) {
     myOptions.headers.DBHUB = localStorage.getItem('DBHUB');
   }
-  myOptions.headers.lang = getLang() || 'en-us';
   return {
     options: myOptions,
   };
