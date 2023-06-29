@@ -164,32 +164,28 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
 });
 
 const RenderTableBox = dvaModel(function (props: any) {
-  const { workspaceModel } = props;
-  const { curWorkspaceParams } = workspaceModel;
-  const [initialData, setInitialData] = useState<ITreeNode[]>([]);
+  const { workspaceModel, dispatch } = props;
+  const { curWorkspaceParams, curTableList } = workspaceModel;
 
   useEffect(() => {
     if (curWorkspaceParams?.dataSourceId) {
-      getInitialData();
+      dispatch({
+        type: 'workspace/fetchGetCurTableList',
+        payload: {
+          ...curWorkspaceParams,
+          extraParams: curWorkspaceParams,
+        }
+      })
     }
   }, [curWorkspaceParams]);
 
-  function getInitialData() {
-    treeConfig[TreeNodeType.TABLES].getChildren!({
-      pageNo: 1,
-      pageSize: 999,
-      ...curWorkspaceParams,
-      extraParams: curWorkspaceParams,
-    }).then((res) => {
-      setInitialData(res);
-    });
-  }
+  console.log(curTableList)
 
   return (
     <div className={styles.table_box}>
       <div className={styles.left_box_title}>Table</div>
-      <LoadingContent data={initialData} handleEmpty>
-        <Tree className={styles.tree} initialData={initialData}></Tree>
+      <LoadingContent data={curTableList} handleEmpty>
+        <Tree className={styles.tree} initialData={curTableList}></Tree>
       </LoadingContent>
     </div>
   );

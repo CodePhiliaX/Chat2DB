@@ -1,9 +1,10 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history'
-import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
+import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
 import { ITreeNode, IConsole } from '@/typings';
+import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
   dataSourceId: number;
@@ -21,6 +22,7 @@ export interface IState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
+  curTableList: ITreeNode[];
 }
 
 export interface IWorkspaceModelType {
@@ -31,10 +33,12 @@ export interface IWorkspaceModelType {
     setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
     setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
     setConsoleList: Reducer<IState['consoleList']>;
+    setCurTableList: Reducer<IState['curTableList']>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
     fetchGetSavedConsole: Effect;
+    fetchGetCurTableList: Effect;
   };
 }
 
@@ -45,7 +49,8 @@ const WorkspaceModel: IWorkspaceModelType = {
     databaseAndSchema: undefined,
     curWorkspaceParams: getCurrentWorkspaceDatabase(),
     doubleClickTreeNodeData: undefined,
-    consoleList: []
+    consoleList: [],
+    curTableList: []
   },
 
   reducers: {
@@ -78,6 +83,12 @@ const WorkspaceModel: IWorkspaceModelType = {
         consoleList: payload,
       };
     },
+    setCurTableList(state, { payload }) {
+      return {
+        ...state,
+        curTableList: payload,
+      };
+    },
   },
 
   effects: {
@@ -97,6 +108,17 @@ const WorkspaceModel: IWorkspaceModelType = {
       yield put({
         type: 'setConsoleList',
         payload: res.data,
+      });
+    },
+    *fetchGetCurTableList({ payload }, { put }) {
+      const res = yield treeConfig[TreeNodeType.TABLES].getChildren!({
+        pageNo: 1,
+        pageSize: 999,
+        ...payload
+      });
+      yield put({
+        type: 'setCurTableList',
+        payload: res,
       });
     },
   },
