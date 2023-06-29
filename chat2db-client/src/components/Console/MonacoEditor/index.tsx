@@ -22,6 +22,7 @@ interface IProps {
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
   onExecute?: (value: string) => void;  // 快捷键执行的回调
+  defaultValue?: string;
 }
 
 export interface IExportRefFunction {
@@ -33,6 +34,7 @@ export interface IExportRefFunction {
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const {
     id,
+    defaultValue,
     className,
     language = 'sql',
     didMount,
@@ -44,14 +46,19 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const editorRef = useRef<IEditorIns>();
   const [appTheme] = useTheme();
 
+  const themeMap = {
+    [ThemeType.Light]: 'Default',
+    [ThemeType.Dark]: 'BlackTheme',
+  }
+
   // init
   useEffect(() => {
     const editorIns = monaco.editor.create(document.getElementById(`monaco-editor-${id}`)!, {
       ...editorDefaultOptions,
       ...options,
-      value: '',
+      value: defaultValue,
       language: language,
-      theme: appTheme.backgroundColor === ThemeType.Light ? 'Default' : 'BlackTheme',
+      theme: themeMap[appTheme.backgroundColor]
     });
     editorRef.current = editorIns;
     didMount && didMount(editorIns); // incase parent component wanna handle editor

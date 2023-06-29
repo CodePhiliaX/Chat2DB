@@ -6,6 +6,11 @@
   flex-direction: column;
 }
 
+.tabs {
+  padding-top: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
 .recordIcon {
   font-size: 16px;
   margin-right: 4px;
@@ -14,20 +19,13 @@
 .resultHeader {
   flex-shrink: 0;
   overflow-x: scroll;
-  padding: 0px 10px;
-  background-color: var(--color-bg-300);
-  border-bottom: 1px solid var(--color-border);
-
+  background-color: var(--color-bg-elevated);
   &::-webkit-scrollbar {
     display: none;
   }
 
-  & ::after {
-    height: 0px !important;
-  }
-
   .statusIcon {
-    margin-right: 4px;
+    margin-right: 6px;
     font-size: 12px;
   }
 
@@ -71,15 +69,13 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 0;
-  opacity: 0;
+  display: none;
   overflow: auto;
   background-color: var(--color-bg-100);
 }
 
 .cursorTableBox {
-  z-index: 1;
-  opacity: 1;
+  display: block;
 }
 
 .tableIndex {
@@ -90,7 +86,7 @@
   display: none;
   align-items: center;
   position: absolute;
-  background-color: var(--color-bg-200);
+  background-color: var(--color-bg);
   top: 0;
   right: 0;
   bottom: 0;
@@ -117,4 +113,8 @@
   &:hover .tableHoverBox {
     display: flex;
   }
+}
+
+.monacoEditor {
+  margin: -15px;
 }

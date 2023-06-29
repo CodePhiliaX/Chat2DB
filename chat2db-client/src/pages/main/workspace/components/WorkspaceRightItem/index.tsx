@@ -4,7 +4,6 @@ import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode } from '@/constants';
 import { IManageResultData } from '@/typings';
@@ -69,9 +68,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
       <div className={styles.boxRightResult}>
         {
           showResult &&
-          <LoadingContent data={resultData} handleEmpty>
-            <SearchResult manageResultDataList={resultData} />
-          </LoadingContent>
+          <SearchResult manageResultDataList={resultData} />
         }
       </div>
     </DraggableContainer>
