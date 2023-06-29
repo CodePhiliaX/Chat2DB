@@ -68,7 +68,7 @@ public class AISystemConfigRequest {
     private String azureEndpoint;
 
     /**
-     * deployment id of the deployed model
+     * deploymentId of the deployed model, default gpt-3.5-turbo
      */
     private String azureDeploymentId;
 }
