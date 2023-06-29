@@ -216,7 +216,6 @@ function Chart(props: IProps) {
                     addChartRight={() => onAddChart('right', rowIndex, colIndex)}
                     onDelete={(id: number) => onDeleteChart(id, rowIndex, colIndex)}
                     connectionList={connectionList || []}
-                    // cascaderOption={cascaderOption || []}
                   />
                 </div>
               ))}

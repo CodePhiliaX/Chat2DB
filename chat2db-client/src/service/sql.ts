@@ -10,10 +10,10 @@ export interface IGetListParams extends IPageParams {
 }
 
 export interface IExecuteSqlParams {
-  sql: string;
-  dataSourceId: number;
-  databaseName: string;
-  consoleId: number;
+  sql?: string;
+  dataSourceId?: number;
+  databaseName?: string;
+  consoleId?: number;
 }
 
 export interface IExecuteSqlResponse {

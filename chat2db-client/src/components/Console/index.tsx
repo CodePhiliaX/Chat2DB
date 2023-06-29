@@ -4,7 +4,7 @@ import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, notification } from 'antd';
 import ChatInput from './ChatInput';
-import Editor, { IExportRefFunction, IRangeType } from './MonacoEditor';
+import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
@@ -46,7 +46,6 @@ interface IProps {
   hasAi2Lang?: boolean;
   hasSaveBtn?: boolean;
   value?: string;
-  onChangeValue?: Function;
   executeParams: {
     databaseName?: string;
     dataSourceId?: number;
@@ -55,7 +54,9 @@ interface IProps {
     schemaName?: string;
     consoleName?: string;
   };
-  onExecuteSQL: (value: any) => void;
+  editorOptions: IEditorOptions;
+  // onSQLContentChange: (v: string) => void;
+  onExecuteSQL: (result: any, sql: string) => void;
   workspaceModel: IWorkspaceModelType;
   dispatch: any;
 }
@@ -69,7 +70,6 @@ function Console(props: IProps) {
     dispatch,
     hasSaveBtn = true,
     value,
-    onChangeValue,
   } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
@@ -127,16 +127,16 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
-    props.onExecuteSQL?.(undefined);
+    // props.onExecuteSQL?.(undefined);
     sqlServer.executeSql(p).then((res) => {
-      props.onExecuteSQL?.(res);
+      props.onExecuteSQL?.(res, sqlContent!);
       // console.log(res)
       let p: any = {
         ...executeParams,
         ddl: sqlContent,
       };
       historyServer.createHistory(p);
-    })
+    });
   };
 
   const saveConsole = (value?: string) => {
@@ -196,6 +196,8 @@ function Console(props: IProps) {
           addAction={addAction}
           onSave={saveConsole}
           onExecute={executeSQL}
+          options={props.editorOptions}
+        // onChange={}
         />
       </Spin>
 
