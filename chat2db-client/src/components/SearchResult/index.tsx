@@ -25,6 +25,7 @@ interface DataType {
 export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
   const [isUnfold, setIsUnfold] = useState(true);
   const [currentTab, setCurrentTab] = useState<string | number>(0);
+  const [resultDataList, setResultDataList] = useState<any>([]);
 
   const renderStatus = (text: string) => {
     return (
@@ -55,11 +56,15 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
         value: index,
       }
     });
-  }, [manageResultDataList])
+  }, [])
 
   function onEdit(type: 'add' | 'remove', value?: number | string) {
     if (type === 'remove') {
-      manageResultDataList.filter(t => t.uuid !== value)
+      if (currentTab === value) {
+        setCurrentTab(0)
+      }
+      // manageResultDataList = manageResultDataList.filter(t => t.uuid !== value)
+      manageResultDataList.splice(value as number, 1);
     }
   }
 
@@ -73,6 +78,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
           onChange={onChange}
           tabs={tabs}
           className={styles.tabs}
+          activeTab={currentTab}
         />
       </div>
       <div className={styles.resultContent}>
@@ -101,6 +107,7 @@ interface ITableProps {
   dataList: string[][];
   className?: string;
   data: IManageResultData;
+  key: number,
 }
 
 interface IViewTableCellData {
@@ -109,7 +116,7 @@ interface IViewTableCellData {
 }
 
 export function TableBox(props: ITableProps) {
-  const { headerList, dataList, className, data, ...rest } = props;
+  const { headerList, dataList, className, data, key, ...rest } = props;
   const [columns, setColumns] = useState<any>();
   const [tableData, setTableData] = useState<any>();
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);

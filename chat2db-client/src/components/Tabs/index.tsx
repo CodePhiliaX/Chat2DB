@@ -17,7 +17,7 @@ export interface IOnchangeProps {
 interface IProps {
   className?: string;
   tabs: IOption[] | undefined;
-  activeTab?: number;
+  activeTab?: number | string;
   onChange: (key: IOption['value']) => void;
   onEdit?: (action: 'add' | 'remove', key?: IOption['value']) => void;
   hideAdd?: boolean;
