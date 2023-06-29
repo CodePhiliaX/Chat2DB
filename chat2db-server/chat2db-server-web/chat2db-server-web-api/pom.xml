@@ -35,9 +35,12 @@
             <artifactId>chatgpt-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-ai-openai</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.theokanning.openai-gpt3-java</groupId>
             <artifactId>service</artifactId>
-            <version>0.12.0</version>
         </dependency>
     </dependencies>
 

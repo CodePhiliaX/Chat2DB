@@ -23,14 +23,27 @@ const PieChart = (props: IProps, ref: ForwardedRef<{ getEchartsInstance: Functio
         align: 'auto',
         type: 'scroll', //分页类型
       },
+
+
       series: [
         {
-          // name: 'Access From',
           type: 'pie',
           radius: ['40%', '70%'],
           data: props.data,
+          // label: {
+          //   show: false,
+          //   position: 'center'
+          // },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: 16,
+              fontWeight: 'bold'
+            }
+          },
         },
       ],
+
     }),
     [props.data],
   );
