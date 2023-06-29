@@ -4,7 +4,7 @@ import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
-import { editorDefaultOptions, ThemeType } from '@/constants';
+import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
 
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
@@ -21,7 +21,7 @@ interface IProps {
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
-  onExecute?: (value: string) => void;  // 快捷键执行的回调
+  onExecute?: (value: string) => void; // 快捷键执行的回调
 }
 
 export interface IExportRefFunction {
@@ -31,16 +31,7 @@ export interface IExportRefFunction {
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const {
-    id,
-    className,
-    language = 'sql',
-    didMount,
-    options,
-    isActive,
-    onSave,
-    onExecute
-  } = props;
+  const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute } = props;
   const editorRef = useRef<IEditorIns>();
   const [appTheme] = useTheme();
 
@@ -48,15 +39,25 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   useEffect(() => {
     const editorIns = monaco.editor.create(document.getElementById(`monaco-editor-${id}`)!, {
       ...editorDefaultOptions,
-      ...options,
       value: '',
       language: language,
-      theme: appTheme.backgroundColor === ThemeType.Light ? 'Default' : 'BlackTheme',
+      theme: appTheme.backgroundColor === ThemeType.Light ? EditorThemeType.Default : EditorThemeType.BlackTheme,
+      ...options,
     });
     editorRef.current = editorIns;
-    didMount && didMount(editorIns); // incase parent component wanna handle editor
+    didMount && didMount(editorIns);
 
-    monaco.editor.defineTheme('BlackTheme', {
+    monaco.editor.defineTheme(EditorThemeType.Default, {
+      base: 'vs',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        'editor.foreground': '#000000',
+        'editor.background': '#fff', //背景色
+      },
+    });
+
+    monaco.editor.defineTheme(EditorThemeType.BlackTheme, {
       base: 'vs-dark',
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
@@ -67,13 +68,23 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       },
     });
 
-    monaco.editor.defineTheme('Default', {
+    monaco.editor.defineTheme(EditorThemeType.DashboardLightTheme, {
       base: 'vs',
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
       colors: {
         'editor.foreground': '#000000',
-        'editor.background': '#fff', //背景色
+        'editor.background': '#f8f9fa', //背景色
+      },
+    });
+
+    monaco.editor.defineTheme(EditorThemeType.DashboardBlackTheme, {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        'editor.foreground': '#ffffff',
+        'editor.background': '#131418', //背景色
       },
     });
 
@@ -94,16 +105,21 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       });
 
       editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, (event: Event) => {
-        const value = getCurrentSelectContent()
+        const value = getCurrentSelectContent();
         onExecute?.(value);
       });
     }
-  }, [editorRef.current, isActive])
+  }, [editorRef.current, isActive]);
 
   // 监听主题色变化切换编辑器主题色
   useEffect(() => {
-    monaco.editor.setTheme(appTheme.backgroundColor === ThemeType.Dark ? 'BlackTheme' : 'Default');
-  }, [appTheme.backgroundColor]);
+    const isDark = appTheme.backgroundColor === ThemeType.Dark;
+    if (options?.theme) {
+      monaco.editor.setTheme(options.theme);
+    } else {
+      monaco.editor.setTheme(isDark ? 'BlackTheme' : 'Default');
+    }
+  }, [appTheme.backgroundColor, options?.theme]);
 
   // useEffect(() => {
   //   const _ref = editorRef.current?.onDidChangeModelContent((e) => {
@@ -116,12 +132,12 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   useImperativeHandle(ref, () => ({
     getCurrentSelectContent,
     getAllContent,
-    setValue
+    setValue,
   }));
 
   const setValue = (text: any, range?: IRangeType) => {
-    appendMonacoValue(editorRef.current, text, range)
-  }
+    appendMonacoValue(editorRef.current, text, range);
+  };
 
   /**
    * 获取当前选中的内容
@@ -243,7 +259,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
 // text 需要添加的文本
 // range 添加到的位置
-// 'end' 末尾 
+// 'end' 末尾
 // 'front' 开头
 // 'cover' 覆盖掉原有的文字
 // 自定义位置数组 new monaco.Range []
@@ -251,12 +267,12 @@ export type IRangeType = 'end' | 'front' | 'cover' | any;
 
 export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'end') => {
   if (!editor) {
-    return
+    return;
   }
   const model = editor?.getModel && editor.getModel(editor);
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
-  text = `${text}\n`
+  text = `${text}\n`;
   switch (range) {
     case 'cover':
       newRange = model.getFullModelRange();
@@ -279,6 +295,6 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   // decorations?: IModelDeltaDecoration[]: 一个数组类型的参数，用于指定插入的文本的装饰。可以用来设置文本的样式、颜色、背景色等。如果不需要设置装饰，可以忽略此参数。
   const decorations = [{}]; // 解决新增的文本默认背景色为灰色
   editor.executeEdits('setValue', [op], decorations);
-}
+};
 
 export default forwardRef(MonacoEditor);

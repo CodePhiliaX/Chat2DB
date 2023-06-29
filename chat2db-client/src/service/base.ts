@@ -62,6 +62,7 @@ const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
       type: 'error',
       message: status,
       description: errorText,
+      placement: 'topRight',
     });
     // message.error(`${status}: ${errorText}`);
   }

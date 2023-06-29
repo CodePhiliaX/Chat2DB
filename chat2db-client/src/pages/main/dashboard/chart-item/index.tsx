@@ -7,15 +7,17 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, Select } from 'antd';
-import { initChartItem } from '..';
-import { deleteChart, getChartById } from '@/service/dashboard';
+import { Button, Cascader, Dropdown, Form, MenuProps, notification, Select } from 'antd';
+import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
 import Console from '@/components/Console';
 import Iconfont from '@/components/Iconfont';
-import sqlService, { MetaSchemaVO } from '@/service/sql';
+import sqlService, { IExecuteSqlParams, MetaSchemaVO } from '@/service/sql';
 import { Option } from '@/typings/common';
 import { handleDatabaseAndSchema } from '@/utils/database';
+import i18n from '@/i18n';
+import { useTheme } from '@/hooks';
+import { EditorThemeType, ThemeType } from '@/constants';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -49,6 +51,7 @@ function countArrayElements<T>(arr: T[]): { name: T; value: number }[] {
 
 interface IChartItemProps {
   id: number;
+  isEditing?: boolean;
   canAddRowItem: boolean;
   connectionList: IConnectionDetails[];
   onDelete?: (id: number) => void;
@@ -62,20 +65,21 @@ function ChartItem(props: IChartItemProps) {
   const { connectionList } = props;
   const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
   const [curConnection, setCurConnection] = useState<IConnectionDetails>();
-  const [consoleParams, setConsoleParams] = useState({});
-
-  const [chartData, setChartData] = useState<IChartItem>();
+  const [chartData, setChartData] = useState<IChartItem>({});
   const [chartMetaData, setChartMetaData] = useState<any>();
-  const [consoleValue, setConsoleValue] = useState<string>();
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [toggle, setToggle] = useState(false);
+  const [cascaderValue, setCascaderValue] = useState<(string | number)[]>([]);
+  const [isEditing, setIsEditing] = useState<boolean>(props.isEditing ?? false);
+  const [initDDL, setInitDDL] = useState('');
   const [form] = Form.useForm(); // 创建一个表单实例
   const chartRef = useRef<any>();
-  // const consoleParams = useRef({});
+  const [appTheme] = useTheme();
+
   const { id } = props;
 
   useEffect(() => {
-    queryChartData();
+    if (id !== undefined) {
+      queryChartData();
+    }
   }, [id]);
 
   useEffect(() => {
@@ -95,14 +99,18 @@ function ChartItem(props: IChartItemProps) {
     if (!curConnection) {
       return;
     }
-    setConsoleParams({
-      ...consoleParams,
+    setChartData({
+      ...chartData,
       dataSourceId: curConnection.id,
       type: curConnection.type,
     });
 
     queryDatabaseAndSchemaList(curConnection.id);
   }, [curConnection]);
+
+  useEffect(() => {
+    handleChartConfigChange();
+  }, [chartData.sqlData])
 
   const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
     const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
@@ -112,11 +120,111 @@ function ChartItem(props: IChartItemProps) {
     dataSource.children = handleDatabaseAndSchema(res);
     setCascaderOption([...cascaderOption]);
   };
-
+  /** 根据id请求Chart数据 */
   const queryChartData = async () => {
     const { id } = props;
     let res = await getChartById({ id });
+    const { dataSourceId, databaseName, ddl } = res;
     setChartData(res);
+
+    // 设置级联value
+    const cascaderKey = ['dataSourceId', 'databaseName', 'schemaName'];
+    const cascaderValue = cascaderKey.map((k: string) => res[k]).filter((i) => !!i);
+    setCascaderValue(cascaderValue);
+
+    // 设置Chart参数，eg ChartType、xAxis、yAxis
+    const formValue = JSON.parse(res.schema || '{}');
+    form.setFieldsValue(formValue);
+
+    if (ddl) {
+      setInitDDL(ddl || '');
+      let p: IExecuteSqlParams = {
+        sql: res?.ddl ?? '',
+        dataSourceId,
+        databaseName,
+      };
+      sqlService.executeSql(p).then((result) => {
+        let sqlData;
+        if (result && result[0]) {
+          sqlData = handleSQLResult2ChartData(result[0]);
+        }
+        setChartData({
+          ...chartData,
+          sqlData,
+        });
+      });
+    }
+  };
+
+  const onExport2Image = () => {
+    const echartInstance = chartRef.current.getEchartsInstance();
+    let img = new Image();
+    img.src = echartInstance.getDataURL({
+      type: 'png',
+      devicePixelRatio: 4,
+      backgroundColor: '#FFF',
+    });
+    img.onload = function () {
+      let canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      let ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0);
+      let dataURL = canvas.toDataURL('image/png');
+
+      var a = document.createElement('a');
+      let event = new MouseEvent('click');
+      a.download = 'image.png';
+      a.href = dataURL;
+      a.dispatchEvent(event);
+    };
+  };
+
+  const onDeleteChart = () => {
+    const { id } = props;
+    deleteChart({ id });
+    props.onDelete && props.onDelete(id);
+  };
+
+  const handleSaveChart = async () => {
+    const params: IChartItem = {
+      id: props.id,
+      ...chartData,
+      schema: JSON.stringify(form.getFieldsValue(true)),
+    };
+    await updateChart(params);
+    notification.success({
+      message: '保存成功',
+    });
+  };
+
+  const handleChartConfigChange = () => {
+    const { sqlData = {} } = chartData || {};
+    const { chartType, xAxis, yAxis } = form.getFieldsValue(true);
+    // let xAxisOptions: Array<{ label: string; value: string }> = [];
+    // let yAxisOptions: Array<{ label: string; value: string }> = [];
+
+    if (chartType === IChartType.Pie) {
+      const dimension = sqlData[xAxis];
+      const { data = [] } = dimension || {};
+      const finallyData = countArrayElements(data);
+      setChartMetaData(finallyData);
+    } else if (chartType === IChartType.Line) {
+      const dimensionX = sqlData[xAxis]?.data;
+      const dimensionY = sqlData[yAxis]?.data;
+      setChartMetaData({
+        xAxis: dimensionX,
+        yAxis: dimensionY,
+      });
+    } else if (chartType === IChartType.Column) {
+      const dimensionX = sqlData[xAxis]?.data;
+      const dimensionY = sqlData[yAxis]?.data;
+      setChartMetaData({
+        xAxis: dimensionX,
+        yAxis: dimensionY,
+      });
+    } else {
+    }
   };
 
   const renderPlusIcon = () => {
@@ -170,36 +278,6 @@ function ChartItem(props: IChartItemProps) {
     }
   };
 
-  const onExport2Image = () => {
-    const echartInstance = chartRef.current.getEchartsInstance();
-    let img = new Image();
-    img.src = echartInstance.getDataURL({
-      type: 'png',
-      devicePixelRatio: 4,
-      backgroundColor: '#FFF',
-    });
-    img.onload = function () {
-      let canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      let ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-      let dataURL = canvas.toDataURL('image/png');
-
-      var a = document.createElement('a');
-      let event = new MouseEvent('click');
-      a.download = 'image.png';
-      a.href = dataURL;
-      a.dispatchEvent(event);
-    };
-  };
-
-  const onDeleteChart = () => {
-    const { id } = props;
-    deleteChart({ id });
-    props.onDelete && props.onDelete(id);
-  };
-
   const renderEmptyBlock = () => {
     return (
       <div className={styles.emptyChartBlock}>
@@ -223,114 +301,107 @@ function ChartItem(props: IChartItemProps) {
     const options = Object.keys(sqlData).map((i) => ({ label: i, value: i }));
 
     return (
-      <div className={styles.editorBlock}>
-        <div className={styles.editor}>
-          <Console
-            executeParams={consoleParams}
-            hasAiChat={true}
-            hasAi2Lang={false}
-            hasSaveBtn={false}
-            value={consoleValue}
-            onExecuteSQL={(result) => {
-              console.log('onExecuteSQL', result);
-              setChartData({
-                ...chartData,
-                sqlData: handleSQLResult2ChartData(result[0]),
-              });
-              // setResultData(result);
-            }}
-          />
-
-          <Cascader
-            options={cascaderOption}
-            onChange={(value, selectedOptions) => {
-              console.log('onChange', selectedOptions);
-              (selectedOptions || []).forEach((o) => {
-                if (o.type) {
-                  setConsoleParams({
-                    ...consoleParams,
-                    [`${o.type}Name`]: o.value,
-                  });
+      <div className={styles.editBlock}>
+        <div className={styles.editorBlock}>
+          <div className={styles.editor}>
+            <Console
+              appendValue={{
+                text: initDDL,
+                range: 'front',
+              }}
+              executeParams={chartData}
+              hasAiChat={true}
+              hasAi2Lang={false}
+              hasSaveBtn={false}
+              value={chartData?.ddl}
+              onExecuteSQL={(result: any, sql: string) => {
+                console.log('onExecuteSQL', result);
+                let sqlData;
+                if (result && result[0]) {
+                  sqlData = handleSQLResult2ChartData(result[0]);
                 }
-              });
-            }}
-            className={styles.dataSourceSelect}
-            // style={{ width: '100%' }}
-          />
-        </div>
-        <Form
-          form={form}
-          labelCol={{ span: 8 }}
-          wrapperCol={{ span: 12 }}
-          layout="horizontal"
-          className={styles.chartParamsForm}
-          autoComplete="off"
-          onValuesChange={handleChartConfigChange}
-        >
-          <Form.Item label={'Chart Type'} name={'chartType'}>
-            <Select
-              options={[
-                { label: 'Line', value: 'Line' },
-                { label: 'Pie', value: 'Pie' },
-                { label: 'Column', value: 'Column' },
-              ]}
+                setChartData({
+                  ...chartData,
+                  ddl: sql,
+                  sqlData,
+                });
+              }}
+              editorOptions={{
+                lineNumbers: 'off',
+                theme:
+                  appTheme.backgroundColor === ThemeType.Light
+                    ? EditorThemeType.DashboardLightTheme
+                    : EditorThemeType.DashboardBlackTheme,
+              }}
             />
-          </Form.Item>
-          <Form.Item label={'xAxis'} name={'xAxis'}>
-            <Select options={options} />
-          </Form.Item>
-          <Form.Item label={'yAxis'} name={'yAxis'} hidden={form.getFieldValue('chartType') === IChartType.Pie}>
-            <Select options={options} />
-          </Form.Item>
-        </Form>
+
+            <Cascader
+              options={cascaderOption}
+              value={cascaderValue}
+              onChange={(value, selectedOptions) => {
+                console.log('onChange', value, selectedOptions);
+                let p: any = {}; //包含了dataSourceId、databaseName、schemaName
+                (selectedOptions || []).forEach((o) => {
+                  if (o.type) {
+                    p[`${o.type}Name`] = o.value;
+                  } else {
+                    p.dataSourceId = o.value;
+                  }
+                });
+                setCascaderValue(value);
+                setChartData({
+                  ...chartData,
+                  ...p,
+                });
+              }}
+              className={styles.dataSourceSelect}
+              placeholder={i18n('dashboard.editor.cascader.placeholder')}
+              // style={{ width: '100%' }}
+            />
+          </div>
+          <div className={styles.chartParamsForm}>
+            <div className={styles.chartParamsFormTitle}>Charts:</div>
+            <Form
+              form={form}
+              // labelCol={{ span: 24 }}
+              // wrapperCol={{ span: 24 }}
+              layout="vertical"
+              autoComplete="off"
+              onValuesChange={handleChartConfigChange}
+              style={{ width: '100%' }}
+            >
+              <Form.Item label={'Chart Type'} name={'chartType'}>
+                <Select
+                  options={[
+                    { label: 'Line', value: 'Line' },
+                    { label: 'Pie', value: 'Pie' },
+                    { label: 'Column', value: 'Column' },
+                  ]}
+                />
+              </Form.Item>
+              <Form.Item label={'xAxis'} name={'xAxis'}>
+                <Select options={options} />
+              </Form.Item>
+              <Form.Item label={'yAxis'} name={'yAxis'} hidden={form.getFieldValue('chartType') === IChartType.Pie}>
+                <Select options={options} />
+              </Form.Item>
+            </Form>
+          </div>
+        </div>
+        <div className={styles.editorOptionBlock}>
+          <Button type="primary" style={{ marginRight: '8px' }} onClick={handleSaveChart}>
+            {i18n('common.button.confirm')}
+          </Button>
+          <Button
+            onClick={() => {
+              setIsEditing(false);
+            }}
+          >
+            {i18n('common.button.cancel')}
+          </Button>
+        </div>
       </div>
     );
-  };
-
-  const handleChartConfigChange = () => {
-    const { sqlData = {} } = chartData || {};
-    const { chartType, xAxis, yAxis } = form.getFieldsValue(true);
-    // let xAxisOptions: Array<{ label: string; value: string }> = [];
-    // let yAxisOptions: Array<{ label: string; value: string }> = [];
-
-    if (chartType === IChartType.Pie) {
-      const dimension = sqlData[xAxis];
-      const { data = [] } = dimension || {};
-      const finallyData = countArrayElements(data);
-      setChartMetaData(finallyData);
-    } else if (chartType === IChartType.Line) {
-      const dimensionX = sqlData[xAxis]?.data;
-      const dimensionY = sqlData[yAxis]?.data;
-      setChartMetaData({
-        xAxis: dimensionX,
-        yAxis: dimensionY,
-      });
-    } else if (chartType === IChartType.Column) {
-      const dimensionX = sqlData[xAxis]?.data;
-      const dimensionY = sqlData[yAxis]?.data;
-      setChartMetaData({
-        xAxis: dimensionX,
-        yAxis: dimensionY,
-      });
-    } else {
-    }
-  };
-
-  const handleToggleData = () => {
-    if (toggle) {
-      setChartData({
-        ...chartData,
-        sqlData: undefined,
-      });
-    } else {
-      const mockData = handleSQLResult2ChartData(data[0]);
-      setChartData({
-        ...chartData,
-        sqlData: mockData,
-      });
-    }
-
-    setToggle(!toggle);
   };
 
   return (
@@ -339,12 +410,16 @@ function ChartItem(props: IChartItemProps) {
       <div className={styles.titleBar}>
         <div className={styles.title}>{chartData?.name}</div>
         <div>
-          {/* <Button type="text" onClick={handleToggleData}>
-            {toggle ? '去掉数据' : '添加数据'}
-          </Button> */}
           <Dropdown
             menu={{
               items: [
+                {
+                  key: 'Edit',
+                  label: 'Edit',
+                  onClick: () => {
+                    setIsEditing(true);
+                  },
+                },
                 {
                   key: 'Export',
                   label: 'Export to image',
@@ -365,7 +440,6 @@ function ChartItem(props: IChartItemProps) {
       </div>
       {chartData?.sqlData || isEditing ? renderChart() : renderEmptyBlock()}
       {isEditing && renderEditorBlock()}
-      <div>{props.id}</div>
     </div>
   );
 }

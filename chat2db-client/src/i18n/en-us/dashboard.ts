@@ -5,5 +5,5 @@ export default {
   'dashboard.modal.addTitle': 'Add Dashboard',
   'dashboard.modal.name.placeholder': "Please enter dashboard's name.",
   'dashboard.delete': 'Delete',
-  
+  'dashboard.editor.cascader.placeholder': 'Please select a connection pool', 
 };

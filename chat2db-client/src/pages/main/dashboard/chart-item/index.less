@@ -120,17 +120,19 @@
   margin-bottom: 40px;
 }
 
-
+.editBlock {
+  border-radius: var(--border-radius-l-g);
+  background-color: var(--color-bg-elevated);
+}
 
 .editorBlock {
   display: flex;
-  // border: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-secondary);
   flex-wrap: wrap;
 }
 
 .editor {
-  flex: 1;
-  border: 1px solid #eee;
+  flex: 2;
   min-width: 320px;
   min-height: 320px;
   max-height: 640px;
@@ -145,8 +147,25 @@
   right: 24px;
 }
 
-.chartParamsForm{
-  min-width: 280px;
-  padding: 20px;
-  border: 1px solid #eee;
+.chartParamsForm {
+  color: var(--color-text);
+  flex: 1;
+  min-width: 120px;
+  border-left: 1px solid var(--color-border-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  padding: 24px;
+}
+
+.chartParamsFormTitle {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 14px;
+  margin-bottom: 24px;
+}
+
+.editorOptionBlock {
+  padding: 12px;
 }
