@@ -5,6 +5,7 @@ import connection from './connection';
 import setting from './setting';
 import workspace from './workspace';
 import dashboard from './dashboard';
+import chat from './chat';
 
 export default {
   lang: LangType.ZH_CN,
@@ -14,5 +15,6 @@ export default {
   ...workspace,
   ...menu,
   ...connection,
-  ...dashboard
+  ...dashboard,
+  ...chat
 };

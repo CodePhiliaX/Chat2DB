@@ -14,7 +14,7 @@ import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
-import ai.chat2db.server.web.api.controller.config.request.ChatGptSystemConfigRequest;
+import ai.chat2db.server.web.api.controller.config.request.AISystemConfigRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.util.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
@@ -58,7 +58,7 @@ public class ConfigController {
      * @return
      */
     @PostMapping("/system_config/chatgpt")
-    public ActionResult addChatGptSystemConfig(@RequestBody ChatGptSystemConfigRequest request) {
+    public ActionResult addChatGptSystemConfig(@RequestBody AISystemConfigRequest request) {
         String sqlSource = StringUtils.isNotBlank(request.getAiSqlSource()) ? request.getAiSqlSource()
             : AiSqlSourceEnum.OPENAI.getCode();
         SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE).content(sqlSource)
@@ -77,7 +77,7 @@ public class ConfigController {
      *
      * @param request
      */
-    private void saveOpenAIConfig(ChatGptSystemConfigRequest request) {
+    private void saveOpenAIConfig(AISystemConfigRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(OpenAIClient.OPENAI_KEY).content(
                 request.getApiKey())
             .build();
@@ -100,7 +100,7 @@ public class ConfigController {
      *
      * @param request
      */
-    private void saveRestAIConfig(ChatGptSystemConfigRequest request) {
+    private void saveRestAIConfig(AISystemConfigRequest request) {
         SystemConfigParam restParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_URL).content(
                 request.getRestAiUrl())
             .build();
