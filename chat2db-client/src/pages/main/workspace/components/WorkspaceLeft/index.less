@@ -88,6 +88,25 @@
   }
 }
 
-.left_box_title {
+.leftModuleTitle {
+
   margin-bottom: 10px;
+  .leftModuleTitleText{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 26px;
+    .modelName{
+      font-weight: bold;
+    }
+    .iconBox{
+      cursor: pointer;
+      &:hover{
+        color: var(--color-primary);
+      }
+    }
+  }
+  .leftModuleTitleSearch{
+    height: 26px;
+  }
 }

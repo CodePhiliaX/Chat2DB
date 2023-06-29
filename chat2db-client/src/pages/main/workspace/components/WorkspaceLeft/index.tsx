@@ -1,20 +1,17 @@
 import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
-import { connect } from 'umi';
-import i18n from '@/i18n';
 import classnames from 'classnames';
+import i18n from '@/i18n';
+import { connect } from 'umi';
+import { Cascader, Divider, Input } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import { Cascader, Divider } from 'antd';
-import historyService from '@/service/history';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
-import { treeConfig } from '../Tree/treeConfig';
 import { TreeNodeType, ConsoleStatus } from '@/constants';
-import { ITreeNode } from '@/typings';
-import { IConsole } from '@/typings';
+import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
-import { State } from '@/components/StateIndicator';
+import { approximateTreeNode, approximateList } from '@/utils';
 
 interface IProps {
   className?: string;
@@ -166,6 +163,9 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
 const RenderTableBox = dvaModel(function (props: any) {
   const { workspaceModel, dispatch } = props;
   const { curWorkspaceParams, curTableList } = workspaceModel;
+  const [searching, setSearching] = useState<boolean>(false);
+  const inputRef = useRef<any>();
+  const [searchedTableList, setSearchedTableList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
     if (curWorkspaceParams?.dataSourceId) {
@@ -179,13 +179,57 @@ const RenderTableBox = dvaModel(function (props: any) {
     }
   }, [curWorkspaceParams]);
 
-  console.log(curTableList)
+  useEffect(() => {
+    if (searching) {
+      inputRef.current!.focus({
+        cursor: 'start',
+      });
+    }
+  }, [searching])
+
+  function openSearch() {
+    setSearching(true);
+  }
+
+  function onBlur() {
+    if (!inputRef.current.input.value) {
+      setSearching(false);
+      setSearchedTableList(undefined);
+    }
+  }
+
+  function onChange(value: string) {
+    setSearchedTableList(approximateTreeNode(curTableList, value))
+  }
+
 
   return (
     <div className={styles.table_box}>
-      <div className={styles.left_box_title}>Table</div>
+      <div className={styles.leftModuleTitle}>
+        {
+          searching ?
+            <div className={styles.leftModuleTitleSearch}>
+              <Input
+                ref={inputRef}
+                size="small"
+                placeholder={i18n('common.text.search')}
+                prefix={<Iconfont code="&#xe600;" />}
+                onBlur={onBlur}
+                onChange={(e) => onChange(e.target.value)}
+                allowClear
+              />
+            </div>
+            :
+            <div className={styles.leftModuleTitleText}>
+              <div className={styles.modelName}>Table</div>
+              <div className={styles.iconBox} onClick={() => openSearch()}>
+                <Iconfont code="&#xe600;" />
+              </div>
+            </div>
+        }
+      </div>
       <LoadingContent data={curTableList} handleEmpty>
-        <Tree className={styles.tree} initialData={curTableList}></Tree>
+        <Tree className={styles.tree} initialData={searchedTableList || curTableList}></Tree>
       </LoadingContent>
     </div>
   );
@@ -194,6 +238,9 @@ const RenderTableBox = dvaModel(function (props: any) {
 const RenderSaveBox = dvaModel(function (props: any) {
   const { workspaceModel, dispatch } = props;
   const { curWorkspaceParams, consoleList } = workspaceModel;
+  const [searching, setSearching] = useState<boolean>(false);
+  const inputRef = useRef<any>();
+  const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
     dispatch({
@@ -207,16 +254,61 @@ const RenderSaveBox = dvaModel(function (props: any) {
     });
   }, [curWorkspaceParams]);
 
+
+  useEffect(() => {
+    if (searching) {
+      inputRef.current!.focus({
+        cursor: 'start',
+      });
+    }
+  }, [searching])
+
+
+  function openSearch() {
+    setSearching(true);
+  }
+
+  function onBlur() {
+    if (!inputRef.current.input.value) {
+      setSearching(false);
+      setSearchedList(undefined);
+    }
+  }
+
+  function onChange(value: string) {
+    setSearchedList(approximateList(consoleList, value,))
+  }
+
   return (
     <div className={styles.save_box}>
-      <div className={styles.left_box_title}>Saved</div>
+      <div className={styles.leftModuleTitle}>
+        {
+          searching ?
+            <div className={styles.leftModuleTitleSearch}>
+              <Input
+                ref={inputRef}
+                size="small"
+                placeholder={i18n('common.text.search')}
+                prefix={<Iconfont code="&#xe600;" />}
+                onBlur={onBlur}
+                onChange={(e) => onChange(e.target.value)}
+                allowClear
+              />
+            </div>
+            :
+            <div className={styles.leftModuleTitleText}>
+              <div className={styles.modelName}>Saved</div>
+              <div className={styles.iconBox} onClick={() => openSearch()}>
+                <Iconfont code="&#xe600;" />
+              </div>
+            </div>
+        }
+      </div>
       <div className={styles.saveBoxList}>
         <LoadingContent data={consoleList} handleEmpty>
-          {consoleList?.map((t: IConsole) => {
+          {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
-              <div key={t.id} className={styles.saveItem}>
-                {t.name}
-              </div>
+              <div key={t.id} className={styles.saveItem} dangerouslySetInnerHTML={{ __html: t.name }} />
             );
           })}
         </LoadingContent>
