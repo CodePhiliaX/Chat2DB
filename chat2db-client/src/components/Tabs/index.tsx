@@ -5,8 +5,8 @@ import lodash from 'lodash';
 import styles from './index.less';
 
 export interface IOption {
-  label: string;
-  value: number;
+  label: string | React.ReactNode;
+  value: number | string;
 }
 
 export interface IOnchangeProps {
@@ -16,39 +16,40 @@ export interface IOnchangeProps {
 
 interface IProps {
   className?: string;
-  tabs: IOption[];
+  tabs: IOption[] | undefined;
   activeTab?: number;
   onChange: (key: IOption['value']) => void;
-  onEdit: (action: 'add' | 'remove', key?: IOption['value']) => void;
+  onEdit?: (action: 'add' | 'remove', key?: IOption['value']) => void;
+  hideAdd?: boolean;
+  type?: 'line'
 }
 
 export default memo<IProps>(function Tab(props) {
-  const { className, tabs, onChange, onEdit, activeTab } = props;
-  const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(tabs));
-  const [internalActiveTab, setInternalActiveTab] = useState<number | undefined>(internalTabs[0]?.value);
+  const { className, tabs, onChange, onEdit, activeTab, hideAdd, type } = props;
+  const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(tabs || []));
+  const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>(internalTabs[0]?.value);
 
   useEffect(() => {
-    setInternalActiveTab(activeTab)
+    setInternalActiveTab(activeTab);
   }, [activeTab])
 
   useEffect(() => {
-    setInternalTabs(lodash.cloneDeep(tabs));
+    setInternalTabs(lodash.cloneDeep(tabs || []));
   }, [tabs])
 
   function deleteTab(data: IOption) {
     const newTabs = internalTabs?.filter(t => t.value !== data.value);
     setInternalTabs(newTabs);
-    onEdit('remove', data.value)
+    onEdit?.('remove', data.value)
   }
 
   function changeTab(data: IOption) {
     setInternalActiveTab(data.value);
-    onChange(data.value)
-
+    onChange(data.value);
   }
 
   function handelAdd() {
-    onEdit('add')
+    onEdit?.('add')
   }
 
   return <div className={classnames(styles.tab, className)}>
@@ -56,13 +57,20 @@ export default memo<IProps>(function Tab(props) {
       !!internalTabs?.length &&
       <div className={styles.tabList}>
         {
-          internalTabs.map(t => {
+          internalTabs.map((t, index) => {
             return <div
-              className={classnames(styles.tabItem, { [styles.activeTab]: t.value === internalActiveTab })}
               key={t.value}
+              className={
+                classnames(
+                  { [styles.tabItem]: type !== 'line' },
+                  { [styles.tabItemLine]: type === 'line' },
+                  { [styles.activeTabLine]: t.value === internalActiveTab && type === 'line' },
+                  { [styles.activeTab]: t.value === internalActiveTab && type !== 'line' },
+                )
+              }
               onClick={changeTab.bind(null, t)}
             >
-              <div className={styles.text}>
+              <div className={styles.text} key={t.value}>
                 {t.label}
               </div>
               <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
@@ -73,10 +81,13 @@ export default memo<IProps>(function Tab(props) {
         }
       </div>
     }
-    <div className={styles.rightBox}>
-      <div className={styles.addIcon} onClick={handelAdd}>
-        <Iconfont code='&#xe631;'></Iconfont>
+    {
+      !hideAdd && <div className={styles.rightBox}>
+        <div className={styles.addIcon} onClick={handelAdd}>
+          <Iconfont code='&#xe631;'></Iconfont>
+        </div>
       </div>
-    </div>
+    }
+
   </div >
 })

@@ -28,4 +28,5 @@ export default {
   'common.message.addedSuccessfully': '添加成功',
   'common.text.custom': '自定义',
   'common.button.delete': '删除',
+  'common.text.executionResult': '执行结果'
 };

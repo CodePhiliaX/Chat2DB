@@ -1,6 +1,6 @@
-import React, { memo, useEffect, useState, useRef } from 'react';
+import React, { memo, useEffect, useState, useRef, useMemo } from 'react';
 import classnames from 'classnames';
-import Tabs from '@/components/Tabs2';
+import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import LoadingContent from '@/components/Loading/LoadingContent';
@@ -10,6 +10,8 @@ import { StatusType, TableDataType } from '@/constants';
 import { formatDate } from '@/utils/date';
 import { IManageResultData, ITableHeaderItem } from '@/typings';
 import styles from './index.less';
+import i18n from '@/i18n';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {
   className?: string;
@@ -22,11 +24,7 @@ interface DataType {
 
 export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
   const [isUnfold, setIsUnfold] = useState(true);
-  const [currentTab, setCurrentTab] = useState('0');
-
-  useEffect(() => {
-    setCurrentTab('0');
-  }, [manageResultDataList]);
+  const [currentTab, setCurrentTab] = useState<string | number>(0);
 
   const renderStatus = (text: string) => {
     return (
@@ -37,52 +35,62 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
     );
   };
 
-  function onChange(index: string) {
+  function onChange(index: string | number) {
     setCurrentTab(index);
   }
 
-  const makerResultHeaderList = () => {
-    const list: any = [];
-    manageResultDataList?.map((item, index) => {
-      list.push({
+  const tabs: IOption[] = useMemo(() => {
+    return manageResultDataList.map((item, index) => {
+      return {
         label: (
-          <div key={index}>
+          <>
             <Iconfont
+              key={index}
               className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
               code={item.success ? '\ue605' : '\ue87c'}
             />
-            执行结果{index + 1}
-          </div>
+            {`${i18n('common.text.executionResult')}-${index + 1}`}
+          </>
         ),
-        key: index,
-      });
+        value: index,
+      }
     });
-    return list;
-  };
+  }, [manageResultDataList])
+
+  function onEdit(type: 'add' | 'remove', value?: number | string) {
+    if (type === 'remove') {
+      manageResultDataList.filter(t => t.uuid !== value)
+    }
+  }
 
   return (
     <div className={classnames(className, styles.box)}>
       <div className={styles.resultHeader}>
-        <Tabs onChange={onChange} tabs={makerResultHeaderList()} />
+        <Tabs
+          hideAdd
+          type='line'
+          onEdit={onEdit}
+          onChange={onChange}
+          tabs={tabs}
+          className={styles.tabs}
+        />
       </div>
       <div className={styles.resultContent}>
-        <LoadingContent data={manageResultDataList} handleEmpty>
-          {manageResultDataList.map((item, index) => {
-            if (item.success) {
-              return (
-                <TableBox
-                  key={index}
-                  className={classnames({ [styles.cursorTableBox]: index + '' == currentTab })}
-                  data={item}
-                  headerList={item.headerList}
-                  dataList={item.dataList}
-                ></TableBox>
-              );
-            } else {
-              return <StateIndicator key={index} state="error" text={item.message}></StateIndicator>;
-            }
-          })}
-        </LoadingContent>
+        {manageResultDataList?.map((item, index) => {
+          if (item.success) {
+            return (
+              <TableBox
+                key={index}
+                className={classnames({ [styles.cursorTableBox]: index === currentTab })}
+                data={item}
+                headerList={item.headerList}
+                dataList={item.dataList}
+              ></TableBox>
+            );
+          } else {
+            return <StateIndicator key={index} state="error" text={item.message}></StateIndicator>;
+          }
+        })}
       </div>
     </div>
   );
@@ -170,7 +178,7 @@ export function TableBox(props: ITableProps) {
   return (
     <div {...rest} className={classnames(className, styles.tableBox)}>
       {dataList !== null ? (
-        <Table bordered pagination={false} columns={columns} dataSource={tableData} size="small" />
+        <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: 200 }} size="small" />
       ) : (
         <StateIndicator state="success" text="执行成功" />
       )}
@@ -182,16 +190,22 @@ export function TableBox(props: ITableProps) {
         maskClosable={false}
         footer={
           <>
-            {
+            {/* {
               <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
                 复制
               </Button>
-            }
+            } */}
           </>
         }
       >
         <div className={styles.monacoEditor}>
-          <MonacoEditor value={viewTableCellData?.value} readOnly={true} id="view_table-Cell_data"></MonacoEditor>
+          <MonacoEditor
+            id="view_table-Cell_data"
+            defaultValue={viewTableCellData?.value}
+            options={{
+              readOnly: true
+            }}
+          ></MonacoEditor>
         </div>
       </Modal>
     </div>

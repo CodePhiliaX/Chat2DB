@@ -10,7 +10,6 @@ import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './index.less';
-import Loading from '../Loading/Loading';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { IWorkspaceModelType } from '@/models/workspace';
@@ -117,17 +116,14 @@ function Console(props: IProps) {
     });
   };
 
-  const executeSQL = () => {
-    let sqlContent = editorRef?.current?.getCurrentSelectContent();
-    if (!sqlContent) {
-      sqlContent = editorRef?.current?.getAllContent();
-    }
+  const executeSQL = (sql?: string) => {
+    const sqlContent = sql || editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent();
 
     if (!sqlContent) {
       return;
     }
 
-    let p = {
+    let p: any = {
       sql: sqlContent,
       ...executeParams,
     };
@@ -146,7 +142,7 @@ function Console(props: IProps) {
   const saveConsole = (value?: string) => {
     const a = editorRef.current?.getAllContent();
 
-    let p = {
+    let p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
     };
@@ -199,12 +195,13 @@ function Console(props: IProps) {
           className={hasAiChat ? styles.console_editor_with_chat : styles.console_editor}
           addAction={addAction}
           onSave={saveConsole}
+          onExecute={executeSQL}
         />
       </Spin>
 
       <div className={styles.console_options_wrapper}>
         <div className={styles.console_options_left}>
-          <Button type="primary" className={styles.run_button} onClick={executeSQL}>
+          <Button type="primary" className={styles.run_button} onClick={() => executeSQL()}>
             <Iconfont code="&#xe637;" />
             RUN
           </Button>

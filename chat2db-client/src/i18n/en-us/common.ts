@@ -28,4 +28,5 @@ export default {
   'common.message.addedSuccessfully': 'successfully added',
   'common.text.custom': 'custom',
   'common.button.delete': 'Delete',
+  'common.text.executionResult': 'Result'
 };
