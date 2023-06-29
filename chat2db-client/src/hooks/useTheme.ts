@@ -29,7 +29,7 @@ export function useTheme<T = ITheme>(): [
   React.Dispatch<React.SetStateAction<ITheme>>,
 ] {
   const [appTheme, setAppTheme] = useState<ITheme>(initialTheme());
-
+  
   useEffect(() => {
     const uuid = addColorSchemeListener(setAppTheme);
     return () => {
