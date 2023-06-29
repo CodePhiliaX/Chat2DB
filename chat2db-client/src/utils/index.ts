@@ -1,5 +1,6 @@
 import { ThemeType } from '@/constants';
 import { ITreeNode } from '@/typings';
+import lodash from 'lodash'
 
 export function getOsTheme() {
   return window.matchMedia &&
@@ -80,16 +81,13 @@ export function approximateTreeNode(
   isDelete = true,
 ) {
   if (target) {
-    const newTree: ITreeNode[] = JSON.parse(JSON.stringify(treeData));
+    const newTree: ITreeNode[] = lodash.cloneDeep(treeData || []);
     newTree.map((item, index) => {
       // 暂时不递归，只搜索datasource
       // if(item.children?.length){
       //   item.children = approximateTreeNode(item.children, target,false);
       // }
-      if (
-        item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 &&
-        isDelete
-      ) {
+      if (item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
         delete newTree[index];
       } else {
         item.name = item.name?.replace(
@@ -101,6 +99,38 @@ export function approximateTreeNode(
     return newTree.filter((i) => i);
   } else {
     return treeData;
+  }
+}
+
+// 模糊匹配树并且高亮
+export function approximateList<T, K extends keyof T>(
+  data: T[],
+  target: string,
+  // @ts-ignore'
+  keyName: K = 'name',
+  isDelete = true,
+) {
+  if (target) {
+    const newData: T[] = lodash.cloneDeep(data || []);
+    newData.map((item, index) => {
+      // 暂时不递归，只搜索datasource
+      // if(item.children?.length){
+      //   item.children = approximateTreeNode(item.children, target,false);
+      // }
+      // @ts-ignore'
+      if (item[keyName]?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
+        delete newData[index];
+      } else {
+        // @ts-ignore'
+        item[keyName] = item[keyName]?.replace(
+          target,
+          `<span style='color:red;'>${target}</span>`,
+        );
+      }
+    });
+    return newData.filter((i) => i);
+  } else {
+    return data;
   }
 }
 
