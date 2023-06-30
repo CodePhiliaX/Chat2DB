@@ -13,12 +13,14 @@ import { ITreeConfigItem, ITreeConfig, treeConfig } from '@/pages/main/workspace
 import { ITreeNode } from '@/typings';
 // import { DatabaseContext } from '@/context/database';
 import connectionServer from '@/service/connection';
+import historyService from '@/service/history';
 import mysqlServer from '@/service/sql';
 import { OperationColumn } from '../treeConfig';
 import { dataSourceFormConfigs } from '@/components/CreateConnection/config/dataSource';
 import { IConnectionConfig } from '@/components/CreateConnection/config/types';
 import { IWorkspaceModelType } from '@/models/workspace';
-
+import EditDialog from '@/components/EditDialog';
+import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants'
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -64,13 +66,7 @@ function TreeNodeRightClick(props: IProps) {
         text: '导出ddl',
         icon: '\ue613',
         handle: () => {
-          const operationData: IOperationData = {
-            type: 'export',
-            nodeData: data
-          }
-          if (operationData.type === 'export') {
-            // setOperationDataDialog(operationData);
-          }
+
         }
       }
     },
@@ -105,14 +101,7 @@ function TreeNodeRightClick(props: IProps) {
         text: '新建查询',
         icon: '\ue619',
         handle: () => {
-          console.log(data)
-          // setCreateConsoleDialog({
-          //   dataSourceId: data.dataSourceId!,
-          //   dataSourceName: data.dataSourceName!,
-          //   databaseName: data.databaseName!,
-          //   schemaName: data.schemaName!,
-          //   databaseType: data.dataType! as DatabaseTypeCode
-          // })
+
         }
       }
     },
@@ -121,41 +110,17 @@ function TreeNodeRightClick(props: IProps) {
         text: '删除表',
         icon: '\ue6a7',
         handle: () => {
-          modalApi.confirm({
-            title: i18n('common.tips.deleteTable'),
-            icon: <ExclamationCircleFilled />,
-            content: `${i18n('common.text.tableName')}：${data.name}`,
-            okText: i18n('common.button.delete'),
-            okType: 'danger',
-            cancelText: i18n('common.button.cancel'),
-            onOk() {
-              let p: any = {
-                ...data.extraParams,
-                tableName: data.name,
-              }
-              mysqlServer.deleteTable(p).then(res => {
-                notificationApi.success(
-                  {
-                    message: '删除成功',
-                  }
-                )
-                dispatch({
-                  type: 'workspace/fetchGetCurTableList',
-                  payload: {
-                    ...curWorkspaceParams,
-                    extraParams: curWorkspaceParams,
-                  }
-                })
-              })
-            },
-          });
-          // setCreateConsoleDialog({
-          //   dataSourceId: data.dataSourceId!,
-          //   dataSourceName: data.dataSourceName!,
-          //   databaseName: data.databaseName!,
-          //   schemaName: data.schemaName!,
-          //   databaseType: data.dataType! as DatabaseTypeCode
-          // })
+          setVerifyDialog(true);
+          // modalApi.confirm({
+          //   title: i18n('common.tips.deleteTable'),
+          //   icon: <ExclamationCircleFilled />,
+          //   content: `${i18n('common.text.tableName')}：${data.name}`,
+          //   okText: i18n('common.button.delete'),
+          //   okType: 'danger',
+          //   cancelText: i18n('common.button.cancel'),
+          //   onOk() {
+          //   },
+          // });
         }
       }
     },
@@ -183,7 +148,19 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function handelTop() {
-    data.pinned
+    const api = data.pinned ? 'deleteTablePin' : 'addTablePin'
+    mysqlServer[api]({
+      ...curWorkspaceParams,
+      tableName: data.name
+    } as any).then(res => {
+      dispatch({
+        type: 'workspace/fetchGetCurTableList',
+        payload: {
+          ...curWorkspaceParams,
+          extraParams: curWorkspaceParams,
+        }
+      })
+    })
   }
 
   function refresh() {
@@ -201,19 +178,29 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function handleOk() {
-    let p = {
-      tableName: verifyTableName,
-      dataSourceId: data.dataSourceId!,
-      databaseName: data.databaseName!
-    }
-    if (verifyTableName === data.tableName) {
+    if (verifyTableName === data.name) {
+      let p: any = {
+        ...data.extraParams,
+        tableName: data.name,
+      }
       mysqlServer.deleteTable(p).then(res => {
-        setVerifyDialog(false);
-        // setNeedRefreshNodeTree({
-        //   databaseName: data.databaseName,
-        //   dataSourceId: data.dataSourceId,
-        //   nodeType: TreeNodeType.TABLES
-        // })
+        notificationApi.success(
+          {
+            message: '删除成功',
+          }
+        )
+        dispatch({
+          type: 'workspace/fetchGetCurTableList',
+          payload: {
+            ...curWorkspaceParams,
+            extraParams: curWorkspaceParams,
+          },
+          callback: () => {
+            setVerifyDialog(false);
+            setVerifyTableName('');
+          }
+        })
+
       })
     } else {
       message.error('输入的表名与要删除的表名不一致，请再次确认')
@@ -272,22 +259,9 @@ function TreeNodeRightClick(props: IProps) {
         </div>
       </Dropdown>
     }
-    {/* <div className={styles.menuBox}>
-      <div>
-        {
-          excludeSomeOperation()?.map((item, index) => {
-            const concrete = OperationColumnConfig[item](data);
-            return <div key={index} onClick={() => { concrete.handle(); }}>
-              {concrete.text}
-              <Iconfont code={concrete.icon} />
-            </div>
-          })
-        }
-      </div>
-    </div> */}
     <Modal
       maskClosable={false}
-      title="删除确认"
+      title={`删除表-${data.name}`}
       open={verifyDialog}
       onOk={handleOk}
       width={400}

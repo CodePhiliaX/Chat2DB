@@ -224,7 +224,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole, OperationColumn.ExportDDL, OperationColumn.DeleteTable, OperationColumn.Top
+      OperationColumn.ExportDDL, OperationColumn.DeleteTable, OperationColumn.Top
     ],
   },
   [TreeNodeType.COLUMNS]: {

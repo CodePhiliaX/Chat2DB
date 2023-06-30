@@ -110,7 +110,7 @@ const WorkspaceModel: IWorkspaceModelType = {
         payload: res.data,
       });
     },
-    *fetchGetCurTableList({ payload }, { put }) {
+    *fetchGetCurTableList({ payload, callback }, { put,call }) {
       // yield put({
       //   type: 'setCurTableList',
       //   payload: undefined,
@@ -120,6 +120,10 @@ const WorkspaceModel: IWorkspaceModelType = {
         pageSize: 999,
         ...payload,
       })) as ITreeNode[];
+       // 异步操作完成后调用回调函数
+      if (callback && typeof callback === 'function') {
+        callback(res);
+      }
       yield put({
         type: 'setCurTableList',
         payload: res,
