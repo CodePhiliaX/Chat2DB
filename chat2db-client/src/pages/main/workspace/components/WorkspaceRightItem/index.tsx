@@ -29,7 +29,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const { className, data, workspaceModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
-  const [resultData, setResultData] = useState<IManageResultData[]>();
+  const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const { doubleClickTreeNodeData, curTableList } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
 
@@ -39,7 +39,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     }
     const { extraParams } = doubleClickTreeNodeData;
     const { tableName } = extraParams || {};
-    const ddl = `SELECT * FROM ${tableName};`;
+    const ddl = `SELECT * FROM ${tableName};\n`;
     if (isActive) {
       setAppendValue({ text: ddl });
     }
@@ -72,7 +72,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
           />
         </div>
 
-        <div className={styles.boxRightResult}>{showResult && <SearchResult manageResultDataList={resultData} />}</div>
+        <div className={styles.boxRightResult}>{<SearchResult manageResultDataList={resultData} />}</div>
       </DraggableContainer>
     </div>
   );
