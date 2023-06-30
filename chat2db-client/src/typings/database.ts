@@ -20,4 +20,5 @@ export interface IManageResultData {
   sql: string;
   success: boolean;
   uuid?: string;
+  duration: number;
 }

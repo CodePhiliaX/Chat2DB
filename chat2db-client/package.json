@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "ahooks": "^3.7.7",
+    "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
