@@ -6,10 +6,14 @@ import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
-
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
+
+export type IAppendValue = {
+  text: any;
+  range?: IRangeType;
+};
 interface IProps {
   id: string | number;
   isActive?: boolean;
@@ -18,6 +22,7 @@ interface IProps {
   options?: IEditorOptions;
   needDestroy?: boolean;
   addAction?: Array<{ id: string; label: string; action: (selectedText: string) => void }>;
+  appendValue?: IAppendValue;
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
@@ -32,7 +37,7 @@ export interface IExportRefFunction {
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute, defaultValue } = props;
+  const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute, defaultValue, appendValue } = props;
   const editorRef = useRef<IEditorIns>();
   const [appTheme] = useTheme();
 
@@ -135,6 +140,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     getAllContent,
     setValue,
   }));
+
+  useEffect(() => {
+    console.log(appendValue)
+    appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
+  }, [appendValue])
 
   const setValue = (text: any, range?: IRangeType) => {
     appendMonacoValue(editorRef.current, text, range);
@@ -264,7 +274,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 // 'front' 开头
 // 'cover' 覆盖掉原有的文字
 // 自定义位置数组 new monaco.Range []
-export type IRangeType = 'end' | 'front' | 'cover' | any;
+export type IRangeType = 'end' | 'front' | 'cover' | 'reset' | any;
 
 export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'end') => {
   if (!editor) {
@@ -273,7 +283,9 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   const model = editor?.getModel && editor.getModel(editor);
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
-  text = `${text}`;
+  if (range === 'reset') {
+    editor.setValue(text)
+  }
   switch (range) {
     case 'cover':
       newRange = model.getFullModelRange();
@@ -285,6 +297,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
       const lastLine = editor.getModel().getLineCount();
       const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
+      text = `${text}\n`;
       break;
     default:
       break;
