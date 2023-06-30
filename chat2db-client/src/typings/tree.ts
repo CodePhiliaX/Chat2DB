@@ -17,4 +17,5 @@ export interface ITreeNode {
   children?: ITreeNode[];
   columnType?: string;
   extraParams?: IExtraParams;
+  pinned?: boolean;
 }

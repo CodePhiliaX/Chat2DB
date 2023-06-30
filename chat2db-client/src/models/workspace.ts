@@ -22,7 +22,7 @@ export interface IState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
-  curTableList: ITreeNode[];
+  curTableList: ITreeNode[] | undefined;
 }
 
 export interface IWorkspaceModelType {
@@ -111,6 +111,10 @@ const WorkspaceModel: IWorkspaceModelType = {
       });
     },
     *fetchGetCurTableList({ payload }, { put }) {
+      yield put({
+        type: 'setCurTableList',
+        payload: undefined,
+      });
       const res = yield treeConfig[TreeNodeType.TABLES].getChildren!({
         pageNo: 1,
         pageSize: 999,

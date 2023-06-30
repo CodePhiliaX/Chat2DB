@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useRef, useContext, useState, useImperativeHandle } from 'react';
-import { connect } from 'umi'
+import { connect } from 'umi';
+import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -8,10 +9,10 @@ import { ITreeNode } from '@/typings';
 import { callVar, approximateTreeNode } from '@/utils';
 import { TreeNodeType, databaseMap } from '@/constants';
 import LoadingContent from '@/components/Loading/LoadingContent';
-// import TreeNodeRightClick from './TreeNodeRightClick';
+import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { workspaceActionType } from '@/pages/main/workspace/context';
-import { IWorkspaceModelType } from '@/models/workspace'
+import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IProps {
   className?: string;
@@ -146,7 +147,7 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
 
   const recognizeIcon = (treeNodeType: TreeNodeType) => {
     if (treeNodeType === TreeNodeType.DATA_SOURCE) {
-      return databaseMap[data.databaseType!]?.icon
+      return databaseMap[data.extraParams?.databaseType!]?.icon
     } else {
       return switchIcon[treeNodeType]?.[showChildren ? 'unfoldIcon' : 'icon'] || switchIcon[treeNodeType]?.icon
     }
@@ -174,44 +175,53 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
   }
 
   return show ? <>
-    <Tooltip placement="right" title={renderTitle(data)}>
-      <div
-        className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })} >
-        <div className={styles.left}>
-          {
-            indentArr.map((item, i) => {
-              return <div key={i} className={styles.indent}></div>
-            })
-          }
-        </div>
-        <div className={styles.right}>
-          {
-            !data.isLeaf &&
-            <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
-              {
-                isLoading
-                  ?
-                  <div className={styles.loadingIcon}>
-                    <Iconfont code='&#xe6cd;' />
-                  </div>
-                  :
-                  <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xeb6d;' />
-              }
-              {/* <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xe608;' /> */}
-            </div>
-          }
-          <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
-            <div className={styles.typeIcon}>
-              <Iconfont code={recognizeIcon(data.treeNodeType)!}></Iconfont>
-            </div>
-            <div className={styles.contentText} >
-              <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
-              {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
-            </div>
+    {/* <Tooltip placement="right" title={renderTitle(data)}>
+    </Tooltip> */}
+    <div
+      className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })} >
+      <div className={styles.left}>
+        {
+          indentArr.map((item, i) => {
+            return <div key={i} className={styles.indent}></div>
+          })
+        }
+      </div>
+      <div className={styles.right}>
+        {
+          !data.isLeaf &&
+          <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
+            {
+              isLoading
+                ?
+                <div className={styles.loadingIcon}>
+                  <Iconfont code='&#xe6cd;' />
+                </div>
+                :
+                <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xeb6d;' />
+            }
+            {/* <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xe608;' /> */}
+          </div>
+        }
+        <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
+          <div className={styles.typeIcon}>
+            <Iconfont code={recognizeIcon(data.treeNodeType)!}></Iconfont>
+          </div>
+          <div className={styles.contentText} >
+            <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
+            {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
           </div>
         </div>
+        <div className='moreBox'>
+          <TreeNodeRightClick
+            setIsLoading={setIsLoading}
+            dispatch={dispatch}
+            className={styles.moreButton}
+            data={data}
+            workspaceModel={workspaceModel}
+          ></TreeNodeRightClick>
+        </div>
       </div>
-    </Tooltip>
+    </div>
     {
       data.children?.map((item: any, i: number) => {
         return <TreeNode

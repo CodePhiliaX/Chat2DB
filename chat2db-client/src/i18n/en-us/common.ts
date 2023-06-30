@@ -28,5 +28,7 @@ export default {
   'common.message.addedSuccessfully': 'successfully added',
   'common.text.custom': 'custom',
   'common.button.delete': 'Delete',
-  'common.text.executionResult': 'Result'
+  'common.text.executionResult': 'Result',
+  'common.tips.deleteTable': 'Are you sure delete this Table？',
+  'common.text.tableName': 'Table Name'
 };

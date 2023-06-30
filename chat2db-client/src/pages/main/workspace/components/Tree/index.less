@@ -42,6 +42,18 @@
   padding: 0px 10px;
   border-radius: 2px;
   color: var(--color-text-secondary);
+  .moreButton {
+    flex-shrink: 0;
+    display: none;
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+    .moreButton {
+      display: block;
+    }
+  }
 }
 
 .arrows {
