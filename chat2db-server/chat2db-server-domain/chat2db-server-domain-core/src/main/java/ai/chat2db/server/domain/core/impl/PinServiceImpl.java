@@ -7,6 +7,7 @@ import ai.chat2db.server.domain.repository.entity.PinTableDO;
 import ai.chat2db.server.domain.repository.mapper.PinTableMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ public class PinServiceImpl implements PinService {
     @Override
     public ActionResult pinTable(PinTableParam param) {
         PinTableDO entity = pinTableConverter.param2do(param);
+        entity.setUserId(ContextUtils.getUserId());
         pinTableMapper.insert(entity);
         return ActionResult.isSuccess();
     }
