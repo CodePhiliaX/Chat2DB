@@ -11,7 +11,7 @@ interface IProps {
   tables?: string[];
   selectedTables?: string[];
   onPressEnter: (value: string) => void;
-  onSelectTables: (tables: (string | number | boolean)[]) => void;
+  onSelectTables?: (tables: string[]) => void;
 }
 
 function ChatInput(props: IProps) {
@@ -25,7 +25,9 @@ function ChatInput(props: IProps) {
     const { tables, selectedTables, onSelectTables } = props;
     return tables && tables.length ? (
       <div>
+        <span></span>
         <Checkbox.Group
+          style={{ width: '120px' }}
           options={tables || []}
           value={selectedTables}
           onChange={(v) => {

@@ -7,7 +7,7 @@ import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode } from '@/constants';
 import { IManageResultData } from '@/typings';
-import { IWorkspaceModelType } from '@/models/workspace'
+import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IProps {
   className?: string;
@@ -30,12 +30,12 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
   const [resultData, setResultData] = useState<IManageResultData[]>();
-  const { doubleClickTreeNodeData } = workspaceModel;
+  const { doubleClickTreeNodeData, curTableList } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
-      return
+      return;
     }
     const { extraParams } = doubleClickTreeNodeData;
     const { tableName } = extraParams || {};
@@ -45,38 +45,41 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     }
     dispatch({
       type: 'workspace/setDoubleClickTreeNodeData',
-      payload: ''
+      payload: '',
     });
   }, [doubleClickTreeNodeData]);
 
-  return <div className={classnames(styles.box)}>
-    <DraggableContainer layout="column" className={styles.boxRightCenter}>
-      <div ref={draggableRef} className={styles.boxRightConsole}>
-        <Console
-          isActive={isActive}
-          appendValue={appendValue}
-          executeParams={{ ...data }}
-          hasAiChat={true}
-          hasAi2Lang={true}
-          onExecuteSQL={(res: any) => {
-            setResultData(res);
-            setShowResult(true);
-          }}
-        />
-      </div>
+  return (
+    <div className={classnames(styles.box)}>
+      <DraggableContainer layout="column" className={styles.boxRightCenter}>
+        <div ref={draggableRef} className={styles.boxRightConsole}>
+          <Console
+            isActive={isActive}
+            appendValue={appendValue}
+            executeParams={{ ...data }}
+            hasAiChat={true}
+            hasAi2Lang={true}
+            onExecuteSQL={(res: any) => {
+              setResultData(res);
+              setShowResult(true);
+            }}
+            onConsoleSave={() => {
+              dispatch({
+                type: 'workspace/fetchGetSavedConsole',
+              });
+            }}
+            tables={curTableList || []}
+          />
+        </div>
 
-      <div className={styles.boxRightResult}>
-        {
-          showResult &&
-          <SearchResult manageResultDataList={resultData} />
-        }
-      </div>
-    </DraggableContainer>
-  </div>
-})
+        <div className={styles.boxRightResult}>{showResult && <SearchResult manageResultDataList={resultData} />}</div>
+      </DraggableContainer>
+    </div>
+  );
+});
 
 const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace
-}))
+  workspaceModel: workspace,
+}));
 
-export default dvaModel(WorkspaceRightItem)
+export default dvaModel(WorkspaceRightItem);
