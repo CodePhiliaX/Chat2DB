@@ -1,11 +1,6 @@
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-const connectToEventSource = (params: {
-  url: string;
-  uid: string;
-  onMessage: Function;
-  onError: Function;
-}) => {
+const connectToEventSource = (params: { url: string; uid: string; onMessage: Function; onError: Function }) => {
   const { url, uid, onMessage, onError } = params;
 
   if (!url || !onMessage || !onError) {
@@ -17,13 +12,12 @@ const connectToEventSource = (params: {
     headers: {
       uid,
       DBHUB,
-    }
-  }
-  const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, {
-    p
-  });
+    },
+  };
+  const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, p);
 
   eventSource.onmessage = (event) => {
+    console.log('onmessage', event);
     onMessage(event.data);
   };
 
