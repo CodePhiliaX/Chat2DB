@@ -1,17 +1,12 @@
-import React, { memo, useContext, useMemo, useState } from 'react';
+import React, { memo, useContext, useMemo, useState, useRef } from 'react';
 import i18n from '@/i18n';
 import classnames from 'classnames';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
 import { MenuProps, message, Modal, Input, Dropdown, notification } from 'antd';
-import { ExclamationCircleFilled } from '@ant-design/icons';
-// import { Menu } from 'antd';
-// import Menu, { IMenu, MenuItem } from '@/components/Menu';
-// import { IOperationData } from '@/components/OperationTableModal';
 import { TreeNodeType, DatabaseTypeCode } from '@/constants';
 import { ITreeConfigItem, ITreeConfig, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
-// import { DatabaseContext } from '@/context/database';
 import connectionServer from '@/service/connection';
 import historyService from '@/service/history';
 import mysqlServer from '@/service/sql';
@@ -20,7 +15,8 @@ import { dataSourceFormConfigs } from '@/components/CreateConnection/config/data
 import { IConnectionConfig } from '@/components/CreateConnection/config/types';
 import { IWorkspaceModelType } from '@/models/workspace';
 import EditDialog from '@/components/EditDialog';
-import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants'
+import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
+import MonacoEditor, { IExportRefFunction, IRangeType } from '@/components/Console/MonacoEditor';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -29,7 +25,7 @@ export type IProps = {
   setIsLoading: (value: boolean) => void;
   data: ITreeNode;
   dispatch: any;
-  workspaceModel: IWorkspaceModelType['state']
+  workspaceModel: IWorkspaceModelType['state'];
 }
 
 export interface IOperationColumnConfigItem {
@@ -40,7 +36,6 @@ export interface IOperationColumnConfigItem {
 
 function TreeNodeRightClick(props: IProps) {
   const { className, data, setIsLoading, dispatch, workspaceModel } = props;
-  // const { setCreateConsoleDialog, setOperationDataDialog, setNeedRefreshNodeTree, setEditDataSourceData } = useContext(DatabaseContext);
   const [verifyDialog, setVerifyDialog] = useState<boolean>();
   const [verifyTableName, setVerifyTableName] = useState<string>('');
   const [modalApi, modelDom] = Modal.useModal();
@@ -48,6 +43,8 @@ function TreeNodeRightClick(props: IProps) {
   const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType]
   const { getChildren, operationColumn } = treeNodeConfig;
   const { curWorkspaceParams } = workspaceModel;
+  const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
+  const [monacoDefaultValue, setMonacoDefaultValue] = useState('');
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
     return t.type === data.extraParams?.databaseType
   })!
@@ -66,7 +63,13 @@ function TreeNodeRightClick(props: IProps) {
         text: '导出ddl',
         icon: '\ue613',
         handle: () => {
-
+          mysqlServer.exportCreateTableSql({
+            ...curWorkspaceParams,
+            tableName: data.name
+          } as any).then(res => {
+            setMonacoVerifyDialog(true);
+            setMonacoDefaultValue(res);
+          })
         }
       }
     },
@@ -111,16 +114,6 @@ function TreeNodeRightClick(props: IProps) {
         icon: '\ue6a7',
         handle: () => {
           setVerifyDialog(true);
-          // modalApi.confirm({
-          //   title: i18n('common.tips.deleteTable'),
-          //   icon: <ExclamationCircleFilled />,
-          //   content: `${i18n('common.text.tableName')}：${data.name}`,
-          //   okText: i18n('common.button.delete'),
-          //   okType: 'danger',
-          //   cancelText: i18n('common.button.cancel'),
-          //   onOk() {
-          //   },
-          // });
         }
       }
     },
@@ -141,7 +134,7 @@ function TreeNodeRightClick(props: IProps) {
         text: data.pinned ? '取消置顶' : '置顶',
         icon: data.pinned ? '\ue61d' : '\ue627',
         handle: () => {
-          handelTop()
+          handelTop();
         }
       }
     },
@@ -158,6 +151,9 @@ function TreeNodeRightClick(props: IProps) {
         payload: {
           ...curWorkspaceParams,
           extraParams: curWorkspaceParams,
+        },
+        callback: () => {
+          message.success('操作成功')
         }
       })
     })
@@ -268,6 +264,26 @@ function TreeNodeRightClick(props: IProps) {
       onCancel={(() => { setVerifyDialog(false) })}>
       <Input placeholder='请输入你要删除的表名' value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
     </Modal>
+    {/* 这里后续肯定是要提出去的 */}
+    {
+      monacoVerifyDialog &&
+      <Modal
+        maskClosable={false}
+        title={`${data.name}-DDL`}
+        open={monacoVerifyDialog}
+        width="600px"
+        onCancel={(() => { setMonacoVerifyDialog(false) })}>
+        <div className={styles.monacoEditorBox}>
+          <MonacoEditor
+            id='edit-dialog'
+            appendValue={{
+              text: monacoDefaultValue,
+              range: 'reset'
+            }}
+          ></MonacoEditor>
+        </div>
+      </Modal>
+    }
   </>
 }
 
