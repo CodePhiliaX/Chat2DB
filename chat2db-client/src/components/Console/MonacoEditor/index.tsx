@@ -273,7 +273,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   const model = editor?.getModel && editor.getModel(editor);
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
-  text = `${text}\n`;
+  text = `${text}`;
   switch (range) {
     case 'cover':
       newRange = model.getFullModelRange();

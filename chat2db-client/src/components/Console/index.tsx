@@ -2,17 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin, message, notification } from 'antd';
+import { Button, Spin, message, notification, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import { v4 as uuidv4 } from 'uuid';
-import styles from './index.less';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { ITreeNode } from '@/typings';
+import styles from './index.less';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -44,8 +44,10 @@ interface IProps {
   hasAiChat: boolean;
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
   hasAi2Lang?: boolean;
+  /** 是否有 */
   hasSaveBtn?: boolean;
   value?: string;
+  tables: ITreeNode[];
   executeParams: {
     databaseName?: string;
     dataSourceId?: number;
@@ -54,27 +56,22 @@ interface IProps {
     schemaName?: string;
     consoleName?: string;
   };
-  editorOptions: IEditorOptions;
+  editorOptions?: IEditorOptions;
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (result: any, sql?: string) => void;
-  workspaceModel: IWorkspaceModelType;
-  dispatch: any;
+  onConsoleSave: () => void;
 }
 
 function Console(props: IProps) {
-  const {
-    hasAiChat = true,
-    executeParams,
-    appendValue,
-    isActive,
-    dispatch,
-    hasSaveBtn = true,
-    value,
-  } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiContent, setAiContent] = useState('');
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
+  const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
 
   useEffect(() => {
     if (appendValue) {
@@ -82,37 +79,59 @@ function Console(props: IProps) {
     }
   }, [appendValue]);
 
-  const onPressChatInput = (value: string) => {
+  const tableListName = useMemo(() => (props.tables || []).map((t) => t.name), [props.tables]);
+
+  const handleAiChat = (content: string, promptType: IPromptType) => {
     const { dataSourceId, databaseName, schemaName } = executeParams;
+    const isNL2SQL = promptType === IPromptType.NL_2_SQL;
+    if (isNL2SQL) {
+      setIsLoading(true);
+    } else {
+      setIsAiDrawerOpen(true);
+      setIsAiDrawerLoading(true);
+    }
     const params = formatParams({
-      message: value,
+      message: content,
+      promptType,
       dataSourceId,
       databaseName,
       schemaName,
-      //TODO:
-      promptType: IPromptType.NL_2_SQL,
+      tableNames: selectedTables,
     });
 
-    // setIsLoading(true);
-
     const handleMessage = (message: string) => {
+      setIsLoading(false);
+
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
-          console.log('chatResult', chatResult.current);
+          if (isNL2SQL) {
+            editorRef?.current?.setValue('\n\n\n');
+          } else {
+            setIsAiDrawerLoading(false);
+            chatResult.current += '\n\n\n';
+            setAiContent(chatResult.current);
+            chatResult.current = '';
+          }
           return;
         }
-        chatResult.current += JSON.parse(message).content;
-        // setContext((prevData) => prevData + JSON.parse(message).content);
+
+        if (isNL2SQL) {
+          editorRef?.current?.setValue(JSON.parse(message).content);
+        } else {
+          chatResult.current += JSON.parse(message).content;
+        }
       } catch (error) {
         console.log('handleMessage', error);
+        setIsLoading(false);
       }
     };
 
     const handleError = (error: any) => {
       console.error('Error:', error);
+      setIsLoading(false);
     };
 
     const closeEventSource = connectToEventSource({
@@ -121,6 +140,10 @@ function Console(props: IProps) {
       onMessage: handleMessage,
       onError: handleError,
     });
+  };
+
+  const onPressChatInput = (value: string) => {
+    handleAiChat(value, IPromptType.NL_2_SQL);
   };
 
   const executeSQL = (sql?: string) => {
@@ -134,7 +157,7 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
-    props.onExecuteSQL?.(undefined);
+    // props.onExecuteSQL?.(undefined);
     sqlServer.executeSql(p).then((res) => {
       props.onExecuteSQL?.(res, sqlContent!);
       // console.log(res)
@@ -147,7 +170,7 @@ function Console(props: IProps) {
   };
 
   const saveConsole = (value?: string) => {
-    const a = editorRef.current?.getAllContent();
+    // const a = editorRef.current?.getAllContent();
 
     let p: any = {
       id: executeParams.consoleId,
@@ -155,13 +178,7 @@ function Console(props: IProps) {
     };
     historyServer.updateSavedConsole(p).then((res) => {
       message.success('保存成功');
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
-      });
-      // notification.open({
-      //   type: 'success',
-      //   message: '保存成功',
-      // });
+      props.onConsoleSave && props.onConsoleSave();
     });
   };
 
@@ -170,52 +187,64 @@ function Console(props: IProps) {
       {
         id: 'explainSQL',
         label: '解释SQL',
-        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_EXPLAIN, selectedText),
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
       },
       {
         id: 'optimizeSQL',
         label: '优化SQL',
-        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_OPTIMIZER, selectedText),
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
       },
       {
         id: 'changeSQL',
         label: 'SQL转化',
-        action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_2_SQL, selectedText),
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
       },
     ],
     [],
   );
 
-  const handleAIRelativeOperation = (id: string, selectedText: string) => {
-    console.log('handleAIRelativeOperation', id, selectedText);
-  };
-
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
-        {hasAiChat && <ChatInput onPressEnter={onPressChatInput} />}
+        {hasAiChat && (
+          <ChatInput
+            tables={tableListName}
+            onPressEnter={onPressChatInput}
+            selectedTables={selectedTables}
+            onSelectTables={(tables: string[]) => {
+              setSelectedTables(tables);
+            }}
+          />
+        )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
+
         <Editor
           id={uid}
           isActive={isActive}
           ref={editorRef as any}
-          className={hasAiChat ? styles.console_editor_with_chat : styles.console_editor}
+          className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
           addAction={addAction}
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-        // onChange={}
+          // onChange={}
         />
+        {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
+        <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
+          <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
+            <div className={styles.aiBlock}>{aiContent}</div>
+          </Spin>
+        </Drawer>
       </Spin>
 
-      <div className={styles.console_options_wrapper}>
-        <div className={styles.console_options_left}>
-          <Button type="primary" className={styles.run_button} onClick={() => executeSQL()}>
+      <div className={styles.consoleOptionsWrapper}>
+        <div className={styles.consoleOptionsLeft}>
+          <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>
             <Iconfont code="&#xe637;" />
             RUN
           </Button>
           {hasSaveBtn && (
-            <Button type="default" className={styles.save_button} onClick={() => saveConsole()}>
+            <Button type="default" className={styles.saveButton} onClick={() => saveConsole()}>
               SAVE
             </Button>
           )}
@@ -234,8 +263,4 @@ function Console(props: IProps) {
   );
 }
 
-const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace,
-}));
-
-export default dvaModel(Console);
+export default Console;

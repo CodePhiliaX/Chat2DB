@@ -54,14 +54,14 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
           </>
         ),
         value: index,
-      }
+      };
     });
-  }, [])
+  }, []);
 
   function onEdit(type: 'add' | 'remove', value?: number | string) {
     if (type === 'remove') {
       if (currentTab === value) {
-        setCurrentTab(0)
+        setCurrentTab(0);
       }
       // manageResultDataList = manageResultDataList.filter(t => t.uuid !== value)
       manageResultDataList.splice(value as number, 1);
@@ -73,7 +73,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
       <div className={styles.resultHeader}>
         <Tabs
           hideAdd
-          type='line'
+          type="line"
           onEdit={onEdit}
           onChange={onChange}
           tabs={tabs}
@@ -107,7 +107,7 @@ interface ITableProps {
   dataList: string[][];
   className?: string;
   data: IManageResultData;
-  key: number,
+  key: number;
 }
 
 interface IViewTableCellData {
@@ -154,6 +154,8 @@ export function TableBox(props: ITableProps) {
             {value}
           </div>
         ),
+        column: index === headerList.length - 1 ? undefined : 320,
+        fixed: index === 0 ? 'left' : undefined
       };
       return data;
     });
@@ -185,7 +187,7 @@ export function TableBox(props: ITableProps) {
   return (
     <div {...rest} className={classnames(className, styles.tableBox)}>
       {dataList !== null ? (
-        <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: 200 }} size="small" />
+        <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
       ) : (
         <StateIndicator state="success" text="执行成功" />
       )}
@@ -210,7 +212,7 @@ export function TableBox(props: ITableProps) {
             id="view_table-Cell_data"
             defaultValue={viewTableCellData?.value}
             options={{
-              readOnly: true
+              readOnly: true,
             }}
           ></MonacoEditor>
         </div>

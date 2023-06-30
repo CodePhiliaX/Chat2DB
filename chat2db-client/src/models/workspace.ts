@@ -1,9 +1,9 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
-import historyService from '@/service/history'
+import historyService from '@/service/history';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode, IConsole } from '@/typings';
+import { ITreeNode, IConsole, IPageResponse } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
@@ -50,7 +50,7 @@ const WorkspaceModel: IWorkspaceModelType = {
     curWorkspaceParams: getCurrentWorkspaceDatabase(),
     doubleClickTreeNodeData: undefined,
     consoleList: [],
-    curTableList: []
+    curTableList: [],
   },
 
   reducers: {
@@ -93,33 +93,33 @@ const WorkspaceModel: IWorkspaceModelType = {
 
   effects: {
     *fetchDatabaseAndSchema({ payload }, { put }) {
-      const res = yield sqlService.getDatabaseSchemaList(payload);
+      const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
       yield put({
         type: 'setDatabaseAndSchema',
         payload: res,
       });
     },
     *fetchGetSavedConsole({ payload }, { put }) {
-      const res = yield historyService.getSavedConsoleList({
+      const res = (yield historyService.getSavedConsoleList({
         pageNo: 1,
         pageSize: 999,
-        status: ConsoleStatus.RELEASE
-      });
+        status: ConsoleStatus.RELEASE,
+      })) as IPageResponse<IConsole>;
       yield put({
         type: 'setConsoleList',
         payload: res.data,
       });
     },
     *fetchGetCurTableList({ payload }, { put }) {
-      yield put({
-        type: 'setCurTableList',
-        payload: undefined,
-      });
-      const res = yield treeConfig[TreeNodeType.TABLES].getChildren!({
+      // yield put({
+      //   type: 'setCurTableList',
+      //   payload: undefined,
+      // });
+      const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
         pageNo: 1,
         pageSize: 999,
-        ...payload
-      });
+        ...payload,
+      })) as ITreeNode[];
       yield put({
         type: 'setCurTableList',
         payload: res,
