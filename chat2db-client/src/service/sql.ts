@@ -1,5 +1,5 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 
 export interface IGetListParams extends IPageParams {
@@ -102,6 +102,16 @@ const getDatabaseSchemaList = createRequest<{ dataSourceId: number; }, MetaSchem
   { method: 'get' }
 );
 
+const addTablePin = createRequest<IUniversalTableParams, void>(
+  '/api/pin/table/add',
+  { method: 'post' }
+);
+
+const deleteTablePin = createRequest<IUniversalTableParams, void>(
+  '/api/pin/table/delete',
+  { method: 'post' }
+);
+
 export default {
   getList,
   executeSql,
@@ -115,5 +125,7 @@ export default {
   getIndexList,
   getKeyList,
   getSchemaList,
-  getDatabaseSchemaList
+  getDatabaseSchemaList,
+  addTablePin,
+  deleteTablePin
 };

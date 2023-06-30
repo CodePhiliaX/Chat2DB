@@ -36,3 +36,10 @@ export interface Option {
 }
 
 export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>;
+
+export interface IUniversalTableParams {
+  dataSourceId: string;
+  databaseName?: string;
+  schemaName?: string;
+  tableName?: string;
+}
