@@ -1,6 +1,8 @@
 @import '../../../../../styles/var.less';
 
 .box {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   background-color: var(--color-bg-elevated);
   border-left: 1px solid var(--color-border);
@@ -14,6 +16,18 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
+  flex-shrink: 0;
+}
+
+.tableModule {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+}
+
+.saveModule {
+  flex-shrink: 0;
 }
 
 .boxLeftSave {
@@ -66,18 +80,30 @@
   }
 }
 
-.tree,.saveBoxList {
+.saveBoxList {
+  margin: 0px -10px;
+  height: calc(26px * 3);
+  overflow-y: auto;
+}
+
+.saveBoxList {
   margin: 0px -10px;
 }
 
-.saveItem{
+.treeBox {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+  margin: 0px -10px;
+}
+
+.saveItem {
   cursor: pointer;
   padding: 0px 10px;
   margin-bottom: 2px;
   line-height: 26px;
   border-radius: 2px;
   user-select: none;
-
 
   &:hover {
     background-color: var(--color-hover-bg);
@@ -89,24 +115,24 @@
 }
 
 .leftModuleTitle {
-
+  flex-shrink: 0;
   margin-bottom: 10px;
-  .leftModuleTitleText{
+  .leftModuleTitleText {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 26px;
-    .modelName{
+    .modelName {
       font-weight: bold;
     }
-    .iconBox{
+    .iconBox {
       cursor: pointer;
-      &:hover{
+      &:hover {
         color: var(--color-primary);
       }
     }
   }
-  .leftModuleTitleSearch{
+  .leftModuleTitleSearch {
     height: 26px;
   }
 }

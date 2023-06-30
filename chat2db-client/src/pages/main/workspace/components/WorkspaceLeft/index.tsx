@@ -202,9 +202,8 @@ const RenderTableBox = dvaModel(function (props: any) {
     setSearchedTableList(approximateTreeNode(curTableList, value))
   }
 
-
   return (
-    <div className={styles.table_box}>
+    <div className={styles.tableModule}>
       <div className={styles.leftModuleTitle}>
         {
           searching ?
@@ -228,7 +227,7 @@ const RenderTableBox = dvaModel(function (props: any) {
             </div>
         }
       </div>
-      <LoadingContent data={curTableList} handleEmpty>
+      <LoadingContent className={styles.treeBox} data={curTableList} handleEmpty>
         <Tree className={styles.tree} initialData={searchedTableList || curTableList}></Tree>
       </LoadingContent>
     </div>
@@ -280,7 +279,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
   }
 
   return (
-    <div className={styles.save_box}>
+    <div className={styles.saveModule}>
       <div className={styles.leftModuleTitle}>
         {
           searching ?
