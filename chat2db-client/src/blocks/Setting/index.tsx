@@ -24,6 +24,7 @@ interface IProps {
 
 export enum AiSqlSourceType {
   OPENAI = 'OPENAI',
+  Azure = 'Azure',
   RESTAI = 'RESTAI',
 }
 
@@ -123,8 +124,8 @@ export default memo<IProps>(function Setting({ className, text }) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-          )}
+          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
+        )}
       </div>
       <Modal
         open={isModalVisible}
@@ -176,6 +177,9 @@ export function SettingAI() {
     apiHost: '',
     restAiStream: true,
     aiSqlSource: '',
+    azureApiKey: '',
+    azureEndpoint: '',
+    azureDeploymentId: ''
   });
 
   useEffect(() => {
@@ -215,7 +219,8 @@ export function SettingAI() {
           }}
           value={chatgptConfig.aiSqlSource}
         >
-          <Radio value={AiSqlSourceType.OPENAI}>Open Ai</Radio>
+          <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
+          <Radio value={AiSqlSourceType.Azure}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>
             {i18n('setting.tab.custom')}
           </Radio>
@@ -271,6 +276,43 @@ export function SettingAI() {
           </div>
         </div>
       )}
+      {chatgptConfig.aiSqlSource === AiSqlSourceType.Azure && (
+        <div>
+          <div className={styles.title}>Api Key</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              // placeholder={i18n('setting.placeholder.apiKey')}
+              value={chatgptConfig.azureApiKey}
+              onChange={(e) => {
+                setChatgptConfig({ ...chatgptConfig, azureApiKey: e.target.value });
+              }}
+            />
+          </div>
+          <div className={styles.title}>Endpoint</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              // placeholder={i18n('setting.placeholder.apiHost')}
+              value={chatgptConfig.azureEndpoint}
+              onChange={(e) => {
+                setChatgptConfig({ ...chatgptConfig, azureEndpoint: e.target.value });
+              }}
+            />
+          </div>
+          <div className={styles.title}>DeploymentId</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              // placeholder={i18n('setting.placeholder.httpsProxy', 'host')}
+              value={chatgptConfig.azureDeploymentId}
+              onChange={(e) => {
+                setChatgptConfig({
+                  ...chatgptConfig,
+                  azureDeploymentId: e.target.value,
+                });
+              }}
+            />
+          </div>
+        </div>
+      )}
       {chatgptConfig.aiSqlSource === AiSqlSourceType.RESTAI && (
         <div>
           <div className={styles.title}>
@@ -309,7 +351,7 @@ export function SettingAI() {
       )}
       <div className={styles.bottomButton}>
         <Button type="primary" onClick={changeChatgptApiKey}>
-          {i18n('setting.button.use')}
+          {i18n('setting.button.apply')}
         </Button>
       </div>
     </>
@@ -442,7 +484,7 @@ export function ProxyBody() {
       </div>
       <div className={styles.bottomButton}>
         <Button type="primary" onClick={affirmUpdateApi}>
-          {i18n('setting.button.use')}
+          {i18n('setting.button.apply')}
         </Button>
       </div>
     </>

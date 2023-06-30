@@ -16,7 +16,7 @@ export default {
   'setting.title.aiSource': 'AI 来源',
   'setting.tab.custom': '自定义',
   'setting.label.serviceAddress': '服务地址',
-  'setting.button.use': '应用',
+  'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',
   'setting.text.currentVersion': '当前版本',
   'setting.text.viewingUpdateLogs': '查看当前应用',

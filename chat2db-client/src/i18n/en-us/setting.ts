@@ -16,7 +16,7 @@ export default {
   'setting.title.aiSource': 'Ai Source',
   'setting.tab.custom': 'Custom',
   'setting.label.serviceAddress': 'Service Address',
-  'setting.button.use': 'Use',
+  'setting.button.apply': 'Apply',
   'setting.text.currentEnv': 'Current Env',
   'setting.text.currentVersion': 'Current Version',
   'setting.text.viewingUpdateLogs': 'Viewing Update Logs',
