@@ -43,3 +43,27 @@ export interface IUniversalTableParams {
   schemaName?: string;
   tableName?: string;
 }
+
+/**
+ * 版本返回
+ * VersionResponse
+ */
+ export interface IVersionResponse {
+  /**
+   * 基础链接
+   * 类似于：http://test.sqlgpt.cn/gateway
+   */
+  baseUrl?: string;
+  /**
+   * 下载链接
+   */
+  downloadLink?: string;
+  /**
+   * 版本
+   */
+  version?: string;
+  /**
+   * 微信公众号名字
+   */
+  wechatMpName?: string;
+}

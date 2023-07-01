@@ -1,9 +1,10 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import { Outlet } from 'umi';
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, theme, notification } from 'antd';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
+import { IVersionResponse } from '@/typings';
 
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
@@ -21,6 +22,7 @@ declare global {
     _BUILD_TIME: string;
     _BaseURL: string;
     _AppThemePack: { [key in string]: string };
+    _appGatewayParams: IVersionResponse;
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
