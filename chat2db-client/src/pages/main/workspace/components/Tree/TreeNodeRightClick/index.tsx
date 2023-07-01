@@ -179,11 +179,12 @@ function TreeNodeRightClick(props: IProps) {
         tableName: data.name,
       }
       mysqlServer.deleteTable(p).then(res => {
-        notificationApi.success(
-          {
-            message: i18n('common.text.successfullyDelete'),
-          }
-        )
+        // notificationApi.success(
+        //   {
+        //     message: i18n('common.text.successfullyDelete'),
+        //   }
+        // )
+        message.success(i18n('common.text.successfullyDelete'))
         dispatch({
           type: 'workspace/fetchGetCurTableList',
           payload: {
