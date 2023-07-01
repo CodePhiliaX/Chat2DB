@@ -51,6 +51,11 @@ public class MysqlDBManage implements DBManage {
 
     @Override
     public void dropTable(String databaseName, String schemaName, String tableName) {
+        String sql = "DROP TABLE "+ format(tableName);
+        SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
+    }
 
+    public static String format(String tableName) {
+        return "`" + tableName + "`";
     }
 }

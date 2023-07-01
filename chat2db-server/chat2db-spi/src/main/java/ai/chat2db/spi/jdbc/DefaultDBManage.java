@@ -1,9 +1,20 @@
-package ai.chat2db.plugin.hive;
+/**
+ * alibaba.com Inc.
+ * Copyright (c) 2004-2023 All Rights Reserved.
+ */
+package ai.chat2db.spi.jdbc;
+
+import java.sql.SQLException;
 
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.sql.SQLExecutor;
 
-public class HiveDBManage implements DBManage {
+/**
+ * @author jipengfei
+ * @version : DefaultDBManage.java
+ */
+public class DefaultDBManage implements DBManage {
+
     @Override
     public void connectDatabase(String database) {
 
@@ -41,7 +52,7 @@ public class HiveDBManage implements DBManage {
 
     @Override
     public void dropTable(String databaseName, String schemaName, String tableName) {
-        String sql = "drop table if exists " +tableName;
+        String sql = "DROP TABLE "+ tableName ;
         SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
     }
 }
