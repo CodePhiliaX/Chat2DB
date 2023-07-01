@@ -38,7 +38,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
     --color: #dadde1;
     --header-color: #dadde1;
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
-    --border-color: #3c4045;
+    --border-color: transparent;
   }
 `;
 
