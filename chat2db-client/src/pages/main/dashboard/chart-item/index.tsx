@@ -1,4 +1,4 @@
-import { IChartItem, IChartType, IConnectionDetails } from '@/typings';
+import { IChartItem, IChartType, IConnectionDetails, ITreeNode } from '@/typings';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';
@@ -54,6 +54,7 @@ interface IChartItemProps {
   isEditing?: boolean;
   canAddRowItem: boolean;
   connectionList: IConnectionDetails[];
+  tableList: ITreeNode[];
   onDelete?: (id: number) => void;
   addChartTop?: () => void;
   addChartBottom?: () => void;
@@ -62,7 +63,7 @@ interface IChartItemProps {
 }
 
 function ChartItem(props: IChartItemProps) {
-  const { connectionList } = props;
+  const { connectionList, tableList } = props;
   const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
   const [curConnection, setCurConnection] = useState<IConnectionDetails>();
   const [chartData, setChartData] = useState<IChartItem>({});
@@ -315,7 +316,6 @@ function ChartItem(props: IChartItemProps) {
               hasSaveBtn={false}
               value={chartData?.ddl}
               onExecuteSQL={(result: any, sql: string) => {
-                console.log('onExecuteSQL', result);
                 let sqlData;
                 if (result && result[0]) {
                   sqlData = handleSQLResult2ChartData(result[0]);
@@ -333,6 +333,7 @@ function ChartItem(props: IChartItemProps) {
                     ? EditorThemeType.DashboardLightTheme
                     : EditorThemeType.DashboardBlackTheme,
               }}
+              tables={tableList || []}
             />
 
             <Cascader
