@@ -108,10 +108,10 @@ function Console(props: IProps) {
   }, [props.tables]);
 
   const handleAiChat = (content: string, promptType: IPromptType) => {
-    if (!aiModel.remainingUse?.remainingUses) {
-      popUpPrompts();
-      return;
-    }
+    // if (!aiModel.remainingUse?.remainingUses) {
+    //   popUpPrompts();
+    //   return;
+    // }
 
     dispatch({
       type: 'ai/fetchRemainingUse',
