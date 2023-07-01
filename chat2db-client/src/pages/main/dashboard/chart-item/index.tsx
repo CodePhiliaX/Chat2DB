@@ -21,10 +21,10 @@ import { EditorThemeType, ThemeType } from '@/constants';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
-  const mockData = headerList.reduce((acc, cur, index) => {
+  const mockData = headerList?.reduce((acc, cur, index) => {
     acc[cur.name] = {
       ...cur,
-      data: dataList.map((i: any) => i[index]),
+      data: dataList?.map((i: any) => i[index]),
     };
     return acc;
   }, {});
@@ -194,7 +194,7 @@ function ChartItem(props: IChartItemProps) {
     };
     await updateChart(params);
     notification.success({
-      message: '保存成功',
+      message: i18n('common.tips.saveSuccessfully'),
     });
   };
 
@@ -356,7 +356,7 @@ function ChartItem(props: IChartItemProps) {
               }}
               className={styles.dataSourceSelect}
               placeholder={i18n('dashboard.editor.cascader.placeholder')}
-              // style={{ width: '100%' }}
+            // style={{ width: '100%' }}
             />
           </div>
           <div className={styles.chartParamsForm}>

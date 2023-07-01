@@ -67,8 +67,8 @@ function TreeNodeRightClick(props: IProps) {
             ...curWorkspaceParams,
             tableName: data.name
           } as any).then(res => {
-            setMonacoVerifyDialog(true);
             setMonacoDefaultValue(res);
+            setMonacoVerifyDialog(true);
           })
         }
       }

@@ -13,11 +13,11 @@ import { useTheme } from '@/hooks/useTheme';
 import styled from 'styled-components';
 import styles from './TableBox.less';
 import { ThemeType } from '@/constants';
+import i18n from '@/i18n';
 
 interface ITableProps {
   className?: string;
   data: IManageResultData;
-  key: number;
 }
 
 interface IViewTableCellData {
@@ -42,7 +42,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
 `;
 
 export default function TableBox(props: ITableProps) {
-  const { className, data, key } = props;
+  const { className, data } = props;
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
@@ -55,7 +55,7 @@ export default function TableBox(props: ITableProps) {
 
   function copyTableCell(data: IViewTableCellData) {
     navigator.clipboard.writeText(data?.value || viewTableCellData?.value);
-    message.success('复制成功');
+    message.success(i18n('common.button.copySuccessfully'));
   }
 
   function handleCancel() {
@@ -73,7 +73,6 @@ export default function TableBox(props: ITableProps) {
         // type: item.dataType,
         // sorter: (a: any, b: any) => a[item.name] - b[item.name],
         render: (value: any, row: any, rowIndex: number) => {
-          console.log('rowIndex', rowIndex);
           return (
             <div className={styles.tableItem}>
               <div>{value}</div>
@@ -96,7 +95,6 @@ export default function TableBox(props: ITableProps) {
         const rowData: any = {};
         item.map((i: string | null, index: number) => {
           const { dataType: type } = headerList[index] || {};
-          // console.log('headerList[rowIndex]', headerList[rowIndex]);
           if (type === TableDataType.DATETIME && i) {
             rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
           } else if (i === null) {
@@ -145,18 +143,23 @@ export default function TableBox(props: ITableProps) {
         maskClosable={false}
         footer={
           <>
-            {/* {
+            {
               <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
-                复制
+                {i18n('common.button.copy')}
               </Button>
-            } */}
+            }
           </>
         }
       >
         <div className={styles.monacoEditor}>
           <MonacoEditor
             id="view_table-Cell_data"
-            defaultValue={viewTableCellData?.value}
+            appendValue={
+              {
+                text: viewTableCellData?.value,
+                range: 'reset',
+              }
+            }
             options={{
               readOnly: true,
             }}

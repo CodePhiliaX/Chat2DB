@@ -173,6 +173,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       <LoadingContent data={openConsoleList} handleEmpty empty={render()}>
         <div className={styles.tabBox}>
           <Tabs
+            className={styles.tabs}
             onChange={onChange}
             onEdit={onEdit}
             activeTab={activeConsoleId}

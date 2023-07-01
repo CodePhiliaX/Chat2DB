@@ -31,6 +31,7 @@ export default memo<IProps>(function Tab(props) {
 
   useEffect(() => {
     setInternalActiveTab(activeTab);
+    console.log(activeTab)
   }, [activeTab])
 
   useEffect(() => {

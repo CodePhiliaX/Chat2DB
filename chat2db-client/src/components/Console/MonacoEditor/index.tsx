@@ -142,8 +142,10 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     setValue,
   }));
 
-  useUpdateEffect(() => {
-    appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
+  useEffect(() => {
+    if (appendValue) {
+      appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
+    }
   }, [appendValue])
 
   const setValue = (text: any, range?: IRangeType) => {

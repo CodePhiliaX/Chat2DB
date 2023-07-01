@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useRef, useMemo } from 'react';
+import React, { memo, useEffect, useState, useRef, useMemo, Fragment } from 'react';
 import classnames from 'classnames';
 import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
@@ -36,24 +36,34 @@ const handleTabs = (result: IManageResultData[]) => {
           {`${i18n('common.text.executionResult')}-${index + 1}`}
         </>
       ),
-      value: index,
+      value: item.uuid!,
     };
   });
 };
 
 export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
   const [isUnfold, setIsUnfold] = useState(true);
-  const [currentTab, setCurrentTab] = useState<string | number>(0);
+  const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
   const [tabs, setTabs] = useState<IOption[]>([]);
 
   useEffect(() => {
-    setResultDataList(manageResultDataList);
-    setTabs(handleTabs(manageResultDataList));
+    if (!manageResultDataList.length) {
+      return
+    }
+    const newManageResultDataList = manageResultDataList.map(t => {
+      return {
+        ...t,
+        uuid: uuidv4()
+      }
+    })
+    setCurrentTab(newManageResultDataList[0].uuid)
+    setResultDataList(newManageResultDataList);
+    setTabs(handleTabs(newManageResultDataList));
   }, [manageResultDataList]);
 
-  function onChange(index: string | number) {
-    setCurrentTab(index);
+  function onChange(uuid: string | number) {
+    setCurrentTab(uuid);
   }
 
   const renderStatus = (text: string) => {
@@ -67,40 +77,50 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
 
   function onEdit(type: 'add' | 'remove', value?: number | string) {
     if (type === 'remove') {
-      if (currentTab === value) {
-        setCurrentTab(0);
-      }
-      const remainTabs = tabs.filter((t) => t.value !== value);
-      setTabs(remainTabs);
-
       const dataList = resultDataList.filter((t) => t.uuid !== value);
-      // resultDataList.splice(value as number, 1);
       setResultDataList(dataList);
+      if (currentTab === value) {
+        console.log(currentTab)
+        setCurrentTab(dataList[0].uuid);
+        console.log(dataList[0].uuid)
+      }
     }
   }
+
+  useEffect(() => {
+    console.log(currentTab)
+  }, [currentTab])
+
 
   const renderEmpty = () => {
     return <div>暂无数据</div>;
   };
 
-  const renderTable = () => {
+  const renderTable = useMemo(() => {
+    console.log('2', currentTab)
     if (!tabs || !tabs.length) {
       return renderEmpty();
     }
     if (!resultDataList || !resultDataList.length) {
       return renderEmpty();
     }
-
     return (resultDataList || []).map((item, index: number) => {
       if (item.success) {
         return (
-          <TableBox className={classnames({ [styles.cursorTableBox]: index === currentTab })} key={index} data={item} />
+          <Fragment key={item.uuid!}>
+            <TableBox
+              className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
+              data={item}
+            />
+          </Fragment>
         );
       } else {
-        return <StateIndicator key={index} state="error" text={item.message} />;
+        return <Fragment key={item.uuid} >
+          <StateIndicator state="error" text={item.message} />
+        </Fragment >;
       }
     });
-  };
+  }, [currentTab])
 
   return (
     <div className={classnames(className, styles.box)}>
@@ -117,7 +137,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
           />
         </div>
       ) : null}
-      <div className={styles.resultContent}>{renderTable()}</div>
+      <div className={styles.resultContent}>{renderTable}</div>
     </div>
   );
 });
