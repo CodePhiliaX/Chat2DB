@@ -13,6 +13,7 @@ import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
 import styles from './index.less';
+import i18n from '@/i18n';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -186,17 +187,17 @@ function Console(props: IProps) {
     () => [
       {
         id: 'explainSQL',
-        label: '解释SQL',
+        label: i18n('common.text.explainSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
       },
       {
         id: 'optimizeSQL',
-        label: '优化SQL',
+        label: i18n('common.text.optimizeSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
       },
       {
         id: 'changeSQL',
-        label: 'SQL转化',
+        label: i18n('common.text.conversionSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
       },
     ],
@@ -227,7 +228,7 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -241,11 +242,11 @@ function Console(props: IProps) {
         <div className={styles.consoleOptionsLeft}>
           <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>
             <Iconfont code="&#xe637;" />
-            RUN
+            {i18n('common.button.execute')}
           </Button>
           {hasSaveBtn && (
             <Button type="default" className={styles.saveButton} onClick={() => saveConsole()}>
-              SAVE
+              {i18n('common.button.save')}
             </Button>
           )}
         </div>
@@ -256,7 +257,7 @@ function Console(props: IProps) {
             editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
           }}
         >
-          Format
+          {i18n('common.button.format')}
         </Button>
       </div>
     </div>
