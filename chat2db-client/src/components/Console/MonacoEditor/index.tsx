@@ -6,6 +6,7 @@ import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
+import { useUpdateEffect } from '@/hooks'
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
@@ -46,7 +47,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     const editorIns = monaco.editor.create(document.getElementById(`monaco-editor-${id}`)!, {
       ...editorDefaultOptions,
       ...options,
-      value: defaultValue,
+      value: defaultValue || '',
       language: language,
       theme: appTheme.backgroundColor === ThemeType.Light ? EditorThemeType.Default : EditorThemeType.BlackTheme,
     });
@@ -141,8 +142,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     setValue,
   }));
 
-  useEffect(() => {
-    console.log(appendValue)
+  useUpdateEffect(() => {
     appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
   }, [appendValue])
 
@@ -297,7 +297,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
       const lastLine = editor.getModel().getLineCount();
       const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
-      text = `${text}\n`;
+      text = `${text}`;
       break;
     default:
       break;

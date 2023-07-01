@@ -20,7 +20,9 @@ export default {
   'common.text.column': 'column',
   'common.text.indexes': 'indexes',
   'common.button.save': 'Save',
+  'common.button.refresh': 'Refresh',
   'common.button.execute': 'Run',
+  'common.button.format': 'Format',
   'common.message.successfulConfig': 'Successful configuration',
   'common.text.successful': 'successful',
   'common.text.failure': 'failure',
@@ -30,5 +32,10 @@ export default {
   'common.button.delete': 'Delete',
   'common.text.executionResult': 'Result',
   'common.tips.deleteTable': 'Are you sure delete this Table？',
-  'common.text.tableName': 'Table Name'
+  'common.text.tableName': 'Table Name',
+  'common.text.operateSuccessfully': 'Operate Successfully',
+  'common.text.successfullyDelete': 'Successfully Delete',
+  'common.text.explainSQL': 'Explain SQL',
+  'common.text.optimizeSQL': 'Optimize SQL',
+  'common.text.conversionSQL': 'Conversion SQL',
 };
