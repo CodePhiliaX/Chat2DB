@@ -199,6 +199,7 @@ function ChartItem(props: IChartItemProps) {
     notification.success({
       message: i18n('common.tips.saveSuccessfully'),
     });
+    setIsEditing(false)
   };
 
   const handleChartConfigChange = () => {
