@@ -1,0 +1,58 @@
+@import '../../styles/var.less';
+
+.tableBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  overflow: auto;
+  background-color: var(--color-bg-100);
+}
+
+.cursorTableBox {
+  display: block;
+}
+
+
+.statusBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  background-color: var(--color-bg-elevated);
+}
+
+.tableItem {
+  width: 100%;
+  .f-lines(1);
+  cursor: pointer;
+
+  &:hover .tableHoverBox {
+    display: flex;
+  }
+}
+
+.tableHoverBox {
+  display: none;
+  align-items: center;
+  position: absolute;
+  background-color: var(--color-bg);
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  i {
+    font-size: 15px;
+    margin: 0px 2px;
+  }
+
+  i:hover {
+    color: var(--custom-primary-color);
+  }
+}

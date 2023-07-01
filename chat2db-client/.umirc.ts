@@ -1,6 +1,8 @@
 import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
+import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+console.log(process.env.UMI_ENV);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
@@ -8,20 +10,13 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
-
-  config.plugin('define').use(require('webpack').DefinePlugin, [
-    {
-      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
-      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
-    },
-  ]);
 };
 
 export default defineConfig({
   title: 'Chat2DB',
-  history: {
-    type: 'hash',
-  },
+  // history: {
+  //   type: 'hash',
+  // },
   base: '/',
   publicPath: '/',
   hash: false,
@@ -40,12 +35,14 @@ export default defineConfig({
   proxy: {
     '/api': {
       target: 'http://127.0.0.1:10821',
-      changeOrigin: true,
+      changeOrigin: true
     },
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   favicons: ['logo.ico'],
   define: {
-    'process.env.UMI_ENV': process.env.UMI_ENV,
-  }
+    __ENV: process.env.UMI_ENV,
+    __BUILD_TIME__: formatDate(new Date(), 'yyyyMMddhhmmss'),
+    __APP_VERSION__: process.env.APP_VERSION || '0.0.0',
+  },
 });

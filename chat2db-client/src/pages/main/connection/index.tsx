@@ -1,19 +1,17 @@
 import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
-import cs from 'classnames';
+import classnames from 'classnames';
 import i18n from '@/i18n';
 import CreateConnection from '@/components/CreateConnection';
 import Iconfont from '@/components/Iconfont';
 import connectionService from '@/service/connection';
-
-import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants/database';
-
-import { IDatabase } from '@/typings/database';
-import { IConnectionDetails } from '@/typings/connection';
+import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
+import { IDatabase, IConnectionDetails } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
-import { connect, history } from 'umi';
-import { ConnectionState } from '@/models/connection';
+import { connect, history, Dispatch } from 'umi';
+import { IConnectionModelType } from '@/models/connection';
+import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IMenu {
   key: number;
@@ -21,39 +19,29 @@ interface IMenu {
   icon: React.ReactNode;
   meta: IConnectionDetails;
 }
-interface IProps {
-  connectionList: IConnectionDetails[];
-  curConnection: IConnectionDetails;
-  dispatch: (p: { type: string, payload: any }) => void
 
+interface IProps {
+  connectionModel: IConnectionModelType['state'];
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
 
 function Connections(props: IProps) {
-  const { connectionList } = props;
+  const { connectionModel, workspaceModel, dispatch } = props;
+  const { connectionList } = connectionModel;
   const volatileRef = useRef<any>();
   // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
-
-
 
   useEffect(() => {
     getConnectionList();
   }, []);
 
   const getConnectionList = async () => {
-    let p = {
-      pageNo: 1,
-      pageSize: 999,
-    };
-    let res = await connectionService.getList(p)
-    // setConnectionList(res.data);
-
-    props.dispatch({
-      type: 'connection/setConnectionList',
-      payload: res.data,
-    })
-
-  }
+    dispatch({
+      type: 'connection/fetchConnectionList',
+    });
+  };
 
   function handleCreateConnections(database: IDatabase) {
     setCurConnection({
@@ -72,24 +60,35 @@ function Connections(props: IProps) {
     [connectionList],
   );
 
+  const handleMenuItemDoubleClick = (t?: any) => {
+    dispatch({
+      type: 'connection/setCurConnection',
+      payload: t.meta,
+    });
+
+    dispatch({
+      type: 'mainPage/updateCurPage',
+      payload: 'workspace',
+    });
+  };
+
   const renderMenu = () => {
     return (
       <div className={styles.menuBox}>
-        {(menuItems || []).map((menu) => {
-          const { key, label, icon } = menu;
+        {(menuItems || []).map((t) => {
+          const { key, label, icon } = t;
           return (
             <div
               key={key}
-              className={styles.menuItems}
+              className={classnames(styles.menuItem, {
+                [styles.menuItemActive]: curConnection.id === key,
+              })}
+              onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
               onClick={() => {
-                setCurConnection(menu.meta);
+                setCurConnection(t.meta);
               }}
             >
-              <div
-                className={cs(styles.menuItemsTitle, {
-                  [styles.menuItemActive]: curConnection.id === key,
-                })}
-              >
+              <div className={classnames(styles.menuItemsTitle)}>
                 {icon}
                 <span style={{ marginLeft: '8px' }}>{label}</span>
               </div>
@@ -98,14 +97,9 @@ function Connections(props: IProps) {
                   items: [
                     {
                       key: 'EnterWorkSpace',
-                      label: i18n('connection.menu.enterToWorkSpace'),
+                      label: i18n('connection.button.connect'),
                       onClick: () => {
-                        props.dispatch({
-                          type: 'connection/setCurConnection',
-                          payload: menu.meta,
-                        })
-                        history.push('/workspace')
-                        // window.location.replace('/workspace');
+                        handleMenuItemDoubleClick(t);
                       },
                     },
                     {
@@ -121,7 +115,9 @@ function Connections(props: IProps) {
                   ],
                 }}
               >
-                <MoreOutlined />
+                <div className={styles.moreButton}>
+                  <Iconfont code="&#xe601;"></Iconfont>
+                </div>
               </Dropdown>
             </div>
           );
@@ -135,15 +131,6 @@ function Connections(props: IProps) {
       <div ref={volatileRef} className={styles.layoutLeft}>
         <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
         {renderMenu()}
-        {/* <div className={styles.menuBox}>
-          <Menu
-            className={styles.menu}
-            mode="inline"
-            items={menuItems}
-            onClick={changeMenu}
-            selectedKeys={[checkedConnection!]}
-          ></Menu>
-        </div> */}
         <Button
           type="primary"
           className={styles.addConnection}
@@ -157,12 +144,12 @@ function Connections(props: IProps) {
       <div className={styles.layoutRight}>
         {curConnection && Object.keys(curConnection).length ? (
           <div
-            className={cs(styles.createConnections, {
+            className={classnames(styles.createConnections, {
               [styles.showCreateConnections]: Object.keys(curConnection).length,
             })}
           >
             <CreateConnection
-              connectionData={curConnection}
+              connectionData={curConnection as any}
               closeCreateConnection={() => {
                 setCurConnection({});
               }}
@@ -188,14 +175,19 @@ function Connections(props: IProps) {
                 </div>
               );
             })}
-            <div className={styles.databaseItemSpacer}></div>
-            <div className={styles.databaseItemSpacer}></div>
+            {Array.from({ length: 20 }).map((t, index) => {
+              return <div key={index} className={styles.databaseItemSpacer}></div>;
+            })}
           </div>
         )}
       </div>
     </div>
   );
-};
+}
 
-
-export default connect(({ connection }: { connection: ConnectionState }) => (connection))(Connections);
+export default connect(
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
+    connectionModel: connection,
+    workspaceModel: workspace,
+  }),
+)(Connections);

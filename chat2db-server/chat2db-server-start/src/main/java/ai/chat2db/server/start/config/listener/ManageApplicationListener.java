@@ -41,7 +41,7 @@ public class ManageApplicationListener implements ApplicationListener<Applicatio
                 .execute(new TypeReference<>() {});
         } catch (Exception e) {
             // 抛出异常 代表没有旧的启动 或者旧的不靠谱
-            log.info("尝试访问旧的应用失败。本异常不重要，正常启动启动都会输出，请忽略。"+ e.getMessage());
+            log.info("尝试访问旧的应用失败。本异常不重要，正常启动启动都会输出，请忽略。" + e.getMessage());
 
             // 尝试杀死旧的进程
             killOldIfNecessary(environment);
@@ -60,59 +60,65 @@ public class ManageApplicationListener implements ApplicationListener<Applicatio
     }
 
     private void killOldIfNecessary(String environment) {
-        ProcessHandle.allProcesses().forEach(process -> {
-            String command = process.info().command().orElse(null);
-            // 不是java应用
-            boolean isJava = StringUtils.endsWithIgnoreCase(command, "java") || StringUtils.endsWithIgnoreCase(command,
-                "java.exe");
-            if (!isJava) {
-                return;
-            }
-            String[] arguments = process.info().arguments().orElse(null);
-            // 没有参数
-            if (arguments == null) {
-                return;
-            }
-            // 是否是dbhub
-            boolean isDbhub = false;
-            String environmentArgument = null;
-            for (String argument : arguments) {
-                if (StringUtils.equals("ali-dbhub-server-start.jar", argument)) {
-                    isDbhub = true;
+        try {
+            ProcessHandle.allProcesses().forEach(process -> {
+                String command = process.info().command().orElse(null);
+                // 不是java应用
+                boolean isJava = StringUtils.endsWithIgnoreCase(command, "java") || StringUtils.endsWithIgnoreCase(
+                    command,
+                    "java.exe");
+                if (!isJava) {
+                    return;
                 }
-                if (StringUtils.startsWith(argument, "-Dspring.profiles.active=")) {
-                    environmentArgument = StringUtils.substringAfter(argument, "-Dspring.profiles.active=");
+                String[] arguments = process.info().arguments().orElse(null);
+                // 没有参数
+                if (arguments == null) {
+                    return;
                 }
-            }
-            // 不是dbhub
-            if (!isDbhub) {
-                return;
-            }
-            // 判断是否是正式环境
-            if (StringUtils.equals(SystemEnvironmentEnum.RELEASE.getCode(), environment) && StringUtils.equals(
-                SystemEnvironmentEnum.RELEASE.getCode(), environmentArgument)) {
-                log.info("正式环境需要关闭进程");
-                destroyProcess(process, command, arguments);
-                return;
-            }
+                // 是否是dbhub
+                boolean isDbhub = false;
+                String environmentArgument = null;
+                for (String argument : arguments) {
+                    if (StringUtils.equals("chat2db-server-start.jar", argument)) {
+                        isDbhub = true;
+                    }
+                    if (StringUtils.startsWith(argument, "-Dspring.profiles.active=")) {
+                        environmentArgument = StringUtils.substringAfter(argument, "-Dspring.profiles.active=");
+                    }
+                }
+                // 不是dbhub
+                if (!isDbhub) {
+                    return;
+                }
+                // 判断是否是正式环境
+                if (StringUtils.equals(SystemEnvironmentEnum.RELEASE.getCode(), environment) && StringUtils.equals(
+                    SystemEnvironmentEnum.RELEASE.getCode(), environmentArgument)) {
+                    log.info("正式环境需要关闭进程");
+                    destroyProcess(process, command, arguments);
+                    return;
+                }
 
-            // 判断是否是测试环境
-            if (StringUtils.equals(SystemEnvironmentEnum.TEST.getCode(), environment) && StringUtils.equals(
-                SystemEnvironmentEnum.TEST.getCode(), environmentArgument)) {
-                log.info("测试环境需要关闭进程");
-                destroyProcess(process, command, arguments);
-                return;
-            }
+                // 判断是否是测试环境
+                if (StringUtils.equals(SystemEnvironmentEnum.TEST.getCode(), environment) && StringUtils.equals(
+                    SystemEnvironmentEnum.TEST.getCode(), environmentArgument)) {
+                    log.info("测试环境需要关闭进程");
+                    destroyProcess(process, command, arguments);
+                    return;
+                }
 
-            // 判断是否是本地环境
-            boolean devDestroy = StringUtils.equals(SystemEnvironmentEnum.DEV.getCode(), environment) && (
-                environmentArgument == null
-                    || StringUtils.equals(SystemEnvironmentEnum.DEV.getCode(), environmentArgument));
-            if (devDestroy) {
-                log.info("本地环境需要关闭进程");
-                destroyProcess(process, command, arguments);
-            }
-        });
+                // 判断是否是本地环境
+                boolean devDestroy = StringUtils.equals(SystemEnvironmentEnum.DEV.getCode(), environment) && (
+                    environmentArgument == null
+                        || StringUtils.equals(SystemEnvironmentEnum.DEV.getCode(), environmentArgument));
+                if (devDestroy) {
+                    log.info("本地环境需要关闭进程");
+                    destroyProcess(process, command, arguments);
+                }
+            });
+        } catch (Throwable t) {
+            log.warn("尝试关闭多余的进程失败，不影响正常启动", t);
+        }
+
     }
 
     private void destroyProcess(ProcessHandle process, String command, String[] arguments) {

@@ -1,86 +1,88 @@
 import React, { memo, useRef, useEffect, useState } from 'react';
+import { connect } from 'umi'
 import styles from './index.less';
 import classnames from 'classnames';
-import DraggableContainer from '@/components/DraggableContainer';
-import Console from '@/components/Console';
-import { ConsoleOpenedStatus, ConsoleStatus, consoleTopComment } from '@/constants/common';
-import { DatabaseTypeCode } from '@/constants/database';
-import { IConsole } from '@/typings/common';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
-import { Button, Tabs } from 'antd';
-import { useReducerContext } from '@/pages/main/workspace';
-import { workspaceActionType } from '@/pages/main/workspace/context';
-import SearchResult from '@/components/SearchResult';
+import Tabs from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 
+import { IWorkspaceModelType } from '@/models/workspace';
+
 interface IProps {
   className?: string;
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
 
-export default memo<IProps>(function WorkspaceRight(props) {
+const WorkspaceRight = memo<IProps>(function (props) {
   const { className } = props;
   const [consoleList, setConsoleList] = useState<IConsole[]>();
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
-  const { state, dispatch } = useReducerContext();
-  const { dblclickTreeNodeData, currentWorkspaceData } = state;
+  const { workspaceModel, dispatch } = props;
+  const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData } = workspaceModel;
 
   useEffect(() => {
     getConsoleList();
-  }, [currentWorkspaceData]);
+  }, [curWorkspaceParams]);
 
   useEffect(() => {
-    if(!dblclickTreeNodeData){
+    // 这里只处理没有console的情况下
+    if (!doubleClickTreeNodeData || consoleList?.length) {
       return
     }
-    const { extraParams } = dblclickTreeNodeData;
+
+    const { extraParams } = doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
-    let flag = false;
     const ddl = `SELECT * FROM ${tableName};`;
-
-    consoleList?.forEach((i) => {
-      if (i.databaseName === databaseName && i.dataSourceId === dataSourceId) {
-        flag = true;
-        setActiveConsoleId(i.id);
-      }
+    const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
+    let p: any = {
+      name: name,
+      type: databaseType!,
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName,
+      schemaName: schemaName,
+      dataSourceName: dataSourceName!,
+      status: ConsoleStatus.DRAFT,
+      ddl,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    };
+    addConsole(p);
+    dispatch({
+      type: 'workspace/setDoubleClickTreeNodeData',
+      payload: ''
     });
+  }, [doubleClickTreeNodeData]);
 
-    if (!flag) {
-      const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
-      let p = {
-        name: name,
-        type: databaseType!,
-        dataSourceId: dataSourceId!,
-        databaseName: databaseName!,
-        schemaName: schemaName!,
-        dataSourceName: dataSourceName!,
-        status: ConsoleStatus.DRAFT,
-        ddl,
-        tabOpened: ConsoleOpenedStatus.IS_OPEN,
-        connectable: true,
-      };
-
-      historyService.saveConsole(p).then((res) => {
-        const newConsole: IConsole = {
-          id: res,
-          ...p,
-        };
-        setActiveConsoleId(newConsole.id);
-        setConsoleList([...(consoleList || []), newConsole]);
-      });
+  useEffect(() => {
+    if (!consoleList?.length) {
+      setActiveConsoleId(undefined);
+    } else if (!activeConsoleId) {
+      setActiveConsoleId(consoleList[0].id);
+    } else {
+      let flag = false;
+      consoleList.forEach(t => {
+        if (t.id === activeConsoleId) {
+          flag = true
+        }
+      })
+      if (!flag) {
+        setActiveConsoleId(consoleList[consoleList.length - 1].id)
+      }
     }
-  }, [dblclickTreeNodeData]);
+  }, [consoleList])
 
   function getConsoleList() {
-    let p = {
+    let p: any = {
       pageNo: 1,
       pageSize: 999,
-      ConsoleOpenedStatus: ConsoleOpenedStatus.IS_OPEN,
-      ...currentWorkspaceData,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      ...curWorkspaceParams,
     };
 
-    historyService.getSaveList(p).then((res) => {
-      let flag = false;
+    historyService.getSavedConsoleList(p).then((res) => {
       const newWindowList: IConsole[] = [];
       res.data?.map((item, index) => {
         if (item.connectable) {
@@ -98,81 +100,52 @@ export default memo<IProps>(function WorkspaceRight(props) {
           });
         }
       });
-
-      newWindowList.map((item: IConsole, index: number) => {
-        if (!activeConsoleId && index === 0) {
-          setActiveConsoleId(item.id);
-        } else if (item.id === activeConsoleId) {
-          flag = true;
-          setActiveConsoleId(item.id);
-        }
-      });
-
       setConsoleList(newWindowList);
-
-      // if (!flag) {
-      //   if (activeConsoleId) {
-      //     historyService.getWindowTab({ id: activeConsoleId }).then((res: any) => {
-      //       if (res.connectable) {
-      //         newWindowList.push({
-      //           id: res.id,
-      //           ddl: res.ddl,
-      //           name: res.name,
-      //           status: res.status,
-      //           type: res.type,
-      //           databaseName: res.databaseName,
-      //           dataSourceName: res.dataSourceName,
-      //           dataSourceId: res.dataSourceId,
-      //           schemaName: res.schemaName,
-      //           connectable: true,
-      //         });
-      //         setActiveConsoleId(res.id);
-      //         setConsoleList(newWindowList);
-      //       }
-      //     });
-      //   } else {
-      //     let p = {
-      //       name: 'default name',
-      //       ddl: 'string',
-      //       dataSourceId: currentWorkspaceData.dataSourceId,
-      //       databaseName: currentWorkspaceData.databaseName,
-      //       type: currentWorkspaceData.databaseType,
-      //       status: ConsoleStatus.DRAFT,
-      //       connectable: true,
-      //       tabOpened: ConsoleOpenedStatus.IS_OPEN
-      //     }
-      //     historyService.saveConsole(p).then(res => {
-      //       setActiveConsoleId(res);
-      //       // getConsoleList();
-      //     })
-      //   }
-      // } else {
-      //   setConsoleList(newWindowList);
-      // }
     });
   }
 
-  function onChange(key: string) {
+  function onChange(key: number | string) {
     setActiveConsoleId(+key);
   }
 
-  const onEdit = (targetKey: any, action: 'add' | 'remove') => {
+  const onEdit = (action: 'add' | 'remove', key?: number) => {
     if (action === 'remove') {
-      closeWindowTab(targetKey);
+      closeWindowTab(key!);
+    }
+    if (action === 'add') {
+      addConsole();
     }
   };
 
-  const closeWindowTab = (targetKey: string) => {
+  const addConsole = (params?: ICreateConsole) => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
+    let p = {
+      name: `new console${consoleList?.length}`,
+      ddl: '',
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName!,
+      schemaName: schemaName!,
+      type: databaseType,
+      status: ConsoleStatus.DRAFT,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    }
+    historyService.saveConsole(params || p).then(res => {
+      setActiveConsoleId(res);
+      getConsoleList();
+    })
+  }
+
+  const closeWindowTab = (key: number) => {
     let newActiveKey = activeConsoleId;
     let lastIndex = -1;
     consoleList?.forEach((item, i) => {
-      if (item.id === +targetKey) {
+      if (item.id === key) {
         lastIndex = i - 1;
       }
     });
 
-    const newPanes = consoleList?.filter((item) => item.id !== +targetKey) || [];
-    if (newPanes.length && newActiveKey === +targetKey) {
+    const newPanes = consoleList?.filter((item) => item.id !== key) || [];
+    if (newPanes.length && newActiveKey === key) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].id;
       } else {
@@ -183,18 +156,18 @@ export default memo<IProps>(function WorkspaceRight(props) {
     setActiveConsoleId(newActiveKey);
 
     let p: any = {
-      id: targetKey,
-      ConsoleOpenedStatus: 'n',
+      id: key,
+      tabOpened: 'n',
     };
 
-    const window = consoleList?.find((t) => t.id === +targetKey);
+    const window = consoleList?.find((t) => t.id === key);
     if (!window?.status) {
       return;
     }
     if (window!.status === 'DRAFT') {
       historyService.deleteWindowTab({ id: window!.id });
     } else {
-      historyService.updateWindowTab(p);
+      historyService.updateSavedConsole(p);
     }
   };
 
@@ -209,28 +182,28 @@ export default memo<IProps>(function WorkspaceRight(props) {
       <LoadingContent data={consoleList} handleEmpty empty={render()}>
         <div className={styles.tabBox}>
           <Tabs
-            hideAdd
             onChange={onChange}
             onEdit={onEdit}
-            type="editable-card"
-            items={(consoleList || [])?.map((t, i) => {
+            activeTab={activeConsoleId}
+            tabs={(consoleList || [])?.map((t, i) => {
               return {
                 label: t.name,
-                key: t.id + '',
+                value: t.id,
               };
             })}
           />
         </div>
         {consoleList?.map((t, index) => {
-          return <div className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
-            <WorkspaceRightItem 
+          return <div key={t.id} className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
+            <WorkspaceRightItem
+              isActive={activeConsoleId === t.id}
               data={
                 {
                   initDDL: t.ddl,
-                  databaseName: currentWorkspaceData.databaseName!,
-                  dataSourceId: currentWorkspaceData.dataSourceId!,
-                  type: currentWorkspaceData.databaseType!,
-                  schemaName: currentWorkspaceData?.schemaName!,
+                  databaseName: curWorkspaceParams.databaseName!,
+                  dataSourceId: curWorkspaceParams.dataSourceId!,
+                  type: curWorkspaceParams.databaseType!,
+                  schemaName: curWorkspaceParams?.schemaName!,
                   consoleId: t.id,
                   consoleName: t.name,
                 }
@@ -241,4 +214,10 @@ export default memo<IProps>(function WorkspaceRight(props) {
       </LoadingContent>
     </div>
   );
-});
+})
+
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace
+}))
+
+export default dvaModel(WorkspaceRight) 

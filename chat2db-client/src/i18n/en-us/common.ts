@@ -3,6 +3,7 @@ export default {
   'common.text.is': 'no',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
+  'common.button.confirm': 'Confirm',
   'common.button.cancel': 'Cancel',
   'common.data.hour': '{1} {hour|hours}',
   'common.data.minute': '{1} {minute|minutes}',
@@ -27,4 +28,7 @@ export default {
   'common.message.addedSuccessfully': 'successfully added',
   'common.text.custom': 'custom',
   'common.button.delete': 'Delete',
+  'common.text.executionResult': 'Result',
+  'common.tips.deleteTable': 'Are you sure delete this Table？',
+  'common.text.tableName': 'Table Name'
 };

@@ -1,18 +1,18 @@
-import { formatParams, uuid } from '@/utils/common';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { connect } from 'umi';
+import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin } from 'antd';
-import React, { ForwardedRef, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Spin, message, notification, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
-import Editor, { IExportRefFunction } from './MonacoEditor';
+import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
-import MonacoEditor from 'react-monaco-editor';
-import { useReducerContext } from '@/pages/main/workspace/index';
-
+import { v4 as uuidv4 } from 'uuid';
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
+import Iconfont from '../Iconfont';
+import { ITreeNode } from '@/typings';
 import styles from './index.less';
-import Loading from '../Loading/Loading';
-import { DatabaseTypeCode } from '@/constants/database';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -30,173 +30,230 @@ enum IPromptTypeText {
   ChatRobot = 'Chat机器人',
 }
 
+export type IAppendValue = {
+  text: any;
+  range?: IRangeType;
+};
+
 interface IProps {
+  /** 是否是活跃的console，用于快捷键 */
+  isActive?: boolean;
+  /** 添加或修改的内容 */
+  appendValue?: IAppendValue;
   /** 是否开启AI输入 */
   hasAiChat: boolean;
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
-  hasAi2Lang: boolean;
+  hasAi2Lang?: boolean;
+  /** 是否有 */
+  hasSaveBtn?: boolean;
   value?: string;
-  onChangeValue?: Function;
+  tables: ITreeNode[];
   executeParams: {
-    databaseName: string;
-    dataSourceId: number;
-    type: DatabaseTypeCode;
-    consoleId: number;
+    databaseName?: string;
+    dataSourceId?: number;
+    type?: DatabaseTypeCode;
+    consoleId?: number;
     schemaName?: string;
-    consoleName: string;
+    consoleName?: string;
   };
-  onExecuteSQL: (value: any) => void;
+  editorOptions?: IEditorOptions;
+  // onSQLContentChange: (v: string) => void;
+  onExecuteSQL: (result: any, sql?: string) => void;
+  onConsoleSave: () => void;
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, value, executeParams, onChangeValue } = props;
-  const uid = useMemo(() => uuid(), []);
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value } = props;
+  const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
-  const [context, setContext] = useState<string>();
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { state, dispatch } = useReducerContext();
-  const { currentWorkspaceData } = state;
+  const [aiContent, setAiContent] = useState('');
+  const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
+  const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
 
   useEffect(() => {
-    setContext(value);
-  }, [value]);
+    if (appendValue) {
+      editorRef?.current?.setValue(appendValue.text, appendValue.range);
+    }
+  }, [appendValue]);
 
-  useEffect(()=>{
-    onChangeValue?.(value);
-  },[context])
+  const tableListName = useMemo(() => (props.tables || []).map((t) => t.name), [props.tables]);
 
-  const onPressChatInput = (value: string) => {
+  const handleAiChat = (content: string, promptType: IPromptType) => {
+    const { dataSourceId, databaseName, schemaName } = executeParams;
+    const isNL2SQL = promptType === IPromptType.NL_2_SQL;
+    if (isNL2SQL) {
+      setIsLoading(true);
+    } else {
+      setIsAiDrawerOpen(true);
+      setIsAiDrawerLoading(true);
+    }
     const params = formatParams({
-      message: value,
+      message: content,
+      promptType,
+      dataSourceId,
+      databaseName,
+      schemaName,
+      tableNames: selectedTables,
     });
 
-    // setIsLoading(true);
-
     const handleMessage = (message: string) => {
+      setIsLoading(false);
+
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
-          // setContext(context + '\n' + chatResult.current + '\n\n\n');
           setIsLoading(false);
+          if (isNL2SQL) {
+            editorRef?.current?.setValue('\n\n\n');
+          } else {
+            setIsAiDrawerLoading(false);
+            chatResult.current += '\n\n\n';
+            setAiContent(chatResult.current);
+            chatResult.current = '';
+          }
           return;
         }
-        chatResult.current += JSON.parse(message).content;
-        setContext((prevData) => prevData + JSON.parse(message).content);
+
+        if (isNL2SQL) {
+          editorRef?.current?.setValue(JSON.parse(message).content);
+        } else {
+          chatResult.current += JSON.parse(message).content;
+        }
       } catch (error) {
         console.log('handleMessage', error);
+        setIsLoading(false);
       }
     };
 
     const handleError = (error: any) => {
       console.error('Error:', error);
+      setIsLoading(false);
     };
 
     const closeEventSource = connectToEventSource({
-      url: `/api/ai/chat1?${params}`,
+      url: `/api/ai/chat?${params}`,
       uid,
       onMessage: handleMessage,
       onError: handleError,
     });
   };
 
-  const executeSQL = () => {
-    let sqlContent = editorRef?.current?.getCurrentSelectContent();
-    if (!sqlContent) {
-      sqlContent = editorRef?.current?.getAllContent();
-    }
+  const onPressChatInput = (value: string) => {
+    handleAiChat(value, IPromptType.NL_2_SQL);
+  };
+
+  const executeSQL = (sql?: string) => {
+    const sqlContent = sql || editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent();
+
     if (!sqlContent) {
       return;
     }
 
-    let p = {
+    let p: any = {
       sql: sqlContent,
       ...executeParams,
     };
-    sqlServer
-      .executeSql(p)
-      .then((res) => {
-        props.onExecuteSQL && props.onExecuteSQL(res);
-        // console.log(res)
-        let p = {
-          ...executeParams,
-          ddl: sqlContent,
-        };
-        historyServer.createHistory(p);
-        // setManageResultDataList(res);
-      })
-      .catch((error) => {
-        // setManageResultDataList([]);
-      });
+    // props.onExecuteSQL?.(undefined);
+    sqlServer.executeSql(p).then((res) => {
+      props.onExecuteSQL?.(res, sqlContent!);
+      // console.log(res)
+      let p: any = {
+        ...executeParams,
+        ddl: sqlContent,
+      };
+      historyServer.createHistory(p);
+    });
   };
 
-  const saveConsole = () => {
-    // let p = {
-    //   id: windowTab.consoleId,
-    //   name: windowTab?.name,
-    //   type: windowTab.DBType,
-    //   dataSourceId: +params.id,
-    //   databaseName: windowTab.databaseName,
-    //   status: WindowTabStatus.RELEASE,
-    //   ddl: getMonacoEditorValue(),
-    // };
-    // historyServer.updateWindowTab(p).then((res) => {
-    //   message.success('保存成功');
-    // });
+  const saveConsole = (value?: string) => {
+    // const a = editorRef.current?.getAllContent();
+
+    let p: any = {
+      id: executeParams.consoleId,
+      status: ConsoleStatus.RELEASE,
+    };
+    historyServer.updateSavedConsole(p).then((res) => {
+      message.success('保存成功');
+      props.onConsoleSave && props.onConsoleSave();
+    });
   };
 
-  const addAction = [
-    {
-      id: 'explainSQL',
-      label: '解释SQL',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_EXPLAIN, selectedText),
-    },
-    {
-      id: 'optimizeSQL',
-      label: '优化SQL',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_OPTIMIZER, selectedText),
-    },
-    {
-      id: 'changeSQL',
-      label: 'SQL转化',
-      action: (selectedText: string) => handleAIRelativeOperation(IPromptType.SQL_2_SQL, selectedText),
-    },
-  ];
-
-  const handleAIRelativeOperation = (id: string, selectedText: string) => {
-    console.log('handleAIRelativeOperation', id, selectedText);
-  };
+  const addAction = useMemo(
+    () => [
+      {
+        id: 'explainSQL',
+        label: '解释SQL',
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
+      },
+      {
+        id: 'optimizeSQL',
+        label: '优化SQL',
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
+      },
+      {
+        id: 'changeSQL',
+        label: 'SQL转化',
+        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
+      },
+    ],
+    [],
+  );
 
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
-        {hasAiChat && <ChatInput onPressEnter={onPressChatInput} />}
+        {hasAiChat && (
+          <ChatInput
+            tables={tableListName}
+            onPressEnter={onPressChatInput}
+            selectedTables={selectedTables}
+            onSelectTables={(tables: string[]) => {
+              setSelectedTables(tables);
+            }}
+          />
+        )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
+
         <Editor
           id={uid}
-          ref={editorRef}
-          value={context}
-          onChange={(v) => setContext(v)}
-          className={hasAiChat ? styles.console_editor_with_chat : styles.console_editor}
+          isActive={isActive}
+          ref={editorRef as any}
+          className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
           addAction={addAction}
+          onSave={saveConsole}
+          onExecute={executeSQL}
+          options={props.editorOptions}
+          // onChange={}
         />
+        {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
+        <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
+          <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
+            <div className={styles.aiBlock}>{aiContent}</div>
+          </Spin>
+        </Drawer>
       </Spin>
 
-      <div className={styles.console_options_wrapper}>
-        <div>
-          <Button type="primary" style={{ marginRight: '10px' }} onClick={executeSQL}>
+      <div className={styles.consoleOptionsWrapper}>
+        <div className={styles.consoleOptionsLeft}>
+          <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>
+            <Iconfont code="&#xe637;" />
             RUN
           </Button>
-          <Button type="default" onClick={saveConsole}>
-            SAVE
-          </Button>
+          {hasSaveBtn && (
+            <Button type="default" className={styles.saveButton} onClick={() => saveConsole()}>
+              SAVE
+            </Button>
+          )}
         </div>
         <Button
           type="text"
           onClick={() => {
             const contextTmp = editorRef?.current?.getAllContent();
-            setContext(format(contextTmp || ''));
+            editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
           }}
         >
           Format

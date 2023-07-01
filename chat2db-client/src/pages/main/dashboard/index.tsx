@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Input, Modal, message } from 'antd';
 import { connect, Dispatch } from 'umi';
 import cs from 'classnames';
-import { IChartItem, IChartType, IDashboardItem } from '@/typings/dashboard';
+import { IChartItem, IChartType, IConnectionDetails, IDashboardItem } from '@/typings';
 import DraggableContainer from '@/components/DraggableContainer';
 import Iconfont from '@/components/Iconfont';
 import ChartItem from './chart-item';
@@ -20,10 +20,11 @@ import {
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import i18n from '@/i18n';
+import { IConnectionModelState, IConnectionModelType } from '@/models/connection';
 
 interface IProps {
   className?: string;
-  setting: GlobalState['settings'];
+  connectionList: IConnectionDetails[];
   dispatch: Dispatch;
 }
 
@@ -35,8 +36,7 @@ export const initChartItem: IChartItem = {
 };
 
 function Chart(props: IProps) {
-  const { className } = props;
-
+  const { className, connectionList } = props;
   const [dashboardList, setDashboardList] = useState<IDashboardItem[]>([]);
   const [curDashboard, setCurDashboard] = useState<IDashboardItem>();
   const [openAddDashboard, setOpenAddDashboard] = useState(false);
@@ -93,7 +93,10 @@ function Chart(props: IProps) {
         className={cs({ [styles.boxLeftItem]: true, [styles.activeItem]: curDashboard?.id === i.id })}
         onClick={() => onClickDashboardItem(i)}
       >
-        <div>{i.name}</div>
+        <div className={styles.itemTitle}>
+          <Iconfont code="&#xe60d;" style={{ marginRight: '8px' }} />
+          {i.name}
+        </div>
         <Dropdown
           menu={{
             items: [
@@ -126,7 +129,9 @@ function Chart(props: IProps) {
             ],
           }}
         >
-          <MoreOutlined />
+          <div className={styles.moreButton}>
+            <Iconfont code="&#xe601;" />
+          </div>
         </Dropdown>
       </div>
     ));
@@ -163,7 +168,7 @@ function Chart(props: IProps) {
     setCurDashboard(newDashboard);
   };
 
-  const onDelete = async (chartId: number, rowIndex: number, colIndex: number) => {
+  const onDeleteChart = async (chartId: number, rowIndex: number, colIndex: number) => {
     const { id, schema, chartIds } = curDashboard || {};
 
     const chartList: number[][] = JSON.parse(schema || '') || [[]];
@@ -197,13 +202,6 @@ function Chart(props: IProps) {
         </div>
 
         <div className={styles.BoxRightContent}>
-          {/* <ReactSortable
-            list={sortData}
-            setList={(newState: IChatDataSortItem[], sortable: any, store: Store) => {
-              // throw new Error('Function not implemented.');
-            }}
-            onAdd={() => {}}
-          > */}
           {chartList.map((rowData: number[], rowIndex: number) => (
             <div key={rowIndex} className={styles.boxRightContentRow}>
               {rowData.map((chartId: number, colIndex: number) => (
@@ -216,13 +214,13 @@ function Chart(props: IProps) {
                     addChartBottom={() => onAddChart('bottom', rowIndex, colIndex)}
                     addChartLeft={() => onAddChart('left', rowIndex, colIndex)}
                     addChartRight={() => onAddChart('right', rowIndex, colIndex)}
-                    onDelete={(id: number) => onDelete(id, rowIndex, colIndex)}
+                    onDelete={(id: number) => onDeleteChart(id, rowIndex, colIndex)}
+                    connectionList={connectionList || []}
                   />
                 </div>
               ))}
             </div>
           ))}
-          {/* </ReactSortable> */}
         </div>
       </>
     );
@@ -242,7 +240,7 @@ function Chart(props: IProps) {
       </DraggableContainer>
 
       <Modal
-        title={form.getFieldValue('id') ? 'Edit Dashboard' : 'Add Dashboard'}
+        title={form.getFieldValue('id') ? i18n('dashboard.modal.editTitle') : i18n('dashboard.modal.addTitle')}
         open={openAddDashboard}
         onOk={async () => {
           try {
@@ -267,11 +265,15 @@ function Chart(props: IProps) {
           setOpenAddDashboard(false);
           form.setFieldsValue({});
         }}
-        okText="Confirm"
-        cancelText="Cancel"
+        okText={i18n('common.button.confirm')}
+        cancelText={i18n('common.button.cancel')}
       >
         <Form labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} form={form} autoComplete={'off'}>
-          <Form.Item label={'name'} name={'name'} rules={[{ required: true, message: 'Please input your name' }]}>
+          <Form.Item
+            label={'name'}
+            name={'name'}
+            rules={[{ required: true, message: i18n('dashboard.modal.name.placeholder') }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item label={'description'} name={'description'}>
@@ -283,25 +285,6 @@ function Chart(props: IProps) {
   );
 }
 
-export default connect(({ global }: { global: GlobalState }) => ({
-  settings: global.settings,
+export default connect(({ connection }: { connection: IConnectionModelState }) => ({
+  connectionList: connection.connectionList,
 }))(Chart);
-
-{
-  /* 
-    <Button
-      onClick={() => {
-        props.dispatch({
-          type: 'global/updateSettings',
-          payload: {
-            theme: 'dark',
-            language: 'en',
-          },
-        });
-      }}
-    >
-      测试dva
-    </Button>
-        
-  */
-}

@@ -4,47 +4,151 @@ import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
-import { editorDefaultOptions } from '@/constants/monacoEditor';
+import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
-import { ThemeType } from '@/constants/common';
-import { monacoSqlAutocomplete } from './syntax-parser/plugin/monaco-plugin';
-
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
 
+export type IAppendValue = {
+  text: any;
+  range?: IRangeType;
+};
 interface IProps {
   id: string | number;
-  value?: string;
+  isActive?: boolean;
   language?: string;
-  className: string;
-  onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
-  didMount?: (editor: IEditorIns) => any;
+  className?: string;
   options?: IEditorOptions;
   needDestroy?: boolean;
   addAction?: Array<{ id: string; label: string; action: (selectedText: string) => void }>;
+  appendValue?: IAppendValue;
+  // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
+  didMount?: (editor: IEditorIns) => any;
+  onSave?: (value: string) => void; // 快捷键保存的回调
+  defaultValue?: string;
+  onExecute?: (value: string) => void; // 快捷键执行的回调
 }
 
 export interface IExportRefFunction {
   getCurrentSelectContent: () => string;
   getAllContent: () => string;
+  setValue: (text: any, range?: IRangeType) => void;
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const { id, className, value = '', language = 'sql', didMount, options } = props;
-
+  const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute, defaultValue, appendValue } = props;
   const editorRef = useRef<IEditorIns>();
-  const [editorVal, setEditorVal] = useState('');
-
-  // 受控暂存value
-  const valRef = useRef<string>('');
-
   const [appTheme] = useTheme();
+
+  // init
+  useEffect(() => {
+    const editorIns = monaco.editor.create(document.getElementById(`monaco-editor-${id}`)!, {
+      ...editorDefaultOptions,
+      ...options,
+      value: defaultValue,
+      language: language,
+      theme: appTheme.backgroundColor === ThemeType.Light ? EditorThemeType.Default : EditorThemeType.BlackTheme,
+    });
+    editorRef.current = editorIns;
+    didMount && didMount(editorIns);
+
+    monaco.editor.defineTheme(EditorThemeType.Default, {
+      base: 'vs',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        'editor.foreground': '#000000',
+        'editor.background': '#fff', //背景色
+      },
+    });
+
+    monaco.editor.defineTheme(EditorThemeType.BlackTheme, {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        // 相关颜色属性配置
+        'editor.foreground': '#ffffff',
+        'editor.background': '#0A0B0C', //背景色
+      },
+    });
+
+    monaco.editor.defineTheme(EditorThemeType.DashboardLightTheme, {
+      base: 'vs',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        'editor.foreground': '#000000',
+        'editor.background': '#f8f9fa', //背景色
+      },
+    });
+
+    monaco.editor.defineTheme(EditorThemeType.DashboardBlackTheme, {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        'editor.foreground': '#ffffff',
+        'editor.background': '#131418', //背景色
+      },
+    });
+
+    handleRegisterTigger();
+
+    createAction(editorIns);
+    return () => {
+      if (props.needDestroy) editorRef.current && editorRef.current.dispose();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isActive && editorRef.current) {
+      // 自定义快捷键
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        const value = editorRef.current?.getValue();
+        onSave?.(value || '');
+      });
+
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, (event: Event) => {
+        const value = getCurrentSelectContent();
+        onExecute?.(value);
+      });
+    }
+  }, [editorRef.current, isActive]);
+
+  // 监听主题色变化切换编辑器主题色
+  useEffect(() => {
+    const isDark = appTheme.backgroundColor === ThemeType.Dark;
+    if (options?.theme) {
+      monaco.editor.setTheme(options.theme);
+    } else {
+      monaco.editor.setTheme(isDark ? 'BlackTheme' : 'Default');
+    }
+  }, [appTheme.backgroundColor, options?.theme]);
+
+  // useEffect(() => {
+  //   const _ref = editorRef.current?.onDidChangeModelContent((e) => {
+  //     const curVal = editorRef.current?.getValue();
+  //     props.onChange?.(curVal || '', e);
+  //   });
+  //   return () => _ref && _ref.dispose();
+  // }, [props.onChange]);
 
   useImperativeHandle(ref, () => ({
     getCurrentSelectContent,
     getAllContent,
+    setValue,
   }));
+
+  useEffect(() => {
+    console.log(appendValue)
+    appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
+  }, [appendValue])
+
+  const setValue = (text: any, range?: IRangeType) => {
+    appendMonacoValue(editorRef.current, text, range);
+  };
 
   /**
    * 获取当前选中的内容
@@ -66,99 +170,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     const value = model?.getValue();
     return value || '';
   };
-
-  // init
-  useEffect(() => {
-    const editorIns = monaco.editor.create(document.getElementById(`monaco-editor-${id}`)!, {
-      ...editorDefaultOptions,
-      ...options,
-      value,
-      language: 'sql',
-      theme: appTheme.backgroundColor === ThemeType.Light ? 'Default' : 'BlackTheme',
-    });
-    editorRef.current = editorIns;
-    didMount && didMount(editorIns); // incase parent component wanna handle editor
-
-    monaco.editor.defineTheme('BlackTheme', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [{ background: '#15161a' }],
-      colors: {
-        // 相关颜色属性配置
-        'editor.foreground': '#ffffff',
-        'editor.background': '#0A0B0C', //背景色
-      },
-    });
-
-    monaco.editor.defineTheme('Default', {
-      base: 'vs',
-      inherit: true,
-      rules: [{ background: '#15161a' }],
-      colors: {
-        'editor.foreground': '#000000',
-        'editor.background': '#fff', //背景色
-      },
-    });
-
-    // monacoSqlAutocomplete(monaco, editorIns);
-    handleRegisterTigger();
-
-    createAction(editorIns);
-    return () => {
-      if (props.needDestroy) editorRef.current && editorRef.current.dispose();
-    };
-  }, []);
-
-  // value 变了，直接设置editorValue
-  useEffect(() => {
-    updateEditor(value);
-    valRef.current = value;
-  }, [value]);
-
-  // editor 变了，val 没变，设置 editorValue 为 value
-  // useEffect(() => {
-  //   if (editorVal !== valRef.current) {
-  //     updateEditor(valRef.current);
-  //   }
-  // }, [editorVal]);
-
-  useEffect(() => {
-    const _ref = editorRef.current?.onDidChangeModelContent((e) => {
-      const curVal = editorRef.current?.getValue();
-      props.onChange?.(curVal || '', e);
-      setEditorVal(curVal || '');
-    });
-
-    return () => _ref && _ref.dispose();
-  }, [props.onChange]);
-
-  const updateEditor = (value: string) => {
-    if (editorRef.current) {
-      if (value === editorRef.current.getValue()) {
-        return;
-      }
-      const model = editorRef.current.getModel();
-      if (!model) return;
-
-      editorRef.current.pushUndoStop();
-
-      model.pushEditOperations(
-        [],
-        [
-          {
-            range: model.getFullModelRange(),
-            text: value,
-          },
-        ],
-        () => [editorRef.current.getSelection()],
-      );
-      editorRef.current.pushUndoStop();
-    }
-  };
-
-  useEffect(() => {
-    monaco.editor.setTheme(appTheme.backgroundColor === ThemeType.Dark ? 'BlackTheme' : 'Default');
-  }, [appTheme.backgroundColor]);
 
   const handleRegisterTigger = () => {
     // SQL关键词、 数据库、 表 、列
@@ -253,7 +264,51 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       });
     });
   };
-  return <div ref={ref} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;
+
+  return <div ref={ref as any} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;
 }
+
+// text 需要添加的文本
+// range 添加到的位置
+// 'end' 末尾
+// 'front' 开头
+// 'cover' 覆盖掉原有的文字
+// 自定义位置数组 new monaco.Range []
+export type IRangeType = 'end' | 'front' | 'cover' | 'reset' | any;
+
+export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'end') => {
+  if (!editor) {
+    return;
+  }
+  const model = editor?.getModel && editor.getModel(editor);
+  // 创建编辑操作，将当前文档内容替换为新内容
+  let newRange: IRangeType = range;
+  if (range === 'reset') {
+    editor.setValue(text)
+  }
+  switch (range) {
+    case 'cover':
+      newRange = model.getFullModelRange();
+      break;
+    case 'front':
+      newRange = new monaco.Range(1, 1, 1, 1);
+      break;
+    case 'end':
+      const lastLine = editor.getModel().getLineCount();
+      const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
+      newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
+      text = `${text}\n`;
+      break;
+    default:
+      break;
+  }
+  const op = {
+    range: newRange,
+    text,
+  };
+  // decorations?: IModelDeltaDecoration[]: 一个数组类型的参数，用于指定插入的文本的装饰。可以用来设置文本的样式、颜色、背景色等。如果不需要设置装饰，可以忽略此参数。
+  const decorations = [{}]; // 解决新增的文本默认背景色为灰色
+  editor.executeEdits('setValue', [op], decorations);
+};
 
 export default forwardRef(MonacoEditor);

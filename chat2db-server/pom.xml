@@ -252,6 +252,11 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.4</version>
             </dependency>
+            <dependency>
+                <groupId>com.azure</groupId>
+                <artifactId>azure-ai-openai</artifactId>
+                <version>1.0.0-beta.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

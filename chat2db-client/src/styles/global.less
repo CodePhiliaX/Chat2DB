@@ -1,18 +1,12 @@
-// @import '../theme/dark.less';
-// @import '../theme/light.less';
-// @import '../theme/primaryColor.less';
+@import '../theme/custom/dark.less';
+@import '../theme/custom/light.less';
 
 html,
 body {
   height: 100%;
   color: var(--color-text);
   font-size: var(--font-size);
-}
-
-:root {
-  height: 100%;
-  overflow: overlay; /*滚动条会覆盖在页面之上*/
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-base);
 }
 
 // 修改账号密码自动回填后input背景变色问题
@@ -22,29 +16,29 @@ input:-webkit-autofill {
   caret-color: var(--color-text); // 光标的颜色
 }
 
-// ::-webkit-scrollbar {
-//   width: 6px;
-//   height: 6px;
-// }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
-// ::-webkit-scrollbar-thumb {
-//   background-color: var(--color-bg);
-//   border-radius: 3px;
-// }
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-fill);
+  border-radius: 3px;
+}
 
-// ::-webkit-scrollbar-button {
-//   width: 0;
-//   height: 0;
-//   background: transparent;
-// }
+::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
 
-// ::-webkit-scrollbar-track {
-//   background: transparent;
-// }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-// ::-webkit-scrollbar-corner {
-//   background: transparent;
-// }
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
 
 html,
 body,

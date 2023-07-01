@@ -14,7 +14,8 @@ import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
-import ai.chat2db.server.web.api.controller.config.request.ChatGptSystemConfigRequest;
+import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
+import ai.chat2db.server.web.api.controller.config.request.AISystemConfigRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.util.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
@@ -58,16 +59,20 @@ public class ConfigController {
      * @return
      */
     @PostMapping("/system_config/chatgpt")
-    public ActionResult addChatGptSystemConfig(@RequestBody ChatGptSystemConfigRequest request) {
+    public ActionResult addChatGptSystemConfig(@RequestBody AISystemConfigRequest request) {
         String sqlSource = StringUtils.isNotBlank(request.getAiSqlSource()) ? request.getAiSqlSource()
             : AiSqlSourceEnum.OPENAI.getCode();
         SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE).content(sqlSource)
             .build();
         configService.createOrUpdate(param);
-        if (AiSqlSourceEnum.OPENAI.getCode().equals(sqlSource)) {
-            saveOpenAIConfig(request);
-        } else {
-            saveRestAIConfig(request);
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+                saveOpenAIConfig(request);
+            case RESTAI :
+                saveRestAIConfig(request);
+            case AZUREAI :
+                saveAzureAIConfig(request);
         }
         return ActionResult.isSuccess();
     }
@@ -77,7 +82,7 @@ public class ConfigController {
      *
      * @param request
      */
-    private void saveOpenAIConfig(ChatGptSystemConfigRequest request) {
+    private void saveOpenAIConfig(AISystemConfigRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(OpenAIClient.OPENAI_KEY).content(
                 request.getApiKey())
             .build();
@@ -100,7 +105,7 @@ public class ConfigController {
      *
      * @param request
      */
-    private void saveRestAIConfig(ChatGptSystemConfigRequest request) {
+    private void saveRestAIConfig(AISystemConfigRequest request) {
         SystemConfigParam restParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_URL).content(
                 request.getRestAiUrl())
             .build();
@@ -108,6 +113,24 @@ public class ConfigController {
         SystemConfigParam methodParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_STREAM_OUT).content(
             request.getRestAiStream().toString()).build();
         configService.createOrUpdate(methodParam);
+        RestAIClient.refresh();
+    }
+
+    /**
+     * 保存azure配置
+     *
+     * @param request
+     */
+    private void saveAzureAIConfig(AISystemConfigRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY).content(
+            request.getAzureApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT).content(
+            request.getAzureEndpoint()).build();
+        configService.createOrUpdate(endpointParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID).content(
+            request.getAzureDeploymentId()).build();
+        configService.createOrUpdate(modelParam);
         RestAIClient.refresh();
     }
 

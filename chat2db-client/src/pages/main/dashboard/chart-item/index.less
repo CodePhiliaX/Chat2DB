@@ -98,7 +98,7 @@
 }
 
 
-.emptyData {
+.emptyChartBlock {
   width: 100%;
   padding: 20px 0;
   display: flex;
@@ -108,20 +108,64 @@
 }
 
 .emptyDataImage {
-  margin-bottom: 8px;
+  font-size: 56px;
+  color: #666666;
+  margin-bottom: 16px;
 }
 
+.emptyDataText {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.40);
+  line-height: 14px;
+  margin-bottom: 40px;
+}
+
+.editBlock {
+  border-radius: var(--border-radius-l-g);
+  background-color: var(--color-bg-elevated);
+  max-height: 600px;
+}
 
 .editorBlock {
   display: flex;
-  border: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-secondary);
   flex-wrap: wrap;
 }
 
 .editor {
-  flex: 1;
-  border-right: 1px solid #eee;
+  flex: 2;
   min-width: 320px;
-  min-height: 320px;
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
 
+.dataSourceSelect {
+  position: absolute;
+  bottom: 8px;
+  right: 24px;
+}
+
+.chartParamsForm {
+  color: var(--color-text);
+  flex: 1;
+  min-width: 120px;
+  border-left: 1px solid var(--color-border-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  padding: 24px;
+}
+
+.chartParamsFormTitle {
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 14px;
+  margin-bottom: 24px;
+}
+
+.editorOptionBlock {
+  padding: 12px;
 }
