@@ -67,9 +67,8 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
               dispatch({
                 type: 'workspace/fetchGetSavedConsole',
                 payload: {
-                  pageNo: 1,
-                  pageSize: 999,
                   status: ConsoleStatus.RELEASE,
+                  orderByDesc: true,
                   ...curWorkspaceParams,
                 },
                 callback: (res: any) => {

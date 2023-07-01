@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Dropdown, Form, Input, Modal, message } from 'antd';
 import { connect, Dispatch } from 'umi';
 import cs from 'classnames';
@@ -43,6 +43,7 @@ function Chart(props: IProps) {
 
   const [form] = Form.useForm(); // 创建一个表单实例
   const [messageApi, contextHolder] = message.useMessage();
+  const draggableRef = useRef<any>();
 
   useEffect(() => {
     // 获取列表数据
@@ -228,13 +229,15 @@ function Chart(props: IProps) {
 
   return (
     <>
-      <DraggableContainer layout="row" className={cs(styles.box, className)}>
-        <div className={styles.boxLeft}>
-          <div className={styles.boxLeftTitle}>
-            <div>{i18n('dashboard.title')}</div>
-            <Iconfont code="&#xe631;" className={styles.plusIcon} onClick={() => setOpenAddDashboard(true)} />
+      <DraggableContainer className={cs(styles.box, className)}>
+        <div ref={draggableRef} className={styles.dragBox}>
+          <div className={styles.boxLeft}>
+            <div className={styles.boxLeftTitle}>
+              <div>{i18n('dashboard.title')}</div>
+              <Iconfont code="&#xe631;" className={styles.plusIcon} onClick={() => setOpenAddDashboard(true)} />
+            </div>
+            {renderLeft()}
           </div>
-          {renderLeft()}
         </div>
         <div className={styles.boxRight}>{renderContent()}</div>
       </DraggableContainer>

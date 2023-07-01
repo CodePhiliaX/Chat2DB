@@ -203,6 +203,18 @@ const RenderTableBox = dvaModel(function (props: any) {
     setSearchedTableList(approximateTreeNode(curTableList, value))
   }
 
+  function refreshTableList() {
+    if (curWorkspaceParams?.dataSourceId) {
+      dispatch({
+        type: 'workspace/fetchGetCurTableList',
+        payload: {
+          ...curWorkspaceParams,
+          extraParams: curWorkspaceParams,
+        }
+      })
+    }
+  }
+
   return (
     <div className={styles.tableModule}>
       <div className={styles.leftModuleTitle}>
@@ -222,8 +234,13 @@ const RenderTableBox = dvaModel(function (props: any) {
             :
             <div className={styles.leftModuleTitleText}>
               <div className={styles.modelName}>{i18n('common.text.table')}</div>
-              <div className={styles.iconBox} onClick={() => openSearch()}>
-                <Iconfont code="&#xe600;" />
+              <div className={styles.iconBox} >
+                <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                  <Iconfont code="&#xec08;" />
+                </div>
+                <div className={styles.searchIcon} onClick={() => openSearch()}>
+                  <Iconfont code="&#xe600;" />
+                </div>
               </div>
             </div>
         }
@@ -308,7 +325,38 @@ const RenderSaveBox = dvaModel(function (props: any) {
   }
 
   function deleteSaved(data: IConsole) {
-
+    let p: any = {
+      id: data.id,
+    };
+    historyServer.deleteSavedConsole(p).then((res) => {
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          tabOpened: ConsoleOpenedStatus.IS_OPEN,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setOpenConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          status: ConsoleStatus.RELEASE,
+          orderByDesc: true,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+    });
   }
 
   return (
@@ -330,8 +378,13 @@ const RenderSaveBox = dvaModel(function (props: any) {
             :
             <div className={styles.leftModuleTitleText}>
               <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
-              <div className={styles.iconBox} onClick={() => openSearch()}>
-                <Iconfont code="&#xe600;" />
+              <div className={styles.iconBox} >
+                {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                  <Iconfont code="&#xec08;" />
+                </div> */}
+                <div className={styles.searchIcon} onClick={() => openSearch()}>
+                  <Iconfont code="&#xe600;" />
+                </div>
               </div>
             </div>
         }

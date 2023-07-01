@@ -23,13 +23,14 @@ export interface IUpdateConsoleParams {
 
 const saveConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });
 
-const getWindowTab = createRequest<{ id: number }, number>('/api/operation/saved/:id', { method: 'get' });
+// orderByDesc true 降序
+const getWindowTab = createRequest<{ id: number, orderByDesc: boolean }, number>('/api/operation/saved/:id', { method: 'get' });
 
 const updateSavedConsole = createRequest<Partial<IConsole> & {id: number}, number>('/api/operation/saved/update', { method: 'post' });
 
 const getSavedConsoleList = createRequest<IGetSavedListParams, IPageResponse<IConsole>>('/api/operation/saved/list', {});
 
-const deleteWindowTab = createRequest<{ id: number }, string>('/api/operation/saved/:id', { method: 'delete' });
+const deleteSavedConsole = createRequest<{ id: number }, string>('/api/operation/saved/:id', { method: 'delete' });
 
 const createHistory = createRequest<ISaveBasicInfo, void>('/api/operation/log/create', { method: 'post' });
 
@@ -40,7 +41,7 @@ export default {
   updateSavedConsole,
   getHistoryList,
   saveConsole,
-  deleteWindowTab,
+  deleteSavedConsole,
   createHistory,
   getWindowTab
 }

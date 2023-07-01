@@ -156,7 +156,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       return;
     }
     if (window!.status === 'DRAFT') {
-      historyService.deleteWindowTab({ id: window!.id });
+      historyService.deleteSavedConsole({ id: window!.id });
     } else {
       historyService.updateSavedConsole(p);
     }
