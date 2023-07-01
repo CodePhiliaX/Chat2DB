@@ -4,7 +4,7 @@ import { IManageResultData, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
 import { Button, message, Modal, Table } from 'antd';
 import antd from 'antd';
-import { BaseTable, ArtColumn, useTablePipeline, features } from 'ali-react-table';
+import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import Iconfont from '../Iconfont';
 import classnames from 'classnames';
 import StateIndicator from '../StateIndicator';
@@ -46,8 +46,25 @@ export default function TableBox(props: ITableProps) {
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
-
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
+  // const [sorts, onChangeSorts] = useState<SortItem[]>([]);
+
+  // useEffect(() => {
+  //   const sorts: SortItem[] = (headerList || []).map((item) => ({
+  //     code: item.name,
+  //     order: 'none',
+  //   }));
+  //   onChangeSorts(sorts);
+  // }, [headerList]);
+
+  const defaultSorts: SortItem[] = useMemo(
+    () =>
+      (headerList || []).map((item) => ({
+        code: item.name,
+        order: 'none',
+      })),
+    [headerList],
+  );
 
   function viewTableCell(data: IViewTableCellData) {
     setViewTableCellData(data);
@@ -70,8 +87,6 @@ export default function TableBox(props: ITableProps) {
         key: item.name,
         lock: index === 0,
         width: 120,
-        // type: item.dataType,
-        // sorter: (a: any, b: any) => a[item.name] - b[item.name],
         render: (value: any, row: any, rowIndex: number) => {
           console.log('rowIndex', rowIndex);
           return (
@@ -84,6 +99,7 @@ export default function TableBox(props: ITableProps) {
             </div>
           );
         },
+        features: { sortable: true },
       })),
     [headerList],
   );
@@ -114,6 +130,14 @@ export default function TableBox(props: ITableProps) {
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
     .use(
+      features.sort({
+        mode: 'single',
+        defaultSorts,
+        // sorts,
+        // onChangeSorts,
+      }),
+    )
+    .use(
       features.columnResize({
         fallbackSize: 120,
         minSize: 60,
@@ -123,6 +147,7 @@ export default function TableBox(props: ITableProps) {
         // handleActiveBackground: '#89bff7',
       }),
     );
+
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
