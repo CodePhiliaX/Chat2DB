@@ -1,4 +1,4 @@
-.chat_wrapper {
+.chatWrapper {
   display: flex;
   align-items: center;
   padding: 12px 20px;
@@ -6,7 +6,21 @@
   border-bottom: 1px solid var(--color-border-secondary);
 }
 
-.chat_ai {
+.chatShortcut {
+
+  padding: 4px 8px;
+  color: #8a9099;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  background-color: #fffc;
+  border-radius: 4px;
+  border: 1px solid #d0d5d8;
+
+  margin-right: 10px;
+}
+
+.chatAi {
   width: 16px;
   height: 16px;
   margin-right: 14px;
@@ -34,4 +48,16 @@
   background-color: var(--color-bg-elevated);
   padding: 4px 12px;
 
+}
+
+.aiSelectedTable{
+  display: flex;
+  flex-direction: column;
+  max-width: 140px;
+}
+
+.aiSelectedTableTips{
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-secondary);
+  margin-bottom: 4px
 }
