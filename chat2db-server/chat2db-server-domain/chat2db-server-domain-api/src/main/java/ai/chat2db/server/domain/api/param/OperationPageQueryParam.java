@@ -40,5 +40,5 @@ public class OperationPageQueryParam extends PageQueryParam {
     /**
      * orderBy modify time desc
      */
-    private Boolean orderByDesc;
+    private boolean orderByDesc;
 }
