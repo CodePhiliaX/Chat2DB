@@ -56,7 +56,7 @@ public class AzureOpenAIClient {
     public static void refresh() {
         String apikey = "";
         String apiEndpoint = "";
-        String deployId = "";
+        String deployId = "gpt-3.5-turbo";
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config apiHostConfig = configService.find(AZURE_CHATGPT_ENDPOINT).getData();
         if (apiHostConfig != null) {
