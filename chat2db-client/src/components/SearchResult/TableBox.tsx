@@ -159,6 +159,9 @@ export default function TableBox(props: ITableProps) {
         // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
         <>
           <DarkSupportBaseTable
+            style={{
+              '--border-color': 'transparent',
+            }}
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             {...pipeline.getProps()}
           />
