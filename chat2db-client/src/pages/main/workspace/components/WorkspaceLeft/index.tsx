@@ -2,19 +2,23 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input } from 'antd';
+import { Cascader, Divider, Input, Dropdown, Button } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
+import historyServer from '@/service/history';
 import Tree from '../Tree';
-import { TreeNodeType, ConsoleStatus } from '@/constants';
-import { IConsole, ITreeNode } from '@/typings';
+import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
+import { IConsole, ITreeNode, ICreateConsole } from '@/typings';
 import styles from './index.less';
 import { approximateTreeNode, approximateList } from '@/utils';
+import historyService from '@/service/history';
 
 interface IProps {
   className?: string;
+  workspaceModel: IWorkspaceModelType['state'],
+  dispatch: any;
 }
 
 const dvaModel = connect(
@@ -25,7 +29,51 @@ const dvaModel = connect(
 );
 
 const WorkspaceLeft = memo<IProps>(function (props) {
-  const { className } = props;
+  const { className, workspaceModel, dispatch } = props;
+  const { curWorkspaceParams } = workspaceModel;
+
+
+  function getConsoleList() {
+    let p: any = {
+      pageNo: 1,
+      pageSize: 999,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      ...curWorkspaceParams,
+    };
+
+    dispatch({
+      type: 'workspace/fetchGetSavedConsole',
+      payload: p,
+      callback: (res: any) => {
+        dispatch({
+          type: 'workspace/setOpenConsoleList',
+          payload: res.data,
+        })
+      }
+    })
+  }
+
+  const addConsole = (params?: ICreateConsole) => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
+    let p = {
+      name: `new console`,
+      ddl: '',
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName!,
+      schemaName: schemaName!,
+      type: databaseType,
+      status: ConsoleStatus.DRAFT,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    }
+    historyService.saveConsole(params || p).then(res => {
+      getConsoleList();
+    })
+  }
+
+  function createConsole() {
+    addConsole()
+  }
+
   return (
     <div className={classnames(styles.box, className)}>
       <div className={styles.header}>
@@ -34,6 +82,12 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       <RenderSaveBox></RenderSaveBox>
       <Divider className={styles.divider} />
       <RenderTableBox />
+      <div className={styles.createButtonBox}>
+        <Button className={styles.createButton} type="primary" onClick={createConsole}>
+          <Iconfont code="&#xe63a;" />
+          {i18n('common.button.createConsole')}
+        </Button>
+      </div>
     </div>
   );
 });
@@ -202,6 +256,18 @@ const RenderTableBox = dvaModel(function (props: any) {
     setSearchedTableList(approximateTreeNode(curTableList, value))
   }
 
+  function refreshTableList() {
+    if (curWorkspaceParams?.dataSourceId) {
+      dispatch({
+        type: 'workspace/fetchGetCurTableList',
+        payload: {
+          ...curWorkspaceParams,
+          extraParams: curWorkspaceParams,
+        }
+      })
+    }
+  }
+
   return (
     <div className={styles.tableModule}>
       <div className={styles.leftModuleTitle}>
@@ -220,9 +286,14 @@ const RenderTableBox = dvaModel(function (props: any) {
             </div>
             :
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>Table</div>
-              <div className={styles.iconBox} onClick={() => openSearch()}>
-                <Iconfont code="&#xe600;" />
+              <div className={styles.modelName}>{i18n('common.text.table')}</div>
+              <div className={styles.iconBox} >
+                <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                  <Iconfont code="&#xec08;" />
+                </div>
+                <div className={styles.searchIcon} onClick={() => openSearch()}>
+                  <Iconfont code="&#xe600;" />
+                </div>
               </div>
             </div>
         }
@@ -250,6 +321,12 @@ const RenderSaveBox = dvaModel(function (props: any) {
         status: ConsoleStatus.RELEASE,
         ...curWorkspaceParams,
       },
+      callback: (res: any) => {
+        dispatch({
+          type: 'workspace/setConsoleList',
+          payload: res.data,
+        })
+      }
     });
   }, [curWorkspaceParams]);
 
@@ -278,6 +355,63 @@ const RenderSaveBox = dvaModel(function (props: any) {
     setSearchedList(approximateList(consoleList, value,))
   }
 
+  function openConsole(data: IConsole) {
+    let p: any = {
+      id: data.id,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN
+    };
+    historyServer.updateSavedConsole(p).then((res) => {
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          tabOpened: ConsoleOpenedStatus.IS_OPEN,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setOpenConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+    });
+  }
+
+  function deleteSaved(data: IConsole) {
+    let p: any = {
+      id: data.id,
+    };
+    historyServer.deleteSavedConsole(p).then((res) => {
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          tabOpened: ConsoleOpenedStatus.IS_OPEN,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setOpenConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          status: ConsoleStatus.RELEASE,
+          orderByDesc: true,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+    });
+  }
+
   return (
     <div className={styles.saveModule}>
       <div className={styles.leftModuleTitle}>
@@ -296,9 +430,14 @@ const RenderSaveBox = dvaModel(function (props: any) {
             </div>
             :
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>Saved</div>
-              <div className={styles.iconBox} onClick={() => openSearch()}>
-                <Iconfont code="&#xe600;" />
+              <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
+              <div className={styles.iconBox} >
+                {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                  <Iconfont code="&#xec08;" />
+                </div> */}
+                <div className={styles.searchIcon} onClick={() => openSearch()}>
+                  <Iconfont code="&#xe600;" />
+                </div>
               </div>
             </div>
         }
@@ -307,12 +446,42 @@ const RenderSaveBox = dvaModel(function (props: any) {
         <LoadingContent data={consoleList} handleEmpty>
           {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
-              <div key={t.id} className={styles.saveItem} dangerouslySetInnerHTML={{ __html: t.name }} />
+              <div
+                key={t.id}
+                className={styles.saveItem}
+              >
+                <div dangerouslySetInnerHTML={{ __html: t.name }} />
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: 'open',
+                        label: i18n('common.button.open'),
+                        onClick: () => {
+                          openConsole(t)
+                        }
+                      },
+                      {
+                        key: 'delete',
+                        label: i18n('common.button.delete'),
+                        onClick: () => {
+                          deleteSaved(t)
+                        },
+                      },
+                    ],
+                  }}
+                >
+                  <div className={styles.moreButton}>
+                    <Iconfont code="&#xe601;"></Iconfont>
+                  </div>
+                </Dropdown>
+
+              </div>
             );
           })}
         </LoadingContent>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 });
 

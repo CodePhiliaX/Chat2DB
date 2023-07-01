@@ -14,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 34px;
   flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@
 
 .saveBoxList {
   margin: 0px -10px;
-  height: calc(26px * 3);
+  height: calc(26px * 3 + 6px);
   overflow-y: auto;
 }
 
@@ -97,12 +97,20 @@
 }
 
 .saveItem {
-  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 0px 10px;
   margin-bottom: 2px;
   line-height: 26px;
   border-radius: 2px;
   user-select: none;
+  cursor: pointer;
+  .moreButton {
+    flex-shrink: 0;
+    display: none;
+    transform: rotate(90deg);
+  }
 
   &:hover {
     background-color: var(--color-hover-bg);
@@ -125,6 +133,14 @@
       font-weight: bold;
     }
     .iconBox {
+      display: flex;
+      align-items: center;
+    }
+    .refreshIcon {
+      margin-right: 10px;
+    }
+    .refreshIcon,
+    .searchIcon {
       cursor: pointer;
       &:hover {
         color: var(--color-primary);
@@ -133,5 +149,18 @@
   }
   .leftModuleTitleSearch {
     height: 26px;
+  }
+}
+
+.createButtonBox {
+  padding: 10px 0px 10px;
+}
+.createButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  i {
+    margin-right: 10px;
   }
 }

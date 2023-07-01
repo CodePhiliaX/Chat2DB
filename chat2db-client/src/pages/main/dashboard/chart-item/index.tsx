@@ -1,4 +1,4 @@
-import { IChartItem, IChartType, IConnectionDetails } from '@/typings';
+import { IChartItem, IChartType, IConnectionDetails, ITreeNode } from '@/typings';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';
@@ -7,7 +7,7 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, notification, Select } from 'antd';
+import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
 import Console from '@/components/Console';
@@ -18,13 +18,14 @@ import { handleDatabaseAndSchema } from '@/utils/database';
 import i18n from '@/i18n';
 import { useTheme } from '@/hooks';
 import { EditorThemeType, ThemeType } from '@/constants';
+import { IRemainingUse } from '@/typings/ai';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
-  const mockData = headerList.reduce((acc, cur, index) => {
+  const mockData = headerList?.reduce((acc, cur, index) => {
     acc[cur.name] = {
       ...cur,
-      data: dataList.map((i: any) => i[index]),
+      data: dataList?.map((i: any) => i[index]),
     };
     return acc;
   }, {});
@@ -54,6 +55,8 @@ interface IChartItemProps {
   isEditing?: boolean;
   canAddRowItem: boolean;
   connectionList: IConnectionDetails[];
+  tableList: ITreeNode[];
+  remainingUse: IRemainingUse;
   onDelete?: (id: number) => void;
   addChartTop?: () => void;
   addChartBottom?: () => void;
@@ -62,7 +65,7 @@ interface IChartItemProps {
 }
 
 function ChartItem(props: IChartItemProps) {
-  const { connectionList } = props;
+  const { connectionList, tableList, remainingUse } = props;
   const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
   const [curConnection, setCurConnection] = useState<IConnectionDetails>();
   const [chartData, setChartData] = useState<IChartItem>({});
@@ -110,7 +113,7 @@ function ChartItem(props: IChartItemProps) {
 
   useEffect(() => {
     handleChartConfigChange();
-  }, [chartData.sqlData])
+  }, [chartData.sqlData]);
 
   const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
     const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
@@ -193,9 +196,8 @@ function ChartItem(props: IChartItemProps) {
       schema: JSON.stringify(form.getFieldsValue(true)),
     };
     await updateChart(params);
-    notification.success({
-      message: '保存成功',
-    });
+    setIsEditing(false)
+    message.success(i18n('common.tips.saveSuccessfully'))
   };
 
   const handleChartConfigChange = () => {
@@ -315,7 +317,6 @@ function ChartItem(props: IChartItemProps) {
               hasSaveBtn={false}
               value={chartData?.ddl}
               onExecuteSQL={(result: any, sql: string) => {
-                console.log('onExecuteSQL', result);
                 let sqlData;
                 if (result && result[0]) {
                   sqlData = handleSQLResult2ChartData(result[0]);
@@ -333,6 +334,8 @@ function ChartItem(props: IChartItemProps) {
                     ? EditorThemeType.DashboardLightTheme
                     : EditorThemeType.DashboardBlackTheme,
               }}
+              tables={tableList || []}
+              remainingUse={remainingUse}
             />
 
             <Cascader
@@ -356,7 +359,7 @@ function ChartItem(props: IChartItemProps) {
               }}
               className={styles.dataSourceSelect}
               placeholder={i18n('dashboard.editor.cascader.placeholder')}
-              // style={{ width: '100%' }}
+            // style={{ width: '100%' }}
             />
           </div>
           <div className={styles.chartParamsForm}>

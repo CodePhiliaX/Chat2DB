@@ -47,4 +47,19 @@ public class ChatGptConfig {
      * 非必填，默认值为TRUE
      */
     private Boolean restAiStream = Boolean.TRUE;
+
+    /**
+     * Get Azure OpenAI key credential from the Azure Portal
+     */
+    private String azureApiKey;
+
+    /**
+     * Get Azure OpenAI endpoint from the Azure Portal
+     */
+    private String azureEndpoint;
+
+    /**
+     * deploymentId of the deployed model, default gpt-3.5-turbo
+     */
+    private String azureDeploymentId;
 }

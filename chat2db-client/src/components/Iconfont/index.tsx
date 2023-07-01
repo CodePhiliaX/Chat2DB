@@ -9,9 +9,9 @@ if (__ENV === 'local') {
   /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
   @font-face {
     font-family: 'iconfont';  /* Project id 3633546 */
-    src: url('//at.alicdn.com/t/a/font_3633546_uuxqox310h.woff2?t=1687943954391') format('woff2'),
-         url('//at.alicdn.com/t/a/font_3633546_uuxqox310h.woff?t=1687943954391') format('woff'),
-         url('//at.alicdn.com/t/a/font_3633546_uuxqox310h.ttf?t=1687943954391') format('truetype');
+    src: url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.woff2?t=1688205862419') format('woff2'),
+         url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.woff?t=1688205862419') format('woff'),
+         url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.ttf?t=1688205862419') format('truetype');
   }
   `
   let style = document.createElement("style");
@@ -24,7 +24,7 @@ export default class Iconfont extends PureComponent<
   {
     code: string;
   } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
-  > {
+> {
   render() {
     return (
       <i {...this.props} className={classnames(this.props.className, styles.iconfont)}>

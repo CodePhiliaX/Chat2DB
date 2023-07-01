@@ -16,6 +16,7 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.spi.model.TableColumn;
@@ -208,7 +209,7 @@ public class ChatController {
             throw new ParamBusinessException("message");
         }
 
-        return distributeAI(queryRequest.getMessage(), sseEmitter, uid);
+        return distributeAISql(queryRequest, sseEmitter, uid);
     }
 
     /**
@@ -225,10 +226,28 @@ public class ChatController {
                 return chatWithOpenAi(msg, sseEmitter, uid);
             case RESTAI :
                 return chatWithRestAi(msg, sseEmitter);
-            case AZUREAI :
-                return chatWithAzureAi(msg, sseEmitter, uid);
         }
         return chatWithOpenAi(msg, sseEmitter, uid);
+    }
+
+    /**
+     * distribute with different AI
+     *
+     * @return
+     */
+    private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+                return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
+            case RESTAI :
+                return chatWithRestAi(queryRequest.getMessage(), sseEmitter);
+            case AZUREAI :
+                return chatWithAzureAi(queryRequest, sseEmitter, uid);
+        }
+        return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
     }
 
     /**
@@ -309,13 +328,19 @@ public class ChatController {
     /**
      * chat with azure openai
      *
-     * @param msg
+     * @param queryRequest
      * @param sseEmitter
      * @param uid
      * @return
      * @throws IOException
      */
-    private SseEmitter chatWithAzureAi(String msg, SseEmitter sseEmitter, String uid) throws IOException {
+    private SseEmitter chatWithAzureAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
+            log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
+                    prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
+            throw new ParamBusinessException();
+        }
         String messageContext = (String)LocalCache.CACHE.get(uid);
         List<ChatMessage> messages = new ArrayList<>();
         if (StrUtil.isNotBlank(messageContext)) {
@@ -324,7 +349,7 @@ public class ChatController {
                 messages = messages.subList(1, contextLength);
             }
         }
-        ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(msg);
+        ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
 
         sseEmitter.send(SseEmitter.event().id(uid).name("sseEmitter connected！！！！").data(LocalDateTime.now()).reconnectTime(3000));
@@ -476,6 +501,9 @@ public class ChatController {
                     "%s\n#\n### 目标SQL类型: %s", schemaProperty, dataSourceType);
             default:
                 break;
+        }
+        if (I18nUtils.isEn()) {
+            schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
         }
         return schemaProperty;
     }

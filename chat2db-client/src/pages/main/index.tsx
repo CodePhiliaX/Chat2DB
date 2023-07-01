@@ -9,7 +9,8 @@ import BrandLogo from '@/components/BrandLogo';
 import { IMainPageType } from '@/models/mainPage';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
-import { findObjListValue } from '@/utils'
+import { findObjListValue } from '@/utils';
+import TestVersion from '@/components/TestVersion';
 
 import DataSource from './connection';
 import Workspace from './workspace';
@@ -19,6 +20,7 @@ import Chat from './chat';
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
 const navConfig: INavItem[] = [
+
   {
     key: 'workspace',
     icon: '\ue616',
@@ -45,7 +47,7 @@ const navConfig: INavItem[] = [
   },
 ];
 
-const initPageIndex = navConfig.findIndex(t => `/${t.key}` === window.location.pathname);
+const initPageIndex = navConfig.findIndex(t => `#/${t.key}` === window.location.hash);
 
 interface IProps {
   mainModel: IMainPageType['state'];
@@ -58,7 +60,7 @@ function MainPage(props: IProps) {
   const { mainModel, workspaceModel, connectionModel, dispatch } = props;
   const { curPage } = mainModel;
   const { curConnection } = connectionModel;
-  const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > 0 ? initPageIndex : 0]);
+  const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > -1 ? initPageIndex : 2]);
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
@@ -72,7 +74,7 @@ function MainPage(props: IProps) {
     // }
     // activeNav 变化 同步地址栏变化
     // change url，but no page refresh
-    window.history.pushState({}, "", activeNav.key);
+    window.history.pushState({}, "", `/#/${activeNav.key}`);
   }, [activeNav])
 
   useEffect(() => {
@@ -101,7 +103,6 @@ function MainPage(props: IProps) {
       setActiveNav(item);
     }
   }
-
 
   return (
     <div className={styles.page}>
@@ -140,6 +141,7 @@ function MainPage(props: IProps) {
           );
         })}
       </div>
+      <TestVersion></TestVersion>
     </div>
   );
 }

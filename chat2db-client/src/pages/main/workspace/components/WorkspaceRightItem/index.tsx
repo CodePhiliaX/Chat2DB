@@ -5,14 +5,17 @@ import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IManageResultData } from '@/typings';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { IWorkspaceModelState } from '@/models/workspace';
+import historyServer from '@/service/history';
+import { IAIState } from '@/models/ai';
 
 interface IProps {
   className?: string;
   isActive: boolean;
-  workspaceModel: IWorkspaceModelType['state'];
+  workspaceModel: IWorkspaceModelState;
+  aiModel: IAIState;
   dispatch: any;
   data: {
     databaseName: string;
@@ -26,11 +29,11 @@ interface IProps {
 }
 
 const WorkspaceRightItem = memo<IProps>(function (props) {
-  const { className, data, workspaceModel, isActive, dispatch } = props;
+  const { className, data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
-  const { doubleClickTreeNodeData, curTableList } = workspaceModel;
+  const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
@@ -59,27 +62,35 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
-            onExecuteSQL={(res: any) => {
+            onExecuteSQL={(res: any, a: any, params: any) => {
               setResultData(res);
               setShowResult(true);
+              historyServer.createHistory(params);
             }}
             onConsoleSave={() => {
               dispatch({
                 type: 'workspace/fetchGetSavedConsole',
+                payload: {
+                  status: ConsoleStatus.RELEASE,
+                  orderByDesc: true,
+                  ...curWorkspaceParams,
+                },
+                callback: (res: any) => {
+                  dispatch({
+                    type: 'workspace/setConsoleList',
+                    payload: res.data,
+                  });
+                },
               });
             }}
             tables={curTableList || []}
+            remainingUse={aiModel.remainingUse}
           />
         </div>
-
         <div className={styles.boxRightResult}>{<SearchResult manageResultDataList={resultData} />}</div>
       </DraggableContainer>
     </div>
   );
 });
 
-const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace,
-}));
-
-export default dvaModel(WorkspaceRightItem);
+export default WorkspaceRightItem;

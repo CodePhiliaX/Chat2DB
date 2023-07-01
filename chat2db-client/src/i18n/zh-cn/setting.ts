@@ -27,5 +27,8 @@ export default {
   'setting.placeholder.customUrl': '选择自定义AI时必填，用于设置自定义AI的REST接口URL',
   'setting.placeholder.apiHost': '非必填，默认值为 https://api.openai.com/',
   'setting.message.urlTestError': '接口测试不通过',
+  'setting.placeholder.azureOpenAIKey': '从Azure门户获取Azure OpenAI密钥凭证',
+  'setting.placeholder.azureEndpoint': '从Azure门户获取Azure OpenA端口',
+  'setting.placeholder.azureDeployment': '部署模型的部署id',
 
 }

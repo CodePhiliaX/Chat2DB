@@ -8,6 +8,7 @@ import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jipengfei
@@ -54,25 +55,25 @@ public class AzureOpenAIClient {
     }
 
     public static void refresh() {
-        String apikey = "";
+        String key = "";
         String apiEndpoint = "";
         String deployId = "gpt-3.5-turbo";
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config apiHostConfig = configService.find(AZURE_CHATGPT_ENDPOINT).getData();
-        if (apiHostConfig != null) {
+        if (apiHostConfig != null && StringUtils.isNotBlank(apiHostConfig.getContent())) {
             apiEndpoint = apiHostConfig.getContent();
         }
         Config config = configService.find(AZURE_CHATGPT_API_KEY).getData();
-        if (config != null) {
-            apikey = config.getContent();
+        if (config != null && StringUtils.isNotBlank(config.getContent())) {
+            key = config.getContent();
         }
         Config deployConfig = configService.find(AZURE_CHATGPT_DEPLOYMENT_ID).getData();
-        if (config != null) {
+        if (deployConfig != null && StringUtils.isNotBlank(deployConfig.getContent())) {
             deployId = deployConfig.getContent();
         }
-        log.info("refresh azure openai apikey:{}", maskApiKey(apikey));
-        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(apiKey, apiEndpoint, deployId);
-        apiKey = apikey;
+        log.info("refresh azure openai apikey:{}", maskApiKey(key));
+        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(key, apiEndpoint, deployId);
+        apiKey = key;
     }
 
     private static String maskApiKey(String input) {
