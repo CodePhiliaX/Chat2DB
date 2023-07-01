@@ -8,6 +8,7 @@ import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IManageResultData } from '@/typings';
 import { IWorkspaceModelType } from '@/models/workspace';
+import historyServer from '@/service/history';
 
 interface IProps {
   className?: string;
@@ -59,9 +60,11 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
-            onExecuteSQL={(res: any) => {
+            onExecuteSQL={(res: any, a: any, params: any) => {
               setResultData(res);
               setShowResult(true);
+              historyServer.createHistory(params);
+
             }}
             onConsoleSave={() => {
               dispatch({

@@ -59,7 +59,7 @@ interface IProps {
   };
   editorOptions?: IEditorOptions;
   // onSQLContentChange: (v: string) => void;
-  onExecuteSQL: (result: any, sql?: string) => void;
+  onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
 }
 
@@ -165,15 +165,12 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
-    // props.onExecuteSQL?.(undefined);
     sqlServer.executeSql(p).then((res) => {
-      props.onExecuteSQL?.(res, sqlContent!);
-      // console.log(res)
-      let p: any = {
+      let createHistoryParams: any = {
         ...executeParams,
         ddl: sqlContent,
       };
-      historyServer.createHistory(p);
+      props.onExecuteSQL?.(res, sqlContent!, createHistoryParams);
     });
   };
 
@@ -182,9 +179,10 @@ function Console(props: IProps) {
     let p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
+      ddl: value
     };
     historyServer.updateSavedConsole(p).then((res) => {
-      message.success('保存成功');
+      message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });
   };
@@ -234,7 +232,7 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>

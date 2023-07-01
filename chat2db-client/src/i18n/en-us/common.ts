@@ -40,4 +40,7 @@ export default {
   'common.text.optimizeSQL': 'Optimize SQL',
   'common.text.conversionSQL': 'Conversion SQL',
   'common.text.table': 'Table',
+  'common.tips.saveSuccessfully': 'Save Successfully',
+  'common.button.copy': 'Copy',
+  'common.button.copySuccessfully': 'Copy Successfully',
 };
