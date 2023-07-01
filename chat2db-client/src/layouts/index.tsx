@@ -5,6 +5,10 @@ import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
 import { IVersionResponse } from '@/typings';
+import classnames from 'classnames';
+import LoadingLiquid from '@/components/Loading/LoadingLiquid';
+import Setting from '@/blocks/Setting';
+import miscService from '@/service/misc';
 
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
@@ -14,6 +18,7 @@ import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
 import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
 import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
+import i18n from '@/i18n';
 
 declare global {
   interface Window {
@@ -56,10 +61,15 @@ export default function Layout() {
   );
 }
 
+/** 重启次数 */
+const restartCount = 200;
+
 function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
+  const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
+  const [serviceFail, setServiceFail] = useState(false);
 
   useEffect(() => {
     let date = new Date('2030-12-30 12:30:00').toUTCString();
@@ -119,11 +129,60 @@ function AppContainer() {
     }
   }
 
+  useEffect(() => {
+    detectionService();
+  }, []);
+
+  function detectionService() {
+    setServiceFail(false);
+    let flag = 0;
+    const time = setInterval(() => {
+      miscService.testService().then(() => {
+        clearInterval(time);
+        setStartSchedule(2);
+        flag++;
+      }).catch(error => {
+        setStartSchedule(1);
+        flag++;
+      });
+      if (flag > restartCount) {
+        setServiceFail(true);
+        clearInterval(time);
+      }
+    }, 1000);
+  }
+
   return (
     <div className={styles.appContainer}>
       {initEnd && (
         <div className={styles.app}>
-          <Outlet />
+          {/* 待启动状态 */}
+          {startSchedule === 0 && <div></div>}
+          {/* 服务启动中 */}
+          {startSchedule === 1 && <div className={styles.starting}>
+            <div className={styles.loadingBox}>
+              {
+                !serviceFail && <div>
+                  <LoadingLiquid />
+                </div>
+              }
+              <div className={styles.hint}>
+                <Setting text={i18n('common.text.setting')} />
+              </div>
+              {serviceFail && (
+                <>
+                  <div className={styles.github}>
+                    {i18n('common.text.contactUs')}-github：<a target="_blank" href="https://github.com/chat2db/Chat2DB">github</a>
+                  </div>
+                  <div className={styles.restart} onClick={detectionService}>
+                    {i18n('common.text.tryToRestart')}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>}
+          {/* 服务启动完成 */}
+          {startSchedule === 2 && <Outlet />}
         </div>
       )}
     </div>

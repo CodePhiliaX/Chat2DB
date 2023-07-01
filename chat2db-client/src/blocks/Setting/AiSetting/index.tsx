@@ -44,14 +44,14 @@ export default function SettingAI(props: IProps) {
           onChange={(e) => {
             setChatGPTConfig({ ...chatGPTConfig, aiSqlSource: e.target.value });
           }}
-          value={chatGPTConfig.aiSqlSource}
+          value={chatGPTConfig?.aiSqlSource}
         >
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
-      {chatGPTConfig.aiSqlSource === AiSqlSourceType.OPENAI && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
@@ -101,7 +101,7 @@ export default function SettingAI(props: IProps) {
           </div>
         </div>
       )}
-      {chatGPTConfig.aiSqlSource === AiSqlSourceType.AZUREAI && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.AZUREAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
@@ -138,7 +138,7 @@ export default function SettingAI(props: IProps) {
           </div>
         </div>
       )}
-      {chatGPTConfig.aiSqlSource === AiSqlSourceType.RESTAI && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.RESTAI && (
         <div>
           <div className={styles.title}>{i18n('setting.label.customAiUrl')}</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
