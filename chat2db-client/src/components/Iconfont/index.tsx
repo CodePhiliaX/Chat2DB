@@ -3,36 +3,33 @@ import classnames from 'classnames';
 // import desktopStyle from './desktop.less';
 import styles from './index.less';
 
-// let container = ''
-// container = `
-//   @font-face {
-//     font-family: 'iconfont'; /* Project id 3633546 */
-//     src: url('../../assets/font/iconfont.woff2') format('woff2'),
-//       url('../../assets/font/iconfont.woff') format('woff'),
-//       url('../../assets/font/iconfont.ttf') format('truetype');
-//   }
-// `
+// 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
+if (__ENV === 'local') {
+  let container = `
+  /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+  @font-face {
+    font-family: 'iconfont';  /* Project id 3633546 */
+    src: url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.woff2?t=1688205862419') format('woff2'),
+         url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.woff?t=1688205862419') format('woff'),
+         url('//at.alicdn.com/t/a/font_3633546_cvx0po2baqd.ttf?t=1688205862419') format('truetype');
+  }
+  `
+  let style = document.createElement("style");
+  style.type = "text/css";
+  document.head.appendChild(style);
+  style.appendChild(document.createTextNode(container));
+}
 
-// if (process.env.UMI_ENV === 'desktop') {
-// } else {
-//   container = `
-//     @font-face {
-//       font-family: 'iconfont';  /* Project id 3633546 */
-//       src: url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff2?t=1687102726036') format('woff2'),
-//           url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.woff?t=1687102726036') format('woff'),
-//           url('//at.alicdn.com/t/c/font_3633546_bobs6jadiya.ttf?t=1687102726036') format('truetype');
-//     }
-//   `
-// }
-// let style = document.createElement("style");
-// style.type = "text/css";
-// document.head.appendChild(style);
-// style.appendChild(document.createTextNode(container));
-
-export default class Iconfont extends PureComponent<{
-  code: string;
-} & React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>> {
+export default class Iconfont extends PureComponent<
+  {
+    code: string;
+  } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+> {
   render() {
-    return <i {...this.props} className={classnames(this.props.className, styles.iconfont)}>{this.props.code}</i>
+    return (
+      <i {...this.props} className={classnames(this.props.className, styles.iconfont)}>
+        {this.props.code}
+      </i>
+    );
   }
 }

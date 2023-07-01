@@ -8,16 +8,22 @@
   display: flex;
   align-items: center;
   overflow: hidden;
-  height: 24px;
-  border-radius: 2px;
+  height: 26px;
+  border-radius: 4px;
   opacity: 1;
   cursor: pointer;
   transition: opacity 0.05s ease-in, height 0.1s ease-in;
   user-select: none;
 
-  &:hover .right {
-    background-color: var(--custom-primary);
-    color: var(--color-primary);
+  &:hover {
+    background-color: var(--color-hover-bg);
+    .right {
+      background-color: var(--custom-primary);
+      color: var(--color-primary);
+    }
+    .arrows {
+      display: flex;
+    }
   }
 }
 
@@ -35,35 +41,50 @@
   height: 100%;
   padding: 0px 10px;
   border-radius: 2px;
-  color: var(--color-text-secondary)
+  color: var(--color-text-secondary);
+  .moreButton {
+    flex-shrink: 0;
+    display: none;
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+    .moreButton {
+      display: block;
+    }
+  }
 }
 
 .arrows {
   flex-shrink: 0;
   width: 20px;
-  height: 24px;
+  height: 26px;
   display: flex;
   align-items: center;
   transform: rotate(0deg);
   transition: transform 0.2s ease-in;
+  display: none;
 }
 
 .arrowsIcon {
   display: inline-block;
+  transform: rotate(-90deg);
+  font-size: 12px;
 }
 
 .rotateArrowsIcon {
-  transform: rotate(90deg);
+  transform: rotate(0deg);
 }
 
 .dblclickArea {
   display: flex;
   flex: 1;
-  height: 24px;
+  height: 26px;
 }
 
 .typeIcon {
-  height: 24px;
+  height: 26px;
   display: flex;
   align-items: center;
   width: 20px;

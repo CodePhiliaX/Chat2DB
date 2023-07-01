@@ -13,14 +13,19 @@ import lombok.Getter;
 @Getter
 public enum AiSqlSourceEnum implements BaseEnum<String> {
     /**
-     * 使用OPENAI接口
+     * OPENAI
      */
-    OPENAI( "使用OPENAI接口"),
+    OPENAI( "OPENAI"),
 
     /**
-     * 自定义RESTAI接口
+     * RESTAI
      */
-    RESTAI("自定义RESTAI接口"),
+    RESTAI("RESTAI"),
+
+    /**
+     * AZURE OPENAI
+     */
+    AZUREAI("AZURE OPENAI"),
 
     ;
 

@@ -1,6 +1,7 @@
 package ai.chat2db.plugin.hive;
 
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.sql.SQLExecutor;
 
 public class HiveDBManage implements DBManage {
     @Override
@@ -40,6 +41,7 @@ public class HiveDBManage implements DBManage {
 
     @Override
     public void dropTable(String databaseName, String schemaName, String tableName) {
-
+        String sql = "drop table if exists " +tableName;
+        SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
     }
 }

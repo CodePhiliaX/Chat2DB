@@ -6,13 +6,23 @@
   height: 100%;
   width: 100%;
 }
+.dragBox {
+  width: 220px;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border-secondary);
+  border-top: 0px;
+  border-bottom: 0px;
+}
 
 .boxLeft {
-  min-width: 200px;
-  max-width: 400px;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  padding-top: 20px;
-  background-color: var(--color-bg-container);
+  background-color: var(--color-bg-elevated);
+  padding: 10px 20px 0px;
+  box-sizing: border-box;
+  min-width: 200px;
 }
 
 .createDashboardBtn {
@@ -26,17 +36,19 @@
   font-size: 20px;
   line-height: 24px;
   font-weight: 500;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   padding-left: 20px;
   padding-right: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .plusIcon {
   font-size: 18px;
   padding: 2px;
   cursor: pointer;
+
   &:hover {
     background-color: var(--color-hover-bg);
   }
@@ -50,23 +62,35 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: var(--border-radius-l-g);
+  margin-bottom: 4px;
 
-  .boxLeftItemIcon {
+  .itemTitle {
+    font-weight: 400;
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  .moreButton {
+    flex-shrink: 0;
     display: none;
+    transform: rotate(90deg);
   }
 
   &:hover {
     cursor: pointer;
-    background-color: var(--color-bg-elevated);
+    background-color: var(--color-hover-bg);
 
-    .boxLeftItemIcon {
+    .moreButton {
       display: block;
     }
   }
 }
 
 .activeItem {
-  background-color: var(--color-bg-elevated);
+  color: var(--color-primary);
+  background-color: var(--color-hover-bg);
 }
 
 .boxRight {

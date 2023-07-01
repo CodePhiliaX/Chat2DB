@@ -9,13 +9,6 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
-
-  config.plugin('define').use(require('webpack').DefinePlugin, [
-    {
-      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
-      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
-    },
-  ]);
 };
 
 export default defineConfig({
@@ -23,5 +16,5 @@ export default defineConfig({
   chainWebpack,
   define: {
     'process.env.UMI_ENV': process.env.UMI_ENV,
-  }
+  },
 });

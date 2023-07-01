@@ -16,7 +16,7 @@ export default {
   'setting.title.aiSource': 'Ai Source',
   'setting.tab.custom': 'Custom',
   'setting.label.serviceAddress': 'Service Address',
-  'setting.button.use': 'Use',
+  'setting.button.apply': 'Apply',
   'setting.text.currentEnv': 'Current Env',
   'setting.text.currentVersion': 'Current Version',
   'setting.text.viewingUpdateLogs': 'Viewing Update Logs',
@@ -27,4 +27,7 @@ export default {
   'setting.placeholder.customUrl': 'URL of the REST interface of the AI',
   'setting.placeholder.apiHost': 'This parameter is mandatory. The default value is https://api.openai.com/',
   'setting.message.urlTestError': 'The interface test failed. Procedure',
+  'setting.placeholder.azureOpenAIKey': 'Get Azure OpenAI key credential from the Azure Portal',
+  'setting.placeholder.azureEndpoint': 'Get Azure OpenAI endpoint from the Azure Portal',
+  'setting.placeholder.azureDeployment': 'Deployment id of the deployed model',
 }

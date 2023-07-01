@@ -1,9 +1,8 @@
-import { ThemeType, PrimaryColorType } from '@/constants/common';
-import { LangType } from '@/constants/common';
-import { ICurrentDatabase } from '@/pages/main/workspace/context';
+import { ThemeType, PrimaryColorType, LangType } from '@/constants';
+import { ICurWorkspaceParams } from '@/models/workspace';
 
 export function getLang(): LangType {
-  return localStorage.getItem('lang') as LangType;
+  return (localStorage.getItem('lang') as LangType) || 'en-us';
 }
 
 export function setLang(lang: LangType) {
@@ -19,24 +18,30 @@ export function setTheme(theme: ThemeType) {
 }
 
 export function getPrimaryColor(): PrimaryColorType {
-  return (
-    (localStorage.getItem('primary-color') as PrimaryColorType) ||
-    PrimaryColorType.Polar_Blue
-  );
+  return (localStorage.getItem('primary-color') as PrimaryColorType) || PrimaryColorType.Polar_Blue;
 }
 
 export function setPrimaryColor(primaryColor: PrimaryColorType) {
   return localStorage.setItem('primary-color', primaryColor);
 }
 
-export function setCurrentWorkspaceDatabase(value:ICurrentDatabase) {
+export function setCurrentWorkspaceDatabase(value: ICurWorkspaceParams) {
   return localStorage.setItem('current-workspace-database', JSON.stringify(value));
-}  
+}
 
-export function getCurrentWorkspaceDatabase():ICurrentDatabase {
-  const currentWorkspaceDatabase = localStorage.getItem('current-workspace-database');
-  if (currentWorkspaceDatabase) {
-    return  JSON.parse(currentWorkspaceDatabase)
+export function getCurrentWorkspaceDatabase(): ICurWorkspaceParams {
+  const curWorkspaceParams = localStorage.getItem('current-workspace-database');
+
+  if (curWorkspaceParams) {
+    return JSON.parse(curWorkspaceParams);
   }
-  return {};
-}  
+  return {} as ICurWorkspaceParams;
+}
+
+export function getCurConnection() {
+  const curConnection = localStorage.getItem('cur-connection');
+  if (curConnection) {
+    return JSON.parse(curConnection);
+  }
+  return undefined;
+}

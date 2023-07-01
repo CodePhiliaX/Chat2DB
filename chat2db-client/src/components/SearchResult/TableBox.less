@@ -1,0 +1,76 @@
+@import '../../styles/var.less';
+
+.tableBox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  overflow: auto;
+  background-color: var(--color-bg-elevated);
+}
+
+.statusBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  border-top: 1px solid var(--color-border-secondary);
+  background-color: var(--color-bg-elevated);
+}
+
+.tableItem {
+  width: 100%;
+  // .f-lines(1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  // height: 100%;
+  max-height: 120px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &:hover .tableHoverBox {
+    // display: flex !important;
+    display: block;
+  }
+}
+
+.tableHoverBox {
+  width: 40px;
+  display: none;
+  align-items: center;
+  // position: absolute;
+  background-color: var(--color-bg);
+  // top: 0;
+  // right: 0;
+  // bottom: 0;
+
+  i {
+    font-size: 15px;
+    margin: 0px 2px;
+  }
+
+  i:hover {
+    color: var(--custom-primary-color);
+  }
+}
+
+.monacoEditor {
+  height: 400px;
+  margin: -15px;
+}
+
+.table {
+  --border-color: transparent;
+}

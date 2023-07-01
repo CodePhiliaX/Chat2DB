@@ -16,6 +16,9 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
@@ -34,6 +37,8 @@ import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.util.OpenAIClient;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.azure.ai.openai.models.ChatMessage;
+import com.azure.ai.openai.models.ChatRole;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unfbx.chatgpt.entity.chat.Message;
@@ -177,10 +182,7 @@ public class ChatController {
         if (StrUtil.isBlank(uid)) {
             throw new BaseException(CommonError.SYS_ERROR);
         }
-        if (useOpenAI()) {
-            return chatWithOpenAi(msg, sseEmitter, uid);
-        }
-        return chatWithRestAi(msg, sseEmitter);
+        return distributeAI(msg, sseEmitter, uid);
     }
 
     /**
@@ -207,24 +209,45 @@ public class ChatController {
             throw new ParamBusinessException("message");
         }
 
-        if (useOpenAI()) {
-            return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
-        }
-        return chatWithRestAi(queryRequest.getMessage(), sseEmitter);
+        return distributeAISql(queryRequest, sseEmitter, uid);
     }
 
     /**
-     * 是否使用OPENAI
+     * distribute with different AI
      *
      * @return
      */
-    private Boolean useOpenAI() {
+    private SseEmitter distributeAI(String msg, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        if (Objects.nonNull(config) && AiSqlSourceEnum.RESTAI.getCode().equals(config.getContent())) {
-            return false;
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+                return chatWithOpenAi(msg, sseEmitter, uid);
+            case RESTAI :
+                return chatWithRestAi(msg, sseEmitter);
         }
-        return true;
+        return chatWithOpenAi(msg, sseEmitter, uid);
+    }
+
+    /**
+     * distribute with different AI
+     *
+     * @return
+     */
+    private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+                return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
+            case RESTAI :
+                return chatWithRestAi(queryRequest.getMessage(), sseEmitter);
+            case AZUREAI :
+                return chatWithAzureAi(queryRequest, sseEmitter, uid);
+        }
+        return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
     }
 
     /**
@@ -300,6 +323,56 @@ public class ChatController {
         }
 
         return chatGpt35(messages, sseEmitter, uid);
+    }
+
+    /**
+     * chat with azure openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithAzureAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
+            log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
+                    prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
+            throw new ParamBusinessException();
+        }
+        String messageContext = (String)LocalCache.CACHE.get(uid);
+        List<ChatMessage> messages = new ArrayList<>();
+        if (StrUtil.isNotBlank(messageContext)) {
+            messages = JSONUtil.toList(messageContext, ChatMessage.class);
+            if (messages.size() >= contextLength) {
+                messages = messages.subList(1, contextLength);
+            }
+        }
+        ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(prompt);
+        messages.add(currentMessage);
+
+        sseEmitter.send(SseEmitter.event().id(uid).name("sseEmitter connected！！！！").data(LocalDateTime.now()).reconnectTime(3000));
+        sseEmitter.onCompletion(() -> {
+            log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on completion");
+        });
+        sseEmitter.onTimeout(
+            () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on timeout#" + sseEmitter.getTimeout()));
+        sseEmitter.onError(
+            throwable -> {
+                try {
+                    log.info(LocalDateTime.now() + ", uid#" + "765431" + ", sseEmitter on error#" + throwable.toString());
+                    sseEmitter.send(SseEmitter.event().id("765431").name("exception occurs！").data(throwable.getMessage())
+                        .reconnectTime(3000));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        );
+        AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
+        AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
+        return sseEmitter;
     }
 
     /**
@@ -428,6 +501,9 @@ public class ChatController {
                     "%s\n#\n### 目标SQL类型: %s", schemaProperty, dataSourceType);
             default:
                 break;
+        }
+        if (I18nUtils.isEn()) {
+            schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
         }
         return schemaProperty;
     }

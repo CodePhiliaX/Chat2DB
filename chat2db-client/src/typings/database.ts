@@ -1,5 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { TableDataType } from '@/constants/table';
+import { DatabaseTypeCode, TableDataType } from '@/constants';
 
 export interface IDatabase {
   name: string;
@@ -10,7 +9,7 @@ export interface IDatabase {
 
 export interface ITableHeaderItem {
   dataType: TableDataType;
-  stringValue: string;
+  name: string;
 }
 
 export interface IManageResultData {
@@ -20,4 +19,6 @@ export interface IManageResultData {
   message: string;
   sql: string;
   success: boolean;
+  uuid?: string;
+  duration: number;
 }

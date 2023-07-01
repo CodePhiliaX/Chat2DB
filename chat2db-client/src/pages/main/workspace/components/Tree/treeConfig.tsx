@@ -1,5 +1,5 @@
-import { ITreeNode } from '@/typings/tree';
-import { TreeNodeType } from '@/constants/tree';
+import { ITreeNode } from '@/typings';
+import { TreeNodeType } from '@/constants';
 import connectionService from '@/service/connection';
 import mysqlServer, { ISchemaParams, IGetListParams, ITableParams } from '@/service/sql';
 
@@ -43,13 +43,15 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string, unfold
 }
 
 export enum OperationColumn {
-  REFRESH = 'refresh',
+  Refresh = 'refresh',
   ShiftOut = 'shiftOut',
   CreateTable = 'createTable',
   CreateConsole = 'createConsole',
   DeleteTable = 'deleteTable',
   ExportDDL = 'exportDDL',
-  EditSource = 'editSource'
+  EditSource = 'editSource',
+  Top = 'top'
+
 }
 
 export interface ITreeConfigItem {
@@ -109,7 +111,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.EditSource, OperationColumn.REFRESH, OperationColumn.ShiftOut
+      OperationColumn.EditSource, OperationColumn.Refresh, OperationColumn.ShiftOut
     ],
     next: TreeNodeType.DATABASE
   },
@@ -144,7 +146,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.REFRESH
+      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh
     ],
     next: TreeNodeType.SCHEMAS
   },
@@ -163,7 +165,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.REFRESH
+      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh
     ],
   },
   [TreeNodeType.TABLES]: {
@@ -176,6 +178,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
               name: t.name,
               treeNodeType: TreeNodeType.TABLE,
               key: t.name,
+              pinned: t.pinned,
               extraParams: {
                 ...params.extraParams,
                 tableName: t.name
@@ -189,7 +192,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.REFRESH
+      OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh
     ],
   },
   [TreeNodeType.TABLE]: {
@@ -221,7 +224,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole, OperationColumn.ExportDDL, OperationColumn.DeleteTable
+      OperationColumn.ExportDDL, OperationColumn.DeleteTable, OperationColumn.Top
     ],
   },
   [TreeNodeType.COLUMNS]: {
@@ -244,7 +247,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           j()
         })
       })
-    }
+    },
+    operationColumn: [OperationColumn.Refresh]
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611'
@@ -255,7 +259,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
 
         mysqlServer.getKeyList(params).then(res => {
-          console.log(res)
           const tableList: ITreeNode[] = res?.map(item => {
             return {
               name: item.name,

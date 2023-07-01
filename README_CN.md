@@ -211,17 +211,9 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 ## ☎️ 联系我们
 
-加群前请先Star和Fork，谢谢~关注微信公众号，回复"AI"，关注Chat2DB最新动态和更新。
+加群前请先Star和Fork，谢谢~关注微信公众号可加入微信、钉钉、QQ群一起讨论，并可以获取Chat2DB最新动态和更新。
 
 <a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="30%"/></a>
-
-<a><img src="https://chat2db.oss-accelerate.aliyuncs.com/static/weichat_3.PNG" width="30%"/></a>
-
-钉钉：33285019116
-
-QQ:863576619
-
-
 
 ## ❤️ 致谢
 感谢所有为Chat2DB贡献力量的同学们~

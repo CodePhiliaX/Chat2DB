@@ -1,14 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
 import { getOsTheme } from '@/utils';
-import { ITheme } from '@/typings/theme';
-import { ThemeType, PrimaryColorType } from '@/constants/common';
-import {
-  getPrimaryColor,
-  getTheme,
-  setPrimaryColor,
-  setTheme,
-} from '@/utils/localStorage';
+import { ITheme } from '@/typings';
+import { ThemeType, PrimaryColorType } from '@/constants';
+import { getPrimaryColor, getTheme, setPrimaryColor, setTheme } from '@/utils/localStorage';
 
 const initialTheme = () => {
   let backgroundColor = getTheme() || ThemeType.Dark;
@@ -24,11 +19,10 @@ const initialTheme = () => {
   };
 };
 
-export function useTheme<T = ITheme>(): [
-  T,
-  React.Dispatch<React.SetStateAction<ITheme>>,
-] {
+export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<ITheme>>] {
   const [appTheme, setAppTheme] = useState<ITheme>(initialTheme());
+
+  // const isDark = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
   useEffect(() => {
     const uuid = addColorSchemeListener(setAppTheme);
@@ -37,14 +31,10 @@ export function useTheme<T = ITheme>(): [
     };
   }, []);
 
-  function handleAppThemeChange(theme: {
-    backgroundColor: ThemeType;
-    primaryColor: PrimaryColorType;
-  }) {
+  function handleAppThemeChange(theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) {
     if (theme.backgroundColor === ThemeType.FollowOs) {
       theme.backgroundColor =
-        window.matchMedia &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches
+        window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
           ? ThemeType.Dark
           : ThemeType.Light;
     }

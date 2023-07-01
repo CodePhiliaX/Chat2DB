@@ -11,10 +11,12 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  width: 260px;
+  width: 220px;
   overflow: hidden;
   background-color: var(--color-bg-elevated);
-  border-left: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
+  border-top: 0px;
+  border-bottom: 0px;
 }
 
 .pageTitle {
@@ -39,24 +41,41 @@
     color: var(--color-primary) !important;
   }
 
-  .menuItems {
+  .menuItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    padding: 12px;
+    padding: 8px;
+    margin-bottom: 4px;
     height: 20px;
+    border-radius: 8px;
+    user-select: none;
+
+    .menuItemsTitle {
+      flex: 1;
+      width: 0;
+      .f-single-line();
+    }
+
+    .moreButton {
+      flex-shrink: 0;
+      display: none;
+      transform: rotate(90deg);
+    }
 
     &:hover {
       background-color: var(--color-hover-bg);
-      border: var(--border-radius);
+      .moreButton {
+        display: block;
+      }
     }
   }
 
-  .menuItemsTitle {}
-
   .menuItemActive {
     color: var(--color-primary);
+    // background-color: var(--color-primary-bg);
+    background-color: var(--color-hover-bg);
   }
 
   :global {
@@ -86,26 +105,27 @@
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  width: 500px;
+  max-width: 800px;
 }
 
 .databaseItem {
   flex-grow: 1;
   border-radius: 4px;
+  height: 50px;
+  width: 210px;
+  margin: 10px 20px;
   padding: 0px 16px;
-  box-sizing: border-box;
   border-radius: 8px;
   overflow: hidden;
-  height: 50px;
-  width: 246px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
 
   .databaseItemMain {
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 50px;
-    transform: scale(1);
-    transition: transform 0.5s;
+    border-radius: 8px;
   }
 
   .databaseItemLeft {
@@ -115,7 +135,6 @@
 
   .databaseItemRight {
     display: none;
-
     i {
       font-size: 16px;
     }
@@ -123,17 +142,12 @@
 
   &:hover {
     background-color: var(--color-bg-medium);
-    cursor: pointer;
     color: var(--color-primary);
-
-    .databaseItemMain {
-      transform: scale(1.02);
-      transition: transform 0.5s;
-    }
+    border: 1px solid var(--color-primary);
+    cursor: pointer;
 
     .databaseItemRight {
       display: block;
-
       i {
         color: var(--color-primary);
       }
@@ -146,19 +160,21 @@
     align-items: center;
     height: 28px;
     width: 28px;
-    background-image: linear-gradient(138deg, #858dff 0%, #597ef7 100%);
     border-radius: 8px;
     margin-right: 16px;
 
     i {
       font-size: 16px;
-      color: #fff;
     }
   }
 }
 
 .databaseItemSpacer {
-  width: 246px;
+  flex-grow: 1;
+  width: 210px;
+  margin: 0px 20px;
+  padding: 0px 16px;
+  box-sizing: border-box;
 }
 
 .createConnections {

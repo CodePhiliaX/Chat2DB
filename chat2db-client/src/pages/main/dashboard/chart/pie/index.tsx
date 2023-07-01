@@ -20,33 +20,30 @@ const PieChart = (props: IProps, ref: ForwardedRef<{ getEchartsInstance: Functio
       },
       legend: {
         orient: 'horizontal',
-        // top: 'center',
-        align: 'auto'
+        align: 'auto',
+        type: 'scroll', //分页类型
       },
-      // color:['#45C2E0', '#C1EBDD', '#FFC851','#5A5476','#1869A0','#FF9393'],
+
+
       series: [
         {
-          // name: 'Access From',
           type: 'pie',
           radius: ['40%', '70%'],
-          // avoidLabelOverlap: false,
+          data: props.data,
           // label: {
           //   show: false,
-          //   position: 'center',
+          //   position: 'center'
           // },
-          // emphasis: {
-          //   label: {
-          //     show: true,
-          //     fontSize: 20,
-          //     fontWeight: 'bold',
-          //   },
-          // },
-          // labelLine: {
-          //   show: false,
-          // },
-          data: props.data,
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: 16,
+              fontWeight: 'bold'
+            }
+          },
         },
       ],
+
     }),
     [props.data],
   );

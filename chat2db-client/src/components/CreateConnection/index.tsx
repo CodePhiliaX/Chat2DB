@@ -5,16 +5,15 @@ import classnames from 'classnames';
 
 import connectionService from '@/service/connection';
 
-import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants/database';
+import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
-import { IConnectionDetails } from '@/typings/connection';
+import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
 import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import { useTheme } from '@/hooks/useTheme';
 
 const { Option } = Select;
 
@@ -41,6 +40,7 @@ export default function CreateConnection(props: IProps) {
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
+    backfillDataLoading: false
   });
   // const [connectionData, setConnectionData] = useState<IConnectionDetails>(props.connectionData);
   // const [currentType, setCurrentType] = useState<DatabaseTypeCode>(createType || DatabaseTypeCode.MYSQL);
@@ -56,6 +56,10 @@ export default function CreateConnection(props: IProps) {
   }, [backfillData.id]);
 
   function getConnectionDetails(id: number) {
+    setLoading({
+      ...loadings,
+      backfillDataLoading: true
+    })
     connectionService.getDetails({ id }).then((res) => {
       if (!res) {
         return;
@@ -65,9 +69,14 @@ export default function CreateConnection(props: IProps) {
       } else {
         res.authentication = 2;
       }
+      setBackfillData(res);
+    }).finally(() => {
       setTimeout(() => {
-        setBackfillData(res);
-      }, 300);
+        setLoading({
+          ...loadings,
+          backfillDataLoading: false
+        })
+      }, 100)
     });
   }
 
@@ -178,7 +187,7 @@ export default function CreateConnection(props: IProps) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <LoadingContent className={styles.loadingContent} data={backfillData}>
+      <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
         <div className={styles.connectionBox}>
           <div className={styles.title}>
             <Iconfont code={databaseMap[backfillData.type]?.icon}></Iconfont>
@@ -210,7 +219,7 @@ export default function CreateConnection(props: IProps) {
                 loading={loadings.confirmButton}
                 onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
               >
-                {i18n('common.button.save')}
+                {backfillData.id ? i18n('common.button.edit') : i18n('common.button.save')}
               </Button>
             </div>
           </div>
@@ -357,10 +366,6 @@ function RenderForm(props: IRenderFormProps) {
     if (keyName === 'host' && !aliasChanged) {
       newData.alias = '@' + keyValue;
     }
-    // console.log({
-    //   ...dataObj,
-    //   ...newData,
-    // });
     form.setFieldsValue({
       ...dataObj,
       ...newData,

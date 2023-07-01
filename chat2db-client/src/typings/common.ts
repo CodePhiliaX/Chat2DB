@@ -1,5 +1,5 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { ConsoleOpenedStatus, ConsoleStatus } from '@/constants/common';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+
 export interface IPageResponse<T> {
   data: T[];
   pageNo: number;
@@ -7,7 +7,6 @@ export interface IPageResponse<T> {
   total: number;
   hasNextPage?: boolean;
 }
-
 
 export interface IPageParams {
   searchKey?: string;
@@ -20,14 +19,51 @@ export interface IConsole {
   name: string;
   ddl: string;
   dataSourceId: number;
-  databaseName: string;
   dataSourceName: string;
-  schemaName: string;
+  databaseName?: string;
+  schemaName?: string;
   type: DatabaseTypeCode;
-  status: string;
+  status: ConsoleStatus;
   connectable: boolean;
   tabOpened?: ConsoleOpenedStatus;
 }
 
-export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'schemaName'>
+export interface Option {
+  value: number | string;
+  label: string;
+  isLeaf?: boolean;
+  children?: Option[];
+}
 
+export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>;
+
+export interface IUniversalTableParams {
+  dataSourceId: string;
+  databaseName?: string;
+  schemaName?: string;
+  tableName?: string;
+}
+
+/**
+ * 版本返回
+ * VersionResponse
+ */
+ export interface IVersionResponse {
+  /**
+   * 基础链接
+   * 类似于：http://test.sqlgpt.cn/gateway
+   */
+  baseUrl?: string;
+  /**
+   * 下载链接
+   */
+  downloadLink?: string;
+  /**
+   * 版本
+   */
+  version?: string;
+  /**
+   * 微信公众号名字
+   */
+  wechatMpName?: string;
+}

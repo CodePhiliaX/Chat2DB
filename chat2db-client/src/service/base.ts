@@ -1,5 +1,5 @@
 import { extend, ResponseError } from 'umi-request';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
@@ -8,6 +8,8 @@ export interface IOptions {
   mock?: boolean;
   errorLevel?: 'toast' | 'prompt' | 'critical' | false;
   delayTime?: number | true;
+  outside?: true;
+
 }
 
 // TODO:
@@ -52,12 +54,30 @@ const baseURL =
 
 window._BaseURL = baseURL;
 
+const appGatewayParams = localStorage.getItem('app-gateway-params');
+
+// appGateway 的基本信息
+if (appGatewayParams) {
+  window._appGatewayParams = JSON.parse(appGatewayParams);
+} else {
+  window._appGatewayParams = {};
+}
+
+const outsideUrlPrefix = window._appGatewayParams.baseUrl  || 'http://test.sqlgpt.cn/gateway/'
+
+
 const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
   const { response } = error;
   if (!response) return;
   const errorText = codeMessage[response.status] || response.statusText;
   const { status } = response;
   if (errorLevel === 'toast') {
+    // notification.open({
+    //   type: 'error',
+    //   message: status,
+    //   description: errorText,
+    //   placement: 'topRight',
+    // });
     message.error(`${status}: ${errorText}`);
   }
 };
@@ -81,7 +101,6 @@ request.interceptors.request.use((url, options) => {
   if (localStorage.getItem('DBHUB')) {
     myOptions.headers.DBHUB = localStorage.getItem('DBHUB');
   }
-  myOptions.headers.lang = getLang() || 'en-us';
   return {
     options: myOptions,
   };
@@ -89,7 +108,7 @@ request.interceptors.request.use((url, options) => {
 
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
-  if (window._ENV === 'desktop') {
+  if (__ENV === 'desktop') {
     const DBHUB = response.headers.get('DBHUB') || '';
     if (DBHUB) {
       localStorage.setItem('DBHUB', DBHUB);
@@ -106,13 +125,14 @@ request.interceptors.response.use(async (response, options) => {
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime } = options || {};
+  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside } = options || {};
 
   // 是否需要mock
   const _baseURL = mock ? mockUrl : baseURL;
   return function (params: P) {
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
+
     const _url = url.replace(/:(.+?)\b/, (_, name: string) => {
       const value = params[name];
       paramsInUrl.push(name);
@@ -142,12 +162,19 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           break;
       }
 
-      request[method](`${_baseURL}${_url}`, { [dataName]: params })
+      const eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+
+      request[method](eventualUrl, { [dataName]: params })
         .then((res) => {
           if (!res) return;
           const { success, errorCode, errorMessage, data } = res;
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
+              // notification.open({
+              //   type: 'error',
+              //   message: errorCode,
+              //   description: errorMessage,
+              // });
               message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);

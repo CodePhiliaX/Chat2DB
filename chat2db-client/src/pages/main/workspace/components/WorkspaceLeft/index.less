@@ -1,9 +1,10 @@
 @import '../../../../../styles/var.less';
 
 .box {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   background-color: var(--color-bg-elevated);
-  border-left: 1px solid var(--color-border);
   padding: 10px 20px 0px;
   box-sizing: border-box;
   min-width: 200px;
@@ -13,7 +14,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 34px;
+  flex-shrink: 0;
+}
+
+.tableModule {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+}
+
+.saveModule {
+  flex-shrink: 0;
 }
 
 .boxLeftSave {
@@ -26,6 +39,7 @@
   display: flex;
   align-items: center;
   width: 100%;
+  user-select: none;
   .currentDatabase {
     flex: 1;
     width: 0px;
@@ -37,6 +51,8 @@
       margin-left: 10px;
     }
     .name {
+      font-size: 16px;
+      font-weight: bold;
       max-width: 90%;
       .f-single-line();
     }
@@ -63,10 +79,88 @@
   }
 }
 
-.tree{
+.saveBoxList {
+  margin: 0px -10px;
+  height: calc(26px * 3 + 6px);
+  overflow-y: auto;
+}
+
+.saveBoxList {
   margin: 0px -10px;
 }
 
-.left_box_title{
+.treeBox {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+  margin: 0px -10px;
+}
+
+.saveItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 10px;
+  margin-bottom: 2px;
+  line-height: 26px;
+  border-radius: 2px;
+  user-select: none;
+  cursor: pointer;
+  .moreButton {
+    flex-shrink: 0;
+    display: none;
+    transform: rotate(90deg);
+  }
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+    color: var(--color-primary);
+    .moreButton {
+      display: block;
+    }
+  }
+}
+
+.leftModuleTitle {
+  flex-shrink: 0;
   margin-bottom: 10px;
+  .leftModuleTitleText {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 26px;
+    .modelName {
+      font-weight: bold;
+    }
+    .iconBox {
+      display: flex;
+      align-items: center;
+    }
+    .refreshIcon {
+      margin-right: 10px;
+    }
+    .refreshIcon,
+    .searchIcon {
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+  .leftModuleTitleSearch {
+    height: 26px;
+  }
+}
+
+.createButtonBox {
+  padding: 10px 0px 10px;
+}
+.createButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  i {
+    margin-right: 10px;
+  }
 }
