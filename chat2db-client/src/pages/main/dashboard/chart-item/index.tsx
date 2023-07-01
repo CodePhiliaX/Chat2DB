@@ -7,7 +7,7 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, notification, Select } from 'antd';
+import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
 import Console from '@/components/Console';
@@ -196,10 +196,8 @@ function ChartItem(props: IChartItemProps) {
       schema: JSON.stringify(form.getFieldsValue(true)),
     };
     await updateChart(params);
-    notification.success({
-      message: i18n('common.tips.saveSuccessfully'),
-    });
     setIsEditing(false)
+    message.success(i18n('common.tips.saveSuccessfully'))
   };
 
   const handleChartConfigChange = () => {
