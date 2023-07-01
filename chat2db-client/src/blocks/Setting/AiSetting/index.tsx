@@ -9,12 +9,17 @@ import styles from './index.less';
 
 interface IProps {
   handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
-  chatGPTConfig?: IChatGPTConfig;
+  chatGPTConfig: IChatGPTConfig;
 }
+
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
   const { handleUpdateAiConfig } = props;
-  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>();
+  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(props?.chatGPTConfig);
+
+  if (!chatGPTConfig) {
+    return null;
+  }
 
   useEffect(() => {
     setChatGPTConfig(props.chatGPTConfig);

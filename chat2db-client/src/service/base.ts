@@ -128,7 +128,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
   const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside } = options || {};
 
   // 是否需要mock
-  const _baseURL = mock ? mockUrl : baseURL;
+  let _baseURL = mock ? mockUrl : baseURL;
   return function (params: P) {
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];

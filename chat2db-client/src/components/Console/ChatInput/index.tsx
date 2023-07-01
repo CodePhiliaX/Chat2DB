@@ -13,9 +13,10 @@ interface IProps {
   result?: string;
   tables?: string[];
   selectedTables?: string[];
-  remainingUse: IRemainingUse;
+  remainingUse?: IRemainingUse;
   onPressEnter: (value: string) => void;
   onSelectTables?: (tables: string[]) => void;
+  onClickRemainBtn: Function;
 }
 
 function ChatInput(props: IProps) {
@@ -53,7 +54,7 @@ function ChatInput(props: IProps) {
   };
 
   const renderSuffix = () => {
-    const remainCnt = props.remainingUse || '-';
+    const remainCnt = props?.remainingUse?.remainingUses || '-';
     return (
       <div className={styles.suffixBlock}>
         {/* <div className={styles.chatShortcut}> ⌘ + ↵ </div> */}
@@ -62,15 +63,9 @@ function ChatInput(props: IProps) {
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-        <div
-          className={styles.remainBlock}
-          onClick={() => {
-            Modal.confirm({
-              title: 'wechat',
-              content: <img style={{ width: '280px' }} src={WECHAT_MP_URL} />,
-            });
-          }}
-        >
+        <div className={styles.remainBlock} onClick={() => {
+          props.onClickRemainBtn && props.onClickRemainBtn();
+        }}>
           {i18n('chat.input.remain', remainCnt)}
         </div>
       </div>
