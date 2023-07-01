@@ -13,6 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import styled from 'styled-components';
 import styles from './TableBox.less';
 import { ThemeType } from '@/constants';
+import { compareStrings } from '@/utils/sort';
 
 interface ITableProps {
   className?: string;
@@ -81,26 +82,30 @@ export default function TableBox(props: ITableProps) {
 
   const columns: ArtColumn[] = useMemo(
     () =>
-      (headerList || []).map((item, index) => ({
-        code: item.name,
-        name: item.name,
-        key: item.name,
-        lock: index === 0,
-        width: 120,
-        render: (value: any, row: any, rowIndex: number) => {
-          console.log('rowIndex', rowIndex);
-          return (
-            <div className={styles.tableItem}>
-              <div>{value}</div>
-              <div className={styles.tableHoverBox}>
-                <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-                <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+      (headerList || []).map((item, index) => {
+        const { dataType, name } = item;
+        const isFirstLine = index === 0;
+        const isNumber = dataType === TableDataType.NUMERIC;
+        return {
+          code: name,
+          name: name,
+          key: name,
+          lock: isFirstLine,
+          width: 120,
+          render: (value: any, row: any, rowIndex: number) => {
+            return (
+              <div className={styles.tableItem}>
+                <div>{value}</div>
+                <div className={styles.tableHoverBox}>
+                  <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
+                  <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+                </div>
               </div>
-            </div>
-          );
-        },
-        features: { sortable: true },
-      })),
+            );
+          },
+          features: { sortable: isNumber ? compareStrings : true },
+        };
+      }),
     [headerList],
   );
 
