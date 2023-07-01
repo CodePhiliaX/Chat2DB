@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 interface IProps {
   className?: string;
-  children: React.ReactNode[];
+  children: any; //TODO: TS，约定接受一个数组，第一项child需要携带ref
   min?: number;
   layout?: 'row' | 'column';
   callback?: Function;
@@ -70,8 +70,6 @@ export default memo<IProps>(function DraggableContainer({
     clientStart: any,
     volatileBoxXY: any,
   ) => {
-    // TODO:当有多个拖动时有bug
-    return
     let computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 

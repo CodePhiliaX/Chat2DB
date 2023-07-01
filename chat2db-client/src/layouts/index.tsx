@@ -9,20 +9,14 @@ import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
 import { isEn } from '@/utils/check';
-import { ThemeType, PrimaryColorType, LangType } from '@/constants/common';
-import { InjectThemeVar } from '@/theme'
+import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
+import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
-import {
-  getLang,
-  getPrimaryColor,
-  getTheme,
-  setLang,
-} from '@/utils/localStorage';
+import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
 
 declare global {
   interface Window {
     _Lang: string;
-    _ENV: string;
     _APP_PORT: string;
     _BUILD_TIME: string;
     _BaseURL: string;
@@ -30,11 +24,9 @@ declare global {
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
+  const __ENV: string;
 }
 
-console.log(process.env.UMI_ENV);
-
-window._ENV = process.env.UMI_ENV! || 'local';
 window._Lang = getLang();
 
 const { getDesignToken, useToken } = theme;
@@ -62,15 +54,19 @@ export default function Layout() {
   );
 }
 
-
 function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
 
   useEffect(() => {
+    let date = new Date('2030-12-30 12:30:00').toUTCString();
+    document.cookie = `CHAT2DB.LOCALE=${getLang()};Expires=${date}`;
+  }, []);
+
+  useEffect(() => {
     InjectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
-  }, [token])
+  }, [token]);
 
   useLayoutEffect(() => {
     collectInitApp();
@@ -105,8 +101,7 @@ function AppContainer() {
     let theme = getTheme();
     if (theme === ThemeType.FollowOs) {
       theme =
-        (window.matchMedia &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches
+        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
           ? ThemeType.Dark
           : ThemeType.Light) || ThemeType.Dark;
     }
@@ -122,14 +117,13 @@ function AppContainer() {
     }
   }
 
-  return <div className={styles.appContainer}>
-    {
-      initEnd &&
-      <div className={styles.app}>
-        <Outlet />
-      </div>
-    }
-  </div>
+  return (
+    <div className={styles.appContainer}>
+      {initEnd && (
+        <div className={styles.app}>
+          <Outlet />
+        </div>
+      )}
+    </div>
+  );
 }
-
-

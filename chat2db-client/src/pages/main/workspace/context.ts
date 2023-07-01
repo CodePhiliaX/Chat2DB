@@ -1,7 +1,6 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
-import { ITreeNode } from '@/typings/tree';
-import { TreeNodeType } from '@/constants/tree';
-import { DatabaseTypeCode } from '@/constants/database';
+import { ITreeNode } from '@/typings';
+import { TreeNodeType, DatabaseTypeCode } from '@/constants';
 
 export type ICurrentWorkspaceData = {
   dataSourceId: number;

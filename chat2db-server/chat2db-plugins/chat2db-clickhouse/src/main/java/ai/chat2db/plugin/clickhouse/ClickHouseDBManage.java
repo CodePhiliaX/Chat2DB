@@ -1,6 +1,7 @@
 package ai.chat2db.plugin.clickhouse;
 
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.sql.SQLExecutor;
 
 public class ClickHouseDBManage implements DBManage {
     @Override
@@ -39,6 +40,9 @@ public class ClickHouseDBManage implements DBManage {
 
     @Override
     public void dropTable(String databaseName, String schemaName, String tableName) {
-
+        String sql = "DROP TABLE IF EXISTS " + databaseName + "." + tableName;
+        SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
     }
+
+
 }

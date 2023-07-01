@@ -230,4 +230,16 @@ public class SqlUtilsTest {
         log.info("解析sql:{}", sqlLimit);
     }
 
+
+    @Test
+    public void test57() {
+        java.sql.Date date=new java.sql.Date(System.currentTimeMillis());
+
+        log.info("{}",date);
+
+        java.sql.Timestamp ts=new   java.sql.Timestamp(System.currentTimeMillis());
+
+        log.info("{}",ts);
+
+    }
 }

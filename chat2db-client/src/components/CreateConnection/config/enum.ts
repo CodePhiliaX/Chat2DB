@@ -18,7 +18,7 @@ export enum SSHAuthenticationType {
 // 树右键支持的功能
 export enum OperationColumn {
   ShiftOut = 'shiftOut', // 移出数据源
-  REFRESH = 'refresh', // 刷新各级菜单
+  Refresh = 'refresh', // 刷新各级菜单
   CreateTable = 'createTable', //创建表
   CreateConsole = 'createConsole', // 新建console
   DeleteTable = 'deleteTable', // 删除表

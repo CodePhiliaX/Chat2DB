@@ -1,5 +1,4 @@
-import { IPageResponse } from '@/typings/common';
-import { IConnectionDetails } from '@/typings/connection';
+import { IPageResponse, IConnectionDetails } from '@/typings';
 import createRequest from './base';
 // import { IPageResponse, IConnectionDetails, IDB } from '@/types';
 

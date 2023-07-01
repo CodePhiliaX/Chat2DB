@@ -22,10 +22,11 @@
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:main:prod": "cross-env NODE_ENV=production electron .",
-    "start:web": "umi dev"
+    "start:web": "cross-env UMI_ENV=local umi dev"
   },
   "dependencies": {
     "ahooks": "^3.7.7",
+    "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",

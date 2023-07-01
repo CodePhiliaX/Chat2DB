@@ -1,5 +1,6 @@
-import { ThemeType } from '@/constants/common';
-import { ITreeNode } from '@/typings/tree';
+import { ThemeType } from '@/constants';
+import { ITreeNode } from '@/typings';
+import lodash from 'lodash'
 
 export function getOsTheme() {
   return window.matchMedia &&
@@ -80,16 +81,13 @@ export function approximateTreeNode(
   isDelete = true,
 ) {
   if (target) {
-    const newTree: ITreeNode[] = JSON.parse(JSON.stringify(treeData));
+    const newTree: ITreeNode[] = lodash.cloneDeep(treeData || []);
     newTree.map((item, index) => {
       // 暂时不递归，只搜索datasource
       // if(item.children?.length){
       //   item.children = approximateTreeNode(item.children, target,false);
       // }
-      if (
-        item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 &&
-        isDelete
-      ) {
+      if (item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
         delete newTree[index];
       } else {
         item.name = item.name?.replace(
@@ -104,9 +102,54 @@ export function approximateTreeNode(
   }
 }
 
+// 模糊匹配树并且高亮
+export function approximateList<T, K extends keyof T>(
+  data: T[],
+  target: string,
+  // @ts-ignore'
+  keyName: K = 'name',
+  isDelete = true,
+) {
+  if (target) {
+    const newData: T[] = lodash.cloneDeep(data || []);
+    newData.map((item, index) => {
+      // 暂时不递归，只搜索datasource
+      // if(item.children?.length){
+      //   item.children = approximateTreeNode(item.children, target,false);
+      // }
+      // @ts-ignore'
+      if (item[keyName]?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
+        delete newData[index];
+      } else {
+        // @ts-ignore'
+        item[keyName] = item[keyName]?.replace(
+          target,
+          `<span style='color:red;'>${target}</span>`,
+        );
+      }
+    });
+    return newData.filter((i) => i);
+  } else {
+    return data;
+  }
+}
+
 // 获取var变量的值
 export const callVar = (css: string) => {
   return getComputedStyle(document.documentElement)
     .getPropertyValue(css)
     .trim();
 };
+
+// 给我一个 obj[]， 和 obj的 key 和 value，给你返index
+export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value: any) {
+  let flag = -1;
+  list.forEach((t: T, index) => {
+    Object.keys(t).forEach((j: K) => {
+      if (j === key && t[j] === value) {
+        flag = index
+      }
+    })
+  })
+  return flag
+}

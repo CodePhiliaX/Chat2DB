@@ -1,5 +1,5 @@
 import { extend, ResponseError } from 'umi-request';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
@@ -58,7 +58,13 @@ const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
   const errorText = codeMessage[response.status] || response.statusText;
   const { status } = response;
   if (errorLevel === 'toast') {
-    message.error(`${status}: ${errorText}`);
+    notification.open({
+      type: 'error',
+      message: status,
+      description: errorText,
+      placement: 'topRight',
+    });
+    // message.error(`${status}: ${errorText}`);
   }
 };
 
@@ -81,7 +87,6 @@ request.interceptors.request.use((url, options) => {
   if (localStorage.getItem('DBHUB')) {
     myOptions.headers.DBHUB = localStorage.getItem('DBHUB');
   }
-  myOptions.headers.lang = getLang() || 'en-us';
   return {
     options: myOptions,
   };
@@ -89,7 +94,7 @@ request.interceptors.request.use((url, options) => {
 
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
-  if (window._ENV === 'desktop') {
+  if (__ENV === 'desktop') {
     const DBHUB = response.headers.get('DBHUB') || '';
     if (DBHUB) {
       localStorage.setItem('DBHUB', DBHUB);
@@ -148,7 +153,12 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           const { success, errorCode, errorMessage, data } = res;
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
-              message.error(`${errorCode}: ${errorMessage}`);
+              notification.open({
+                type: 'error',
+                message: errorCode,
+                description: errorMessage,
+              });
+              // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
             return;

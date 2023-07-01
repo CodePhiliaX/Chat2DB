@@ -1,5 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { ConnectionEnv } from '@/constants/environment';
+import { DatabaseTypeCode, ConnectionEnv } from '@/constants';
 
 export interface IConnectionExtendInfoItem {
   key: string;

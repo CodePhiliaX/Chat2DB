@@ -1,14 +1,37 @@
 .chat_wrapper {
-  height: 56px;
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 12px 20px;
   box-sizing: border-box;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-secondary);
 }
 
 .chat_ai {
   width: 16px;
   height: 16px;
-  margin-right: 20px;
+  margin-right: 14px;
+}
+
+.suffixBlock {
+  display: flex;
+  align-items: center;
+}
+
+.tableSelectBlock {
+  margin-right: 8px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px 12px;
+
+  &:hover {
+    background-color: var(--color-bg-elevated);
+  }
+
+}
+
+.remainBlock {
+  border-radius: 16px;
+  background-color: var(--color-bg-elevated);
+  padding: 4px 12px;
+
 }

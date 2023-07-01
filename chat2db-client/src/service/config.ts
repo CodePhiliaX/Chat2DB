@@ -10,6 +10,9 @@ export interface IChatGPTConfig {
   apiHost: string,
   aiSqlSource: string;
   restAiStream: boolean;
+  azureEndpoint: string;
+  azureApiKey: string;
+  azureDeploymentId: string;
 }
 const getChatGptSystemConfig = createRequest<void, IChatGPTConfig>('/api/config/system_config/chatgpt', { errorLevel: false });
 
