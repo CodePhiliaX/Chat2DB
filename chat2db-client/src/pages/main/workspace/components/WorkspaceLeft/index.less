@@ -14,7 +14,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 34px;
   flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@
 
 .saveBoxList {
   margin: 0px -10px;
-  height: calc(26px * 3);
+  height: calc(26px * 3 + 6px);
   overflow-y: auto;
 }
 
@@ -133,6 +133,14 @@
       font-weight: bold;
     }
     .iconBox {
+      display: flex;
+      align-items: center;
+    }
+    .refreshIcon {
+      margin-right: 10px;
+    }
+    .refreshIcon,
+    .searchIcon {
       cursor: pointer;
       &:hover {
         color: var(--color-primary);

@@ -203,7 +203,7 @@ export function SettingAI() {
       newChatgptConfig.apiHost = newChatgptConfig.apiHost + '/';
     }
     configService.setChatGptSystemConfig(newChatgptConfig).then((res) => {
-      message.success(i18n('common.message.successfulConfig'));
+      message.success(i18n('common.text.submittedSuccessfully'));
     });
   }
 
