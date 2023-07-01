@@ -16,6 +16,7 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.spi.model.TableColumn;
@@ -500,6 +501,9 @@ public class ChatController {
                     "%s\n#\n### 目标SQL类型: %s", schemaProperty, dataSourceType);
             default:
                 break;
+        }
+        if (I18nUtils.isEn()) {
+            schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
         }
         return schemaProperty;
     }
