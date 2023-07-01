@@ -22,7 +22,8 @@ export interface IState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
-  curTableList: ITreeNode[] | undefined;
+  openConsoleList: IConsole[];
+  curTableList: ITreeNode[];
 }
 
 export interface IWorkspaceModelType {
@@ -33,6 +34,7 @@ export interface IWorkspaceModelType {
     setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
     setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
     setConsoleList: Reducer<IState['consoleList']>;
+    setOpenConsoleList: Reducer<IState['consoleList']>;
     setCurTableList: Reducer<IState['curTableList']>;
   };
   effects: {
@@ -50,6 +52,7 @@ const WorkspaceModel: IWorkspaceModelType = {
     curWorkspaceParams: getCurrentWorkspaceDatabase(),
     doubleClickTreeNodeData: undefined,
     consoleList: [],
+    openConsoleList: [],
     curTableList: [],
   },
 
@@ -83,6 +86,14 @@ const WorkspaceModel: IWorkspaceModelType = {
         consoleList: payload,
       };
     },
+
+    setOpenConsoleList(state, { payload }) {
+      return {
+        ...state,
+        openConsoleList: payload,
+      };
+    },
+
     setCurTableList(state, { payload }) {
       return {
         ...state,
@@ -99,22 +110,17 @@ const WorkspaceModel: IWorkspaceModelType = {
         payload: res,
       });
     },
-    *fetchGetSavedConsole({ payload }, { put }) {
+    *fetchGetSavedConsole({ payload, callback }, { put }) {
       const res = (yield historyService.getSavedConsoleList({
         pageNo: 1,
         pageSize: 999,
-        status: ConsoleStatus.RELEASE,
+        ...payload
       })) as IPageResponse<IConsole>;
-      yield put({
-        type: 'setConsoleList',
-        payload: res.data,
-      });
+      if (callback && typeof callback === 'function') {
+        callback(res);
+      }
     },
-    *fetchGetCurTableList({ payload, callback }, { put,call }) {
-      // yield put({
-      //   type: 'setCurTableList',
-      //   payload: undefined,
-      // });
+    *fetchGetCurTableList({ payload, callback }, { put, call }) {
       const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
         pageNo: 1,
         pageSize: 999,

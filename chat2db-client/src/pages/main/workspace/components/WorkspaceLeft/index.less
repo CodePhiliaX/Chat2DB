@@ -97,12 +97,20 @@
 }
 
 .saveItem {
-  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 0px 10px;
   margin-bottom: 2px;
   line-height: 26px;
   border-radius: 2px;
   user-select: none;
+  cursor: pointer;
+  .moreButton {
+    flex-shrink: 0;
+    display: none;
+    transform: rotate(90deg);
+  }
 
   &:hover {
     background-color: var(--color-hover-bg);
