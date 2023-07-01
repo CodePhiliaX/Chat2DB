@@ -44,7 +44,7 @@ const handleTabs = (result: IManageResultData[]) => {
 export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
   const [isUnfold, setIsUnfold] = useState(true);
   const [currentTab, setCurrentTab] = useState<string | number>(0);
-  const [resultDataList, setResultDataList] = useState<any>([]);
+  const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
   const [tabs, setTabs] = useState<IOption[]>([]);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
       return renderEmpty();
     }
 
-    return (resultDataList || []).map((item: any, index: number) => {
+    return (resultDataList || []).map((item, index: number) => {
       if (item.success) {
         return (
           <TableBox className={classnames({ [styles.cursorTableBox]: index === currentTab })} key={index} data={item} />

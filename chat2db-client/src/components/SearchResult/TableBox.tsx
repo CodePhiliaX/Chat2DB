@@ -2,13 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { TableDataType } from '@/constants/table';
 import { IManageResultData, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
-import { message, Modal, Table } from 'antd';
-import { applyTransforms, BaseTable, BaseTableProps, collectNodes, makeColumnResizeTransform } from 'ali-react-table';
+import { Button, message, Modal, Table } from 'antd';
+import antd from 'antd';
+import { BaseTable, ArtColumn, useTablePipeline, features } from 'ali-react-table';
 import Iconfont from '../Iconfont';
 import classnames from 'classnames';
 import StateIndicator from '../StateIndicator';
 import MonacoEditor from '../Console/MonacoEditor';
+import { useTheme } from '@/hooks/useTheme';
+import styled from 'styled-components';
 import styles from './TableBox.less';
+import { ThemeType } from '@/constants';
 
 interface ITableProps {
   className?: string;
@@ -20,11 +24,30 @@ interface IViewTableCellData {
   name: string;
   value: any;
 }
+// --bgcolor: #333;
+// --header-bgcolor: #45494f;
+const DarkSupportBaseTable: any = styled(BaseTable)`
+  &.dark {
+    --bgcolor: #131418;
+    --header-bgcolor: #0a0b0c;
+    --hover-bgcolor: #46484a;
+    --header-hover-bgcolor: #606164;
+    --highlight-bgcolor: #191a1b;
+    --header-highlight-bgcolor: #191a1b;
+    --color: #dadde1;
+    --header-color: #dadde1;
+    --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
+    --border-color: #3c4045;
+  }
+`;
 
 export default function TableBox(props: ITableProps) {
   const { className, data, key } = props;
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
+  const [appTheme] = useTheme();
+
+  const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
   function viewTableCell(data: IViewTableCellData) {
     setViewTableCellData(data);
@@ -39,24 +62,28 @@ export default function TableBox(props: ITableProps) {
     setViewTableCellData(null);
   }
 
-  const columns = useMemo(
+  const columns: ArtColumn[] = useMemo(
     () =>
-      (headerList || []).map((item: any) => ({
-        title: item.name,
-        dataIndex: item.name,
+      (headerList || []).map((item, index) => ({
         code: item.name,
+        name: item.name,
         key: item.name,
-        type: item.dataType,
-        sorter: (a: any, b: any) => a[item.name] - b[item.name],
-        render: (value: any) => (
-          <div className={styles.tableItem}>
-            <div className={styles.tableHoverBox}>
-              <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-              <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+        lock: index === 0,
+        width: 120,
+        // type: item.dataType,
+        // sorter: (a: any, b: any) => a[item.name] - b[item.name],
+        render: (value: any, row: any, rowIndex: number) => {
+          console.log('rowIndex', rowIndex);
+          return (
+            <div className={styles.tableItem}>
+              <div>{value}</div>
+              <div className={styles.tableHoverBox}>
+                <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
+                <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+              </div>
             </div>
-            {value}
-          </div>
-        ),
+          );
+        },
       })),
     [headerList],
   );
@@ -71,11 +98,11 @@ export default function TableBox(props: ITableProps) {
           const { dataType: type } = headerList[index] || {};
           // console.log('headerList[rowIndex]', headerList[rowIndex]);
           if (type === TableDataType.DATETIME && i) {
-            rowData[columns[index].title] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
+            rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
           } else if (i === null) {
-            rowData[columns[index].title] = '[null]';
+            rowData[columns[index].name] = '[null]';
           } else {
-            rowData[columns[index].title] = i;
+            rowData[columns[index].name] = i;
           }
         });
         rowData.key = rowIndex;
@@ -84,15 +111,32 @@ export default function TableBox(props: ITableProps) {
     }
   }, [dataList, columns]);
 
-  console.log('dataList', dataList);
+  const pipeline = useTablePipeline()
+    .input({ dataSource: tableData, columns })
+    .use(
+      features.columnResize({
+        fallbackSize: 120,
+        minSize: 60,
+        maxSize: 1080,
+        // handleBackground: '#ddd',
+        // handleHoverBackground: '#aaa',
+        // handleActiveBackground: '#89bff7',
+      }),
+    );
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
-        <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
+        // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
+        <>
+          <DarkSupportBaseTable
+            className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
+            {...pipeline.getProps()}
+          />
+          <div className={styles.statusBar}>{`结果:${description}. 耗时:${duration}ms`}</div>
+        </>
       ) : (
         <StateIndicator state="success" text="执行成功" />
       )}
-      <div className={styles.statusBar}>{`结果:${description}. 耗时:${duration}ms`}</div>
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}
@@ -116,20 +160,9 @@ export default function TableBox(props: ITableProps) {
             options={{
               readOnly: true,
             }}
-          ></MonacoEditor>
+          />
         </div>
       </Modal>
     </div>
   );
-}
-function pipeline(arg0: {
-  sizes: number;
-  onChangeSizes: React.Dispatch<React.SetStateAction<number>>;
-  appendExpander: boolean;
-  expanderVisibility: string;
-  disableUserSelectWhenResizing: boolean;
-  minSize: number;
-  maxSize: number;
-}): import('ali-react-table').Transform<{ columns: any; dataSource: any }> {
-  throw new Error('Function not implemented.');
 }

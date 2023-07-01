@@ -80,7 +80,14 @@ function Console(props: IProps) {
     }
   }, [appendValue]);
 
-  const tableListName = useMemo(() => (props.tables || []).map((t) => t.name), [props.tables]);
+  const tableListName = useMemo(() => {
+    const tableList = (props.tables || []).map((t) => t.name);
+
+    // 默认选中前八个
+    setSelectedTables(tableList.slice(0, 8));
+
+    return tableList;
+  }, [props.tables]);
 
   const handleAiChat = (content: string, promptType: IPromptType) => {
     const { dataSourceId, databaseName, schemaName } = executeParams;
@@ -227,7 +234,7 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>

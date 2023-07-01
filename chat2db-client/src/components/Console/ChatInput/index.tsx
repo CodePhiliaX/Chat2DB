@@ -4,6 +4,7 @@ import AIImg from '@/assets/img/ai.svg';
 import { Checkbox, Dropdown, Input, Popover } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
+import { WarningOutlined } from '@ant-design/icons';
 
 interface IProps {
   value?: string;
@@ -16,16 +17,20 @@ interface IProps {
 
 function ChatInput(props: IProps) {
   const onPressEnter = (e: any) => {
-    if (e.target.value) {
-      props.onPressEnter && props.onPressEnter(e.target.value);
+    if (!e.target.value) {
+      return;
     }
+    props.onPressEnter && props.onPressEnter(e.target.value);
   };
 
   const renderSelectTable = () => {
     const { tables, selectedTables, onSelectTables } = props;
     return tables && tables.length ? (
-      <div>
-        <span></span>
+      <div className={styles.aiSelectedTable}>
+        <span className={styles.aiSelectedTableTips}>
+          {/* <WarningOutlined style={{color: 'yellow'}}/> */}
+          {i18n('chat.input.remain.tooltip')}
+        </span>
         <Checkbox.Group
           style={{ width: '120px' }}
           options={tables || []}
@@ -44,6 +49,7 @@ function ChatInput(props: IProps) {
     const remainCnt = 10;
     return (
       <div className={styles.suffixBlock}>
+        {/* <div className={styles.chatShortcut}> ⌘ + ↵ </div> */}
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottom">
             <Iconfont code="&#xe618;" />
@@ -55,12 +61,13 @@ function ChatInput(props: IProps) {
   };
 
   return (
-    <div className={styles.chat_wrapper}>
-      <img className={styles.chat_ai} src={AIImg} />
+    <div className={styles.chatWrapper}>
+      <img className={styles.chatAi} src={AIImg} />
       <Input
         defaultValue={props.value}
         bordered={false}
         placeholder={i18n('workspace.ai.input.placeholder')}
+        // onKeyUp={onPressEnter}
         onPressEnter={onPressEnter}
         suffix={renderSuffix()}
       />
