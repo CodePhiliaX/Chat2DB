@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin, message, Drawer } from 'antd';
+import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
@@ -15,6 +15,8 @@ import { ITreeNode } from '@/typings';
 import styles from './index.less';
 import i18n from '@/i18n';
 import { IRemainingUse } from '@/typings/ai';
+import { IAIState } from '@/models/ai';
+import { WECHAT_MP_URL } from '@/constants/social';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -59,15 +61,17 @@ interface IProps {
   };
   tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
-  remainingUse: IRemainingUse;
+  aiModel: IAIState;
+  dispatch: Function;
+  // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
-  tables: any[]
+  tables: any[];
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, remainingUse } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, aiModel, dispatch } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -84,16 +88,15 @@ function Console(props: IProps) {
     }
   }, [appendValue]);
 
-
   useEffect(() => {
     monacoHint.current?.dispose();
     const myEditorHintData: any = {};
-    console.log(props.tables)
+    console.log(props.tables);
     props.tables?.map((item: any) => {
       myEditorHintData[item.name] = [];
     });
     monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
-  }, [props.tables])
+  }, [props.tables]);
 
   const tableListName = useMemo(() => {
     const tableList = (props.tables || []).map((t) => t.name);
@@ -105,6 +108,18 @@ function Console(props: IProps) {
   }, [props.tables]);
 
   const handleAiChat = (content: string, promptType: IPromptType) => {
+    // if (!aiModel.remainingUse?.remainingUses) {
+    //   popUpPrompts();
+    //   return;
+    // }
+
+    dispatch({
+      type: 'ai/fetchRemainingUse',
+      payload: {
+        key: aiModel?.remainingUse?.key,
+      },
+    });
+
     const { dataSourceId, databaseName, schemaName } = executeParams;
     const isNL2SQL = promptType === IPromptType.NL_2_SQL;
     if (isNL2SQL) {
@@ -193,7 +208,7 @@ function Console(props: IProps) {
     let p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
-      ddl: value
+      ddl: value,
     };
     historyServer.updateSavedConsole(p).then((res) => {
       message.success(i18n('common.tips.saveSuccessfully'));
@@ -222,17 +237,26 @@ function Console(props: IProps) {
     [],
   );
 
+  const popUpPrompts = () => {
+    Modal.info({
+      title: i18n('chat.input.remain.dialog.tips'),
+      content: <img style={{ width: '280px' }} src={aiModel?.remainingUse?.wechatMpUrl ?? WECHAT_MP_URL} />,
+    });
+  };
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
             tables={tableListName}
-            remainingUse={remainingUse}
+            remainingUse={aiModel.remainingUse}
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
               setSelectedTables(tables);
+            }}
+            onClickRemainBtn={() => {
+              popUpPrompts();
             }}
           />
         )}
@@ -248,7 +272,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -284,4 +308,7 @@ function Console(props: IProps) {
   );
 }
 
-export default Console;
+const dvaModel = connect(({ ai }: { ai: IAIState }) => ({
+  aiModel: ai,
+}));
+export default dvaModel(Console);

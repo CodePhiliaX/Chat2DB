@@ -9,12 +9,17 @@ import styles from './index.less';
 
 interface IProps {
   handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
-  chatGPTConfig?: IChatGPTConfig;
+  chatGPTConfig: IChatGPTConfig;
 }
+
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
   const { handleUpdateAiConfig } = props;
-  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>();
+  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(props?.chatGPTConfig);
+
+  if (!chatGPTConfig) {
+    return null;
+  }
 
   useEffect(() => {
     setChatGPTConfig(props.chatGPTConfig);
@@ -46,11 +51,26 @@ export default function SettingAI(props: IProps) {
           }}
           value={chatGPTConfig?.aiSqlSource}
         >
+          <Radio value={AiSqlSourceType.CHAT2DB}>Chat2DB AI</Radio>
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
+        <div>
+          <div className={styles.title}>Api Key</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              placeholder={i18n('setting.placeholder.chat2dbApiKey')}
+              value={chatGPTConfig.apiKey}
+              onChange={(e) => {
+                setChatGPTConfig({ ...chatGPTConfig, apiKey: e.target.value });
+              }}
+            />
+          </div>
+        </div>
+      )}
       {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
         <div>
           <div className={styles.title}>Api Key</div>
