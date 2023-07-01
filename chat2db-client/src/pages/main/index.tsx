@@ -74,7 +74,7 @@ function MainPage(props: IProps) {
     // }
     // activeNav 变化 同步地址栏变化
     // change url，but no page refresh
-    window.history.pushState({}, "", `/#/${activeNav.key}`);
+    window.history.pushState({}, "", `${location.href}/#/${activeNav.key}`);
   }, [activeNav])
 
   useEffect(() => {
