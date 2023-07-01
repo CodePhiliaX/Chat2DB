@@ -32,6 +32,8 @@ public class TableVO {
      */
     private List<IndexVO> indexList;
 
-
+    /**
+     * 是否已经被固定
+     */
     private boolean pinned;
 }
