@@ -154,6 +154,9 @@ public class ConfigController {
         DataResult<Config> aiSqlSource = configService.find(RestAIClient.AI_SQL_SOURCE);
         DataResult<Config> restAiUrl = configService.find(RestAIClient.REST_AI_URL);
         DataResult<Config> restAiHttpMethod = configService.find(RestAIClient.REST_AI_STREAM_OUT);
+        DataResult<Config> azureApiKey = configService.find(AzureOpenAIClient.AZURE_CHATGPT_API_KEY);
+        DataResult<Config> azureEndpoint = configService.find(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT);
+        DataResult<Config> azureDeployId = configService.find(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID);
         ChatGptConfig config = new ChatGptConfig();
         config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
         config.setAiSqlSource(Objects.nonNull(aiSqlSource.getData()) ? aiSqlSource.getData().getContent() : null);
@@ -163,6 +166,9 @@ public class ConfigController {
         config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
         config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : null);
         config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : null);
+        config.setAzureApiKey(Objects.nonNull(azureApiKey.getData()) ? azureApiKey.getData().getContent() : null);
+        config.setAzureEndpoint(Objects.nonNull(azureEndpoint.getData()) ? azureEndpoint.getData().getContent() : null);
+        config.setAzureDeploymentId(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : null);
         return DataResult.of(config);
     }
 }
