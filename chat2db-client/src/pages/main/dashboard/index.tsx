@@ -20,11 +20,14 @@ import i18n from '@/i18n';
 import { IConnectionModelState } from '@/models/connection';
 import styles from './index.less';
 import { IWorkspaceModelState } from '@/models/workspace';
+import { IAIState } from '@/models/ai';
+import { IRemainingUse } from '@/typings/ai';
 
 interface IProps {
   className?: string;
   connectionList: IConnectionDetails[];
   curTableList: ITreeNode[];
+  remainingUse: IRemainingUse;
   dispatch: Dispatch;
 }
 
@@ -36,7 +39,7 @@ export const initChartItem: IChartItem = {
 };
 
 function Chart(props: IProps) {
-  const { className, connectionList, curTableList } = props;
+  const { className, connectionList, curTableList, remainingUse, dispatch } = props;
   const [dashboardList, setDashboardList] = useState<IDashboardItem[]>([]);
   const [curDashboard, setCurDashboard] = useState<IDashboardItem>();
   const [openAddDashboard, setOpenAddDashboard] = useState(false);
@@ -218,6 +221,7 @@ function Chart(props: IProps) {
                     onDelete={(id: number) => onDeleteChart(id, rowIndex, colIndex)}
                     connectionList={connectionList || []}
                     tableList={curTableList || []}
+                    remainingUse={remainingUse}
                   />
                 </div>
               ))}
@@ -226,6 +230,10 @@ function Chart(props: IProps) {
         </div>
       </>
     );
+  };
+
+  const updateAiRemainUse = () => {
+    
   };
 
   return (
@@ -290,8 +298,17 @@ function Chart(props: IProps) {
 }
 
 export default connect(
-  ({ connection, workspace }: { connection: IConnectionModelState; workspace: IWorkspaceModelState }) => ({
+  ({
+    connection,
+    workspace,
+    ai,
+  }: {
+    connection: IConnectionModelState;
+    workspace: IWorkspaceModelState;
+    ai: IAIState;
+  }) => ({
     connectionList: connection.connectionList,
     curTableList: workspace.curTableList,
+    remainingUse: ai.remainingUse,
   }),
 )(Chart);

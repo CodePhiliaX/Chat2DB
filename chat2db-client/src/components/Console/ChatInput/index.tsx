@@ -1,16 +1,19 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Checkbox, Dropdown, Input, Popover } from 'antd';
+import { Checkbox, Dropdown, Input, Modal, Popover } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
+import { IRemainingUse } from '@/typings/ai';
+import { WECHAT_MP_URL } from '@/constants/social';
 
 interface IProps {
   value?: string;
   result?: string;
   tables?: string[];
   selectedTables?: string[];
+  remainingUse: IRemainingUse;
   onPressEnter: (value: string) => void;
   onSelectTables?: (tables: string[]) => void;
 }
@@ -50,7 +53,7 @@ function ChatInput(props: IProps) {
   };
 
   const renderSuffix = () => {
-    const remainCnt = 10;
+    const remainCnt = props.remainingUse || '-';
     return (
       <div className={styles.suffixBlock}>
         {/* <div className={styles.chatShortcut}> ⌘ + ↵ </div> */}
@@ -59,7 +62,17 @@ function ChatInput(props: IProps) {
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-        <div className={styles.remainBlock}>{i18n('chat.input.remain', remainCnt)}</div>
+        <div
+          className={styles.remainBlock}
+          onClick={() => {
+            Modal.confirm({
+              title: 'wechat',
+              content: <img style={{ width: '280px' }} src={WECHAT_MP_URL} />,
+            });
+          }}
+        >
+          {i18n('chat.input.remain', remainCnt)}
+        </div>
       </div>
     );
   };

@@ -1,4 +1,7 @@
 import { IChartItem, IDashboardItem, IPageResponse } from '@/typings';
+import { IRemainingUse } from '@/typings/ai';
 import createRequest from './base';
 
-const get = createRequest<{ key: string }, void>('/client/remaininguses/');
+const getRemainingUse = createRequest<{ key: string }, IRemainingUse>('/client/remaininguses/');
+
+export default { getRemainingUse };
