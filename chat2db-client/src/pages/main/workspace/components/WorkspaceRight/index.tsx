@@ -1,5 +1,5 @@
 import React, { memo, useRef, useEffect, useState } from 'react';
-import { connect } from 'umi'
+import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
@@ -8,18 +8,19 @@ import historyService from '@/service/history';
 import Tabs from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
+import { IAIState } from '@/models/ai';
 
 interface IProps {
   className?: string;
-  workspaceModel: IWorkspaceModelType['state'];
+  workspaceModel: IWorkspaceModelState;
+  aiModel: IAIState;
   dispatch: any;
 }
 
 const WorkspaceRight = memo<IProps>(function (props) {
-  const { className } = props;
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
-  const { workspaceModel, dispatch } = props;
+  const { className, aiModel, workspaceModel, dispatch } = props;
   const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData, openConsoleList } = workspaceModel;
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
   useEffect(() => {
     // 这里只处理没有console的情况下
     if (!doubleClickTreeNodeData || openConsoleList?.length) {
-      return
+      return;
     }
 
     const { extraParams } = doubleClickTreeNodeData;
@@ -50,7 +51,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     addConsole(p);
     dispatch({
       type: 'workspace/setDoubleClickTreeNodeData',
-      payload: ''
+      payload: '',
     });
   }, [doubleClickTreeNodeData]);
 
@@ -61,16 +62,16 @@ const WorkspaceRight = memo<IProps>(function (props) {
       setActiveConsoleId(openConsoleList[0].id);
     } else {
       let flag = false;
-      openConsoleList.forEach(t => {
+      openConsoleList.forEach((t) => {
         if (t.id === activeConsoleId) {
-          flag = true
+          flag = true;
         }
-      })
+      });
       if (!flag) {
-        setActiveConsoleId(openConsoleList[openConsoleList.length - 1].id)
+        setActiveConsoleId(openConsoleList[openConsoleList.length - 1].id);
       }
     }
-  }, [openConsoleList])
+  }, [openConsoleList]);
 
   function getConsoleList() {
     let p: any = {
@@ -87,9 +88,9 @@ const WorkspaceRight = memo<IProps>(function (props) {
         dispatch({
           type: 'workspace/setOpenConsoleList',
           payload: res.data,
-        })
-      }
-    })
+        });
+      },
+    });
   }
 
   function onChange(key: number | string) {
@@ -106,7 +107,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
   };
 
   const addConsole = (params?: ICreateConsole) => {
-    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
     let p = {
       name: `new console${openConsoleList?.length}`,
       ddl: '',
@@ -116,12 +117,12 @@ const WorkspaceRight = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
-    }
-    historyService.saveConsole(params || p).then(res => {
+    };
+    historyService.saveConsole(params || p).then((res) => {
       setActiveConsoleId(res);
       getConsoleList();
-    })
-  }
+    });
+  };
 
   const closeWindowTab = (key: number) => {
     let newActiveKey = activeConsoleId;
@@ -142,8 +143,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
     }
     dispatch({
       type: 'workspace/setOpenConsoleList',
-      payload: newPanes
-    })
+      payload: newPanes,
+    });
     setActiveConsoleId(newActiveKey);
 
     let p: any = {
@@ -163,9 +164,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
   };
 
   function render() {
-    return <div className={styles.ears}>
-      Chat2DB
-    </div>
+    return <div className={styles.ears}>Chat2DB</div>;
   }
 
   return (
@@ -186,11 +185,14 @@ const WorkspaceRight = memo<IProps>(function (props) {
           />
         </div>
         {openConsoleList?.map((t, index) => {
-          return <div key={t.id} className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
-            <WorkspaceRightItem
-              isActive={activeConsoleId === t.id}
-              data={
-                {
+          return (
+            <div
+              key={t.id}
+              className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}
+            >
+              <WorkspaceRightItem
+                isActive={activeConsoleId === t.id}
+                data={{
                   initDDL: t.ddl,
                   databaseName: curWorkspaceParams.databaseName!,
                   dataSourceId: curWorkspaceParams.dataSourceId!,
@@ -198,18 +200,22 @@ const WorkspaceRight = memo<IProps>(function (props) {
                   schemaName: curWorkspaceParams?.schemaName!,
                   consoleId: t.id,
                   consoleName: t.name,
-                }
-              }
-            />
-          </div>
+                }}
+                workspaceModel={workspaceModel}
+                aiModel={aiModel}
+                dispatch={dispatch}
+              />
+            </div>
+          );
         })}
       </LoadingContent>
     </div>
   );
-})
+});
 
-const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace
-}))
+const dvaModel = connect(({ workspace, ai }: { workspace: IWorkspaceModelType; ai: IAIState }) => ({
+  workspaceModel: workspace,
+  aiModel: ai,
+}));
 
-export default dvaModel(WorkspaceRight) 
+export default dvaModel(WorkspaceRight);

@@ -17,11 +17,22 @@ interface IProps {
   text?: string;
   dispatch: Function;
 }
-
+const initChatGPTConfig = {
+  apiKey: '',
+  httpProxyHost: '',
+  httpProxyPort: '',
+  restAiUrl: '',
+  apiHost: '',
+  restAiStream: true,
+  aiSqlSource: '',
+  azureApiKey: '',
+  azureEndpoint: '',
+  azureDeploymentId: '',
+};
 function Setting(props: IProps) {
   const { className, text, dispatch } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>();
+  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(initChatGPTConfig);
 
   const [currentMenu, setCurrentMenu] = useState(0);
   useEffect(() => {

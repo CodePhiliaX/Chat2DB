@@ -44,6 +44,9 @@ public class AzureOpenAiStreamClient {
      */
     public AzureOpenAiStreamClient(String apiKey, String endpoint, String deployId) {
         this.deployId = deployId;
+        if (StringUtils.isBlank(apiKey)) {
+            return;
+        }
         this.client = new OpenAIClientBuilder()
             .credential(new AzureKeyCredential(apiKey))
             .endpoint(endpoint)
