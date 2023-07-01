@@ -131,7 +131,7 @@ public class ConfigController {
         SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID).content(
             request.getAzureDeploymentId()).build();
         configService.createOrUpdate(modelParam);
-        RestAIClient.refresh();
+        AzureOpenAIClient.refresh();
     }
 
     @GetMapping("/system_config/{code}")

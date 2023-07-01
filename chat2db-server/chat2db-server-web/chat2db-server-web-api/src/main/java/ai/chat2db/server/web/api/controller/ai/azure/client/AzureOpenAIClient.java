@@ -54,7 +54,7 @@ public class AzureOpenAIClient {
     }
 
     public static void refresh() {
-        String apikey = "";
+        String key = "";
         String apiEndpoint = "";
         String deployId = "gpt-3.5-turbo";
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
@@ -64,15 +64,15 @@ public class AzureOpenAIClient {
         }
         Config config = configService.find(AZURE_CHATGPT_API_KEY).getData();
         if (config != null) {
-            apikey = config.getContent();
+            key = config.getContent();
         }
         Config deployConfig = configService.find(AZURE_CHATGPT_DEPLOYMENT_ID).getData();
-        if (config != null) {
+        if (deployConfig != null) {
             deployId = deployConfig.getContent();
         }
-        log.info("refresh azure openai apikey:{}", maskApiKey(apikey));
-        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(apiKey, apiEndpoint, deployId);
-        apiKey = apikey;
+        log.info("refresh azure openai apikey:{}", maskApiKey(key));
+        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(key, apiEndpoint, deployId);
+        apiKey = key;
     }
 
     private static String maskApiKey(String input) {
