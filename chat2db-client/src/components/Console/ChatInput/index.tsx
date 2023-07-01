@@ -20,6 +20,10 @@ function ChatInput(props: IProps) {
     if (!e.target.value) {
       return;
     }
+    if (e.nativeEvent.isComposing && e.key === 'Enter') {
+      e.preventDefault();
+      return;
+    }
     props.onPressEnter && props.onPressEnter(e.target.value);
   };
 

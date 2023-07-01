@@ -4,7 +4,7 @@ import { IManageResultData, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
 import { Button, message, Modal, Table } from 'antd';
 import antd from 'antd';
-import { BaseTable, ArtColumn, useTablePipeline, features } from 'ali-react-table';
+import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import Iconfont from '../Iconfont';
 import classnames from 'classnames';
 import StateIndicator from '../StateIndicator';
@@ -14,6 +14,7 @@ import styled from 'styled-components';
 import styles from './TableBox.less';
 import { ThemeType } from '@/constants';
 import i18n from '@/i18n';
+import { compareStrings } from '@/utils/sort';
 
 interface ITableProps {
   className?: string;
@@ -37,7 +38,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
     --color: #dadde1;
     --header-color: #dadde1;
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
-    --border-color: #3c4045;
+    --border-color: transparent;
   }
 `;
 
@@ -46,8 +47,25 @@ export default function TableBox(props: ITableProps) {
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
-
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
+  // const [sorts, onChangeSorts] = useState<SortItem[]>([]);
+
+  // useEffect(() => {
+  //   const sorts: SortItem[] = (headerList || []).map((item) => ({
+  //     code: item.name,
+  //     order: 'none',
+  //   }));
+  //   onChangeSorts(sorts);
+  // }, [headerList]);
+
+  const defaultSorts: SortItem[] = useMemo(
+    () =>
+      (headerList || []).map((item) => ({
+        code: item.name,
+        order: 'none',
+      })),
+    [headerList],
+  );
 
   function viewTableCell(data: IViewTableCellData) {
     setViewTableCellData(data);
@@ -64,26 +82,30 @@ export default function TableBox(props: ITableProps) {
 
   const columns: ArtColumn[] = useMemo(
     () =>
-      (headerList || []).map((item, index) => ({
-        code: item.name,
-        name: item.name,
-        key: item.name,
-        lock: index === 0,
-        width: 120,
-        // type: item.dataType,
-        // sorter: (a: any, b: any) => a[item.name] - b[item.name],
-        render: (value: any, row: any, rowIndex: number) => {
-          return (
-            <div className={styles.tableItem}>
-              <div>{value}</div>
-              <div className={styles.tableHoverBox}>
-                <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-                <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+      (headerList || []).map((item, index) => {
+        const { dataType, name } = item;
+        const isFirstLine = index === 0;
+        const isNumber = dataType === TableDataType.NUMERIC;
+        return {
+          code: name,
+          name: name,
+          key: name,
+          lock: isFirstLine,
+          width: 120,
+          render: (value: any, row: any, rowIndex: number) => {
+            return (
+              <div className={styles.tableItem}>
+                <div>{value}</div>
+                <div className={styles.tableHoverBox}>
+                  <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
+                  <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+                </div>
               </div>
-            </div>
-          );
-        },
-      })),
+            );
+          },
+          features: { sortable: isNumber ? compareStrings : true },
+        };
+      }),
     [headerList],
   );
 
@@ -112,6 +134,14 @@ export default function TableBox(props: ITableProps) {
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
     .use(
+      features.sort({
+        mode: 'single',
+        defaultSorts,
+        // sorts,
+        // onChangeSorts,
+      }),
+    )
+    .use(
       features.columnResize({
         fallbackSize: 120,
         minSize: 60,
@@ -121,12 +151,16 @@ export default function TableBox(props: ITableProps) {
         // handleActiveBackground: '#89bff7',
       }),
     );
+
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
         // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
         <>
           <DarkSupportBaseTable
+            style={{
+              '--border-color': 'transparent',
+            }}
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             {...pipeline.getProps()}
           />
