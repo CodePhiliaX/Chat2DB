@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown } from 'antd';
+import { Cascader, Divider, Input, Dropdown, Button } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
@@ -10,12 +10,15 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
 import Tree from '../Tree';
 import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
-import { IConsole, ITreeNode } from '@/typings';
+import { IConsole, ITreeNode, ICreateConsole } from '@/typings';
 import styles from './index.less';
 import { approximateTreeNode, approximateList } from '@/utils';
+import historyService from '@/service/history';
 
 interface IProps {
   className?: string;
+  workspaceModel: IWorkspaceModelType['state'],
+  dispatch: any;
 }
 
 const dvaModel = connect(
@@ -26,7 +29,51 @@ const dvaModel = connect(
 );
 
 const WorkspaceLeft = memo<IProps>(function (props) {
-  const { className } = props;
+  const { className, workspaceModel, dispatch } = props;
+  const { curWorkspaceParams } = workspaceModel;
+
+
+  function getConsoleList() {
+    let p: any = {
+      pageNo: 1,
+      pageSize: 999,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      ...curWorkspaceParams,
+    };
+
+    dispatch({
+      type: 'workspace/fetchGetSavedConsole',
+      payload: p,
+      callback: (res: any) => {
+        dispatch({
+          type: 'workspace/setOpenConsoleList',
+          payload: res.data,
+        })
+      }
+    })
+  }
+
+  const addConsole = (params?: ICreateConsole) => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
+    let p = {
+      name: `new console`,
+      ddl: '',
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName!,
+      schemaName: schemaName!,
+      type: databaseType,
+      status: ConsoleStatus.DRAFT,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    }
+    historyService.saveConsole(params || p).then(res => {
+      getConsoleList();
+    })
+  }
+
+  function createConsole() {
+    addConsole()
+  }
+
   return (
     <div className={classnames(styles.box, className)}>
       <div className={styles.header}>
@@ -35,6 +82,12 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       <RenderSaveBox></RenderSaveBox>
       <Divider className={styles.divider} />
       <RenderTableBox />
+      <div className={styles.createButtonBox}>
+        <Button className={styles.createButton} type="primary" onClick={createConsole}>
+          <Iconfont code="&#xe63a;" />
+          {i18n('common.button.createConsole')}
+        </Button>
+      </div>
     </div>
   );
 });

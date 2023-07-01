@@ -43,4 +43,9 @@ export default {
   'common.tips.saveSuccessfully': 'Save Successfully',
   'common.button.copy': 'Copy',
   'common.button.copySuccessfully': 'Copy Successfully',
+  'common.button.createConsole': 'Create Console',
+  'common.text.successfulExecution': 'Successful Execution',
+  'common.text.result': 'Result',
+  'common.text.timeConsuming': 'Time Consuming',
+  'common.text.noData': 'No Data',
 };

@@ -80,24 +80,16 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
       const dataList = resultDataList.filter((t) => t.uuid !== value);
       setResultDataList(dataList);
       if (currentTab === value) {
-        console.log(currentTab)
-        setCurrentTab(dataList[0].uuid);
-        console.log(dataList[0].uuid)
+        setCurrentTab(dataList[0]?.uuid);
       }
     }
   }
 
-  useEffect(() => {
-    console.log(currentTab)
-  }, [currentTab])
-
-
   const renderEmpty = () => {
-    return <div>暂无数据</div>;
+    return <div className={styles.noData}>{i18n('common.text.noData')}</div >;
   };
 
   const renderTable = useMemo(() => {
-    console.log('2', currentTab)
     if (!tabs || !tabs.length) {
       return renderEmpty();
     }

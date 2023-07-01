@@ -2,7 +2,6 @@ import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
 import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-console.log(process.env.UMI_ENV);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [

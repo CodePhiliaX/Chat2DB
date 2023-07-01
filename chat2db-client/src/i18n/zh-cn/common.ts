@@ -43,5 +43,10 @@ export default {
   'common.tips.saveSuccessfully': '保存成功',
   'common.button.copy': '复制',
   'common.button.copySuccessfully': '复制成功',
+  'common.button.createConsole': '新建控制台',
+  'common.text.successfulExecution': '执行成功',
+  'common.text.result': '结果',
+  'common.text.timeConsuming': '耗时',
+  'common.text.noData': '暂无数据',
 
 };

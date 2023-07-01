@@ -48,7 +48,6 @@ interface IProps {
   /** 是否有 */
   hasSaveBtn?: boolean;
   value?: string;
-  tables: ITreeNode[];
   executeParams: {
     databaseName?: string;
     dataSourceId?: number;
@@ -57,10 +56,12 @@ interface IProps {
     schemaName?: string;
     consoleName?: string;
   };
+  tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
+  tables: any[]
 }
 
 function Console(props: IProps) {
@@ -73,12 +74,24 @@ function Console(props: IProps) {
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
+  const monacoHint = useRef<any>();
 
   useEffect(() => {
     if (appendValue) {
       editorRef?.current?.setValue(appendValue.text, appendValue.range);
     }
   }, [appendValue]);
+
+
+  useEffect(() => {
+    monacoHint.current?.dispose();
+    const myEditorHintData: any = {};
+    console.log(props.tables)
+    props.tables?.map((item: any) => {
+      myEditorHintData[item.name] = [];
+    });
+    monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
+  }, [props.tables])
 
   const tableListName = useMemo(() => {
     const tableList = (props.tables || []).map((t) => t.name);
@@ -132,7 +145,6 @@ function Console(props: IProps) {
           chatResult.current += JSON.parse(message).content;
         }
       } catch (error) {
-        console.log('handleMessage', error);
         setIsLoading(false);
       }
     };
@@ -232,6 +244,7 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
+          tables={props.tables}
         // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}

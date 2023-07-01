@@ -164,10 +164,10 @@ export default function TableBox(props: ITableProps) {
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>{`结果:${description}. 耗时:${duration}ms`}</div>
+          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n('common.text.timeConsuming')}：${duration}ms`}</div>
         </>
       ) : (
-        <StateIndicator state="success" text="执行成功" />
+        <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
       )}
       <Modal
         title={viewTableCellData?.name}
