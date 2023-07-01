@@ -5,7 +5,10 @@
 package ai.chat2db.spi.util;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 import ai.chat2db.spi.model.*;
 
@@ -65,6 +68,11 @@ public class ResultSetUtils {
     }
 
     public static TableColumn buildColumn(ResultSet resultSet) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        Set<String> columnSet = new HashSet<>();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            columnSet.add(metaData.getColumnLabel(i));
+        }
         TableColumn tableColumn = new TableColumn();
         tableColumn.setDatabaseName(resultSet.getString("TABLE_CAT"));
         tableColumn.setSchemaName(resultSet.getString("TABLE_SCHEM"));
@@ -77,8 +85,12 @@ public class ResultSetUtils {
         tableColumn.setDataType(resultSet.getInt("DATA_TYPE"));
         tableColumn.setNullable(resultSet.getInt("NULLABLE") == 1);
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-        tableColumn.setAutoIncrement("YES".equals(resultSet.getString("IS_AUTOINCREMENT")));
-        //tableColumn.setGeneratedColumn("YES".equals(resultSet.getString("IS_GENERATEDCOLUMN")));
+        if (columnSet.contains("IS_AUTOINCREMENT")) {
+            tableColumn.setAutoIncrement("YES".equals(resultSet.getString("IS_AUTOINCREMENT")));
+        }
+        if (columnSet.contains("IS_GENERATEDCOLUMN")) {
+            tableColumn.setGeneratedColumn("YES".equals(resultSet.getString("IS_GENERATEDCOLUMN")));
+        }
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
         tableColumn.setDecimalDigits(resultSet.getInt("DECIMAL_DIGITS"));
         tableColumn.setNumPrecRadix(resultSet.getInt("NUM_PREC_RADIX"));
