@@ -14,7 +14,7 @@ export type ICurWorkspaceParams = {
   schemaName?: string;
 };
 
-export interface IState {
+export interface IWorkspaceModelState {
   // 当前连接下的及联databaseAndSchema数据
   databaseAndSchema: MetaSchemaVO | undefined;
   // 当前工作区所需的参数
@@ -28,14 +28,14 @@ export interface IState {
 
 export interface IWorkspaceModelType {
   namespace: 'workspace';
-  state: IState;
+  state: IWorkspaceModelState;
   reducers: {
-    setDatabaseAndSchema: Reducer<IState['databaseAndSchema']>;
-    setCurWorkspaceParams: Reducer<IState['curWorkspaceParams']>;
+    setDatabaseAndSchema: Reducer<IWorkspaceModelState['databaseAndSchema']>;
+    setCurWorkspaceParams: Reducer<IWorkspaceModelState['curWorkspaceParams']>;
     setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
-    setConsoleList: Reducer<IState['consoleList']>;
-    setOpenConsoleList: Reducer<IState['consoleList']>;
-    setCurTableList: Reducer<IState['curTableList']>;
+    setConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
+    setOpenConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
+    setCurTableList: Reducer<IWorkspaceModelState['curTableList']>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;

@@ -1,30 +1,30 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, Dropdown, Form, Input, Modal, message } from 'antd';
+import { Dropdown, Form, Input, Modal, message } from 'antd';
 import { connect, Dispatch } from 'umi';
 import cs from 'classnames';
-import { IChartItem, IChartType, IConnectionDetails, IDashboardItem } from '@/typings';
+import { IChartItem, IConnectionDetails, IDashboardItem, ITreeNode } from '@/typings';
 import DraggableContainer from '@/components/DraggableContainer';
 import Iconfont from '@/components/Iconfont';
 import ChartItem from './chart-item';
-import { ReactSortable, Store } from 'react-sortablejs';
-import { GlobalState } from '@/models/global';
+// import { ReactSortable, Store } from 'react-sortablejs';
+// import { GlobalState } from '@/models/global';
 import {
   createChart,
   createDashboard,
   deleteDashboard,
   getDashboardById,
   getDashboardList,
-  updateChart,
   updateDashboard,
 } from '@/service/dashboard';
-import { MoreOutlined } from '@ant-design/icons';
-import styles from './index.less';
 import i18n from '@/i18n';
-import { IConnectionModelState, IConnectionModelType } from '@/models/connection';
+import { IConnectionModelState } from '@/models/connection';
+import styles from './index.less';
+import { IWorkspaceModelState } from '@/models/workspace';
 
 interface IProps {
   className?: string;
   connectionList: IConnectionDetails[];
+  curTableList: ITreeNode[];
   dispatch: Dispatch;
 }
 
@@ -36,7 +36,7 @@ export const initChartItem: IChartItem = {
 };
 
 function Chart(props: IProps) {
-  const { className, connectionList } = props;
+  const { className, connectionList, curTableList } = props;
   const [dashboardList, setDashboardList] = useState<IDashboardItem[]>([]);
   const [curDashboard, setCurDashboard] = useState<IDashboardItem>();
   const [openAddDashboard, setOpenAddDashboard] = useState(false);
@@ -217,6 +217,7 @@ function Chart(props: IProps) {
                     addChartRight={() => onAddChart('right', rowIndex, colIndex)}
                     onDelete={(id: number) => onDeleteChart(id, rowIndex, colIndex)}
                     connectionList={connectionList || []}
+                    tableList={curTableList || []}
                   />
                 </div>
               ))}
@@ -288,6 +289,9 @@ function Chart(props: IProps) {
   );
 }
 
-export default connect(({ connection }: { connection: IConnectionModelState }) => ({
-  connectionList: connection.connectionList,
-}))(Chart);
+export default connect(
+  ({ connection, workspace }: { connection: IConnectionModelState; workspace: IWorkspaceModelState }) => ({
+    connectionList: connection.connectionList,
+    curTableList: workspace.curTableList,
+  }),
+)(Chart);
