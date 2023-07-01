@@ -68,9 +68,9 @@ export default memo<IProps>(function Tab(props) {
                   { [styles.activeTab]: t.value === internalActiveTab && type !== 'line' },
                 )
               }
-              onClick={changeTab.bind(null, t)}
+
             >
-              <div className={styles.text} key={t.value}>
+              <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
                 {t.label}
               </div>
               <div className={styles.icon} onClick={deleteTab.bind(null, t)}>

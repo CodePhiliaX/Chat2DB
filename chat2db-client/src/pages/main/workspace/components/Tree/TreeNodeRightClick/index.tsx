@@ -51,7 +51,7 @@ function TreeNodeRightClick(props: IProps) {
   const OperationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
     [OperationColumn.Refresh]: (data) => {
       return {
-        text: '刷新',
+        text: i18n('common.button.refresh'),
         icon: '\uec08',
         handle: () => {
           refresh();
@@ -60,15 +60,15 @@ function TreeNodeRightClick(props: IProps) {
     },
     [OperationColumn.ExportDDL]: (data) => {
       return {
-        text: '导出ddl',
+        text: i18n('workspace.menu.exportDDL'),
         icon: '\ue613',
         handle: () => {
           mysqlServer.exportCreateTableSql({
             ...curWorkspaceParams,
             tableName: data.name
           } as any).then(res => {
-            setMonacoVerifyDialog(true);
             setMonacoDefaultValue(res);
+            setMonacoVerifyDialog(true);
           })
         }
       }
@@ -104,13 +104,12 @@ function TreeNodeRightClick(props: IProps) {
         text: '新建查询',
         icon: '\ue619',
         handle: () => {
-
         }
       }
     },
     [OperationColumn.DeleteTable]: (data) => {
       return {
-        text: '删除表',
+        text: i18n('workspace.menu.deleteTable'),
         icon: '\ue6a7',
         handle: () => {
           setVerifyDialog(true);
@@ -131,7 +130,7 @@ function TreeNodeRightClick(props: IProps) {
     },
     [OperationColumn.Top]: (data) => {
       return {
-        text: data.pinned ? '取消置顶' : '置顶',
+        text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
         handle: () => {
           handelTop();
@@ -153,7 +152,7 @@ function TreeNodeRightClick(props: IProps) {
           extraParams: curWorkspaceParams,
         },
         callback: () => {
-          message.success('操作成功')
+          message.success(i18n('common.text.submittedSuccessfully'))
         }
       })
     })
@@ -180,11 +179,12 @@ function TreeNodeRightClick(props: IProps) {
         tableName: data.name,
       }
       mysqlServer.deleteTable(p).then(res => {
-        notificationApi.success(
-          {
-            message: '删除成功',
-          }
-        )
+        // notificationApi.success(
+        //   {
+        //     message: i18n('common.text.successfullyDelete'),
+        //   }
+        // )
+        message.success(i18n('common.text.successfullyDelete'))
         dispatch({
           type: 'workspace/fetchGetCurTableList',
           payload: {
@@ -199,7 +199,7 @@ function TreeNodeRightClick(props: IProps) {
 
       })
     } else {
-      message.error('输入的表名与要删除的表名不一致，请再次确认')
+      message.error(i18n('workspace.tips.affirmDeleteTable'))
     }
   }
 
@@ -257,12 +257,12 @@ function TreeNodeRightClick(props: IProps) {
     }
     <Modal
       maskClosable={false}
-      title={`删除表-${data.name}`}
+      title={`${i18n('workspace.menu.deleteTable')}-${data.name}`}
       open={verifyDialog}
       onOk={handleOk}
       width={400}
       onCancel={(() => { setVerifyDialog(false) })}>
-      <Input placeholder='请输入你要删除的表名' value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
+      <Input placeholder={i18n('workspace.menu.deleteTablePlaceHolder')} value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
     </Modal>
     {/* 这里后续肯定是要提出去的 */}
     {

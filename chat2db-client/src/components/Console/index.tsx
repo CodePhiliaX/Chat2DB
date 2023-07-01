@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin, message, notification, Drawer, Modal } from 'antd';
+import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
@@ -13,6 +13,10 @@ import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
 import styles from './index.less';
+import i18n from '@/i18n';
+import { IRemainingUse } from '@/typings/ai';
+import { IAIState } from '@/models/ai';
+import { WECHAT_MP_URL } from '@/constants/social';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -47,7 +51,6 @@ interface IProps {
   /** 是否有 */
   hasSaveBtn?: boolean;
   value?: string;
-  tables: ITreeNode[];
   executeParams: {
     databaseName?: string;
     dataSourceId?: number;
@@ -56,14 +59,19 @@ interface IProps {
     schemaName?: string;
     consoleName?: string;
   };
+  tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
+  aiModel: IAIState;
+  dispatch: Function;
+  // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
-  onExecuteSQL: (result: any, sql?: string) => void;
+  onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
+  tables: any[];
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, aiModel, dispatch } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -72,6 +80,7 @@ function Console(props: IProps) {
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
+  const monacoHint = useRef<any>();
 
   useEffect(() => {
     if (appendValue) {
@@ -79,9 +88,38 @@ function Console(props: IProps) {
     }
   }, [appendValue]);
 
-  const tableListName = useMemo(() => (props.tables || []).map((t) => t.name), [props.tables]);
+  useEffect(() => {
+    monacoHint.current?.dispose();
+    const myEditorHintData: any = {};
+    console.log(props.tables);
+    props.tables?.map((item: any) => {
+      myEditorHintData[item.name] = [];
+    });
+    monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
+  }, [props.tables]);
+
+  const tableListName = useMemo(() => {
+    const tableList = (props.tables || []).map((t) => t.name);
+
+    // 默认选中前八个
+    setSelectedTables(tableList.slice(0, 8));
+
+    return tableList;
+  }, [props.tables]);
 
   const handleAiChat = (content: string, promptType: IPromptType) => {
+    if (!aiModel.remainingUse?.remainingUses) {
+      popUpPrompts();
+      return;
+    }
+
+    dispatch({
+      type: 'ai/fetchRemainingUse',
+      payload: {
+        key: aiModel?.remainingUse?.key,
+      },
+    });
+
     const { dataSourceId, databaseName, schemaName } = executeParams;
     const isNL2SQL = promptType === IPromptType.NL_2_SQL;
     if (isNL2SQL) {
@@ -124,7 +162,6 @@ function Console(props: IProps) {
           chatResult.current += JSON.parse(message).content;
         }
       } catch (error) {
-        console.log('handleMessage', error);
         setIsLoading(false);
       }
     };
@@ -157,27 +194,24 @@ function Console(props: IProps) {
       sql: sqlContent,
       ...executeParams,
     };
-    // props.onExecuteSQL?.(undefined);
     sqlServer.executeSql(p).then((res) => {
-      props.onExecuteSQL?.(res, sqlContent!);
-      // console.log(res)
-      let p: any = {
+      let createHistoryParams: any = {
         ...executeParams,
         ddl: sqlContent,
       };
-      historyServer.createHistory(p);
+      props.onExecuteSQL?.(res, sqlContent!, createHistoryParams);
     });
   };
 
   const saveConsole = (value?: string) => {
     // const a = editorRef.current?.getAllContent();
-
     let p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
+      ddl: value,
     };
     historyServer.updateSavedConsole(p).then((res) => {
-      message.success('保存成功');
+      message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });
   };
@@ -186,33 +220,43 @@ function Console(props: IProps) {
     () => [
       {
         id: 'explainSQL',
-        label: '解释SQL',
+        label: i18n('common.text.explainSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
       },
       {
         id: 'optimizeSQL',
-        label: '优化SQL',
+        label: i18n('common.text.optimizeSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
       },
       {
         id: 'changeSQL',
-        label: 'SQL转化',
+        label: i18n('common.text.conversionSQL'),
         action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
       },
     ],
     [],
   );
 
+  const popUpPrompts = () => {
+    Modal.info({
+      title: i18n('chat.input.remain.dialog.tips'),
+      content: <img style={{ width: '280px' }} src={aiModel?.remainingUse?.wechatMpUrl ?? WECHAT_MP_URL} />,
+    });
+  };
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
             tables={tableListName}
+            remainingUse={aiModel.remainingUse}
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
               setSelectedTables(tables);
+            }}
+            onClickRemainBtn={() => {
+              popUpPrompts();
             }}
           />
         )}
@@ -227,6 +271,7 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
+          tables={props.tables}
           // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
@@ -241,11 +286,11 @@ function Console(props: IProps) {
         <div className={styles.consoleOptionsLeft}>
           <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>
             <Iconfont code="&#xe637;" />
-            RUN
+            {i18n('common.button.execute')}
           </Button>
           {hasSaveBtn && (
             <Button type="default" className={styles.saveButton} onClick={() => saveConsole()}>
-              SAVE
+              {i18n('common.button.save')}
             </Button>
           )}
         </div>
@@ -256,11 +301,14 @@ function Console(props: IProps) {
             editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
           }}
         >
-          Format
+          {i18n('common.button.format')}
         </Button>
       </div>
     </div>
   );
 }
 
-export default Console;
+const dvaModel = connect(({ ai }: { ai: IAIState }) => ({
+  aiModel: ai,
+}));
+export default dvaModel(Console);

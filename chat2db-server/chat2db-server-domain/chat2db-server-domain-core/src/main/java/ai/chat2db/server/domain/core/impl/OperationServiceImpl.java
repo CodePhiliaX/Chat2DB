@@ -105,6 +105,11 @@ public class OperationServiceImpl implements OperationService {
         Integer offset = param.getPageSize();
         Page<OperationSavedDO> page = new Page<>(start, offset);
         page.setOptimizeCountSql(false);
+        if (param.isOrderByDesc()) {
+            queryWrapper.orderByDesc("gmt_modified");
+        } else {
+            queryWrapper.orderByAsc("gmt_modified");
+        }
         IPage<OperationSavedDO> iPage = operationSavedMapper.selectPage(page, queryWrapper);
         List<Operation> userSavedDdlDOS = operationConverter.do2dto(iPage.getRecords());
         if (CollectionUtils.isEmpty(userSavedDdlDOS)) {

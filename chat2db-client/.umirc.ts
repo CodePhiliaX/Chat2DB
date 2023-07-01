@@ -2,7 +2,6 @@ import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
 import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-console.log(process.env.UMI_ENV);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
@@ -14,9 +13,9 @@ const chainWebpack = (config: any, { webpack }: any) => {
 
 export default defineConfig({
   title: 'Chat2DB',
-  // history: {
-  //   type: 'hash',
-  // },
+  history: {
+    type: 'hash',
+  },
   base: '/',
   publicPath: '/',
   hash: false,
@@ -35,7 +34,11 @@ export default defineConfig({
   proxy: {
     '/api': {
       target: 'http://127.0.0.1:10821',
-      changeOrigin: true
+      changeOrigin: true,
+    },
+    '/client/remaininguses/': {
+      target: 'http://127.0.0.1:1889',
+      changeOrigin: true,
     },
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],

@@ -9,6 +9,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
 /**
  * i18n utility
  *
@@ -33,6 +35,15 @@ public class I18nUtils implements InitializingBean {
             log.error("no message.", e);
         }
         return messageSourceStatic.getMessage(messageCode, args, LocaleContextHolder.getLocale());
+    }
+
+    /**
+     * 是否是英文
+     *
+     * @return
+     */
+    public static Boolean isEn() {
+        return LocaleContextHolder.getLocale().equals(Locale.US);
     }
 
     @Override

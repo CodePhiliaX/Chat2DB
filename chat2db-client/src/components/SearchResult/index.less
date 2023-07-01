@@ -7,7 +7,6 @@
 }
 
 .tabs {
-  padding-top: 10px;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -65,21 +64,29 @@
 }
 
 .cursorTableBox {
-  display: block !important;
+  // display: block !important;
+  // height: 100%;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  // background-color: var(--bgcolor);
 }
-
 
 .tableIndex {
   width: 50px;
 }
 
-
-
 .monacoEditor {
   height: 300px;
 }
 
-
 .monacoEditor {
   margin: -15px;
+}
+
+.noData {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

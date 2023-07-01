@@ -9,7 +9,7 @@ export interface IDatabase {
 
 export interface ITableHeaderItem {
   dataType: TableDataType;
-  stringValue: string;
+  name: string;
 }
 
 export interface IManageResultData {

@@ -40,7 +40,6 @@ export default memo<IProps>(function DraggableContainer({
 
     DividerRef.current.onmousedown = (e) => {
       if (!volatileRef?.current) return;
-      console.log(volatileRef?.curren);
 
       e.preventDefault();
       setDragging(true);
