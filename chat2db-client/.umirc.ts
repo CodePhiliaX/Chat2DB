@@ -34,7 +34,11 @@ export default defineConfig({
   proxy: {
     '/api': {
       target: 'http://127.0.0.1:10821',
-      changeOrigin: true
+      changeOrigin: true,
+    },
+    '/client/remaininguses/': {
+      target: 'http://127.0.0.1:1889',
+      changeOrigin: true,
     },
   },
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],

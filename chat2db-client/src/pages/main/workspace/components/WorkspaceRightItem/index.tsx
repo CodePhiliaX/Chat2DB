@@ -7,13 +7,15 @@ import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IManageResultData } from '@/typings';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { IWorkspaceModelState } from '@/models/workspace';
 import historyServer from '@/service/history';
+import { IAIState } from '@/models/ai';
 
 interface IProps {
   className?: string;
   isActive: boolean;
-  workspaceModel: IWorkspaceModelType['state'];
+  workspaceModel: IWorkspaceModelState;
+  aiModel: IAIState;
   dispatch: any;
   data: {
     databaseName: string;
@@ -27,7 +29,7 @@ interface IProps {
 }
 
 const WorkspaceRightItem = memo<IProps>(function (props) {
-  const { className, data, workspaceModel, isActive, dispatch } = props;
+  const { className, data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
@@ -64,7 +66,6 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
               setResultData(res);
               setShowResult(true);
               historyServer.createHistory(params);
-
             }}
             onConsoleSave={() => {
               dispatch({
@@ -78,11 +79,12 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
                   dispatch({
                     type: 'workspace/setConsoleList',
                     payload: res.data,
-                  })
-                }
+                  });
+                },
               });
             }}
             tables={curTableList || []}
+            remainingUse={aiModel.remainingUse}
           />
         </div>
         <div className={styles.boxRightResult}>{<SearchResult manageResultDataList={resultData} />}</div>
@@ -91,8 +93,4 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   );
 });
 
-const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
-  workspaceModel: workspace,
-}));
-
-export default dvaModel(WorkspaceRightItem);
+export default WorkspaceRightItem;

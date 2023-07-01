@@ -1,8 +1,11 @@
-import createRequest from "./base";
-import {IVersionResponse} from '@/typings'
+import createRequest from './base';
+import { IVersionResponse } from '@/typings';
 
-const checkVersion = createRequest<void, IVersionResponse>('/client/version/check/v2', { errorLevel: false, outside: true });
+const checkVersion = createRequest<void, IVersionResponse>('/client/version/check/v2', {
+  errorLevel: false,
+  outside: true,
+});
 
-export default {    
+export default {
   checkVersion,
-}
+};
