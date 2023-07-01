@@ -4,6 +4,7 @@ import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
 const { keywords: SQLKeys } = language;
+const { keywords } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks'
@@ -29,12 +30,18 @@ interface IProps {
   onSave?: (value: string) => void; // 快捷键保存的回调
   defaultValue?: string;
   onExecute?: (value: string) => void; // 快捷键执行的回调
+  tables: any[]
 }
 
 export interface IExportRefFunction {
   getCurrentSelectContent: () => string;
   getAllContent: () => string;
   setValue: (text: any, range?: IRangeType) => void;
+  handleRegisterTigger: (hintData: IHintData) => void;
+}
+
+export interface IHintData {
+  [keys: string]: string[];
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
@@ -95,8 +102,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       },
     });
 
-    handleRegisterTigger();
-
     createAction(editorIns);
     return () => {
       if (props.needDestroy) editorRef.current && editorRef.current.dispose();
@@ -137,6 +142,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   // }, [props.onChange]);
 
   useImperativeHandle(ref, () => ({
+    handleRegisterTigger,
     getCurrentSelectContent,
     getAllContent,
     setValue,
@@ -173,10 +179,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     return value || '';
   };
 
-  const handleRegisterTigger = () => {
-    // SQL关键词、 数据库、 表 、列
-
-    const hintData = { table1: 'table1', table2: 'table2' };
+  const handleRegisterTigger = (hintData: IHintData) => {
     // 获取 SQL 语法提示
     const getSQLSuggest = () => {
       return SQLKeys.map((key: any) => ({
@@ -210,7 +213,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     //     detail: '<Table>',
     //   }));
     // };
-    monaco.languages.registerCompletionItemProvider('sql', {
+    const editorHintExamples = monaco.languages.registerCompletionItemProvider('sql', {
       triggerCharacters: [' ', ...SQLKeys],
       provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
         let suggestions: any = [];
@@ -238,6 +241,8 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         };
       },
     });
+
+    return editorHintExamples;
   };
 
   const createAction = (editor: IEditorIns) => {

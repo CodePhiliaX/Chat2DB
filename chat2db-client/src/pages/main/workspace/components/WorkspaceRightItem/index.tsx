@@ -85,7 +85,6 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             tables={curTableList || []}
           />
         </div>
-
         <div className={styles.boxRightResult}>{<SearchResult manageResultDataList={resultData} />}</div>
       </DraggableContainer>
     </div>

@@ -259,7 +259,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
 
         mysqlServer.getKeyList(params).then(res => {
-          console.log(res)
           const tableList: ITreeNode[] = res?.map(item => {
             return {
               name: item.name,
