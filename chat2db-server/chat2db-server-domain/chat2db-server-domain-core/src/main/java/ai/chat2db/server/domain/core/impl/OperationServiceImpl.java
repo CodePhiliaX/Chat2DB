@@ -105,7 +105,7 @@ public class OperationServiceImpl implements OperationService {
         Integer offset = param.getPageSize();
         Page<OperationSavedDO> page = new Page<>(start, offset);
         page.setOptimizeCountSql(false);
-        if (param.getOrderByDesc()) {
+        if (param.isOrderByDesc()) {
             queryWrapper.orderByDesc("gmt_modified");
         } else {
             queryWrapper.orderByAsc("gmt_modified");
