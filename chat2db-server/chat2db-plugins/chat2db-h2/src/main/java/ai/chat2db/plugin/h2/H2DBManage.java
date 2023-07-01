@@ -1,6 +1,7 @@
 package ai.chat2db.plugin.h2;
 
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.sql.SQLExecutor;
 
 public class H2DBManage implements DBManage {
     @Override
@@ -40,6 +41,7 @@ public class H2DBManage implements DBManage {
 
     @Override
     public void dropTable(String databaseName, String schemaName, String tableName) {
-
+        String sql = "DROP TABLE " +tableName;
+        SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
     }
 }
