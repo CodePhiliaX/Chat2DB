@@ -48,5 +48,12 @@ export default {
   'common.text.result': '结果',
   'common.text.timeConsuming': '耗时',
   'common.text.noData': '暂无数据',
+  'common.text.remindMeLater': '稍后提醒我',
+  'common.text.goToUpdate': '前往更新',
+  'common.text.updateReminder': '更新提醒',
+  'common.text.detectionLatestVersion': '监测到最新版本',
+  'common.text.setting': '设置',
+  'common.text.tryToRestart': '尝试重新启动',
+  'common.text.contactUs': '联系我们',
 
 };

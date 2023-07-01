@@ -2,7 +2,8 @@ import React, { memo, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { notification, Space, Button } from 'antd';
-import outSideService from '@/service/outside'
+import outSideService from '@/service/outside';
+import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
@@ -51,23 +52,21 @@ export default memo<IProps>(function TestVersion(props) {
   const openNotification = (responseText: any) => {
     console.log(responseText)
     try {
-      if (responseText.version !== '1.0.11') {
+      if (responseText.version !== '1.1.0') {
         const key = `open${Date.now()}`;
-
         const btn = (
           <Space>
             <Button type="link" size="small" onClick={updateHint}>
-              稍后提醒我
+              {i18n('common.text.remindMeLater')}
             </Button>
             <Button type="primary" size="small" onClick={() => { go(responseText) }}>
-              前往更新
+              {i18n('common.text.goToUpdate')}
             </Button>
           </Space>
         );
-
         notificationApi.open({
-          message: '更新提醒',
-          description: `监测到最新版本 v${responseText.version}`,
+          message: i18n('common.text.updateReminder'),
+          description: `${'common.text.detectionLatestVersion'} v${responseText.version}`,
           btn,
           key,
           onClose: close,

@@ -48,4 +48,11 @@ export default {
   'common.text.result': 'Result',
   'common.text.timeConsuming': 'Time Consuming',
   'common.text.noData': 'No Data',
+  'common.text.remindMeLater': 'Remind Me Later',
+  'common.text.goToUpdate': 'Go To Update',
+  'common.text.updateReminder': 'Update Reminder',
+  'common.text.detectionLatestVersion': 'The latest version is monitored',
+  'common.text.setting': 'Setting',
+  'common.text.tryToRestart': 'Try To Restart',
+  'common.text.contactUs': 'Contact Us',
 };
