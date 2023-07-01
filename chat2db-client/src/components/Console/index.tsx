@@ -172,7 +172,6 @@ function Console(props: IProps) {
 
   const saveConsole = (value?: string) => {
     // const a = editorRef.current?.getAllContent();
-
     let p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,

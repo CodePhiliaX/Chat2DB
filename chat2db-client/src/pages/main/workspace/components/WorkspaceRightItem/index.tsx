@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IManageResultData } from '@/typings';
 import { IWorkspaceModelType } from '@/models/workspace';
 
@@ -30,7 +30,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
-  const { doubleClickTreeNodeData, curTableList } = workspaceModel;
+  const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
@@ -66,6 +66,18 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             onConsoleSave={() => {
               dispatch({
                 type: 'workspace/fetchGetSavedConsole',
+                payload: {
+                  pageNo: 1,
+                  pageSize: 999,
+                  status: ConsoleStatus.RELEASE,
+                  ...curWorkspaceParams,
+                },
+                callback: (res: any) => {
+                  dispatch({
+                    type: 'workspace/setConsoleList',
+                    payload: res.data,
+                  })
+                }
               });
             }}
             tables={curTableList || []}

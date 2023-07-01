@@ -20,7 +20,8 @@ export default {
   'common.text.column': '列',
   'common.text.indexes': '索引',
   'common.button.save': '保存',
-  'common.button.refresh': 'refresh',
+  'common.button.open': '打开',
+  'common.button.refresh': '刷新',
   'common.button.execute': '执行',
   'common.button.format': '格式化',
   'common.message.successfulConfig': '配置成功',
@@ -33,10 +34,11 @@ export default {
   'common.text.executionResult': '执行结果',
   'common.tips.deleteTable': '你确定好删除这张表吗？',
   'common.text.tableName': '表名称',
-  'common.text.operateSuccessfully': '操作成功',
+  'common.text.submittedSuccessfully': 'Successfully submitted',
   'common.text.successfullyDelete': '删除成功',
   'common.text.explainSQL': '解释SQL',
   'common.text.optimizeSQL': '优化SQL',
   'common.text.conversionSQL': '转化SQL',
+  'common.text.table': '表',
 
 };

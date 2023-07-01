@@ -152,7 +152,7 @@ function TreeNodeRightClick(props: IProps) {
           extraParams: curWorkspaceParams,
         },
         callback: () => {
-          message.success(i18n('common.text.operateSuccessfully'))
+          message.success(i18n('common.text.submittedSuccessfully'))
         }
       })
     })

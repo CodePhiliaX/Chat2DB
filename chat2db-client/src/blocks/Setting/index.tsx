@@ -24,7 +24,7 @@ interface IProps {
 
 export enum AiSqlSourceType {
   OPENAI = 'OPENAI',
-  Azure = 'Azure',
+  AZUREAI = 'AZUREAI',
   RESTAI = 'RESTAI',
 }
 
@@ -220,7 +220,7 @@ export function SettingAI() {
           value={chatgptConfig.aiSqlSource}
         >
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
-          <Radio value={AiSqlSourceType.Azure}>Azure AI</Radio>
+          <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>
             {i18n('setting.tab.custom')}
           </Radio>
@@ -276,12 +276,12 @@ export function SettingAI() {
           </div>
         </div>
       )}
-      {chatgptConfig.aiSqlSource === AiSqlSourceType.Azure && (
+      {chatgptConfig.aiSqlSource === AiSqlSourceType.AZUREAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
-              // placeholder={i18n('setting.placeholder.apiKey')}
+              placeholder={i18n('setting.placeholder.azureOpenAIKey')}
               value={chatgptConfig.azureApiKey}
               onChange={(e) => {
                 setChatgptConfig({ ...chatgptConfig, azureApiKey: e.target.value });
@@ -291,7 +291,7 @@ export function SettingAI() {
           <div className={styles.title}>Endpoint</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
-              // placeholder={i18n('setting.placeholder.apiHost')}
+              placeholder={i18n('setting.placeholder.azureEndpoint')}
               value={chatgptConfig.azureEndpoint}
               onChange={(e) => {
                 setChatgptConfig({ ...chatgptConfig, azureEndpoint: e.target.value });
@@ -301,7 +301,7 @@ export function SettingAI() {
           <div className={styles.title}>DeploymentId</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
-              // placeholder={i18n('setting.placeholder.httpsProxy', 'host')}
+              placeholder={i18n('setting.placeholder.azureDeployment')}
               value={chatgptConfig.azureDeploymentId}
               onChange={(e) => {
                 setChatgptConfig({

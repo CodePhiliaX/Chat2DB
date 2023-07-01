@@ -8,7 +8,6 @@ import historyService from '@/service/history';
 import Tabs from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
-
 import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IProps {
@@ -19,10 +18,9 @@ interface IProps {
 
 const WorkspaceRight = memo<IProps>(function (props) {
   const { className } = props;
-  const [consoleList, setConsoleList] = useState<IConsole[]>();
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
   const { workspaceModel, dispatch } = props;
-  const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData } = workspaceModel;
+  const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData, openConsoleList } = workspaceModel;
 
   useEffect(() => {
     getConsoleList();
@@ -30,13 +28,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   useEffect(() => {
     // 这里只处理没有console的情况下
-    if (!doubleClickTreeNodeData || consoleList?.length) {
+    if (!doubleClickTreeNodeData || openConsoleList?.length) {
       return
     }
 
     const { extraParams } = doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
-    const ddl = `SELECT * FROM ${tableName};`;
+    const ddl = `SELECT * FROM ${tableName};\n`;
     const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
     let p: any = {
       name: name,
@@ -57,22 +55,22 @@ const WorkspaceRight = memo<IProps>(function (props) {
   }, [doubleClickTreeNodeData]);
 
   useEffect(() => {
-    if (!consoleList?.length) {
+    if (!openConsoleList?.length) {
       setActiveConsoleId(undefined);
     } else if (!activeConsoleId) {
-      setActiveConsoleId(consoleList[0].id);
+      setActiveConsoleId(openConsoleList[0].id);
     } else {
       let flag = false;
-      consoleList.forEach(t => {
+      openConsoleList.forEach(t => {
         if (t.id === activeConsoleId) {
           flag = true
         }
       })
       if (!flag) {
-        setActiveConsoleId(consoleList[consoleList.length - 1].id)
+        setActiveConsoleId(openConsoleList[openConsoleList.length - 1].id)
       }
     }
-  }, [consoleList])
+  }, [openConsoleList])
 
   function getConsoleList() {
     let p: any = {
@@ -82,26 +80,16 @@ const WorkspaceRight = memo<IProps>(function (props) {
       ...curWorkspaceParams,
     };
 
-    historyService.getSavedConsoleList(p).then((res) => {
-      const newWindowList: IConsole[] = [];
-      res.data?.map((item, index) => {
-        if (item.connectable) {
-          newWindowList.push({
-            id: item.id,
-            ddl: item.ddl,
-            name: item.name,
-            type: item.type,
-            status: item.status,
-            databaseName: item.databaseName,
-            dataSourceName: item.dataSourceName,
-            dataSourceId: item.dataSourceId,
-            schemaName: item.schemaName,
-            connectable: true
-          });
-        }
-      });
-      setConsoleList(newWindowList);
-    });
+    dispatch({
+      type: 'workspace/fetchGetSavedConsole',
+      payload: p,
+      callback: (res: any) => {
+        dispatch({
+          type: 'workspace/setOpenConsoleList',
+          payload: res.data,
+        })
+      }
+    })
   }
 
   function onChange(key: number | string) {
@@ -120,7 +108,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
   const addConsole = (params?: ICreateConsole) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
     let p = {
-      name: `new console${consoleList?.length}`,
+      name: `new console${openConsoleList?.length}`,
       ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
@@ -138,13 +126,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
   const closeWindowTab = (key: number) => {
     let newActiveKey = activeConsoleId;
     let lastIndex = -1;
-    consoleList?.forEach((item, i) => {
+    openConsoleList?.forEach((item, i) => {
       if (item.id === key) {
         lastIndex = i - 1;
       }
     });
 
-    const newPanes = consoleList?.filter((item) => item.id !== key) || [];
+    const newPanes = openConsoleList?.filter((item) => item.id !== key) || [];
     if (newPanes.length && newActiveKey === key) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].id;
@@ -152,7 +140,10 @@ const WorkspaceRight = memo<IProps>(function (props) {
         newActiveKey = newPanes[0].id;
       }
     }
-    setConsoleList(newPanes);
+    dispatch({
+      type: 'workspace/setOpenConsoleList',
+      payload: newPanes
+    })
     setActiveConsoleId(newActiveKey);
 
     let p: any = {
@@ -160,7 +151,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       tabOpened: 'n',
     };
 
-    const window = consoleList?.find((t) => t.id === key);
+    const window = openConsoleList?.find((t) => t.id === key);
     if (!window?.status) {
       return;
     }
@@ -179,13 +170,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <LoadingContent data={consoleList} handleEmpty empty={render()}>
+      <LoadingContent data={openConsoleList} handleEmpty empty={render()}>
         <div className={styles.tabBox}>
           <Tabs
             onChange={onChange}
             onEdit={onEdit}
             activeTab={activeConsoleId}
-            tabs={(consoleList || [])?.map((t, i) => {
+            tabs={(openConsoleList || [])?.map((t, i) => {
               return {
                 label: t.name,
                 value: t.id,
@@ -193,7 +184,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
             })}
           />
         </div>
-        {consoleList?.map((t, index) => {
+        {openConsoleList?.map((t, index) => {
           return <div key={t.id} className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}>
             <WorkspaceRightItem
               isActive={activeConsoleId === t.id}

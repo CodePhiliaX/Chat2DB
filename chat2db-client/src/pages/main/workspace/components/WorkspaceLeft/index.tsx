@@ -2,13 +2,14 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input } from 'antd';
+import { Cascader, Divider, Input, Dropdown } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
+import historyServer from '@/service/history';
 import Tree from '../Tree';
-import { TreeNodeType, ConsoleStatus } from '@/constants';
+import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateTreeNode, approximateList } from '@/utils';
@@ -220,7 +221,7 @@ const RenderTableBox = dvaModel(function (props: any) {
             </div>
             :
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>Table</div>
+              <div className={styles.modelName}>{i18n('common.text.table')}</div>
               <div className={styles.iconBox} onClick={() => openSearch()}>
                 <Iconfont code="&#xe600;" />
               </div>
@@ -250,6 +251,12 @@ const RenderSaveBox = dvaModel(function (props: any) {
         status: ConsoleStatus.RELEASE,
         ...curWorkspaceParams,
       },
+      callback: (res: any) => {
+        dispatch({
+          type: 'workspace/setConsoleList',
+          payload: res.data,
+        })
+      }
     });
   }, [curWorkspaceParams]);
 
@@ -278,6 +285,32 @@ const RenderSaveBox = dvaModel(function (props: any) {
     setSearchedList(approximateList(consoleList, value,))
   }
 
+  function openConsole(data: IConsole) {
+    let p: any = {
+      id: data.id,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN
+    };
+    historyServer.updateSavedConsole(p).then((res) => {
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          tabOpened: ConsoleOpenedStatus.IS_OPEN,
+          ...curWorkspaceParams
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setOpenConsoleList',
+            payload: res.data,
+          })
+        }
+      })
+    });
+  }
+
+  function deleteSaved(data: IConsole) {
+
+  }
+
   return (
     <div className={styles.saveModule}>
       <div className={styles.leftModuleTitle}>
@@ -296,7 +329,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
             </div>
             :
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>Saved</div>
+              <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
               <div className={styles.iconBox} onClick={() => openSearch()}>
                 <Iconfont code="&#xe600;" />
               </div>
@@ -307,12 +340,42 @@ const RenderSaveBox = dvaModel(function (props: any) {
         <LoadingContent data={consoleList} handleEmpty>
           {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
-              <div key={t.id} className={styles.saveItem} dangerouslySetInnerHTML={{ __html: t.name }} />
+              <div
+                key={t.id}
+                className={styles.saveItem}
+              >
+                <div dangerouslySetInnerHTML={{ __html: t.name }} />
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: 'open',
+                        label: i18n('common.button.open'),
+                        onClick: () => {
+                          openConsole(t)
+                        }
+                      },
+                      {
+                        key: 'delete',
+                        label: i18n('common.button.delete'),
+                        onClick: () => {
+                          deleteSaved(t)
+                        },
+                      },
+                    ],
+                  }}
+                >
+                  <div className={styles.moreButton}>
+                    <Iconfont code="&#xe601;"></Iconfont>
+                  </div>
+                </Dropdown>
+
+              </div>
             );
           })}
         </LoadingContent>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 });
 
