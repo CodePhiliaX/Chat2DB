@@ -11,6 +11,7 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils';
 import TestVersion from '@/components/TestVersion';
+const path = require('path');
 
 import DataSource from './connection';
 import Workspace from './workspace';
@@ -61,6 +62,7 @@ function MainPage(props: IProps) {
   const { curPage } = mainModel;
   const { curConnection } = connectionModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > -1 ? initPageIndex : 2]);
+  console.log()
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
@@ -74,7 +76,8 @@ function MainPage(props: IProps) {
     // }
     // activeNav 变化 同步地址栏变化
     // change url，but no page refresh
-    window.history.pushState({}, "", `${location.pathname}/#/${activeNav.key}`);
+    window.history.pushState({}, "", path.join(__dirname, `/#/${activeNav.key}`));
+    console.log(path.join(__dirname, `/#/1`))
   }, [activeNav])
 
   useEffect(() => {

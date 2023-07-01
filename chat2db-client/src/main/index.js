@@ -74,7 +74,7 @@ app.on('before-quit', (event) => {
     response.on('data', (res) => {
       let data = JSON.parse(res.toString());
     });
-    response.on('end', () => {});
+    response.on('end', () => { });
   });
   request.end();
 });
