@@ -18,6 +18,7 @@ import { handleDatabaseAndSchema } from '@/utils/database';
 import i18n from '@/i18n';
 import { useTheme } from '@/hooks';
 import { EditorThemeType, ThemeType } from '@/constants';
+import { IRemainingUse } from '@/typings/ai';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -55,6 +56,7 @@ interface IChartItemProps {
   canAddRowItem: boolean;
   connectionList: IConnectionDetails[];
   tableList: ITreeNode[];
+  remainingUse: IRemainingUse;
   onDelete?: (id: number) => void;
   addChartTop?: () => void;
   addChartBottom?: () => void;
@@ -63,7 +65,7 @@ interface IChartItemProps {
 }
 
 function ChartItem(props: IChartItemProps) {
-  const { connectionList, tableList } = props;
+  const { connectionList, tableList, remainingUse } = props;
   const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
   const [curConnection, setCurConnection] = useState<IConnectionDetails>();
   const [chartData, setChartData] = useState<IChartItem>({});
@@ -111,7 +113,7 @@ function ChartItem(props: IChartItemProps) {
 
   useEffect(() => {
     handleChartConfigChange();
-  }, [chartData.sqlData])
+  }, [chartData.sqlData]);
 
   const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
     const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
@@ -334,6 +336,7 @@ function ChartItem(props: IChartItemProps) {
                     : EditorThemeType.DashboardBlackTheme,
               }}
               tables={tableList || []}
+              remainingUse={remainingUse}
             />
 
             <Cascader

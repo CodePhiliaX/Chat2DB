@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin, message, notification, Drawer, Modal } from 'antd';
+import { Button, Spin, message, Drawer } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
@@ -14,6 +14,7 @@ import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
 import styles from './index.less';
 import i18n from '@/i18n';
+import { IRemainingUse } from '@/typings/ai';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -58,6 +59,7 @@ interface IProps {
   };
   tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
+  remainingUse: IRemainingUse;
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
@@ -65,7 +67,7 @@ interface IProps {
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, remainingUse } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -226,6 +228,7 @@ function Console(props: IProps) {
         {hasAiChat && (
           <ChatInput
             tables={tableListName}
+            remainingUse={remainingUse}
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
