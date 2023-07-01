@@ -38,6 +38,7 @@ public class PinServiceImpl implements PinService {
 
     @Override
     public ActionResult deletePinTable(PinTableParam param) {
+        param.setUserId(ContextUtils.getUserId());
         LambdaUpdateWrapper<PinTableDO> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(PinTableDO::getUserId, param.getUserId());
         updateWrapper.eq(PinTableDO::getDataSourceId, param.getDataSourceId());
