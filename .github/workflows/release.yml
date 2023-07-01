@@ -115,14 +115,6 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 构建静态文件信息
-      - name: Npm install & build & copy
-        run: |
-          cd ali-dbhub-client
-          npm install 
-          npm run build:desktop
-          cp -r dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front
-          
 
       # 构建静态文件信息
       - name: Yarn install & build & copy
@@ -134,7 +126,7 @@ jobs:
 
       # 编译服务端java版本
       - name: Build Java
-        run: mvn clean package -B '-Dmaven.test.skip=true' -f ali-dbhub-server/pom.xml
+        run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 
       # 复制服务端java 到指定位置
       - name: Copy App
@@ -255,7 +247,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-release-构建完成通知",
-              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/alibaba/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/ali-dbhub-server-start.jar](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/ali-dbhub-server-start.jar) "
+              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/alibaba/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-start.jar](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-start.jar) "
             }
 
       # 构建完成通知
