@@ -99,6 +99,8 @@ public class Chat2DBContext {
         String host = connectInfo.getHost();
         String port = connectInfo.getPort() + "";
         try {
+            ssh.setRHost(host);
+            ssh.setRPort(port);
             session = getSession(ssh);
             if (session != null) {
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
