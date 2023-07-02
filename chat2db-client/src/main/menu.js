@@ -19,23 +19,13 @@ const registerAppMenu = () => {
             });
           },
         },
-        { type: 'separator' },
-        {
-          label: '刷新',
-          accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
-          click() {
-            const focusedWindow = BrowserWindow.getFocusedWindow();
-            if (focusedWindow) {
-              focusedWindow.reload();
-            }
-          },
-        },
         // {
         //   label: '检查更新',
         // },
         { type: 'separator' },
         {
           label: '退出',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+ALT+F4',
           click() {
             // 退出程序
             app.quit();
@@ -56,6 +46,25 @@ const registerAppMenu = () => {
         { label: '全选', role: 'selectAll' },
       ],
     },
+    {
+      // label: i18n('menu.edit'),
+      label: '视图',
+      submenu: [
+        {
+          label: '刷新',
+          accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
+          click() {
+            const focusedWindow = BrowserWindow.getFocusedWindow();
+            if (focusedWindow) {
+              focusedWindow.reload();
+            }
+          },
+        },
+        { type: 'separator' },
+        { label: '全屏', role: 'togglefullscreen' },
+      ],
+    },
+
     {
       label: '帮助',
       submenu: [
