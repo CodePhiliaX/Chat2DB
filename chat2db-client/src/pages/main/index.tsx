@@ -60,7 +60,6 @@ function MainPage(props: IProps) {
   const { curPage } = mainModel;
   const { curConnection } = connectionModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > -1 ? initPageIndex : 2]);
-  console.log();
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
