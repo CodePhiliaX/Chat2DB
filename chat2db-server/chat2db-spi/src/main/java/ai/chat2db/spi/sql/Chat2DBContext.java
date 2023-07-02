@@ -126,9 +126,13 @@ public class Chat2DBContext {
             if (session != null) {
                 try {
                     session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
-                    session.disconnect();
                 } catch (JSchException e) {
-                    log.error("session close error", e);
+                    log.error("session delPortForwardingL error", e);
+                }
+                try {
+                    session.disconnect();
+                } catch (Exception e) {
+                    log.error("session disconnect error", e);
                 }
             }
             throw new RuntimeException("getConnect error", e1);
