@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect } from 'react';
+import i18n from '@/i18n';
 import { Outlet } from 'umi';
 import { ConfigProvider, theme, notification } from 'antd';
 import { useState } from 'react';
@@ -18,7 +19,7 @@ import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
 import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
 import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
-import i18n from '@/i18n';
+import { clearOlderLocalStorage } from '@/utils';
 
 declare global {
   interface Window {
@@ -33,6 +34,8 @@ declare global {
   const __BUILD_TIME__: string;
   const __ENV: string;
 }
+
+clearOlderLocalStorage();
 
 window._Lang = getLang();
 

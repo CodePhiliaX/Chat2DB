@@ -154,6 +154,8 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
   return flag
 }
 
+
+// 处理console的保存和删除操作
 export function handelLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
 
   const saved = localStorage.getItem(`timing-auto-save-console-v1`);
@@ -172,7 +174,7 @@ export function handelLocalStorageSavedConsole(id: number, type: 'save' | 'delet
 
 }
 
-
+// 获取保存的console
 export function readLocalStorageSavedConsoleText(id: number) {
   const saved = localStorage.getItem(`timing-auto-save-console-v1`);
   let savedObj: any = {}
@@ -180,5 +182,13 @@ export function readLocalStorageSavedConsoleText(id: number) {
     savedObj = JSON.parse(saved)
   }
   return savedObj[id] || ''
+}
+
+// 清理就版本不兼容的LocalStorage
+export function clearOlderLocalStorage() {
+  if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    localStorage.clear();
+    localStorage.setItem('app-local-storage-versions', 'v2')
+  }
 }
 
