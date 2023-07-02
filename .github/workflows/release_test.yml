@@ -90,7 +90,7 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
       # 安装java
@@ -106,7 +106,7 @@ jobs:
         run: |
           cd chat2db-client
           yarn install 
-          yarn run build:web:desktop --appVersion=1.0.${{ github.run_id }} --appPort=10822
+          yarn run build:web:prod --appVersion=1.0.${{ github.run_id }} --appPort=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 编译服务端java版本
@@ -199,7 +199,6 @@ jobs:
           cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/amd
           ls chat2db-client/release/
-
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
