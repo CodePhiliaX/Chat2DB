@@ -235,9 +235,10 @@ public class JdbcUtils {
             if (session != null) {
                 try {
                     session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    session.disconnect();
+
                 } catch (JSchException e) {
                 }
-                session.disconnect();
             }
         }
         dataSourceConnect.setDescription("成功");
