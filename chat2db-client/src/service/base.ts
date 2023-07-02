@@ -52,8 +52,8 @@ const baseURL =
   localStorage.getItem('_BaseURL') ||
   (location.href.indexOf('dist/index.html') > -1 ? desktopServiceUrl : prodServiceUrl);
 
-// window._BaseURL = baseURL;
-window._BaseURL = 'http://127.0.0.1:8000';
+window._BaseURL = baseURL;
+// window._BaseURL = 'http://127.0.0.1:8000';
 
 const appGatewayParams = localStorage.getItem('app-gateway-params');
 
