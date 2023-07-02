@@ -55,4 +55,6 @@ export default {
   'common.text.setting': 'Setting',
   'common.text.tryToRestart': 'Try To Restart',
   'common.text.contactUs': 'Contact Us',
+  'common.text.wechatPopularizeAi': 'Follow the wechat public account and send "AI" to get free experiences.',
+  'common.text.wechatPopularize': 'You can also send "promotion" to get more experiences for free.',
 };

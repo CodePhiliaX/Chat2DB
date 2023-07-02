@@ -37,6 +37,9 @@ function Setting(props: IProps) {
   const [currentMenu, setCurrentMenu] = useState(0);
   useEffect(() => {
     configService.getChatGptSystemConfig().then((res: IChatGPTConfig) => {
+      if (!res) {
+        return
+      }
       handleUpdateAiConfig({
         key: res.apiKey,
         aiType: res.aiSqlSource,
@@ -44,7 +47,7 @@ function Setting(props: IProps) {
       setChatGPTConfig({
         ...res,
         restAiStream: res.restAiStream || true,
-        aiSqlSource: res.aiSqlSource || AiSqlSourceType.OPENAI,
+        aiSqlSource: res.aiSqlSource || AiSqlSourceType.CHAT2DBAI,
       });
     });
   }, []);
@@ -106,8 +109,8 @@ function Setting(props: IProps) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )}
+            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
+          )}
       </div>
       <Modal
         open={isModalVisible}

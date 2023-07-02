@@ -17,6 +17,7 @@ import i18n from '@/i18n';
 import { IRemainingUse } from '@/typings/ai';
 import { IAIState } from '@/models/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
+import Popularize from '@/components/Popularize'
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -81,6 +82,8 @@ function Console(props: IProps) {
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
   const monacoHint = useRef<any>();
+  const [modal, contextHolder] = Modal.useModal();
+  const [popularizeModal, setPopularizeModal] = useState(false)
 
   useEffect(() => {
     if (appendValue) {
@@ -238,10 +241,7 @@ function Console(props: IProps) {
   );
 
   const popUpPrompts = () => {
-    Modal.info({
-      title: i18n('chat.input.remain.dialog.tips'),
-      content: <img style={{ width: '280px' }} src={aiModel?.remainingUse?.wechatMpUrl ?? WECHAT_MP_URL} />,
-    });
+    setPopularizeModal(true)
   };
   return (
     <div className={styles.console}>
@@ -272,7 +272,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -304,6 +304,14 @@ function Console(props: IProps) {
           {i18n('common.button.format')}
         </Button>
       </div>
+      <Modal
+        open={popularizeModal}
+        footer={false}
+        onCancel={() => setPopularizeModal(false)}
+      >
+        <Popularize></Popularize>
+      </Modal>
+
     </div>
   );
 }
