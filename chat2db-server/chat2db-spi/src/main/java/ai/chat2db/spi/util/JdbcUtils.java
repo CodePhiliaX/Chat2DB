@@ -206,6 +206,8 @@ public class JdbcUtils {
         // 加载驱动
         try {
             if (ssh.isUse()) {
+                ssh.setRHost(host);
+                ssh.setRPort(port);
                 session = SSHManager.getSSHSession(ssh);
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
             }

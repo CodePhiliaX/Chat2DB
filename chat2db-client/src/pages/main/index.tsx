@@ -1,6 +1,6 @@
 import React, { useEffect, useState, PropsWithChildren } from 'react';
 import i18n from '@/i18n';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { history, connect } from 'umi';
 import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
@@ -15,6 +15,7 @@ import DataSource from './connection';
 import Workspace from './workspace';
 import Dashboard from './dashboard';
 import Chat from './chat';
+import sqlService, { MetaSchemaVO } from '@/service/sql';
 
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
@@ -59,7 +60,6 @@ function MainPage(props: IProps) {
   const { curPage } = mainModel;
   const { curConnection } = connectionModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > -1 ? initPageIndex : 2]);
-  console.log();
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
@@ -86,6 +86,17 @@ function MainPage(props: IProps) {
 
   useEffect(() => {
     if (curConnection?.id) {
+      // sqlService.getDatabaseSchemaList({ dataSourceId: curConnection.id }).then(res => [
+      //   dispatch({
+      //     type: 'workspace/setDatabaseAndSchema',
+      //     payload: res,
+      //   })
+      // ]).catch(() => {
+      //   dispatch({
+      //     type: 'workspace/setDatabaseAndSchema',
+      //     payload: {},
+      //   })
+      // })
       dispatch({
         type: 'workspace/fetchDatabaseAndSchema',
         payload: {
@@ -108,7 +119,7 @@ function MainPage(props: IProps) {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (

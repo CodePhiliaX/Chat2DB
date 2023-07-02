@@ -104,36 +104,51 @@ const WorkspaceModel: IWorkspaceModelType = {
 
   effects: {
     *fetchDatabaseAndSchema({ payload }, { put }) {
-      const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-      yield put({
-        type: 'setDatabaseAndSchema',
-        payload: res,
-      });
+      try {
+        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
+        yield put({
+          type: 'setDatabaseAndSchema',
+          payload: res,
+        });
+      }
+      catch {
+
+      }
+
     },
     *fetchGetSavedConsole({ payload, callback }, { put }) {
-      const res = (yield historyService.getSavedConsoleList({
-        pageNo: 1,
-        pageSize: 999,
-        ...payload
-      })) as IPageResponse<IConsole>;
-      if (callback && typeof callback === 'function') {
-        callback(res);
+      try {
+        const res = (yield historyService.getSavedConsoleList({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload
+        })) as IPageResponse<IConsole>;
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+      }
+      catch {
       }
     },
     *fetchGetCurTableList({ payload, callback }, { put, call }) {
-      const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
-        pageNo: 1,
-        pageSize: 999,
-        ...payload,
-      })) as ITreeNode[];
-       // 异步操作完成后调用回调函数
-      if (callback && typeof callback === 'function') {
-        callback(res);
+      try {
+        const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload,
+        })) as ITreeNode[];
+        // 异步操作完成后调用回调函数
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+        yield put({
+          type: 'setCurTableList',
+          payload: res,
+        });
       }
-      yield put({
-        type: 'setCurTableList',
-        payload: res,
-      });
+      catch {
+
+      }
     },
   },
 };

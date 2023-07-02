@@ -9,7 +9,7 @@ export interface IGetConnectionParams {
 }
 
 /**
- * 查询连接池列表
+ * 查询连接列表
  */
 const getList = createRequest<
   IGetConnectionParams,

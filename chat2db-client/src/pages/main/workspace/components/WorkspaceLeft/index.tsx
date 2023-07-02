@@ -447,6 +447,9 @@ const RenderSaveBox = dvaModel(function (props: any) {
           {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
               <div
+                onDoubleClick={() => {
+                  openConsole(t)
+                }}
                 key={t.id}
                 className={styles.saveItem}
               >
