@@ -180,15 +180,15 @@ public class Chat2DBContext {
             } catch (SQLException e) {
                 log.error("close connection error", e);
             }
-            Session session = connectInfo.getSession();
-            if (session != null) {
-                try {
-                    session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
-                    session.disconnect();
-                } catch (JSchException e) {
-                    log.error("close session error", e);
-                }
-            }
+            //Session session = connectInfo.getSession();
+            //if (session != null) {
+            //    try {
+            //        session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
+            //        session.disconnect();
+            //    } catch (JSchException e) {
+            //        log.error("close session error", e);
+            //    }
+            //}
             CONNECT_INFO_THREAD_LOCAL.remove();
         }
     }
