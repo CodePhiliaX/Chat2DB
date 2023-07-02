@@ -5,6 +5,7 @@ const fs = require('fs');
 const registerAppMenu = require('./menu');
 const i18n = require('./i18n');
 const { loadMainResource } = require('./utils');
+
 let mainWindow = null;
 
 function createWindow() {
@@ -36,10 +37,6 @@ function createWindow() {
     event.preventDefault();
     shell.openExternal(url);
   });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
 }
 
 // const menu = Menu.buildFromTemplate(menuBar);
@@ -50,11 +47,12 @@ app.on('ready', () => {
   registerAppMenu();
 
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (mainWindow === null) {
       createWindow();
     }
   });
 });
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -74,7 +72,7 @@ app.on('before-quit', (event) => {
     response.on('data', (res) => {
       let data = JSON.parse(res.toString());
     });
-    response.on('end', () => { });
+    response.on('end', () => {});
   });
   request.end();
 });

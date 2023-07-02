@@ -3,7 +3,6 @@ import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
 const path = require('path');
 
-
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
   method?: 'get' | 'post' | 'put' | 'delete';
@@ -11,7 +10,6 @@ export interface IOptions {
   errorLevel?: 'toast' | 'prompt' | 'critical' | false;
   delayTime?: number | true;
   outside?: true;
-
 }
 
 // TODO:
@@ -55,6 +53,7 @@ const baseURL =
   (location.href.indexOf('dist/index.html') > -1 ? desktopServiceUrl : prodServiceUrl);
 
 window._BaseURL = baseURL;
+// window._BaseURL = 'http://127.0.0.1:8000';
 
 const appGatewayParams = localStorage.getItem('app-gateway-params');
 
@@ -65,8 +64,7 @@ if (appGatewayParams) {
   window._appGatewayParams = {};
 }
 
-const outsideUrlPrefix = window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/'
-
+const outsideUrlPrefix = window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/';
 
 const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
   const { response } = error;
