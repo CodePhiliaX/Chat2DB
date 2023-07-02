@@ -16,7 +16,7 @@ export interface IConnectionModelType {
   namespace: 'connection';
   state: IConnectionModelState;
   reducers: {
-    // 设置连接池列表
+    // 设置连接列表
     setConnectionList: Reducer<IConnectionModelState>;
     setCurConnection: Reducer<IConnectionModelState>;
   };
@@ -32,7 +32,7 @@ const ConnectionModel: IConnectionModelType = {
     connectionList: [],
   },
   reducers: {
-    // 设置连接池列表
+    // 设置连接列表
     setConnectionList(state, { payload }) {
       return {
         ...state,
@@ -49,11 +49,16 @@ const ConnectionModel: IConnectionModelType = {
 
   effects: {
     *fetchConnectionList(_, { call, put }) {
-      const res = (yield connectionService.getList({ pageNo: 1, pageSize: 999 })) as IPageResponse<IConnectionDetails>;
-      yield put({
-        type: 'setConnectionList',
-        payload: res.data,
-      });
+      try {
+        const res = (yield connectionService.getList({ pageNo: 1, pageSize: 999 })) as IPageResponse<IConnectionDetails>;
+        yield put({
+          type: 'setConnectionList',
+          payload: res.data,
+        });
+      }
+      catch {
+
+      }
     },
   },
 };
