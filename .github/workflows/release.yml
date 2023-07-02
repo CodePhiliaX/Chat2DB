@@ -104,7 +104,7 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
       # 安装java
@@ -120,7 +120,7 @@ jobs:
         run: |
           cd chat2db-client
           yarn install 
-          yarn run build:web:desktop --appVersion=${{ steps.chat2db_version.outputs.substring }}
+          yarn run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }}
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 编译服务端java版本
@@ -162,7 +162,6 @@ jobs:
           skip_build: true
           args: "-c.extraMetadata.version=${{ steps.chat2db_version.outputs.substring }} --mac --x64"
           release: true
-
 
       # amd64 notarization
       - name: Notarization amd64 App
@@ -218,7 +217,7 @@ jobs:
           endpoint: "oss-accelerate.aliyuncs.com"
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          ossutil-version: 'latest'
+          ossutil-version: "latest"
       - name: Upload to oss
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db/release/${{ steps.chat2db_version.outputs.substring }}/
