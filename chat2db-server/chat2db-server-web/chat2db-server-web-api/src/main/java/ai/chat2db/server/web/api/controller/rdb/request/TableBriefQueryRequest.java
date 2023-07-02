@@ -27,7 +27,6 @@ public class TableBriefQueryRequest extends PageQueryRequest implements DataSour
     /**
      * DB名称
      */
-    @NotNull
     private String databaseName;
 
     /**

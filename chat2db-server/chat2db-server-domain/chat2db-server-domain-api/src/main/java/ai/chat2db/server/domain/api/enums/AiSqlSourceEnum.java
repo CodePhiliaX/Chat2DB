@@ -27,6 +27,11 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
      */
     AZUREAI("AZURE OPENAI"),
 
+    /**
+     * CHAT2DB OPENAI
+     */
+    CHAT2DBAI("CHAT2DB OPENAI"),
+
     ;
 
     final String description;

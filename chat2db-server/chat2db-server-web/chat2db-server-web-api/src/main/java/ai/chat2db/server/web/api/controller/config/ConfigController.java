@@ -62,12 +62,18 @@ public class ConfigController {
     public ActionResult addChatGptSystemConfig(@RequestBody AISystemConfigRequest request) {
         String sqlSource = StringUtils.isNotBlank(request.getAiSqlSource()) ? request.getAiSqlSource()
             : AiSqlSourceEnum.OPENAI.getCode();
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+            sqlSource = AiSqlSourceEnum.OPENAI.getCode();
+        }
         SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE).content(sqlSource)
             .build();
         configService.createOrUpdate(param);
-        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
+
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 saveOpenAIConfig(request);
             case RESTAI :
                 saveRestAIConfig(request);

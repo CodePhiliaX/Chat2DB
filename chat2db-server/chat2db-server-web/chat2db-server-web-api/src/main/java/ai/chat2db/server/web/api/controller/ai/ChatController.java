@@ -221,8 +221,12 @@ public class ChatController {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 return chatWithOpenAi(msg, sseEmitter, uid);
             case RESTAI :
                 return chatWithRestAi(msg, sseEmitter);
@@ -239,8 +243,12 @@ public class ChatController {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
             case RESTAI :
                 return chatWithRestAi(queryRequest.getMessage(), sseEmitter);
