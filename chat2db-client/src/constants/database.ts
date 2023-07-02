@@ -76,6 +76,13 @@ export const databaseMap: {
     // port: 5236,
     icon: '\ue655',
   },
+  [DatabaseTypeCode.HIVE]: {
+    name: 'HIVE',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.HIVE,
+    // port: 5236,
+    icon: '\ue60e',
+  },
 };
 
 export const databaseTypeList = Object.keys(databaseMap).map((keys) => {

@@ -11,6 +11,7 @@ export enum DatabaseTypeCode {
   MARIADB = 'MARIADB',
   CLICKHOUSE = 'CLICKHOUSE',
   DM = "DM",
+  HIVE = "HIVE",
 }
 
 export enum ConsoleOpenedStatus {
