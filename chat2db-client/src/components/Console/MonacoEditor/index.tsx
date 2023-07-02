@@ -46,6 +46,7 @@ export interface IHintData {
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute, defaultValue, appendValue } = props;
+  console.log(defaultValue)
   const editorRef = useRef<IEditorIns>();
   const [appTheme] = useTheme();
 
