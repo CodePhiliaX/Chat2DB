@@ -46,7 +46,7 @@ const navConfig: INavItem[] = [
   },
 ];
 
-const initPageIndex = navConfig.findIndex((t) => `#/${t.key}` === window.location.hash);
+const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
 
 interface IProps {
   mainModel: IMainPageType['state'];
@@ -82,6 +82,7 @@ function MainPage(props: IProps) {
       const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)];
       setActiveNav(newActiveNav);
     }
+    localStorage.setItem('curPage', curPage)
   }, [curPage]);
 
   useEffect(() => {
