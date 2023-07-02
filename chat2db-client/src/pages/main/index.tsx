@@ -11,7 +11,6 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils';
 import TestVersion from '@/components/TestVersion';
-const path = require('path');
 
 import DataSource from './connection';
 import Workspace from './workspace';
@@ -76,8 +75,7 @@ function MainPage(props: IProps) {
     // }
     // activeNav 变化 同步地址栏变化
     // change url，but no page refresh
-    window.history.pushState({}, "", path.join(__dirname, `/#/${activeNav.key}`));
-    console.log(path.join(__dirname, `/#/1`))
+    window.history.pushState({}, "", `/#/${activeNav.key}`);
   }, [activeNav])
 
   useEffect(() => {

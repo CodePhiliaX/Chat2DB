@@ -1,6 +1,8 @@
 import { extend, ResponseError } from 'umi-request';
 import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
+const path = require('path');
+
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -63,7 +65,7 @@ if (appGatewayParams) {
   window._appGatewayParams = {};
 }
 
-const outsideUrlPrefix = window._appGatewayParams.baseUrl  || 'http://test.sqlgpt.cn/gateway/'
+const outsideUrlPrefix = window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/'
 
 
 const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
@@ -162,7 +164,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           break;
       }
 
-      const eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+      const eventualUrl = outside ? path.join(outsideUrlPrefix, _url) : `${_baseURL}${_url}`;
 
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {

@@ -57,7 +57,7 @@ export default function SettingAI(props: IProps) {
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DB && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
