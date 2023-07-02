@@ -17,7 +17,8 @@ import i18n from '@/i18n';
 import { IRemainingUse } from '@/typings/ai';
 import { IAIState } from '@/models/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
-import Popularize from '@/components/Popularize'
+import Popularize from '@/components/Popularize';
+import { handelLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils'
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -41,10 +42,13 @@ export type IAppendValue = {
 };
 
 interface IProps {
+  /** 是谁在调用我 */
+  source: 'workspace',
   /** 是否是活跃的console，用于快捷键 */
   isActive?: boolean;
   /** 添加或修改的内容 */
   appendValue?: IAppendValue;
+  defaultValue?: string;
   /** 是否开启AI输入 */
   hasAiChat: boolean;
   /** 是否可以开启SQL转到自然语言的相关ai操作 */
@@ -72,7 +76,7 @@ interface IProps {
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, aiModel, dispatch } = props;
+  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, aiModel, dispatch, source, defaultValue } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -83,7 +87,9 @@ function Console(props: IProps) {
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
   const monacoHint = useRef<any>();
   const [modal, contextHolder] = Modal.useModal();
-  const [popularizeModal, setPopularizeModal] = useState(false)
+  const [popularizeModal, setPopularizeModal] = useState(false);
+  const timerRef = useRef<any>();
+  let finalDefaultValue = defaultValue;
 
   useEffect(() => {
     if (appendValue) {
@@ -100,6 +106,44 @@ function Console(props: IProps) {
     });
     monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
   }, [props.tables]);
+
+  useEffect(() => {
+    if (source !== 'workspace') {
+      return
+    }
+    // 离开时保存
+    if (!isActive) {
+      // 离开时清除定时器
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        handelLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+      }
+    } else {
+      // 活跃时自动保存
+      timingAutoSave();
+    }
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [isActive])
+
+  useEffect(() => {
+    if (source !== 'workspace') {
+      return
+    }
+    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!)
+    if (value !== undefined) {
+      editorRef?.current?.setValue(value, 'reset');
+    }
+  }, [])
+
+  function timingAutoSave() {
+    timerRef.current = setInterval(() => {
+      handelLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+    }, 10000)
+  }
 
   const tableListName = useMemo(() => {
     const tableList = (props.tables || []).map((t) => t.name);
@@ -213,7 +257,9 @@ function Console(props: IProps) {
       status: ConsoleStatus.RELEASE,
       ddl: value,
     };
+
     historyServer.updateSavedConsole(p).then((res) => {
+      handelLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });
@@ -264,6 +310,7 @@ function Console(props: IProps) {
 
         <Editor
           id={uid}
+          defaultValue={defaultValue}
           isActive={isActive}
           ref={editorRef as any}
           className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
