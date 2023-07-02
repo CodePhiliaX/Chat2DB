@@ -223,6 +223,7 @@ public class ChatController {
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 return chatWithOpenAi(msg, sseEmitter, uid);
             case RESTAI :
                 return chatWithRestAi(msg, sseEmitter);
@@ -241,6 +242,7 @@ public class ChatController {
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
             case RESTAI :
                 return chatWithRestAi(queryRequest.getMessage(), sseEmitter);

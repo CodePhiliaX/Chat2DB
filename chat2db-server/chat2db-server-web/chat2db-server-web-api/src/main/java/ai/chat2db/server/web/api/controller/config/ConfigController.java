@@ -68,6 +68,7 @@ public class ConfigController {
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+            case CHAT2DBAI:
                 saveOpenAIConfig(request);
             case RESTAI :
                 saveRestAIConfig(request);
