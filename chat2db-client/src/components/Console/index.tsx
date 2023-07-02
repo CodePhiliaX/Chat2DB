@@ -99,7 +99,6 @@ function Console(props: IProps) {
   useEffect(() => {
     monacoHint.current?.dispose();
     const myEditorHintData: any = {};
-    console.log(props.tables);
     props.tables?.map((item: any) => {
       myEditorHintData[item.name] = [];
     });

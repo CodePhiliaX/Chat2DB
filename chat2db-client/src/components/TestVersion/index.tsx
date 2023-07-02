@@ -50,7 +50,6 @@ export default memo<IProps>(function TestVersion(props) {
   }
 
   const openNotification = (responseText: any) => {
-    console.log(responseText)
     try {
       if (responseText.version !== '2.0.0') {
         const key = `open${Date.now()}`;
