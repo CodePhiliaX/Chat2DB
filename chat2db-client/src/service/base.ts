@@ -64,7 +64,7 @@ if (appGatewayParams) {
   window._appGatewayParams = {};
 }
 
-const outsideUrlPrefix = window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/';
+const outsideUrlPrefix = window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway';
 
 const errorHandler = (error: ResponseError, errorLevel: IErrorLevel) => {
   const { response } = error;
