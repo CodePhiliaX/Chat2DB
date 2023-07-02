@@ -27,6 +27,11 @@
 Languages： English | [中文](README_CN.md)
 </div>
 
+## DEMO
+
+https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
+
+
 ## 📖 Introduction
 &emsp; &emsp;Chat2DB is a multi-database client tool that is open-source and free from Alibaba. It supports local installation on Windows and Mac, as well as server-side deployment and web page access. Compared to traditional database client software such as Navicat and DBeaver, Chat2DB integrates AIGC's capabilities and is able to convert natural language into SQL. It can also convert SQL into natural language and provide optimization suggestions for SQL to greatly enhance the efficiency of developers. It is a tool for database developers in the AI era, and even non-SQL business operators in the future can use it to quickly query business data and generate reports.
 ## ✨ Features
@@ -36,12 +41,6 @@ Languages： English | [中文](README_CN.md)
 - 🔌 Powerful extension capability, currently supporting MySQL, PostgreSQL, Oracle, SQLServer, ClickHouse, OceanBase, H2, SQLite, etc., and more databases will be supported in the future
 - 🛡 Front-end development using Electron, providing a solution that integrates Windows, Mac, Linux clients, and web versions
 - 🎁 Support environment isolation, online, and daily data permission separation
-
-## DEMO
-
-
-https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
-
 
 
 ## ⏬ Download and Install
@@ -195,7 +194,8 @@ But front debugging need mapping of resources, you can download [XSwitch](https:
 
 ## ☎️ Contact Us
 Please star and fork on GitHub before joining the group.
-Follow our WeChat public account
+Follow our WeChat public account.
+
 <a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
 
 ## ❤️ Acknowledgements
