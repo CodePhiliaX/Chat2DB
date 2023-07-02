@@ -1,5 +1,5 @@
 import { IChartItem, IChartType, IConnectionDetails, ITreeNode } from '@/typings';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';
 import cs from 'classnames';
@@ -102,6 +102,7 @@ function ChartItem(props: IChartItemProps) {
     if (!curConnection) {
       return;
     }
+    console.log(chartData);
     setChartData({
       ...chartData,
       dataSourceId: curConnection.id,
@@ -151,7 +152,9 @@ function ChartItem(props: IChartItemProps) {
         if (result && result[0]) {
           sqlData = handleSQLResult2ChartData(result[0]);
         }
+
         setChartData({
+          ...res,
           ...chartData,
           sqlData,
         });
@@ -196,8 +199,8 @@ function ChartItem(props: IChartItemProps) {
       schema: JSON.stringify(form.getFieldsValue(true)),
     };
     await updateChart(params);
-    setIsEditing(false)
-    message.success(i18n('common.tips.saveSuccessfully'))
+    setIsEditing(false);
+    message.success(i18n('common.tips.saveSuccessfully'));
   };
 
   const handleChartConfigChange = () => {
@@ -298,6 +301,13 @@ function ChartItem(props: IChartItemProps) {
     );
   };
 
+  const initDDLMemo = useMemo(() => {
+    return {
+      text: initDDL,
+      range: 'front',
+    };
+  }, [initDDL]);
+
   const renderEditorBlock = () => {
     const { sqlData = {} } = chartData || {};
     const options = Object.keys(sqlData).map((i) => ({ label: i, value: i }));
@@ -307,10 +317,7 @@ function ChartItem(props: IChartItemProps) {
         <div className={styles.editorBlock}>
           <div className={styles.editor}>
             <Console
-              appendValue={{
-                text: initDDL,
-                range: 'front',
-              }}
+              appendValue={initDDLMemo}
               executeParams={chartData}
               hasAiChat={true}
               hasAi2Lang={false}
@@ -359,7 +366,7 @@ function ChartItem(props: IChartItemProps) {
               }}
               className={styles.dataSourceSelect}
               placeholder={i18n('dashboard.editor.cascader.placeholder')}
-            // style={{ width: '100%' }}
+              // style={{ width: '100%' }}
             />
           </div>
           <div className={styles.chartParamsForm}>
@@ -418,19 +425,19 @@ function ChartItem(props: IChartItemProps) {
               items: [
                 {
                   key: 'Edit',
-                  label: 'Edit',
+                  label: i18n('dashboard.edit'),
                   onClick: () => {
                     setIsEditing(true);
                   },
                 },
                 {
                   key: 'Export',
-                  label: 'Export to image',
+                  label: i18n('dashboard.export2image'),
                   onClick: onExport2Image,
                 },
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: i18n('dashboard.delete'),
                   onClick: onDeleteChart,
                 },
               ],

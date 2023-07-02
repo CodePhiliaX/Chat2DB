@@ -76,6 +76,41 @@ export const databaseMap: {
     // port: 5236,
     icon: '\ue655',
   },
+  [DatabaseTypeCode.OCEANBASE]: {
+    name: 'OceanBase',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.OCEANBASE,
+    // port: 2883, 
+    icon: '\ue982',
+  },
+  [DatabaseTypeCode.REDIS]: {
+    name: 'Redis',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.REDIS,
+    // port: 6379,
+    icon: '\ue6a2',
+  },
+  [DatabaseTypeCode.HIVE]: {
+    name: 'Hive',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.HIVE,
+    // port: 10000,
+    icon: '\ue60e',
+  },
+  [DatabaseTypeCode.KINGBASE]: {
+    name: 'KingBase',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.KINGBASE,
+    // port: 54321,
+    icon: '\ue6a0',
+  },
+  [DatabaseTypeCode.MONGODB]: {
+    name: 'MongoDB',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.MONGODB,
+    // port: 27017,
+    icon: '\uec21',
+  },
 };
 
 export const databaseTypeList = Object.keys(databaseMap).map((keys) => {

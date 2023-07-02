@@ -50,9 +50,8 @@ export default memo<IProps>(function TestVersion(props) {
   }
 
   const openNotification = (responseText: any) => {
-    console.log(responseText)
     try {
-      if (responseText.version !== '1.1.0') {
+      if (responseText.version !== '2.0.0') {
         const key = `open${Date.now()}`;
         const btn = (
           <Space>
@@ -66,7 +65,7 @@ export default memo<IProps>(function TestVersion(props) {
         );
         notificationApi.open({
           message: i18n('common.text.updateReminder'),
-          description: `${'common.text.detectionLatestVersion'} v${responseText.version}`,
+          description: `${i18n('common.text.detectionLatestVersion')} v${responseText.version}`,
           btn,
           key,
           onClose: close,

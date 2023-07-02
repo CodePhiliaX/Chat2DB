@@ -1,5 +1,5 @@
 export default {
-  'connection.title.connections': '连接池',
+  'connection.title.connections': '连接',
   'connection.title.createConnection': '创建数据源',
   'connection.title.editConnection': '修改数据源',
   'connection.label.name': '名称',

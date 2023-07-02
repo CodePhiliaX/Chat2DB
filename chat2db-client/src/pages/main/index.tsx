@@ -1,6 +1,6 @@
 import React, { useEffect, useState, PropsWithChildren } from 'react';
 import i18n from '@/i18n';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { history, connect } from 'umi';
 import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
@@ -11,16 +11,15 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils';
 import TestVersion from '@/components/TestVersion';
-
 import DataSource from './connection';
 import Workspace from './workspace';
 import Dashboard from './dashboard';
 import Chat from './chat';
+import sqlService, { MetaSchemaVO } from '@/service/sql';
 
 import styles from './index.less';
 import { INavItem } from '@/typings/main';
 const navConfig: INavItem[] = [
-
   {
     key: 'workspace',
     icon: '\ue616',
@@ -43,11 +42,11 @@ const navConfig: INavItem[] = [
     key: 'github',
     icon: '\ue885',
     iconFontSize: 26,
-    openBrowser: 'https://github.com/alibaba/Chat2DB',
+    openBrowser: 'https://github.com/chat2db/Chat2DB/',
   },
 ];
 
-const initPageIndex = navConfig.findIndex(t => `#/${t.key}` === window.location.hash);
+const initPageIndex = navConfig.findIndex((t) => `#/${t.key}` === window.location.hash);
 
 interface IProps {
   mainModel: IMainPageType['state'];
@@ -66,39 +65,52 @@ function MainPage(props: IProps) {
     // activeNav 发生变化，同步到全局状态管理
     dispatch({
       type: 'mainPage/updateCurPage',
-      payload: activeNav.key
-    })
+      payload: activeNav.key,
+    });
     // activeNav 发生变化 如果没有选中连接并且不在connections 那么需要跳转到 连接页面
     // if (!curConnection?.id && activeNav.key !== 'connections') {
     //   setActiveNav(navConfig[2]);
     // }
     // activeNav 变化 同步地址栏变化
     // change url，but no page refresh
-    window.history.pushState({}, "", `/#/${activeNav.key}`);
-  }, [activeNav])
+    // window.history.pushState({}, "", `/#/${activeNav.key}`);
+  }, [activeNav]);
 
   useEffect(() => {
     // 全局状态curPage发生变化，activeNav 需要同步变化
     if (curPage && curPage !== activeNav.key) {
-      const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)]
-      setActiveNav(newActiveNav)
+      const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)];
+      setActiveNav(newActiveNav);
     }
-  }, [curPage])
+  }, [curPage]);
 
   useEffect(() => {
     if (curConnection?.id) {
+      // sqlService.getDatabaseSchemaList({ dataSourceId: curConnection.id }).then(res => [
+      //   dispatch({
+      //     type: 'workspace/setDatabaseAndSchema',
+      //     payload: res,
+      //   })
+      // ]).catch(() => {
+      //   dispatch({
+      //     type: 'workspace/setDatabaseAndSchema',
+      //     payload: {},
+      //   })
+      // })
       dispatch({
         type: 'workspace/fetchDatabaseAndSchema',
         payload: {
-          dataSourceId: curConnection.id
-        }
-      })
+          dataSourceId: curConnection.id,
+        },
+      });
     }
-  }, [curConnection])
+  }, [curConnection]);
 
   function switchingNav(item: INavItem) {
     if (item.openBrowser) {
-      window.open(item.openBrowser);
+      window.open(item.openBrowser, '_blank');
+      // shell.openExternal(item.openBrowser);
+      console.log('new-window========>', item.openBrowser);
     } else {
       setActiveNav(item);
     }
@@ -116,7 +128,7 @@ function MainPage(props: IProps) {
                 className={classnames({
                   [styles.activeNav]: item.key == activeNav.key,
                 })}
-                onClick={switchingNav.bind(null, item)}
+                onClick={() => switchingNav(item)}
               >
                 <Iconfont style={{ fontSize: `${item.iconFontSize}px` }} className={styles.icon} code={item.icon} />
                 {/* <div>{item.title}</div> */}
@@ -131,11 +143,7 @@ function MainPage(props: IProps) {
       <div className={styles.layoutRight}>
         {navConfig.map((item) => {
           return (
-            <div
-              key={item.key}
-              className={styles.componentBox}
-              hidden={activeNav.key !== item.key}
-            >
+            <div key={item.key} className={styles.componentBox} hidden={activeNav.key !== item.key}>
               {item.component}
             </div>
           );
@@ -146,8 +154,18 @@ function MainPage(props: IProps) {
   );
 }
 
-export default connect(({ mainPage, workspace, connection }: { mainPage: IMainPageType, workspace: IWorkspaceModelType, connection: IConnectionModelType }) => ({
-  mainModel: mainPage,
-  workspaceModel: workspace,
-  connectionModel: connection,
-}))(MainPage);
+export default connect(
+  ({
+    mainPage,
+    workspace,
+    connection,
+  }: {
+    mainPage: IMainPageType;
+    workspace: IWorkspaceModelType;
+    connection: IConnectionModelType;
+  }) => ({
+    mainModel: mainPage,
+    workspaceModel: workspace,
+    connectionModel: connection,
+  }),
+)(MainPage);

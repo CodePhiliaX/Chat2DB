@@ -4,8 +4,10 @@ import { AiSqlSourceType } from '@/typings/ai';
 import { Button, Input, message, Radio } from 'antd';
 import i18n from '@/i18n';
 import classnames from 'classnames';
+import Popularize from '@/components/Popularize'
 import { IAIState } from '@/models/ai';
 import styles from './index.less';
+const path = require('path');
 
 interface IProps {
   handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
@@ -30,6 +32,9 @@ export default function SettingAI(props: IProps) {
     if (newChatGPTConfig.apiHost && !newChatGPTConfig.apiHost?.endsWith('/')) {
       newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
     }
+    if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`
+    }
     configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
       message.success(i18n('common.text.submittedSuccessfully'));
     });
@@ -51,13 +56,13 @@ export default function SettingAI(props: IProps) {
           }}
           value={chatGPTConfig?.aiSqlSource}
         >
-          <Radio value={AiSqlSourceType.CHAT2DB}>Chat2DB AI</Radio>
+          <Radio value={AiSqlSourceType.CHAT2DBAI}>Chat2DB AI</Radio>
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
@@ -195,6 +200,10 @@ export default function SettingAI(props: IProps) {
           {i18n('setting.button.apply')}
         </Button>
       </div>
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
+        <Popularize source='setting'></Popularize>
+      )
+      }
     </>
   );
 }

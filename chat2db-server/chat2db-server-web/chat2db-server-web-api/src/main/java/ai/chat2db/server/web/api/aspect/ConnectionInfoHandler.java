@@ -60,7 +60,7 @@ public class ConnectionInfoHandler {
     public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId) {
         DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
         DataSource dataSource = result.getData();
-        if (!result.success() && dataSource == null) {
+        if (!result.success() || dataSource == null) {
             throw new ParamBusinessException("dataSourceId");
         }
         ConnectInfo connectInfo = new ConnectInfo();
