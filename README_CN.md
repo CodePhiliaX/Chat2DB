@@ -6,10 +6,10 @@
 
 [![License](https://img.shields.io/github/license/alibaba/fastjson2?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Java support](https://img.shields.io/badge/Java-17+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
-[![GitHub release](https://img.shields.io/github/release/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/fork)
-[![GitHub Contributors](https://img.shields.io/github/contributors/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/graphs/contributors)
+[![GitHub release](https://img.shields.io/github/release/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/fork)
+[![GitHub Contributors](https://img.shields.io/github/contributors/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/graphs/contributors)
 
 </div>
 
@@ -48,7 +48,7 @@ Languages： 中文 [English](README.md)
 | Windows               | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB%20Setup%201.0.10.exe) |
 | MacOS ARM64 (Apple芯片) | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB-1.0.10-arm64.dmg)         |
 | MacOS X64 (Intel芯片)   | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB-1.0.10.dmg)                     |       
-| Jar包                  | [https://oss-chat2db.alibaba.com/release/1.0.11/ali-dbhub-server-start.jar](https://oss-chat2db.alibaba.com/release/1.0.10/ali-dbhub-server-start.jar)     |                                                                                                                
+| Jar包                  | [https://oss-chat2db.alibaba.com/release/1.0.11/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/1.0.10/chat2db-server-start.jar)         |                                                                                                                
 
 ## 🚀 支持的数据库
 | 数据库        | 支持计划    |
@@ -127,26 +127,26 @@ Languages： 中文 [English](README.md)
 ## 💻 本地调试
 - git clone到本地
 ```bash
-$ git clone git@github.com:alibaba/Chat2DB.git
+$ git clone git@github.com:chat2db/Chat2DB.git
 ```
 - 前端安装
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install # 安装前端依赖
 $ npm run build:prod # 把js打包生成到后端的source目录
 ```
 - 后端调试
 ```bash
-$ cd ../ali-dbhub-server
+$ cd ../chat2db-server
 $ mvn clean install # 需要安装maven 3.8以上版本
-$ cd ali-dbhub-server/ali-dbhub-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx ali-dbhub-server-start.jar  # 启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
+$ cd chat2db-server/chat2db-server-start/target/
+$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # 启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
 $ # 打开 http://127.0.0.1:10821 开启调试 注：需要进行前端安装
 ```
 
 - 前端调试
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install 
 $ npm run start
 $ # 打开 http://127.0.0.1:10821 开启前端调试
@@ -181,7 +181,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 ## 📑 文档
 
 * <a href="https://chat2db.opensource.alibaba.com">官方文档</a>
-* <a href="https://github.com/alibaba/ali-dbhub/issues">Issue</a>
+* <a href="https://github.com/chat2db/Chat2DB/issues">Issue</a>
 
 ##  常见问题
 
@@ -191,7 +191,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 解决办法：手动下载相关驱动放入到 ~/.chat2db/jdbc-lib 目录下
 
-下载链接 参考：<a href="https://github.com/chat2db/Chat2DB/blob/main/ali-dbhub-server/ali-dbhub-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
+下载链接 参考：<a href="https://github.com/chat2db/Chat2DB/blob/main/chat2db-server/chat2db-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-8.0.30.jar
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-5.1.47.jar
 - https://oss-chat2db.alibaba.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar
@@ -206,10 +206,10 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 
 ## Stargazers
-[![Stargazers repo roster for @alibaba/Chat2DB](https://reporoster.com/stars/alibaba/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
+[![Stargazers repo roster for @chat2db/Chat2DB](https://reporoster.com/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
 
 ## Forkers
-[![Forkers repo roster for @alibaba/Chat2DB](https://reporoster.com/forks/alibaba/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
+[![Forkers repo roster for @chat2db/Chat2DB](https://reporoster.com/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
 
 ## ☎️ 联系我们
 
@@ -220,8 +220,8 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 ## ❤️ 致谢
 感谢所有为Chat2DB贡献力量的同学们~
 
-<a href="https://github.com/alibaba/ali-dbhub/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=alibaba/Chat2DB" />
+<a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
 </a>
 
 ## Star History
