@@ -78,7 +78,7 @@ public class RestAIEventSourceListener extends EventSourceListener {
         try {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
-                message = message + ", AI无法正常访问, 请参考文章<https://github.com/alibaba/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
+                message = message + ", AI无法正常访问, 请参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
                 Message sseMessage = new Message();
                 sseMessage.setContent(message);
                 sseEmitter.send(SseEmitter.event()
