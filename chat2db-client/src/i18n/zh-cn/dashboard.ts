@@ -5,5 +5,5 @@ export default {
   'dashboard.modal.addTitle': '新增仪表盘',
   'dashboard.modal.name.placeholder': "请输入仪表盘名",
   'dashboard.delete': '删除',
-  'dashboard.editor.cascader.placeholder': '请选择连接池',
+  'dashboard.editor.cascader.placeholder': '请选择连接',
 };

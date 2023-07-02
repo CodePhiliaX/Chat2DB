@@ -33,7 +33,7 @@ export default function SettingAI(props: IProps) {
       newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
     }
     if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/api/'}`
+      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`
     }
     configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
       message.success(i18n('common.text.submittedSuccessfully'));
@@ -201,7 +201,7 @@ export default function SettingAI(props: IProps) {
         </Button>
       </div>
       {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
-        <Popularize></Popularize>
+        <Popularize source='setting'></Popularize>
       )
       }
     </>
