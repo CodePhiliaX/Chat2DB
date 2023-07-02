@@ -518,9 +518,9 @@ public class ChatController {
             default:
                 break;
         }
-        if (I18nUtils.isEn()) {
-            schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
-        }
+        //if (I18nUtils.isEn()) {
+        //    schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
+        //}
         return schemaProperty;
     }
 }
