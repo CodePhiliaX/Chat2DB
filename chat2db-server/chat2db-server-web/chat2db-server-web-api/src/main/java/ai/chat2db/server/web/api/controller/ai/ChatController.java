@@ -220,7 +220,11 @@ public class ChatController {
     private SseEmitter distributeAI(String msg, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        if (Objects.nonNull(config)) {
+            aiSqlSource = config.getContent();
+        }
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
         if (Objects.isNull(aiSqlSourceEnum)) {
             aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
         }
@@ -242,7 +246,11 @@ public class ChatController {
     private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        if (Objects.nonNull(config)) {
+            aiSqlSource = config.getContent();
+        }
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
         if (Objects.isNull(aiSqlSourceEnum)) {
             aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
         }
@@ -510,9 +518,9 @@ public class ChatController {
             default:
                 break;
         }
-        if (I18nUtils.isEn()) {
-            schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
-        }
+        //if (I18nUtils.isEn()) {
+        //    schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
+        //}
         return schemaProperty;
     }
 }
