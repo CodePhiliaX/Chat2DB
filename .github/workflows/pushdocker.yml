@@ -3,10 +3,9 @@
 name: Push To Docker
 
 # Workflow's trigger
-#on:
-#  release:
-#    types: [ published ]
-on: [ push, pull_request ]
+on:
+  release:
+    types: [ published ]
 
 # Workflow's jobs
 jobs:
