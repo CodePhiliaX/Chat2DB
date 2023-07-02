@@ -221,6 +221,9 @@ public class ChatController {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
             case CHAT2DBAI:
@@ -240,6 +243,9 @@ public class ChatController {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(config.getContent());
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
             case CHAT2DBAI:
