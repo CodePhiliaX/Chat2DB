@@ -30,6 +30,9 @@ export default function SettingAI(props: IProps) {
     if (newChatGPTConfig.apiHost && !newChatGPTConfig.apiHost?.endsWith('/')) {
       newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
     }
+    if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/'}api/`
+    }
     configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
       message.success(i18n('common.text.submittedSuccessfully'));
     });
@@ -51,13 +54,13 @@ export default function SettingAI(props: IProps) {
           }}
           value={chatGPTConfig?.aiSqlSource}
         >
-          <Radio value={AiSqlSourceType.CHAT2DB}>Chat2DB AI</Radio>
+          <Radio value={AiSqlSourceType.CHAT2DBAI}>Chat2DB AI</Radio>
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DB && (
+      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
