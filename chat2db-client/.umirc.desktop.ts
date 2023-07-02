@@ -12,7 +12,7 @@ const chainWebpack = (config: any, { webpack }: any) => {
 };
 
 export default defineConfig({
-  publicPath: './static/front/',
+  publicPath: './',
   chainWebpack,
   headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
   define: {
