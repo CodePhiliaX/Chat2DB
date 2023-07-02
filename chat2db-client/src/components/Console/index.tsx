@@ -89,7 +89,6 @@ function Console(props: IProps) {
   const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
   const timerRef = useRef<any>();
-  let finalDefaultValue = defaultValue;
 
   useEffect(() => {
     if (appendValue) {
