@@ -79,11 +79,6 @@ function ChartItem(props: IChartItemProps) {
 
   const { id } = props;
 
-
-  useEffect(() => {
-    console.log(chartData)
-  }, [chartData])
-
   useEffect(() => {
     if (id !== undefined) {
       queryChartData();
@@ -107,7 +102,7 @@ function ChartItem(props: IChartItemProps) {
     if (!curConnection) {
       return;
     }
-    console.log(chartData)
+    console.log(chartData);
     setChartData({
       ...chartData,
       dataSourceId: curConnection.id,
@@ -204,8 +199,8 @@ function ChartItem(props: IChartItemProps) {
       schema: JSON.stringify(form.getFieldsValue(true)),
     };
     await updateChart(params);
-    setIsEditing(false)
-    message.success(i18n('common.tips.saveSuccessfully'))
+    setIsEditing(false);
+    message.success(i18n('common.tips.saveSuccessfully'));
   };
 
   const handleChartConfigChange = () => {
@@ -310,8 +305,8 @@ function ChartItem(props: IChartItemProps) {
     return {
       text: initDDL,
       range: 'front',
-    }
-  }, [initDDL])
+    };
+  }, [initDDL]);
 
   const renderEditorBlock = () => {
     const { sqlData = {} } = chartData || {};
@@ -371,7 +366,7 @@ function ChartItem(props: IChartItemProps) {
               }}
               className={styles.dataSourceSelect}
               placeholder={i18n('dashboard.editor.cascader.placeholder')}
-            // style={{ width: '100%' }}
+              // style={{ width: '100%' }}
             />
           </div>
           <div className={styles.chartParamsForm}>
@@ -430,19 +425,19 @@ function ChartItem(props: IChartItemProps) {
               items: [
                 {
                   key: 'Edit',
-                  label: 'Edit',
+                  label: i18n('dashboard.edit'),
                   onClick: () => {
                     setIsEditing(true);
                   },
                 },
                 {
                   key: 'Export',
-                  label: 'Export to image',
+                  label: i18n('dashboard.export2image'),
                   onClick: onExport2Image,
                 },
                 {
                   key: 'delete',
-                  label: 'Delete',
+                  label: i18n('dashboard.delete'),
                   onClick: onDeleteChart,
                 },
               ],
