@@ -6,6 +6,7 @@ import i18n from '@/i18n';
 import classnames from 'classnames';
 import { IAIState } from '@/models/ai';
 import styles from './index.less';
+const path = require('path');
 
 interface IProps {
   handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
@@ -31,7 +32,7 @@ export default function SettingAI(props: IProps) {
       newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
     }
     if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/'}api/`
+      newChatGPTConfig.apiHost = path.join(window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway/', 'api/')
     }
     configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
       message.success(i18n('common.text.submittedSuccessfully'));
