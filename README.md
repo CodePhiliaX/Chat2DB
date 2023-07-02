@@ -27,9 +27,10 @@
 Languages： English | [中文](README_CN.md)
 </div>
 
+
 ## DEMO
 
-https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
+https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb7572465a2e
 
 
 ## 📖 Introduction
@@ -47,10 +48,10 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 | Description                   | Download                                                                                                                                                   |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows      | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg)         |
-| MacOS X64  | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg)                     |
-| Jar包         | [https://oss-chat2db.alibaba.com/release/1.0.11/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/1.0.11/chat2db-server-start.jar)         |
+| Windows      | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB%20Setup%202.0.0.exe](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB%20Setup%202.0.0.exe) |
+| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0-arm64.dmg)         |
+| MacOS X64  | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0.dmg](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0.dmg)                     |
+| Jar包         | [https://oss-chat2db.alibaba.com/release/2.0.0/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.0/chat2db-server-start.jar)         |
 
 ## 🚀 Supported databases
 | Databases     | Status    |
