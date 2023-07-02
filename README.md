@@ -213,3 +213,6 @@ Thanks to all the students who contributed to Chat2DB~
   </picture>
 </a>
 
+<video src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.mp4" width="100%" height="100%" controls="controls"></video>
+
+
