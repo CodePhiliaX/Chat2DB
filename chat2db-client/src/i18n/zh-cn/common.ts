@@ -55,5 +55,8 @@ export default {
   'common.text.setting': '设置',
   'common.text.tryToRestart': '尝试重新启动',
   'common.text.contactUs': '联系我们',
+  'common.text.wechatPopularizeAi': '关注微信公众号，发送 “AI” 免费获取体验次数。',
+  'common.text.wechatPopularizeAi2': '关注微信公众号，发送 “AI” 可以免费获得ApiKey，并赠送体验次数。',
+  'common.text.wechatPopularize': '发送 “推广” 还可以免费获取更多体验次数。',
 
 };

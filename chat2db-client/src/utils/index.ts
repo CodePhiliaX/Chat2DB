@@ -153,3 +153,32 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
   })
   return flag
 }
+
+export function handelLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
+
+  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
+  let savedObj: any = {}
+  if (saved) {
+    savedObj = JSON.parse(saved)
+  }
+
+  if (type === 'save') {
+    savedObj[id] = text || '';
+  } else if (type === 'delete') {
+    delete savedObj[id]
+  }
+
+  localStorage.setItem(`timing-auto-save-console-v1`, JSON.stringify(savedObj))
+
+}
+
+
+export function readLocalStorageSavedConsoleText(id: number) {
+  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
+  let savedObj: any = {}
+  if (saved) {
+    savedObj = JSON.parse(saved)
+  }
+  return savedObj[id] || ''
+}
+

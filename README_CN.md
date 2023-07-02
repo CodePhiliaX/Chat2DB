@@ -40,7 +40,7 @@ Languages： 中文 [English](README.md)
 - 🎁 支持环境隔离、线上、日常数据权限分离
 
 ## 产品展示
-<a><img src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.0.mp4"/></a>
+<a><video src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.0.mp4"/></a>
 
 ## ⏬ 下载安装
 | 描述                   | 下载地址                                                                                                                                                       |

@@ -162,7 +162,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           break;
       }
 
-      const eventualUrl = outside ? path.join(outsideUrlPrefix, _url) : `${_baseURL}${_url}`;
+      const eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
 
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {

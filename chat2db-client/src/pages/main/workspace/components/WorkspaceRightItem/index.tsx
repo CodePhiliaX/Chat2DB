@@ -31,7 +31,7 @@ interface IProps {
 const WorkspaceRightItem = memo<IProps>(function (props) {
   const { className, data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
-  const [appendValue, setAppendValue] = useState<IAppendValue>({ text: data.initDDL });
+  const [appendValue, setAppendValue] = useState<IAppendValue>();
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
@@ -57,6 +57,8 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
         <div ref={draggableRef} className={styles.boxRightConsole}>
           <Console
+            source='workspace'
+            defaultValue={data.initDDL}
             isActive={isActive}
             appendValue={appendValue}
             executeParams={{ ...data }}
