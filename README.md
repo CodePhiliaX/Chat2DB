@@ -133,22 +133,22 @@ $ git clone git@github.com:alibaba/Chat2DB.git
 ```
 - Front-End installation
 ```bash
-$ cd Chat2DB/ali-dbhub-client
-$ npm install # Mounting front-end dependency
-$ npm run build:prod # Package js to the source directory on the back end
+$ cd Chat2DB/chat2db-client
+$ yarn install # Mounting front-end dependency
+$ yarn  # Package js to the source directory on the back end
 ```
 - Backend debug
 ```bash
-$ cd ../ali-dbhub-server
+$ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
-$ cd ali-dbhub-server/ali-dbhub-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx ali-dbhub-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+$ cd chat2db-server/chat2db-server-start/target/
+$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
 $ # open http://127.0.0.1:10821 to start debug Note: Front-end installation is required
 ```
 
 - Front-End debug
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install 
 $ npm run start 
 $ # open http://127.0.0.1:10821  to start Front-End debug
@@ -182,7 +182,7 @@ But front debugging need mapping of resources, you can download [XSwitch](https:
 ## 📑 Documentation
 
 * <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-* <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+* <a href="https://github.com/alibaba/chat2db/issues">Issue </a>
 
 ## Stargazers
 [![Stargazers repo roster for @alibaba/Chat2DB](https://reporoster.com/stars/alibaba/Chat2DB)](https://github.com/alibaba/Chat2DB/stargazers)
@@ -198,8 +198,8 @@ Follow our WeChat public account
 ## ❤️ Acknowledgements
 Thanks to all the students who contributed to Chat2DB~
 
-<a href="https://github.com/alibaba/ali-dbhub/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=alibaba/ali-dbhub" />
+<a href="https://github.com/alibaba/chat2db/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=alibaba/chat2db" />
 </a>
 
 

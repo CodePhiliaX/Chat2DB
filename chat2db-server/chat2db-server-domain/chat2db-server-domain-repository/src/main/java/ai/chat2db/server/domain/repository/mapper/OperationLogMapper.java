@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 我的执行记录表 Mapper 接口
  * </p>
  *
- * @author ali-dbhub
+ * @author chat2db
  * @since 2022-12-28
  */
 public interface OperationLogMapper extends BaseMapper<OperationLogDO> {

@@ -107,10 +107,10 @@ Languages： 中文 [English](README.md)
 ```bash
   docker pull chat2db/chat2db:latest
   // 前台运行,运行后不能关闭命令行
-  docker run -ti --name=chat2db -p 10824:10824 chat2db/chat2db:latest
+  docker run -ti --name=chat2db -p 10821:10821 chat2db/chat2db:latest
   // 后台运行,运行后可以关闭命令行
-  docker run --name=chat2db -p 10824:10824 chat2db/chat2db:latest
-  // 这里正常会提示 Tomcat started on port(s): 10824 (http) with context path 就可以结束了
+  docker run --name=chat2db -p 10821:10821 chat2db/chat2db:latest
+  // 这里正常会提示 Tomcat started on port(s): 10821 (http) with context path 就可以结束了
   
   // 如果这里提示  The container name "/chat2db" is already in use by container, 代表已经存在容器了 运行
   dcoker run chat2db
@@ -129,22 +129,22 @@ $ git clone git@github.com:alibaba/Chat2DB.git
 ```
 - 前端安装
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install # 安装前端依赖
 $ npm run build:prod # 把js打包生成到后端的source目录
 ```
 - 后端调试
 ```bash
-$ cd ../ali-dbhub-server
+$ cd ../chat2db-server
 $ mvn clean install # 需要安装maven 3.8以上版本
-$ cd ali-dbhub-server/ali-dbhub-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx ali-dbhub-server-start.jar  # 启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
+$ cd chat2db-server/chat2db-server-start/target/
+$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # 启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
 $ # 打开 http://127.0.0.1:10821 开启调试 注：需要进行前端安装
 ```
 
 - 前端调试
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install 
 $ npm run start
 $ # 打开 http://127.0.0.1:10821 开启前端调试
@@ -179,7 +179,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 ## 📑 文档
 
 * <a href="https://chat2db.opensource.alibaba.com">官方文档</a>
-* <a href="https://github.com/alibaba/ali-dbhub/issues">Issue</a>
+* <a href="https://github.com/alibaba/chat2db/issues">Issue</a>
 
 ##  常见问题
 
@@ -189,7 +189,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 
 解决办法：手动下载相关驱动放入到 ~/.chat2db/jdbc-lib 目录下
 
-下载链接 参考：<a href="https://github.com/alibaba/Chat2DB/blob/main/ali-dbhub-server/ali-dbhub-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
+下载链接 参考：<a href="https://github.com/alibaba/Chat2DB/blob/main/chat2db-server/chat2db-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-8.0.30.jar
 - https://oss-chat2db.alibaba.com/lib/mysql-connector-java-5.1.47.jar
 - https://oss-chat2db.alibaba.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar
@@ -218,7 +218,7 @@ $ # 注：前端页面完全赖服务，所以前端同学调试也需要把后�
 ## ❤️ 致谢
 感谢所有为Chat2DB贡献力量的同学们~
 
-<a href="https://github.com/alibaba/ali-dbhub/graphs/contributors">
+<a href="https://github.com/alibaba/chat2db/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=alibaba/Chat2DB" />
 </a>
 

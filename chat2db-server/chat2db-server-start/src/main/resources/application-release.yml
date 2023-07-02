@@ -5,4 +5,4 @@ spring:
     driver-class-name: org.h2.Driver
 # 端口号
 server:
-  port: 10824
+  port: 10821

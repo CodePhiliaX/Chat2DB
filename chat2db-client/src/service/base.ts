@@ -44,7 +44,7 @@ const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
 const mockUrl = 'https://yapi.alibaba.com/mock/1000160';
 
 // 桌面端的服务器地址
-const desktopServiceUrl = `http://127.0.0.1:${process.env.APP_PORT || '10824'}`;
+const desktopServiceUrl = `http://127.0.0.1:${process.env.APP_PORT || '10821'}`;
 
 // 非桌面端的服务器地址
 const prodServiceUrl = location.origin;

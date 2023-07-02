@@ -13,7 +13,7 @@ import lombok.Setter;
  * 我的执行记录表
  * </p>
  *
- * @author ali-dbhub
+ * @author chat2db
  * @since 2022-12-28
  */
 @Getter

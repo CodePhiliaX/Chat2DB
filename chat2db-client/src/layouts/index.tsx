@@ -140,7 +140,7 @@ function AppContainer() {
       miscService.testService().then(() => {
         clearInterval(time);
         // if (__ENV === 'desktop') {
-        //   window.location.href = 'http://127.0.0.1:10824/'
+        //   window.location.href = 'http://127.0.0.1:10821/'
         // }
         setStartSchedule(2);
         flag++;

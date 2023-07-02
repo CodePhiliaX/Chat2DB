@@ -13,7 +13,7 @@ import lombok.Setter;
  * 数据源连接表
  * </p>
  *
- * @author ali-dbhub
+ * @author chat2db
  * @since 2023-03-05
  */
 @Getter

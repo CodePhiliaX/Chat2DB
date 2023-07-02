@@ -67,7 +67,7 @@ app.on('before-quit', (event) => {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    url: 'http://127.0.0.1:10824/api/system/stop',
+    url: 'http://127.0.0.1:10821/api/system/stop',
   });
   request.write(JSON.stringify({}));
   request.on('response', (response) => {
