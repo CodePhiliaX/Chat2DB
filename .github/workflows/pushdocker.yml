@@ -6,7 +6,6 @@ name: Push To Docker
 #on:
 #  release:
 #    types: [ published ]
-on: [ push, pull_request ]
 
 # Workflow's jobs
 jobs:
@@ -27,7 +26,8 @@ jobs:
         id: chat2db_version
         uses: bhowell2/github-substring-action@1.0.1
         with:
-          value: 2.0.0
+          value: ${{ github.ref }}
+          index_of_str: "refs/tags/v"
 
 
       # 输出基础信息
