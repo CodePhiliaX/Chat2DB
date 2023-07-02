@@ -27,9 +27,10 @@
 Languages： English | [中文](README_CN.md)
 </div>
 
+
 ## DEMO
 
-https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
+https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb7572465a2e
 
 
 ## 📖 Introduction
