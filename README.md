@@ -37,6 +37,9 @@ Languages： English | [中文](README_CN.md)
 - 🛡 Front-end development using Electron, providing a solution that integrates Windows, Mac, Linux clients, and web versions
 - 🎁 Support environment isolation, online, and daily data permission separation
 
+## DEMO
+<a><img src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.0.mp4"/></a>
+
 
 ## ⏬ Download and Install
 
@@ -74,13 +77,13 @@ Languages： English | [中文](README_CN.md)
 
 ## 🌰 Demo
 ### Create data source
-  <a><img src="https://gw.alicdn.com/imgextra/i3/O1CN01PlpLYy1hIq5aMugpg_!!6000000004255-0-tps-3446-1750.jpg" width="100%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/1d7f2d05-9c3b-4308-a693-39aed44a4b39.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 ### Data source management
-  <a><img src="https://gw.alicdn.com/imgextra/i2/O1CN01DpzZJL1T7w2Xv9VMl_!!6000000002336-0-tps-3410-1662.jpg" width="100%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/d5634953-9fe5-4a03-8024-3aa4774b2955.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 ### SQL console
-  <a><img src="https://gw.alicdn.com/imgextra/i2/O1CN01aidnkx1Oo0LJ1Pdty_!!6000000001751-0-tps-3440-1736.jpg" width="100%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/f1a111bd-38cf-42d2-bfd3-f1d7f57aec3c.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 ### AI intelligent assistant
-  <a><img src="https://gw.alicdn.com/imgextra/i4/O1CN01iaSXot1W6VeaDFbK2_!!6000000002739-0-tps-3430-1740.jpg" width="100%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/16e3c632-f896-45c3-a7a2-91c338e82f73.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
 ## 🔥 AI Configuration
 ### CONFIGURE OPENAI
@@ -90,7 +93,7 @@ Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions mu
 - You need an OPENAI_API_KEY.
 - The client's network can connect to the OPENAI website, and for users in China, a VPN is required. Note: If the local VPN is not fully effective, the network connectivity can be ensured by setting the network proxy HOST and PORT in the client.
 
-<a><img src="https://img.alicdn.com/imgextra/i2/O1CN01anrJMI1FEtSBbmTau_!!6000000000456-0-tps-1594-964.jpg" width="60%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/0218daf0-7d93-43c5-a5f7-decd104c0847.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
 Option 2 (recommended): We provide a unified proxy service.
 
@@ -99,18 +102,15 @@ Option 2 (recommended): We provide a unified proxy service.
 
 To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY. 
 
-<a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
+<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/5ee43d26-05bb-4b12-b705-2b263f167975.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
-After the application is completed, refer to the following figure for configuration and usage. Config Api Host as http://test.sqlgpt.cn/gateway/api/.
-
-<a><img src="https://img.alicdn.com/imgextra/i2/O1CN01xNobD21mo3B1ILrs2_!!6000000005000-0-tps-592-515.jpg" width="60%"/></a>
 
 ### CONFIGURE CUSTOM AI
 - Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
 - DEMO for configuring customized stream output interface.
-  <a><img src="https://img.alicdn.com/imgextra/i1/O1CN01xMqnRH1DlkdSekvSF_!!6000000000257-0-tps-591-508.jpg" width="60%"/></a>
+  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/3b74fea5-526d-40ea-9edb-27484921c578.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 - DEMO for configuring customized non-stream output interface.
-  <a><img src="https://img.alicdn.com/imgextra/i1/O1CN01JqmbGo1fW0GAQhRu4_!!6000000004013-0-tps-587-489.jpg" width="60%"/></a>
+  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/eb82d1ee-ab13-46f8-a454-60968482e584.png#1011"/></a>
 
 
 
@@ -205,11 +205,11 @@ Thanks to all the students who contributed to Chat2DB~
 
 ## Star History
 
-<a href="https://star-history.com/#alibaba/chat2db&Date">
+<a href="https://star-history.com/#chat2db/chat2db&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=alibaba/chat2db&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
   </picture>
 </a>
 
