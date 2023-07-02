@@ -81,9 +81,9 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
                 if ("No route to host".equals(message)) {
-                    message = "网络连接超时，请检查网络连通性，参考文章<https://github.com/alibaba/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>";
+                    message = "网络连接超时，请检查网络连通性，参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>";
                 } else {
-                    message = "AI无法正常访问，请参考文章<https://github.com/alibaba/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
+                    message = "AI无法正常访问，请参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
                 }
                 Message sseMessage = new Message();
                 sseMessage.setContent(message);
