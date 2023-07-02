@@ -132,7 +132,7 @@ function Console(props: IProps) {
       return
     }
     const value = readLocalStorageSavedConsoleText(executeParams.consoleId!)
-    if (value !== undefined) {
+    if (value) {
       editorRef?.current?.setValue(value, 'reset');
     }
   }, [])
@@ -334,7 +334,7 @@ function Console(props: IProps) {
             {i18n('common.button.execute')}
           </Button>
           {hasSaveBtn && (
-            <Button type="default" className={styles.saveButton} onClick={() => saveConsole()}>
+            <Button type="default" className={styles.saveButton} onClick={() => saveConsole(editorRef?.current?.getAllContent())}>
               {i18n('common.button.save')}
             </Button>
           )}
