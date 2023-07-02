@@ -50,10 +50,10 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 ## ⏬ 下载安装
 | 描述                   | 下载地址                                                                                                                                                       |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows               | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB%20Setup%201.0.10.exe) |
-| MacOS ARM64 (Apple芯片) | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB-1.0.10-arm64.dmg)         |
-| MacOS X64 (Intel芯片)   | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg](https://oss-chat2db.alibaba.com/release/1.0.10/Chat2DB-1.0.10.dmg)                     |       
-| Jar包                  | [https://oss-chat2db.alibaba.com/release/1.0.11/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/1.0.10/chat2db-server-start.jar)         |                                                                                                                
+| Windows               | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB%20Setup%202.0.0.exe](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB%20Setup%202.0.0.exe) |
+| MacOS ARM64 (Apple芯片) | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0-arm64.dmg)         |
+| MacOS X64 (Intel芯片)   | [https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0.dmg](https://oss-chat2db.alibaba.com/release/2.0.0/Chat2DB-2.0.0.dmg)                     |       
+| Jar包                  | [https://oss-chat2db.alibaba.com/release/2.0.0/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.0/chat2db-server-start.jar)         |                                                                                                                
 
 ## 🚀 支持的数据库
 | 数据库        | 支持计划    |
