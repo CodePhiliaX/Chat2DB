@@ -35,19 +35,21 @@ jobs:
         run: |
           echo "current version: ${{ steps.chat2db_version.outputs.substring }}"
 
-      # 安装nodejs
+      # 安装node
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
           node-version: 16
+          cache: "yarn"
+          cache-dependency-path: chat2db-client/yarn.lock
 
       # 构建静态文件信息
-      - name: Npm install & build & copy
+      - name: Yarn install & build & copy
         run: |
           cd chat2db-client
-          npm install 
-          npm run build:desktop
-          mv dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          yarn install 
+          yarn run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }}
+          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 安装java
       - name: Install Java and Maven
