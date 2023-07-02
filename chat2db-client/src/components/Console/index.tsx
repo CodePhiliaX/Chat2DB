@@ -142,7 +142,7 @@ function Console(props: IProps) {
   function timingAutoSave() {
     timerRef.current = setInterval(() => {
       handelLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
-    }, 10000)
+    }, 5000)
   }
 
   const tableListName = useMemo(() => {
