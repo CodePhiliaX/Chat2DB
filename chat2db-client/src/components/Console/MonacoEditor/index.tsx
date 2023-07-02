@@ -293,6 +293,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   let newRange: IRangeType = range;
   if (range === 'reset') {
     editor.setValue(text)
+    return
   }
   switch (range) {
     case 'cover':
