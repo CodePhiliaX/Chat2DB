@@ -1,6 +1,22 @@
 package ai.chat2db.server.domain.support.util;
 
-import cn.hutool.core.date.DateUtil;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Map;
+
+import com.alibaba.druid.DbType;
+
 import ai.chat2db.server.domain.support.enums.DataTypeEnum;
 import ai.chat2db.server.domain.support.enums.DbTypeEnum;
 import ai.chat2db.server.domain.support.enums.DriverTypeEnum;
@@ -8,18 +24,10 @@ import ai.chat2db.server.domain.support.model.DataSourceConnect;
 import ai.chat2db.server.domain.support.model.SSHInfo;
 import ai.chat2db.server.domain.support.sql.IDriverManager;
 import ai.chat2db.server.domain.support.sql.SSHManager;
-import com.alibaba.druid.DbType;
+import cn.hutool.core.date.DateUtil;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
-
-import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * jdbc工具类
@@ -242,9 +250,10 @@ public class JdbcUtils {
             if (session != null) {
                 try {
                     session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    session.disconnect();
+
                 } catch (JSchException e) {
                 }
-                session.disconnect();
             }
         }
         dataSourceConnect.setDescription("成功");
