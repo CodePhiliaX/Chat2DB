@@ -60,6 +60,9 @@ public class DashboardServiceImpl implements DashboardService {
         param.setGmtModified(LocalDateTime.now());
         DashboardDO dashboardDO = dashboardConverter.updateParam2do(param);
         dashboardMapper.updateById(dashboardDO);
+        if (CollectionUtils.isEmpty(param.getChartIds())) {
+            return ActionResult.isSuccess();
+        }
         deleteDashboardRelation(dashboardDO.getId());
         insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
         return ActionResult.isSuccess();
