@@ -38,7 +38,7 @@ Languages： English | [中文](README_CN.md)
 - 🎁 Support environment isolation, online, and daily data permission separation
 
 ## DEMO
-<a><img src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.0.mp4"/></a>
+<a><video src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.0.mp4"/></a>
 
 
 ## ⏬ Download and Install
