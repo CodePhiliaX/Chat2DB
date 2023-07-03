@@ -4,19 +4,8 @@
  */
 package ai.chat2db.spi.sql;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.spi.model.*;
-
 import cn.hutool.core.date.TimeInterval;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +13,14 @@ import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import static ai.chat2db.spi.util.ResultSetUtils.buildColumn;
-import static ai.chat2db.spi.util.ResultSetUtils.buildFunction;
-import static ai.chat2db.spi.util.ResultSetUtils.buildProcedure;
-import static ai.chat2db.spi.util.ResultSetUtils.buildTable;
-import static ai.chat2db.spi.util.ResultSetUtils.buildTableIndexColumn;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static ai.chat2db.spi.util.ResultSetUtils.*;
 
 /**
  * Dbhub 统一数据库连接管理
@@ -324,4 +316,74 @@ public class SQLExecutor {
         return procedures;
     }
 
+    public ExecuteResult executePage(String sql, Integer pageNo, Integer pageSize, Connection connection) throws SQLException {
+        //sql判空，处理
+        Assert.notNull(sql, "sql");
+        int offset = (pageNo - 1) * pageSize;
+        sql = sql.replaceFirst(";", "");
+        log.info("[sql exec] pageNo:{}, pageSize={}, sql:{}", pageNo, pageSize, sql);
+        ExecuteResult executeResult = ExecuteResult.builder().sql(sql).pageNo(pageNo).pageSize(pageSize).success(Boolean.TRUE).build();
+        TimeInterval timeInterval = new TimeInterval();
+        try (Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
+            boolean query = stmt.execute(sql);
+            executeResult.setDescription("sql执行成功");
+            if (query) {
+                ResultSet rs = null;
+                try {
+                    rs = stmt.getResultSet();
+                    // 获取有几列
+                    ResultSetMetaData resultSetMetaData = rs.getMetaData();
+                    int col = resultSetMetaData.getColumnCount();
+
+                    // 获取header信息
+                    List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
+                    executeResult.setHeaderList(headerList);
+                    for (int i = 1; i <= col; i++) {
+                        headerList.add(Header.builder()
+                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                                .name(resultSetMetaData.getColumnName(i))
+                                .build());
+                    }
+                    // 获取数据信息
+                    List<List<String>> dataList = Lists.newArrayList();
+                    executeResult.setDataList(dataList);
+                    // 分页标记
+                    executeResult.setHasNextPage(Boolean.FALSE);
+
+                    // 移动到结果集的最后一行，获取数据总条数
+                    rs.last();
+                    int rowCount = rs.getRow();
+                    executeResult.setTotal(rowCount);
+                    // 移动到指定的行分页查询
+                    rs.absolute(offset);
+
+                    int rsSize = 0;
+                    while (rs.next()) {
+                        List<String> row = Lists.newArrayListWithExpectedSize(col);
+                        dataList.add(row);
+                        for (int i = 1; i <= col; i++) {
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i));
+                        }
+                        rsSize++;
+                        // 到达下一页了
+                        if (rsSize >= pageSize) {
+                            executeResult.setHasNextPage(Boolean.TRUE);
+                            break;
+                        }
+                    }
+                    return executeResult;
+                } finally {
+                    JdbcUtils.closeResultSet(rs);
+                }
+            } else {
+                // 修改或者其他
+                executeResult.setUpdateCount(stmt.getUpdateCount());
+            }
+        } finally {
+            executeResult.setDuration(timeInterval.interval());
+        }
+        return executeResult;
+    }
 }
