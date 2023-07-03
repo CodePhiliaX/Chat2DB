@@ -2,11 +2,14 @@
 ## ⭐ New Features
 * dd
 ## 🐞 Bug Fixes
-* xx
+* Fix getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
+* 
 ## ⭐ 新特性
 * dd
 ## 🐞 问题修复
 * 修复一次性执行多条SQL会提示异常的BUG
+* 修复 getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
+
 
 # 2.0.0
 ## What's Changed
