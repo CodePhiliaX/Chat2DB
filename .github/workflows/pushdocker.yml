@@ -35,19 +35,21 @@ jobs:
         run: |
           echo "current version: ${{ steps.chat2db_version.outputs.substring }}"
 
-      # 安装nodejs
+      # 安装node
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
           node-version: 16
+          cache: "yarn"
+          cache-dependency-path: chat2db-client/yarn.lock
 
       # 构建静态文件信息
-      - name: Npm install & build & copy
+      - name: Yarn install & build & copy
         run: |
-          cd ali-dbhub-client
-          npm install 
-          npm run build:desktop
-          mv dist ../ali-dbhub-server/ali-dbhub-server-start/src/main/resources/static/front
+          cd chat2db-client
+          yarn install 
+          yarn run build:web:prod --appVersion=${{ steps.chat2db_version.outputs.substring }}
+          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 安装java
       - name: Install Java and Maven
@@ -59,7 +61,7 @@ jobs:
 
       # 编译服务端java版本
       - name: Build Java
-        run: mvn clean package -B '-Dmaven.test.skip=true' -f ali-dbhub-server/pom.xml
+        run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
       
 
       - name: Set up QEMU
