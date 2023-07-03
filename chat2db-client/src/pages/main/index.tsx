@@ -99,7 +99,7 @@ function MainPage(props: IProps) {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
