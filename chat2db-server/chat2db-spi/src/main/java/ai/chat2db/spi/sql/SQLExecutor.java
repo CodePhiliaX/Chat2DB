@@ -1,7 +1,3 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2022 All Rights Reserved.
- */
 package ai.chat2db.spi.sql;
 
 import java.sql.Connection;

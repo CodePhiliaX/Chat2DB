@@ -12,6 +12,7 @@ export default memo<IProps>(function workspace(props) {
   const draggableRef = useRef<any>();
 
   return (
+
     <DraggableContainer className={styles.box}>
       <div ref={draggableRef} className={styles.boxLeft}>
         <WorkspaceLeft />

@@ -140,7 +140,21 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
   const { curConnection } = connectionModel;
   const [currentSelectedName, setCurrentSelectedName] = useState('');
 
+  useEffect(() => {
+    if (curConnection?.id) {
+      dispatch({
+        type: 'workspace/fetchDatabaseAndSchema',
+        payload: {
+          dataSourceId: curConnection.id,
+        },
+      });
+    }
+  }, [curConnection]);
+
   const cascaderOptions = useMemo(() => {
+    if (!databaseAndSchema) {
+      return
+    }
     const res = handleDatabaseAndSchema(databaseAndSchema);
     if (!curWorkspaceParams?.dataSourceId || curWorkspaceParams?.dataSourceId !== curConnection?.id) {
       // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个

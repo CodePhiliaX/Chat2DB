@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.util;
 
 import java.io.File;
@@ -11,8 +8,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-
-import ai.chat2db.spi.sql.Chat2DBContext;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Dispatcher;
@@ -141,12 +136,8 @@ public class JdbcJarUtils {
         return path;
     }
 
+    public static final String DOWNLOAD_URL_HOST = "https://oss-chat2db.alibaba.com/lib/";
     private static String getDownloadUrl(String jarPath) {
-        for (String path : Chat2DBContext.JDBC_JAR_DOWNLOAD_URL_LIST) {
-            if (path.contains(jarPath)) {
-                return path.trim();
-            }
-        }
-        return null;
+       return   DOWNLOAD_URL_HOST+jarPath;
     }
 }
