@@ -144,7 +144,7 @@ function MainPage(props: IProps) {
             code="&#xe67c;"
             className={styles.QuestionIcon}
             onClick={() => {
-              window.open('https://github.com/alibaba/ali-dbhub/wiki');
+              window.open('https://github.com/chat2db/Chat2DB/wiki');
             }}
           />
           <Setting className={styles.setIcon}></Setting>
