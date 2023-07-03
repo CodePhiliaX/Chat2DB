@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.util;
 
 import java.util.ArrayList;
@@ -11,12 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ai.chat2db.server.tools.common.util.EasyBooleanUtils;
-import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
-import ai.chat2db.server.tools.common.util.EasyEnumUtils;
-import ai.chat2db.spi.enums.CollationEnum;
-import ai.chat2db.spi.enums.IndexTypeEnum;
-import ai.chat2db.spi.model.*;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
@@ -45,6 +36,16 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStateme
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStatement.Item;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlTableIndex;
 
+import ai.chat2db.server.tools.common.util.EasyBooleanUtils;
+import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import ai.chat2db.server.tools.common.util.EasyEnumUtils;
+import ai.chat2db.spi.enums.CollationEnum;
+import ai.chat2db.spi.enums.IndexTypeEnum;
+import ai.chat2db.spi.model.Sql;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.TableIndexColumn;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
