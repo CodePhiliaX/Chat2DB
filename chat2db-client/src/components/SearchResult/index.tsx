@@ -108,7 +108,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
         );
       } else {
         return <Fragment key={item.uuid} >
-          <StateIndicator state="error" text={item.message} />
+          <StateIndicator className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })} state="error" text={item.message} />
         </Fragment >;
       }
     });

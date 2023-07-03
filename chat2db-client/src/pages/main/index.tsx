@@ -9,7 +9,6 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils';
 import { INavItem } from '@/typings/main';
-import TestVersion from '@/components/TestVersion';
 import Connection from './connection';
 import Workspace from './workspace';
 import Dashboard from './dashboard';
@@ -89,28 +88,6 @@ function MainPage(props: IProps) {
     localStorage.setItem('curPage', curPage);
   }, [curPage]);
 
-  useEffect(() => {
-    if (curConnection?.id) {
-      // sqlService.getDatabaseSchemaList({ dataSourceId: curConnection.id }).then(res => [
-      //   dispatch({
-      //     type: 'workspace/setDatabaseAndSchema',
-      //     payload: res,
-      //   })
-      // ]).catch(() => {
-      //   dispatch({
-      //     type: 'workspace/setDatabaseAndSchema',
-      //     payload: {},
-      //   })
-      // })
-      dispatch({
-        type: 'workspace/fetchDatabaseAndSchema',
-        payload: {
-          dataSourceId: curConnection.id,
-        },
-      });
-    }
-  }, [curConnection]);
-
   function switchingNav(item: INavItem) {
     if (item.openBrowser) {
       window.open(item.openBrowser, '_blank');
@@ -122,7 +99,7 @@ function MainPage(props: IProps) {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
@@ -142,9 +119,9 @@ function MainPage(props: IProps) {
         <div className={styles.footer}>
           <Iconfont
             code="&#xe67c;"
-            className={styles.QuestionIcon}
+            className={styles.questionIcon}
             onClick={() => {
-              window.open('https://github.com/chat2db/Chat2DB/wiki');
+              window.open('https://github.com/chat2db/chat2db/wiki');
             }}
           />
           <Setting className={styles.setIcon}></Setting>
@@ -159,7 +136,6 @@ function MainPage(props: IProps) {
           );
         })}
       </div>
-      <TestVersion></TestVersion>
     </div>
   );
 }
