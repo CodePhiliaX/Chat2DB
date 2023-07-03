@@ -71,6 +71,8 @@ public class IDriverManager {
         if (url == null) {
             throw new SQLException("The url cannot be null", "08001");
         }
+        // 设置超时时间为7s
+        DriverManager.setLoginTimeout(7);
         DriverManager.println("DriverManager.getConnection(\"" + url + "\")");
         SQLException reason = null;
         DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getName());
