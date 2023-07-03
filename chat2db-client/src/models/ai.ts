@@ -46,20 +46,25 @@ const AIModel: IAIModelType = {
     },
   },
   effects: {
-    *fetchRemainingUse({ payload }, { put }) {
-      const { key } = payload;
-      if (!key) {
+    * fetchRemainingUse({ payload }, { put }) {
+      try {
+        const { key } = payload;
+        if (!key) {
+          yield put({
+            type: 'setRemainUse',
+            payload: undefined,
+          });
+          return;
+        }
+        const res = (yield aiService.getRemainingUse(payload)) as IRemainingUse;
         yield put({
           type: 'setRemainUse',
-          payload: undefined,
+          payload: res,
         });
-        return;
       }
-      const res = (yield aiService.getRemainingUse(payload)) as IRemainingUse;
-      yield put({
-        type: 'setRemainUse',
-        payload: res,
-      });
+      catch {
+
+      }
     },
   },
 };

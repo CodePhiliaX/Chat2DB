@@ -12,6 +12,8 @@ import { IAIState } from '@/models/ai';
 import styles from './index.less';
 import configService, { IChatGPTConfig } from '@/service/config';
 import { AiSqlSourceType } from '@/typings/ai';
+import TestVersion from '@/components/TestVersion';
+
 interface IProps {
   className?: string;
   text?: string;
@@ -112,6 +114,7 @@ function Setting(props: IProps) {
             <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
           )}
       </div>
+      <TestVersion></TestVersion>
       <Modal
         open={isModalVisible}
         onOk={handleOk}
