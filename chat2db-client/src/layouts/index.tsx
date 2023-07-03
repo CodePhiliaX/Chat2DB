@@ -20,6 +20,8 @@ import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
 import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
 import { clearOlderLocalStorage } from '@/utils';
+import registerMessage from './init/registerMessage';
+import registerNotification from './init/registerNotification';
 
 declare global {
   interface Window {
@@ -35,7 +37,13 @@ declare global {
   const __ENV: string;
 }
 
-clearOlderLocalStorage();
+const initConfig = () => {
+  registerMessage();
+  registerNotification();
+  clearOlderLocalStorage();
+};
+
+initConfig();
 
 window._Lang = getLang();
 
@@ -140,17 +148,20 @@ function AppContainer() {
     setServiceFail(false);
     let flag = 0;
     const time = setInterval(() => {
-      miscService.testService().then(() => {
-        clearInterval(time);
-        // if (__ENV === 'desktop') {
-        //   window.location.href = 'http://127.0.0.1:10824/'
-        // }
-        setStartSchedule(2);
-        flag++;
-      }).catch(error => {
-        setStartSchedule(1);
-        flag++;
-      });
+      miscService
+        .testService()
+        .then(() => {
+          clearInterval(time);
+          // if (__ENV === 'desktop') {
+          //   window.location.href = 'http://127.0.0.1:10824/'
+          // }
+          setStartSchedule(2);
+          flag++;
+        })
+        .catch((error) => {
+          setStartSchedule(1);
+          flag++;
+        });
       if (flag > restartCount) {
         setServiceFail(true);
         clearInterval(time);
@@ -165,28 +176,33 @@ function AppContainer() {
           {/* 待启动状态 */}
           {startSchedule === 0 && <div></div>}
           {/* 服务启动中 */}
-          {startSchedule === 1 && <div className={styles.starting}>
-            <div className={styles.loadingBox}>
-              {
-                !serviceFail && <div>
-                  <LoadingLiquid />
+          {startSchedule === 1 && (
+            <div className={styles.starting}>
+              <div className={styles.loadingBox}>
+                {!serviceFail && (
+                  <div>
+                    <LoadingLiquid />
+                  </div>
+                )}
+                <div className={styles.hint}>
+                  <Setting text={i18n('common.text.setting')} />
                 </div>
-              }
-              <div className={styles.hint}>
-                <Setting text={i18n('common.text.setting')} />
+                {serviceFail && (
+                  <>
+                    <div className={styles.github}>
+                      {i18n('common.text.contactUs')}-github：
+                      <a target="_blank" href="https://github.com/chat2db/Chat2DB">
+                        github
+                      </a>
+                    </div>
+                    <div className={styles.restart} onClick={detectionService}>
+                      {i18n('common.text.tryToRestart')}
+                    </div>
+                  </>
+                )}
               </div>
-              {serviceFail && (
-                <>
-                  <div className={styles.github}>
-                    {i18n('common.text.contactUs')}-github：<a target="_blank" href="https://github.com/chat2db/Chat2DB">github</a>
-                  </div>
-                  <div className={styles.restart} onClick={detectionService}>
-                    {i18n('common.text.tryToRestart')}
-                  </div>
-                </>
-              )}
             </div>
-          </div>}
+          )}
           {/* 服务启动完成 */}
           {startSchedule === 2 && <Outlet />}
         </div>
