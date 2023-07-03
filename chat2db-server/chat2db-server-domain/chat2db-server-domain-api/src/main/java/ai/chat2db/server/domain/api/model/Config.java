@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.server.domain.api.model;
 
 import java.io.Serial;
@@ -9,8 +6,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author jipengfei

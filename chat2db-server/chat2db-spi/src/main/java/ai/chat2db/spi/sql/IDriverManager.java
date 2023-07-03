@@ -1,9 +1,5 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
-package ai.chat2db.spi.sql;
 
+package ai.chat2db.spi.sql;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
