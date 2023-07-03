@@ -6,4 +6,5 @@ export interface INavItem {
   component?: React.ReactNode;
   openBrowser?: string;
   iconFontSize?: number;
+  isLoad: boolean;
 }

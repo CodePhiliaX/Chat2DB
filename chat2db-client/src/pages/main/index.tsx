@@ -1,6 +1,4 @@
-import React, { useEffect, useState, PropsWithChildren } from 'react';
-import i18n from '@/i18n';
-import { Button, message } from 'antd';
+import React, { useEffect, useState, PropsWithChildren, lazy, Suspense } from 'react';
 import { history, connect } from 'umi';
 import classnames from 'classnames';
 import Setting from '@/blocks/Setting';
@@ -10,43 +8,48 @@ import { IMainPageType } from '@/models/mainPage';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
 import { findObjListValue } from '@/utils';
+import { INavItem } from '@/typings/main';
 import TestVersion from '@/components/TestVersion';
-import DataSource from './connection';
+import Connection from './connection';
 import Workspace from './workspace';
 import Dashboard from './dashboard';
-import Chat from './chat';
-import sqlService, { MetaSchemaVO } from '@/service/sql';
 
 import styles from './index.less';
-import { INavItem } from '@/typings/main';
+
 const navConfig: INavItem[] = [
   {
     key: 'workspace',
     icon: '\ue616',
     iconFontSize: 16,
+    isLoad: false,
     component: <Workspace />,
   },
   {
     key: 'dashboard',
     icon: '\ue629',
     iconFontSize: 24,
+    isLoad: false,
     component: <Dashboard />,
   },
   {
     key: 'connections',
     icon: '\ue622',
     iconFontSize: 20,
-    component: <DataSource />,
+    isLoad: false,
+    component: <Connection />,
   },
   {
     key: 'github',
     icon: '\ue885',
     iconFontSize: 26,
+    isLoad: false,
     openBrowser: 'https://github.com/chat2db/Chat2DB/',
   },
 ];
 
 const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
+const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
+navConfig[activeIndex].isLoad = true;
 
 interface IProps {
   mainModel: IMainPageType['state'];
@@ -59,10 +62,11 @@ function MainPage(props: IProps) {
   const { mainModel, workspaceModel, connectionModel, dispatch } = props;
   const { curPage } = mainModel;
   const { curConnection } = connectionModel;
-  const [activeNav, setActiveNav] = useState<INavItem>(navConfig[initPageIndex > -1 ? initPageIndex : 2]);
+  const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
+    activeNav.isLoad = true;
     dispatch({
       type: 'mainPage/updateCurPage',
       payload: activeNav.key,
@@ -82,7 +86,7 @@ function MainPage(props: IProps) {
       const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)];
       setActiveNav(newActiveNav);
     }
-    localStorage.setItem('curPage', curPage)
+    localStorage.setItem('curPage', curPage);
   }, [curPage]);
 
   useEffect(() => {
@@ -110,8 +114,6 @@ function MainPage(props: IProps) {
   function switchingNav(item: INavItem) {
     if (item.openBrowser) {
       window.open(item.openBrowser, '_blank');
-      // shell.openExternal(item.openBrowser);
-      console.log('new-window========>', item.openBrowser);
     } else {
       setActiveNav(item);
     }
@@ -120,7 +122,7 @@ function MainPage(props: IProps) {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
@@ -138,6 +140,13 @@ function MainPage(props: IProps) {
           })}
         </ul>
         <div className={styles.footer}>
+          <Iconfont
+            code="&#xe67c;"
+            className={styles.QuestionIcon}
+            onClick={() => {
+              window.open('https://github.com/alibaba/ali-dbhub/wiki');
+            }}
+          />
           <Setting className={styles.setIcon}></Setting>
         </div>
       </div>
@@ -145,7 +154,7 @@ function MainPage(props: IProps) {
         {navConfig.map((item) => {
           return (
             <div key={item.key} className={styles.componentBox} hidden={activeNav.key !== item.key}>
-              {item.component}
+              {item.isLoad ? item.component : null}
             </div>
           );
         })}
