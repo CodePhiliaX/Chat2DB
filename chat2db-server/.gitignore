@@ -1,5 +1,4 @@
 target/
-!.mvn/com.alibaba.grow.common.wrapper/maven-com.alibaba.grow.common.wrapper.jar
 rebel.xml
 rebel-remote.xml
 .gradle
