@@ -15,7 +15,7 @@ export default function AboutUs() {
           {i18n('setting.text.currentEnv')}:{__ENV}
         </div>
         <div className={styles.version}>
-          {i18n('setting.text.currentVersion')}:v{'2.0.0' || __APP_VERSION__} build
+          {i18n('setting.text.currentVersion')}:v{'2.0.1' || __APP_VERSION__} build
           {__BUILD_TIME__}
         </div>
         <a target="blank" href={GITHUB_URL} className={styles.log}>

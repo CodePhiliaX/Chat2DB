@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { notification, Space, Button } from 'antd';
 import outSideService from '@/service/outside';
 import i18n from '@/i18n';
+import { isVersionHigher } from '@/utils';
 
 interface IProps {
   className?: string;
@@ -26,9 +27,9 @@ export default memo<IProps>(function TestVersion(props) {
       if (time < nowTime) {
         outSideService.checkVersion().then(res => {
           localStorage.setItem('app-gateway-params', JSON.stringify(res))
-          openNotification(res);
           const time = new Date().getTime() + 2 * 60 * 60 * 1000;
           localStorage.setItem('update-hint-time', time.toString())
+          openNotification(res);
         })
       }
     }
@@ -43,7 +44,6 @@ export default memo<IProps>(function TestVersion(props) {
     localStorage.setItem('update-hint-time', time.toString());
   }
 
-
   function go(responseText: any) {
     window.open(responseText.downloadLink)
     notificationApi.destroy();
@@ -51,7 +51,8 @@ export default memo<IProps>(function TestVersion(props) {
 
   const openNotification = (responseText: any) => {
     try {
-      if (responseText.version !== '2.0.0') {
+      const needToBeUpdated = isVersionHigher(responseText.version, '2.0.1');
+      if (needToBeUpdated) {
         const key = `open${Date.now()}`;
         const btn = (
           <Space>
