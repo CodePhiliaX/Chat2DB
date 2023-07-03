@@ -3,13 +3,14 @@
 * dd
 ## 🐞 Bug Fixes
 * Fix getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
-* 
+* Fixing the Hive connection and then viewing columns results in an error. [Issue #136](https://github.com/chat2db/Chat2DB/issues/136)
+
 ## ⭐ 新特性
 * dd
 ## 🐞 问题修复
 * 修复一次性执行多条SQL会提示异常的BUG
 * 修复 getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
-
+* 修复hive方式连接，然后查看columns报错 [Issue #136](https://github.com/chat2db/Chat2DB/issues/136)
 
 # 2.0.0
 ## What's Changed
