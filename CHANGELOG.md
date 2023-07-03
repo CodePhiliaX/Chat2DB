@@ -1,9 +1,12 @@
 # 2.0.1
-## What's Changed
-* 🔥An intelligent solution that perfectly integrates SQL queries, AI assistant, and data analysis.
-## 更新内容
-* 🔥SQL查询、AI查询和数据报表完美集成的一体化解决方案设计与实现
-
+## ⭐ New Features
+* dd
+## 🐞 Bug Fixes
+* xx
+## ⭐ 新特性
+* dd
+## 🐞 问题修复
+* xx
 
 # 2.0.0
 ## What's Changed
