@@ -1,4 +1,4 @@
-import { formatDate } from './src/utils/date';
+import { transitionTimezoneTimestamp } from './src/utils/date';
 import { defineConfig } from 'umi';
 import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
@@ -50,8 +50,9 @@ export default defineConfig({
   ],
   favicons: ['logo.ico'],
   define: {
-    __ENV: process.env.UMI_ENV,
-    __BUILD_TIME__: formatDate(new Date(), 'yyyyMMddhhmmss'),
+    __ENV__: process.env.UMI_ENV,
+    __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
     __APP_VERSION__: process.env.npm_config_app_version || '0.0.0',
+    __APP_PORT__: process.env.npm_config_app_port
   },
 });
