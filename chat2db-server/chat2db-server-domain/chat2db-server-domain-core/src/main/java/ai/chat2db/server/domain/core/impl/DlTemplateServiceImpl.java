@@ -91,7 +91,11 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
                     pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
                     int offset = (pageNo - 1) * pageSize;
-                    sql = PagerUtils.limit(sql, dbType, offset, pageSize);
+                    try {
+                        sql = PagerUtils.limit(sql, dbType, offset, pageSize);
+                    }catch (Exception e){
+                        autoLimit = false;
+                    }
                 }
                 sqlType = SqlTypeEnum.SELECT.getCode();
             }
