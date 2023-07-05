@@ -4,7 +4,6 @@ package ai.chat2db.spi.sql;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,7 +14,6 @@ import ai.chat2db.spi.Plugin;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.SSHInfo;
-
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 public class Chat2DBContext {
 
     private static final ThreadLocal<ConnectInfo> CONNECT_INFO_THREAD_LOCAL = new ThreadLocal<>();
-
-    public static List<String> JDBC_JAR_DOWNLOAD_URL_LIST;
 
     public static Map<String, Plugin> PLUGIN_MAP = new ConcurrentHashMap<>();
 
@@ -108,11 +104,11 @@ public class Chat2DBContext {
                 connectInfo.setDriverConfig(config);
             }
 
-            connection = getConnect(url, host, port, connectInfo.getUser(),
-                    connectInfo.getPassword(), connectInfo.getDbType(),
-                    connectInfo.getDriverConfig(), ssh, connectInfo.getExtendMap());
+            connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
+                connectInfo.getDriverConfig(), connectInfo.getExtendMap());
+
         } catch (Exception e1) {
-            log.error("getConnect error", e1);
+            log.error("GetConnect error", e1);
             if (connection != null) {
                 try {
                     connection.close();
@@ -132,27 +128,10 @@ public class Chat2DBContext {
                     log.error("session disconnect error", e);
                 }
             }
-            throw new RuntimeException("getConnect error", e1);
+            throw new RuntimeException("GetConnect error", e1);
         }
         connectInfo.setSession(session);
         connectInfo.setConnection(connection);
-    }
-
-    /**
-     * 测试数据库连接
-     *
-     * @param url      数据库连接
-     * @param userName 用户名
-     * @param password 密码
-     * @param dbType   数据库类型
-     * @return
-     */
-    private static Connection getConnect(String url, String host, String port,
-                                         String userName, String password, String dbType,
-                                         DriverConfig jdbc, SSHInfo ssh, Map<String, Object> properties) throws SQLException {
-        // 创建连接
-        return IDriverManager.getConnection(url, userName, password, jdbc, properties);
-
     }
 
     private static Session getSession(SSHInfo ssh) {
@@ -177,15 +156,6 @@ public class Chat2DBContext {
             } catch (SQLException e) {
                 log.error("close connection error", e);
             }
-            //Session session = connectInfo.getSession();
-            //if (session != null) {
-            //    try {
-            //        session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
-            //        session.disconnect();
-            //    } catch (JSchException e) {
-            //        log.error("close session error", e);
-            //    }
-            //}
             CONNECT_INFO_THREAD_LOCAL.remove();
         }
     }
