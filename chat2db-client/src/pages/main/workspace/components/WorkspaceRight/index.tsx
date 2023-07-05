@@ -10,7 +10,7 @@ import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
-import { handelLocalStorageSavedConsole } from '@/utils'
+import { handleLocalStorageSavedConsole } from '@/utils';
 
 interface IProps {
   className?: string;
@@ -161,7 +161,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     //   historyService.deleteSavedConsole({ id: window!.id });
     // } else {
     historyService.updateSavedConsole(p).then(() => {
-      handelLocalStorageSavedConsole(p.id, 'delete')
+      handleLocalStorageSavedConsole(p.id, 'delete');
     });
     // }
   };

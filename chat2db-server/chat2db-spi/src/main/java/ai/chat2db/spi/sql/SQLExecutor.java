@@ -181,6 +181,21 @@ public class SQLExecutor {
      */
     public List<Map<String, String>> schemas(String databaseName, String schemaName) {
         List<Map<String, String>> schemaList = Lists.newArrayList();
+        if(StringUtils.isEmpty(databaseName) && StringUtils.isEmpty(schemaName)){
+            try (ResultSet resultSet = getConnection().getMetaData().getSchemas()) {
+                if (resultSet != null) {
+                    while (resultSet.next()) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("name", resultSet.getString("TABLE_SCHEM"));
+                        map.put("databaseName", resultSet.getString("TABLE_CATALOG"));
+                        schemaList.add(map);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Get schemas error",e);
+            }
+            return schemaList;
+        }
         try (ResultSet resultSet = getConnection().getMetaData().getSchemas(databaseName, schemaName)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
@@ -191,7 +206,7 @@ public class SQLExecutor {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Get schemas error",e);
         }
         return schemaList;
     }
