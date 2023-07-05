@@ -12,6 +12,7 @@ export function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['
             value: t.name,
             label: t.name,
             type: 'schema',
+            isLeaf: true,
           };
         });
       }
@@ -20,6 +21,7 @@ export function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['
         label: t.name,
         type: 'database',
         children: schemasList,
+        isLeaf: schemasList.length === 0,
       };
     });
   } else if (databaseAndSchema?.schemas) {
@@ -28,6 +30,7 @@ export function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['
         value: t.name,
         label: t.name,
         type: 'schema',
+        isLeaf: true,
       };
     });
   }
