@@ -111,7 +111,7 @@ export default function SettingAI(props: IProps) {
               }}
             />
           </div>
-          <div className={styles.title}>HTTP Proxy Prot</div>
+          <div className={styles.title}>HTTP Proxy Port</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.httpsProxy', 'port')}
