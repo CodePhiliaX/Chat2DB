@@ -5,10 +5,10 @@
  An intelligent and versatile general-purpose SQL client and reporting tool for databases which integrates ChatGPT capabilities.
 
 [![License](https://img.shields.io/github/license/alibaba/fastjson2?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![GitHub release](https://img.shields.io/github/release/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/releases)
-[![GitHub Stars](https://img.shields.io/github/stars/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/fork)
-[![GitHub Contributors](https://img.shields.io/github/contributors/alibaba/ali-dbhub)](https://github.com/alibaba/ali-dbhub/graphs/contributors)
+[![GitHub release](https://img.shields.io/github/release/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/fork)
+[![GitHub Contributors](https://img.shields.io/github/contributors/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/graphs/contributors)
 
 </div>
 
@@ -27,6 +27,12 @@
 Languages： English | [中文](README_CN.md)
 </div>
 
+
+## DEMO
+
+https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb7572465a2e
+
+
 ## 📖 Introduction
 &emsp; &emsp;Chat2DB is a multi-database client tool that is open-source and free from Alibaba. It supports local installation on Windows and Mac, as well as server-side deployment and web page access. Compared to traditional database client software such as Navicat and DBeaver, Chat2DB integrates AIGC's capabilities and is able to convert natural language into SQL. It can also convert SQL into natural language and provide optimization suggestions for SQL to greatly enhance the efficiency of developers. It is a tool for database developers in the AI era, and even non-SQL business operators in the future can use it to quickly query business data and generate reports.
 ## ✨ Features
@@ -37,21 +43,15 @@ Languages： English | [中文](README_CN.md)
 - 🛡 Front-end development using Electron, providing a solution that integrates Windows, Mac, Linux clients, and web versions
 - 🎁 Support environment isolation, online, and daily data permission separation
 
-## DEMO
-
-
-https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
-
-
 
 ## ⏬ Download and Install
 
 | Description                   | Download                                                                                                                                                   |
 |-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows      | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB%20Setup%201.0.11.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11-arm64.dmg)         |
-| MacOS X64  | [https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg](https://oss-chat2db.alibaba.com/release/1.0.11/Chat2DB-1.0.11.dmg)                     |
-| Jar包         | [https://oss-chat2db.alibaba.com/release/1.0.11/ali-dbhub-server-start.jar](https://oss-chat2db.alibaba.com/release/1.0.11/ali-dbhub-server-start.jar)     |
+| Windows      | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB%20Setup%202.0.1.exe](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB%20Setup%202.0.1.exe) |
+| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1-arm64.dmg)         |
+| MacOS X64  | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1.dmg](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1.dmg)                     |
+| Jar包         | [https://oss-chat2db.alibaba.com/release/2.0.1/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.1/chat2db-server-start.jar)         |
 
 ## 🚀 Supported databases
 | Databases     | Status    |
@@ -136,24 +136,24 @@ $ git clone git@github.com:alibaba/Chat2DB.git
 ```
 - Front-End installation
 ```bash
-$ cd Chat2DB/ali-dbhub-client
+$ cd Chat2DB/chat2db-client
 $ npm install # Mounting front-end dependency
 $ npm run build:prod # Package js to the source directory on the back end
 ```
 - Backend debug
 ```bash
-$ cd ../ali-dbhub-server
+$ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
-$ cd ali-dbhub-server/ali-dbhub-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx ali-dbhub-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+$ cd chat2db-server/chat2db-server-start/target/
+$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
 $ # open http://127.0.0.1:10821 to start debug Note: Front-end installation is required
 ```
 
 - Front-End debug
 ```bash
-$ cd Chat2DB/ali-dbhub-client
-$ npm install 
-$ npm run start 
+$ cd Chat2DB/chat2db-client
+$ yarn 
+$ npm run start:web
 $ # open http://127.0.0.1:10821  to start Front-End debug
 $ # Note Front-end page completely depends on the service, so front-end students need to debug the back-end project
 ```
@@ -188,21 +188,22 @@ But front debugging need mapping of resources, you can download [XSwitch](https:
 * <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
 
 ## Stargazers
-[![Stargazers repo roster for @alibaba/Chat2DB](https://reporoster.com/stars/alibaba/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
+[![Stargazers repo roster for @chat2db/Chat2DB](https://reporoster.com/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
 
 ## Forkers
-[![Forkers repo roster for @alibaba/Chat2DB](https://reporoster.com/forks/alibaba/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
+[![Forkers repo roster for @chat2db/Chat2DB](https://reporoster.com/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
 
 ## ☎️ Contact Us
 Please star and fork on GitHub before joining the group.
-Follow our WeChat public account
+Follow our WeChat public account.
+
 <a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
 
 ## ❤️ Acknowledgements
 Thanks to all the students who contributed to Chat2DB~
 
-<a href="https://github.com/alibaba/ali-dbhub/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=alibaba/ali-dbhub" />
+<a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
 </a>
 
 
@@ -215,7 +216,5 @@ Thanks to all the students who contributed to Chat2DB~
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
   </picture>
 </a>
-
-<video src="https://chat2db.oss-accelerate.aliyuncs.com/demo/demo2.mp4" width="100%" height="100%" controls="controls"></video>
 
 

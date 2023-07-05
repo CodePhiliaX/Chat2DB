@@ -157,13 +157,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
     if (!window?.status) {
       return;
     }
-    if (window!.status === 'DRAFT') {
-      historyService.deleteSavedConsole({ id: window!.id });
-    } else {
-      historyService.updateSavedConsole(p).then(() => {
-        handelLocalStorageSavedConsole(p.id, 'delete')
-      });
-    }
+    // if (window!.status === 'DRAFT') {
+    //   historyService.deleteSavedConsole({ id: window!.id });
+    // } else {
+    historyService.updateSavedConsole(p).then(() => {
+      handelLocalStorageSavedConsole(p.id, 'delete')
+    });
+    // }
   };
 
   function render() {

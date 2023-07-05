@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.util;
 
 import java.sql.ResultSet;
@@ -19,12 +16,12 @@ public class ResultSetUtils {
         ai.chat2db.spi.model.Function function
             = new ai.chat2db.spi.model.Function();
         try {
-            function.setDatabaseName(resultSet.getString("FUNCTION_CAT"));
-            function.setSchemaName(resultSet.getString("FUNCTION_SCHEM"));
-            function.setFunctionName(resultSet.getString("FUNCTION_NAME"));
-            function.setRemarks(resultSet.getString("REMARKS"));
+            function.setDatabaseName(getString(resultSet,"FUNCTION_CAT"));
+            function.setSchemaName(getString(resultSet,"FUNCTION_SCHEM"));
+            function.setFunctionName(getString(resultSet,"FUNCTION_NAME"));
+            function.setRemarks(getString(resultSet,"REMARKS"));
             function.setFunctionType(resultSet.getShort("FUNCTION_TYPE"));
-            function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+            function.setSpecificName(getString(resultSet,"SPECIFIC_NAME"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -34,12 +31,12 @@ public class ResultSetUtils {
     public static Procedure buildProcedure(ResultSet resultSet) {
         Procedure procedure = new Procedure();
         try {
-            procedure.setDatabaseName(resultSet.getString("PROCEDURE_CAT"));
-            procedure.setSchemaName(resultSet.getString("PROCEDURE_SCHEM"));
-            procedure.setProcedureName(resultSet.getString("PROCEDURE_NAME"));
-            procedure.setRemarks(resultSet.getString("REMARKS"));
+            procedure.setDatabaseName(getString(resultSet,"PROCEDURE_CAT"));
+            procedure.setSchemaName(getString(resultSet,"PROCEDURE_SCHEM"));
+            procedure.setProcedureName(getString(resultSet,"PROCEDURE_NAME"));
+            procedure.setRemarks(getString(resultSet,"REMARKS"));
             procedure.setProcedureType(resultSet.getShort("PROCEDURE_TYPE"));
-            procedure.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+            procedure.setSpecificName(getString(resultSet,"SPECIFIC_NAME"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -48,37 +45,37 @@ public class ResultSetUtils {
 
     public static TableIndexColumn buildTableIndexColumn(ResultSet resultSet) throws SQLException {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
-        tableIndexColumn.setColumnName(resultSet.getString("COLUMN_NAME"));
-        tableIndexColumn.setIndexName(resultSet.getString("INDEX_NAME"));
-        tableIndexColumn.setAscOrDesc(resultSet.getString("ASC_OR_DESC"));
+        tableIndexColumn.setColumnName(getString(resultSet,"COLUMN_NAME"));
+        tableIndexColumn.setIndexName(getString(resultSet,"INDEX_NAME"));
+        tableIndexColumn.setAscOrDesc(getString(resultSet,"ASC_OR_DESC"));
         tableIndexColumn.setCardinality(resultSet.getLong("CARDINALITY"));
         tableIndexColumn.setPages(resultSet.getLong("PAGES"));
-        tableIndexColumn.setFilterCondition(resultSet.getString("FILTER_CONDITION"));
-        tableIndexColumn.setIndexQualifier(resultSet.getString("INDEX_QUALIFIER"));
+        tableIndexColumn.setFilterCondition(getString(resultSet,"FILTER_CONDITION"));
+        tableIndexColumn.setIndexQualifier(getString(resultSet,"INDEX_QUALIFIER"));
         // tableIndexColumn.setIndexType(resultSet.getShort("TYPE"));
         tableIndexColumn.setNonUnique(resultSet.getBoolean("NON_UNIQUE"));
         tableIndexColumn.setOrdinalPosition(resultSet.getShort("ORDINAL_POSITION"));
-        tableIndexColumn.setDatabaseName(resultSet.getString("TABLE_CAT"));
-        tableIndexColumn.setSchemaName(resultSet.getString("TABLE_SCHEM"));
-        tableIndexColumn.setTableName(resultSet.getString("TABLE_NAME"));
+        tableIndexColumn.setDatabaseName(getString(resultSet,"TABLE_CAT"));
+        tableIndexColumn.setSchemaName(getString(resultSet,"TABLE_SCHEM"));
+        tableIndexColumn.setTableName(getString(resultSet,"TABLE_NAME"));
         return tableIndexColumn;
     }
 
     public static TableColumn buildColumn(ResultSet resultSet) throws SQLException {
         TableColumn tableColumn = new TableColumn();
-        tableColumn.setDatabaseName(resultSet.getString("TABLE_CAT"));
-        tableColumn.setSchemaName(resultSet.getString("TABLE_SCHEM"));
-        tableColumn.setTableName(resultSet.getString("TABLE_NAME"));
-        tableColumn.setName(resultSet.getString("COLUMN_NAME"));
-        tableColumn.setComment(resultSet.getString("REMARKS"));
-        tableColumn.setDefaultValue(resultSet.getString("COLUMN_DEF"));
-        tableColumn.setTypeName(resultSet.getString("TYPE_NAME"));
+        tableColumn.setDatabaseName(getString(resultSet,"TABLE_CAT"));
+        tableColumn.setSchemaName(getString(resultSet,"TABLE_SCHEM"));
+        tableColumn.setTableName(getString(resultSet,"TABLE_NAME"));
+        tableColumn.setName(getString(resultSet,"COLUMN_NAME"));
+        tableColumn.setComment(getString(resultSet,"REMARKS"));
+        tableColumn.setDefaultValue(getString(resultSet,"COLUMN_DEF"));
+        tableColumn.setTypeName(getString(resultSet,"TYPE_NAME"));
         tableColumn.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
         tableColumn.setDataType(resultSet.getInt("DATA_TYPE"));
         tableColumn.setNullable(resultSet.getInt("NULLABLE") == 1);
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-        tableColumn.setAutoIncrement("YES".equals(resultSet.getString("IS_AUTOINCREMENT")));
-        //tableColumn.setGeneratedColumn("YES".equals(resultSet.getString("IS_GENERATEDCOLUMN")));
+        //tableColumn.setAutoIncrement("YES".equals(getString,resultSet,"IS_AUTOINCREMENT")));
+        //tableColumn.setGeneratedColumn("YES".equals(getString,resultSet,"IS_GENERATEDCOLUMN")));
         tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
         tableColumn.setDecimalDigits(resultSet.getInt("DECIMAL_DIGITS"));
         tableColumn.setNumPrecRadix(resultSet.getInt("NUM_PREC_RADIX"));
@@ -88,11 +85,22 @@ public class ResultSetUtils {
 
     public static Table buildTable(ResultSet resultSet) throws SQLException {
         Table table = new Table();
-        table.setName(resultSet.getString("TABLE_NAME"));
-        table.setComment(resultSet.getString("REMARKS"));
-        table.setDatabaseName(resultSet.getString("TABLE_CAT"));
-        table.setSchemaName(resultSet.getString("TABLE_SCHEM"));
-        table.setType(resultSet.getString("TABLE_TYPE"));
+        table.setName(getString(resultSet,"TABLE_NAME"));
+        table.setComment(getString(resultSet,"REMARKS"));
+        table.setDatabaseName(getString(resultSet,"TABLE_CAT"));
+        table.setSchemaName(getString(resultSet,"TABLE_SCHEM"));
+        table.setType(getString(resultSet,"TABLE_TYPE"));
         return table;
+    }
+
+    private static String getString(ResultSet resultSet,String name){
+        if(resultSet == null){
+            return null;
+        }
+        try {
+            return resultSet.getString(name);
+        }catch (Exception e){
+            return null;
+        }
     }
 }

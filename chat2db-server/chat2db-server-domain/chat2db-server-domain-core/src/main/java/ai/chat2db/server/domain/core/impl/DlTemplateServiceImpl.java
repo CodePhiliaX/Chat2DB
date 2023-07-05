@@ -11,6 +11,7 @@ import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 
 import ai.chat2db.server.domain.api.param.DlCountParam;
@@ -67,7 +68,19 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             String sqlType = SqlTypeEnum.UNKNOWN.getCode();
 
             // 解析sql分页
-            SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+            SQLStatement sqlStatement;
+            try {
+                sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+            } catch (ParserException e) {
+                log.warn("解析sql失败:{}", sql, e);
+                ExecuteResult executeResult = ExecuteResult.builder()
+                    .success(Boolean.FALSE)
+                    .sql(sql)
+                    .message(e.getMessage())
+                    .build();
+                result.add(executeResult);
+                continue;
+            }
             // 是否需要代码帮忙分页
             boolean autoLimit = false;
             if (sqlStatement instanceof SQLSelectStatement) {

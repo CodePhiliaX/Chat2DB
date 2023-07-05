@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.server.web.api.controller.user.request;
 
 import lombok.AllArgsConstructor;
