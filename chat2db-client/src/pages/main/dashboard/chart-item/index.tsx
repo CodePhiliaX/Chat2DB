@@ -7,7 +7,7 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select } from 'antd';
+import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select, Spin } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
 import Console from '@/components/Console';
@@ -72,6 +72,7 @@ function ChartItem(props: IChartItemProps) {
   const [chartMetaData, setChartMetaData] = useState<any>();
   const [cascaderValue, setCascaderValue] = useState<(string | number)[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(props.isEditing ?? false);
+  const [isLoading, setIsLoading] = useState(false);
   const [initDDL, setInitDDL] = useState('');
   const [form] = Form.useForm(); // 创建一个表单实例
   const chartRef = useRef<any>();
@@ -116,6 +117,13 @@ function ChartItem(props: IChartItemProps) {
     handleChartConfigChange();
   }, [chartData.sqlData]);
 
+  const loadData = (selectedOptions: any) => {
+    // 只选择了dataSource
+    const dataSourceId = selectedOptions[0].value;
+    const dataSource = connectionList.find((c) => c.id === dataSourceId);
+    setCurConnection(dataSource);
+  };
+
   const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
     const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
     const dataSource = (cascaderOption || []).find((c) => c.value === dataSourceId);
@@ -126,6 +134,8 @@ function ChartItem(props: IChartItemProps) {
   };
   /** 根据id请求Chart数据 */
   const queryChartData = async () => {
+    setIsLoading(true);
+
     const { id } = props;
     let res = await getChartById({ id });
     const { dataSourceId, databaseName, ddl } = res;
@@ -160,6 +170,7 @@ function ChartItem(props: IChartItemProps) {
         });
       });
     }
+    setIsLoading(false);
   };
 
   const onExport2Image = () => {
@@ -324,6 +335,7 @@ function ChartItem(props: IChartItemProps) {
               hasSaveBtn={false}
               value={chartData?.ddl}
               onExecuteSQL={(result: any, sql: string) => {
+                setIsLoading(true);
                 let sqlData;
                 if (result && result[0]) {
                   sqlData = handleSQLResult2ChartData(result[0]);
@@ -333,6 +345,7 @@ function ChartItem(props: IChartItemProps) {
                   ddl: sql,
                   sqlData,
                 });
+                setIsLoading(false);
               }}
               editorOptions={{
                 lineNumbers: 'off',
@@ -348,6 +361,7 @@ function ChartItem(props: IChartItemProps) {
             <Cascader
               options={cascaderOption}
               value={cascaderValue}
+              loadData={loadData}
               onChange={(value, selectedOptions) => {
                 console.log('onChange', value, selectedOptions);
                 let p: any = {}; //包含了dataSourceId、databaseName、schemaName
@@ -415,42 +429,44 @@ function ChartItem(props: IChartItemProps) {
   };
 
   return (
-    <div className={styles.container}>
-      {renderPlusIcon()}
-      <div className={styles.titleBar}>
-        <div className={styles.title}>{chartData?.name}</div>
-        <div>
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'Edit',
-                  label: i18n('dashboard.edit'),
-                  onClick: () => {
-                    setIsEditing(true);
+    <Spin spinning={isLoading}>
+      <div className={styles.container}>
+        {renderPlusIcon()}
+        <div className={styles.titleBar}>
+          <div className={styles.title}>{chartData?.name}</div>
+          <div>
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'Edit',
+                    label: i18n('dashboard.edit'),
+                    onClick: () => {
+                      setIsEditing(true);
+                    },
                   },
-                },
-                {
-                  key: 'Export',
-                  label: i18n('dashboard.export2image'),
-                  onClick: onExport2Image,
-                },
-                {
-                  key: 'delete',
-                  label: i18n('dashboard.delete'),
-                  onClick: onDeleteChart,
-                },
-              ],
-            }}
-            placement="bottomLeft"
-          >
-            <MoreOutlined className={styles.edit} />
-          </Dropdown>
+                  {
+                    key: 'Export',
+                    label: i18n('dashboard.export2image'),
+                    onClick: onExport2Image,
+                  },
+                  {
+                    key: 'delete',
+                    label: i18n('dashboard.delete'),
+                    onClick: onDeleteChart,
+                  },
+                ],
+              }}
+              placement="bottomLeft"
+            >
+              <MoreOutlined className={styles.edit} />
+            </Dropdown>
+          </div>
         </div>
+        {chartData?.sqlData || isEditing ? renderChart() : renderEmptyBlock()}
+        {isEditing && renderEditorBlock()}
       </div>
-      {chartData?.sqlData || isEditing ? renderChart() : renderEmptyBlock()}
-      {isEditing && renderEditorBlock()}
-    </div>
+    </Spin>
   );
 }
 

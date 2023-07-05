@@ -7,7 +7,7 @@ const { keywords: SQLKeys } = language;
 const { keywords } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
-import { useUpdateEffect } from '@/hooks'
+import { useUpdateEffect } from '@/hooks';
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
@@ -30,7 +30,7 @@ interface IProps {
   onSave?: (value: string) => void; // 快捷键保存的回调
   defaultValue?: string;
   onExecute?: (value: string) => void; // 快捷键执行的回调
-  tables: any[]
+  tables?: any[];
 }
 
 export interface IExportRefFunction {
@@ -45,7 +45,18 @@ export interface IHintData {
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const { id, className, language = 'sql', didMount, options, isActive, onSave, onExecute, defaultValue, appendValue } = props;
+  const {
+    id,
+    className,
+    language = 'sql',
+    didMount,
+    options,
+    isActive,
+    onSave,
+    onExecute,
+    defaultValue,
+    appendValue,
+  } = props;
   const editorRef = useRef<IEditorIns>();
   const [appTheme] = useTheme();
 
@@ -152,7 +163,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     if (appendValue) {
       appendMonacoValue(editorRef.current, appendValue?.text, appendValue?.range);
     }
-  }, [appendValue])
+  }, [appendValue]);
 
   const setValue = (text: any, range?: IRangeType) => {
     appendMonacoValue(editorRef.current, text, range);
@@ -291,8 +302,8 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
   if (range === 'reset') {
-    editor.setValue(text)
-    return
+    editor.setValue(text);
+    return;
   }
   switch (range) {
     case 'cover':
