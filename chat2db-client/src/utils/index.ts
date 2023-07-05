@@ -174,6 +174,7 @@ export function clearOlderLocalStorage() {
   }
 }
 
+// 判断是否需要更新版本
 export function isVersionHigher(version: string, currentVersion: string): boolean {
   // 按照 . 分割版本号
   const versionParts = version.split('.');

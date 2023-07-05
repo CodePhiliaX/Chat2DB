@@ -34,7 +34,8 @@ declare global {
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
-  const __ENV: string;
+  const __ENV__: string;
+  const __APP_PORT__: string;
 }
 
 const initConfig = () => {
@@ -152,7 +153,7 @@ function AppContainer() {
         .testService()
         .then(() => {
           clearInterval(time);
-          // if (__ENV === 'desktop') {
+          // if (__ENV__ === 'desktop') {
           //   window.location.href = 'http://127.0.0.1:10824/'
           // }
           setStartSchedule(2);
