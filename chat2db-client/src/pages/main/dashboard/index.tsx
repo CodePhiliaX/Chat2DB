@@ -51,6 +51,11 @@ function Chart(props: IProps) {
   useEffect(() => {
     // 获取列表数据
     queryDashboardList();
+
+    // 如果没有连接池，触发一次请求
+    dispatch({
+      type: 'connection/fetchConnectionList',
+    });
   }, []);
 
   useEffect(() => {
@@ -232,9 +237,7 @@ function Chart(props: IProps) {
     );
   };
 
-  const updateAiRemainUse = () => {
-    
-  };
+  const updateAiRemainUse = () => {};
 
   return (
     <>

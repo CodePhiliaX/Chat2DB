@@ -158,13 +158,12 @@ export default function TableBox(props: ITableProps) {
         // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
         <>
           <DarkSupportBaseTable
-            style={{
-              '--border-color': 'transparent',
-            }}
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n('common.text.timeConsuming')}：${duration}ms`}</div>
+          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(
+            'common.text.timeConsuming',
+          )}：${duration}ms`}</div>
         </>
       ) : (
         <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
@@ -188,12 +187,10 @@ export default function TableBox(props: ITableProps) {
         <div className={styles.monacoEditor}>
           <MonacoEditor
             id="view_table-Cell_data"
-            appendValue={
-              {
-                text: viewTableCellData?.value,
-                range: 'reset',
-              }
-            }
+            appendValue={{
+              text: viewTableCellData?.value,
+              range: 'reset',
+            }}
             options={{
               readOnly: true,
             }}

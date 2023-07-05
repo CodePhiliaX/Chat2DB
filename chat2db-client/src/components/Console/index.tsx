@@ -12,13 +12,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
-import styles from './index.less';
 import i18n from '@/i18n';
-import { IRemainingUse } from '@/typings/ai';
 import { IAIState } from '@/models/ai';
-import { WECHAT_MP_URL } from '@/constants/social';
 import Popularize from '@/components/Popularize';
-import { handelLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils'
+import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
+import styles from './index.less';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -43,7 +41,7 @@ export type IAppendValue = {
 
 interface IProps {
   /** 是谁在调用我 */
-  source: 'workspace',
+  source: 'workspace';
   /** 是否是活跃的console，用于快捷键 */
   isActive?: boolean;
   /** 添加或修改的内容 */
@@ -76,7 +74,18 @@ interface IProps {
 }
 
 function Console(props: IProps) {
-  const { hasAiChat = true, executeParams, appendValue, isActive, hasSaveBtn = true, value, aiModel, dispatch, source, defaultValue } = props;
+  const {
+    hasAiChat = true,
+    executeParams,
+    appendValue,
+    isActive,
+    hasSaveBtn = true,
+    value,
+    aiModel,
+    dispatch,
+    source,
+    defaultValue,
+  } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
@@ -107,14 +116,14 @@ function Console(props: IProps) {
 
   useEffect(() => {
     if (source !== 'workspace') {
-      return
+      return;
     }
     // 离开时保存
     if (!isActive) {
       // 离开时清除定时器
       if (timerRef.current) {
-        clearInterval(timerRef.current)
-        handelLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+        clearInterval(timerRef.current);
+        handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
       }
     } else {
       // 活跃时自动保存
@@ -122,25 +131,25 @@ function Console(props: IProps) {
     }
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current)
+        clearInterval(timerRef.current);
       }
-    }
-  }, [isActive])
+    };
+  }, [isActive]);
 
   useEffect(() => {
     if (source !== 'workspace') {
-      return
+      return;
     }
-    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!)
+    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!);
     if (value) {
       editorRef?.current?.setValue(value, 'reset');
     }
-  }, [])
+  }, []);
 
   function timingAutoSave() {
     timerRef.current = setInterval(() => {
-      handelLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
-    }, 5000)
+      handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+    }, 5000);
   }
 
   const tableListName = useMemo(() => {
@@ -257,7 +266,7 @@ function Console(props: IProps) {
     };
 
     historyServer.updateSavedConsole(p).then((res) => {
-      handelLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
+      handleLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });
@@ -285,7 +294,7 @@ function Console(props: IProps) {
   );
 
   const popUpPrompts = () => {
-    setPopularizeModal(true)
+    setPopularizeModal(true);
   };
   return (
     <div className={styles.console}>
@@ -317,7 +326,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -334,7 +343,11 @@ function Console(props: IProps) {
             {i18n('common.button.execute')}
           </Button>
           {hasSaveBtn && (
-            <Button type="default" className={styles.saveButton} onClick={() => saveConsole(editorRef?.current?.getAllContent())}>
+            <Button
+              type="default"
+              className={styles.saveButton}
+              onClick={() => saveConsole(editorRef?.current?.getAllContent())}
+            >
               {i18n('common.button.save')}
             </Button>
           )}
@@ -349,14 +362,9 @@ function Console(props: IProps) {
           {i18n('common.button.format')}
         </Button>
       </div>
-      <Modal
-        open={popularizeModal}
-        footer={false}
-        onCancel={() => setPopularizeModal(false)}
-      >
+      <Modal open={popularizeModal} footer={false} onCancel={() => setPopularizeModal(false)}>
         <Popularize></Popularize>
       </Modal>
-
     </div>
   );
 }
