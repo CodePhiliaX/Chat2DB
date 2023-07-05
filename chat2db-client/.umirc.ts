@@ -41,11 +41,17 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
-  headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
+  headScripts: [
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+      localStorage.clear();
+      localStorage.setItem('app-local-storage-versions', 'v2');
+    }`,
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`
+  ],
   favicons: ['logo.ico'],
   define: {
     __ENV: process.env.UMI_ENV,
     __BUILD_TIME__: formatDate(new Date(), 'yyyyMMddhhmmss'),
-    __APP_VERSION__: process.env.APP_VERSION || '0.0.0',
+    __APP_VERSION__: process.env.npm_config_app_version || '0.0.0',
   },
 });

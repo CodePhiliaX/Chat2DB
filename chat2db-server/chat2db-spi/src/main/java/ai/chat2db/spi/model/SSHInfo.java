@@ -1,8 +1,7 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.model;
+
+import java.util.Objects;
 
 import lombok.Data;
 
@@ -68,4 +67,22 @@ public class SSHInfo {
      */
     private String rPort;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+        SSHInfo sshInfo = (SSHInfo)o;
+        return use == sshInfo.use && Objects.equals(hostName, sshInfo.hostName) && Objects.equals(port,
+            sshInfo.port) && Objects.equals(userName, sshInfo.userName) && Objects.equals(localPort,
+            sshInfo.localPort) && Objects.equals(authenticationType, sshInfo.authenticationType)
+            && Objects.equals(password, sshInfo.password) && Objects.equals(keyFile, sshInfo.keyFile)
+            && Objects.equals(passphrase, sshInfo.passphrase) && Objects.equals(rHost, sshInfo.rHost)
+            && Objects.equals(rPort, sshInfo.rPort);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(use, hostName, port, userName, localPort, authenticationType, password, keyFile, passphrase,
+            rHost, rPort);
+    }
 }

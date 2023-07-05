@@ -16,7 +16,6 @@
         <module>chat2db-server-domain-api</module>
         <module>chat2db-server-domain-core</module>
         <module>chat2db-server-domain-repository</module>
-        <module>chat2db-server-domain-support</module>
     </modules>
 
 </project>

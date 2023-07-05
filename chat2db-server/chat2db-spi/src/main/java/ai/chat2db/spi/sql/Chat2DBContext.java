@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2022 All Rights Reserved.
- */
+
 package ai.chat2db.spi.sql;
 
 import java.sql.Connection;
@@ -99,6 +96,8 @@ public class Chat2DBContext {
         String host = connectInfo.getHost();
         String port = connectInfo.getPort() + "";
         try {
+            ssh.setRHost(host);
+            ssh.setRPort(port);
             session = getSession(ssh);
             if (session != null) {
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
@@ -124,9 +123,13 @@ public class Chat2DBContext {
             if (session != null) {
                 try {
                     session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
-                    session.disconnect();
                 } catch (JSchException e) {
-                    log.error("session close error", e);
+                    log.error("session delPortForwardingL error", e);
+                }
+                try {
+                    session.disconnect();
+                } catch (Exception e) {
+                    log.error("session disconnect error", e);
                 }
             }
             throw new RuntimeException("getConnect error", e1);
@@ -174,15 +177,15 @@ public class Chat2DBContext {
             } catch (SQLException e) {
                 log.error("close connection error", e);
             }
-            Session session = connectInfo.getSession();
-            if (session != null) {
-                try {
-                    session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
-                    session.disconnect();
-                } catch (JSchException e) {
-                    log.error("close session error", e);
-                }
-            }
+            //Session session = connectInfo.getSession();
+            //if (session != null) {
+            //    try {
+            //        session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
+            //        session.disconnect();
+            //    } catch (JSchException e) {
+            //        log.error("close session error", e);
+            //    }
+            //}
             CONNECT_INFO_THREAD_LOCAL.remove();
         }
     }
