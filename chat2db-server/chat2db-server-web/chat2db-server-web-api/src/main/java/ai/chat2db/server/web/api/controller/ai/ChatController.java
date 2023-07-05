@@ -357,13 +357,13 @@ public class ChatController {
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
-        String messageContext = (String)LocalCache.CACHE.get(uid);
-        List<ChatMessage> messages = new ArrayList<>();
-        if (StrUtil.isNotBlank(messageContext)) {
-            messages = JSONUtil.toList(messageContext, ChatMessage.class);
+        List<ChatMessage> messages = (List<ChatMessage>)LocalCache.CACHE.get(uid);
+        if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
                 messages = messages.subList(1, contextLength);
             }
+        } else {
+            messages = Lists.newArrayList();
         }
         ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
@@ -387,7 +387,7 @@ public class ChatController {
         );
         AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
         AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
-        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
 
