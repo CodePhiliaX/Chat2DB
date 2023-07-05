@@ -65,7 +65,7 @@ app.on('before-quit', (event) => {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    url: 'http://127.0.0.1:10824/api/system/stop',
+    url: 'http://127.0.0.1:10824/api/system/stop', //TODO: 测试包需要换10822
   });
   request.write(JSON.stringify({}));
   request.on('response', (response) => {
