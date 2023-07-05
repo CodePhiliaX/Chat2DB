@@ -52,7 +52,7 @@ export default defineConfig({
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
-    __APP_VERSION__: process.env.npm_config_app_version || '0.0.0',
-    __APP_PORT__: process.env.npm_config_app_port
+    __APP_VERSION__: process.argv[3]|| '0.0.0',
+    __APP_PORT__: process.argv[4]
   },
 });
