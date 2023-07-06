@@ -8,7 +8,21 @@
   bottom: 0;
   display: none;
   overflow: auto;
-  background-color: var(--color-bg-elevated);
+  :global{
+    // .hGEOgo td {
+    //   border-bottom: 0;
+    //   // height: 400px !important;
+    // }
+    .hGEOgo td.first{
+      border-left: 0;
+    }
+    .hGEOgo tr.first th{
+      border-top: 0;
+      }
+    .hGEOgo th.first{
+      border-left: 0;
+    }
+  }
 }
 
 .statusBar {
@@ -69,8 +83,4 @@
 .monacoEditor {
   height: 400px;
   margin: -15px;
-}
-
-.table {
-  --border-color: transparent;
 }

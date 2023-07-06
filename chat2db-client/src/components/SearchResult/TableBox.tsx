@@ -25,20 +25,20 @@ interface IViewTableCellData {
   name: string;
   value: any;
 }
-// --bgcolor: #333;
-// --header-bgcolor: #45494f;
+
 const DarkSupportBaseTable: any = styled(BaseTable)`
   &.dark {
-    --bgcolor: #131418;
-    --header-bgcolor: #0a0b0c;
+    --bgcolor: var(--color-bg-base);
+    --header-bgcolor: var(--color-bg-elevated);
     --hover-bgcolor: #46484a;
     --header-hover-bgcolor: #606164;
     --highlight-bgcolor: #191a1b;
     --header-highlight-bgcolor: #191a1b;
-    --color: #dadde1;
+    --color: var(--color-text);
     --header-color: #dadde1;
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
-    --border-color: transparent;
+    --border-color: var(--color-border-secondary);
+    --hover-bgcolor: var(--color-hover-bg);
   }
 `;
 
@@ -159,6 +159,7 @@ export default function TableBox(props: ITableProps) {
         <>
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
+            components={{ EmptyContent: () => <h2>{i18n('common.text.noData') }</h2> }}
             {...pipeline.getProps()}
           />
           <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(
