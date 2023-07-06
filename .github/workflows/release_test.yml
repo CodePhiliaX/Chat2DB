@@ -106,7 +106,7 @@ jobs:
         run: |
           cd chat2db-client
           yarn install 
-          yarn run build:web:prod --app_version=1.0.${{ github.run_id }} --app_port=10822
+          yarn run build:web:prod 1.0.${{ github.run_id }} 10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
 
       # 编译服务端java版本
@@ -121,7 +121,7 @@ jobs:
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
-          yarn run build:web:desktop --app_version=1.0.${{ github.run_id }} --app_port=10822
+          yarn run build:web:desktop 1.0.${{ github.run_id }} 10822
 
       # windows
       - name: Build/release Electron app for Windows
