@@ -53,7 +53,7 @@ function Connections(props: IProps) {
     () =>
       (connectionList || []).map((t) => ({
         key: t.id,
-        icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type].icon} />,
+        icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />,
         label: t.alias,
         meta: t,
       })),
