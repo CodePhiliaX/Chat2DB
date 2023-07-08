@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Checkbox, Dropdown, Input, Modal, Popover } from 'antd';
+import { Checkbox, Dropdown, Input, Modal, Popover, Select } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
@@ -33,24 +33,26 @@ function ChatInput(props: IProps) {
 
   const renderSelectTable = () => {
     const { tables, selectedTables, onSelectTables } = props;
-    return tables && tables.length ? (
+    const options = (tables || []).map(t => ({ value: t, label: t }))
+    return (
       <div className={styles.aiSelectedTable}>
         <span className={styles.aiSelectedTableTips}>
           {/* <WarningOutlined style={{color: 'yellow'}}/> */}
           {i18n('chat.input.remain.tooltip')}
         </span>
-        <Checkbox.Group
-          style={{ width: '120px' }}
-          options={tables || []}
+        <Select
+          showSearch
+          mode='multiple'
+          allowClear
+          options={options}
+          placeholder={i18n('chat.input.tableSelect.placeholder')}
           value={selectedTables}
           onChange={(v) => {
-            onSelectTables && onSelectTables(v);
+            onSelectTables && onSelectTables(v)
           }}
         />
       </div>
-    ) : (
-      <div>暂无表</div>
-    );
+    )
   };
 
   const renderSuffix = () => {
