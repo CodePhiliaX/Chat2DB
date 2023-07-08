@@ -17,4 +17,8 @@ export default {
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',
   'connection.tableHeader.value': '值',
+  'connection.title.uploadDriver': '上传驱动',
+  'connection.tips.customUpload': '没有我想要的驱动',
+  'connection.title.driver': '驱动',
+  'connection.button.clickUpload': '点击上传',
 }

@@ -96,23 +96,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           name: 'url',
           required: true,
         },
-        {
-          defaultValue: '8.0',
-          inputType: InputType.SELECT,
-          labelNameCN: 'JDBC驱动',
-          labelNameEN: 'JDBC Driver',
-          name: 'jdbc',
-          required: true,
-          selects: [
-            {
-              value: '8.0',
-            },
-            {
-              value: '5.0',
-            },
-          ],
-
-        }
       ],
       pattern: /jdbc:mysql:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:mysql://{host}:{port}/{database}',
@@ -3061,3 +3044,34 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
     type: DatabaseTypeCode.MONGODB
   },
 ];
+
+export const driveConfig: IConnectionConfig['drive'] = {
+  items: [
+    {
+      defaultValue: '',
+      inputType: InputType.SELECT,
+      labelNameCN: 'jdbcDriver',
+      labelNameEN: 'jdbcDriver',
+      name: 'jdbcDriver',
+      required: false,
+      selects: [
+        {
+          value: '1',
+          label: '/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/src/components/CreateConnection/config/dataSource.ts'
+        },
+        {
+          value: '2',
+          label: '/222222Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/src/components/CreateConnection/config/dataSource.ts'
+        },
+      ],
+    },
+    // {
+    //   defaultValue: '',
+    //   inputType: InputType.INPUT,
+    //   labelNameCN: 'jdbcDriverClass',
+    //   labelNameEN: 'jdbcDriverClass',
+    //   name: 'jdbcDriverClass',
+    //   required: false,
+    // },
+  ]
+};

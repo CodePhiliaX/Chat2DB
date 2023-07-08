@@ -58,6 +58,6 @@ export default {
   'common.text.wechatPopularizeAi': 'Follow the wechat public account and send "AI" to get free experiences.',
   'common.text.wechatPopularizeAi2': 'Follow the wechat public account and send "AI" to get the ApiKey for free, and give away the number of experiences.',
   'common.text.wechatPopularize': 'You can also send "promotion" to get more experiences for free.',
-  'common.notification.detial': 'More Detial',
+  'common.notification.detial': 'More details',
   'common.notification.solution': 'Solution',
 };
