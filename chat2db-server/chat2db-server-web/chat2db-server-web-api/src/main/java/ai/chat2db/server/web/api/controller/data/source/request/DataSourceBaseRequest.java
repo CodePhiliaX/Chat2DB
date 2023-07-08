@@ -27,4 +27,10 @@ public class DataSourceBaseRequest implements DataSourceBaseRequestInfo{
      * 表所在空间
      */
     private String schemaName;
+
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
 }
