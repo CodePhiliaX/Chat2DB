@@ -1,10 +1,11 @@
 package ai.chat2db.server.domain.repository.entity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -114,4 +115,8 @@ public class DataSourceDO implements Serializable {
      */
     private String extendInfo;
 
+    /**
+     * 驱动配置
+     */
+    private String driverConfig;
 }

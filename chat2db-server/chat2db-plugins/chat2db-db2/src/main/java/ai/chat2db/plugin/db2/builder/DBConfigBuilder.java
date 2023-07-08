@@ -14,7 +14,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("db2jcc4_4.26.14.jar");
         driverConfig.setJdbcDriverClass("com.ibm.db2.jcc.DB2Driver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/db2jcc4_4.26.14.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
 
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));

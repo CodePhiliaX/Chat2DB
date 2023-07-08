@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.api.param;
 
 import java.util.List;
 
+import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
@@ -88,4 +89,9 @@ public class DataSourceCreateParam {
      */
     private List<KeyValue> extendInfo;
 
+
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }
