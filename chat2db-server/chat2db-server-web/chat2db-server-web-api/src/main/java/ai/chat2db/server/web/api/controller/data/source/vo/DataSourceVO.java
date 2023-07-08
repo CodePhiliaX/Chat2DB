@@ -2,10 +2,9 @@ package ai.chat2db.server.web.api.controller.data.source.vo;
 
 import java.util.List;
 
+import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
-import ai.chat2db.spi.model.SSLInfo;
-
 import lombok.Data;
 
 /**
@@ -37,6 +36,11 @@ public class DataSourceVO {
     private String user;
 
     /**
+     * password
+     */
+    private String password;
+
+    /**
      * 连接类型
      */
     private String type;
@@ -61,10 +65,10 @@ public class DataSourceVO {
      */
     private SSHInfo ssh;
 
-    /**
-     * ssh
-     */
-    private SSLInfo ssl;
+    ///**
+    // * ssh
+    // */
+    //private SSLInfo ssl;
 
     /**
      * sid
@@ -87,4 +91,8 @@ public class DataSourceVO {
      */
     private List<KeyValue> extendInfo;
 
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }

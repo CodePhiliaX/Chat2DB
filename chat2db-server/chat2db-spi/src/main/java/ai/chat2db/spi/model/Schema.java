@@ -1,6 +1,9 @@
 
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
+
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Schema {
+public class Schema implements Serializable {
+    private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
      * databaseName

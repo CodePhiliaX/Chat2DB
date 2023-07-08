@@ -22,4 +22,11 @@ public class SchemaQueryParam {
     private Long dataSourceId;
 
     private String dataBaseName;
+
+
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
 }

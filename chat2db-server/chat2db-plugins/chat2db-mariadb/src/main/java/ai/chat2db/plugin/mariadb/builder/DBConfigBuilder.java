@@ -13,7 +13,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("mariadb-java-client-3.0.8.jar");
         driverConfig.setJdbcDriverClass("org.mariadb.jdbc.Driver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/mariadb-java-client-3.0.8.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

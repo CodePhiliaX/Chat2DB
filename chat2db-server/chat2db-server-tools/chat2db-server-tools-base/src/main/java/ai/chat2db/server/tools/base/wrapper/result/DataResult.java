@@ -43,6 +43,16 @@ public class DataResult<T> implements Serializable, Result<T> {
     private String errorMessage;
 
     /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
+
+    /**
      * 数据信息
      */
     private T data;
@@ -155,5 +165,25 @@ public class DataResult<T> implements Serializable, Result<T> {
     @Override
     public void errorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
     }
 }
