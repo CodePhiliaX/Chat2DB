@@ -223,6 +223,7 @@ public class JdbcUtils {
                 t = t.getCause();
             }
             dataSourceConnect.setMessage(t.getMessage());
+            dataSourceConnect.setErrorDetail(ExceptionUtils.getErrorInfoFromException(t));
             return dataSourceConnect;
         } finally {
             if (connection != null) {
