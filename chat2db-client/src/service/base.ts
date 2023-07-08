@@ -1,6 +1,7 @@
 import { extend, ResponseError } from 'umi-request';
 import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
+import ErrorNotification from '@/components/MyNotification';
 const path = require('path');
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
@@ -127,8 +128,9 @@ request.interceptors.response.use(async (response, options) => {
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
   const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside } = options || {};
 
+
   // 是否需要mock
-  let _baseURL = mock ? mockUrl : baseURL;
+  let _baseURL = (mock ? mockUrl : baseURL) || '';
   return function (params: P) {
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
@@ -167,15 +169,16 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {
           if (!res) return;
-          const { success, errorCode, errorMessage, data } = res;
+          const { success, errorCode, errorMessage, errorDetail, solutionLink, data } = res;
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
-              // notification.open({
-              //   type: 'error',
-              //   message: errorCode,
-              //   description: errorMessage,
-              // });
-              message.error(`${errorCode}: ${errorMessage}`);
+              ErrorNotification({
+                errorCode,
+                errorMessage,
+                errorDetail,
+                solutionLink,
+              })
+              // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
             return;
