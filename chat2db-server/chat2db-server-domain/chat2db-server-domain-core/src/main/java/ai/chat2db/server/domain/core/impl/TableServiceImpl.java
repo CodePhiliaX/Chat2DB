@@ -6,10 +6,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.DropParam;
+import ai.chat2db.server.domain.api.param.PinTableParam;
+import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
+import ai.chat2db.server.domain.api.param.TablePageQueryParam;
+import ai.chat2db.server.domain.api.param.TableQueryParam;
+import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.service.PinService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
@@ -17,18 +27,14 @@ import ai.chat2db.spi.model.Sql;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-import ai.chat2db.server.tools.common.util.EasyEnumUtils;
-
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static ai.chat2db.server.domain.core.cache.CacheKey.getTableKey;
 
 /**
  * @author moji
@@ -77,9 +83,9 @@ public class TableServiceImpl implements TableService {
         if (!CollectionUtils.isEmpty(tables)) {
             Table table = tables.get(0);
             table.setIndexList(
-                    metaSchema.indexes(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                metaSchema.indexes(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
             table.setColumnList(
-                    metaSchema.columns(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                metaSchema.columns(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
             return DataResult.of(table);
         }
         return DataResult.of(null);
@@ -93,8 +99,14 @@ public class TableServiceImpl implements TableService {
     @Override
     public PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        List<Table> list = metaSchema.tables(param.getDatabaseName(), param.getSchemaName(), param.getTableName());
-        list =  pinTable(list,param);
+
+        String tableKey = getTableKey(param.getDataSourceId(),param.getDatabaseName(), param.getSchemaName());
+
+        List<Table> list = CacheManage.getList(tableKey, Table.class,
+            (key) -> param.isRefresh(), (key) ->
+                metaSchema.tables(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+
+        list = pinTable(list, param);
         if (CollectionUtils.isEmpty(list)) {
             return PageResult.of(list, 0L, param);
         }
@@ -122,13 +134,12 @@ public class TableServiceImpl implements TableService {
         }
 
         for (Table table : list) {
-            if (table!=null && !tables.contains(table)) {
+            if (table != null && !tables.contains(table)) {
                 tables.add(table);
             }
         }
         return tables;
     }
-
 
     @Override
     public List<TableColumn> queryColumns(TableQueryParam param) {
