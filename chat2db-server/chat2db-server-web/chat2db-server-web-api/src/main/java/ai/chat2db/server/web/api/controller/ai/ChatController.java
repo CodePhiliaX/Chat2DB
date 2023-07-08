@@ -505,10 +505,11 @@ public class ChatController {
             : queryRequest.getPromptType();
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
+        String result = "假设你是个SQL编辑器，接下来你返回的SQL代码要和其他内容分隔，非SQL代码内容的每一行前面追加-- \n";
         String schemaProperty = CollectionUtils.isNotEmpty(tableSchemas) ? String.format(
-            "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables, with their properties:\n#\n# "
-                + "%s\n#\n#\n### SQL input: %s", pType.getDescription(), ext, dataSourceType,
-            properties, prompt) : String.format("### 请根据以下SQL input%s. %s\n#\n### SQL input: %s",
+            "%s### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables, with their properties:\n#\n# "
+                + "%s\n#\n#\n### SQL input: %s", result, pType.getDescription(), ext, dataSourceType,
+            properties, prompt) : String.format("%s### 请根据以下SQL input%s. %s\n#\n### SQL input: %s", result,
             pType.getDescription(), ext, prompt);
         switch (pType) {
             case SQL_2_SQL:
@@ -521,7 +522,6 @@ public class ChatController {
         //if (I18nUtils.isEn()) {
         //    schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
         //}
-        String result = String.format("%s. \n要求返回Markdown格式", schemaProperty);
-        return result;
+        return schemaProperty;
     }
 }

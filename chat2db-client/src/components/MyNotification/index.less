@@ -1,7 +1,38 @@
 @import '../../styles/var.less';
 
-.notification{
-  padding: 10px 16px;
+
+:global {
+  .ant-notification-notice {
+    background-color: var(--color-bg-elevated) !important;
+    padding: 8px 16px !important;
+    width: 280px !important;
+
+    .ant-notification-notice-icon {
+      font-size: 16px !important;
+      top: 12px !important;
+    }
+
+    .ant-notification-notice-message {
+      color: var(--color-text) !important;
+    }
+
+    .ant-notification-notice-close {
+      color: var(--color-text) !important
+    }
+  }
+
+  .ant-modal-content {
+    background-color: var(--color-bg-elevated) !important;
+
+    .ant-modal-confirm-title {
+      color: var(--color-text) !important;
+    }
+
+    .ant-modal-confirm-content {
+      color: var(--color-text) !important;
+
+    }
+  }
 }
 
 .message {

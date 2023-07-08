@@ -3,21 +3,22 @@ import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 
-import connectionService from '@/service/connection';
+import connectionService, { IDriverResponse } from '@/service/connection';
 
 import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
-import { dataSourceFormConfigs } from './config/dataSource';
+import { dataSourceFormConfigs, driveConfig } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
 import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
 import { deepClone } from '@/utils';
-import { Select, Form, Input, message, Table, Button, Collapse } from 'antd';
+import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import UploadDriver from '@/components/UploadDriver';
 
 const { Option } = Select;
 
-type ITabsType = 'ssh' | 'baseInfo';
+type ITabsType = 'ssh' | 'baseInfo' | 'drive';
 
 export enum submitType {
   UPDATE = 'update',
@@ -32,18 +33,44 @@ interface IProps {
   submitCallback?: Function;
 }
 
+enum DownloadStatus {
+  Default,
+  Loading,
+  Error,
+  Success
+}
+
 export default function CreateConnection(props: IProps) {
-  const { className, closeCreateConnection, submitCallback } = props;
+  const { className, closeCreateConnection, submitCallback, connectionData } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
-  const [backfillData, setBackfillData] = useState<IConnectionDetails>(props.connectionData);
+  const [driveForm] = Form.useForm();
+  const [backfillData, setBackfillData] = useState<IConnectionDetails>(connectionData);
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
     backfillDataLoading: false
   });
-  // const [connectionData, setConnectionData] = useState<IConnectionDetails>(props.connectionData);
-  // const [currentType, setCurrentType] = useState<DatabaseTypeCode>(createType || DatabaseTypeCode.MYSQL);
+  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>(DownloadStatus.Default);
+  const [uploadDriverModal, setUploadDriverModal] = useState(false);
+  const [driverObj, setDriverObj] = useState<IDriverResponse>();
+  const [driverSaved, setDriverSaved] = useState<any>({});
+  const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
+    const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
+    return deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
+      const flag = t.type === backfillData.type;
+      if (flag) {
+        t.drive = driveConfig;
+      }
+      return flag
+    });
+  }, []);
+
+  useEffect(() => {
+    getDriverList()
+  }, [backfillData.type])
+
+  const [dataSourceFormConfigProps, setDataSourceFormConfigProps] = useState(dataSourceFormConfigPropsMemo);
 
   useEffect(() => {
     setBackfillData(props.connectionData);
@@ -54,6 +81,26 @@ export default function CreateConnection(props: IProps) {
       getConnectionDetails(backfillData.id);
     }
   }, [backfillData.id]);
+
+  useEffect(() => {
+    if (driverObj?.driverConfigList?.length) {
+      const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
+      const newDataSourceFormConfigProps = deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
+        const flag = t.type === backfillData.type;
+        if (flag) {
+          t.drive = driveConfig;
+        }
+        return flag
+      });
+      newDataSourceFormConfigProps.drive!.items[0].selects = driverObj?.driverConfigList.map(t => {
+        return {
+          value: t.jdbcDriver,
+          label: t.jdbcDriver
+        }
+      })
+      setDataSourceFormConfigProps(newDataSourceFormConfigProps)
+    }
+  }, [driverObj])
 
   function getConnectionDetails(id: number) {
     setLoading({
@@ -82,11 +129,53 @@ export default function CreateConnection(props: IProps) {
 
   const getItems = () => [
     {
+      key: 'drive',
+      label: 'Drive',
+      children: (
+        <div className={styles.sshBox}>
+          <RenderForm
+            dataSourceFormConfigProps={dataSourceFormConfigProps}
+            backfillData={backfillData!}
+            form={driveForm}
+            tab="drive"
+          />
+          <div className={styles.downloadDriveFooter}>
+            {
+              !!driverObj?.driverConfigList?.length ? <div></div> : <div onClick={downloadDrive} className={styles.downloadDrive}>
+                {
+                  (downloadStatus === DownloadStatus.Default) && <div className={styles.downloadText}>Download</div>
+                }
+                {
+                  (downloadStatus === DownloadStatus.Loading) && <div className={styles.downloadText}>Downloading</div>
+                }
+                {
+                  (downloadStatus === DownloadStatus.Error) && <div className={classnames(styles.downloadText, styles.downloadTextError)}>Try again download</div>
+                }
+                {i18n('connection.title.driver')}
+              </div>
+            }
+
+            <div
+              className={styles.uploadCustomDrive}
+              onClick={() => { setUploadDriverModal(true) }}
+            >
+              {i18n('connection.tips.customUpload')}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       key: 'ssh',
       label: 'SSH Configuration',
       children: (
         <div className={styles.sshBox}>
-          <RenderForm backfillData={backfillData!} form={sshForm} tab="ssh" />
+          <RenderForm
+            dataSourceFormConfigProps={dataSourceFormConfigProps}
+            backfillData={backfillData!}
+            form={sshForm}
+            tab="ssh"
+          />
           <div className={styles.testSSHConnect}>
             <div onClick={testSSH} className={styles.testSSHConnectText}>
               {i18n('connection.message.testSshConnection')}
@@ -109,6 +198,7 @@ export default function CreateConnection(props: IProps) {
   // 测试、保存、修改连接
   function saveConnection(type: submitType) {
     const ssh = sshForm.getFieldsValue();
+    const driverConfig = driveForm.getFieldsValue()
     const baseInfo = baseInfoForm.getFieldsValue();
     const extendInfo: any = [];
     const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
@@ -123,10 +213,10 @@ export default function CreateConnection(props: IProps) {
 
     let p: any = {
       ssh,
+      driverConfig,
       ...baseInfo,
       extendInfo,
-      // ...values,
-      ConnectionEnvType: ConnectionEnvType.DAILY,
+      connectionEnvType: ConnectionEnvType.DAILY,
       type: backfillData.type,
     };
 
@@ -185,6 +275,32 @@ export default function CreateConnection(props: IProps) {
     });
   }
 
+  function downloadDrive() {
+    setDownloadStatus(DownloadStatus.Loading)
+    connectionService.downloadDriver({ dbType: backfillData.type }).then(res => {
+      setDownloadStatus(DownloadStatus.Success)
+    }).catch(() => {
+      setDownloadStatus(DownloadStatus.Error)
+    })
+  }
+
+  function getDriverList() {
+    connectionService.getDriverList({ dbType: backfillData.type }).then(res => {
+      setDriverObj(res)
+    })
+  }
+
+  function formChange(data: any) {
+    setDriverSaved(data)
+  }
+
+  function saveDriver() {
+    connectionService.saveDriver(driverSaved).then(res => {
+      setUploadDriverModal(false)
+      getDriverList()
+    })
+  }
+
   return (
     <div className={classnames(styles.box, className)}>
       <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
@@ -194,9 +310,9 @@ export default function CreateConnection(props: IProps) {
             <div>{databaseMap[backfillData.type]?.name}</div>
           </div>
           <div className={styles.baseInfoBox}>
-            <RenderForm backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
+            <RenderForm dataSourceFormConfigProps={dataSourceFormConfigProps} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
           </div>
-          <Collapse items={getItems()} />
+          <Collapse defaultActiveKey={['drive']} items={getItems()} />
           <div className={styles.formFooter}>
             <div className={styles.test}>
               {
@@ -225,6 +341,19 @@ export default function CreateConnection(props: IProps) {
           </div>
         </div>
       </LoadingContent>
+      <Modal
+        destroyOnClose={true}
+        title={i18n('connection.title.uploadDriver')}
+        open={uploadDriverModal}
+        onOk={() => { saveDriver() }}
+        onCancel={() => { setUploadDriverModal(false) }}
+      >
+        <UploadDriver
+          jdbcDriverClass={driverObj?.defaultDriverConfig?.jdbcDriverClass}
+          formChange={formChange}
+          databaseType={backfillData.type}
+        ></UploadDriver>
+      </Modal>
     </div>
   );
 }
@@ -233,29 +362,25 @@ interface IRenderFormProps {
   tab: ITabsType;
   form: any;
   backfillData: IConnectionDetails;
+  dataSourceFormConfigProps: IConnectionConfig
 }
 
 function RenderForm(props: IRenderFormProps) {
-  const { tab, form, backfillData } = props;
-  const editId = backfillData.id;
-  const databaseType = backfillData.type;
+  const { tab, form, backfillData, dataSourceFormConfigProps } = props;
+  useEffect(() => {
+    form.resetFields()
+  }, [backfillData.id, backfillData.type])
 
   let aliasChanged = false;
 
-  const dataSourceFormConfigMemo = useMemo<IConnectionConfig>(() => {
-    return deepClone(dataSourceFormConfigs).find((t: IConnectionConfig) => {
-      return t.type === databaseType;
-    });
-  }, [databaseType]);
-
-  const [dataSourceFormConfig, setDataSourceFormConfig] = useState<IConnectionConfig>(dataSourceFormConfigMemo);
+  const [dataSourceFormConfig, setDataSourceFormConfig] = useState<IConnectionConfig>(dataSourceFormConfigProps);
 
   useEffect(() => {
-    setDataSourceFormConfig(dataSourceFormConfigMemo);
-  }, [databaseType]);
+    setDataSourceFormConfig(dataSourceFormConfigProps)
+  }, [dataSourceFormConfigProps])
 
   const initialValuesMemo = useMemo(() => {
-    return initialFormData(dataSourceFormConfigMemo[tab].items);
+    return initialFormData(dataSourceFormConfigProps[tab]?.items);
   }, []);
 
   const [initialValues] = useState(initialValuesMemo);
@@ -272,6 +397,9 @@ function RenderForm(props: IRenderFormProps) {
 
     if (tab === 'ssh') {
       regEXFormatting({}, backfillData.ssh || {});
+    }
+    if (tab === 'drive') {
+      regEXFormatting({}, backfillData.driverConfig || {});
     }
   }, [backfillData]);
 
@@ -294,7 +422,7 @@ function RenderForm(props: IRenderFormProps) {
   }
 
   function selectChange(t: { name: string; value: any }) {
-    dataSourceFormConfig[tab].items.map((j, i) => {
+    dataSourceFormConfig[tab]?.items.map((j, i) => {
       if (j.name === t.name) {
         j.defaultValue = t.value;
       }
@@ -366,6 +494,7 @@ function RenderForm(props: IRenderFormProps) {
     if (keyName === 'host' && !aliasChanged) {
       newData.alias = '@' + keyValue;
     }
+
     form.setFieldsValue({
       ...dataObj,
       ...newData,
@@ -458,23 +587,33 @@ function RenderForm(props: IRenderFormProps) {
     </Form>
   );
 }
+
 interface IRenderExtendTableProps {
   backfillData: IConnectionDetails;
 }
 
 let extendTableData: any = [];
 
+interface IExtendTable {
+  key: number,
+  label: string,
+  value: string
+}
+
 function RenderExtendTable(props: IRenderExtendTableProps) {
   const { backfillData } = props;
   const databaseType = backfillData.type;
+  const [data, setData] = useState<IExtendTable[]>([{ key: 0, label: '', value: '' }]);
   const dataSourceFormConfigMemo = useMemo<IConnectionConfig>(() => {
     return deepClone(dataSourceFormConfigs).find((t: IConnectionConfig) => {
       return t.type === databaseType;
     });
   }, [backfillData.type]);
 
-  const extendInfo =
-    dataSourceFormConfigMemo.extendInfo?.map((t, i) => {
+  useEffect(() => {
+    const extendInfoList = backfillData?.extendInfo?.length ? backfillData?.extendInfo : dataSourceFormConfigMemo.extendInfo;
+
+    const extendInfo = extendInfoList?.map((t, i) => {
       return {
         key: i,
         label: t.key,
@@ -482,19 +621,8 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
       };
     }) || [];
 
-  const [data, setData] = useState([...extendInfo, { key: extendInfo.length, label: '', value: '' }]);
-
-  useEffect(() => {
-    const backfillDataExtendInfo =
-      (backfillData?.extendInfo || []).map((t, i) => {
-        return {
-          key: i,
-          label: t.key,
-          value: t.value,
-        };
-      }) || [];
-    setData([...backfillDataExtendInfo, { key: extendInfo.length, label: '', value: '' }]);
-  }, [backfillData]);
+    setData([...extendInfo, { key: extendInfo.length, label: '', value: '' }])
+  }, [dataSourceFormConfigMemo, backfillData])
 
   useEffect(() => {
     extendTableData = data;
