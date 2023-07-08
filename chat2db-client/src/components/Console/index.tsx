@@ -17,6 +17,7 @@ import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
 import styles from './index.less';
+import { chatErrorCodeArr } from '@/constants/chat';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -195,6 +196,14 @@ function Console(props: IProps) {
       setIsLoading(false);
 
       try {
+        const hasError = chatErrorCodeArr.includes(message);
+        //TODO: 
+        if (hasError) {
+          closeEventSource();
+          setIsLoading(false);
+          return
+        }
+
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
@@ -306,7 +315,7 @@ function Console(props: IProps) {
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
-              if(tables.length > 8){
+              if (tables.length > 8) {
                 message.warning({
                   content: i18n('chat.input.tableSelect.error.TooManyTable')
                 })
@@ -332,7 +341,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
