@@ -106,7 +106,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         String path = SaHolder.getRequest().getRequestPath();
                         if (path.startsWith(API_PREFIX)) {
                             response.getWriter().println(JSON.toJSONString(
-                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"))));
+                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"), "")));
                             return false;
                         } else {
                             throw new RedirectBusinessException(

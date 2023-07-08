@@ -521,6 +521,7 @@ public class ChatController {
         //if (I18nUtils.isEn()) {
         //    schemaProperty = String.format("%s\n#\n### 返回结果要求为英文", schemaProperty);
         //}
-        return schemaProperty;
+        String result = String.format("%s. \n要求返回Markdown格式", schemaProperty);
+        return result;
     }
 }

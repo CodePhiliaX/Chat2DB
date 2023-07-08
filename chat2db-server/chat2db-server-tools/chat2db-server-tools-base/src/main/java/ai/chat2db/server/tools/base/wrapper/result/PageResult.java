@@ -68,6 +68,16 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
      */
     private Boolean hasNextPage;
 
+    /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
+
     public PageResult() {
         this.pageNo = 1;
         this.pageSize = 10;
@@ -320,5 +330,25 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
     @Override
     public void errorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
     }
 }
