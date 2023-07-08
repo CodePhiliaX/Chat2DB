@@ -13,7 +13,8 @@
 }
 
 .connectionBox {
-  width: 100%;
+  width: 65%;
+  flex-shrink: 0;
   padding: 20px 20%;
 }
 
@@ -106,6 +107,34 @@
     cursor: pointer;
     &:hover {
       text-decoration: underline;
+    }
+  }
+}
+
+.downloadDriveFooter{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  .downloadDrive{
+    display: flex;
+    .downloadText{
+      margin-right: 4px;
+      color: var(--color-primary);
+      cursor: pointer;
+      &:hover{
+        text-decoration: underline;
+      }
+    }
+    .downloadTextError{
+      color: var(--color-error-text);
+    }
+  }
+  
+  .uploadCustomDrive{
+    cursor: pointer;
+    &:hover{
+      color: var(--color-primary);
     }
   }
 }

@@ -51,7 +51,6 @@ export enum OperationColumn {
   ExportDDL = 'exportDDL',
   EditSource = 'editSource',
   Top = 'top'
-
 }
 
 export interface ITreeConfigItem {

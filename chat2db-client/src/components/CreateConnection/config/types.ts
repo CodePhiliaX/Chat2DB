@@ -4,6 +4,9 @@ import { DatabaseTypeCode, OperationColumn } from '@/constants';
 export type ISelect = {
   value?: AuthenticationType | SSHAuthenticationType | string;
   label?: string;
+  rest?: {
+    [key in string]: any
+  }
   items?: IFormItem[];
 };
 
@@ -34,6 +37,9 @@ export type IConnectionConfig = {
     template: string;
     excludes?: OperationColumn[];
   },
+  drive?: {
+    items: IFormItem[];
+  }
   ssh: {
     items: IFormItem[];
   },
