@@ -16,6 +16,10 @@ export interface IConnectionDetails {
   EnvType: ConnectionEnv;
   extendInfo: IConnectionExtendInfoItem[];
   ssh: any;
+  driverConfig: {
+    jdbcDriver: string;
+    jdbcDriverClass: string;
+  };
   [key: string]: any;
 }
 
