@@ -6,5 +6,5 @@ const testApiSmooth = createRequest<void, void>('/api/system/get-version-a', { e
 export default {
   testService,
   systemStop,
-  testApiSmooth
+  testApiSmooth,
 }

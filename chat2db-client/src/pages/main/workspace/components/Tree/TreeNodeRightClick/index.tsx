@@ -227,7 +227,7 @@ function TreeNodeRightClick(props: IProps) {
         return {
           key: i,
           label: <div className={styles.operationItem}>
-            <Iconfont className={styles.operationIcon} code={concrete.icon} />
+            <Iconfont className={styles.operationIcon} code={concrete?.icon} />
             <div className={styles.operationTitle}>
               {concrete.text}
             </div>
