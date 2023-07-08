@@ -14,7 +14,6 @@ public class SqlServerDBConfigBuilder {
         driverConfig.setJdbcDriver("mssql-jdbc-11.2.1.jre17.jar");
         driverConfig.setJdbcDriverClass("com.microsoft.sqlserver.jdbc.SQLServerDriver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/mssql-jdbc-11.2.1.jre17.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

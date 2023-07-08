@@ -13,7 +13,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("presto-jdbc-0.245.1.jar");
         driverConfig.setJdbcDriverClass("com.facebook.presto.jdbc.PrestoDriver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/presto-jdbc-0.245.1.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

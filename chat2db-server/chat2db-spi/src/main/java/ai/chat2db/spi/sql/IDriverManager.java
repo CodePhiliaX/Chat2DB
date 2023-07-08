@@ -71,16 +71,14 @@ public class IDriverManager {
         if (url == null) {
             throw new SQLException("The url cannot be null", "08001");
         }
-        DriverManager.println("DriverManager.getConnection(\"" + url + "\")");
         SQLException reason = null;
-        DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getName());
+        DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
         if (driverEntry == null) {
             driverEntry = getJDBCDriver(driver);
         }
         try {
             Connection con = driverEntry.getDriver().connect(url, info);
             if (con != null) {
-                DriverManager.println("getConnection returning " + driverEntry.getDriver().getClass().getName());
                 return con;
             }
         } catch (SQLException var7) {
@@ -116,13 +114,13 @@ public class IDriverManager {
         throws SQLException {
         synchronized (driver) {
             try {
-                if (DRIVER_ENTRY_MAP.containsKey(driver.getName())) {
-                    return DRIVER_ENTRY_MAP.get(driver.getName());
+                if (DRIVER_ENTRY_MAP.containsKey(driver.getJdbcDriver())) {
+                    return DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
                 }
                 ClassLoader cl = getClassLoader(driver);
                 Driver d = (Driver)cl.loadClass(driver.getJdbcDriverClass()).newInstance();
                 DriverEntry driverEntry = DriverEntry.builder().driverConfig(driver).driver(d).build();
-                DRIVER_ENTRY_MAP.put(driver.getName(), driverEntry);
+                DRIVER_ENTRY_MAP.put(driver.getJdbcDriver(), driverEntry);
                 return driverEntry;
             } catch (Exception e) {
                 log.error("getJDBCDriver error", e);

@@ -4,6 +4,7 @@
  */
 package ai.chat2db.server.web.api.controller;
 
+import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.AliDbhubProperties;
 import ai.chat2db.server.tools.common.util.I18nUtils;
@@ -14,7 +15,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +59,7 @@ public class SystemController {
     /**
      * 退出服务
      */
-    @PostMapping("/stop")
+    @RequestMapping("/stop")
     public DataResult<String> stop() {
         log.info("退出应用");
         new Thread(() -> {
@@ -78,10 +78,12 @@ public class SystemController {
             // 有可能SpringApplication.exit 会退出失败
             // 直接系统退出
             log.info("开始退出系统应用");
+            CacheManage.close();
             try {
                 System.exit(0);
             } catch (Exception ignore) {
             }
+
         }).start();
         return DataResult.of("ok");
     }

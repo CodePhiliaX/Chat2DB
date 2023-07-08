@@ -14,7 +14,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("sqlite-jdbc-3.39.3.0.jar");
         driverConfig.setJdbcDriverClass("org.sqlite.JDBC");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/sqlite-jdbc-3.39.3.0.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;
