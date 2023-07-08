@@ -8,7 +8,7 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.AliDbhubProperties;
 import ai.chat2db.server.tools.common.util.I18nUtils;
-import ai.chat2db.spi.sql.SSHManager;
+import ai.chat2db.spi.ssh.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;

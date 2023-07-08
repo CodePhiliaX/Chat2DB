@@ -14,6 +14,7 @@ import ai.chat2db.spi.Plugin;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.ssh.SSHManager;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;

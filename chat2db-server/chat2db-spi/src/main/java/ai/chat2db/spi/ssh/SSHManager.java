@@ -1,9 +1,10 @@
 
-package ai.chat2db.spi.sql;
+package ai.chat2db.spi.ssh;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 import ai.chat2db.spi.model.SSHInfo;
+import cn.hutool.core.net.NetUtil;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,14 @@ public class SSHManager {
             }
             try {
                 JSch jSch = new JSch();
+                if (StringUtils.isNotBlank(ssh.getKeyFile()) && StringUtils.isNotBlank(ssh.getPassphrase())) {
+                    jSch.addIdentity(ssh.getKeyFile(), ssh.getPassphrase());
+                }
                 session = jSch.getSession(ssh.getUserName(), ssh.getHostName(), Integer.parseInt(ssh.getPort()));
-                session.setPassword(ssh.getPassword());
+                if (StringUtils.isBlank(ssh.getKeyFile()) || StringUtils.isBlank(ssh.getPassphrase())) {
+                    session.setPassword(ssh.getPassword());
+                }
+
                 session.setConfig("StrictHostKeyChecking", "no");
                 session.connect();
                 SSH_SESSION_MAP.put(ssh, session);
@@ -44,10 +51,11 @@ public class SSHManager {
                 throw new RuntimeException("create ssh session error", e);
             }
 
-            if (StringUtils.isNotBlank(ssh.getLocalPort()) && StringUtils.isNotBlank(ssh.getRHost())
-                && StringUtils.isNotBlank(ssh.getRPort())) {
+            if (StringUtils.isNotBlank(ssh.getRHost()) && StringUtils.isNotBlank(ssh.getRPort())) {
                 try {
-                    int port1 = session.setPortForwardingL(Integer.parseInt(ssh.getLocalPort()), ssh.getRHost(),
+                    int localPort = !StringUtils.isBlank(ssh.getLocalPort()) ? Integer.parseInt(ssh.getLocalPort())
+                        : NetUtil.getUsableLocalPort();
+                     session.setPortForwardingL(localPort, ssh.getRHost(),
                         Integer.parseInt(ssh.getRPort()));
                 } catch (Exception e) {
                     if (session != null && session.isConnected()) {
