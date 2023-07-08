@@ -20,7 +20,7 @@ import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
-import ai.chat2db.spi.sql.SSHManager;
+import ai.chat2db.spi.ssh.SSHManager;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;

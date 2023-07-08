@@ -1,7 +1,7 @@
 package ai.chat2db.server.start.config.util;
 
 
-import ai.chat2db.spi.sql.SSHManager;
+import ai.chat2db.spi.ssh.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 
 /**

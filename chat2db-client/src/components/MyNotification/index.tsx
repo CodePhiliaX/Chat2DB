@@ -2,6 +2,7 @@ import { Button, ConfigProvider, Modal, notification, } from 'antd';
 import React from 'react'
 import styles from './index.less'
 import i18n from '@/i18n';
+import { IconType } from 'antd/es/notification/interface';
 // import { staticNotification } from '@/layouts'
 
 interface IProps {
