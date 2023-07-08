@@ -51,6 +51,16 @@ public class ListResult<T> implements Serializable, Result<T> {
      */
     private String traceId;
 
+    /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
+
     public ListResult() {
         this.success = Boolean.TRUE;
     }
@@ -155,5 +165,25 @@ public class ListResult<T> implements Serializable, Result<T> {
     @Override
     public void errorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
     }
 }

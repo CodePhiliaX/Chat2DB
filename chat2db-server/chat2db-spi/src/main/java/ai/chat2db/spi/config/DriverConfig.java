@@ -21,14 +21,21 @@ public class DriverConfig {
      */
     private String jdbcDriverClass;
 
-    /**
-     * name
-     */
-    private String name;
+    ///**
+    // * name
+    // */
+    //private String name;
 
     /**
      * downloadJdbcDriverUrls
      */
     private List<String> downloadJdbcDriverUrls;
 
+
+    private String dbType;
+
+    /**
+     * 自定义
+     */
+    private boolean custom;
 }

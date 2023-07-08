@@ -13,7 +13,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("mongo-jdbc-standalone-1.18.jar");
         driverConfig.setJdbcDriverClass("com.dbschema.MongoJdbcDriver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/mongo-jdbc-standalone-1.18.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

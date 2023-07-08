@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.data.source.request;
 
 import java.util.List;
 
+import ai.chat2db.spi.config.DriverConfig;
 import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.spi.model.KeyValue;
@@ -93,4 +94,10 @@ public class DataSourceCreateRequest {
      * 扩展信息
      */
     private List<KeyValue> extendInfo;
+
+
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }

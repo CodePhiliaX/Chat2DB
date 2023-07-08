@@ -22,4 +22,9 @@ public class DatabaseQueryAllParam {
      */
     @NotNull
     private Long dataSourceId;
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
 }

@@ -65,7 +65,12 @@ public class Chat2DBContext {
     }
 
     public static Connection getConnection() {
-        return getConnectInfo().getConnection();
+        ConnectInfo connectInfo = getConnectInfo();
+        Connection connection = connectInfo.getConnection();
+        if (connection == null) {
+            connection = setConnectInfoThreadLocal(connectInfo);
+        }
+        return connection;
     }
 
     /**
@@ -74,64 +79,67 @@ public class Chat2DBContext {
      * @param info
      */
     public static void putContext(ConnectInfo info) {
-        ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();
         CONNECT_INFO_THREAD_LOCAL.set(info);
-        if (connectInfo == null) {
-            setConnectInfoThreadLocal(info);
-            if (StringUtils.isNotBlank(info.getDatabaseName())) {
-                PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBManage().connectDatabase(info.getDatabaseName());
-            }
-        }
     }
 
-    private static void setConnectInfoThreadLocal(ConnectInfo connectInfo) {
-        Session session = null;
-        Connection connection = null;
-        SSHInfo ssh = connectInfo.getSsh();
-        String url = connectInfo.getUrl();
-        String host = connectInfo.getHost();
-        String port = connectInfo.getPort() + "";
-        try {
-            ssh.setRHost(host);
-            ssh.setRPort(port);
-            session = getSession(ssh);
-            if (session != null) {
-                url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
-            }
-            DriverConfig config = connectInfo.getDriverConfig();
-            if (config == null) {
-                config = getDefaultDriverConfig(connectInfo.getDbType());
-                connectInfo.setDriverConfig(config);
-            }
-
-            connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
-                connectInfo.getDriverConfig(), connectInfo.getExtendMap());
-
-        } catch (Exception e1) {
-            log.error("GetConnect error", e1);
+    private static Connection setConnectInfoThreadLocal(ConnectInfo connectInfo) {
+        synchronized (connectInfo) {
+            Connection connection = connectInfo.getConnection();
             if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    log.error("session close error", e);
-                }
+                return connection;
             }
-            if (session != null) {
-                try {
-                    session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
-                } catch (JSchException e) {
-                    log.error("session delPortForwardingL error", e);
+            Session session = null;
+            SSHInfo ssh = connectInfo.getSsh();
+            String url = connectInfo.getUrl();
+            String host = connectInfo.getHost();
+            String port = connectInfo.getPort() + "";
+            try {
+                ssh.setRHost(host);
+                ssh.setRPort(port);
+                session = getSession(ssh);
+                if (session != null) {
+                    url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
                 }
-                try {
-                    session.disconnect();
-                } catch (Exception e) {
-                    log.error("session disconnect error", e);
+                DriverConfig config = connectInfo.getDriverConfig();
+                if (config == null) {
+                    config = getDefaultDriverConfig(connectInfo.getDbType());
+                    connectInfo.setDriverConfig(config);
                 }
+
+                connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
+                    connectInfo.getDriverConfig(), connectInfo.getExtendMap());
+
+            } catch (Exception e1) {
+                log.error("GetConnect error", e1);
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        log.error("session close error", e);
+                    }
+                }
+                if (session != null) {
+                    try {
+                        session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    } catch (JSchException e) {
+                        log.error("session delPortForwardingL error", e);
+                    }
+                    try {
+                        session.disconnect();
+                    } catch (Exception e) {
+                        log.error("session disconnect error", e);
+                    }
+                }
+                throw new RuntimeException("GetConnect error", e1);
             }
-            throw new RuntimeException("GetConnect error", e1);
+            connectInfo.setSession(session);
+            connectInfo.setConnection(connection);
+            if (StringUtils.isNotBlank(connectInfo.getDatabaseName())) {
+                PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBManage().connectDatabase(
+                    connectInfo.getDatabaseName());
+            }
+            return connection;
         }
-        connectInfo.setSession(session);
-        connectInfo.setConnection(connection);
     }
 
     private static Session getSession(SSHInfo ssh) {
