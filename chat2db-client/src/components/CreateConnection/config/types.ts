@@ -37,7 +37,7 @@ export type IConnectionConfig = {
     template: string;
     excludes?: OperationColumn[];
   },
-  drive?: {
+  driver?: {
     items: IFormItem[];
   }
   ssh: {

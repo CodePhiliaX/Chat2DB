@@ -3045,7 +3045,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
   },
 ];
 
-export const driveConfig: IConnectionConfig['drive'] = {
+export const driveConfig: IConnectionConfig['driver'] = {
   items: [
     {
       defaultValue: '',

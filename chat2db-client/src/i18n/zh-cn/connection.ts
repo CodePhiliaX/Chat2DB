@@ -18,7 +18,9 @@ export default {
   'connection.tableHeader.name': '名称',
   'connection.tableHeader.value': '值',
   'connection.title.uploadDriver': '上传驱动',
-  'connection.tips.customUpload': '没有我想要的驱动',
+  'connection.tips.customUpload': '上传驱动',
   'connection.title.driver': '驱动',
   'connection.button.clickUpload': '点击上传',
+  'connection.text.downloadDriver': '下载驱动',
+  'connection.text.downloadSuccess': '下载成功',
 }
