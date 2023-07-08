@@ -1,4 +1,4 @@
-import { Button, Modal, notification, } from 'antd';
+import { Button, ConfigProvider, Modal, notification, } from 'antd';
 import React from 'react'
 import styles from './index.less'
 import i18n from '@/i18n';
@@ -22,14 +22,12 @@ function MyNotification(props: IProps) {
 
   const type = props.type || 'warning';
   const title = `${errorCode}:${errorMessage}`;
-  const message = props.message || <div className={styles.message}>{errorCode}:{errorMessage}</div>
+  const message = props.message || <div className={styles.message}>{errorCode}:{errorMessage || 'Error'}</div>
 
   const description = <div className={styles.description}>
     <Button style={{ 'marginRight': '8px' }} type='link' onClick={() => {
       Modal.info({
-        bodyStyle: {
-          width: '320px'
-        },
+        width: 620,
         title,
         content: errorDetail
       })
@@ -40,7 +38,6 @@ function MyNotification(props: IProps) {
 
   return notification.open({
     ...props,
-    className: styles.notification,
     type,
     message,
     description,
