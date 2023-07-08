@@ -1,6 +1,6 @@
 import { IPageResponse, IConnectionDetails } from '@/typings';
+import { DatabaseTypeCode } from '@/constants';
 import createRequest from './base';
-// import { IPageResponse, IConnectionDetails, IDB } from '@/types';
 
 export interface IGetConnectionParams {
   searchKey?: string;
@@ -60,6 +60,32 @@ const getDBList = createRequest<{ id: number }, IDB[]>(
   { method: 'get' },
 );
 
+
+
+export interface IDriverResponse {
+  driverConfigList: {
+    jdbcDriver: string;
+    jdbcDriverClass: string;
+  }[],
+  defaultDriverConfig: {
+    jdbcDriverClass: string
+  };
+}
+
+interface IDriverParams {
+  dbType: DatabaseTypeCode;
+}
+
+interface IUploadDriver {
+  multipartFiles: any;
+  jdbcDriverClass: string;
+  dbType: string;
+}
+
+const getDriverList = createRequest<IDriverParams, IDriverResponse>('/api/jdbc/driver/list', { errorLevel: false, method: 'get' });
+const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver/download', { errorLevel: false, method: 'get' });
+const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
+
 export default {
   getList,
   getDetails,
@@ -71,4 +97,7 @@ export default {
   getDBList,
   close,
   testSSH,
+  getDriverList,
+  downloadDriver,
+  saveDriver,
 };

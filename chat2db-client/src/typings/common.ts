@@ -48,7 +48,7 @@ export interface IUniversalTableParams {
  * 版本返回
  * VersionResponse
  */
- export interface IVersionResponse {
+export interface IVersionResponse {
   /**
    * 基础链接
    * 类似于：http://test.sqlgpt.cn/gateway
@@ -67,3 +67,5 @@ export interface IUniversalTableParams {
    */
   wechatMpName?: string;
 }
+
+
