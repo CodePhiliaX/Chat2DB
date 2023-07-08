@@ -18,7 +18,7 @@ import UploadDriver from '@/components/UploadDriver';
 
 const { Option } = Select;
 
-type ITabsType = 'ssh' | 'baseInfo' | 'drive';
+type ITabsType = 'ssh' | 'baseInfo' | 'driver';
 
 export enum submitType {
   UPDATE = 'update',
@@ -60,7 +60,7 @@ export default function CreateConnection(props: IProps) {
     return deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
       const flag = t.type === backfillData.type;
       if (flag) {
-        t.drive = driveConfig;
+        t.driver = driveConfig;
       }
       return flag
     });
@@ -88,11 +88,11 @@ export default function CreateConnection(props: IProps) {
       const newDataSourceFormConfigProps = deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
         const flag = t.type === backfillData.type;
         if (flag) {
-          t.drive = driveConfig;
+          t.driver = driveConfig;
         }
         return flag
       });
-      newDataSourceFormConfigProps.drive!.items[0].selects = driverObj?.driverConfigList.map(t => {
+      newDataSourceFormConfigProps.driver!.items[0].selects = driverObj?.driverConfigList.map(t => {
         return {
           value: t.jdbcDriver,
           label: t.jdbcDriver
@@ -129,21 +129,21 @@ export default function CreateConnection(props: IProps) {
 
   const getItems = () => [
     {
-      key: 'drive',
-      label: 'Drive',
+      key: 'driver',
+      label: 'Driver',
       children: (
         <div className={styles.sshBox}>
           <RenderForm
             dataSourceFormConfigProps={dataSourceFormConfigProps}
             backfillData={backfillData!}
             form={driveForm}
-            tab="drive"
+            tab="driver"
           />
           <div className={styles.downloadDriveFooter}>
             {
-              !!driverObj?.driverConfigList?.length ? <div></div> : <div onClick={downloadDrive} className={styles.downloadDrive}>
+              (!driverObj?.driverConfigList?.length || downloadStatus === DownloadStatus.Success) ? <div onClick={downloadDrive} className={styles.downloadDrive}>
                 {
-                  (downloadStatus === DownloadStatus.Default) && <div className={styles.downloadText}>Download</div>
+                  (downloadStatus === DownloadStatus.Default) && <div className={classnames(styles.downloadText, styles.downloadTextDownload)}>{i18n('connection.text.downloadDriver')}</div>
                 }
                 {
                   (downloadStatus === DownloadStatus.Loading) && <div className={styles.downloadText}>Downloading</div>
@@ -151,8 +151,11 @@ export default function CreateConnection(props: IProps) {
                 {
                   (downloadStatus === DownloadStatus.Error) && <div className={classnames(styles.downloadText, styles.downloadTextError)}>Try again download</div>
                 }
-                {i18n('connection.title.driver')}
-              </div>
+                {
+                  (downloadStatus === DownloadStatus.Success) && <div className={classnames(styles.downloadText, styles.downloadTextSuccess)}>{i18n('connection.text.downloadSuccess')}</div>
+                }
+
+              </div> : <div></div>
             }
 
             <div
@@ -279,6 +282,7 @@ export default function CreateConnection(props: IProps) {
     setDownloadStatus(DownloadStatus.Loading)
     connectionService.downloadDriver({ dbType: backfillData.type }).then(res => {
       setDownloadStatus(DownloadStatus.Success)
+      getDriverList();
     }).catch(() => {
       setDownloadStatus(DownloadStatus.Error)
     })
@@ -312,7 +316,7 @@ export default function CreateConnection(props: IProps) {
           <div className={styles.baseInfoBox}>
             <RenderForm dataSourceFormConfigProps={dataSourceFormConfigProps} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
           </div>
-          <Collapse defaultActiveKey={['drive']} items={getItems()} />
+          <Collapse defaultActiveKey={['driver']} items={getItems()} />
           <div className={styles.formFooter}>
             <div className={styles.test}>
               {
@@ -398,7 +402,7 @@ function RenderForm(props: IRenderFormProps) {
     if (tab === 'ssh') {
       regEXFormatting({}, backfillData.ssh || {});
     }
-    if (tab === 'drive') {
+    if (tab === 'driver') {
       regEXFormatting({}, backfillData.driverConfig || {});
     }
   }, [backfillData]);
