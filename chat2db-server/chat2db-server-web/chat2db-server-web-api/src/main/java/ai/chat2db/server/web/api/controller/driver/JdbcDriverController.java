@@ -2,16 +2,21 @@ package ai.chat2db.server.web.api.controller.driver;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ai.chat2db.server.domain.api.service.JdbcDriverService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.web.api.controller.driver.request.JdbcDriverRequest;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.util.JdbcJarUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,6 +49,7 @@ public class JdbcDriverController {
 
     /**
      * 下载驱动
+     *
      * @param dbType
      * @return
      */
@@ -57,17 +63,13 @@ public class JdbcDriverController {
      * 上传驱动
      *
      * @param multipartFiles
-     * @param jdbcDriverClass
      * @return
      */
     @PostMapping("/upload")
-    public ActionResult upload(@RequestParam MultipartFile[] multipartFiles, @RequestParam String jdbcDriverClass,
-        @RequestParam String dbType) {
-        StringBuilder stringBuilder = new StringBuilder();
+    public ListResult<String> upload(@RequestParam MultipartFile[] multipartFiles) {
+        List<String> list = new ArrayList<>();
         for (int i = 0; i < multipartFiles.length; i++) {
-            if (i > 0) {
-                stringBuilder.append(",");
-            }
+
             MultipartFile multipartFile = multipartFiles[i];
             String originalFilename = FilenameUtils.getName(multipartFile.getOriginalFilename());
             String location = JdbcJarUtils.PATH + originalFilename;
@@ -76,10 +78,22 @@ public class JdbcDriverController {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            stringBuilder.append(originalFilename);
+            list.add(originalFilename);
         }
-        return jdbcDriverService.upload(dbType, jdbcDriverClass, stringBuilder.toString());
+        return ListResult.of(list);
+    }
 
+    /**
+     * save
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/save")
+    public ActionResult save(@RequestBody JdbcDriverRequest request) {
+
+        return jdbcDriverService.upload(request.getDbType(), request.getJdbcDriverClass(),
+            String.join(",", request.getJdbcDriver()));
     }
 
     ///**
