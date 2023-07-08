@@ -306,6 +306,12 @@ function Console(props: IProps) {
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
+              if(tables.length > 8){
+                message.warning({
+                  content: i18n('chat.input.tableSelect.error.TooManyTable')
+                })
+                return;
+              }
               setSelectedTables(tables);
             }}
             onClickRemainBtn={() => {
