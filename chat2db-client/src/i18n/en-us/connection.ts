@@ -17,7 +17,7 @@ export default {
   'connection.message.testSshConnection': 'Test the ssh connection',
   'connection.tableHeader.name': 'Name',
   'connection.tableHeader.value': 'Value',
-  'connection.title.uploadDriver': 'Upload Driver',
+  'connection.title.uploadDriver': 'Upload',
   'connection.tips.customUpload': "Upload driver",
   'connection.title.driver': 'Driver',
   'connection.button.clickUpload': 'Click to Upload',

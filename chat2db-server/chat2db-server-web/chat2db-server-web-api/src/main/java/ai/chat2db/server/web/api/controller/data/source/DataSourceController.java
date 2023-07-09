@@ -38,6 +38,7 @@ import com.jcraft.jsch.Session;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -179,6 +180,11 @@ public class DataSourceController {
     public DataResult<DataSourceVO> queryById(@PathVariable("id") Long id) {
         DataResult<DataSource> dataResult = dataSourceService.queryById(id);
         DataSourceVO dataSourceVO = dataSourceWebConverter.dto2vo(dataResult.getData());
+        if(StringUtils.isNotBlank(dataSourceVO.getUser())){
+            dataSourceVO.setAuthenticationType("1");
+        }else {
+            dataSourceVO.setAuthenticationType("2");
+        }
         return DataResult.of(dataSourceVO);
     }
 

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.spi.model.*;
 
 import cn.hutool.core.date.TimeInterval;
@@ -94,6 +95,7 @@ public class SQLExecutor {
 
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
+            stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
             TimeInterval timeInterval = new TimeInterval();
             boolean query = stmt.execute(sql.replaceFirst(";", ""));
             executeResult.setDescription("执行成功");
@@ -121,7 +123,9 @@ public class SQLExecutor {
                     List<List<String>> dataList = Lists.newArrayList();
                     executeResult.setDataList(dataList);
 
-                    while (rs.next()) {
+                    int n = 0;
+                    while (rs.next() && n < EasyToolsConstant.MAX_PAGE_SIZE) {
+                        n++;
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
