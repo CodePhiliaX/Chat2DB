@@ -177,7 +177,7 @@ function Console(props: IProps) {
     if (shouldPoll) {
       let pollCnt = 0;
       aiFetchIntervalRef.current = setInterval(async () => {
-        const { apiKey } = await aiServer.getLoginQrCode({ token });
+        const { apiKey } = await aiServer.getLoginStatus({ token });
         pollCnt++;
         if (apiKey || pollCnt >= 60) {
           clearInterval(aiFetchIntervalRef.current);
@@ -192,7 +192,7 @@ function Console(props: IProps) {
             },
           });
         }
-      }, 1000);
+      }, 3000);
     }
   };
 
