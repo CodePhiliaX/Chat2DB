@@ -2,7 +2,7 @@ import { IChartItem, IDashboardItem, IPageResponse } from '@/typings';
 import { ILoginAndQrCode, IRemainingUse } from '@/typings/ai';
 import createRequest from './base';
 
-const getRemainingUse = createRequest<{ key: string }, IRemainingUse>('/api/client/remaininguses/:key', {
+const getRemainingUse = createRequest<{ key: string }, IRemainingUse>('/api/ai/config/remaininguses/:key', {
   errorLevel: false,
 });
 
