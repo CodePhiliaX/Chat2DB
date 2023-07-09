@@ -98,9 +98,9 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             String bodyString = null;
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("OpenAI  sse连接异常data：{}，异常：{}", bodyString, t);
+                log.error("OpenAI  sse连接异常data：{}", bodyString, t);
             } else {
-                log.error("OpenAI  sse连接异常data：{}，异常：{}", response, t);
+                log.error("OpenAI  sse连接异常data：{}", response, t);
             }
             eventSource.cancel();
             Message message = new Message();
