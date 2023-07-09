@@ -407,6 +407,7 @@ function RenderForm(props: IRenderFormProps) {
     const name = t.name;
     const width = t?.styles?.width || '100%';
     const labelWidth = isEn ? t?.styles?.labelWidthEN || '100px' : t?.styles?.labelWidthCN || '70px';
+    const placeholder = isEn ? t.placeholderEN : t.placeholder;
     const labelAlign = t?.styles?.labelAlign || 'left';
 
     const FormItemTypes: { [key in InputType]: () => React.ReactNode } = {
@@ -417,7 +418,7 @@ function RenderForm(props: IRenderFormProps) {
           style={{ '--form-label-width': labelWidth } as any}
           labelAlign={labelAlign}
         >
-          <Input />
+          <Input placeholder={placeholder} />
         </Form.Item>
       ),
 
@@ -429,6 +430,7 @@ function RenderForm(props: IRenderFormProps) {
           labelAlign={labelAlign}
         >
           <Select
+            placeholder={placeholder}
             value={t.defaultValue}
             onChange={(e) => {
               selectChange({ name: name, value: e });

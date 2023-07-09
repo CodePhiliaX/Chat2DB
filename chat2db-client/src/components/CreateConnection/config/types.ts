@@ -20,6 +20,8 @@ export interface IFormItem {
   selected?: any;
   selects?: ISelect[];
   labelTextAlign?: 'right';
+  placeholder?: string;
+  placeholderEN?: string;
   styles?: {
     width?: string; // 表单占用的长度 推荐百分比 默认值为 100%
     labelWidthEN?: string; // 英文环境下表单label的长度 推荐px 默认值为 70px
