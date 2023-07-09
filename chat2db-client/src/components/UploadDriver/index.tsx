@@ -50,7 +50,7 @@ export default memo<IProps>(function UploadDriver(props) {
   return <div className={classnames(styles.box, className)}>
     <div>
       <Form
-        labelCol={{ span: 5 }}
+        labelCol={{ span: 3 }}
         wrapperCol={{ span: 16 }}
       >
         <Form.Item label="Class">

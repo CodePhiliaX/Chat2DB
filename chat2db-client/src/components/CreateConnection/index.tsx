@@ -3,17 +3,19 @@ import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 
-import connectionService, { IDriverResponse } from '@/service/connection';
+import connectionService from '@/service/connection';
 
 import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
+import { AuthenticationType } from './config/enum';
 import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
 import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 
 const { Option } = Select;
@@ -33,13 +35,6 @@ interface IProps {
   submitCallback?: Function;
 }
 
-enum DownloadStatus {
-  Default,
-  Loading,
-  Error,
-  Success
-}
-
 export default function CreateConnection(props: IProps) {
   const { className, closeCreateConnection, submitCallback, connectionData } = props;
   const [baseInfoForm] = Form.useForm();
@@ -49,7 +44,8 @@ export default function CreateConnection(props: IProps) {
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
-    backfillDataLoading: false
+    backfillDataLoading: false,
+    sshTestLoading: false
   });
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
@@ -80,11 +76,6 @@ export default function CreateConnection(props: IProps) {
       if (!res) {
         return;
       }
-      if (res.user) {
-        res.authentication = 1;
-      } else {
-        res.authentication = 2;
-      }
       setBackfillData(res);
     }).finally(() => {
       setTimeout(() => {
@@ -102,12 +93,14 @@ export default function CreateConnection(props: IProps) {
 
   const getItems = () => [
     {
+      forceRender: true,
       key: 'driver',
       label: i18n('connection.title.driver'),
       children: <Driver backfillData={backfillData} onChange={driverFormChange}></Driver>,
     },
     {
       key: 'ssh',
+      forceRender: true,
       label: i18n('connection.label.sshConfiguration'),
       children: (
         <div className={styles.sshBox}>
@@ -118,6 +111,7 @@ export default function CreateConnection(props: IProps) {
             tab="ssh"
           />
           <div className={styles.testSSHConnect}>
+            {loadings.sshTestLoading && <LoadingGracile></LoadingGracile>}
             <div onClick={testSSH} className={styles.testSSHConnectText}>
               {i18n('connection.message.testSshConnection')}
             </div>
@@ -126,6 +120,7 @@ export default function CreateConnection(props: IProps) {
       ),
     },
     {
+      forceRender: true,
       key: 'extendInfo',
       label: i18n('connection.label.advancedConfiguration'),
       children: (
@@ -209,9 +204,19 @@ export default function CreateConnection(props: IProps) {
   }
 
   function testSSH() {
+
     let p = sshForm.getFieldsValue();
+    setLoading({
+      ...loadings,
+      sshTestLoading: true
+    })
     connectionService.testSSH(p).then((res) => {
       message.success(i18n('connection.message.testConnectResult', i18n('common.text.successful')));
+    }).finally(() => {
+      setLoading({
+        ...loadings,
+        sshTestLoading: false
+      })
     });
   }
 
@@ -269,7 +274,8 @@ interface IRenderFormProps {
 function RenderForm(props: IRenderFormProps) {
   const { tab, form, backfillData, dataSourceFormConfigProps } = props;
   useEffect(() => {
-    form.resetFields()
+    form.resetFields();
+    changeDataSourceFormConfig(backfillData);
   }, [backfillData.id, backfillData.type])
 
   let aliasChanged = false;
@@ -291,8 +297,6 @@ function RenderForm(props: IRenderFormProps) {
       return;
     }
     if (tab === 'baseInfo') {
-      // TODO:
-      // selectChange({ name: 'authentication', value: backfillData.user ? 1 : 2 });
       regEXFormatting({ url: backfillData.url }, backfillData);
     }
 
@@ -303,6 +307,21 @@ function RenderForm(props: IRenderFormProps) {
       regEXFormatting({}, backfillData.driverConfig || {});
     }
   }, [backfillData]);
+
+  function changeDataSourceFormConfig(backfillData: any) {
+    // TODO: select 联动下级只处理了ssh和baseInfo 这种方法也待改造
+    dataSourceFormConfig.ssh.items.forEach((t: IFormItem) => {
+      if (t.selects) {
+        t.defaultValue = backfillData?.ssh?.[t.name] || 'password'
+      }
+    });
+    dataSourceFormConfig.baseInfo.items.forEach((t: IFormItem) => {
+      if (t.selects) {
+        t.defaultValue = backfillData[t.name] || AuthenticationType.USERANDPASSWORD
+      }
+    });
+    setDataSourceFormConfig({ ...dataSourceFormConfig })
+  }
 
   function initialFormData(dataSourceFormConfig: IFormItem[] | undefined) {
     let initValue: any = {};
@@ -407,6 +426,7 @@ function RenderForm(props: IRenderFormProps) {
     const name = t.name;
     const width = t?.styles?.width || '100%';
     const labelWidth = isEn ? t?.styles?.labelWidthEN || '100px' : t?.styles?.labelWidthCN || '70px';
+    const placeholder = isEn ? t.placeholderEN : t.placeholder;
     const labelAlign = t?.styles?.labelAlign || 'left';
 
     const FormItemTypes: { [key in InputType]: () => React.ReactNode } = {
@@ -417,7 +437,7 @@ function RenderForm(props: IRenderFormProps) {
           style={{ '--form-label-width': labelWidth } as any}
           labelAlign={labelAlign}
         >
-          <Input />
+          <Input placeholder={placeholder} />
         </Form.Item>
       ),
 
@@ -429,13 +449,14 @@ function RenderForm(props: IRenderFormProps) {
           labelAlign={labelAlign}
         >
           <Select
+            placeholder={placeholder}
             value={t.defaultValue}
             onChange={(e) => {
               selectChange({ name: name, value: e });
             }}
           >
             {t.selects?.map((t: ISelect) => (
-              <Option key={t.value} value={t.value}>
+              <Option key={t.value?.toString()} value={t.value}>
                 {t.label}
               </Option>
             ))}
@@ -465,6 +486,7 @@ function RenderForm(props: IRenderFormProps) {
           {FormItemTypes[t.inputType]()}
         </div>
         {t.selects?.map((item) => {
+          console.log(t.defaultValue,)
           if (t.defaultValue === item.value) {
             return item.items?.map((t) => renderFormItem(t));
           }

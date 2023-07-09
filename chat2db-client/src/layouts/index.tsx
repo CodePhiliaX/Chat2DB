@@ -24,7 +24,7 @@ import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import { NotificationInstance } from 'antd/es/notification/interface';
 import { ModalStaticFunctions } from 'antd/es/modal/confirm';
-import Sub from './sub'
+import Sub from './sub';
 declare global {
   interface Window {
     _Lang: string;
@@ -81,7 +81,6 @@ const restartCount = 200;
 
 let staticNotification: NotificationInstance;
 
-
 function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
@@ -91,7 +90,6 @@ function AppContainer() {
   const { notification } = App.useApp();
 
   // staticNotification = staticFunction.notification
-
 
   useEffect(() => {
     let date = new Date('2030-12-30 12:30:00').toUTCString();
@@ -196,12 +194,12 @@ function AppContainer() {
                   </div>
                 )}
                 <div className={styles.hint}>
-                  <Setting text={i18n('common.text.setting')} />
+                  <Setting />
                 </div>
                 {serviceFail && (
                   <>
                     <div className={styles.github}>
-                      {i18n('common.text.contactUs')}-github：
+                      {i18n('common.text.contactUs')}：
                       <a target="_blank" href="https://github.com/chat2db/Chat2DB">
                         github
                       </a>
