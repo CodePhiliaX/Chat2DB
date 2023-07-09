@@ -3,11 +3,8 @@ package ai.chat2db.server.tools.base.wrapper.result;
 import java.io.Serializable;
 import java.util.function.Function;
 
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.wrapper.Result;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -27,7 +24,6 @@ public class DataResult<T> implements Serializable, Result<T> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**

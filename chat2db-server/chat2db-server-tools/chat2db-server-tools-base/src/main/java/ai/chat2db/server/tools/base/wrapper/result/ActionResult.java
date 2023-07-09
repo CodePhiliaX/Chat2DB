@@ -5,8 +5,6 @@ import java.io.Serializable;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.wrapper.Result;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -27,7 +25,6 @@ public class ActionResult implements Serializable, Result {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**

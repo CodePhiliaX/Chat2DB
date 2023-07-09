@@ -31,7 +31,6 @@ public class ListResult<T> implements Serializable, Result<T> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**
