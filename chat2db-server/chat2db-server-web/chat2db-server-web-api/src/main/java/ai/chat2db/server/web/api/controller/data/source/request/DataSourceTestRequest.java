@@ -47,7 +47,10 @@ public class DataSourceTestRequest {
     @NotNull
     private String type;
 
-
+    /**
+     * 认证类型
+     */
+    private String authenticationType;
 
     /**
      * host
