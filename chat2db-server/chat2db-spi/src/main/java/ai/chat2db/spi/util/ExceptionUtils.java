@@ -20,7 +20,7 @@ public class ExceptionUtils {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             throwable.printStackTrace(pw);
-            errorDetail = "\r\n" + sw.toString() + "\r\n";
+            errorDetail = " \r\n " + sw.toString() + " \r\n ";
             sw.close();
             pw.close();
         } catch (Exception e2) {
