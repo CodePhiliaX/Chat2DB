@@ -103,8 +103,8 @@ public class Chat2DBContext {
                 if (session != null) {
                     url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
                 }
-            }catch (Exception e){
-                throw new ConnectionException("connection.ssh.error",null,e);
+            } catch (Exception e) {
+                throw new ConnectionException("connection.ssh.error", null, e);
             }
             try {
                 DriverConfig config = connectInfo.getDriverConfig();
@@ -133,7 +133,7 @@ public class Chat2DBContext {
                     } catch (Exception e) {
                     }
                 }
-                throw new BusinessException("connection.error",null,e1);
+                throw new BusinessException("connection.error", null, e1);
             }
             connectInfo.setSession(session);
             connectInfo.setConnection(connection);
@@ -167,7 +167,17 @@ public class Chat2DBContext {
             } catch (SQLException e) {
                 log.error("close connection error", e);
             }
+
             CONNECT_INFO_THREAD_LOCAL.remove();
+
+            Session session = connectInfo.getSession();
+            if (session != null && session.isConnected() && connectInfo.getSsh() != null
+                && connectInfo.getSsh().isUse()) {
+                try {
+                    session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
+                } catch (JSchException e) {
+                }
+            }
         }
     }
 

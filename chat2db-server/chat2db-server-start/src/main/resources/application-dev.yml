@@ -13,3 +13,7 @@ spring:
 # 端口号
 server:
   port: 10821
+
+chat2db:
+  gateway:
+    base-url:  http://yfqwxv.natappfree.cc

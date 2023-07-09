@@ -12,6 +12,7 @@ import ai.chat2db.server.domain.api.param.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
+import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.ssh.SSHManager;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -99,7 +100,7 @@ public class DataSourceController {
             session = SSHManager.getSSHSession(sshWebConverter.toInfo(request));
         } catch (Exception e) {
             log.error("sshConnect error", e);
-            throw new RuntimeException(e);
+            throw new ConnectionException("connection.ssh.error",null,e);
         } finally {
             if (session != null) {
                 session.disconnect();

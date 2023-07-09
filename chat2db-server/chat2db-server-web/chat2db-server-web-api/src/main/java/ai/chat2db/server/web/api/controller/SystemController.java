@@ -6,7 +6,7 @@ package ai.chat2db.server.web.api.controller;
 
 import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.common.config.AliDbhubProperties;
+import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.ssh.SSHManager;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class SystemController {
     private ApplicationContext applicationContext;
 
     @Autowired
-    private AliDbhubProperties aliDbhubProperties;
+    private Chat2dbProperties chat2dbProperties;
 
     /**
      * 检测是否成功
@@ -53,7 +53,7 @@ public class SystemController {
      */
     @GetMapping("/get-version-a")
     public DataResult<String> getVersion() {
-        return DataResult.of(aliDbhubProperties.getVersion());
+        return DataResult.of(chat2dbProperties.getVersion());
     }
 
     /**
