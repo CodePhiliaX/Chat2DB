@@ -74,3 +74,4 @@ logbook:
 # Http Client
 forest:
   connect-timeout: 3000
+  log-response-content: true
