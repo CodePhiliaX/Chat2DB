@@ -32,7 +32,6 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**
