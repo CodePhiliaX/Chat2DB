@@ -32,9 +32,10 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
-ali:
-  dbhub:
-    version: 1.0.0
+      
+chat2db:
+  version: 1.0.0
+
 # flywaydb 输出执行sql的日志
 logging:
   level:
@@ -69,3 +70,7 @@ chatgpt:
 logbook:
   include:
     - /api/**
+
+# Http Client
+forest:
+  connect-timeout: 3000
