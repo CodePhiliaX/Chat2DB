@@ -77,6 +77,9 @@ function Setting(props: IProps) {
     });
     dispatch({
       type: 'ai/fetchRemainingUse',
+      payload: {
+        key: payload.key,
+      },
     });
   };
   const menusList = [
