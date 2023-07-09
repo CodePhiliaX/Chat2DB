@@ -21,9 +21,9 @@ import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.ssh.SSHManager;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * jdbc工具类
@@ -235,10 +235,12 @@ public class JdbcUtils {
             }
             if (session != null) {
                 try {
-                    session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    if(StringUtils.isNotBlank(ssh.getLocalPort())) {
+                        session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    }
                     session.disconnect();
+                } catch (Exception e) {
 
-                } catch (JSchException e) {
                 }
             }
         }
