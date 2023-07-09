@@ -32,7 +32,6 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
     /**
      * 异常编码
