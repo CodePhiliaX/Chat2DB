@@ -24,7 +24,7 @@ enum DownloadStatus {
 
 export default memo<IProps>(function Driver(props) {
   const { className, backfillData, onChange } = props;
-  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>();
+  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>(DownloadStatus.Default);
   const [driverForm] = Form.useForm();
   const [driverObj, setDriverObj] = useState<IDriverResponse>();
   const [uploadDriverModal, setUploadDriverModal] = useState(false);
@@ -47,7 +47,10 @@ export default memo<IProps>(function Driver(props) {
 
   function getDriverList() {
     connectionService.getDriverList({ dbType: backfillData.type }).then(res => {
-      setDriverObj(res)
+      setDriverObj({
+        ...res,
+        driverConfigList: res.driverConfigList || []
+      });
       if (res.driverConfigList?.length && !backfillData?.driverConfig?.jdbcDriver) {
         driverForm.setFieldsValue({
           jdbcDriverClass: res.driverConfigList[0].jdbcDriverClass,
@@ -110,7 +113,7 @@ export default memo<IProps>(function Driver(props) {
     </Form>
     <div className={styles.downloadDriveFooter}>
       {
-        (!driverObj?.driverConfigList?.length || downloadStatus === DownloadStatus.Success) ? <div onClick={downloadDrive} className={styles.downloadDrive}>
+        ((driverObj?.driverConfigList && !driverObj?.driverConfigList?.length) || downloadStatus === DownloadStatus.Success) ? <div onClick={downloadDrive} className={styles.downloadDrive}>
           {
             (downloadStatus === DownloadStatus.Default) && <div className={classnames(styles.downloadText, styles.downloadTextDownload)}>{i18n('connection.text.downloadDriver')}</div>
           }

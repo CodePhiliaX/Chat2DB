@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ai.chat2db.server.tools.base.excption.BusinessException;
+import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.Plugin;
@@ -101,6 +103,10 @@ public class Chat2DBContext {
                 if (session != null) {
                     url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
                 }
+            }catch (Exception e){
+                throw new ConnectionException("connection.ssh.error",null,e);
+            }
+            try {
                 DriverConfig config = connectInfo.getDriverConfig();
                 if (config == null) {
                     config = getDefaultDriverConfig(connectInfo.getDbType());
@@ -111,27 +117,23 @@ public class Chat2DBContext {
                     connectInfo.getDriverConfig(), connectInfo.getExtendMap());
 
             } catch (Exception e1) {
-                log.error("GetConnect error", e1);
                 if (connection != null) {
                     try {
                         connection.close();
                     } catch (SQLException e) {
-                        log.error("session close error", e);
                     }
                 }
                 if (session != null) {
                     try {
                         session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
                     } catch (JSchException e) {
-                        log.error("session delPortForwardingL error", e);
                     }
                     try {
                         session.disconnect();
                     } catch (Exception e) {
-                        log.error("session disconnect error", e);
                     }
                 }
-                throw new RuntimeException("GetConnect error", e1);
+                throw new BusinessException("connection.error",null,e1);
             }
             connectInfo.setSession(session);
             connectInfo.setConnection(connection);

@@ -15,6 +15,7 @@ import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 
 const { Option } = Select;
@@ -34,13 +35,6 @@ interface IProps {
   submitCallback?: Function;
 }
 
-enum DownloadStatus {
-  Default,
-  Loading,
-  Error,
-  Success
-}
-
 export default function CreateConnection(props: IProps) {
   const { className, closeCreateConnection, submitCallback, connectionData } = props;
   const [baseInfoForm] = Form.useForm();
@@ -50,7 +44,8 @@ export default function CreateConnection(props: IProps) {
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
-    backfillDataLoading: false
+    backfillDataLoading: false,
+    sshTestLoading: false
   });
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
@@ -116,6 +111,7 @@ export default function CreateConnection(props: IProps) {
             tab="ssh"
           />
           <div className={styles.testSSHConnect}>
+            {loadings.sshTestLoading && <LoadingGracile></LoadingGracile>}
             <div onClick={testSSH} className={styles.testSSHConnectText}>
               {i18n('connection.message.testSshConnection')}
             </div>
@@ -208,9 +204,19 @@ export default function CreateConnection(props: IProps) {
   }
 
   function testSSH() {
+
     let p = sshForm.getFieldsValue();
+    setLoading({
+      ...loadings,
+      sshTestLoading: true
+    })
     connectionService.testSSH(p).then((res) => {
       message.success(i18n('connection.message.testConnectResult', i18n('common.text.successful')));
+    }).finally(() => {
+      setLoading({
+        ...loadings,
+        sshTestLoading: false
+      })
     });
   }
 
@@ -275,7 +281,7 @@ function RenderForm(props: IRenderFormProps) {
   let aliasChanged = false;
 
   const [dataSourceFormConfig, setDataSourceFormConfig] = useState<IConnectionConfig>(dataSourceFormConfigProps);
-  console.log(dataSourceFormConfig.ssh.items[5].defaultValue)
+
   useEffect(() => {
     setDataSourceFormConfig(dataSourceFormConfigProps)
   }, [dataSourceFormConfigProps])
@@ -303,6 +309,7 @@ function RenderForm(props: IRenderFormProps) {
   }, [backfillData]);
 
   function changeDataSourceFormConfig(backfillData: any) {
+    // TODO: select 联动下级只处理了ssh和baseInfo 这种方法也待改造
     dataSourceFormConfig.ssh.items.forEach((t: IFormItem) => {
       if (t.selects) {
         t.defaultValue = backfillData?.ssh?.[t.name] || 'password'
@@ -449,7 +456,7 @@ function RenderForm(props: IRenderFormProps) {
             }}
           >
             {t.selects?.map((t: ISelect) => (
-              <Option key={t.value} value={t.value}>
+              <Option key={t.value?.toString()} value={t.value}>
                 {t.label}
               </Option>
             ))}
@@ -479,6 +486,7 @@ function RenderForm(props: IRenderFormProps) {
           {FormItemTypes[t.inputType]()}
         </div>
         {t.selects?.map((item) => {
+          console.log(t.defaultValue,)
           if (t.defaultValue === item.value) {
             return item.items?.map((t) => renderFormItem(t));
           }
