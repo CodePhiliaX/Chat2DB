@@ -1,0 +1,52 @@
+@import '../../../../styles/var.less';
+
+.box {
+  :global {
+    .ant-form-item-row{
+      display: flex;
+    }
+    .ant-form-item-control{
+      flex: 1;
+    }
+    .ant-form-item-label {
+      width: 54px;
+    }
+  }
+}
+
+.downloadDriveFooter{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  .downloadDrive{
+    display: flex;
+    .downloadText{
+      margin-right: 4px;
+      color: var(--color-primary);
+    }
+    .downloadTextDownload{
+      cursor: pointer;
+    }
+    .downloadTextError{
+      color: var(--color-error-text);
+    }
+    .downloadTextLoading{
+      display: flex;
+      align-items: center;
+      .text{
+        margin-left: 4px;
+      }
+    }
+    .downloadTextSuccess{
+      color: var(--color-success-text);
+    }
+  }
+  
+  .uploadCustomDrive{
+    cursor: pointer;
+    &:hover{
+      color: var(--color-primary);
+    }
+  }
+}
