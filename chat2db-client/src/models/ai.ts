@@ -56,8 +56,7 @@ const AIModel: IAIModelType = {
           });
           return;
         }
-        const res = (yield aiService.getRemainingUse(payload)) as IRemainingUse;
-        // TODO: 报错弹框
+        const res = (yield aiService.getRemainingUse({})) as IRemainingUse;
         yield put({
           type: 'setRemainUse',
           payload: res,

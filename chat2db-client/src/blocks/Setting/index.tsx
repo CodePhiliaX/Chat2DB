@@ -40,7 +40,7 @@ function Setting(props: IProps) {
   useEffect(() => {
     configService.getChatGptSystemConfig().then((res: IChatGPTConfig) => {
       if (!res) {
-        return
+        return;
       }
       handleUpdateAiConfig({
         key: res.apiKey,
@@ -77,9 +77,6 @@ function Setting(props: IProps) {
     });
     dispatch({
       type: 'ai/fetchRemainingUse',
-      payload: {
-        key: payload.key,
-      },
     });
   };
   const menusList = [
@@ -111,8 +108,8 @@ function Setting(props: IProps) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-          )}
+          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
+        )}
       </div>
       <TestVersion></TestVersion>
       <Modal
