@@ -46,7 +46,7 @@ const AIModel: IAIModelType = {
     },
   },
   effects: {
-    * fetchRemainingUse({ payload }, { put }) {
+    *fetchRemainingUse({ payload }, { put }) {
       try {
         const { key } = payload;
         if (!key) {
@@ -57,14 +57,13 @@ const AIModel: IAIModelType = {
           return;
         }
         const res = (yield aiService.getRemainingUse(payload)) as IRemainingUse;
+        // TODO: 报错弹框
         yield put({
           type: 'setRemainUse',
           payload: res,
         });
-      }
-      catch {
-
-      }
+        return res;
+      } catch {}
     },
   },
 };

@@ -8,6 +8,7 @@ import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './Monaco
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
+import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
@@ -18,6 +19,7 @@ import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
 import styles from './index.less';
 import { chatErrorCodeArr } from '@/constants/chat';
+import { AiSqlSourceType } from '@/typings/ai';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -98,6 +100,7 @@ function Console(props: IProps) {
   const monacoHint = useRef<any>();
   const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
+  const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
 
   useEffect(() => {
@@ -162,13 +165,48 @@ function Console(props: IProps) {
     return tableList;
   }, [props.tables]);
 
-  const handleAiChat = (content: string, promptType: IPromptType) => {
+  const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
+    const { wechatQrCodeUrl, token } = await aiServer.getLoginQrCode({});
+    // console.log('weiChatConfig', wechatQrCodeUrl, token);
+    setPopularizeModal(true);
+    setModalProps({
+      imageUrl: wechatQrCodeUrl,
+      token,
+    });
+    if (shouldPoll) {
+      let pollCnt = 0;
+      const pollFetch = setInterval(async () => {
+        const { apiKey } = await aiServer.getLoginQrCode({ token });
+        pollCnt++;
+        if (apiKey || pollCnt >= 60) {
+          clearInterval(pollFetch);
+        }
+        if (apiKey) {
+          setPopularizeModal(false);
+          dispatch({
+            type: 'ai/setKeyAndAiType',
+            payload: {
+              key: apiKey,
+              aiType: AiSqlSourceType.CHAT2DBAI,
+            },
+          });
+        }
+      }, 1000);
+    }
+  };
+
+  const handleAiChat = async (content: string, promptType: IPromptType) => {
     // if (!aiModel.remainingUse?.remainingUses) {
     //   popUpPrompts();
     //   return;
     // }
 
-    dispatch({
+    if (!aiModel.keyAndAiType.key) {
+      handleApiKeyEmptyOrGetQrCode(true);
+      return;
+    }
+
+    await dispatch({
       type: 'ai/fetchRemainingUse',
       payload: {
         key: aiModel?.remainingUse?.key,
@@ -196,14 +234,6 @@ function Console(props: IProps) {
       setIsLoading(false);
 
       try {
-        const hasError = chatErrorCodeArr.includes(message);
-        //TODO: 
-        if (hasError) {
-          closeEventSource();
-          setIsLoading(false);
-          return
-        }
-
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
@@ -216,6 +246,19 @@ function Console(props: IProps) {
             setAiContent(chatResult.current);
             chatResult.current = '';
           }
+          return;
+        }
+
+        let hasError = false;
+        chatErrorCodeArr.forEach((err) => {
+          if (message.includes(err)) {
+            hasError = true;
+          }
+        });
+        if (hasError) {
+          closeEventSource();
+          setIsLoading(false);
+          handleApiKeyEmptyOrGetQrCode();
           return;
         }
 
@@ -317,8 +360,8 @@ function Console(props: IProps) {
             onSelectTables={(tables: string[]) => {
               if (tables.length > 8) {
                 message.warning({
-                  content: i18n('chat.input.tableSelect.error.TooManyTable')
-                })
+                  content: i18n('chat.input.tableSelect.error.TooManyTable'),
+                });
                 return;
               }
               setSelectedTables(tables);
@@ -341,7 +384,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -378,7 +421,7 @@ function Console(props: IProps) {
         </Button>
       </div>
       <Modal open={popularizeModal} footer={false} onCancel={() => setPopularizeModal(false)}>
-        <Popularize></Popularize>
+        <Popularize {...modalProps} />
       </Modal>
     </div>
   );

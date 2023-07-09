@@ -5,19 +5,24 @@ import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
-  source?: 'setting'
+  source?: 'setting';
+  imageUrl?: string;
 }
-
+const url = 'https://oss-chat2db.alibaba.com/static/wechat.webp';
 export default memo<IProps>(function Popularize(props) {
-  const { className, source } = props
-  return <div className={classnames(styles.box, className)}>
-    {/* <div className={styles.title}>获取更多次数</div> */}
-    <div className={styles.wechatImg} />
-    <div className={styles.text}>
-      {
-        source === 'setting' ? <p>{i18n('common.text.wechatPopularizeAi2')}</p> : <p>{i18n('common.text.wechatPopularizeAi')}</p>
-      }
-      <p>{i18n('common.text.wechatPopularize')}</p>
+  const { className, source } = props;
+  return (
+    <div className={classnames(styles.box, className)}>
+      {/* <div className={styles.title}>获取更多次数</div> */}
+      <img className={styles.wechatImg} src={props.imageUrl || url} />
+      <div className={styles.text}>
+        {source === 'setting' ? (
+          <p>{i18n('common.text.wechatPopularizeAi2')}</p>
+        ) : (
+          <p>{i18n('common.text.wechatPopularizeAi')}</p>
+        )}
+        <p>{i18n('common.text.wechatPopularize')}</p>
+      </div>
     </div>
-  </div>
-})
+  );
+});
