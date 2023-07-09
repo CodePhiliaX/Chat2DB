@@ -84,7 +84,7 @@ function Connections(props: IProps) {
                 [styles.menuItemActive]: curConnection.id === key,
               })}
               onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
-              onClick={() => {
+              onClick={(event) => {
                 setCurConnection(t.meta);
               }}
             >
@@ -106,7 +106,8 @@ function Connections(props: IProps) {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
                       onClick: async ({ domEvent }) => {
-                        domEvent.preventDefault();
+                        // 禁止冒泡到menuItem
+                        domEvent.stopPropagation();
                         await connectionService.remove({ id: key });
                         setCurConnection({});
                         getConnectionList();
@@ -157,29 +158,29 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-          <div className={styles.dataBaseList}>
-            {databaseTypeList.map((t) => {
-              return (
-                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                  <div className={styles.databaseItemMain}>
-                    <div className={styles.databaseItemLeft}>
-                      <div className={styles.logoBox}>
-                        <Iconfont code={t.icon} />
+            <div className={styles.dataBaseList}>
+              {databaseTypeList.map((t) => {
+                return (
+                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                    <div className={styles.databaseItemMain}>
+                      <div className={styles.databaseItemLeft}>
+                        <div className={styles.logoBox}>
+                          <Iconfont code={t.icon} />
+                        </div>
+                        {t.name}
                       </div>
-                      {t.name}
-                    </div>
-                    <div className={styles.databaseItemRight}>
-                      <Iconfont code="&#xe631;" />
+                      <div className={styles.databaseItemRight}>
+                        <Iconfont code="&#xe631;" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-            {Array.from({ length: 20 }).map((t, index) => {
-              return <div key={index} className={styles.databaseItemSpacer}></div>;
-            })}
-          </div>
-        )}
+                );
+              })}
+              {Array.from({ length: 20 }).map((t, index) => {
+                return <div key={index} className={styles.databaseItemSpacer}></div>;
+              })}
+            </div>
+          )}
       </div>
     </div>
   );
