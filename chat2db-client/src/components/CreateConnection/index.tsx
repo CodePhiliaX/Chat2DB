@@ -486,7 +486,6 @@ function RenderForm(props: IRenderFormProps) {
           {FormItemTypes[t.inputType]()}
         </div>
         {t.selects?.map((item) => {
-          console.log(t.defaultValue,)
           if (t.defaultValue === item.value) {
             return item.items?.map((t) => renderFormItem(t));
           }
