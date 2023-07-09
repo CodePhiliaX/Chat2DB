@@ -34,6 +34,7 @@ export default memo<IProps>(function UploadDriver(props) {
         })
       }
     },
+    accept: "application/java-archive"
   };
 
   useEffect(() => {
