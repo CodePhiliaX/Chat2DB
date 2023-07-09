@@ -23,4 +23,6 @@ export default {
   'connection.button.clickUpload': '点击上传',
   'connection.text.downloadDriver': '下载驱动',
   'connection.text.downloadSuccess': '下载成功',
+  'connection.text.tryAgainDownload': '尝试重新下载',
+  'connection.text.downloading': '下载中...',
 }

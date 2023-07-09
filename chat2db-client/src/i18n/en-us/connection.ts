@@ -23,5 +23,7 @@ export default {
   'connection.button.clickUpload': 'Click to Upload',
   'connection.text.downloadDriver': 'Download Driver',
   'connection.text.downloadSuccess': 'Download Success',
+  'connection.text.tryAgainDownload': 'Try again download',
+  'connection.text.downloading': 'Downloading...',
 
 };

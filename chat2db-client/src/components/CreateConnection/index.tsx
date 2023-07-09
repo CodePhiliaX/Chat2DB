@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import connectionService, { IDriverResponse } from '@/service/connection';
 
 import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
-import { dataSourceFormConfigs, driveConfig } from './config/dataSource';
+import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
 import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
@@ -14,7 +14,7 @@ import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import UploadDriver from '@/components/UploadDriver';
+import Driver from './components/Driver';
 
 const { Option } = Select;
 
@@ -44,31 +44,20 @@ export default function CreateConnection(props: IProps) {
   const { className, closeCreateConnection, submitCallback, connectionData } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
-  const [driveForm] = Form.useForm();
+  const [driveData, setDriveData] = useState<any>({});
   const [backfillData, setBackfillData] = useState<IConnectionDetails>(connectionData);
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
     backfillDataLoading: false
   });
-  const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>(DownloadStatus.Default);
-  const [uploadDriverModal, setUploadDriverModal] = useState(false);
-  const [driverObj, setDriverObj] = useState<IDriverResponse>();
-  const [driverSaved, setDriverSaved] = useState<any>({});
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
     return deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
       const flag = t.type === backfillData.type;
-      if (flag) {
-        t.driver = driveConfig;
-      }
       return flag
     });
   }, []);
-
-  useEffect(() => {
-    getDriverList()
-  }, [backfillData.type])
 
   const [dataSourceFormConfigProps, setDataSourceFormConfigProps] = useState(dataSourceFormConfigPropsMemo);
 
@@ -81,26 +70,6 @@ export default function CreateConnection(props: IProps) {
       getConnectionDetails(backfillData.id);
     }
   }, [backfillData.id]);
-
-  useEffect(() => {
-    if (driverObj?.driverConfigList?.length) {
-      const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
-      const newDataSourceFormConfigProps = deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
-        const flag = t.type === backfillData.type;
-        if (flag) {
-          t.driver = driveConfig;
-        }
-        return flag
-      });
-      newDataSourceFormConfigProps.driver!.items[0].selects = driverObj?.driverConfigList.map(t => {
-        return {
-          value: t.jdbcDriver,
-          label: t.jdbcDriver
-        }
-      })
-      setDataSourceFormConfigProps(newDataSourceFormConfigProps)
-    }
-  }, [driverObj])
 
   function getConnectionDetails(id: number) {
     setLoading({
@@ -127,50 +96,19 @@ export default function CreateConnection(props: IProps) {
     });
   }
 
+  function driverFormChange(data: any) {
+    setDriveData(data)
+  }
+
   const getItems = () => [
     {
       key: 'driver',
-      label: 'Driver',
-      children: (
-        <div className={styles.sshBox}>
-          <RenderForm
-            dataSourceFormConfigProps={dataSourceFormConfigProps}
-            backfillData={backfillData!}
-            form={driveForm}
-            tab="driver"
-          />
-          <div className={styles.downloadDriveFooter}>
-            {
-              (!driverObj?.driverConfigList?.length || downloadStatus === DownloadStatus.Success) ? <div onClick={downloadDrive} className={styles.downloadDrive}>
-                {
-                  (downloadStatus === DownloadStatus.Default) && <div className={classnames(styles.downloadText, styles.downloadTextDownload)}>{i18n('connection.text.downloadDriver')}</div>
-                }
-                {
-                  (downloadStatus === DownloadStatus.Loading) && <div className={styles.downloadText}>Downloading</div>
-                }
-                {
-                  (downloadStatus === DownloadStatus.Error) && <div className={classnames(styles.downloadText, styles.downloadTextError)}>Try again download</div>
-                }
-                {
-                  (downloadStatus === DownloadStatus.Success) && <div className={classnames(styles.downloadText, styles.downloadTextSuccess)}>{i18n('connection.text.downloadSuccess')}</div>
-                }
-
-              </div> : <div></div>
-            }
-
-            <div
-              className={styles.uploadCustomDrive}
-              onClick={() => { setUploadDriverModal(true) }}
-            >
-              {i18n('connection.tips.customUpload')}
-            </div>
-          </div>
-        </div>
-      ),
+      label: i18n('connection.title.driver'),
+      children: <Driver backfillData={backfillData} onChange={driverFormChange}></Driver>,
     },
     {
       key: 'ssh',
-      label: 'SSH Configuration',
+      label: i18n('connection.label.sshConfiguration'),
       children: (
         <div className={styles.sshBox}>
           <RenderForm
@@ -189,7 +127,7 @@ export default function CreateConnection(props: IProps) {
     },
     {
       key: 'extendInfo',
-      label: 'Advanced Configuration',
+      label: i18n('connection.label.advancedConfiguration'),
       children: (
         <div className={styles.extendInfoBox}>
           <RenderExtendTable backfillData={backfillData!}></RenderExtendTable>
@@ -201,7 +139,6 @@ export default function CreateConnection(props: IProps) {
   // 测试、保存、修改连接
   function saveConnection(type: submitType) {
     const ssh = sshForm.getFieldsValue();
-    const driverConfig = driveForm.getFieldsValue()
     const baseInfo = baseInfoForm.getFieldsValue();
     const extendInfo: any = [];
     const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
@@ -216,7 +153,7 @@ export default function CreateConnection(props: IProps) {
 
     let p: any = {
       ssh,
-      driverConfig,
+      driverConfig: driveData,
       ...baseInfo,
       extendInfo,
       connectionEnvType: ConnectionEnvType.DAILY,
@@ -278,33 +215,6 @@ export default function CreateConnection(props: IProps) {
     });
   }
 
-  function downloadDrive() {
-    setDownloadStatus(DownloadStatus.Loading)
-    connectionService.downloadDriver({ dbType: backfillData.type }).then(res => {
-      setDownloadStatus(DownloadStatus.Success)
-      getDriverList();
-    }).catch(() => {
-      setDownloadStatus(DownloadStatus.Error)
-    })
-  }
-
-  function getDriverList() {
-    connectionService.getDriverList({ dbType: backfillData.type }).then(res => {
-      setDriverObj(res)
-    })
-  }
-
-  function formChange(data: any) {
-    setDriverSaved(data)
-  }
-
-  function saveDriver() {
-    connectionService.saveDriver(driverSaved).then(res => {
-      setUploadDriverModal(false)
-      getDriverList()
-    })
-  }
-
   return (
     <div className={classnames(styles.box, className)}>
       <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
@@ -345,19 +255,6 @@ export default function CreateConnection(props: IProps) {
           </div>
         </div>
       </LoadingContent>
-      <Modal
-        destroyOnClose={true}
-        title={i18n('connection.title.uploadDriver')}
-        open={uploadDriverModal}
-        onOk={() => { saveDriver() }}
-        onCancel={() => { setUploadDriverModal(false) }}
-      >
-        <UploadDriver
-          jdbcDriverClass={driverObj?.defaultDriverConfig?.jdbcDriverClass}
-          formChange={formChange}
-          databaseType={backfillData.type}
-        ></UploadDriver>
-      </Modal>
     </div>
   );
 }

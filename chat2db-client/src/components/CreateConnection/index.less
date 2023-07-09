@@ -13,7 +13,8 @@
 }
 
 .connectionBox {
-  width: 65%;
+  width: 100%;
+  box-sizing: border-box;
   flex-shrink: 0;
   padding: 20px 20%;
 }
@@ -107,37 +108,6 @@
     cursor: pointer;
     &:hover {
       text-decoration: underline;
-    }
-  }
-}
-
-.downloadDriveFooter{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  
-  .downloadDrive{
-    display: flex;
-    .downloadText{
-      margin-right: 4px;
-      color: var(--color-primary);
-    }
-    .downloadTextDownload{
-      cursor: pointer;
-    }
-    .downloadTextError{
-      color: var(--color-error-text);
-    }
-
-    .downloadTextSuccess{
-      color: var(--color-success-text);
-    }
-  }
-  
-  .uploadCustomDrive{
-    cursor: pointer;
-    &:hover{
-      color: var(--color-primary);
     }
   }
 }

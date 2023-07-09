@@ -50,11 +50,10 @@ export default memo<IProps>(function UploadDriver(props) {
   return <div className={classnames(styles.box, className)}>
     <div>
       <Form
-        name="basic"
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 16 }}
       >
-        <Form.Item label="jdbcDriverClass">
+        <Form.Item label="Class">
           <Input value={formData.jdbcDriverClass} onChange={onChange} />
         </Form.Item>
         <Form.Item label={i18n('connection.title.uploadDriver')}>
