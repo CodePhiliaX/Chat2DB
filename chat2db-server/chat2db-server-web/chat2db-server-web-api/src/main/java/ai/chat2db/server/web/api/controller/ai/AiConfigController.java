@@ -40,15 +40,26 @@ public class AiConfigController {
     @Resource
     private Chat2dbProperties chat2dbProperties;
 
+
     /**
      * AI configuration information interface
+     *
+     * @return
+     */
+    @GetMapping("/getLoginQrCode")
+    public DataResult<QrCodeResponse> getLoginQrCode() {
+        return gatewayClientService.getLoginQrCode();
+    }
+
+    /**
+     * Query login status
      *
      * @param token
      * @return
      */
-    @GetMapping("/getQrCode")
-    public DataResult<QrCodeResponse> getQrCode(@RequestParam(required = false) String token) {
-        DataResult<QrCodeResponse> dataResult = gatewayClientService.getQrCode(token);
+    @GetMapping("/getLoginStatus")
+    public DataResult<QrCodeResponse> getLoginStatus(@RequestParam(required = false) String token) {
+        DataResult<QrCodeResponse> dataResult = gatewayClientService.getLoginStatus(token);
         QrCodeResponse qrCodeResponse = dataResult.getData();
         // Representative successfully logged in
         if (StringUtils.isNotBlank(qrCodeResponse.getApiKey())) {

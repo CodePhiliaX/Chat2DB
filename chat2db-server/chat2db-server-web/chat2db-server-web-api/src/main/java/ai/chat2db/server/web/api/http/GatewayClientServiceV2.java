@@ -25,15 +25,28 @@ public class GatewayClientServiceV2 {
     /**
      * 获取公众号的二维码
      *
+     * @return
+     */
+    @Get("/api/client/getLoginQrCode")
+    public DataResult<QrCodeResponse> getLoginQrCode() {
+        return Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/getLoginQrCode")
+            .execute(new TypeReference<>() {});
+    }
+
+
+    /**
+     * Query login status
+     *
      * @param token
      * @return
      */
-    @Get("/api/client/getQrCode")
-    public DataResult<QrCodeResponse> getQrCode(@Query("token") String token) {
-        return Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/getQrCode")
+    @Get("/api/client/getLoginStatus")
+    public DataResult<QrCodeResponse> getLoginStatus(@Query("token") String token) {
+        return Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/getLoginStatus")
             .addQuery("token", token)
             .execute(new TypeReference<>() {});
     }
+
 
     /**
      * 返回剩余次数
