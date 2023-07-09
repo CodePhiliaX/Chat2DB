@@ -98,6 +98,7 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- http -->
         <dependency>
             <groupId>com.dtflys.forest</groupId>
             <artifactId>forest-spring-boot-starter</artifactId>
