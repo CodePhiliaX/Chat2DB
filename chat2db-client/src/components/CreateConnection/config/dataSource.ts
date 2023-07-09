@@ -109,7 +109,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
             },
             {
               defaultValue: '',
-              inputType: InputType.INPUT,
+              inputType: InputType.PASSWORD,
               labelNameCN: '密码短语',
               labelNameEN: 'Passphrase',
               name: 'passphrase',

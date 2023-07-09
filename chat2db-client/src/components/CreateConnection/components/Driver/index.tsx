@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { i18n, isEn } from '@/i18n';
-import { Form, Modal, Input, Select, Spin } from 'antd';
+import { Form, Modal, Input, Select } from 'antd';
 import connectionService, { IDriverResponse } from '@/service/connection';
 import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
 import UploadDriver from '@/components/UploadDriver';
