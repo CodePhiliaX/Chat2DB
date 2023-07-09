@@ -100,7 +100,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
             {
               defaultValue: '',
               inputType: InputType.INPUT,
-              labelNameCN: 'Private key file',
+              labelNameCN: '密钥文件',
               labelNameEN: 'Private key file',
               name: 'keyFile',
               required: true,
@@ -110,14 +110,14 @@ export const sshConfig: IConnectionConfig['ssh'] = {
             {
               defaultValue: '',
               inputType: InputType.INPUT,
-              labelNameCN: 'Passphrase',
+              labelNameCN: '密码短语',
               labelNameEN: 'Passphrase',
               name: 'passphrase',
               required: true,
             },
           ],
-          label: 'private',
-          value: 'privateKey',
+          label: 'Private key',
+          value: 'keyFile',
         },
       ],
       styles: {
@@ -172,7 +172,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -281,7 +281,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -427,7 +427,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -526,7 +526,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -662,7 +662,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -809,7 +809,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -918,7 +918,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1027,7 +1027,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1141,7 +1141,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1260,7 +1260,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1379,7 +1379,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1498,7 +1498,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1617,7 +1617,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1736,7 +1736,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
@@ -1855,7 +1855,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '身份验证',
           labelNameEN: 'Authentication',
-          name: 'authentication',
+          name: 'authenticationType',
           required: true,
           selects: [
             {
