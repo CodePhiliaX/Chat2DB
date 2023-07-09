@@ -209,6 +209,9 @@ function Console(props: IProps) {
 
     await dispatch({
       type: 'ai/fetchRemainingUse',
+      payload: {
+        key: aiModel?.remainingUse?.key,
+      },
     });
 
     const { dataSourceId, databaseName, schemaName } = executeParams;
