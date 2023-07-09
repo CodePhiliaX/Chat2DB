@@ -2,7 +2,7 @@ import { InputType, AuthenticationType, SSHAuthenticationType } from './enum';
 import { DatabaseTypeCode, OperationColumn } from '@/constants';
 
 export type ISelect = {
-  value?: AuthenticationType | SSHAuthenticationType | string;
+  value?: AuthenticationType | SSHAuthenticationType | string | boolean;
   label?: string;
   rest?: {
     [key in string]: any
