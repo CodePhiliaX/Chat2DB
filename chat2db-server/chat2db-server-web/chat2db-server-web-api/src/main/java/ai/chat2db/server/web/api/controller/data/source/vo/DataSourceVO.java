@@ -41,6 +41,10 @@ public class DataSourceVO {
     private String password;
 
     /**
+     * 认证类型
+     */
+    private String authenticationType;
+    /**
      * 连接类型
      */
     private String type;
