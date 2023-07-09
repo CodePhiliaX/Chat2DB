@@ -1,5 +1,8 @@
 package ai.chat2db.server.web.api.controller.ai;
 
+import java.util.Objects;
+
+import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -14,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,7 +41,6 @@ public class AiConfigController {
     private ConfigService configService;
     @Resource
     private Chat2dbProperties chat2dbProperties;
-
 
     /**
      * AI configuration information interface
@@ -79,12 +80,13 @@ public class AiConfigController {
     /**
      * Return remaining times
      *
-     * @param key
      * @return
      */
-    @GetMapping("/remaininguses/{key}")
-    public DataResult<ApiKeyResponse> remaininguses(@PathVariable String key) {
-        return gatewayClientService.remaininguses(key);
+    @GetMapping("/remaininguses")
+    public DataResult<ApiKeyResponse> remaininguses() {
+        DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+        return gatewayClientService.remaininguses(
+            Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
     }
 
 }
