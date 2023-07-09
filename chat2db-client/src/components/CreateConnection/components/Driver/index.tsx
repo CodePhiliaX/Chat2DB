@@ -25,7 +25,7 @@ enum DownloadStatus {
 export default memo<IProps>(function Driver(props) {
   const { className, backfillData, onChange } = props;
   const [downloadStatus, setDownloadStatus] = useState<DownloadStatus>();
-  const [driveForm] = Form.useForm();
+  const [driverForm] = Form.useForm();
   const [driverObj, setDriverObj] = useState<IDriverResponse>();
   const [uploadDriverModal, setUploadDriverModal] = useState(false);
   const [driverSaved, setDriverSaved] = useState<any>({});
@@ -38,7 +38,7 @@ export default memo<IProps>(function Driver(props) {
 
   useEffect(() => {
     if (backfillData) {
-      driveForm.setFieldsValue({
+      driverForm.setFieldsValue({
         jdbcDriverClass: backfillData?.driverConfig?.jdbcDriverClass,
         jdbcDriver: backfillData?.driverConfig?.jdbcDriver
       })
@@ -48,6 +48,12 @@ export default memo<IProps>(function Driver(props) {
   function getDriverList() {
     connectionService.getDriverList({ dbType: backfillData.type }).then(res => {
       setDriverObj(res)
+      if (res.driverConfigList?.length) {
+        driverForm.setFieldsValue({
+          jdbcDriverClass: res.driverConfigList[0].jdbcDriverClass,
+          jdbcDriver: res.driverConfigList[0].jdbcDriver
+        })
+      }
     })
   }
 
@@ -65,7 +71,7 @@ export default memo<IProps>(function Driver(props) {
   function downloadDrive() {
     setDownloadStatus(DownloadStatus.Loading)
     connectionService.downloadDriver({ dbType: backfillData.type }).then(res => {
-      // setDownloadStatus(DownloadStatus.Success)
+      setDownloadStatus(DownloadStatus.Success);
       getDriverList();
     }).catch(() => {
       setDownloadStatus(DownloadStatus.Error)
@@ -74,7 +80,7 @@ export default memo<IProps>(function Driver(props) {
 
   function onValuesChange(data: any) {
     const selected = driverObj?.driverConfigList.find(t => t.jdbcDriver === data.jdbcDriver);
-    driveForm.setFieldsValue({
+    driverForm.setFieldsValue({
       jdbcDriverClass: selected?.jdbcDriverClass
     });
     onChange({
@@ -85,7 +91,7 @@ export default memo<IProps>(function Driver(props) {
 
   return <div className={classnames(styles.box, className)}>
     <Form
-      form={driveForm}
+      form={driverForm}
       onValuesChange={onValuesChange}
       colon={false}
     >
@@ -124,7 +130,7 @@ export default memo<IProps>(function Driver(props) {
             (downloadStatus === DownloadStatus.Success) && <div className={classnames(styles.downloadText, styles.downloadTextSuccess)}>{i18n('connection.text.downloadSuccess')}</div>
           }
 
-        </div> : <div></div>
+        </div> : <div />
       }
 
       <div

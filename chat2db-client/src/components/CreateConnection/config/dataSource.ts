@@ -39,6 +39,8 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       labelNameEN: 'Port',
       name: 'port',
       required: false,
+      placeholder: '不必填',
+      placeholderEN: '不必填',
       styles: {
         width: '30%',
         labelWidthEN: '40px',
@@ -55,7 +57,6 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       required: false,
       styles: {
         width: '70%',
-
       }
     },
     {
