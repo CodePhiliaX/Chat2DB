@@ -102,6 +102,7 @@ function Console(props: IProps) {
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
+  const aiFetchIntervalRef = useRef<any>();
 
   useEffect(() => {
     if (appendValue) {
@@ -175,11 +176,11 @@ function Console(props: IProps) {
     });
     if (shouldPoll) {
       let pollCnt = 0;
-      const pollFetch = setInterval(async () => {
+      aiFetchIntervalRef.current = setInterval(async () => {
         const { apiKey } = await aiServer.getLoginQrCode({ token });
         pollCnt++;
         if (apiKey || pollCnt >= 60) {
-          clearInterval(pollFetch);
+          clearInterval(aiFetchIntervalRef.current);
         }
         if (apiKey) {
           setPopularizeModal(false);
@@ -420,7 +421,14 @@ function Console(props: IProps) {
           {i18n('common.button.format')}
         </Button>
       </div>
-      <Modal open={popularizeModal} footer={false} onCancel={() => setPopularizeModal(false)}>
+      <Modal
+        open={popularizeModal}
+        footer={false}
+        onCancel={() => {
+          aiFetchIntervalRef.current && clearInterval(aiFetchIntervalRef.current);
+          setPopularizeModal(false);
+        }}
+      >
         <Popularize {...modalProps} />
       </Modal>
     </div>
