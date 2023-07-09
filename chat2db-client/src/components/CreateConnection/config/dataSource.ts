@@ -5,7 +5,7 @@ import { InputType, AuthenticationType, SSHAuthenticationType, OperationColumn }
 export const sshConfig: IConnectionConfig['ssh'] = {
   items: [
     {
-      defaultValue: 'false',
+      defaultValue: false,
       inputType: InputType.SELECT,
       labelNameCN: '使用SSH',
       labelNameEN: 'USE SSH',
@@ -13,10 +13,12 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       required: false,
       selects: [
         {
-          value: 'false',
+          label: 'false',
+          value: false,
         },
         {
-          value: 'true',
+          label: 'true',
+          value: true,
         },
       ],
 
@@ -40,7 +42,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       name: 'port',
       required: false,
       placeholder: '不必填',
-      placeholderEN: '不必填',
+      placeholderEN: 'Need not fill in',
       styles: {
         width: '30%',
         labelWidthEN: '40px',
@@ -72,14 +74,57 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       }
     },
     {
-      defaultValue: '',
-      inputType: InputType.PASSWORD,
-      labelNameCN: '密码',
-      labelNameEN: 'Password',
-      name: 'password',
+      defaultValue: 'password',
+      inputType: InputType.SELECT,
+      labelNameCN: '身份验证',
+      labelNameEN: 'Authentication',
+      name: 'authenticationType',
       required: true,
-
+      selects: [
+        {
+          items: [
+            {
+              defaultValue: '',
+              inputType: InputType.PASSWORD,
+              labelNameCN: '密码',
+              labelNameEN: 'Password',
+              name: 'password',
+              required: true,
+            },
+          ],
+          label: 'password',
+          value: 'password',
+        },
+        {
+          items: [
+            {
+              defaultValue: '',
+              inputType: InputType.INPUT,
+              labelNameCN: 'Private key file',
+              labelNameEN: 'Private key file',
+              name: 'keyFile',
+              required: true,
+              placeholder: '/user/userName/.ssh/xxxx',
+              placeholderEN: '/user/userName/.ssh/xxxx',
+            },
+            {
+              defaultValue: '',
+              inputType: InputType.INPUT,
+              labelNameCN: 'Passphrase',
+              labelNameEN: 'Passphrase',
+              name: 'passphrase',
+              required: true,
+            },
+          ],
+          label: 'private',
+          value: 'privateKey',
+        },
+      ],
+      styles: {
+        width: '50%',
+      }
     },
+
   ]
 }
 
@@ -296,85 +341,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       pattern: /jdbc:postgresql:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:postgresql://{host}:{port}/{database}',
     },
-    ssh: {
-      items: [
-        {
-          defaultValue: 'false',
-          inputType: InputType.SELECT,
-          labelNameCN: '使用SSH',
-          labelNameEN: 'USE SSH',
-          name: 'use',
-          required: false,
-          selects: [
-            {
-              value: 'false',
-            },
-            {
-              value: 'true',
-            },
-          ],
-
-        },
-        {
-          defaultValue: '',
-          inputType: InputType.INPUT,
-          labelNameCN: 'SSH 主机',
-          labelNameEN: 'SSH Hostname',
-          name: 'hostName',
-          required: false,
-          styles: {
-            width: '70%',
-          }
-        },
-        {
-          defaultValue: '',
-          inputType: InputType.INPUT,
-          labelNameCN: 'SSH 端口',
-          labelNameEN: 'Port',
-          name: 'port',
-          required: false,
-          styles: {
-            width: '30%',
-            labelWidthEN: '40px',
-            labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
-        },
-        {
-          defaultValue: '',
-          inputType: InputType.INPUT,
-          labelNameCN: '用户名',
-          labelNameEN: 'SSH UserName',
-          name: 'userName',
-          required: false,
-          styles: {
-            width: '70%',
-
-          }
-        },
-        {
-          defaultValue: '',
-          inputType: InputType.INPUT,
-          labelNameCN: '本地端口',
-          labelNameEN: 'LocalPort',
-          name: 'localPort',
-          required: false,
-          styles: {
-            width: '30%',
-            labelAlign: 'right'
-          }
-        },
-        {
-          defaultValue: '',
-          inputType: InputType.PASSWORD,
-          labelNameCN: '密码',
-          labelNameEN: 'Password',
-          name: 'password',
-          required: true,
-
-        },
-      ]
-    },
+    ssh: sshConfig,
   },
   // ORACLE
   {
