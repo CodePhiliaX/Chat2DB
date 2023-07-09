@@ -6,11 +6,8 @@ const getRemainingUse = createRequest<{ key: string }, IRemainingUse>('/api/clie
   errorLevel: false,
 });
 
-const getLoginQrCode = createRequest<{ token?: string }, ILoginAndQrCode>(
-  'http://zhuangjiaju.free.idcfengye.com/api/ai/config/getLoginQrCode',
-  {
-    isFullPath: true,
-  },
-);
+const getLoginQrCode = createRequest<{ token?: string }, ILoginAndQrCode>('/api/ai/config/getLoginQrCode', {
+  isFullPath: true,
+});
 
 export default { getRemainingUse, getLoginQrCode };
