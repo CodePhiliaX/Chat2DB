@@ -12,3 +12,9 @@ export interface IRemainingUse {
   expiry: number;
   remainingUses: number;
 }
+
+export interface ILoginAndQrCode {
+  token: string;
+  wechatQrCodeUrl: string;
+  apiKey: string;
+}

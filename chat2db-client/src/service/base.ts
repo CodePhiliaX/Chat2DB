@@ -10,7 +10,8 @@ export interface IOptions {
   mock?: boolean;
   errorLevel?: 'toast' | 'prompt' | 'critical' | false;
   delayTime?: number | true;
-  outside?: true;
+  outside?: boolean;
+  isFullPath?: boolean;
 }
 
 // TODO:
@@ -126,8 +127,7 @@ request.interceptors.response.use(async (response, options) => {
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside } = options || {};
-
+  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath } = options || {};
 
   // 是否需要mock
   let _baseURL = (mock ? mockUrl : baseURL) || '';
@@ -164,7 +164,8 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           break;
       }
 
-      const eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+      let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+      eventualUrl = isFullPath ? url : eventualUrl;
 
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {
@@ -177,7 +178,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
                 errorMessage,
                 errorDetail,
                 solutionLink,
-              })
+              });
               // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
