@@ -43,8 +43,12 @@ public class DataSourceCreateRequest {
     private String password;
 
     /**
+     * 认证类型
+     */
+    private String authenticationType;
+
+    /**
      * 连接类型
-     * @see DbTypeEnum
      */
     @NotNull
     private String type;
@@ -100,4 +104,7 @@ public class DataSourceCreateRequest {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+
+
 }

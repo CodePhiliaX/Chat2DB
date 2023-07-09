@@ -35,14 +35,12 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       }
     },
     {
-      defaultValue: '',
+      defaultValue: '22',
       inputType: InputType.INPUT,
       labelNameCN: 'SSH 端口',
       labelNameEN: 'Port',
       name: 'port',
       required: false,
-      placeholder: '不必填',
-      placeholderEN: 'Need not fill in',
       styles: {
         width: '30%',
         labelWidthEN: '40px',
@@ -67,6 +65,8 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       labelNameCN: '本地端口',
       labelNameEN: 'LocalPort',
       name: 'localPort',
+      placeholder: '不必填',
+      placeholderEN: 'Need not fill in',
       required: false,
       styles: {
         width: '30%',
@@ -200,6 +200,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -312,6 +314,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -458,6 +462,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -558,6 +564,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -694,6 +702,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -841,6 +851,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -949,7 +961,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
 
               label: 'NONE',
-              value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1048,7 +1061,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
               label: 'User&Password',
@@ -1057,6 +1069,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
             },
           ],
           styles: {
@@ -1175,6 +1188,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1294,6 +1309,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1413,6 +1430,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1532,6 +1551,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1651,6 +1672,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1770,6 +1793,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {
@@ -1889,6 +1914,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
               label: 'NONE',
               value: AuthenticationType.NONE,
+              items: [],
+
             },
           ],
           styles: {

@@ -5,8 +5,8 @@ export enum InputType {
 }
 
 export enum AuthenticationType {
-  USERANDPASSWORD = 1,
-  NONE = 2,
+  USERANDPASSWORD = '1',
+  NONE = '2',
 }
 
 export enum SSHAuthenticationType {
