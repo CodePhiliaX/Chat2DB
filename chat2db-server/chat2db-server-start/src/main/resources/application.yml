@@ -73,6 +73,6 @@ logbook:
 
 # Http Client
 forest:
-  connect-timeout: 10000
+  connect-timeout: 30000
   log-response-content: true
-  read-timeout: 10000
+  read-timeout: 30000
