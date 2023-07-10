@@ -16,5 +16,5 @@ server:
 
 chat2db:
   gateway:
-    base-url: http://mzwuhh.natappfree.cc
+    base-url: http://test.sqlgpt.cn/gateway
     model-base-url: http://test.sqlgpt.cn/gateway
