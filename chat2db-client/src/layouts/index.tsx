@@ -183,12 +183,12 @@ function AppContainer() {
       {initEnd && (
         <div className={styles.app}>
           {/* 待启动状态 */}
-          {startSchedule === 0 && <div></div>}
+          {/* {startSchedule === 0 && <div></div>} */}
           {/* 服务启动中 */}
           {startSchedule === 1 && (
-            <Spin spinning={!serviceFail}>
+            <>
               <div className={styles.loadingBox}>
-                {!serviceFail && <div>{/* <LoadingLiquid /> */}</div>}
+                <Spin spinning={!serviceFail} />
                 {/* <div className={styles.hint}>
                     <Setting />
                   </div> */}
@@ -206,7 +206,7 @@ function AppContainer() {
                   </>
                 )}
               </div>
-            </Spin>
+            </>
           )}
           {/* 服务启动完成 */}
           {startSchedule === 2 && <Outlet />}
