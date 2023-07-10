@@ -1,5 +1,6 @@
 package ai.chat2db.server.start;
 
+import com.dtflys.forest.springboot.annotation.ForestScan;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Indexed;
 @SpringBootApplication
 @ComponentScan(value = {"ai.chat2db.server"})
 @MapperScan("ai.chat2db.server.domain.repository.mapper")
+@ForestScan(basePackages = "ai.chat2db.server")
 @Indexed
 @EnableCaching
 public class Application {
