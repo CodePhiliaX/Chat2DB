@@ -8,7 +8,9 @@ const getRemainingUse = createRequest<{}, IRemainingUse>('/api/ai/config/remaini
 
 const getLoginQrCode = createRequest<{ token?: string }, ILoginAndQrCode>('/api/ai/config/getLoginQrCode');
 
-const getLoginStatus = createRequest<{ token?: string }, ILoginAndQrCode>('/api/ai/config/getLoginStatus');
+const getLoginStatus = createRequest<{ token?: string }, ILoginAndQrCode>('/api/ai/config/getLoginStatus', {
+  errorLevel: false,
+});
 
 const getInviteQrCode = createRequest<{}, IInviteQrCode>('/api/ai/config/getInviteQrCode');
 
