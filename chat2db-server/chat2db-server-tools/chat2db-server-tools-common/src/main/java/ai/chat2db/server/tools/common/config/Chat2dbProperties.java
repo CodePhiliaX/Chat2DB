@@ -28,5 +28,7 @@ public class Chat2dbProperties {
     public static class GatewayProperties {
 
         private String baseUrl;
+        private String modelBaseUrl;
+
     }
 }

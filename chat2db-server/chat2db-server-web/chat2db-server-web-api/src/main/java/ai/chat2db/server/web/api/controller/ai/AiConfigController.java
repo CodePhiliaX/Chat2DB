@@ -69,9 +69,10 @@ public class AiConfigController {
             configService.createOrUpdate(param);
             SystemConfigParam hostParam = SystemConfigParam.builder()
                 .code(OpenAIClient.OPENAI_HOST)
-                .content(chat2dbProperties.getGateway().getBaseUrl() + "/model")
+                .content(chat2dbProperties.getGateway().getModelBaseUrl() + "/model")
                 .build();
             configService.createOrUpdate(hostParam);
+            OpenAIClient.refresh();
         }
         return dataResult;
     }
