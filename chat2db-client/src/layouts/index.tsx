@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import i18n from '@/i18n';
 import { Outlet } from 'umi';
-import { ConfigProvider, theme, App, Button } from 'antd';
+import { ConfigProvider, theme, App, Button, Spin } from 'antd';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
@@ -24,7 +24,7 @@ import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import { NotificationInstance } from 'antd/es/notification/interface';
 import { ModalStaticFunctions } from 'antd/es/modal/confirm';
-import Sub from './sub';
+
 declare global {
   interface Window {
     _Lang: string;
@@ -85,7 +85,7 @@ function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
-  const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
+  const [startSchedule, setStartSchedule] = useState(1); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
   const { notification } = App.useApp();
 
@@ -186,16 +186,12 @@ function AppContainer() {
           {startSchedule === 0 && <div></div>}
           {/* 服务启动中 */}
           {startSchedule === 1 && (
-            <div className={styles.starting}>
+            <Spin spinning={!serviceFail}>
               <div className={styles.loadingBox}>
-                {!serviceFail && (
-                  <div>
-                    <LoadingLiquid />
-                  </div>
-                )}
-                <div className={styles.hint}>
-                  <Setting />
-                </div>
+                {!serviceFail && <div>{/* <LoadingLiquid /> */}</div>}
+                {/* <div className={styles.hint}>
+                    <Setting />
+                  </div> */}
                 {serviceFail && (
                   <>
                     <div className={styles.github}>
@@ -210,7 +206,7 @@ function AppContainer() {
                   </>
                 )}
               </div>
-            </div>
+            </Spin>
           )}
           {/* 服务启动完成 */}
           {startSchedule === 2 && <Outlet />}
