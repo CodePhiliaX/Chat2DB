@@ -15,29 +15,27 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiKeyResponse {
-
     /**
      * key
      */
     private String key;
 
     /**
-     * Expiration time
+     * 过期时间
      */
     private Long expiry;
 
     /**
-     * Number of uses
+     * 返回
      */
     private Long remainingUses;
 
     /**
-     * WeChat official account url
+     * 微信公众号url
      */
     private String wechatMpUrl;
 
-    /**
-     * https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=TICKET
-     */
-    private String wechatQrCodeUrl;
+    private String invitationWechatQrCodeUrl;
+
+    private String invitationTip;
 }
