@@ -105,6 +105,7 @@ const workspace = memo<IProps>((props) => {
   }, [databaseAndSchema]);
 
   useEffect(() => {
+    clearData();
     if (curConnection?.id) {
       dispatch({
         type: 'workspace/fetchDatabaseAndSchemaLoading',
@@ -117,8 +118,29 @@ const workspace = memo<IProps>((props) => {
 
 
   useEffect(() => {
-    getConsoleList();
+    if (curWorkspaceParams.dataSourceId) {
+      getConsoleList();
+    }
   }, [curWorkspaceParams]);
+
+  function clearData() {
+    dispatch(({
+      type: 'workspace/setCurWorkspaceParams',
+      payload: {},
+    }))
+    dispatch(({
+      type: 'workspace/setOpenConsoleList',
+      payload: [],
+    }))
+    dispatch(({
+      type: 'workspace/setDatabaseAndSchema',
+      payload: undefined,
+    }))
+    dispatch(({
+      type: 'workspace/setCurTableList',
+      payload: [],
+    }))
+  }
 
   function getConsoleList() {
     let p: any = {
@@ -127,11 +149,6 @@ const workspace = memo<IProps>((props) => {
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       ...curWorkspaceParams,
     };
-
-    dispatch(({
-      type: 'workspace/setOpenConsoleList',
-      payload: [],
-    }))
 
     dispatch({
       type: 'workspace/fetchGetSavedConsoleLoading',

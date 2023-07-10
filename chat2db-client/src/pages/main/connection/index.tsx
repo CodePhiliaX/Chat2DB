@@ -61,6 +61,7 @@ function Connections(props: IProps) {
   );
 
   const handleMenuItemDoubleClick = (t?: any) => {
+    console.log(t)
     dispatch({
       type: 'connection/setCurConnection',
       payload: t.meta,
