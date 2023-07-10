@@ -167,12 +167,13 @@ function Console(props: IProps) {
   }, [props.tables]);
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
-    const { wechatQrCodeUrl, token } = await aiServer.getLoginQrCode({});
+    const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
     // console.log('weiChatConfig', wechatQrCodeUrl, token);
     setPopularizeModal(true);
     setModalProps({
       imageUrl: wechatQrCodeUrl,
       token,
+      tip,
     });
     if (shouldPoll) {
       let pollCnt = 0;
@@ -184,7 +185,7 @@ function Console(props: IProps) {
         }
         if (apiKey) {
           setPopularizeModal(false);
-          dispatch({
+          await dispatch({
             type: 'ai/setKeyAndAiType',
             payload: {
               key: apiKey,
@@ -197,15 +198,17 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType) => {
-    if (!aiModel.keyAndAiType.key) {
+    const { key } = aiModel?.keyAndAiType;
+    if (!key) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
 
+    console.log('aiModel?.remainingUse?.key', key);
     await dispatch({
       type: 'ai/fetchRemainingUse',
       payload: {
-        key: aiModel?.remainingUse?.key,
+        key,
       },
     });
 
@@ -341,6 +344,20 @@ function Console(props: IProps) {
     [],
   );
 
+  const handleClickRemainBtn = async () => {
+    if (!aiModel.keyAndAiType.key) {
+      handleApiKeyEmptyOrGetQrCode(true);
+      return;
+    }
+
+    const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+    setModalProps({
+      imageUrl: wechatQrCodeUrl,
+      tip,
+    });
+    setPopularizeModal(true);
+  };
+
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
@@ -359,15 +376,7 @@ function Console(props: IProps) {
               }
               setSelectedTables(tables);
             }}
-            onClickRemainBtn={async () => {
-              const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
-
-              setModalProps({
-                imageUrl: wechatQrCodeUrl,
-                tip,
-              });
-              setPopularizeModal(true);
-            }}
+            onClickRemainBtn={handleClickRemainBtn}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}

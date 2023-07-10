@@ -17,6 +17,7 @@ export interface ILoginAndQrCode {
   token: string;
   wechatQrCodeUrl: string;
   apiKey: string;
+  tip: string;
 }
 
 export interface IInviteQrCode {

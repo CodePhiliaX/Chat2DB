@@ -17,13 +17,13 @@ export default memo<IProps>(function Popularize(props) {
     if (props.tip) {
       return <p>{props.tip}</p>;
     }
-    let dom = '';
+    let dom;
     if (props.source === 'setting') {
-      dom += <p>{i18n('common.text.wechatPopularizeAi2')}</p>;
+      dom = <p>{i18n('common.text.wechatPopularizeAi2')}</p>;
     } else {
-      dom += <p>{i18n('common.text.wechatPopularizeAi')}</p>;
+      dom = <p>{i18n('common.text.wechatPopularizeAi')}</p>;
     }
-    dom += <p>{i18n('common.text.wechatPopularize')}</p>;
+    // dom += <p>{i18n('common.text.wechatPopularize')}</p>;
     return dom;
   };
   return (
