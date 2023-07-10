@@ -210,14 +210,6 @@ function Console(props: IProps) {
       return;
     }
 
-    console.log('aiModel?.remainingUse?.key', key);
-    await dispatch({
-      type: 'ai/fetchRemainingUse',
-      payload: {
-        key,
-      },
-    });
-
     const { dataSourceId, databaseName, schemaName } = executeParams;
     const isNL2SQL = promptType === IPromptType.NL_2_SQL;
     if (isNL2SQL) {
@@ -243,6 +235,12 @@ function Console(props: IProps) {
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
+          dispatch({
+            type: 'ai/fetchRemainingUse',
+            payload: {
+              key,
+            },
+          });
           if (isNL2SQL) {
             editorRef?.current?.setValue('\n\n\n');
           } else {
@@ -264,6 +262,12 @@ function Console(props: IProps) {
           closeEventSource();
           setIsLoading(false);
           handleApiKeyEmptyOrGetQrCode();
+          dispatch({
+            type: 'ai/fetchRemainingUse',
+            payload: {
+              key,
+            },
+          });
           return;
         }
 
