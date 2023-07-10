@@ -5,18 +5,18 @@ import StateIndicator from '@/components/StateIndicator';
 
 interface IProps<T> {
   className?: string;
-  data: T | null | undefined;
+  data?: T | null | undefined | true;
   empty?: React.ReactNode;
   handleEmpty?: boolean;
+  isLoading?: boolean;
 }
 
 export default function LoadingContent<T>(props: PropsWithChildren<IProps<T>>) {
-  const { children, className, data, handleEmpty = false, empty } = props;
-  const isLoading = !data;
+  const { children, className, data = true, handleEmpty = false, empty, isLoading } = props;
   const isEmpty = !isLoading && handleEmpty && !(data as any).length;
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading || !data) {
       return <StateIndicator state="loading" />;
     }
 
@@ -28,6 +28,8 @@ export default function LoadingContent<T>(props: PropsWithChildren<IProps<T>>) {
   };
 
   return (
-    <div className={classnames(styles.box, className)}>{renderContent()}</div>
+    <div className={classnames(styles.box, className)}>{
+      renderContent()
+    }</div>
   );
 }

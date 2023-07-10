@@ -5,8 +5,6 @@ import java.io.Serializable;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.wrapper.Result;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -27,7 +25,6 @@ public class ActionResult implements Serializable, Result {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**
@@ -40,6 +37,16 @@ public class ActionResult implements Serializable, Result {
      * 错误信息
      */
     private String errorMessage;
+
+    /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
 
     /**
      * traceId
@@ -89,18 +96,41 @@ public class ActionResult implements Serializable, Result {
         this.errorMessage = errorMessage;
     }
 
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
+    }
+
     /**
      * 返回失败
      *
-     * @param errorCode    错误编码
-     * @param errorMessage 错误信息
+     * @param errorCode    error code
+     * @param errorMessage error message
+     * @param errorDetail  error detail
      * @return 运行结果
      */
-    public static ActionResult fail(String errorCode, String errorMessage) {
+    public static ActionResult fail(String errorCode, String errorMessage, String errorDetail) {
         ActionResult result = new ActionResult();
         result.errorCode = errorCode;
         result.errorMessage = errorMessage;
         result.success = Boolean.FALSE;
+        result.solutionLink("https://github.com/chat2db/Chat2DB/wiki/Chat2DB");
+        result.errorDetail(errorDetail);
         return result;
     }
 

@@ -117,13 +117,13 @@ function MainPage(props: IProps) {
           })}
         </ul>
         <div className={styles.footer}>
-          <Iconfont
+          {/* <Iconfont
             code="&#xe67c;"
             className={styles.questionIcon}
             onClick={() => {
               window.open('https://github.com/chat2db/chat2db/wiki');
             }}
-          />
+          /> */}
           <Setting className={styles.setIcon}></Setting>
         </div>
       </div>

@@ -128,7 +128,7 @@ public class DataSourceServiceImpl implements DataSourceService {
                 testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
                 driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
-            return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription());
+            return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription(), dataSourceConnect.getErrorDetail());
         }
         return ActionResult.isSuccess();
     }

@@ -19,7 +19,7 @@ export default {
   'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',
   'setting.text.currentVersion': '当前版本',
-  'setting.text.viewingUpdateLogs': '查看当前应用',
+  'setting.text.viewingUpdateLogs': '查看更新日志',
   'setting.label.isStreamOutput': '接口是否流式输出',
   'setting.label.customAiUrl': '自定义接口Url',
   'setting.placeholder.httpsProxy': '非必填，用于设置请求OPENAI接口时的HTTP代理{1}',

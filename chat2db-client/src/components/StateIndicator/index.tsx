@@ -9,6 +9,7 @@ interface IProps {
   className?: string;
   state: 'loading' | 'empty' | 'error' | 'success';
   text?: string;
+  image?: boolean;
 }
 
 export const enum State {
@@ -33,7 +34,7 @@ const config = {
   },
 }
 
-export default memo<IProps>(function StateIndicator({ className, state, text }) {
+export default memo<IProps>(function StateIndicator({ className, state, text, image = false }) {
 
   const renderState = () => {
     switch (state) {
@@ -41,16 +42,17 @@ export default memo<IProps>(function StateIndicator({ className, state, text }) 
         return <Spin />;
       case 'error':
         return <div className={styles.errorBox}>
-          <div className={classnames(className, styles[state])}></div>
+          {image && <div className={classnames(className, styles[state])} />}
           <div className={styles.errorText}>{text}</div>
         </div>
       case 'success':
         return <div className={styles.successBox}>
-          <div className={classnames(className, styles[state])}></div>
+          {image && <div className={classnames(className, styles[state])} />}
           <div className={styles.successText}>{text}</div>
         </div>
       default:
-        return <div className={classnames(className, styles[state])}></div >
+        return <div className={classnames(className, styles[state])} />
+
     }
   }
   return <div className={classnames(className, styles.box)}>

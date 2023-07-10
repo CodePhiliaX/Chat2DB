@@ -10,6 +10,7 @@ import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
 import ai.chat2db.server.domain.api.param.SchemaQueryParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
+import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -19,6 +20,8 @@ import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import static ai.chat2db.server.domain.core.cache.CacheKey.getDataSourceKey;
 
 /**
  * @author moji
@@ -40,27 +43,34 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public DataResult<MetaSchema> queryDatabaseSchema(MetaDataQueryParam param) {
-        MetaSchema metaSchema = new MetaSchema();
-        List<Database> databases = Chat2DBContext.getMetaData().databases();
-        if (!CollectionUtils.isEmpty(databases)) {
-            List<Schema> schemaList = Chat2DBContext.getMetaData().schemas(null);
-            if (databases.size() == 1) {
-                databases.get(0).setSchemas(schemaList);
-                metaSchema.setDatabases(databases);
-            } else {
-                Map<String, List<Schema>> schemaMap = schemaList.stream().collect(
-                    Collectors.groupingBy(schema -> schema.getDatabaseName() != null ? schema.getDatabaseName() : ""));
-                for (Database dataBase : databases) {
-                    dataBase.setSchemas(schemaMap.get(dataBase.getName()));
+        MetaSchema ms = CacheManage.get(getDataSourceKey(param.getDataSourceId()), MetaSchema.class,
+            (key) -> param.isRefresh(), (key) -> {
+                MetaSchema metaSchema = new MetaSchema();
+                List<Database> databases = Chat2DBContext.getMetaData().databases();
+                if (!CollectionUtils.isEmpty(databases)) {
+                    List<Schema> schemaList = Chat2DBContext.getMetaData().schemas(null);
+                    if (databases.size() == 1) {
+                        databases.get(0).setSchemas(schemaList);
+                        metaSchema.setDatabases(databases);
+                    } else {
+                        Map<String, List<Schema>> schemaMap = schemaList.stream().collect(
+                            Collectors.groupingBy(
+                                schema -> schema.getDatabaseName() != null ? schema.getDatabaseName() : ""));
+                        for (Database dataBase : databases) {
+                            dataBase.setSchemas(schemaMap.get(dataBase.getName()));
+                        }
+                        metaSchema.setDatabases(databases);
+                    }
+                } else {
+                    List<Schema> schemas = Chat2DBContext.getMetaData().schemas(null);
+                    metaSchema.setSchemas(schemas);
                 }
-                metaSchema.setDatabases(databases);
-            }
-        } else {
-            List<Schema> schemas = Chat2DBContext.getMetaData().schemas(null);
-            metaSchema.setSchemas(schemas);
-        }
-        return DataResult.of(metaSchema);
+                return metaSchema;
+            });
+
+        return DataResult.of(ms);
     }
+
 
     @Override
     public ActionResult deleteDatabase(DatabaseOperationParam param) {

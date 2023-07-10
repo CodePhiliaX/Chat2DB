@@ -1,12 +1,12 @@
 
 package ai.chat2db.spi.sql;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Driver;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.alibaba.fastjson2.JSON;
 
+import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DriverEntry;
 import ai.chat2db.spi.util.JdbcJarUtils;
@@ -62,7 +63,13 @@ public class IDriverManager {
         if (StringUtils.isNotEmpty(password)) {
             info.put("password", password);
         }
-        info.putAll(properties);
+        if (properties != null && !properties.isEmpty()) {
+            for (Map.Entry<String, Object> entry : properties.entrySet()) {
+                if (entry.getKey() != null && entry.getValue() != null) {
+                    info.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
         return getConnection(url, info, driver);
     }
 
@@ -71,16 +78,14 @@ public class IDriverManager {
         if (url == null) {
             throw new SQLException("The url cannot be null", "08001");
         }
-        DriverManager.println("DriverManager.getConnection(\"" + url + "\")");
         SQLException reason = null;
-        DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getName());
+        DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
         if (driverEntry == null) {
             driverEntry = getJDBCDriver(driver);
         }
         try {
             Connection con = driverEntry.getDriver().connect(url, info);
             if (con != null) {
-                DriverManager.println("getConnection returning " + driverEntry.getDriver().getClass().getName());
                 return con;
             }
         } catch (SQLException var7) {
@@ -93,10 +98,8 @@ public class IDriverManager {
         }
 
         if (reason != null) {
-            DriverManager.println("getConnection failed: " + reason);
             throw reason;
         } else {
-            DriverManager.println("getConnection: no suitable driver found for " + url);
             throw new SQLException("No suitable driver found for " + url, "08001");
         }
     }
@@ -116,17 +119,16 @@ public class IDriverManager {
         throws SQLException {
         synchronized (driver) {
             try {
-                if (DRIVER_ENTRY_MAP.containsKey(driver.getName())) {
-                    return DRIVER_ENTRY_MAP.get(driver.getName());
+                if (DRIVER_ENTRY_MAP.containsKey(driver.getJdbcDriver())) {
+                    return DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
                 }
                 ClassLoader cl = getClassLoader(driver);
                 Driver d = (Driver)cl.loadClass(driver.getJdbcDriverClass()).newInstance();
                 DriverEntry driverEntry = DriverEntry.builder().driverConfig(driver).driver(d).build();
-                DRIVER_ENTRY_MAP.put(driver.getName(), driverEntry);
+                DRIVER_ENTRY_MAP.put(driver.getJdbcDriver(), driverEntry);
                 return driverEntry;
             } catch (Exception e) {
-                log.error("getJDBCDriver error", e);
-                throw new SQLException("getJDBCDriver error", "08001");
+                throw new ConnectionException("connection.driver.load.error", null, e);
             }
         }
 
@@ -170,27 +172,5 @@ public class IDriverManager {
             }
         }
     }
-
-    //private static List<Class> loadClass(String jarPath, ClassLoader classLoader) throws IOException {
-    //    Long s1 = System.currentTimeMillis();
-    //    JarFile jarFile = new JarFile(getFullPath(jarPath));
-    //    Enumeration<JarEntry> entries = jarFile.entries();
-    //    List<Class> classes = new ArrayList();
-    //    while (entries.hasMoreElements()) {
-    //        JarEntry jarEntry = entries.nextElement();
-    //        if (jarEntry.getName().endsWith(".class") && !jarEntry.getName().contains("$")) {
-    //            String className = jarEntry.getName().substring(0, jarEntry.getName().length() - 6).replaceAll("/",
-    //                ".");
-    //            try {
-    //                classes.add(classLoader.loadClass(className));
-    //               // log.info("loadClass:{}", className);
-    //            } catch (Throwable var7) {
-    //                //log.error("getClasses error "+className, var7);
-    //            }
-    //        }
-    //    }
-    //    log.info("loadClass cost:{}", System.currentTimeMillis() - s1);
-    //    return classes;
-    //}
 
 }

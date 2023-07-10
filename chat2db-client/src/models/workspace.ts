@@ -39,8 +39,10 @@ export interface IWorkspaceModelType {
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
+    fetchDatabaseAndSchemaLoading: Effect;
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
+    fetchGetSavedConsoleLoading: Effect;
   };
 }
 
@@ -114,9 +116,34 @@ const WorkspaceModel: IWorkspaceModelType = {
       catch {
 
       }
+    },
+    *fetchDatabaseAndSchemaLoading({ payload }, { put }) {
+      try {
+        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
+        yield put({
+          type: 'setDatabaseAndSchema',
+          payload: res,
+        });
+      }
+      catch {
 
+      }
     },
     *fetchGetSavedConsole({ payload, callback }, { put }) {
+      try {
+        const res = (yield historyService.getSavedConsoleList({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload
+        })) as IPageResponse<IConsole>;
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+      }
+      catch {
+      }
+    },
+    *fetchGetSavedConsoleLoading({ payload, callback }, { put }) {
       try {
         const res = (yield historyService.getSavedConsoleList({
           pageNo: 1,

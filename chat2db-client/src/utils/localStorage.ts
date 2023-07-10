@@ -10,7 +10,7 @@ export function setLang(lang: LangType) {
 }
 
 export function getTheme(): ThemeType {
-  return (localStorage.getItem('theme') as ThemeType) || ThemeType.Dark;
+  return (localStorage.getItem('theme') as ThemeType) || ThemeType.Light;
 }
 
 export function setTheme(theme: ThemeType) {

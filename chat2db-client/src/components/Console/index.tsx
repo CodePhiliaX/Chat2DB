@@ -8,14 +8,17 @@ import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './Monaco
 import { format } from 'sql-formatter';
 import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
+import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
-import i18n from '@/i18n';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
+import { chatErrorCodeArr } from '@/constants/chat';
+import { AiSqlSourceType } from '@/typings/ai';
+import i18n from '@/i18n';
 import styles from './index.less';
 
 enum IPromptType {
@@ -97,7 +100,9 @@ function Console(props: IProps) {
   const monacoHint = useRef<any>();
   const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
+  const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
+  const aiFetchIntervalRef = useRef<any>();
 
   useEffect(() => {
     if (appendValue) {
@@ -161,16 +166,55 @@ function Console(props: IProps) {
     return tableList;
   }, [props.tables]);
 
-  const handleAiChat = (content: string, promptType: IPromptType) => {
-    // if (!aiModel.remainingUse?.remainingUses) {
-    //   popUpPrompts();
-    //   return;
-    // }
+  const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
+    const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
+    // console.log('weiChatConfig', wechatQrCodeUrl, token);
+    setPopularizeModal(true);
+    setModalProps({
+      imageUrl: wechatQrCodeUrl,
+      token,
+      tip,
+    });
+    if (shouldPoll) {
+      let pollCnt = 0;
+      aiFetchIntervalRef.current = setInterval(async () => {
+        const { apiKey } = await aiServer.getLoginStatus({ token });
+        pollCnt++;
+        if (apiKey || pollCnt >= 60) {
+          clearInterval(aiFetchIntervalRef.current);
+        }
+        if (apiKey) {
+          setPopularizeModal(false);
+          await dispatch({
+            type: 'ai/setKeyAndAiType',
+            payload: {
+              key: apiKey,
+              aiType: AiSqlSourceType.CHAT2DBAI,
+            },
+          });
+          await dispatch({
+            type: 'ai/fetchRemainingUse',
+            payload: {
+              key: apiKey,
+            },
+          });
+        }
+      }, 3000);
+    }
+  };
 
-    dispatch({
+  const handleAiChat = async (content: string, promptType: IPromptType) => {
+    const { key } = aiModel?.keyAndAiType;
+    if (!key) {
+      handleApiKeyEmptyOrGetQrCode(true);
+      return;
+    }
+
+    console.log('aiModel?.remainingUse?.key', key);
+    await dispatch({
       type: 'ai/fetchRemainingUse',
       payload: {
-        key: aiModel?.remainingUse?.key,
+        key,
       },
     });
 
@@ -207,6 +251,19 @@ function Console(props: IProps) {
             setAiContent(chatResult.current);
             chatResult.current = '';
           }
+          return;
+        }
+
+        let hasError = false;
+        chatErrorCodeArr.forEach((err) => {
+          if (message.includes(err)) {
+            hasError = true;
+          }
+        });
+        if (hasError) {
+          closeEventSource();
+          setIsLoading(false);
+          handleApiKeyEmptyOrGetQrCode();
           return;
         }
 
@@ -293,9 +350,20 @@ function Console(props: IProps) {
     [],
   );
 
-  const popUpPrompts = () => {
+  const handleClickRemainBtn = async () => {
+    if (!aiModel.keyAndAiType.key) {
+      handleApiKeyEmptyOrGetQrCode(true);
+      return;
+    }
+
+    const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+    setModalProps({
+      imageUrl: wechatQrCodeUrl,
+      tip,
+    });
     setPopularizeModal(true);
   };
+
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
@@ -306,11 +374,15 @@ function Console(props: IProps) {
             onPressEnter={onPressChatInput}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
+              if (tables.length > 8) {
+                message.warning({
+                  content: i18n('chat.input.tableSelect.error.TooManyTable'),
+                });
+                return;
+              }
               setSelectedTables(tables);
             }}
-            onClickRemainBtn={() => {
-              popUpPrompts();
-            }}
+            onClickRemainBtn={handleClickRemainBtn}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
@@ -362,8 +434,15 @@ function Console(props: IProps) {
           {i18n('common.button.format')}
         </Button>
       </div>
-      <Modal open={popularizeModal} footer={false} onCancel={() => setPopularizeModal(false)}>
-        <Popularize></Popularize>
+      <Modal
+        open={popularizeModal}
+        footer={false}
+        onCancel={() => {
+          aiFetchIntervalRef.current && clearInterval(aiFetchIntervalRef.current);
+          setPopularizeModal(false);
+        }}
+      >
+        <Popularize {...modalProps} />
       </Modal>
     </div>
   );

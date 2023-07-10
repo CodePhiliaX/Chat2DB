@@ -6,7 +6,7 @@ export default {
   'connection.label.host': 'host',
   'connection.label.authentication': 'authentication',
   'connection.label.database': 'database',
-  'connection.label.JDBCDrive': 'JDBC Drive',
+  'connection.label.JDBCDrive': 'JDBC Driver',
   'connection.label.port': 'port',
   'connection.button.testConnection': 'Test',
   'connection.label.advancedConfiguration': 'Advanced Configuration',
@@ -17,4 +17,13 @@ export default {
   'connection.message.testSshConnection': 'Test the ssh connection',
   'connection.tableHeader.name': 'Name',
   'connection.tableHeader.value': 'Value',
+  'connection.title.uploadDriver': 'Upload',
+  'connection.tips.customUpload': "Upload driver",
+  'connection.title.driver': 'Driver',
+  'connection.button.clickUpload': 'Click to Upload',
+  'connection.text.downloadDriver': 'Download Driver',
+  'connection.text.downloadSuccess': 'Download Success',
+  'connection.text.tryAgainDownload': 'Try again download',
+  'connection.text.downloading': 'Downloading...',
+
 };
