@@ -13,13 +13,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
 import { ITreeNode } from '@/typings';
-import i18n from '@/i18n';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import styles from './index.less';
 import { chatErrorCodeArr } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
+import i18n from '@/i18n';
+import styles from './index.less';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -197,11 +197,6 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType) => {
-    // if (!aiModel.remainingUse?.remainingUses) {
-    //   popUpPrompts();
-    //   return;
-    // }
-
     if (!aiModel.keyAndAiType.key) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
@@ -346,9 +341,6 @@ function Console(props: IProps) {
     [],
   );
 
-  const popUpPrompts = () => {
-    setPopularizeModal(true);
-  };
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
@@ -367,8 +359,14 @@ function Console(props: IProps) {
               }
               setSelectedTables(tables);
             }}
-            onClickRemainBtn={() => {
-              popUpPrompts();
+            onClickRemainBtn={async () => {
+              const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+
+              setModalProps({
+                imageUrl: wechatQrCodeUrl,
+                tip,
+              });
+              setPopularizeModal(true);
             }}
           />
         )}
