@@ -75,3 +75,4 @@ logbook:
 forest:
   connect-timeout: 10000
   log-response-content: true
+  read-timeout: 10000
