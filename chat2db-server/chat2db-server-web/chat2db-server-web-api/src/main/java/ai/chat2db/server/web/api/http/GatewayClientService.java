@@ -23,7 +23,7 @@ public interface GatewayClientService {
      *
      * @return
      */
-    @Get("/api/client/getLoginQrCode")
+    @Get("/api/client/loginQrCode")
     DataResult<QrCodeResponse> getLoginQrCode();
 
     /**
@@ -32,7 +32,7 @@ public interface GatewayClientService {
      * @param token
      * @return
      */
-    @Get("/api/client/getLoginStatus")
+    @Get("/api/client/loginStatus")
     DataResult<QrCodeResponse> getLoginStatus(@Query("token") String token);
 
     /**
@@ -51,7 +51,7 @@ public interface GatewayClientService {
      * @param apiKey
      * @return
      */
-    @Get("/api/client/getInviteQrCode")
+    @Get("/api/client/inviteQrCode")
     DataResult<InviteQrCodeResponse> getInviteQrCode(@Query("apiKey") String apiKey);
 
 }
