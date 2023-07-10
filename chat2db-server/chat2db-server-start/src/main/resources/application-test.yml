@@ -12,7 +12,7 @@ spring:
         web-allow-others: true
 # 端口号
 server:
-  port: 10824
+  port: 10822
 
 chat2db:
   gateway:
