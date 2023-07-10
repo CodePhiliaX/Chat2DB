@@ -84,7 +84,7 @@ public class AiConfigController {
     @GetMapping("/remaininguses")
     public DataResult<ApiKeyResponse> remaininguses() {
         String apiKey = getApiKey();
-        if (apiKey == null) {
+        if (StringUtils.isBlank(apiKey)) {
             return DataResult.of(ApiKeyResponse.builder()
                 .remainingUses(0L)
                 .build());
@@ -100,7 +100,7 @@ public class AiConfigController {
     @GetMapping("/getInviteQrCode")
     public DataResult<InviteQrCodeResponse> getInviteQrCode() {
         String apiKey = getApiKey();
-        if (apiKey == null) {
+        if (StringUtils.isBlank(apiKey)) {
             return DataResult.empty();
         }
         return gatewayClientService.getInviteQrCode(apiKey);
