@@ -89,7 +89,7 @@ public class AiConfigController {
     }
 
     /**
-     * Return remaining times
+     * Obtain invitation QR code
      *
      * @return
      */
