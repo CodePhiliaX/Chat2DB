@@ -8,7 +8,7 @@ import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
-import ai.chat2db.server.web.api.http.GatewayClientServiceV2;
+import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
 import ai.chat2db.server.web.api.http.response.QrCodeResponse;
 import ai.chat2db.server.web.api.util.OpenAIClient;
@@ -32,11 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class AiConfigController {
 
-    //@Autowired
-    //private GatewayClientService gatewayClientService;
+    @Resource
+    private GatewayClientService gatewayClientService;
 
-    @Autowired
-    private GatewayClientServiceV2 gatewayClientService;
     @Autowired
     private ConfigService configService;
     @Resource

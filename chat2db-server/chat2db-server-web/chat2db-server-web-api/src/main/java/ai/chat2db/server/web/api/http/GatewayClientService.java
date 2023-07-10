@@ -20,11 +20,19 @@ public interface GatewayClientService {
     /**
      * 获取公众号的二维码
      *
+     * @return
+     */
+    @Get("/api/client/getLoginQrCode")
+    DataResult<QrCodeResponse> getLoginQrCode();
+
+    /**
+     * Refresh login
+     *
      * @param token
      * @return
      */
-    @Get("/api/client/getQrCode")
-    DataResult<QrCodeResponse> getQrCode(@Query("token") String token);
+    @Get("/api/client/getLoginStatus")
+    DataResult<QrCodeResponse> getLoginStatus(@Query("token") String token);
 
     /**
      * 返回剩余次数
