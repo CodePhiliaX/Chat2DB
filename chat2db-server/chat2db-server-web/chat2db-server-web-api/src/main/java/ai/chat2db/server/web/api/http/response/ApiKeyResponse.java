@@ -34,8 +34,4 @@ public class ApiKeyResponse {
      * 微信公众号url
      */
     private String wechatMpUrl;
-
-    private String invitationWechatQrCodeUrl;
-
-    private String invitationTip;
 }

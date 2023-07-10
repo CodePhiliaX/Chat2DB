@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.http;
 
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
+import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
 import ai.chat2db.server.web.api.http.response.QrCodeResponse;
 import com.dtflys.forest.annotation.BaseRequest;
 import com.dtflys.forest.annotation.Get;
@@ -42,5 +43,15 @@ public interface GatewayClientService {
      */
     @Get("/api/client/remaininguses/{key}")
     DataResult<ApiKeyResponse> remaininguses(@Var("key") String key);
+
+
+    /**
+     * Obtain invitation QR code
+     *
+     * @param apiKey
+     * @return
+     */
+    @Get("/api/client/getInviteQrCode")
+    DataResult<InviteQrCodeResponse> getInviteQrCode(@Query("apiKey") String apiKey);
 
 }

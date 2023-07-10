@@ -10,6 +10,7 @@ import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
+import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
 import ai.chat2db.server.web.api.http.response.QrCodeResponse;
 import ai.chat2db.server.web.api.util.OpenAIClient;
 import jakarta.annotation.Resource;
@@ -87,4 +88,15 @@ public class AiConfigController {
             Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
     }
 
+    /**
+     * Return remaining times
+     *
+     * @return
+     */
+    @GetMapping("/getInviteQrCode")
+    public DataResult<InviteQrCodeResponse> getInviteQrCode() {
+        DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+        return gatewayClientService.getInviteQrCode(
+            Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
+    }
 }
