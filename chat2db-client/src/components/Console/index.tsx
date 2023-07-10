@@ -192,6 +192,12 @@ function Console(props: IProps) {
               aiType: AiSqlSourceType.CHAT2DBAI,
             },
           });
+          await dispatch({
+            type: 'ai/fetchRemainingUse',
+            payload: {
+              key: apiKey,
+            },
+          });
         }
       }, 3000);
     }
