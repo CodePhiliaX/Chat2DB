@@ -23,13 +23,12 @@ export default memo<IProps>(function Popularize(props) {
     } else {
       dom = <p>{i18n('common.text.wechatPopularizeAi')}</p>;
     }
-    // dom += <p>{i18n('common.text.wechatPopularize')}</p>;
     return dom;
   };
   return (
     <div className={classnames(styles.box, className)}>
       {/* <div className={styles.title}>获取更多次数</div> */}
-      <img className={styles.wechatImg} src={props.imageUrl || url} />
+      <img className={styles.wechatImg} src={props.source ? url : props.imageUrl} />
       <div className={styles.text}>{renderTip()}</div>
     </div>
   );
