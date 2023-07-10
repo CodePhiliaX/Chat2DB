@@ -83,9 +83,13 @@ public class AiConfigController {
      */
     @GetMapping("/remaininguses")
     public DataResult<ApiKeyResponse> remaininguses() {
-        DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
-        return gatewayClientService.remaininguses(
-            Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
+        String apiKey = getApiKey();
+        if (apiKey == null) {
+            return DataResult.of(ApiKeyResponse.builder()
+                .remainingUses(0L)
+                .build());
+        }
+        return gatewayClientService.remaininguses(apiKey);
     }
 
     /**
@@ -95,8 +99,15 @@ public class AiConfigController {
      */
     @GetMapping("/getInviteQrCode")
     public DataResult<InviteQrCodeResponse> getInviteQrCode() {
+        String apiKey = getApiKey();
+        if (apiKey == null) {
+            return DataResult.empty();
+        }
+        return gatewayClientService.getInviteQrCode(apiKey);
+    }
+
+    private String getApiKey() {
         DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
-        return gatewayClientService.getInviteQrCode(
-            Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
+        return Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null;
     }
 }
