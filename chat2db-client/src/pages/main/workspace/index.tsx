@@ -69,17 +69,14 @@ const workspace = memo<IProps>((props) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pageLoading === undefined) {
-      return
-    }
-    if (pageLoading === false) {
-      setTimeout(() => {
-        setLoading(false)
-      }, 100);
-    } else {
+    if (pageLoading === true) {
       setLoading(true)
+    } else {
+      setLoading(false)
     }
   }, [pageLoading])
+
+  console.log('pageLoading', pageLoading)
 
 
   const cascaderOptions = useMemo(() => {
@@ -105,7 +102,6 @@ const workspace = memo<IProps>((props) => {
   }, [databaseAndSchema]);
 
   useEffect(() => {
-    clearData();
     if (curConnection?.id) {
       dispatch({
         type: 'workspace/fetchDatabaseAndSchemaLoading',
@@ -114,6 +110,7 @@ const workspace = memo<IProps>((props) => {
         },
       });
     }
+    clearData();
   }, [curConnection]);
 
 
@@ -130,6 +127,10 @@ const workspace = memo<IProps>((props) => {
     }))
     dispatch(({
       type: 'workspace/setOpenConsoleList',
+      payload: [],
+    }))
+    dispatch(({
+      type: 'workspace/setConsoleList',
       payload: [],
     }))
     dispatch(({
