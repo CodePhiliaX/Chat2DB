@@ -275,7 +275,7 @@ function Console(props: IProps) {
         if (hasErrorToLogin || hasErrorToInvite) {
           closeEventSource();
           setIsLoading(false);
-          hasErrorToLogin && handleApiKeyEmptyOrGetQrCode();
+          hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
           hasErrorToInvite && handleClickRemainBtn();
           dispatch({
             type: 'ai/fetchRemainingUse',
