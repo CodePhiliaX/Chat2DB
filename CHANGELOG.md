@@ -1,3 +1,14 @@
+# 2.0.2
+## ⭐ New Features
+* Optimize the binding process
+## 🐞 Bug Fixes
+* xx
+
+## ⭐ 新特性
+* 优化绑定流程
+## 🐞 问题修复
+* xx
+
 # 2.0.1
 ## 🐞 Bug Fixes
 * Fix bug where executing multiple SQL statements at once will prompt for exceptions
