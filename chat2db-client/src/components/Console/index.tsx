@@ -16,7 +16,7 @@ import { ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import { chatErrorCodeArr } from '@/constants/chat';
+import { chatErrorCodeArr, chatErrorToInvite, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import styles from './index.less';
@@ -252,16 +252,29 @@ function Console(props: IProps) {
           return;
         }
 
-        let hasError = false;
-        chatErrorCodeArr.forEach((err) => {
+        // let hasError = false;
+        // chatErrorCodeArr.forEach((err) => {
+        //   if (message.includes(err)) {
+        //     hasError = true;
+        //   }
+        // });
+        let hasErrorToLogin = false;
+        chatErrorToLogin.forEach((err) => {
           if (message.includes(err)) {
-            hasError = true;
+            hasErrorToLogin = true;
           }
         });
-        if (hasError) {
+        let hasErrorToInvite = false;
+        chatErrorToInvite.forEach((err) => {
+          if (message.includes(err)) {
+            hasErrorToInvite = true;
+          }
+        });
+        if (hasErrorToLogin || hasErrorToInvite) {
           closeEventSource();
           setIsLoading(false);
-          handleApiKeyEmptyOrGetQrCode();
+          hasErrorToLogin && handleApiKeyEmptyOrGetQrCode();
+          hasErrorToInvite && handleClickRemainBtn();
           dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
