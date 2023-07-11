@@ -21,4 +21,5 @@ public class QrCodeResponse {
      */
     private String apiKey;
 
+    private String tip;
 }

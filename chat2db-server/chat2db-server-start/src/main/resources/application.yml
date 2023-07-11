@@ -76,3 +76,4 @@ forest:
   connect-timeout: 30000
   log-response-content: true
   read-timeout: 30000
+  timeout: 30000
