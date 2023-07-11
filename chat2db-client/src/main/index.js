@@ -64,21 +64,16 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', (event) => {
-  const request = net.request({
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    url: 'http://127.0.0.1:10824/api/system/stop', //TODO: 测试包需要换10822
-  });
-  request.write(JSON.stringify({}));
-  request.on('response', (response) => {
-    response.on('data', (res) => {
-      let data = JSON.parse(res.toString());
-    });
-    response.on('end', () => {});
-  });
-  request.end();
+  // try {
+  //   const request = net.request({
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     method: 'POST',
+  //     url: 'http://127.0.0.1:10824/api/system/stop',
+  //   });
+  //   request.end();
+  // } catch (error) {}
 });
 
 ipcMain.handle('get-product-name', (event) => {
