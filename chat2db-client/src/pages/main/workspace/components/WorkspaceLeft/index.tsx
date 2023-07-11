@@ -286,6 +286,9 @@ const RenderSaveBox = dvaModel(function (props: any) {
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
+    if (!curWorkspaceParams.dataSourceId) {
+      return
+    }
     dispatch({
       type: 'workspace/fetchGetSavedConsole',
       payload: {
