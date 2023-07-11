@@ -76,6 +76,20 @@ export const databaseMap: {
     // port: 5236,
     icon: '\ue655',
   },
+  [DatabaseTypeCode.PRESTO]: {
+     name: 'Presto',
+     img: moreDBLogo,
+     code: DatabaseTypeCode.PRESTO,
+     port: 8080,
+     icon: '\ue60b',
+   },
+   [DatabaseTypeCode.DB2]: {
+     name: 'DB2',
+     img: moreDBLogo,
+     code: DatabaseTypeCode.DB2,
+     port: 50000,
+     icon: '\ue60a',
+   },
   [DatabaseTypeCode.OCEANBASE]: {
     name: 'OceanBase',
     img: moreDBLogo,
@@ -110,6 +124,13 @@ export const databaseMap: {
     code: DatabaseTypeCode.MONGODB,
     // port: 27017,
     icon: '\uec21',
+  },
+  [DatabaseTypeCode.REDIS]: {
+    name: 'Redis',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.REDIS,
+    // port: 6379,
+    icon: '\ue6a2',
   },
 };
 
