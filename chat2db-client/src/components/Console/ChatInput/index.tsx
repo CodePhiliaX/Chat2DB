@@ -33,7 +33,7 @@ function ChatInput(props: IProps) {
 
   const renderSelectTable = () => {
     const { tables, selectedTables, onSelectTables } = props;
-    const options = (tables || []).map(t => ({ value: t, label: t }))
+    const options = (tables || []).map((t) => ({ value: t, label: t }));
     return (
       <div className={styles.aiSelectedTable}>
         <span className={styles.aiSelectedTableTips}>
@@ -42,21 +42,21 @@ function ChatInput(props: IProps) {
         </span>
         <Select
           showSearch
-          mode='multiple'
+          mode="multiple"
           allowClear
           options={options}
           placeholder={i18n('chat.input.tableSelect.placeholder')}
           value={selectedTables}
           onChange={(v) => {
-            onSelectTables && onSelectTables(v)
+            onSelectTables && onSelectTables(v);
           }}
         />
       </div>
-    )
+    );
   };
 
   const renderSuffix = () => {
-    const remainCnt = props?.remainingUse?.remainingUses || '-';
+    const remainCnt = props?.remainingUse?.remainingUses ?? '-';
     return (
       <div className={styles.suffixBlock}>
         {/* <div className={styles.chatShortcut}> ⌘ + ↵ </div> */}
@@ -65,9 +65,12 @@ function ChatInput(props: IProps) {
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-        <div className={styles.remainBlock} onClick={() => {
-          props.onClickRemainBtn && props.onClickRemainBtn();
-        }}>
+        <div
+          className={styles.remainBlock}
+          onClick={() => {
+            props.onClickRemainBtn && props.onClickRemainBtn();
+          }}
+        >
           {i18n('chat.input.remain', remainCnt)}
         </div>
       </div>
