@@ -167,7 +167,9 @@ function Console(props: IProps) {
   }, [props.tables]);
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
+    setIsLoading(true);
     const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
+    setIsLoading(false);
     // console.log('weiChatConfig', wechatQrCodeUrl, token);
     setPopularizeModal(true);
     setModalProps({
@@ -377,7 +379,9 @@ function Console(props: IProps) {
       return;
     }
 
+    setIsLoading(true);
     const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+    setIsLoading(false);
     setModalProps({
       imageUrl: wechatQrCodeUrl,
       tip,

@@ -59,7 +59,6 @@ function ChatInput(props: IProps) {
     const remainCnt = props?.remainingUse?.remainingUses ?? '-';
     return (
       <div className={styles.suffixBlock}>
-        {/* <div className={styles.chatShortcut}> ⌘ + ↵ </div> */}
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottom">
             <Iconfont code="&#xe618;" />
