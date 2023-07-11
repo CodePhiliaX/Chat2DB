@@ -64,16 +64,16 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', (event) => {
-  // try {
-  //   const request = net.request({
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     method: 'POST',
-  //     url: 'http://127.0.0.1:10824/api/system/stop',
-  //   });
-  //   request.end();
-  // } catch (error) {}
+  try {
+    const request = net.request({
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: 'http://127.0.0.1:10824/api/system/stop',
+    });
+    request.end();
+  } catch (error) {}
 });
 
 ipcMain.handle('get-product-name', (event) => {
