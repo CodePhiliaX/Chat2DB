@@ -38,6 +38,9 @@ function Setting(props: IProps) {
 
   const [currentMenu, setCurrentMenu] = useState(0);
   useEffect(() => {
+    if (!isModalVisible) {
+      return
+    }
     configService.getChatGptSystemConfig().then((res: IChatGPTConfig) => {
       if (!res) {
         return;
@@ -52,7 +55,7 @@ function Setting(props: IProps) {
         aiSqlSource: res.aiSqlSource || AiSqlSourceType.CHAT2DBAI,
       });
     });
-  }, []);
+  }, [isModalVisible]);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -111,8 +114,8 @@ function Setting(props: IProps) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )}
+            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
+          )}
       </div>
       <TestVersion></TestVersion>
       <Modal
