@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown, Button } from 'antd';
+import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
@@ -114,6 +114,8 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
   const { curWorkspaceParams } = workspaceModel;
   const { curConnection } = connectionModel;
   const [currentSelectedName, setCurrentSelectedName] = useState('');
+  const [cascaderLoading, setCascaderLoading] = useState(false)
+
 
   useEffect(() => {
     if (curWorkspaceParams) {
@@ -146,12 +148,16 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
   const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
 
   function handleRefresh() {
+    setCascaderLoading(true)
     dispatch({
       type: 'workspace/fetchDatabaseAndSchema',
       payload: {
         dataSourceId: curConnection?.id,
         refresh: true
       },
+      callback: () => {
+        setCascaderLoading(false)
+      }
     });
   }
 
@@ -173,7 +179,7 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
       </Cascader>
       <div className={styles.otherOperations}>
         <div className={classnames(styles.refreshIconBox, styles.iconBox)} onClick={handleRefresh}>
-          <Iconfont code="&#xec08;" />
+          {cascaderLoading ? <Spin /> : <Iconfont code="&#xec08;" />}
         </div>
       </div>
     </div>
