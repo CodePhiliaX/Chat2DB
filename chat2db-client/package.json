@@ -33,7 +33,7 @@
     "event-source-polyfill": "^1.0.31",
     "lodash": "^4.17.21",
     "markdown-it-link-attributes": "^4.0.1",
-    "monaco-editor": "^0.34.0",
+    "monaco-editor": "^0.36.1",
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "react-monaco-editor": "^0.52.0",
@@ -43,6 +43,10 @@
     "umi": "^4.0.70",
     "umi-request": "^1.4.0",
     "uuid": "^9.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.9.0 <18.0.0",
+    "react-dom": ">=16.9.0 <18.0.0"
   },
   "devDependencies": {
     "@types/event-source-polyfill": "^1.0.1",
