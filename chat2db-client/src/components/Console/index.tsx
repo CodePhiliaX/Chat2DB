@@ -368,7 +368,11 @@ function Console(props: IProps) {
   );
 
   const handleClickRemainBtn = async () => {
-    if (!aiModel.keyAndAiType.key) {
+    if (
+      !aiModel.keyAndAiType.key ||
+      aiModel.remainingUse?.remainingUses === null ||
+      aiModel.remainingUse?.remainingUses === undefined
+    ) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
