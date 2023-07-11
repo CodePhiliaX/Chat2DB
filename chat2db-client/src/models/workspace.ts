@@ -105,13 +105,16 @@ const WorkspaceModel: IWorkspaceModelType = {
   },
 
   effects: {
-    *fetchDatabaseAndSchema({ payload }, { put }) {
+    *fetchDatabaseAndSchema({ payload, callback }, { put }) {
       try {
         const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
         yield put({
           type: 'setDatabaseAndSchema',
           payload: res,
         });
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
       }
       catch {
 
