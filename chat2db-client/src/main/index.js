@@ -33,9 +33,13 @@ function createWindow() {
   });
 
   // 监听打开新窗口事件 用默认浏览器打开
-  mainWindow.webContents.on('new-window', function (event, url) {
-    event.preventDefault();
+  // mainWindow.webContents.on('new-window', function (event, url) {
+  //   event.preventDefault();
+  //   shell.openExternal(url);
+  // });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 
