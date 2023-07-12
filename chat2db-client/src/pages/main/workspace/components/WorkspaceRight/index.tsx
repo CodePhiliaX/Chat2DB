@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
-import Tabs from '@/components/Tabs';
+import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
@@ -166,6 +166,32 @@ const WorkspaceRight = memo<IProps>(function (props) {
     return <div className={styles.ears}>Chat2DB</div>;
   }
 
+  function editableNameOnBlur(t: IOption) {
+    let p: any = {
+      id: t.value,
+      name: t.label
+    }
+    historyService.updateSavedConsole(p).then(() => {
+      getConsoleList();
+      dispatch({
+        type: 'workspace/fetchGetSavedConsole',
+        payload: {
+          pageNo: 1,
+          pageSize: 999,
+          status: ConsoleStatus.RELEASE,
+          ...curWorkspaceParams,
+        },
+        callback: (res: any) => {
+          dispatch({
+            type: 'workspace/setConsoleList',
+            payload: res.data,
+          })
+        }
+      });
+
+    });
+  }
+
   return (
     <div className={classnames(styles.box, className)}>
       <LoadingContent data={openConsoleList} handleEmpty empty={render()}>
@@ -173,7 +199,9 @@ const WorkspaceRight = memo<IProps>(function (props) {
           <Tabs
             className={styles.tabs}
             onChange={onChange}
-            onEdit={onEdit}
+            onEdit={onEdit as any}
+            editableName={true}
+            editableNameOnBlur={editableNameOnBlur}
             activeTab={activeConsoleId}
             tabs={(openConsoleList || [])?.map((t, i) => {
               return {

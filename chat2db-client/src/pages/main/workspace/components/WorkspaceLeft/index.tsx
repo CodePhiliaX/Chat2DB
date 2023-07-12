@@ -429,7 +429,9 @@ const RenderSaveBox = dvaModel(function (props: any) {
                 key={t.id}
                 className={styles.saveItem}
               >
-                <div dangerouslySetInnerHTML={{ __html: t.name }} />
+                <div className={styles.saveItemText}>
+                  <span dangerouslySetInnerHTML={{ __html: t.name }} />
+                </div>
                 <Dropdown
                   menu={{
                     items: [
