@@ -1,23 +1,25 @@
 # 2.0.2
 
 ## ⭐ New Features
-
-- Optimize the binding process
-
+- Brand new AI binding process
+- Support for custom drivers
 ## 🐞 Bug Fixes
-
-- xx
+- Optimized dataSource link editing
+- Enhanced error messages
+- Improved table selection interaction
+- Enhanced table experience
 
 ## ⭐ 新特性
-
-- 优化绑定流程
-- 优化 dataSource 链接编辑
+- 全新的AI绑定流程
 - 支持自定义驱动
+
+## 🐞 问题修复
+- 优化 dataSource 链接编辑
 - 优化错误提示
 - 优化选表交互
 - 优化表格体验
 
-## 🐞 问题修复
+
 
 # 2.0.1
 
