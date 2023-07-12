@@ -13,6 +13,10 @@
   "[less]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "explorer.confirmDelete": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
   "git.mergeEditor": false,
   "cSpell.words": [
     "Appstore",
@@ -38,5 +42,6 @@
     "umijs",
     "uuidv",
     "wireframe"
-  ]
+  ],
+  "typescript.tsdk": "/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/node_modules/typescript/lib"
 }
