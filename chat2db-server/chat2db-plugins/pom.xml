@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>chat2b-mysql</module>
+        <module>chat2db-mysql</module>
         <module>chat2db-sqlserver</module>
         <module>chat2db-postgresql</module>
         <module>chat2db-oracle</module>
