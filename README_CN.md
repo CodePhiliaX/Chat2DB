@@ -154,12 +154,12 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 $ git clone git@github.com:chat2db/Chat2DB.git
 ```
 
-- 前端安装
+- 前端调试
 
 ```bash
 $ cd Chat2DB/chat2db-client
-$ npm install # 安装前端依赖
-$ npm run build:prod # 把js打包生成到后端的source目录
+$ yarn
+$ yarn run start:web
 ```
 
 - 后端调试
@@ -169,15 +169,6 @@ $ cd ../chat2db-server
 $ mvn clean install # 需要安装maven 3.8以上版本
 $ cd chat2db-server/chat2db-server-start/target/
 $ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # 启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
-$ # 打开 http://127.0.0.1:10821 开启调试 注：需要进行前端安装
-```
-
-- 前端调试
-
-```bash
-$ cd Chat2DB/chat2db-client
-$ yarn
-$ npm run start:web
 ```
 
 ## 📑 文档
