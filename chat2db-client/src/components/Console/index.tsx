@@ -16,7 +16,7 @@ import { ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import { chatErrorCodeArr } from '@/constants/chat';
+import { chatErrorCodeArr, chatErrorToInvite, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import styles from './index.less';
@@ -167,7 +167,9 @@ function Console(props: IProps) {
   }, [props.tables]);
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
+    setIsLoading(true);
     const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
+    setIsLoading(false);
     // console.log('weiChatConfig', wechatQrCodeUrl, token);
     setPopularizeModal(true);
     setModalProps({
@@ -252,16 +254,29 @@ function Console(props: IProps) {
           return;
         }
 
-        let hasError = false;
-        chatErrorCodeArr.forEach((err) => {
+        // let hasError = false;
+        // chatErrorCodeArr.forEach((err) => {
+        //   if (message.includes(err)) {
+        //     hasError = true;
+        //   }
+        // });
+        let hasErrorToLogin = false;
+        chatErrorToLogin.forEach((err) => {
           if (message.includes(err)) {
-            hasError = true;
+            hasErrorToLogin = true;
           }
         });
-        if (hasError) {
+        let hasErrorToInvite = false;
+        chatErrorToInvite.forEach((err) => {
+          if (message.includes(err)) {
+            hasErrorToInvite = true;
+          }
+        });
+        if (hasErrorToLogin || hasErrorToInvite) {
           closeEventSource();
           setIsLoading(false);
-          handleApiKeyEmptyOrGetQrCode();
+          hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
+          hasErrorToInvite && handleClickRemainBtn();
           dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
@@ -355,12 +370,18 @@ function Console(props: IProps) {
   );
 
   const handleClickRemainBtn = async () => {
-    if (!aiModel.keyAndAiType.key) {
+    if (
+      !aiModel.keyAndAiType.key ||
+      aiModel.remainingUse?.remainingUses === null ||
+      aiModel.remainingUse?.remainingUses === undefined
+    ) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
 
+    setIsLoading(true);
     const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+    setIsLoading(false);
     setModalProps({
       imageUrl: wechatQrCodeUrl,
       tip,
@@ -402,7 +423,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>

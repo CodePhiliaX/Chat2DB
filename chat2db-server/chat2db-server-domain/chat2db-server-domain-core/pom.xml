@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
-            <artifactId>chat2b-mysql</artifactId>
+            <artifactId>chat2db-mysql</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

@@ -1,4 +1,3 @@
-const i18n = require('./i18n');
 const { shell, app, dialog, BrowserWindow, Menu } = require('electron');
 const os = require('os');
 const path = require('path');
@@ -26,7 +25,7 @@ const registerAppMenu = () => {
         { type: 'separator' },
         {
           label: '退出',
-          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Ctrl+ALT+F4',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
           click() {
             // 退出程序
             app.quit();
