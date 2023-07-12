@@ -423,7 +423,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>

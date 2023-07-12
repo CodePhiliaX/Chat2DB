@@ -21,13 +21,16 @@ interface IProps {
   onChange: (key: IOption['value']) => void;
   onEdit?: (action: 'add' | 'remove', key?: IOption['value']) => void;
   hideAdd?: boolean;
-  type?: 'line'
+  type?: 'line';
+  editableName?: boolean;
+  editableNameOnBlur?: (option: IOption) => void;
 }
 
 export default memo<IProps>(function Tab(props) {
-  const { className, tabs, onChange, onEdit, activeTab, hideAdd, type } = props;
+  const { className, tabs, onChange, onEdit, activeTab, hideAdd, type, editableName, editableNameOnBlur } = props;
   const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(tabs || []));
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>(internalTabs[0]?.value);
+  const [editingTab, setEditingTab] = useState<IOption['value'] | undefined>();
 
   useEffect(() => {
     setInternalActiveTab(activeTab);
@@ -52,31 +55,57 @@ export default memo<IProps>(function Tab(props) {
     onEdit?.('add')
   }
 
+  function onDoubleClick(t: IOption) {
+    if (editableName) {
+      setEditingTab(t.value)
+    }
+  }
+
+
+  function renderTabItem(t: IOption, index: number) {
+    function inputOnChange(value: string) {
+      internalTabs[index].label = value
+      setInternalTabs([...internalTabs])
+    }
+
+    function onBlur() {
+      editableNameOnBlur?.(t);
+      setEditingTab(undefined);
+    }
+
+    return <div
+      onDoubleClick={() => { onDoubleClick(t) }}
+      key={t.value}
+      className={
+        classnames(
+          { [styles.tabItem]: type !== 'line' },
+          { [styles.tabItemLine]: type === 'line' },
+          { [styles.activeTabLine]: t.value === internalActiveTab && type === 'line' },
+          { [styles.activeTab]: t.value === internalActiveTab && type !== 'line' },
+        )
+      }
+    >
+      {
+        t.value === editingTab ?
+          <input onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
+          :
+          <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
+            {t.label}
+          </div>
+      }
+      <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
+        <Iconfont code='&#xe634;' />
+      </div>
+    </div>
+  }
+
   return <div className={classnames(styles.tab, className)}>
     {
       !!internalTabs?.length &&
       <div className={styles.tabList}>
         {
           internalTabs.map((t, index) => {
-            return <div
-              key={t.value}
-              className={
-                classnames(
-                  { [styles.tabItem]: type !== 'line' },
-                  { [styles.tabItemLine]: type === 'line' },
-                  { [styles.activeTabLine]: t.value === internalActiveTab && type === 'line' },
-                  { [styles.activeTab]: t.value === internalActiveTab && type !== 'line' },
-                )
-              }
-
-            >
-              <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
-                {t.label}
-              </div>
-              <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
-                <Iconfont code='&#xe634;' />
-              </div>
-            </div>
+            return renderTabItem(t, index)
           })
         }
       </div>
