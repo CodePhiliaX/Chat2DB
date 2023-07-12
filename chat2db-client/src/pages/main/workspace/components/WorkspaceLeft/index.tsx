@@ -286,6 +286,9 @@ const RenderSaveBox = dvaModel(function (props: any) {
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
+    if (!curWorkspaceParams.dataSourceId) {
+      return
+    }
     dispatch({
       type: 'workspace/fetchGetSavedConsole',
       payload: {
@@ -426,7 +429,9 @@ const RenderSaveBox = dvaModel(function (props: any) {
                 key={t.id}
                 className={styles.saveItem}
               >
-                <div dangerouslySetInnerHTML={{ __html: t.name }} />
+                <div className={styles.saveItemText}>
+                  <span dangerouslySetInnerHTML={{ __html: t.name }} />
+                </div>
                 <Dropdown
                   menu={{
                     items: [

@@ -148,12 +148,12 @@ Note: If local debugging is required
 $ git clone git@github.com:alibaba/Chat2DB.git
 ```
 
-- Front-End installation
+- Front-End debug
 
 ```bash
 $ cd Chat2DB/chat2db-client
-$ npm install # Mounting front-end dependency
-$ npm run build:prod # Package js to the source directory on the back end
+$ yarn
+$ yarn run start:web
 ```
 
 - Backend debug
@@ -163,15 +163,6 @@ $ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
 $ cd chat2db-server/chat2db-server-start/target/
 $ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
-$ # open http://127.0.0.1:10821 to start debug Note: Front-end installation is required
-```
-
-- Front-End debug
-
-```bash
-$ cd Chat2DB/chat2db-client
-$ yarn
-$ npm run start:web
 ```
 
 ## 📑 Documentation

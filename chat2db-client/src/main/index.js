@@ -73,7 +73,7 @@ app.on('before-quit', (event) => {
       url: 'http://127.0.0.1:10824/api/system/stop',
     });
     request.end();
-  } catch (error) {}
+  } catch (error) { }
 });
 
 ipcMain.handle('get-product-name', (event) => {
