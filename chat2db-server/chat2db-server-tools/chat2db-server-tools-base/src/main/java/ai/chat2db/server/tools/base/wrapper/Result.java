@@ -49,4 +49,28 @@ public interface Result<T> extends Traceable{
      * @param errorMessage
      */
     void errorMessage(String errorMessage);
+
+    /**
+     * error detail stack info
+     */
+    void errorDetail(String errorDetail);
+
+    /**
+     * error detail
+     *
+     * @return
+     */
+    String errorDetail();
+
+    /**
+     * solution link
+     */
+    void solutionLink(String solutionLink);
+
+    /**
+     * solution link
+     *
+     * @return
+     */
+    String solutionLink();
 }

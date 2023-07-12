@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect } from 'react';
 import i18n from '@/i18n';
 import { Outlet } from 'umi';
-import { ConfigProvider, theme, notification } from 'antd';
+import { ConfigProvider, theme, App, Button, Spin } from 'antd';
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
@@ -22,6 +22,8 @@ import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorag
 import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
+import { NotificationInstance } from 'antd/es/notification/interface';
+import { ModalStaticFunctions } from 'antd/es/modal/confirm';
 
 declare global {
   interface Window {
@@ -34,7 +36,8 @@ declare global {
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
-  const __ENV: string;
+  const __ENV__: string;
+  const __APP_PORT__: string;
 }
 
 const initConfig = () => {
@@ -68,6 +71,7 @@ export default function Layout() {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <AppContainer></AppContainer>
+      {/* <Sub /> */}
     </ConfigProvider>
   );
 }
@@ -75,12 +79,17 @@ export default function Layout() {
 /** 重启次数 */
 const restartCount = 200;
 
+let staticNotification: NotificationInstance;
+
 function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
-  const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
+  const [startSchedule, setStartSchedule] = useState(1); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
+  const { notification } = App.useApp();
+
+  // staticNotification = staticFunction.notification
 
   useEffect(() => {
     let date = new Date('2030-12-30 12:30:00').toUTCString();
@@ -152,7 +161,7 @@ function AppContainer() {
         .testService()
         .then(() => {
           clearInterval(time);
-          // if (__ENV === 'desktop') {
+          // if (__ENV__ === 'desktop') {
           //   window.location.href = 'http://127.0.0.1:10824/'
           // }
           setStartSchedule(2);
@@ -174,23 +183,19 @@ function AppContainer() {
       {initEnd && (
         <div className={styles.app}>
           {/* 待启动状态 */}
-          {startSchedule === 0 && <div></div>}
+          {/* {startSchedule === 0 && <div></div>} */}
           {/* 服务启动中 */}
           {startSchedule === 1 && (
-            <div className={styles.starting}>
+            <>
               <div className={styles.loadingBox}>
-                {!serviceFail && (
-                  <div>
-                    <LoadingLiquid />
-                  </div>
-                )}
-                <div className={styles.hint}>
-                  <Setting text={i18n('common.text.setting')} />
-                </div>
+                <Spin spinning={!serviceFail} />
+                {/* <div className={styles.hint}>
+                    <Setting />
+                  </div> */}
                 {serviceFail && (
                   <>
                     <div className={styles.github}>
-                      {i18n('common.text.contactUs')}-github：
+                      {i18n('common.text.contactUs')}：
                       <a target="_blank" href="https://github.com/chat2db/Chat2DB">
                         github
                       </a>
@@ -201,7 +206,7 @@ function AppContainer() {
                   </>
                 )}
               </div>
-            </div>
+            </>
           )}
           {/* 服务启动完成 */}
           {startSchedule === 2 && <Outlet />}

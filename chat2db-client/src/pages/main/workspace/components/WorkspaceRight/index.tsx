@@ -10,7 +10,7 @@ import LoadingContent from '@/components/Loading/LoadingContent';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
-import { handelLocalStorageSavedConsole } from '@/utils'
+import { handleLocalStorageSavedConsole } from '@/utils';
 
 interface IProps {
   className?: string;
@@ -22,11 +22,7 @@ interface IProps {
 const WorkspaceRight = memo<IProps>(function (props) {
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
   const { className, aiModel, workspaceModel, dispatch } = props;
-  const { databaseAndSchema, curWorkspaceParams, doubleClickTreeNodeData, openConsoleList } = workspaceModel;
-
-  useEffect(() => {
-    getConsoleList();
-  }, [curWorkspaceParams]);
+  const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList } = workspaceModel;
 
   useEffect(() => {
     // 这里只处理没有console的情况下
@@ -63,13 +59,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
       setActiveConsoleId(openConsoleList[0].id);
     } else {
       let flag = false;
-      openConsoleList.forEach((t) => {
+      openConsoleList?.forEach((t) => {
         if (t.id === activeConsoleId) {
           flag = true;
         }
       });
       if (!flag) {
-        setActiveConsoleId(openConsoleList[openConsoleList.length - 1].id);
+        setActiveConsoleId(openConsoleList?.[openConsoleList?.length - 1].id);
       }
     }
   }, [openConsoleList]);
@@ -161,7 +157,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     //   historyService.deleteSavedConsole({ id: window!.id });
     // } else {
     historyService.updateSavedConsole(p).then(() => {
-      handelLocalStorageSavedConsole(p.id, 'delete')
+      handleLocalStorageSavedConsole(p.id, 'delete');
     });
     // }
   };
@@ -212,7 +208,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
           );
         })}
       </LoadingContent>
-    </div>
+    </div >
   );
 });
 

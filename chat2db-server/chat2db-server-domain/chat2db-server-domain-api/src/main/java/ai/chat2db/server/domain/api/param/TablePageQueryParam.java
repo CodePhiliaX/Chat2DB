@@ -1,11 +1,7 @@
 package ai.chat2db.server.domain.api.param;
 
-import java.io.Serial;
-
-import jakarta.validation.constraints.NotNull;
-
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
-
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -44,4 +40,11 @@ public class TablePageQueryParam extends PageQueryParam {
      *
      */
     private String schemaName;
+
+
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
 }

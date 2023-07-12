@@ -1,7 +1,9 @@
-import { formatDate } from './src/utils/date';
+import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
-import { getLang } from '@/utils/localStorage';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
+// yarn run build --app_port=xx 获取打包时命令行传入的参数
+const yarn_config = extractYarnConfig(process.argv);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
@@ -41,11 +43,18 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
-  headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
+  headScripts: [
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+      localStorage.clear();
+      localStorage.setItem('app-local-storage-versions', 'v2');
+    }`,
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`
+  ],
   favicons: ['logo.ico'],
   define: {
-    __ENV: process.env.UMI_ENV,
-    __BUILD_TIME__: formatDate(new Date(), 'yyyyMMddhhmmss'),
-    __APP_VERSION__: process.env.APP_VERSION || '0.0.0',
+    __ENV__: process.env.UMI_ENV,
+    __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
+    __APP_VERSION__: yarn_config.app_version || '0.0.0',
+    __APP_PORT__: yarn_config.app_port 
   },
 });

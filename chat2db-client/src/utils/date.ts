@@ -1,4 +1,4 @@
-export function formatDate(date:any, fmt = 'yyyy-MM-dd') {
+export function formatDate(date: any, fmt = 'yyyy-MM-dd') {
   if (!date) {
     return '';
   }
@@ -8,7 +8,7 @@ export function formatDate(date:any, fmt = 'yyyy-MM-dd') {
   if (!(date instanceof Date) || isNaN(date.getTime())) {
     return '';
   }
-  var o:any = {
+  var o: any = {
     'M+': date.getMonth() + 1,
     'd+': date.getDate(),
     'h+': date.getHours(),
@@ -18,8 +18,20 @@ export function formatDate(date:any, fmt = 'yyyy-MM-dd') {
     S: date.getMilliseconds(),
   };
   if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
-  for (var k  in o)
+  for (var k in o)
     if (new RegExp('(' + k + ')').test(fmt))
       fmt = fmt.replace(RegExp.$1, RegExp.$1.length == 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length));
   return fmt;
+}
+
+// 带有时区的时间戳转换为0时区时间戳
+export function transitionTimezoneTimestamp(timestamp: number) {
+  const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000
+  return timestamp + timezoneOffset
+}
+
+// 通过0时区的时间戳计算出用户的时间戳
+export function getUserTimezoneTimestamp(timestamp: number | string) {
+  const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000
+  return +timestamp - timezoneOffset
 }

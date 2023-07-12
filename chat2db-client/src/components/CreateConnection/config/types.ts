@@ -2,8 +2,11 @@ import { InputType, AuthenticationType, SSHAuthenticationType } from './enum';
 import { DatabaseTypeCode, OperationColumn } from '@/constants';
 
 export type ISelect = {
-  value?: AuthenticationType | SSHAuthenticationType | string;
+  value?: AuthenticationType | SSHAuthenticationType | string | boolean;
   label?: string;
+  rest?: {
+    [key in string]: any
+  }
   items?: IFormItem[];
 };
 
@@ -17,6 +20,8 @@ export interface IFormItem {
   selected?: any;
   selects?: ISelect[];
   labelTextAlign?: 'right';
+  placeholder?: string;
+  placeholderEN?: string;
   styles?: {
     width?: string; // 表单占用的长度 推荐百分比 默认值为 100%
     labelWidthEN?: string; // 英文环境下表单label的长度 推荐px 默认值为 70px
@@ -34,6 +39,9 @@ export type IConnectionConfig = {
     template: string;
     excludes?: OperationColumn[];
   },
+  driver?: {
+    items: IFormItem[];
+  }
   ssh: {
     items: IFormItem[];
   },

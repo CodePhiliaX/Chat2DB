@@ -8,6 +8,11 @@
 
 目录结构 tree ./ -L 2 -I node_modules
 
+## 启动项目
+  0. 强制使用yarn，因为环境变量、lock文件只维护了yarn，npm/pnpm可能会产生意想不到的bug
+  1. `yarn`
+  2. `yarn run start:web`
+
 ## TS书写规范
   1. 所有的interfase 与 type 必须已I开头
     `interfase IState { name: string }` // good

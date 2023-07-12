@@ -170,7 +170,13 @@ public class EasyControllerExceptionHandler {
     public ActionResult convert(Throwable exception) {
         ExceptionConvertor exceptionConvertor = EXCEPTION_CONVERTOR_MAP.get(exception.getClass());
         if (exceptionConvertor == null) {
-            exceptionConvertor = DEFAULT_EXCEPTION_CONVERTOR;
+            if (exception instanceof BusinessException) {
+                exceptionConvertor = EXCEPTION_CONVERTOR_MAP.get(BusinessException.class);
+            } else if (exception instanceof SystemException) {
+                exceptionConvertor = EXCEPTION_CONVERTOR_MAP.get(SystemException.class);
+            } else {
+                exceptionConvertor = DEFAULT_EXCEPTION_CONVERTOR;
+            }
         }
         return exceptionConvertor.convert(exception);
     }

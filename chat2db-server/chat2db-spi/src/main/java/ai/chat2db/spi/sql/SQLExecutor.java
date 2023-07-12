@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.spi.model.*;
 
 import cn.hutool.core.date.TimeInterval;
@@ -94,6 +95,7 @@ public class SQLExecutor {
 
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
+            stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
             TimeInterval timeInterval = new TimeInterval();
             boolean query = stmt.execute(sql.replaceFirst(";", ""));
             executeResult.setDescription("执行成功");
@@ -111,17 +113,19 @@ public class SQLExecutor {
                     executeResult.setHeaderList(headerList);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                                .name(resultSetMetaData.getColumnName(i))
-                                .build());
+                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                            .name(resultSetMetaData.getColumnName(i))
+                            .build());
                     }
 
                     // 获取数据信息
                     List<List<String>> dataList = Lists.newArrayList();
                     executeResult.setDataList(dataList);
 
-                    while (rs.next()) {
+                    int n = 0;
+                    while (rs.next() && n < EasyToolsConstant.MAX_PAGE_SIZE) {
+                        n++;
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
@@ -152,7 +156,6 @@ public class SQLExecutor {
         return execute(sql, getConnection());
     }
 
-
     /**
      * 获取所有的数据库
      *
@@ -181,6 +184,21 @@ public class SQLExecutor {
      */
     public List<Map<String, String>> schemas(String databaseName, String schemaName) {
         List<Map<String, String>> schemaList = Lists.newArrayList();
+        if (StringUtils.isEmpty(databaseName) && StringUtils.isEmpty(schemaName)) {
+            try (ResultSet resultSet = getConnection().getMetaData().getSchemas()) {
+                if (resultSet != null) {
+                    while (resultSet.next()) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("name", resultSet.getString("TABLE_SCHEM"));
+                        map.put("databaseName", resultSet.getString("TABLE_CATALOG"));
+                        schemaList.add(map);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Get schemas error", e);
+            }
+            return schemaList;
+        }
         try (ResultSet resultSet = getConnection().getMetaData().getSchemas(databaseName, schemaName)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
@@ -191,7 +209,7 @@ public class SQLExecutor {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Get schemas error", e);
         }
         return schemaList;
     }
@@ -207,11 +225,16 @@ public class SQLExecutor {
      */
     public List<Table> tables(String databaseName, String schemaName, String tableName, String types[]) {
         List<Table> tables = Lists.newArrayList();
+        int n = 0;
         try (ResultSet resultSet = getConnection().getMetaData().getTables(databaseName, schemaName, tableName,
-                types)) {
+            types)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
+                    n++;
                     tables.add(buildTable(resultSet));
+                    if (n >= 5000) {// 最多只取5000条
+                        break;
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -232,7 +255,7 @@ public class SQLExecutor {
     public List<TableColumn> columns(String databaseName, String schemaName, String tableName, String columnName) {
         List<TableColumn> tableColumns = Lists.newArrayList();
         try (ResultSet resultSet = getConnection().getMetaData().getColumns(databaseName, schemaName, tableName,
-                columnName)) {
+            columnName)) {
             if (resultSet != null) {
                 while (resultSet.next()) {
                     tableColumns.add(buildColumn(resultSet));
@@ -254,8 +277,9 @@ public class SQLExecutor {
      */
     public List<TableIndex> indexes(String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
-        try (ResultSet resultSet = getConnection().getMetaData().getIndexInfo(databaseName, schemaName, tableName, false,
-                false)) {
+        try (ResultSet resultSet = getConnection().getMetaData().getIndexInfo(databaseName, schemaName, tableName,
+            false,
+            false)) {
             List<TableIndexColumn> tableIndexColumns = Lists.newArrayList();
 
             while (resultSet != null && resultSet.next()) {
@@ -263,18 +287,18 @@ public class SQLExecutor {
             }
 
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
-                            Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
-                    .stream().forEach(entry -> {
-                        TableIndex tableIndex = new TableIndex();
-                        TableIndexColumn column = entry.getValue().get(0);
-                        tableIndex.setName(entry.getKey());
-                        tableIndex.setTableName(column.getTableName());
-                        tableIndex.setSchemaName(column.getSchemaName());
-                        tableIndex.setDatabaseName(column.getDatabaseName());
-                        tableIndex.setUnique(!column.getNonUnique());
-                        tableIndex.setColumnList(entry.getValue());
-                        tableIndices.add(tableIndex);
-                    });
+                    Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
+                .stream().forEach(entry -> {
+                    TableIndex tableIndex = new TableIndex();
+                    TableIndexColumn column = entry.getValue().get(0);
+                    tableIndex.setName(entry.getKey());
+                    tableIndex.setTableName(column.getTableName());
+                    tableIndex.setSchemaName(column.getSchemaName());
+                    tableIndex.setDatabaseName(column.getDatabaseName());
+                    tableIndex.setUnique(!column.getNonUnique());
+                    tableIndex.setColumnList(entry.getValue());
+                    tableIndices.add(tableIndex);
+                });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -289,7 +313,7 @@ public class SQLExecutor {
      * @return
      */
     public List<ai.chat2db.spi.model.Function> functions(String databaseName,
-                                                         String schemaName) {
+        String schemaName) {
         List<ai.chat2db.spi.model.Function> functions = Lists.newArrayList();
         try (ResultSet resultSet = getConnection().getMetaData().getFunctions(databaseName, schemaName, null);) {
             while (resultSet != null && resultSet.next()) {

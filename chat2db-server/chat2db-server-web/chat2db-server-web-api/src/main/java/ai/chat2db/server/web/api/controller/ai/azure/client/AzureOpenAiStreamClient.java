@@ -84,7 +84,7 @@ public class AzureOpenAiStreamClient {
                         text = message.getContent();
                     }
                 }
-                if (StringUtils.isNotBlank(text)) {
+                if (Objects.nonNull(text)) {
                     eventSourceListener.onEvent(null, "[DATA]", null, text);
                 }
                 CompletionsUsage usage = chatCompletions.getUsage();

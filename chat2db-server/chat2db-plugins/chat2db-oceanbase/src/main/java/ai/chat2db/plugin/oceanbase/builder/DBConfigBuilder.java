@@ -13,7 +13,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("oceanbase-client-2.4.2.jar");
         driverConfig.setJdbcDriverClass("com.oceanbase.jdbc.Driver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/oceanbase-client-2.4.2.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

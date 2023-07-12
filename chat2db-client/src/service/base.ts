@@ -1,6 +1,7 @@
 import { extend, ResponseError } from 'umi-request';
 import { message, notification } from 'antd';
 import { getLang } from '@/utils/localStorage';
+import ErrorNotification from '@/components/MyNotification';
 const path = require('path');
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
@@ -9,7 +10,8 @@ export interface IOptions {
   mock?: boolean;
   errorLevel?: 'toast' | 'prompt' | 'critical' | false;
   delayTime?: number | true;
-  outside?: true;
+  outside?: boolean;
+  isFullPath?: boolean;
 }
 
 // TODO:
@@ -42,7 +44,7 @@ const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
 const mockUrl = 'https://yapi.alibaba.com/mock/1000160';
 
 // 桌面端的服务器地址
-const desktopServiceUrl = `http://127.0.0.1:${process.env.APP_PORT || '10824'}`;
+const desktopServiceUrl = `http://127.0.0.1:${__APP_PORT__ || '10824'}`;
 
 // 非桌面端的服务器地址
 const prodServiceUrl = location.origin;
@@ -108,7 +110,7 @@ request.interceptors.request.use((url, options) => {
 
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
-  if (__ENV === 'desktop') {
+  if (__ENV__ === 'desktop') {
     const DBHUB = response.headers.get('DBHUB') || '';
     if (DBHUB) {
       localStorage.setItem('DBHUB', DBHUB);
@@ -125,10 +127,10 @@ request.interceptors.response.use(async (response, options) => {
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside } = options || {};
+  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath } = options || {};
 
   // 是否需要mock
-  let _baseURL = mock ? mockUrl : baseURL;
+  let _baseURL = (mock ? mockUrl : baseURL) || '';
   return function (params: P) {
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
@@ -162,20 +164,22 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           break;
       }
 
-      const eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+      let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
+      eventualUrl = isFullPath ? url : eventualUrl;
 
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {
           if (!res) return;
-          const { success, errorCode, errorMessage, data } = res;
+          const { success, errorCode, errorMessage, errorDetail, solutionLink, data } = res;
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
-              // notification.open({
-              //   type: 'error',
-              //   message: errorCode,
-              //   description: errorMessage,
-              // });
-              message.error(`${errorCode}: ${errorMessage}`);
+              ErrorNotification({
+                errorCode,
+                errorMessage,
+                errorDetail,
+                solutionLink,
+              });
+              // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
             return;

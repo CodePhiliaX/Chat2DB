@@ -25,20 +25,19 @@ interface IViewTableCellData {
   name: string;
   value: any;
 }
-// --bgcolor: #333;
-// --header-bgcolor: #45494f;
+
 const DarkSupportBaseTable: any = styled(BaseTable)`
   &.dark {
-    --bgcolor: #131418;
-    --header-bgcolor: #0a0b0c;
+    --bgcolor: var(--color-bg-base);
+    --header-bgcolor: var(--color-bg-elevated);
     --hover-bgcolor: #46484a;
     --header-hover-bgcolor: #606164;
     --highlight-bgcolor: #191a1b;
     --header-highlight-bgcolor: #191a1b;
-    --color: #dadde1;
+    --color: var(--color-text);
     --header-color: #dadde1;
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
-    --border-color: transparent;
+    --border-color: var(--color-border-secondary);
   }
 `;
 
@@ -48,15 +47,6 @@ export default function TableBox(props: ITableProps) {
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
-  // const [sorts, onChangeSorts] = useState<SortItem[]>([]);
-
-  // useEffect(() => {
-  //   const sorts: SortItem[] = (headerList || []).map((item) => ({
-  //     code: item.name,
-  //     order: 'none',
-  //   }));
-  //   onChangeSorts(sorts);
-  // }, [headerList]);
 
   const defaultSorts: SortItem[] = useMemo(
     () =>
@@ -137,6 +127,7 @@ export default function TableBox(props: ITableProps) {
       features.sort({
         mode: 'single',
         defaultSorts,
+        highlightColumnWhenActive: true,
         // sorts,
         // onChangeSorts,
       }),
@@ -158,13 +149,13 @@ export default function TableBox(props: ITableProps) {
         // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
         <>
           <DarkSupportBaseTable
-            style={{
-              '--border-color': 'transparent',
-            }}
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
+            components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n('common.text.timeConsuming')}：${duration}ms`}</div>
+          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(
+            'common.text.timeConsuming',
+          )}：${duration}ms`}</div>
         </>
       ) : (
         <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
@@ -188,12 +179,10 @@ export default function TableBox(props: ITableProps) {
         <div className={styles.monacoEditor}>
           <MonacoEditor
             id="view_table-Cell_data"
-            appendValue={
-              {
-                text: viewTableCellData?.value,
-                range: 'reset',
-              }
-            }
+            appendValue={{
+              text: viewTableCellData?.value,
+              range: 'reset',
+            }}
             options={{
               readOnly: true,
             }}

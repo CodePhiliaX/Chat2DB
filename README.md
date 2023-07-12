@@ -2,7 +2,7 @@
 
 <div align="center">
 
- An intelligent and versatile general-purpose SQL client and reporting tool for databases which integrates ChatGPT capabilities.
+An intelligent and versatile general-purpose SQL client and reporting tool for databases which integrates ChatGPT capabilities.
 
 [![License](https://img.shields.io/github/license/alibaba/fastjson2?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub release](https://img.shields.io/github/release/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/releases)
@@ -25,17 +25,19 @@
 **License Notation**: Chat2DB is constructed and distributed for personal and non-commercial use only. For commercial use of this project, please contact corresponding authors.
 
 Languages： English | [中文](README_CN.md)
-</div>
 
+</div>
 
 ## DEMO
 
 https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb7572465a2e
 
-
 ## 📖 Introduction
-&emsp; &emsp;Chat2DB is a multi-database client tool that is open-source and free from Alibaba. It supports local installation on Windows and Mac, as well as server-side deployment and web page access. Compared to traditional database client software such as Navicat and DBeaver, Chat2DB integrates AIGC's capabilities and is able to convert natural language into SQL. It can also convert SQL into natural language and provide optimization suggestions for SQL to greatly enhance the efficiency of developers. It is a tool for database developers in the AI era, and even non-SQL business operators in the future can use it to quickly query business data and generate reports.
+
+&emsp; &emsp;Chat2DB is a multi-database client tool that is open-source and free. It supports local installation on Windows and Mac, as well as server-side deployment and web page access. Compared to traditional database client software such as Navicat and DBeaver, Chat2DB integrates AIGC's capabilities and is able to convert natural language into SQL. It can also convert SQL into natural language and provide optimization suggestions for SQL to greatly enhance the efficiency of developers. It is a tool for database developers in the AI era, and even non-SQL business operators in the future can use it to quickly query business data and generate reports.
+
 ## ✨ Features
+
 - 🌈 AI intelligent assistant, supporting natural language to SQL conversion, SQL to natural language conversion, and SQL optimization suggestions
 - 👭 Support team collaboration, developers do not need to know the online database password, solving the problem of enterprise database account security
 - ⚙️ Powerful data management capability, supporting management of data tables, views, stored procedures, functions, triggers, indexes, sequences, users, roles, authorizations, etc.
@@ -43,52 +45,61 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 - 🛡 Front-end development using Electron, providing a solution that integrates Windows, Mac, Linux clients, and web versions
 - 🎁 Support environment isolation, online, and daily data permission separation
 
-
 ## ⏬ Download and Install
 
-| Description                   | Download                                                                                                                                                   |
-|-----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows      | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB%20Setup%202.0.1.exe](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB%20Setup%202.0.1.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1-arm64.dmg)         |
-| MacOS X64  | [https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1.dmg](https://oss-chat2db.alibaba.com/release/2.0.1/Chat2DB-2.0.1.dmg)                     |
-| Jar包         | [https://oss-chat2db.alibaba.com/release/2.0.1/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.1/chat2db-server-start.jar)         |
+| Description | Download                                                                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Windows     | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe) |
+| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg)         |
+| MacOS X64   | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg)                     |
+| Jar 包      | [https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar)       |
 
 ## 🚀 Supported databases
-| Databases     | Status    |
-|---------------|---------|
+
+| Databases     | Status   |
+| ------------- | -------- |
 | Mysql         | ✅       |
 | H2            | ✅       |
-| Oracle        | ✅       |       
-| PostgreSQL    | ✅       |                                                                                                                
-| SQLServer     | ✅       |   
-| SQLLite       | ✅       |   
-| MariaDB       | ✅       |   
-| ClickHouse    | ✅       |   
-| DM            | ✅       |   
-| Presto        | ✅       |   
-| DB2           | ✅       |   
-| OceanBase     | ✅       |   
-| Redis         | ✅       |   
-| Hive          | ✅       |   
-| KingBase      | ✅       |   
-| MongoDB       | ✅       |   
-| Hbase         |Planning |  
-| Elasticsearch | Planning | 
-| openGauss     | Planning | 
+| Oracle        | ✅       |
+| PostgreSQL    | ✅       |
+| SQLServer     | ✅       |
+| SQLLite       | ✅       |
+| MariaDB       | ✅       |
+| ClickHouse    | ✅       |
+| DM            | ✅       |
+| Presto        | ✅       |
+| DB2           | ✅       |
+| OceanBase     | ✅       |
+| Redis         | ✅       |
+| Hive          | ✅       |
+| KingBase      | ✅       |
+| MongoDB       | ✅       |
+| Hbase         | Planning |
+| Elasticsearch | Planning |
+| openGauss     | Planning |
 | TiDB          | Planning |
 | InfluxDB      | Planning |
 
 ## 🌰 Demo
+
 ### Create data source
+
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/1d7f2d05-9c3b-4308-a693-39aed44a4b39.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+
 ### Data source management
+
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/d5634953-9fe5-4a03-8024-3aa4774b2955.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+
 ### SQL console
+
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/f1a111bd-38cf-42d2-bfd3-f1d7f57aec3c.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+
 ### AI intelligent assistant
+
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/16e3c632-f896-45c3-a7a2-91c338e82f73.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
 ## 🔥 AI Configuration
+
 ### CONFIGURE OPENAI
 
 Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions must be met:
@@ -103,19 +114,17 @@ Option 2 (recommended): We provide a unified proxy service.
 - No OPENAI_API_KEY is required.
 - No proxy or VPN is required, as long as the network is connected.
 
-To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY. 
+To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY.
 
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/5ee43d26-05bb-4b12-b705-2b263f167975.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
-
 ### CONFIGURE CUSTOM AI
+
 - Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
 - DEMO for configuring customized stream output interface.
   <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/3b74fea5-526d-40ea-9edb-27484921c578.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 - DEMO for configuring customized non-stream output interface.
   <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/eb82d1ee-ab13-46f8-a454-60968482e584.png#1011"/></a>
-
-
 
 ## 📦 Docker installation
 
@@ -124,23 +133,31 @@ docker pull chat2db/chat2db:latest
 ```
 
 ## 🎯 Operating Environment
+
 Note: If local debugging is required
+
 - Java runtime Open JDK 17
 - JRE reference packaging and deployment method of jre.
 - Node runtime environment Node16 Node.js.
 
 ## 💻 Local Debugging
+
 - git clone to local
+
 ```bash
 $ git clone git@github.com:alibaba/Chat2DB.git
 ```
+
 - Front-End installation
+
 ```bash
 $ cd Chat2DB/chat2db-client
 $ npm install # Mounting front-end dependency
 $ npm run build:prod # Package js to the source directory on the back end
 ```
+
 - Backend debug
+
 ```bash
 $ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
@@ -150,62 +167,40 @@ $ # open http://127.0.0.1:10821 to start debug Note: Front-end installation is r
 ```
 
 - Front-End debug
+
 ```bash
 $ cd Chat2DB/chat2db-client
-$ yarn 
+$ yarn
 $ npm run start:web
-$ # open http://127.0.0.1:10821  to start Front-End debug
-$ # Note Front-end page completely depends on the service, so front-end students need to debug the back-end project
-```
-But front debugging need mapping of resources, you can download [XSwitch](https://chrome.google.com/webstore/detail/idkjhjggpffolpidfkikidcokdkdaogg), add the following configuration file
-``` json
-{
-  "proxy": [
-    [
-      "http://127.0.0.1:10821/(.*).js$",
-      "http://127.0.0.1:8001/$1.js",
-    ],
-    [
-      "http://127.0.0.1:10821/(.*).css$",
-      "http://127.0.0.1:8001/$1.css",
-    ],
-    [
-      "http://127.0.0.1:10821/static/front/(.*)",
-      "http://127.0.0.1:8001/$1",
-    ],
-    [
-      "http://127.0.0.1:10821/static/(.*)$",
-      "http://127.0.0.1:8001/static/$1",
-    ],
-  ],
-}
-
 ```
 
 ## 📑 Documentation
 
-* <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-* <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+- <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
+- <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
 
 ## Stargazers
+
 [![Stargazers repo roster for @chat2db/Chat2DB](https://reporoster.com/stars/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/stargazers)
 
 ## Forkers
+
 [![Forkers repo roster for @chat2db/Chat2DB](https://reporoster.com/forks/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/network/members)
 
 ## ☎️ Contact Us
+
 Please star and fork on GitHub before joining the group.
 Follow our WeChat public account.
 
 <a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
 
 ## ❤️ Acknowledgements
+
 Thanks to all the students who contributed to Chat2DB~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
 </a>
-
 
 ## Star History
 
@@ -216,5 +211,3 @@ Thanks to all the students who contributed to Chat2DB~
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
   </picture>
 </a>
-
-

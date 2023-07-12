@@ -23,6 +23,10 @@
             <artifactId>chat2db-server-domain-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-server-domain-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -41,6 +45,16 @@
         <dependency>
             <groupId>com.theokanning.openai-gpt3-java</groupId>
             <artifactId>service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <!-- http -->
+        <dependency>
+            <groupId>com.dtflys.forest</groupId>
+            <artifactId>forest-spring-boot3-starter</artifactId>
         </dependency>
     </dependencies>
 
