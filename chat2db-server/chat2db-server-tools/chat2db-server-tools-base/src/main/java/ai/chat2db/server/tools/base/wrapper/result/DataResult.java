@@ -3,11 +3,8 @@ package ai.chat2db.server.tools.base.wrapper.result;
 import java.io.Serializable;
 import java.util.function.Function;
 
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.wrapper.Result;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -27,7 +24,6 @@ public class DataResult<T> implements Serializable, Result<T> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
 
     /**
@@ -41,6 +37,16 @@ public class DataResult<T> implements Serializable, Result<T> {
      * 错误信息
      */
     private String errorMessage;
+
+    /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
 
     /**
      * 数据信息
@@ -155,5 +161,25 @@ public class DataResult<T> implements Serializable, Result<T> {
     @Override
     public void errorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
     }
 }

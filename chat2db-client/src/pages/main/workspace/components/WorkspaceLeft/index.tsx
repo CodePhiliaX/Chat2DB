@@ -2,7 +2,7 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown, Button } from 'antd';
+import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
@@ -19,17 +19,22 @@ interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelType['state'],
   dispatch: any;
+  cascaderOptions: any;
+  tableLoading: boolean;
+  databaseLoading: boolean;
 }
 
 const dvaModel = connect(
-  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
+  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
+    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
+    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
 
 const WorkspaceLeft = memo<IProps>(function (props) {
-  const { className, workspaceModel, dispatch } = props;
+  const { className, workspaceModel, dispatch, cascaderOptions } = props;
   const { curWorkspaceParams } = workspaceModel;
 
 
@@ -77,7 +82,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
   return (
     <div className={classnames(styles.box, className)}>
       <div className={styles.header}>
-        <RenderSelectDatabase />
+        <RenderSelectDatabase cascaderOptions={cascaderOptions} />
       </div>
       <RenderSaveBox></RenderSaveBox>
       <Divider className={styles.divider} />
@@ -104,74 +109,13 @@ interface IProps {
   dispatch: any;
 }
 
-function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
-  let newCascaderOptions: Option[] = [];
-  if (databaseAndSchema?.databases) {
-    newCascaderOptions = (databaseAndSchema?.databases || []).map((t) => {
-      let schemasList: Option[] = [];
-      if (t.schemas) {
-        schemasList = t.schemas.map((t) => {
-          return {
-            value: t.name,
-            label: t.name,
-          };
-        });
-      }
-      return {
-        value: t.name,
-        label: t.name,
-        children: schemasList,
-      };
-    });
-  } else if (databaseAndSchema?.schemas) {
-    newCascaderOptions = (databaseAndSchema?.schemas || []).map((t) => {
-      return {
-        value: t.name,
-        label: t.name,
-      };
-    });
-  }
-  return newCascaderOptions;
-}
-
 const RenderSelectDatabase = dvaModel(function (props: IProps) {
-  const { connectionModel, workspaceModel, dispatch } = props;
-  const { databaseAndSchema, curWorkspaceParams } = workspaceModel;
+  const { connectionModel, workspaceModel, dispatch, cascaderOptions } = props;
+  const { curWorkspaceParams } = workspaceModel;
   const { curConnection } = connectionModel;
   const [currentSelectedName, setCurrentSelectedName] = useState('');
+  const [cascaderLoading, setCascaderLoading] = useState(false)
 
-  useEffect(() => {
-    if (curConnection?.id) {
-      dispatch({
-        type: 'workspace/fetchDatabaseAndSchema',
-        payload: {
-          dataSourceId: curConnection.id,
-        },
-      });
-    }
-  }, [curConnection]);
-
-  const cascaderOptions = useMemo(() => {
-    if (!databaseAndSchema) {
-      return
-    }
-    const res = handleDatabaseAndSchema(databaseAndSchema);
-    if (!curWorkspaceParams?.dataSourceId || curWorkspaceParams?.dataSourceId !== curConnection?.id) {
-      // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
-      const curWorkspaceParams = {
-        dataSourceId: curConnection?.id,
-        databaseSourceName: curConnection?.alias,
-        databaseName: res?.[0]?.value,
-        schemaName: res?.[0]?.children?.[0]?.value,
-        databaseType: curConnection?.type,
-      };
-      dispatch({
-        type: 'workspace/setCurWorkspaceParams',
-        payload: curWorkspaceParams,
-      });
-    }
-    return res;
-  }, [databaseAndSchema]);
 
   useEffect(() => {
     if (curWorkspaceParams) {
@@ -203,6 +147,20 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
 
   const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
 
+  function handleRefresh() {
+    setCascaderLoading(true)
+    dispatch({
+      type: 'workspace/fetchDatabaseAndSchema',
+      payload: {
+        dataSourceId: curConnection?.id,
+        refresh: true
+      },
+      callback: () => {
+        setCascaderLoading(false)
+      }
+    });
+  }
+
   return (
     <div className={styles.selectDatabaseBox}>
       <Cascader
@@ -219,17 +177,17 @@ const RenderSelectDatabase = dvaModel(function (props: IProps) {
           <Iconfont code="&#xe608;" />
         </div>
       </Cascader>
-      {/* <div className={styles.otherOperations}>
-        <div className={styles.iconBox}>
-          <Iconfont code="&#xec08;" />
+      <div className={styles.otherOperations}>
+        <div className={classnames(styles.refreshIconBox, styles.iconBox)} onClick={handleRefresh}>
+          {cascaderLoading ? <Spin /> : <Iconfont code="&#xec08;" />}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 });
 
 const RenderTableBox = dvaModel(function (props: any) {
-  const { workspaceModel, dispatch } = props;
+  const { workspaceModel, dispatch, tableLoading } = props;
   const { curWorkspaceParams, curTableList } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
@@ -276,6 +234,7 @@ const RenderTableBox = dvaModel(function (props: any) {
         type: 'workspace/fetchGetCurTableList',
         payload: {
           ...curWorkspaceParams,
+          refresh: true,
           extraParams: curWorkspaceParams,
         }
       })
@@ -312,7 +271,7 @@ const RenderTableBox = dvaModel(function (props: any) {
             </div>
         }
       </div>
-      <LoadingContent className={styles.treeBox} data={curTableList} handleEmpty>
+      <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
         <Tree className={styles.tree} initialData={searchedTableList || curTableList}></Tree>
       </LoadingContent>
     </div>

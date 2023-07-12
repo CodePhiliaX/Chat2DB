@@ -33,9 +33,13 @@ function createWindow() {
   });
 
   // 监听打开新窗口事件 用默认浏览器打开
-  mainWindow.webContents.on('new-window', function (event, url) {
-    event.preventDefault();
+  // mainWindow.webContents.on('new-window', function (event, url) {
+  //   event.preventDefault();
+  //   shell.openExternal(url);
+  // });
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
+    return { action: 'deny' };
   });
 }
 
@@ -60,21 +64,16 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', (event) => {
-  const request = net.request({
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    url: 'http://127.0.0.1:10824/api/system/stop',
-  });
-  request.write(JSON.stringify({}));
-  request.on('response', (response) => {
-    response.on('data', (res) => {
-      let data = JSON.parse(res.toString());
+  try {
+    const request = net.request({
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      url: 'http://127.0.0.1:10824/api/system/stop',
     });
-    response.on('end', () => {});
-  });
-  request.end();
+    request.end();
+  } catch (error) {}
 });
 
 ipcMain.handle('get-product-name', (event) => {

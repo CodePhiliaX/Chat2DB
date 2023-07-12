@@ -140,7 +140,7 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
 }
 
 // 处理console的保存和删除操作
-export function handelLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
+export function handleLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
   const saved = localStorage.getItem(`timing-auto-save-console-v1`);
   let savedObj: any = {};
   if (saved) {
@@ -174,6 +174,7 @@ export function clearOlderLocalStorage() {
   }
 }
 
+// 判断是否需要更新版本
 export function isVersionHigher(version: string, currentVersion: string): boolean {
   // 按照 . 分割版本号
   const versionParts = version.split('.');

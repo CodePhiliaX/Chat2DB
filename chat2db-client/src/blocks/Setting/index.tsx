@@ -37,10 +37,22 @@ function Setting(props: IProps) {
   const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(initChatGPTConfig);
 
   const [currentMenu, setCurrentMenu] = useState(0);
+
   useEffect(() => {
+    getChatGptSystemConfig();
+  }, []);
+
+  useEffect(() => {
+    if (!isModalVisible) {
+      return;
+    }
+    getChatGptSystemConfig();
+  }, [isModalVisible]);
+
+  const getChatGptSystemConfig = () => {
     configService.getChatGptSystemConfig().then((res: IChatGPTConfig) => {
       if (!res) {
-        return
+        return;
       }
       handleUpdateAiConfig({
         key: res.apiKey,
@@ -52,7 +64,7 @@ function Setting(props: IProps) {
         aiSqlSource: res.aiSqlSource || AiSqlSourceType.CHAT2DBAI,
       });
     });
-  }, []);
+  };
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -111,8 +123,8 @@ function Setting(props: IProps) {
         {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
-            <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-          )}
+          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
+        )}
       </div>
       <TestVersion></TestVersion>
       <Modal

@@ -54,13 +54,11 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
             return;
         }
         Message message = new Message();
-        if (StringUtils.isNotBlank(data)) {
-            message.setContent(data);
-            sseEmitter.send(SseEmitter.event()
-                .id(null)
-                .data(message)
-                .reconnectTime(3000));
-        }
+        message.setContent(data);
+        sseEmitter.send(SseEmitter.event()
+            .id(null)
+            .data(message)
+            .reconnectTime(3000));
     }
 
     @Override

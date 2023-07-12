@@ -31,4 +31,9 @@ public class DataSourceConnect {
      * 描述
      */
     private String description;
+
+    /**
+     * error detail
+     */
+    private String errorDetail;
 }

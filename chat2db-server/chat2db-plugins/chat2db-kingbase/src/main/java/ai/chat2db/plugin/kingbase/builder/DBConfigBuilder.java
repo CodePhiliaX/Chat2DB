@@ -11,9 +11,8 @@ public class DBConfigBuilder {
         dbConfig.setDbType("KINGBASE");
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("kingbase8-8.6.0.jar");
-        driverConfig.setJdbcDriverClass("om.kingbase8.Driver");
+        driverConfig.setJdbcDriverClass("com.kingbase8.Driver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/kingbase8-8.6.0.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

@@ -3,9 +3,10 @@ package ai.chat2db.server.domain.api.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-import ai.chat2db.spi.model.*;
-
+import ai.chat2db.spi.config.DriverConfig;
+import ai.chat2db.spi.model.KeyValue;
+import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.model.SSLInfo;
 import lombok.Data;
 
 /**
@@ -101,4 +102,9 @@ public class DataSource {
      * 扩展信息
      */
     private List<KeyValue> extendInfo;
+
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }

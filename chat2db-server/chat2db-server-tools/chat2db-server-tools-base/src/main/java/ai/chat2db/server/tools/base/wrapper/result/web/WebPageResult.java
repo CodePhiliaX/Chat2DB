@@ -32,7 +32,6 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
      *
      * @mock true
      */
-    @NotNull
     private Boolean success;
     /**
      * 异常编码
@@ -50,6 +49,16 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
      * traceId
      */
     private String traceId;
+
+    /**
+     * error detail
+     */
+    private String errorDetail;
+
+    /**
+     * solution link
+     */
+    private String solutionLink;
 
     public WebPageResult() {
         this.success = Boolean.TRUE;
@@ -230,6 +239,26 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     @Override
     public void errorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void errorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
+    @Override
+    public String errorDetail() {
+        return errorDetail;
+    }
+
+    @Override
+    public void solutionLink(String solutionLink) {
+        this.solutionLink = solutionLink;
+    }
+
+    @Override
+    public String solutionLink() {
+        return solutionLink;
     }
 
     /**

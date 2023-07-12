@@ -1,4 +1,3 @@
-import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 // const UMI_PublicPath = process.env.UMI_PublicPath || './static/front/';

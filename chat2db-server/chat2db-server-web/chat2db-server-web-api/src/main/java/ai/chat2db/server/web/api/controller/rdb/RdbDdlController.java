@@ -75,7 +75,7 @@ public class RdbDdlController {
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-                request.getPageSize());
+            request.getPageSize());
     }
 
     /**
@@ -100,7 +100,8 @@ public class RdbDdlController {
      */
     @GetMapping("/database_schema_list")
     public DataResult<MetaSchemaVO> databaseSchemaList(@Valid DataSourceBaseRequest request) {
-        MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId()).refresh(
+            request.isRefresh()).build();
         DataResult<MetaSchema> result = databaseService.queryDatabaseSchema(queryParam);
         MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
         return DataResult.of(schemaDto2vo);
@@ -139,7 +140,7 @@ public class RdbDdlController {
     @PostMapping("/modify_database")
     public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
         DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName())
-                .newDatabaseName(request.getNewDatabaseName()).build();
+            .newDatabaseName(request.getNewDatabaseName()).build();
         return databaseService.modifyDatabase(param);
     }
 
@@ -152,7 +153,7 @@ public class RdbDdlController {
     @PostMapping("/delete_schema")
     public ActionResult deleteSchema(@Valid @RequestBody DataSourceBaseRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-                .schemaName(request.getSchemaName()).build();
+            .schemaName(request.getSchemaName()).build();
         return databaseService.deleteSchema(param);
     }
 
@@ -165,7 +166,7 @@ public class RdbDdlController {
     @PostMapping("/create_schema")
     public ActionResult createSchema(@Valid @RequestBody DataSourceBaseRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-                .schemaName(request.getSchemaName()).build();
+            .schemaName(request.getSchemaName()).build();
         return databaseService.createSchema(param);
     }
 
@@ -178,7 +179,7 @@ public class RdbDdlController {
     @PostMapping("/modify_schema")
     public ActionResult modifySchema(@Valid @RequestBody UpdateSchemaRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-                .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
+            .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
         return databaseService.modifySchema(param);
     }
 
@@ -283,9 +284,9 @@ public class RdbDdlController {
     @GetMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid TableModifySqlRequest request) {
         return tableService.buildSql(
-                        rdbWebConverter.tableRequest2param(request.getOldTable()),
-                        rdbWebConverter.tableRequest2param(request.getNewTable()))
-                .map(rdbWebConverter::dto2vo);
+                rdbWebConverter.tableRequest2param(request.getOldTable()),
+                rdbWebConverter.tableRequest2param(request.getNewTable()))
+            .map(rdbWebConverter::dto2vo);
     }
 
     /**

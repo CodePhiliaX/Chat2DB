@@ -13,7 +13,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("hive-jdbc-3.1.2-standalone.jar");
         driverConfig.setJdbcDriverClass("org.apache.hive.jdbc.HiveDriver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/hive-jdbc-3.1.2-standalone.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

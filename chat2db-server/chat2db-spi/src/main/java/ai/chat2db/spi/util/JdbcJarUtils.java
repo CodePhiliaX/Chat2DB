@@ -27,7 +27,7 @@ public class JdbcJarUtils {
 
     private static final OkHttpClient client = new OkHttpClient();
 
-    private static final String PATH = System.getProperty("user.home") + File.separator + ".chat2db" + File.separator
+    public static final String PATH = System.getProperty("user.home") + File.separator + ".chat2db" + File.separator
         + "jdbc-lib" + File.separator;
 
     static {

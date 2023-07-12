@@ -8,7 +8,29 @@
   bottom: 0;
   display: none;
   overflow: auto;
-  background-color: var(--color-bg-elevated);
+  :global {
+    // .hGEOgo td {
+    //   border-bottom: 0;
+    //   // height: 400px !important;
+    // }
+    .hGEOgo td.first {
+      border-left: 0;
+    }
+    .hGEOgo tr.first th {
+      border-top: 0;
+    }
+    .hGEOgo th.first {
+      border-left: 0;
+    }
+
+    .art-table-cell {
+      position: relative;
+    }
+    .art-sticky-scroll.art-horizontal-scroll-container {
+      position: sticky;
+      bottom: 24px !important;
+    }
+  }
 }
 
 .statusBar {
@@ -26,7 +48,7 @@
 
 .tableItem {
   width: 100%;
-  // .f-lines(1);
+  height: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -47,11 +69,14 @@
 }
 
 .tableHoverBox {
+  position: absolute;
+  top: 0px;
+  right: 0px;
   width: 40px;
   display: none;
   align-items: center;
   // position: absolute;
-  background-color: var(--color-bg);
+  background-color: var(--color-bg-elevated);
   // top: 0;
   // right: 0;
   // bottom: 0;
@@ -69,8 +94,4 @@
 .monacoEditor {
   height: 400px;
   margin: -15px;
-}
-
-.table {
-  --border-color: transparent;
 }

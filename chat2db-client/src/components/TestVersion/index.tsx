@@ -51,7 +51,7 @@ export default memo<IProps>(function TestVersion(props) {
 
   const openNotification = (responseText: any) => {
     try {
-      const needToBeUpdated = isVersionHigher(responseText.version, '2.0.1');
+      const needToBeUpdated = isVersionHigher(responseText.version, __APP_VERSION__);
       if (needToBeUpdated) {
         const key = `open${Date.now()}`;
         const btn = (
