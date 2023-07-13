@@ -178,6 +178,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
         payload: {
           pageNo: 1,
           pageSize: 999,
+          orderByDesc: false,
           status: ConsoleStatus.RELEASE,
           ...curWorkspaceParams,
         },

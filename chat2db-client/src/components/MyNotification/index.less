@@ -1,13 +1,48 @@
 @import '../../styles/var.less';
 
 .message {
-  .f-lines(1);
+  display: flex;
+  align-items: center;
+  padding: 0px 8px;
+  i {
+    margin-right: 10px;
+    color: var(--color-error-text);
+  }
+}
+
+.modal{
+  :global{
+    .ant-modal-content{
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      .ant-modal-header,.ant-modal-footer{
+        flex-shrink: 0;
+      }
+      .ant-modal-body{
+        flex: 1;
+        height: 0;
+        overflow-y: auto;
+      }
+    }
+  }
 }
 
 .description {
-  display: flex;
+  .f-lines(2);
+  word-break: break-all;
+  padding: 0px 10px;
+}
 
-  button {
-    padding: 4px 0;
-  }
+.notification{
+  z-index: 999 !important;
+  width: 300px !important;
+  font-size: 12px !important;
+  padding: 4px !important;
+  :global{
+    .ant-notification-notice-close{
+      top: 8px !important;
+      inset-inline-end: 8px !important;
+    }
+  } 
 }

@@ -375,7 +375,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
         type: 'workspace/fetchGetSavedConsole',
         payload: {
           status: ConsoleStatus.RELEASE,
-          orderByDesc: true,
+          orderByDesc: false,
           ...curWorkspaceParams
         },
         callback: (res: any) => {
