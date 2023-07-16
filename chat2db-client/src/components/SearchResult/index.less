@@ -38,11 +38,17 @@
   }
 }
 
-.resultContent {
+.resultContentWrapper {
   flex: 1;
-  width: 100%;
-  position: relative;
-  overflow: auto;
+
+  :global {
+    .ant-spin-container {
+      height: 100%;
+      width: 100%;
+      position: relative;
+      overflow: auto;
+    }
+  }
 }
 
 .tableStatus {
@@ -91,11 +97,11 @@
   align-items: center;
 }
 
-.stateIndicator{
+.stateIndicator {
   display: none;
 }
 
-.cursorStateIndicator{
+.cursorStateIndicator {
   margin: 0 auto;
   max-width: 80%;
   display: flex;

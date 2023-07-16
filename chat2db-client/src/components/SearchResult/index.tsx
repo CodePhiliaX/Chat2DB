@@ -5,7 +5,7 @@ import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import MonacoEditor from '@/components/Console/MonacoEditor';
-import { Button, DatePicker, Input, Table, Modal, message } from 'antd';
+import { Button, DatePicker, Input, Table, Modal, message, Spin } from 'antd';
 import { StatusType, TableDataType } from '@/constants';
 import { formatDate } from '@/utils/date';
 import { IManageResultData, ITableHeaderItem } from '@/typings';
@@ -104,7 +104,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
             <TableBox
               className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
               data={item}
-              isLoading={isLoading}
+              // isLoading={isLoading}
             />
           </Fragment>
         );
@@ -137,7 +137,9 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
           />
         </div>
       ) : null}
-      <div className={styles.resultContent}>{renderTable}</div>
+      <Spin spinning={isLoading} wrapperClassName={styles.resultContentWrapper}>
+        {renderTable}
+      </Spin>
     </div>
   );
 });
