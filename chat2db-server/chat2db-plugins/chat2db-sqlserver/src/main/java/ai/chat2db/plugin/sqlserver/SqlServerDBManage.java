@@ -1,15 +1,15 @@
 package ai.chat2db.plugin.sqlserver;
 
+import java.sql.SQLException;
+
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.sql.SQLExecutor;
-
-import java.sql.SQLException;
 
 public class SqlServerDBManage implements DBManage {
     @Override
     public void connectDatabase(String database) {
         try {
-            SQLExecutor.getInstance().execute("use " + database + ";");
+            SQLExecutor.getInstance().execute("use [" + database + "];");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

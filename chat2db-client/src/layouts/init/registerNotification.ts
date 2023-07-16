@@ -4,6 +4,6 @@ export default () => {
   notification.config({
     placement: 'BottomRight',
     maxCount: 2,
-    duration: 0,
+    duration: null,
   });
 };

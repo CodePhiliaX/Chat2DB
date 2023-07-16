@@ -324,7 +324,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           }
         },
         {
-          defaultValue: '',
+          defaultValue: 'postgres',
           inputType: InputType.INPUT,
           labelNameCN: '数据库',
           labelNameEN: 'Database',

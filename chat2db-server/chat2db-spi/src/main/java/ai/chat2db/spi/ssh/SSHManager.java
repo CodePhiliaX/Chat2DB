@@ -17,17 +17,23 @@ import org.apache.commons.lang3.StringUtils;
 public class SSHManager {
 
     public static Session getSSHSession(SSHInfo ssh) {
-        Session session;
+        Session session = null;
         try {
-            byte[] passphrase = StringUtils.isNotBlank(ssh.getPassphrase()) ? StringUtils.getBytes(ssh.getPassphrase(),
-                "UTF-8") : null;
-            session = JschUtil.getSession(ssh.getHostName(), Integer.parseInt(ssh.getPort()), ssh.getUserName(),
-                ssh.getKeyFile(), passphrase);
+            if (StringUtils.isNotBlank(ssh.getKeyFile())) {
+                byte[] passphrase = StringUtils.isNotBlank(ssh.getPassphrase()) ? StringUtils.getBytes(
+                    ssh.getPassphrase(),
+                    "UTF-8") : null;
+                session = JschUtil.getSession(ssh.getHostName(), Integer.parseInt(ssh.getPort()), ssh.getUserName(),
+                    ssh.getKeyFile(), passphrase);
+            } else if (StringUtils.isNotBlank(ssh.getUserName())) {
+                session = JschUtil.getSession(ssh.getHostName(), Integer.parseInt(ssh.getPort()), ssh.getUserName(),
+                    ssh.getPassword());
+            }
 
         } catch (Exception e) {
             throw new ConnectionException("connection.ssh.error", null, e);
         }
-        if (StringUtils.isNotBlank(ssh.getRHost()) && StringUtils.isNotBlank(ssh.getRPort())) {
+        if (session != null && StringUtils.isNotBlank(ssh.getRHost()) && StringUtils.isNotBlank(ssh.getRPort())) {
             try {
                 int localPort = !StringUtils.isBlank(ssh.getLocalPort()) ? Integer.parseInt(ssh.getLocalPort())
                     : NetUtil.getUsableLocalPort();
