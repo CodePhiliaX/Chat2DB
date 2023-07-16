@@ -48,11 +48,11 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 ## ⏬ Download and Install
 
 | Description | Download                                                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Windows     | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg)         |
-| MacOS X64   | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg)                     |
-| Jar 包      | [https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar)       |
+| ----------- |--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Windows     | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB%20Setup%202.0.4.exe](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB%20Setup%202.0.4.exe) |
+| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4-arm64.dmg)         |
+| MacOS X64   | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4.dmg](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4.dmg)                     |
+| Jar 包      | [https://oss-chat2db.alibaba.com/release/2.0.4/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.4/chat2db-server-start.jar)       |
 
 ## 🚀 Supported databases
 

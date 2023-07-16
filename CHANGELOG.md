@@ -1,3 +1,22 @@
+# 2.0.4
+## ⭐ New Features
+- Support DB2 database
+- Support renaming after console saving
+- Support prompts during SQL execution
+
+## 🐞 Bug Fixes
+- Fix the bug that the database in sqlserver is all numbers
+- Fix ssh connection bug
+
+## ⭐ 新特性
+- 支持DB2数据库
+- 支持控制台保存后重命名
+- 支持SQL执行中提示
+
+## 🐞 问题修复
+- 修复sqlserver中database全是数字的bug
+- 修复ssh连接 bug
+
 # 2.0.2
 
 ## ⭐ New Features
