@@ -51,7 +51,7 @@ public interface MetaData {
      * @param databaseName
      * @return
      */
-    List<? extends Table> views(@NotEmpty String databaseName, String schemaName);
+    List<Table> views(@NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all functions under a schema.
