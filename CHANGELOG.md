@@ -1,4 +1,4 @@
-# 2.0.3
+# 2.0.4
 ## ⭐ New Features
 - Support DB2 database
 - Support renaming after console saving
