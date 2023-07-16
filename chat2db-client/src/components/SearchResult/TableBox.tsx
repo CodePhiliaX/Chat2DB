@@ -4,7 +4,7 @@ import { IManageResultData, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
 import { Button, message, Modal, Table } from 'antd';
 import antd from 'antd';
-import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
+import { BaseTable, ArtColumn, useTablePipeline, features, SortItem, BaseTableProps } from 'ali-react-table';
 import Iconfont from '../Iconfont';
 import classnames from 'classnames';
 import StateIndicator from '../StateIndicator';
@@ -19,6 +19,7 @@ import { compareStrings } from '@/utils/sort';
 interface ITableProps {
   className?: string;
   data: IManageResultData;
+  isLoading?: boolean;
 }
 
 interface IViewTableCellData {
@@ -42,7 +43,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
 `;
 
 export default function TableBox(props: ITableProps) {
-  const { className, data } = props;
+  const { className, data, isLoading } = props;
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
@@ -151,6 +152,7 @@ export default function TableBox(props: ITableProps) {
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+            isLoading={isLoading}
             {...pipeline.getProps()}
           />
           <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(

@@ -1,9 +1,9 @@
-import { Button, ConfigProvider, Modal, notification, } from 'antd';
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Button, ConfigProvider, Modal, notification, Space } from 'antd';
 import styles from './index.less'
 import i18n from '@/i18n';
 import { IconType } from 'antd/es/notification/interface';
-// import { staticNotification } from '@/layouts'
+import Iconfont from '../Iconfont';
 
 interface IProps {
   type?: IconType;
@@ -18,33 +18,68 @@ interface IProps {
   solutionLink: string;
 }
 
-function MyNotification(props: IProps) {
-  const { errorCode, errorMessage, errorDetail, solutionLink } = props;
+function MyNotification() {
+  const [notificationApi, notificationDom] = notification.useNotification({
+    maxCount: 2
+  });
+  const [open, setOpen] = useState(false);
+  const [props, setProps] = useState<IProps>()
 
-  const type = props.type || 'warning';
-  const title = `${errorCode}:${errorMessage}`;
-  const message = props.message || <div className={styles.message}>{errorCode}:{errorMessage || 'Error'}</div>
+  window._notificationApi = useCallback((props: IProps) => {
+    const { errorCode, errorMessage, errorDetail, solutionLink } = props;
+    setProps(props);
+    const btn = (
+      <Space>
+        <Button type="link" size="small" onClick={() => {
+          setOpen(true);
+        }}>
+          {i18n('common.notification.detial')}
+        </Button>
+        <Button type="link" size="small" target='_blank' href={solutionLink}>
+          {i18n('common.notification.solution')}
+        </Button>
+      </Space>
+    );
 
-  const description = <div className={styles.description}>
-    <Button style={{ 'marginRight': '8px' }} type='link' onClick={() => {
-      Modal.info({
-        width: 620,
-        title,
-        content: errorDetail
-      })
-    }}>{i18n('common.notification.detial')}</Button>
-    <Button type='link' target='_blank' href={solutionLink}>{i18n('common.notification.solution')}</Button>
-  </div >
+    const renderDescription = () => {
+      return <div className={styles.description}>
+        {props.errorCode}{props.errorCode}{props.errorCode}{props.errorCode}
+      </div>
+    }
+
+    const renderMessage = () => {
+      return <div className={styles.message}>
+        <Iconfont code='&#xe60c;' />
+        Error
+      </div>
+    }
+
+    notificationApi.open({
+      className: styles.notification,
+      message: renderMessage(),
+      description: renderDescription(),
+      placement: 'bottomRight',
+      btn,
+      duration: null,
+    })
+  }, [])
 
 
-  return notification.open({
-    ...props,
-    type,
-    message,
-    description,
-  })
-
-
+  return <>
+    {notificationDom}
+    <Modal
+      className={styles.modal}
+      open={open}
+      title={props?.errorCode}
+      width='70vw'
+      footer={[]}
+      onCancel={() => {
+        setOpen(false)
+      }}
+    >
+      {props?.errorDetail}
+    </Modal>
+  </>
 }
 
 export default MyNotification;
