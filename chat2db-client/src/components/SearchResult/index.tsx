@@ -17,6 +17,7 @@ import TableBox from './TableBox';
 interface IProps {
   className?: string;
   manageResultDataList?: IManageResultData[];
+  isLoading?: boolean;
 }
 
 interface DataType {
@@ -41,7 +42,7 @@ const handleTabs = (result: IManageResultData[]) => {
   });
 };
 
-export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
+export default memo<IProps>(function SearchResult({ className, manageResultDataList = [], isLoading }) {
   const [isUnfold, setIsUnfold] = useState(true);
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
@@ -49,15 +50,15 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
 
   useEffect(() => {
     if (!manageResultDataList.length) {
-      return
+      return;
     }
-    const newManageResultDataList = manageResultDataList.map(t => {
+    const newManageResultDataList = manageResultDataList.map((t) => {
       return {
         ...t,
-        uuid: uuidv4()
-      }
-    })
-    setCurrentTab(newManageResultDataList[0].uuid)
+        uuid: uuidv4(),
+      };
+    });
+    setCurrentTab(newManageResultDataList[0].uuid);
     setResultDataList(newManageResultDataList);
     setTabs(handleTabs(newManageResultDataList));
   }, [manageResultDataList]);
@@ -86,7 +87,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
   }
 
   const renderEmpty = () => {
-    return <div className={styles.noData}>{i18n('common.text.noData')}</div >;
+    return <div className={styles.noData}>{i18n('common.text.noData')}</div>;
   };
 
   const renderTable = useMemo(() => {
@@ -103,16 +104,23 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
             <TableBox
               className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
               data={item}
+              isLoading={isLoading}
             />
           </Fragment>
         );
       } else {
-        return <Fragment key={item.uuid} >
-          <StateIndicator className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })} state="error" text={item.message} />
-        </Fragment >;
+        return (
+          <Fragment key={item.uuid}>
+            <StateIndicator
+              className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })}
+              state="error"
+              text={item.message}
+            />
+          </Fragment>
+        );
       }
     });
-  }, [currentTab])
+  }, [currentTab]);
 
   return (
     <div className={classnames(className, styles.box)}>

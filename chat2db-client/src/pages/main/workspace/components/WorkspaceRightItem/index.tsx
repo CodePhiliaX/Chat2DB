@@ -35,6 +35,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [showResult, setShowResult] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
 
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
@@ -57,16 +58,20 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
         <div ref={draggableRef} className={styles.boxRightConsole}>
           <Console
-            source='workspace'
+            source="workspace"
             defaultValue={data.initDDL}
             isActive={isActive}
             appendValue={appendValue}
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
+            onExecuteSQLBefore={() => {
+              setTableLoading(true);
+            }}
             onExecuteSQL={(res: any, a: any, params: any) => {
               setResultData(res);
               setShowResult(true);
+              setTableLoading(false);
               historyServer.createHistory(params);
             }}
             onConsoleSave={() => {
@@ -89,7 +94,9 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             remainingUse={aiModel.remainingUse}
           />
         </div>
-        <div className={styles.boxRightResult}>{<SearchResult manageResultDataList={resultData} />}</div>
+        <div className={styles.boxRightResult}>
+          {<SearchResult manageResultDataList={resultData} isLoading={tableLoading} />}
+        </div>
       </DraggableContainer>
     </div>
   );
