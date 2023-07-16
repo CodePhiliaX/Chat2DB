@@ -157,6 +157,8 @@ $ git clone git@github.com:chat2db/Chat2DB.git
 - 前端调试
 
 ```bash
+node版本必须为16及以上 
+一定要用yarn
 $ cd Chat2DB/chat2db-client
 $ yarn
 $ yarn run start:web

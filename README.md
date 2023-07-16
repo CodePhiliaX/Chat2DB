@@ -151,6 +151,8 @@ $ git clone git@github.com:alibaba/Chat2DB.git
 - Front-End debug
 
 ```bash
+node version must be 16 or later
+Be sure to use yarn
 $ cd Chat2DB/chat2db-client
 $ yarn
 $ yarn run start:web
