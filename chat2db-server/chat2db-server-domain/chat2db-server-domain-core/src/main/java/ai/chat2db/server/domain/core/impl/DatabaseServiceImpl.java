@@ -1,8 +1,7 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.CountDownLatch;
 
 import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
 import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
@@ -18,6 +17,8 @@ import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import cn.hutool.core.thread.ThreadUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -28,6 +29,7 @@ import static ai.chat2db.server.domain.core.cache.CacheKey.getDataSourceKey;
  * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
  * @date 2022/09/23
  */
+@Slf4j
 @Service
 public class DatabaseServiceImpl implements DatabaseService {
 
@@ -48,19 +50,25 @@ public class DatabaseServiceImpl implements DatabaseService {
                 MetaSchema metaSchema = new MetaSchema();
                 List<Database> databases = Chat2DBContext.getMetaData().databases();
                 if (!CollectionUtils.isEmpty(databases)) {
-                    List<Schema> schemaList = Chat2DBContext.getMetaData().schemas(null);
-                    if (databases.size() == 1) {
-                        databases.get(0).setSchemas(schemaList);
-                        metaSchema.setDatabases(databases);
-                    } else {
-                        Map<String, List<Schema>> schemaMap = schemaList.stream().collect(
-                            Collectors.groupingBy(
-                                schema -> schema.getDatabaseName() != null ? schema.getDatabaseName() : ""));
-                        for (Database dataBase : databases) {
-                            dataBase.setSchemas(schemaMap.get(dataBase.getName()));
-                        }
-                        metaSchema.setDatabases(databases);
+
+                    CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(databases.size());
+                    for (Database database : databases) {
+                        ThreadUtil.execute(() -> {
+                            try {
+                                List<Schema> schemaList = Chat2DBContext.getMetaData().schemas(database.getName());
+                                database.setSchemas(schemaList);
+                                countDownLatch.countDown();
+                            } catch (Exception e) {
+                                log.error("queryDatabaseSchema error", e);
+                            }
+                        });
                     }
+                    try {
+                        countDownLatch.await();
+                    } catch (InterruptedException e) {
+                        log.error("queryDatabaseSchema error", e);
+                    }
+
                 } else {
                     List<Schema> schemas = Chat2DBContext.getMetaData().schemas(null);
                     metaSchema.setSchemas(schemas);
@@ -70,7 +78,6 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return DataResult.of(ms);
     }
-
 
     @Override
     public ActionResult deleteDatabase(DatabaseOperationParam param) {
