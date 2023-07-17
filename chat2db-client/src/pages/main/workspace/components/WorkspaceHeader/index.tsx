@@ -4,10 +4,9 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Cascader } from 'antd';
+import { Cascader, Spin } from 'antd';
 import Iconfont from '@/components/Iconfont';
-import { treeConfig } from '../Tree/treeConfig';
-import { TreeNodeType } from '@/constants';
+import { databaseMap } from '@/constants';
 import { useSafeState } from 'ahooks';
 
 
@@ -24,7 +23,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionList, curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
   const [curSchemaOptions, setCurSchemaOptions] = useState<any>([]);
-
+  const [cascaderLoading, setCascaderLoading] = useState(false);
   const connectionListOptions = useMemo(() => {
     return connectionList?.map(t => {
       return {
@@ -39,8 +38,14 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }, []);
 
   const getConnectionList = () => {
+    setCascaderLoading(true)
     dispatch({
       type: 'connection/fetchConnectionList',
+      callback: () => {
+        setTimeout(() => {
+          setCascaderLoading(false)
+        }, 200);
+      }
     });
   };
 
@@ -80,7 +85,19 @@ const WorkspaceHeader = memo<IProps>((props) => {
     });
   }
 
+  function handelRefresh() {
+    getConnectionList()
+  }
+
   return <div className={styles.workspaceHeader}>
+    <div className={styles.databaseLogo}>
+      {curConnection?.type ?
+        <div className={styles.refreshBox} onClick={handelRefresh}>
+          {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code={databaseMap[curConnection.type]?.icon} />}
+        </div>
+        :
+        <Iconfont className={styles.typeIcon} code="&#xe640;" />}
+    </div>
     <Cascader
       popupClassName={styles.cascaderPopup}
       options={connectionListOptions}
@@ -88,9 +105,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
       bordered={false}
     >
       <div className={styles.crumbsItem}>
-        <Iconfont className={styles.typeIcon} code="&#xe640;" />
         <div>{curConnection?.alias}</div>
-        <Iconfont className={styles.arrow} code="&#xe608;" />
+        <Iconfont className={styles.arrow} code="&#xe641;" />
       </div>
     </Cascader>
 
@@ -101,7 +117,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
       bordered={false}
     >
       <div className={styles.crumbsItem}>
-        <Iconfont className={styles.typeIcon} code="&#xe622;" />
         <div>{curWorkspaceParams.databaseName}</div>
         {
           !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
@@ -117,8 +132,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         bordered={false}
       >
         <div className={styles.crumbsItem}>
-          <Iconfont className={styles.typeIcon} code="&#xe696;" />
-          <div>{}</div>
+          <div>{curWorkspaceParams.schemaName}</div>
         </div>
       </Cascader>
     }
