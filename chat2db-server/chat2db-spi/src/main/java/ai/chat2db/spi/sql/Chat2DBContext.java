@@ -138,7 +138,7 @@ public class Chat2DBContext {
             connectInfo.setSession(session);
             connectInfo.setConnection(connection);
             if (StringUtils.isNotBlank(connectInfo.getDatabaseName())) {
-                PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBManage().connectDatabase(
+                PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBManage().connectDatabase(connection,
                     connectInfo.getDatabaseName());
             }
             return connection;

@@ -1,10 +1,11 @@
 package ai.chat2db.plugin.postgresql;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.sql.SQLExecutor;
-
-import java.sql.SQLException;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     private String functionSQL =
@@ -163,10 +164,10 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                     + "        $BODY$ LANGUAGE plpgsql";
 
     @Override
-    public String tableDDL(String databaseName, String schemaName, String tableName) {
-        SQLExecutor.getInstance().executeSql(functionSQL.replaceFirst("tableSchema", schemaName), resultSet -> null);
+    public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
+        SQLExecutor.getInstance().executeSql(connection,functionSQL.replaceFirst("tableSchema", schemaName), resultSet -> null);
         String ddlSql = "select showcreatetable('" + schemaName + "','" + tableName + "') as sql";
-        return SQLExecutor.getInstance().executeSql(ddlSql, resultSet -> {
+        return SQLExecutor.getInstance().executeSql(connection,ddlSql, resultSet -> {
             try {
                 if (resultSet.next()) {
                     return resultSet.getString("sql");

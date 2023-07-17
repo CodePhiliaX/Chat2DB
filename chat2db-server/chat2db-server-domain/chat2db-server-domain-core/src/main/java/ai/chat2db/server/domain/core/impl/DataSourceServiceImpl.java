@@ -16,16 +16,14 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
-import ai.chat2db.spi.config.DriverConfig;
-import ai.chat2db.spi.model.DataSourceConnect;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
-
+import ai.chat2db.spi.config.DriverConfig;
+import ai.chat2db.spi.model.DataSourceConnect;
+import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
@@ -137,7 +135,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     public ListResult<Database> connect(Long id) {
         DatabaseQueryAllParam queryAllParam = new DatabaseQueryAllParam();
         queryAllParam.setDataSourceId(id);
-        List<Database> databases = Chat2DBContext.getMetaData().databases();
+        List<Database> databases = Chat2DBContext.getMetaData().databases(Chat2DBContext.getConnection());
         return ListResult.of(databases);
     }
 

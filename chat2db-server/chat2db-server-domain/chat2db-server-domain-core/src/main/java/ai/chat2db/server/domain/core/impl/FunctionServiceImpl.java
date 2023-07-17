@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 public class FunctionServiceImpl implements FunctionService {
     @Override
     public ListResult<Function> functions(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().functions(databaseName, schemaName));
+        return ListResult.of(Chat2DBContext.getMetaData().functions(Chat2DBContext.getConnection(),databaseName, schemaName));
     }
 }
