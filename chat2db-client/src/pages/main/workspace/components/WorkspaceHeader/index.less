@@ -1,0 +1,29 @@
+@import '../../../../../styles/var.less';
+
+.workspaceHeader{
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  background-color: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.crumbsItem{
+  display: flex;
+  align-items: center;
+  height: 28px;
+  cursor: pointer;
+  &:hover{
+    color: var(--color-primary);
+  }
+
+  .typeIcon{
+    margin-right: 6px;
+  }
+  
+  .arrow{
+    margin: 0px 10px;
+  }
+}
+

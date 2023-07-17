@@ -2,7 +2,7 @@ export default {
   'setting.title.setting': '设置',
   'setting.nav.basic': '基础设置',
   'setting.nav.customAi': '自定义AI',
-  'setting.nav.proxy': '代理设置',
+  'setting.nav.proxy': '服务端地址',
   'setting.nav.aboutUs': '关于我们',
   'setting.title.backgroundColor': '背景色',
   'setting.title.themeColor': '主题色',
