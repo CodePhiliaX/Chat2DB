@@ -1,58 +1,32 @@
 package ai.chat2db.plugin.mysql;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.springframework.util.StringUtils;
 
-import java.sql.SQLException;
-
-public class MysqlDBManage implements DBManage {
+public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
-    public void connectDatabase(String database) {
+    public void connectDatabase(Connection connection, String database) {
         if (StringUtils.isEmpty(database)) {
             return;
         }
         try {
-            SQLExecutor.getInstance().execute("use `" + database + "`;");
+            SQLExecutor.getInstance().execute(connection,"use `" + database + "`;");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    @Override
-    public void modifyDatabase(String databaseName, String newDatabaseName) {
 
-    }
 
     @Override
-    public void createDatabase(String databaseName) {
-
-    }
-
-    @Override
-    public void dropDatabase(String databaseName) {
-
-    }
-
-    @Override
-    public void createSchema(String databaseName, String schemaName) {
-
-    }
-
-    @Override
-    public void dropSchema(String databaseName, String schemaName) {
-
-    }
-
-    @Override
-    public void modifySchema(String databaseName, String schemaName, String newSchemaName) {
-
-    }
-
-    @Override
-    public void dropTable(String databaseName, String schemaName, String tableName) {
+    public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE "+ format(tableName);
-        SQLExecutor.getInstance().executeSql(sql, resultSet -> null);
+        SQLExecutor.getInstance().executeSql(connection,sql, resultSet -> null);
     }
 
     public static String format(String tableName) {

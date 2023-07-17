@@ -155,7 +155,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     private ExecuteResult execute(String sql) {
         ExecuteResult executeResult;
         try {
-            executeResult = SQLExecutor.getInstance().execute(sql);
+            executeResult = SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(),sql);
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()

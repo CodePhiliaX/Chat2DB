@@ -1,10 +1,11 @@
 package ai.chat2db.plugin.db2;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.sql.SQLExecutor;
-
-import java.sql.SQLException;
 
 public class DB2MetaData extends DefaultMetaService implements MetaData {
     private String functionSQL
@@ -37,17 +38,17 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
 
 
     @Override
-    public String tableDDL(String databaseName, String schemaName, String tableName) {
+    public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         try {
             System.out.println(functionSQL);
-            SQLExecutor.getInstance().executeSql(functionSQL.replace("tableSchema", schemaName), resultSet -> null);
+            SQLExecutor.getInstance().executeSql(connection, functionSQL.replace("tableSchema", schemaName), resultSet -> null);
         } catch (Exception e) {
             //log.error("创建函数失败", e);
         }
 
         String ddlSql = "SELECT " + schemaName + ".ufn_GetCreateTableScript('" + schemaName + "', '" + tableName
                 + "') AS sql";
-        return SQLExecutor.getInstance().executeSql(ddlSql, resultSet -> {
+        return SQLExecutor.getInstance().executeSql(connection, ddlSql, resultSet -> {
             try {
                 if (resultSet.next()) {
                     return resultSet.getString("sql");
