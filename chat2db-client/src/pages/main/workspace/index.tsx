@@ -4,10 +4,12 @@ import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
+import WorkspaceHeader from './components/WorkspaceHeader';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
+import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   className?: string;
@@ -47,7 +49,7 @@ function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']
       return {
         value: t.name,
         label: t.name,
-        children: schemasList,
+        next: schemasList,
       };
     });
   } else if (databaseAndSchema?.schemas) {
@@ -70,14 +72,11 @@ const workspace = memo<IProps>((props) => {
 
   useEffect(() => {
     if (pageLoading === true) {
-      setLoading(true)
+      setLoading(true);
     } else {
-      setLoading(false)
+      setLoading(false);
     }
   }, [pageLoading])
-
-  console.log('pageLoading', pageLoading)
-
 
   const cascaderOptions = useMemo(() => {
     if (!databaseAndSchema) {
@@ -112,7 +111,6 @@ const workspace = memo<IProps>((props) => {
     }
     clearData();
   }, [curConnection]);
-
 
   useEffect(() => {
     if (curWorkspaceParams.dataSourceId) {
@@ -162,17 +160,21 @@ const workspace = memo<IProps>((props) => {
       },
     });
   }
+
   return (
     <LoadingContent isLoading={loading}>
-      <DraggableContainer className={styles.box}>
-        <div ref={draggableRef} className={styles.boxLeft}>
-          <WorkspaceLeft cascaderOptions={cascaderOptions} />
-        </div>
-        <div className={styles.boxRight}>
-          <WorkspaceRight />
-        </div>
-      </DraggableContainer>
-    </LoadingContent>
+      <div className={styles.workspace}>
+        <WorkspaceHeader cascaderOptions={cascaderOptions}></WorkspaceHeader>
+        <DraggableContainer className={styles.workspaceMain}>
+          <div ref={draggableRef} className={styles.boxLeft}>
+            <WorkspaceLeft cascaderOptions={cascaderOptions} />
+          </div>
+          <div className={styles.boxRight}>
+            <WorkspaceRight />
+          </div>
+        </DraggableContainer>
+      </div>
+    </LoadingContent >
   );
 });
 

@@ -37,7 +37,7 @@ function Connections(props: IProps) {
     getConnectionList();
   }, []);
 
-  const getConnectionList = async () => {
+  const getConnectionList = () => {
     dispatch({
       type: 'connection/fetchConnectionList',
     });
@@ -133,15 +133,18 @@ function Connections(props: IProps) {
       <div ref={volatileRef} className={styles.layoutLeft}>
         <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
         {renderMenu()}
-        <Button
-          type="primary"
-          className={styles.addConnection}
-          onClick={() => {
-            setCurConnection({});
-          }}
-        >
-          {i18n('connection.button.addConnection')}
-        </Button>
+        {
+          curConnection && Object.keys(curConnection).length &&
+          <Button
+            type="primary"
+            className={styles.addConnection}
+            onClick={() => {
+              setCurConnection({});
+            }}
+          >
+            {i18n('connection.button.addConnection')}
+          </Button>
+        }
       </div>
       <div className={styles.layoutRight}>
         {curConnection && Object.keys(curConnection).length ? (
@@ -159,29 +162,29 @@ function Connections(props: IProps) {
             />
           </div>
         ) : (
-            <div className={styles.dataBaseList}>
-              {databaseTypeList.map((t) => {
-                return (
-                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                    <div className={styles.databaseItemMain}>
-                      <div className={styles.databaseItemLeft}>
-                        <div className={styles.logoBox}>
-                          <Iconfont code={t.icon} />
-                        </div>
-                        {t.name}
+          <div className={styles.dataBaseList}>
+            {databaseTypeList.map((t) => {
+              return (
+                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                  <div className={styles.databaseItemMain}>
+                    <div className={styles.databaseItemLeft}>
+                      <div className={styles.logoBox}>
+                        <Iconfont code={t.icon} />
                       </div>
-                      <div className={styles.databaseItemRight}>
-                        <Iconfont code="&#xe631;" />
-                      </div>
+                      {t.name}
+                    </div>
+                    <div className={styles.databaseItemRight}>
+                      <Iconfont code="&#xe631;" />
                     </div>
                   </div>
-                );
-              })}
-              {Array.from({ length: 20 }).map((t, index) => {
-                return <div key={index} className={styles.databaseItemSpacer}></div>;
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+            {Array.from({ length: 20 }).map((t, index) => {
+              return <div key={index} className={styles.databaseItemSpacer}></div>;
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

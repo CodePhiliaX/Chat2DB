@@ -81,9 +81,9 @@ const WorkspaceLeft = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <div className={styles.header}>
+      {/* <div className={styles.header}>
         <RenderSelectDatabase cascaderOptions={cascaderOptions} />
-      </div>
+      </div> */}
       <RenderSaveBox></RenderSaveBox>
       <Divider className={styles.divider} />
       <RenderTableBox />
@@ -109,82 +109,81 @@ interface IProps {
   dispatch: any;
 }
 
-const RenderSelectDatabase = dvaModel(function (props: IProps) {
-  const { connectionModel, workspaceModel, dispatch, cascaderOptions } = props;
-  const { curWorkspaceParams } = workspaceModel;
-  const { curConnection } = connectionModel;
-  const [currentSelectedName, setCurrentSelectedName] = useState('');
-  const [cascaderLoading, setCascaderLoading] = useState(false)
+// const RenderSelectDatabase = dvaModel(function (props: IProps) {
+//   const { connectionModel, workspaceModel, dispatch, cascaderOptions } = props;
+//   const { curWorkspaceParams } = workspaceModel;
+//   const { curConnection } = connectionModel;
+//   const [currentSelectedName, setCurrentSelectedName] = useState('');
+//   const [cascaderLoading, setCascaderLoading] = useState(false);
 
+//   useEffect(() => {
+//     if (curWorkspaceParams) {
+//       const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
+//       const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
+//       setCurrentSelectedName(currentSelectedArr.join('/'));
+//     }
+//   }, [curWorkspaceParams]);
 
-  useEffect(() => {
-    if (curWorkspaceParams) {
-      const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
-      const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
-      setCurrentSelectedName(currentSelectedArr.join('/'));
-    }
-  }, [curWorkspaceParams]);
+//   const onChange: any = (valueArr: any, selectedOptions: any) => {
+//     let labelArr: string[] = [];
+//     labelArr = selectedOptions.map((t: any) => {
+//       return t.label;
+//     });
 
-  const onChange: any = (valueArr: any, selectedOptions: any) => {
-    let labelArr: string[] = [];
-    labelArr = selectedOptions.map((t: any) => {
-      return t.label;
-    });
+//     const curWorkspaceParams = {
+//       dataSourceId: curConnection?.id,
+//       databaseSourceName: curConnection?.alias,
+//       databaseName: labelArr[0],
+//       schemaName: labelArr[1],
+//       databaseType: curConnection?.type,
+//     };
 
-    const curWorkspaceParams = {
-      dataSourceId: curConnection?.id,
-      databaseSourceName: curConnection?.alias,
-      databaseName: labelArr[0],
-      schemaName: labelArr[1],
-      databaseType: curConnection?.type,
-    };
+//     dispatch({
+//       type: 'workspace/setCurWorkspaceParams',
+//       payload: curWorkspaceParams,
+//     });
+//   };
 
-    dispatch({
-      type: 'workspace/setCurWorkspaceParams',
-      payload: curWorkspaceParams,
-    });
-  };
+//   const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
 
-  const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
+//   function handleRefresh() {
+//     setCascaderLoading(true)
+//     dispatch({
+//       type: 'workspace/fetchDatabaseAndSchema',
+//       payload: {
+//         dataSourceId: curConnection?.id,
+//         refresh: true
+//       },
+//       callback: () => {
+//         setCascaderLoading(false)
+//       }
+//     });
+//   }
 
-  function handleRefresh() {
-    setCascaderLoading(true)
-    dispatch({
-      type: 'workspace/fetchDatabaseAndSchema',
-      payload: {
-        dataSourceId: curConnection?.id,
-        refresh: true
-      },
-      callback: () => {
-        setCascaderLoading(false)
-      }
-    });
-  }
-
-  return (
-    <div className={styles.selectDatabaseBox}>
-      <Cascader
-        popupClassName={styles.cascaderPopup}
-        options={cascaderOptions}
-        onChange={onChange}
-        bordered={false}
-        dropdownRender={dropdownRender}
-      >
-        <div className={styles.currentDatabase}>
-          <div className={styles.name}>
-            {currentSelectedName || <span style={{ opacity: 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>}{' '}
-          </div>
-          <Iconfont code="&#xe608;" />
-        </div>
-      </Cascader>
-      <div className={styles.otherOperations}>
-        <div className={classnames(styles.refreshIconBox, styles.iconBox)} onClick={handleRefresh}>
-          {cascaderLoading ? <Spin /> : <Iconfont code="&#xec08;" />}
-        </div>
-      </div>
-    </div>
-  );
-});
+//   return (
+//     <div className={styles.selectDatabaseBox}>
+//       <Cascader
+//         popupClassName={styles.cascaderPopup}
+//         options={cascaderOptions}
+//         onChange={onChange}
+//         bordered={false}
+//         dropdownRender={dropdownRender}
+//       >
+//         <div className={styles.currentDatabase}>
+//           <div className={styles.name}>
+//             {currentSelectedName || <span style={{ opacity: 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>}{' '}
+//           </div>
+//           <Iconfont code="&#xe608;" />
+//         </div>
+//       </Cascader>
+//       <div className={styles.otherOperations}>
+//         <div className={classnames(styles.refreshIconBox, styles.iconBox)} onClick={handleRefresh}>
+//           {cascaderLoading ? <Spin /> : <Iconfont code="&#xec08;" />}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// });
 
 const RenderTableBox = dvaModel(function (props: any) {
   const { workspaceModel, dispatch, tableLoading } = props;
@@ -375,7 +374,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
         type: 'workspace/fetchGetSavedConsole',
         payload: {
           status: ConsoleStatus.RELEASE,
-          orderByDesc: false,
+          orderByDesc: Boolean,
           ...curWorkspaceParams
         },
         callback: (res: any) => {
