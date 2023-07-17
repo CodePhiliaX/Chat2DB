@@ -71,6 +71,7 @@ interface IProps {
   dispatch: Function;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
+  onExecuteSQLBefore?: () => void;
   onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
   onConsoleSave: () => void;
   tables: any[];
@@ -314,6 +315,8 @@ function Console(props: IProps) {
   };
 
   const executeSQL = (sql?: string) => {
+    props.onExecuteSQLBefore && props.onExecuteSQLBefore();
+
     const sqlContent = sql || editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent();
 
     if (!sqlContent) {
@@ -423,7 +426,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
