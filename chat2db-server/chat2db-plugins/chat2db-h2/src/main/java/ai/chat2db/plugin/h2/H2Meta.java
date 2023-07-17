@@ -1,10 +1,5 @@
 package ai.chat2db.plugin.h2;
 
-import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.sql.SQLExecutor;
-import jakarta.validation.constraints.NotEmpty;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -13,16 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.jdbc.DefaultMetaService;
+import jakarta.validation.constraints.NotEmpty;
+
 public class H2Meta extends DefaultMetaService implements MetaData {
     @Override
-    public String tableDDL(@NotEmpty String databaseName, String schemaName, @NotEmpty String tableName) {
-        return getDDL(databaseName, schemaName, tableName);
+    public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String tableName) {
+        return getDDL(connection,databaseName, schemaName, tableName);
     }
 
 
-    private String getDDL(String databaseName, String schemaName, String tableName) {
+    private String getDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         try {
-            Connection connection = SQLExecutor.getInstance().getConnection();
             // 查询表结构信息
             ResultSet columns = connection.getMetaData().getColumns(databaseName, schemaName, tableName, null);
             List<String> columnDefinitions = new ArrayList<>();
