@@ -11,6 +11,6 @@ public class ProcedureServiceImpl implements ProcedureService {
 
     @Override
     public ListResult<Procedure> procedures(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().procedures(databaseName, schemaName));
+        return ListResult.of(Chat2DBContext.getMetaData().procedures(Chat2DBContext.getConnection(),databaseName, schemaName));
     }
 }

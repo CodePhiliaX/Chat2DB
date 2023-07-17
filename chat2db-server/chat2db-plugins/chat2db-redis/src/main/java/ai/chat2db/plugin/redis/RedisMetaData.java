@@ -1,28 +1,23 @@
 package ai.chat2db.plugin.redis;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.sql.SQLExecutor;
-import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class RedisMetaData extends DefaultMetaService implements MetaData {
-    @Override
-    public String tableDDL(@NotEmpty String databaseName, String schemaName, @NotEmpty String tableName) {
-        return "";
-    }
-
 
     @Override
-    public List<Database> databases() {
+    public List<Database> databases(Connection connection) {
         List<Database> databases = new ArrayList<>();
-        return SQLExecutor.getInstance().executeSql("config get databases", resultSet -> {
+        return SQLExecutor.getInstance().executeSql(connection,"config get databases", resultSet -> {
             try {
                 if (resultSet.next()) {
                     Object count = resultSet.getObject(2);
@@ -41,8 +36,8 @@ public class RedisMetaData extends DefaultMetaService implements MetaData {
     }
 
     @Override
-    public List<Table> tables(String databaseName, String schemaName, String tableName) {
-        return SQLExecutor.getInstance().executeSql("scan 0 MATCH * COUNT 1000", resultSet -> {
+    public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().executeSql(connection,"scan 0 MATCH * COUNT 1000", resultSet -> {
             List<Table> tables = new ArrayList<>();
             try {
                 while (resultSet.next()) {
