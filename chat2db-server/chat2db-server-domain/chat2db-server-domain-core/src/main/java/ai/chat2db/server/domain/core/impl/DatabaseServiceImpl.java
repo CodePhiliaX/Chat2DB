@@ -13,10 +13,12 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,32 +47,31 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public DataResult<MetaSchema> queryDatabaseSchema(MetaDataQueryParam param) {
+        MetaSchema metaSchema = new MetaSchema();
+        MetaData metaData = Chat2DBContext.getMetaData();
+        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
         MetaSchema ms = CacheManage.get(getDataSourceKey(param.getDataSourceId()), MetaSchema.class,
             (key) -> param.isRefresh(), (key) -> {
-                MetaSchema metaSchema = new MetaSchema();
-                List<Database> databases = Chat2DBContext.getMetaData().databases();
+                List<Database> databases = metaData.databases();
                 if (!CollectionUtils.isEmpty(databases)) {
-
-                    CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(databases.size());
+                    // CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(databases.size());
                     for (Database database : databases) {
-                        ThreadUtil.execute(() -> {
-                            try {
-                                List<Schema> schemaList = Chat2DBContext.getMetaData().schemas(database.getName());
-                                database.setSchemas(schemaList);
-                                countDownLatch.countDown();
-                            } catch (Exception e) {
-                                log.error("queryDatabaseSchema error", e);
-                            }
-                        });
+                        //ThreadUtil.execute(() -> {
+                        try {
+                           // Chat2DBContext.putContext(connectInfo);
+                            database.setSchemas(metaData.schemas(database.getName()));
+                            // countDownLatch.countDown();
+                        } catch (Exception e) {
+                            log.error("queryDatabaseSchema error", e);
+                        } finally {
+                            //Chat2DBContext.removeContext();
+                        }
+                        // });
                     }
-                    try {
-                        countDownLatch.await();
-                    } catch (InterruptedException e) {
-                        log.error("queryDatabaseSchema error", e);
-                    }
+                    metaSchema.setDatabases(databases);
 
                 } else {
-                    List<Schema> schemas = Chat2DBContext.getMetaData().schemas(null);
+                    List<Schema> schemas = metaData.schemas(null);
                     metaSchema.setSchemas(schemas);
                 }
                 return metaSchema;
