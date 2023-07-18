@@ -67,28 +67,27 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }, [connectionList])
 
   useEffect(() => {
-    if (curConnection?.id) {
-      getConnectionList();
-    }
-  }, []);
-
-
-
-  useEffect(() => {
-    if (curPage === 'workspace' && !connectionList.length) {
-      setNoConnectionModal(true)
-      return
-    }
-    setNoConnectionModal(false)
-  }, [curPage])
+    getConnectionList();
+  }, [curPage]);
 
   const getConnectionList = () => {
     setCascaderLoading(true)
     dispatch({
       type: 'connection/fetchConnectionList',
-      callback: () => {
+      callback: (res: any) => {
         setTimeout(() => {
           setCascaderLoading(false)
+          if (curPage === 'workspace' && !res.data?.length) {
+            setNoConnectionModal(true)
+            return
+          }
+          setNoConnectionModal(false)
+          if (curConnection?.id && res.data.length) {
+            const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
+            if (flag === -1) {
+              connectionChange([res.data[0].id], [res.data[0]]);
+            }
+          }
         }, 200);
       }
     });
