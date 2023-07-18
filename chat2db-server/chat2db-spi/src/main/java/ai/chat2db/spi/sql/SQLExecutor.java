@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.spi.model.*;
 
+import ai.chat2db.spi.util.ResultSetUtils;
 import cn.hutool.core.date.TimeInterval;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -57,13 +58,14 @@ public class SQLExecutor {
 
     /**
      * 执行sql
+     *
      * @param connection
      * @param sql
      * @param function
      * @return
      */
 
-    public <R> R executeSql(Connection connection,String sql, Function<ResultSet, R> function) {
+    public <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
         if (StringUtils.isEmpty(sql)) {
             return null;
         }
@@ -115,7 +117,7 @@ public class SQLExecutor {
                         headerList.add(Header.builder()
                             .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
                                 resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                            .name(resultSetMetaData.getColumnName(i))
+                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
                             .build());
                     }
 
@@ -153,12 +155,13 @@ public class SQLExecutor {
      * @return
      * @throws SQLException
      */
-    public ExecuteResult execute(Connection connection,String sql) throws SQLException {
+    public ExecuteResult execute(Connection connection, String sql) throws SQLException {
         return execute(sql, connection);
     }
 
     /**
      * 获取所有的数据库
+     *
      * @param connection
      * @return
      */
@@ -178,12 +181,13 @@ public class SQLExecutor {
 
     /**
      * 获取所有的schema
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
      * @return
      */
-    public List<Map<String, String>> schemas(Connection connection,String databaseName, String schemaName) {
+    public List<Map<String, String>> schemas(Connection connection, String databaseName, String schemaName) {
         List<Map<String, String>> schemaList = Lists.newArrayList();
         if (StringUtils.isEmpty(databaseName) && StringUtils.isEmpty(schemaName)) {
             try (ResultSet resultSet = connection.getMetaData().getSchemas()) {
@@ -217,6 +221,7 @@ public class SQLExecutor {
 
     /**
      * 获取所有的数据库表
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
@@ -224,7 +229,8 @@ public class SQLExecutor {
      * @param types
      * @return
      */
-    public List<Table> tables(Connection connection,String databaseName, String schemaName, String tableName, String types[]) {
+    public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName,
+        String types[]) {
         List<Table> tables = Lists.newArrayList();
         int n = 0;
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, tableName,
@@ -246,6 +252,7 @@ public class SQLExecutor {
 
     /**
      * 获取所有的数据库表列
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
@@ -253,7 +260,8 @@ public class SQLExecutor {
      * @param columnName
      * @return
      */
-    public List<TableColumn> columns(Connection connection,String databaseName, String schemaName, String tableName, String columnName) {
+    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName,
+        String columnName) {
         List<TableColumn> tableColumns = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
             columnName)) {
@@ -270,13 +278,14 @@ public class SQLExecutor {
 
     /**
      * 获取所有的数据库表索引
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
      * @param tableName
      * @return
      */
-    public List<TableIndex> indexes(Connection connection,String databaseName, String schemaName, String tableName) {
+    public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
             false,
@@ -308,12 +317,13 @@ public class SQLExecutor {
 
     /**
      * 获取所有的函数
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
      * @return
      */
-    public List<ai.chat2db.spi.model.Function> functions(Connection connection,String databaseName,
+    public List<ai.chat2db.spi.model.Function> functions(Connection connection, String databaseName,
         String schemaName) {
         List<ai.chat2db.spi.model.Function> functions = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, schemaName, null);) {
@@ -328,12 +338,13 @@ public class SQLExecutor {
 
     /**
      * 获取所有的存储过程
+     *
      * @param connection
      * @param databaseName
      * @param schemaName
      * @return
      */
-    public List<Procedure> procedures(Connection connection,String databaseName, String schemaName) {
+    public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
         List<Procedure> procedures = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getProcedures(databaseName, schemaName, null)) {
             while (resultSet != null && resultSet.next()) {
