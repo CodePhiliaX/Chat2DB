@@ -84,23 +84,15 @@ public class IDriverManager {
             driverEntry = getJDBCDriver(driver);
         }
         try {
-            Connection con = driverEntry.getDriver().connect(url, info);
-            if (con != null) {
-                return con;
-            }
+            return driverEntry.getDriver().connect(url, info);
         } catch (SQLException var7) {
             Connection con = tryConnectionAgain(driverEntry, url, info);
             if (con != null) {
                 return con;
             } else {
-                throw var7;
+                throw new SQLException("Cannot create connection (" + var7.getMessage() + ")", "08001",
+                    var7);
             }
-        }
-
-        if (reason != null) {
-            throw reason;
-        } else {
-            throw new SQLException("No suitable driver found for " + url, "08001");
         }
     }
 
