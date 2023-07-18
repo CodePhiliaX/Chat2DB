@@ -1,4 +1,12 @@
 # 2.0.4
+
+## 🐞 Bug Fixes
+- Default return alias for returned results [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
+
+## 🐞 问题修复
+- 返回结果默认返回别名 [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
+
+# 2.0.4
 ## ⭐ New Features
 - Support DB2 database
 - Support renaming after console saving
