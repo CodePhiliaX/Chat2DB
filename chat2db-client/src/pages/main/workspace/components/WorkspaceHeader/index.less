@@ -5,8 +5,11 @@
   display: flex;
   align-items: center;
   padding-left: 10px;
+  font-size: 14px;
   background-color: var(--color-bg-elevated);
   border-bottom: 1px solid var(--color-border-secondary);
+  font-weight: bold;
+
 }
 
 .databaseLogo{
@@ -17,6 +20,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  font-weight: normal;
+  i{
+    font-size: 16px;
+  }
   .refreshBox{
     cursor: pointer;
   }
@@ -28,8 +35,9 @@
 .crumbsItem{
   display: flex;
   align-items: center;
-  height: 28px;
+  height: 36px;
   cursor: pointer;
+
   &:hover{
     color: var(--color-primary);
   }
@@ -45,3 +53,16 @@
   }
 }
 
+.refreshIcon{
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.noConnectionModal{
+  display: flex;
+  justify-content: space-between;
+
+  .mainText{
+
+  }
+}
