@@ -97,7 +97,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 
 ### AI intelligent assistant
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/16e3c632-f896-45c3-a7a2-91c338e82f73.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+![image](https://github.com/chat2db/Chat2DB/assets/22975773/2dfc4aaa-c5a3-42c3-bc61-28ebc237a27b)
 
 ## 🔥 AI Configuration
 
