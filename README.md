@@ -1,4 +1,4 @@
-<h1 align="center">Chat2DB</h1>
+<img width="1720" alt="截屏2023-07-18 22 10 56" src="https://github.com/chat2db/Chat2DB/assets/22975773/ab60d3f1-2e90-43b2-a373-f3d6453bb2a3"><h1 align="center">Chat2DB</h1>
 
 <div align="center">
 
@@ -83,8 +83,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 ## 🌰 Demo
 
 ### Create data source
-
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/1d7f2d05-9c3b-4308-a693-39aed44a4b39.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a> <img width="1720" src="https://github.com/chat2db/Chat2DB/assets/22975773/6137bdf7-a023-49c1-b637-3533fef30846"> </a>
 
 ### Data source management
 
