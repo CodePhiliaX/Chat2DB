@@ -84,15 +84,16 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 
 ### Create data source
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/1d7f2d05-9c3b-4308-a693-39aed44a4b39.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="crete datasource" src="https://github.com/chat2db/Chat2DB/assets/22975773/16050747-0f6c-4e98-ba91-323033584eec"></a>
+
 
 ### Data source management
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/d5634953-9fe5-4a03-8024-3aa4774b2955.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="2" src="https://github.com/chat2db/Chat2DB/assets/22975773/5d0332ca-8a65-4ed9-95fb-b12fae9209f3"></a>
 
 ### SQL console
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/f1a111bd-38cf-42d2-bfd3-f1d7f57aec3c.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="2" src="https://github.com/chat2db/Chat2DB/assets/22975773/5d0332ca-8a65-4ed9-95fb-b12fae9209f3"></a>
 
 ### AI intelligent assistant
 
@@ -107,7 +108,8 @@ Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions mu
 - You need an OPENAI_API_KEY.
 - The client's network can connect to the OPENAI website, and for users in China, a VPN is required. Note: If the local VPN is not fully effective, the network connectivity can be ensured by setting the network proxy HOST and PORT in the client.
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/0218daf0-7d93-43c5-a5f7-decd104c0847.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<img width="1717" alt="3" src="https://github.com/chat2db/Chat2DB/assets/22975773/95c8a766-cc6b-4767-90e6-a8b616a89bc7">
+
 
 Option 2 (recommended): We provide a unified proxy service.
 
@@ -116,15 +118,16 @@ Option 2 (recommended): We provide a unified proxy service.
 
 To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY.
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/5ee43d26-05bb-4b12-b705-2b263f167975.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<img width="1726" alt="4" src="https://github.com/chat2db/Chat2DB/assets/22975773/9236ff01-e49f-4e45-96b0-201e85fcd756">
+
 
 ### CONFIGURE CUSTOM AI
 
 - Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
 - DEMO for configuring customized stream output interface.
-  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/3b74fea5-526d-40ea-9edb-27484921c578.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 - DEMO for configuring customized non-stream output interface.
-  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/eb82d1ee-ab13-46f8-a454-60968482e584.png#1011"/></a>
+<img width="1722" alt="5" src="https://github.com/chat2db/Chat2DB/assets/22975773/aff8497e-3edb-449d-a7d4-bb0429abc67c">
+
 
 ## 📦 Docker installation
 
