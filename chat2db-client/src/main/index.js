@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu, shell, net, ipcMain, dialog } = require('electron');
+const { exec } = require('child_process');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -64,16 +65,51 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', (event) => {
-  try {
-    const request = net.request({
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      url: 'http://127.0.0.1:10824/api/system/stop',
+  const isWindows = os.platform() === 'win32';
+  let ports = [10821, 10822, 10824]; // 日常端口、测试包端口、线上包端口
+  for (let port of ports) {
+    let command = '';
+    if (isWindows) {
+      command = `netstat -ano | findstr:${port}`;
+    } else {
+      command = `lsof -i :${port} | awk '{print $2}'`;
+    }
+
+    exec(command, (err, stdout) => {
+      if (err) {
+        console.error(`exec error: ${err}`);
+        return;
+      }
+
+      let pidArr = [];
+      if (isWindows) {
+        const lines = stdout.trim().split('\n');
+        pidArr = lines.map((line) => line.trim().split(/\s+/)[4]).filter((pid) => !isNaN(pid));
+      } else {
+        pidArr = stdout.trim().split('\n');
+      }
+
+      if (pidArr.length) {
+        try {
+          (pidArr || []).forEach((pid) => {
+            !!pid && !isNaN(pid) && process.kill(pid);
+          });
+        } catch (error) {
+          console.error(`Error killing process: ${error}`);
+        }
+      }
     });
-    request.end();
-  } catch (error) { }
+  }
+  // try {
+  //   const request = net.request({
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     method: 'POST',
+  //     url: 'http://127.0.0.1:10824/api/system/stop',
+  //   });
+  //   request.end();
+  // } catch (error) { }
 });
 
 ipcMain.handle('get-product-name', (event) => {
