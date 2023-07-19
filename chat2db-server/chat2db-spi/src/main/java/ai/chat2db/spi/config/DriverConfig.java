@@ -4,6 +4,7 @@ package ai.chat2db.spi.config;
 import java.util.List;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jipengfei
@@ -38,4 +39,10 @@ public class DriverConfig {
      * 自定义
      */
     private boolean custom;
+
+
+    public boolean notEmpty() {
+       return StringUtils.isNotBlank(getJdbcDriver()) && StringUtils.isNotBlank(
+            getJdbcDriverClass());
+    }
 }

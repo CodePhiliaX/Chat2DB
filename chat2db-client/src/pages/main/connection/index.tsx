@@ -61,7 +61,6 @@ function Connections(props: IProps) {
   );
 
   const handleMenuItemDoubleClick = (t?: any) => {
-    console.log(t)
     dispatch({
       type: 'connection/setCurConnection',
       payload: t.meta,
@@ -86,7 +85,9 @@ function Connections(props: IProps) {
               })}
               onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
               onClick={(event) => {
-                setCurConnection(t.meta);
+                if (curConnection.id !== t.meta?.id) {
+                  setCurConnection(t.meta);
+                }
               }}
             >
               <div className={classnames(styles.menuItemsTitle)}>
@@ -128,13 +129,14 @@ function Connections(props: IProps) {
     );
   };
 
+
   return (
     <div className={styles.box}>
       <div ref={volatileRef} className={styles.layoutLeft}>
         <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
         {renderMenu()}
         {
-          curConnection && Object.keys(curConnection).length &&
+          curConnection && !!Object.keys(curConnection).length &&
           <Button
             type="primary"
             className={styles.addConnection}
@@ -153,13 +155,15 @@ function Connections(props: IProps) {
               [styles.showCreateConnections]: Object.keys(curConnection).length,
             })}
           >
-            <CreateConnection
-              connectionData={curConnection as any}
-              closeCreateConnection={() => {
-                setCurConnection({});
-              }}
-              submitCallback={getConnectionList}
-            />
+            {
+              <CreateConnection
+                connectionData={curConnection as any}
+                closeCreateConnection={() => {
+                  setCurConnection({});
+                }}
+                submitCallback={getConnectionList}
+              />
+            }
           </div>
         ) : (
           <div className={styles.dataBaseList}>
