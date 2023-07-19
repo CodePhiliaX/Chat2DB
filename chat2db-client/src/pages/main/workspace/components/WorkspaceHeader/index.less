@@ -1,0 +1,68 @@
+@import '../../../../../styles/var.less';
+
+.workspaceHeader{
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 14px;
+  background-color: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border-secondary);
+  font-weight: bold;
+
+}
+
+.databaseLogo{
+  margin-right: 10px;
+  overflow: hidden;
+  height: 18px;
+  width: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: normal;
+  i{
+    font-size: 16px;
+  }
+  .refreshBox{
+    cursor: pointer;
+  }
+  .spin{
+    transform: scale(0.6);
+  }
+}
+
+.crumbsItem{
+  display: flex;
+  align-items: center;
+  height: 36px;
+  cursor: pointer;
+
+  &:hover{
+    color: var(--color-primary);
+  }
+
+  .typeIcon{
+    margin-right: 6px;
+  }
+  
+  .arrow{
+    font-size: 10px;
+    margin: 0px 10px;
+    transform: translateY(1px);
+  }
+}
+
+.refreshIcon{
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.noConnectionModal{
+  display: flex;
+  justify-content: space-between;
+
+  .mainText{
+
+  }
+}

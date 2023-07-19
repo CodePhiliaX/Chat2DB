@@ -2,7 +2,7 @@ export default {
   'setting.title.setting': 'Setting',
   'setting.nav.basic': 'Basic',
   'setting.nav.customAi': 'Custom Ai',
-  'setting.nav.proxy': 'Proxy',
+  'setting.nav.proxy': 'Service Path',
   'setting.nav.aboutUs': 'About Us',
   'setting.title.backgroundColor': 'Background Color',
   'setting.title.themeColor': 'Theme Color',

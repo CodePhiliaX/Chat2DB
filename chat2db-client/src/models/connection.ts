@@ -48,13 +48,16 @@ const ConnectionModel: IConnectionModelType = {
   },
 
   effects: {
-    *fetchConnectionList(_, { call, put }) {
+    *fetchConnectionList({ callback }, { call, put }) {
       try {
         const res = (yield connectionService.getList({ pageNo: 1, pageSize: 999 })) as IPageResponse<IConnectionDetails>;
         yield put({
           type: 'setConnectionList',
           payload: res.data,
         });
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
       }
       catch {
 
