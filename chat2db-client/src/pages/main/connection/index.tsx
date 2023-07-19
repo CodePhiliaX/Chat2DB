@@ -134,7 +134,7 @@ function Connections(props: IProps) {
         <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
         {renderMenu()}
         {
-          curConnection && Object.keys(curConnection).length &&
+          curConnection && Object.keys(curConnection).length > 0 &&
           <Button
             type="primary"
             className={styles.addConnection}
