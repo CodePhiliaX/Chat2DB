@@ -36,7 +36,6 @@
     "monaco-editor": "^0.34.0",
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
-    "react-monaco-editor": "^0.52.0",
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",
@@ -62,6 +61,13 @@
     "prettier-plugin-organize-imports": "^2",
     "prettier-plugin-packagejson": "^2",
     "typescript": "^5.0.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  },
+  "engines": {
+    "node": ">=16"
   },
   "build": {
     "appId": "com.chat2db",
