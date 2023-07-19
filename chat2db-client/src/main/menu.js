@@ -1,7 +1,7 @@
 const { shell, app, dialog, BrowserWindow, Menu } = require('electron');
 const os = require('os');
 const path = require('path');
-const registerAppMenu = () => {
+const registerAppMenu = (mainWindow) => {
   const menuBar = [
     {
       label: 'Chat2DB',
@@ -19,9 +19,6 @@ const registerAppMenu = () => {
             });
           },
         },
-        // {
-        //   label: '检查更新',
-        // },
         { type: 'separator' },
         {
           label: '退出',
@@ -59,6 +56,22 @@ const registerAppMenu = () => {
               focusedWindow.reload();
             }
           },
+        },
+        { type: 'separator' },
+        {
+          label: '放大',
+          accelerator: 'CmdOrCtrl+=',
+          role: 'zoomIn',
+        },
+        {
+          label: '缩小',
+          accelerator: 'CmdOrCtrl+-',
+          role: 'zoomOut',
+        },
+        {
+          label: '重置',
+          accelerator: 'CmdOrCtrl+0',
+          role: 'resetZoom',
         },
         { type: 'separator' },
         { label: '全屏', role: 'togglefullscreen' },
