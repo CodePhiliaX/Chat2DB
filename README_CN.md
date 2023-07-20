@@ -129,7 +129,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
   // 前台运行,运行后不能关闭命令行
   docker run -ti --name=chat2db -p 10824:10824 chat2db/chat2db:latest
   // 后台运行,运行后可以关闭命令行
-  docker run --name=chat2db -p 10824:10824 chat2db/chat2db:latest
+  docker run -d --name=chat2db -p 10824:10824 chat2db/chat2db:latest
   // 这里正常会提示 Tomcat started on port(s): 10824 (http) with context path 就可以结束了
 
   // 如果这里提示  The container name "/chat2db" is already in use by container, 代表已经存在容器了 运行
