@@ -1,4 +1,3 @@
-<img width="1720" alt="截屏2023-07-18 22 10 56" src="https://github.com/chat2db/Chat2DB/assets/22975773/ab60d3f1-2e90-43b2-a373-f3d6453bb2a3"><h1 align="center">Chat2DB</h1>
 
 <div align="center">
 
