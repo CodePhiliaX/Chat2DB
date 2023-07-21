@@ -9,10 +9,11 @@ import { Button, DatePicker, Input, Table, Modal, message, Spin } from 'antd';
 import { StatusType, TableDataType } from '@/constants';
 import { formatDate } from '@/utils/date';
 import { IManageResultData, ITableHeaderItem } from '@/typings';
-import styles from './index.less';
 import i18n from '@/i18n';
 import { v4 as uuidv4 } from 'uuid';
 import TableBox from './TableBox';
+import EmptyImg from '@/assets/img/empty.svg';
+import styles from './index.less';
 
 interface IProps {
   className?: string;
@@ -87,7 +88,13 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
   }
 
   const renderEmpty = () => {
-    return <div className={styles.noData}>{i18n('common.text.noData')}</div>;
+    return (
+      <div className={styles.noData}>
+        {/* {i18n('common.text.noData')} */}
+        {/* <Iconfont style={{ fontSize: '64px' }} code="&#xe642;" /> */}
+        <img src={EmptyImg} />
+      </div>
+    );
   };
 
   const renderTable = useMemo(() => {
