@@ -17,7 +17,7 @@ function loadMainResource(mainWindow) {
   } else {
     mainWindow.loadURL(
       url.format({
-        pathname: path.join(__dirname, '../..', `./${readVersion()}`, `./dist/index.html`),
+        pathname: path.join(__dirname, '../..', `./versions/${readVersion()}`, `./dist/index.html`),
         protocol: 'file:',
         slashes: true,
       }),
@@ -30,9 +30,11 @@ function loadMainResource(mainWindow) {
  * @param {*} 
  */
 function readVersion() {
+  let readDir = [];
   if (process.env.NODE_ENV !== 'development') {
-    var readDir = fs.readdirSync(path.join(__dirname, '../..', './versions'));
-    console.log(readDir);
+    fs.readdirSync(path.join(__dirname, '../..', './versions'), (err,) => {
+      console.log(err);
+    });
   }
   if (readDir.length) {
     return readDir[readDir.length - 1]
