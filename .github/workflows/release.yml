@@ -122,6 +122,10 @@ jobs:
           yarn install 
           yarn run build:web:prod --app_version=${{ steps.chat2db_version.outputs.substring }}
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          mkdir versions
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}/static
+          cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
 
       # 编译服务端java版本
       - name: Build Java
@@ -130,7 +134,15 @@ jobs:
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
+
+      # touch versions
+      - name: touch versions
+        run: |
+          cd chat2db-client
+          touch version
+          echo ${{ steps.chat2db_version.outputs.substring }} > version
+          cp -r version ./versions/
 
       - name: Prepare Build Electron
         run: |
@@ -200,7 +212,7 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
           mkdir oss_temp_file
-          cp chat2db-client/static/chat2db-server-start.jar  ./oss_temp_file
+          cp chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
