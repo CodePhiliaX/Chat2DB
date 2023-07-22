@@ -129,6 +129,7 @@ jobs:
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/1.0.${{ github.run_id }}/static/
           cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/1.0.${{ github.run_id }}/static/lib
+          zip chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.zip chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.jar chat2db-client/versions/1.0.${{ github.run_id }}/static/lib/
 
       - name: Prepare Build Electron
         run: |
@@ -207,6 +208,7 @@ jobs:
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/amd
           cp chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
+          cp chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.zip ./oss_temp_file/jar/${{ github.run_id }}
           cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/amd
@@ -263,7 +265,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg](https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.jar) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg](https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-1.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知
