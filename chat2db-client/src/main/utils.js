@@ -30,16 +30,11 @@ function loadMainResource(mainWindow) {
  * @param {*} 
  */
 function readVersion() {
-  let readDir = [];
+  let version = '';
   if (process.env.NODE_ENV !== 'development') {
-    fs.readdirSync(path.join(__dirname, '../..', './versions'), (err,) => {
-      console.log(err);
-    });
+    version = fs.readFileSync(path.join(__dirname, '../..', './versions/version'));
   }
-  if (readDir.length) {
-    return readDir[readDir.length - 1]
-  }
-  return ''
+  return version
 }
 
 module.exports = {
