@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld('myAPI', {
 
     console.log('productName:', productName, isTest);
 
-    const child = spawn(path.join(__dirname, '../..', ` ./static/${JAVA_PATH}`), [
+    const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
       '-jar',
       '-Xmx512M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
