@@ -122,32 +122,32 @@ jobs:
           yarn install 
           yarn run build:web:prod --app_version=${{ steps.chat2db_version.outputs.substring }}
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
-          mkdir versions
-          mkdir versions/${{ steps.chat2db_version.outputs.substring }}
-          mkdir versions/${{ steps.chat2db_version.outputs.substring }}/static
-          cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
 
       # 编译服务端java版本
       - name: Build Java
         run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
+
+      # touch versions
+      - name: touch versions
+        run: |
+          cd chat2db-client
+          mkdir versions
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}/static
+          touch version
+          echo -n ${{ steps.chat2db_version.outputs.substring }} > version
+          cp -r version ./versions/
 
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
 
-      # touch versions
-      - name: touch versions
-        run: |
-          cd chat2db-client
-          touch version
-          echo ${{ steps.chat2db_version.outputs.substring }} > version
-          cp -r version ./versions/
-
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
           yarn run build:web:desktop --app_version=${{ steps.chat2db_version.outputs.substring }}
+          cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
 
       # windows
       - name: Build/release Electron app for Windows
