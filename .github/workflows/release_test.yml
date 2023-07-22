@@ -108,6 +108,8 @@ jobs:
           yarn install 
           yarn run build:web:prod --app_version=1.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          mkdir versions
+          mkdir versions/1.0.${{ github.run_id }}
           cp -r dist ./versions/1.0.${{ github.run_id }}/
 
       # 编译服务端java版本
