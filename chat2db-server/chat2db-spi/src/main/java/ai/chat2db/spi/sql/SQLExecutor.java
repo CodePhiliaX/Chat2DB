@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.model.*;
 
 import ai.chat2db.spi.util.ResultSetUtils;
@@ -100,7 +101,7 @@ public class SQLExecutor {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
             TimeInterval timeInterval = new TimeInterval();
             boolean query = stmt.execute(sql.replaceFirst(";", ""));
-            executeResult.setDescription("执行成功");
+            executeResult.setDescription(I18nUtils.getMessage("sqlResult.success"));
             // 代表是查询
             if (query) {
                 ResultSet rs = null;
