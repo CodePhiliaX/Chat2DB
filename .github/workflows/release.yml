@@ -148,7 +148,7 @@ jobs:
           cd chat2db-client
           yarn run build:web:desktop --app_version=${{ steps.chat2db_version.outputs.substring }}
           cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
-          rm dist
+          rm -r dist
 
       # windows
       - name: Build/release Electron app for Windows
