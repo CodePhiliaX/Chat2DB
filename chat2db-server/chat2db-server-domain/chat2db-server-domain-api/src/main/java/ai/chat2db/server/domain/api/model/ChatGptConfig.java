@@ -10,6 +10,15 @@ import lombok.Data;
  */
 @Data
 public class ChatGptConfig {
+    /**
+     * chat2db APIKEY
+     */
+    private String chat2dbApiKey;
+
+    /**
+     * chat2db APIHOST
+     */
+    private String chat2dbApiHost;
 
     /**
      * OpenAi APIKEY

@@ -13,6 +13,16 @@ import lombok.Data;
 public class AISystemConfigRequest {
 
     /**
+     * chat2db APIKEY
+     */
+    private String chat2dbApiKey;
+
+    /**
+     * chat2db APIHOST
+     */
+    private String chat2dbApiHost;
+
+    /**
      * OpenAi APIKEY
      * 使用OpenAi接口时必填，可前往OpenAI官网查看APIKEY
      */
