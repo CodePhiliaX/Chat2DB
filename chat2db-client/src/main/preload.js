@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('myAPI', {
       '-Xmx512M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
+      `-Dproject.path=${javaPath}`,
       javaPath,
     ]);
 
