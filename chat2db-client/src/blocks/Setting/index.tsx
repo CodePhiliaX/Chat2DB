@@ -20,6 +20,8 @@ interface IProps {
   dispatch: Function;
 }
 const initChatGPTConfig = {
+  chat2dbApiKey: '',
+  chat2dbApiHost: '',
   apiKey: '',
   httpProxyHost: '',
   httpProxyPort: '',

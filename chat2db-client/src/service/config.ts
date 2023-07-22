@@ -10,6 +10,8 @@ const setSystemConfig = createRequest<{ code: string; content: string }, void>('
 });
 
 export interface IChatGPTConfig {
+  chat2dbApiKey: string;
+  chat2dbApiHost: string;
   apiKey: string;
   httpProxyHost: string;
   httpProxyPort: string;
