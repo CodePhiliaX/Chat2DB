@@ -129,7 +129,6 @@ jobs:
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/1.0.${{ github.run_id }}/static/
           cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/1.0.${{ github.run_id }}/static/lib
-          zip chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.zip chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.jar chat2db-client/versions/1.0.${{ github.run_id }}/static/lib/
 
       - name: Prepare Build Electron
         run: |
@@ -208,7 +207,7 @@ jobs:
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/amd
           cp chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
-          cp chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.zip ./oss_temp_file/jar/${{ github.run_id }}
+          zip -r ./oss_temp_file/jar/${{ github.run_id }}/chat2db-server-start.zip chat2db-client/versions/1.0.${{ github.run_id }}/static/
           cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/amd
