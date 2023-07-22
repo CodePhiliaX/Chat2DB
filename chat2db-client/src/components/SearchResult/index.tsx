@@ -3,12 +3,9 @@ import classnames from 'classnames';
 import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
-import LoadingContent from '@/components/Loading/LoadingContent';
-import MonacoEditor from '@/components/Console/MonacoEditor';
-import { Button, DatePicker, Input, Table, Modal, message, Spin } from 'antd';
-import { StatusType, TableDataType } from '@/constants';
-import { formatDate } from '@/utils/date';
-import { IManageResultData, ITableHeaderItem } from '@/typings';
+import { Spin, Popover } from 'antd';
+import { StatusType } from '@/constants';
+import { IManageResultData } from '@/typings';
 import i18n from '@/i18n';
 import { v4 as uuidv4 } from 'uuid';
 import TableBox from './TableBox';
@@ -29,14 +26,14 @@ const handleTabs = (result: IManageResultData[]) => {
   return (result || []).map((item, index) => {
     return {
       label: (
-        <>
+        <Popover content={item.sql}>
           <Iconfont
             key={index}
             className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
             code={item.success ? '\ue605' : '\ue87c'}
           />
           {`${i18n('common.text.executionResult')}-${index + 1}`}
-        </>
+        </Popover>
       ),
       value: item.uuid!,
     };
