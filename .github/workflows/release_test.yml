@@ -107,7 +107,8 @@ jobs:
           cd chat2db-client
           yarn install 
           yarn run build:web:prod --app_version=1.0.${{ github.run_id }} --app_port=10822
-          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          cp dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          cp -r dist ./versions/1.0.${{ github.run_id }}/
 
       # 编译服务端java版本
       - name: Build Java
@@ -116,7 +117,14 @@ jobs:
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/1.0.${{ github.run_id }}/static/
+
+      # touch versions
+      - name: touch versions
+        run: |
+          touch version
+          echo 1.0.${{ github.run_id }} > version
+          cp -r version ./versions/
 
       - name: Prepare Build Electron
         run: |
