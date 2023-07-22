@@ -155,9 +155,11 @@ export default function TableBox(props: ITableProps) {
             isLoading={isLoading}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(
-            'common.text.timeConsuming',
-          )}：${duration}ms`}</div>
+          <div className={styles.statusBar}>
+            <span>{`【${i18n('common.text.result')}】${description}.`}</span>
+            <span>{`【${i18n('common.text.timeConsuming')}】${duration}ms.`}</span>
+            <span>{`【${i18n('common.text.searchRow')}】${tableData.length} ${i18n('common.text.row')}.`}</span>
+          </div>
         </>
       ) : (
         <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
