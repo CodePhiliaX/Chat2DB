@@ -110,6 +110,7 @@ jobs:
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           mkdir versions
           mkdir versions/1.0.${{ github.run_id }}
+          mkdir versions/1.0.${{ github.run_id }}/static
           cp -r dist ./versions/1.0.${{ github.run_id }}/
 
       # 编译服务端java版本
