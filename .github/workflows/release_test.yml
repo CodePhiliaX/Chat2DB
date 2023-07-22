@@ -122,6 +122,7 @@ jobs:
       # touch versions
       - name: touch versions
         run: |
+          cd chat2db-client
           touch version
           echo 1.0.${{ github.run_id }} > version
           cp -r version ./versions/
