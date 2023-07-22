@@ -6,9 +6,7 @@ const { readVersion } = require('./utils');
 
 contextBridge.exposeInMainWorld('myAPI', {
   startServerForSpawn: async () => {
-    readVersion();
-
-    const javaPath = path.join(__dirname, '../..', `./${readVersion()}`, `./static/${JAVA_APP_NAME}`);
+    const javaPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/${JAVA_APP_NAME}`);
 
     const productName = await ipcRenderer.invoke('get-product-name');
 
