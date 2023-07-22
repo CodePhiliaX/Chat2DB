@@ -7,7 +7,7 @@ const { readVersion } = require('./utils');
 contextBridge.exposeInMainWorld('myAPI', {
   startServerForSpawn: async () => {
     const javaPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/${JAVA_APP_NAME}`);
-    const libPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/lib);
+    const libPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, './static/lib');
 
     const productName = await ipcRenderer.invoke('get-product-name');
 
@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('myAPI', {
 
     const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
       '-jar',
-      '-Xmx512M',
+      '-Xmx1024M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
       `-Dproject.path=${javaPath}`,
