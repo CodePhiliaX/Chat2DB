@@ -164,7 +164,7 @@ const workspace = memo<IProps>((props) => {
   return (
     <div className={styles.workspace}>
       <WorkspaceHeader cascaderOptions={cascaderOptions}></WorkspaceHeader>
-      <LoadingContent isLoading={loading}>
+      <LoadingContent coverLoading={true} isLoading={loading}>
         <DraggableContainer className={styles.workspaceMain}>
           <div ref={draggableRef} className={styles.boxLeft}>
             <WorkspaceLeft cascaderOptions={cascaderOptions} />

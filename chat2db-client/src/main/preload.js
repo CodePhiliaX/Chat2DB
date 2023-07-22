@@ -2,10 +2,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 const { spawn } = require('child_process');
 const { JAVA_APP_NAME, JAVA_PATH } = require('./constants');
 const path = require('path');
+const { readVersion } = require('./utils');
 
 contextBridge.exposeInMainWorld('myAPI', {
   startServerForSpawn: async () => {
-    const javaPath = path.join(__dirname, '../..', `./static/${JAVA_APP_NAME}`);
+    readVersion();
+
+    const javaPath = path.join(__dirname, '../..', `./${readVersion()}`, `./static/${JAVA_APP_NAME}`);
 
     const productName = await ipcRenderer.invoke('get-product-name');
 
@@ -13,7 +16,7 @@ contextBridge.exposeInMainWorld('myAPI', {
 
     console.log('productName:', productName, isTest);
 
-    const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
+    const child = spawn(path.join(__dirname, '../..', ` ./static/${JAVA_PATH}`), [
       '-jar',
       '-Xmx512M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
