@@ -38,11 +38,14 @@ export default memo<IProps>(function Driver(props) {
 
   useEffect(() => {
     if (backfillData) {
-      driverForm.setFieldsValue({
+      const data = {
         jdbcDriverClass: backfillData?.driverConfig?.jdbcDriverClass,
         jdbcDriver: backfillData?.driverConfig?.jdbcDriver
-      })
+      }
+      driverForm.setFieldsValue(data)
+      onChange(data);
     }
+
   }, [backfillData?.driverConfig, backfillData?.id])
 
   function getDriverList() {
@@ -52,10 +55,12 @@ export default memo<IProps>(function Driver(props) {
         driverConfigList: res.driverConfigList || []
       });
       if (res.driverConfigList?.length && !backfillData?.driverConfig?.jdbcDriver) {
-        driverForm.setFieldsValue({
+        const data = {
           jdbcDriverClass: res.driverConfigList[0].jdbcDriverClass,
           jdbcDriver: res.driverConfigList[0].jdbcDriver
-        })
+        }
+        driverForm.setFieldsValue(data);
+        onChange(data);
       }
     })
   }
@@ -72,7 +77,7 @@ export default memo<IProps>(function Driver(props) {
   }
 
   function downloadDrive() {
-    setDownloadStatus(DownloadStatus.Loading)
+    setDownloadStatus(DownloadStatus.Loading);
     connectionService.downloadDriver({ dbType: backfillData.type }).then(res => {
       setDownloadStatus(DownloadStatus.Success);
       getDriverList();

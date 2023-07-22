@@ -67,34 +67,36 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }, [connectionList])
 
   useEffect(() => {
-    if (curConnection?.id) {
-      getConnectionList();
-    }
-  }, []);
-
-
-
-  useEffect(() => {
-    if (curPage === 'workspace' && !connectionList.length) {
-      setNoConnectionModal(true)
-      return
-    }
-    setNoConnectionModal(false)
-  }, [curPage])
+    getConnectionList();
+  }, [curPage]);
 
   const getConnectionList = () => {
     setCascaderLoading(true)
     dispatch({
       type: 'connection/fetchConnectionList',
-      callback: () => {
+      callback: (res: any) => {
         setTimeout(() => {
           setCascaderLoading(false)
+          if (curPage === 'workspace' && !res.data?.length) {
+            setNoConnectionModal(true)
+            return
+          }
+          setNoConnectionModal(false)
+          if (curConnection?.id && res.data.length) {
+            const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
+            if (flag === -1) {
+              connectionChange([res.data[0].id], [res.data[0]]);
+            }
+          }
         }, 200);
       }
     });
   };
 
   function connectionChange(id: any, data: any) {
+    // if(id[0] === curConnection?.id){
+    //   return
+    // }
     connectionList.map(t => {
       if (t.id === id[0]) {
         dispatch({
@@ -110,7 +112,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }
 
   return <>
-
     {curConnection && !!connectionList.length && curWorkspaceParams && <div className={styles.workspaceHeader}>
       <div className={styles.databaseLogo}>
         {curConnection?.type ?
@@ -125,6 +126,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={connectionListOptions}
         onChange={connectionChange}
         bordered={false}
+        defaultValue={[curConnection?.id]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curConnection?.alias}</div>
@@ -137,6 +139,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={cascaderOptions}
         onChange={databaseChange}
         bordered={false}
+        // defaultValue={[curWorkspaceParams.databaseName]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
@@ -152,6 +155,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           options={curSchemaOptions}
           onChange={schemaChange}
           bordered={false}
+          // defaultValue={[curWorkspaceParams.schemaName]}
         >
           <div className={styles.crumbsItem}>
             <div className={styles.text}>{curWorkspaceParams.schemaName}</div>

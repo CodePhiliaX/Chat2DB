@@ -22,7 +22,7 @@
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:main:prod": "cross-env NODE_ENV=production electron .",
-    "start:web": "cross-env UMI_ENV=local umi dev"
+    "start:web": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
   },
   "dependencies": {
     "ahooks": "^3.7.7",
@@ -36,7 +36,6 @@
     "monaco-editor": "^0.34.0",
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
-    "react-monaco-editor": "^0.52.0",
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",
@@ -62,6 +61,13 @@
     "prettier-plugin-organize-imports": "^2",
     "prettier-plugin-packagejson": "^2",
     "typescript": "^5.0.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0"
+  },
+  "engines": {
+    "node": ">=16"
   },
   "build": {
     "appId": "com.chat2db",
