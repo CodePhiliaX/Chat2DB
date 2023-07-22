@@ -207,13 +207,14 @@ jobs:
           mkdir oss_temp_file/mac
           mkdir oss_temp_file/mac/amd
           cp chat2db-client/versions/1.0.${{ github.run_id }}/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
-          zip -r ./oss_temp_file/jar/${{ github.run_id }}/chat2db-server-start.zip chat2db-client/versions/1.0.${{ github.run_id }}/static/
           cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/amd
           ls chat2db-client/release/
+          cd chat2db-client/versions/1.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ github.run_id }}
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
