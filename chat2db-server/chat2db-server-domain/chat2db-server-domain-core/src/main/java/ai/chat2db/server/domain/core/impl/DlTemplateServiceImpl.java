@@ -66,7 +66,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         List<ExecuteResult> result = new ArrayList<>();
         ListResult<ExecuteResult> listResult = ListResult.of(result);
         // 执行sql
-        for (String sql : sqlList) {
+        for (String originalSql : sqlList) {
+            String sql = originalSql;
             int pageNo = 0;
             int pageSize = 0;
             String sqlType = SqlTypeEnum.UNKNOWN.getCode();
@@ -79,6 +80,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 log.warn("解析sql失败:{}", sql, e);
                 ExecuteResult executeResult = ExecuteResult.builder()
                     .success(Boolean.FALSE)
+                    .originalSql(originalSql)
                     .sql(sql)
                     .message(e.getMessage())
                     .build();
@@ -106,6 +108,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
             ExecuteResult executeResult = execute(sql);
             executeResult.setSqlType(sqlType);
+            executeResult.setOriginalSql(originalSql);
             // 自动分页
             if (autoLimit) {
                 executeResult.setPageNo(pageNo);
