@@ -19,7 +19,6 @@ interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelType['state'],
   dispatch: any;
-  cascaderOptions: any;
   tableLoading: boolean;
   databaseLoading: boolean;
 }
@@ -34,7 +33,7 @@ const dvaModel = connect(
 );
 
 const WorkspaceLeft = memo<IProps>(function (props) {
-  const { className, workspaceModel, dispatch, cascaderOptions } = props;
+  const { className, workspaceModel, dispatch } = props;
   const { curWorkspaceParams } = workspaceModel;
 
 
@@ -81,9 +80,6 @@ const WorkspaceLeft = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      {/* <div className={styles.header}>
-        <RenderSelectDatabase cascaderOptions={cascaderOptions} />
-      </div> */}
       <RenderSaveBox></RenderSaveBox>
       <Divider className={styles.divider} />
       <RenderTableBox />
@@ -109,82 +105,6 @@ interface IProps {
   dispatch: any;
 }
 
-// const RenderSelectDatabase = dvaModel(function (props: IProps) {
-//   const { connectionModel, workspaceModel, dispatch, cascaderOptions } = props;
-//   const { curWorkspaceParams } = workspaceModel;
-//   const { curConnection } = connectionModel;
-//   const [currentSelectedName, setCurrentSelectedName] = useState('');
-//   const [cascaderLoading, setCascaderLoading] = useState(false);
-
-//   useEffect(() => {
-//     if (curWorkspaceParams) {
-//       const { databaseName, schemaName, databaseSourceName } = curWorkspaceParams;
-//       const currentSelectedArr = [databaseSourceName, databaseName, schemaName].filter((t) => t);
-//       setCurrentSelectedName(currentSelectedArr.join('/'));
-//     }
-//   }, [curWorkspaceParams]);
-
-//   const onChange: any = (valueArr: any, selectedOptions: any) => {
-//     let labelArr: string[] = [];
-//     labelArr = selectedOptions.map((t: any) => {
-//       return t.label;
-//     });
-
-//     const curWorkspaceParams = {
-//       dataSourceId: curConnection?.id,
-//       databaseSourceName: curConnection?.alias,
-//       databaseName: labelArr[0],
-//       schemaName: labelArr[1],
-//       databaseType: curConnection?.type,
-//     };
-
-//     dispatch({
-//       type: 'workspace/setCurWorkspaceParams',
-//       payload: curWorkspaceParams,
-//     });
-//   };
-
-//   const dropdownRender = (menus: React.ReactNode) => <div>{menus}</div>;
-
-//   function handleRefresh() {
-//     setCascaderLoading(true)
-//     dispatch({
-//       type: 'workspace/fetchDatabaseAndSchema',
-//       payload: {
-//         dataSourceId: curConnection?.id,
-//         refresh: true
-//       },
-//       callback: () => {
-//         setCascaderLoading(false)
-//       }
-//     });
-//   }
-
-//   return (
-//     <div className={styles.selectDatabaseBox}>
-//       <Cascader
-//         popupClassName={styles.cascaderPopup}
-//         options={cascaderOptions}
-//         onChange={onChange}
-//         bordered={false}
-//         dropdownRender={dropdownRender}
-//       >
-//         <div className={styles.currentDatabase}>
-//           <div className={styles.name}>
-//             {currentSelectedName || <span style={{ opacity: 0.8 }}>{i18n('workspace.cascader.placeholder')}</span>}{' '}
-//           </div>
-//           <Iconfont code="&#xe608;" />
-//         </div>
-//       </Cascader>
-//       <div className={styles.otherOperations}>
-//         <div className={classnames(styles.refreshIconBox, styles.iconBox)} onClick={handleRefresh}>
-//           {cascaderLoading ? <Spin /> : <Iconfont code="&#xec08;" />}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// });
-
 const RenderTableBox = dvaModel(function (props: any) {
   const { workspaceModel, dispatch, tableLoading } = props;
   const { curWorkspaceParams, curTableList } = workspaceModel;
@@ -193,7 +113,8 @@ const RenderTableBox = dvaModel(function (props: any) {
   const [searchedTableList, setSearchedTableList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
-    if (curWorkspaceParams?.dataSourceId) {
+    console.log(curWorkspaceParams)
+    if (curWorkspaceParams?.dataSourceId && (curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {
@@ -228,7 +149,7 @@ const RenderTableBox = dvaModel(function (props: any) {
   }
 
   function refreshTableList() {
-    if (curWorkspaceParams?.dataSourceId) {
+    if (curWorkspaceParams?.dataSourceId && (curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {
@@ -285,7 +206,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
 
   useEffect(() => {
-    if (!curWorkspaceParams.dataSourceId) {
+    if (!curWorkspaceParams.dataSourceId || !(curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
       return
     }
     dispatch({
