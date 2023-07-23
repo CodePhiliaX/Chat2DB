@@ -34,7 +34,7 @@ function readVersion() {
   if (process.env.NODE_ENV !== 'development') {
     version = fs.readFileSync(path.join(__dirname, '../..', './versions/version'));
   }
-  return version
+  return version.replace(/^\s+|\s+\$/g, '');
 }
 
 module.exports = {
