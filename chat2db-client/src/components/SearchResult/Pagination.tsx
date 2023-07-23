@@ -3,8 +3,9 @@ import { VerticalLeftOutlined, VerticalRightOutlined, LeftOutlined, RightOutline
 import cs from 'classnames';
 import { Button, InputNumber, Popover, Select } from 'antd';
 import { IResultConfig } from '@/typings';
-import styles from './Pagination.less';
+import i18n from '@/i18n';
 import _ from 'lodash';
+import styles from './Pagination.less';
 
 interface IProps {
   onPageSizeChange?: (pageSize: number) => void;
@@ -152,9 +153,9 @@ export default function Pagination(props: IProps) {
         ]}
       />
 
-      <Popover content={'加载总条数'}>
+      <Popover content={i18n('workspace.table.total.tip')}>
         <Button type="link" loading={totalLoading} onClick={handleClickTotalBtn}>
-          总数：{data?.total}
+          {i18n('workspace.table.total')}：{data?.total}
         </Button>
       </Popover>
     </div>
