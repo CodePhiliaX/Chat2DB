@@ -8,9 +8,7 @@ import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.web.api.controller.rdb.vo.*;
-import ai.chat2db.spi.model.*;
+import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlRequest;
@@ -19,7 +17,21 @@ import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableDeleteRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableDetailQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableRequest;
-
+import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.MetaSchema;
+import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.Sql;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -190,6 +202,21 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract SchemaVO schemaDto2vo(Schema dto);
+
+    /**
+     * 模型转换
+     * @param dto
+     * @return
+     */
+    public abstract DatabaseVO databaseDto2vo(Database dto);
+
+
+    /**
+     * 模型转换
+     * @param dto
+     * @return
+     */
+    public abstract List<DatabaseVO> databaseDto2vo(List<Database> dto);
 
     public abstract MetaSchemaVO metaSchemaDto2vo(MetaSchema data);
 }

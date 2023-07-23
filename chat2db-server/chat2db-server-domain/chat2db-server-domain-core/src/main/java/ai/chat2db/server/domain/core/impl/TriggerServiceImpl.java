@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 public class TriggerServiceImpl implements TriggerService {
     @Override
     public ListResult<Trigger> triggers(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().triggers(databaseName, schemaName));
+        return ListResult.of(Chat2DBContext.getMetaData().triggers(Chat2DBContext.getConnection(),databaseName, schemaName));
     }
 }

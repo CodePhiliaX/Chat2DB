@@ -23,11 +23,15 @@ import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.enums.SqlTypeEnum;
 import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.Header;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -62,7 +66,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         List<ExecuteResult> result = new ArrayList<>();
         ListResult<ExecuteResult> listResult = ListResult.of(result);
         // 执行sql
-        for (String sql : sqlList) {
+        for (String originalSql : sqlList) {
+            String sql = originalSql;
             int pageNo = 0;
             int pageSize = 0;
             String sqlType = SqlTypeEnum.UNKNOWN.getCode();
@@ -75,6 +80,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 log.warn("解析sql失败:{}", sql, e);
                 ExecuteResult executeResult = ExecuteResult.builder()
                     .success(Boolean.FALSE)
+                    .originalSql(originalSql)
                     .sql(sql)
                     .message(e.getMessage())
                     .build();
@@ -93,7 +99,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     int offset = (pageNo - 1) * pageSize;
                     try {
                         sql = PagerUtils.limit(sql, dbType, offset, pageSize);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         autoLimit = false;
                     }
                 }
@@ -102,6 +108,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
             ExecuteResult executeResult = execute(sql);
             executeResult.setSqlType(sqlType);
+            executeResult.setOriginalSql(originalSql);
             // 自动分页
             if (autoLimit) {
                 executeResult.setPageNo(pageNo);
@@ -113,6 +120,29 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
                 executeResult.setHasNextPage(Boolean.FALSE);
             }
+            // Splice row numbers
+            List<Header> newHeaderList = new ArrayList<>();
+            newHeaderList.add(Header.builder()
+                .name(I18nUtils.getMessage("sqlResult.rowNumber"))
+                .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
+                    .getCode()).build());
+            if (executeResult.getHeaderList() != null) {
+                newHeaderList.addAll(executeResult.getHeaderList());
+            }
+            executeResult.setHeaderList(newHeaderList);
+            if (executeResult.getDataList() != null) {
+                int rowNumberIncrement = 1 + Math.max(pageNo - 1, 0) * pageSize;
+                for (int i = 0; i < executeResult.getDataList().size(); i++) {
+                    List<String> row = executeResult.getDataList().get(i);
+                    List<String> newRow = Lists.newArrayListWithExpectedSize(row.size() + 1);
+                    newRow.add(Integer.toString(i + rowNumberIncrement));
+                    newRow.addAll(row);
+                    executeResult.getDataList().set(i, newRow);
+                }
+            }
+            //  Total number of fuzzy rows
+            executeResult.setFuzzyTotal(calculateFuzzyTotal(pageNo, pageSize, executeResult));
+
             result.add(executeResult);
             if (!executeResult.getSuccess()) {
                 listResult.setSuccess(false);
@@ -121,6 +151,18 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             }
         }
         return listResult;
+    }
+
+    private String calculateFuzzyTotal(int pageNo, int pageSize, ExecuteResult executeResult) {
+        int dataSize = CollectionUtils.size(executeResult.getDataList());
+        if (pageSize <= 0) {
+            return Integer.toString(dataSize);
+        }
+        int fuzzyTotal = Math.max(pageNo - 1, 0) * pageSize + dataSize;
+        if (dataSize < pageSize) {
+            return Integer.toString(fuzzyTotal);
+        }
+        return Integer.toString(fuzzyTotal) + "+";
     }
 
     @Override
@@ -155,7 +197,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     private ExecuteResult execute(String sql) {
         ExecuteResult executeResult;
         try {
-            executeResult = SQLExecutor.getInstance().execute(sql);
+            executeResult = SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(), sql);
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()

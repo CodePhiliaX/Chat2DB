@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class ConsoleServiceImpl implements ConsoleService {
     @Override
     public ActionResult createConsole(ConsoleConnectParam param) {
-        Chat2DBContext.getDBManage().connectDatabase(param.getDatabaseName());
+        Chat2DBContext.getDBManage().connectDatabase(Chat2DBContext.getConnection(),param.getDatabaseName());
         return ActionResult.isSuccess();
     }
 

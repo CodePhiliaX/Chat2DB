@@ -53,14 +53,14 @@ public class TableServiceImpl implements TableService {
     @Override
     public DataResult<String> showCreateTable(ShowCreateTableParam param) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        String ddl = metaSchema.tableDDL(param.getDatabaseName(), param.getSchemaName(), param.getTableName());
+        String ddl = metaSchema.tableDDL(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getTableName());
         return DataResult.of(ddl);
     }
 
     @Override
     public ActionResult drop(DropParam param) {
         DBManage metaSchema = Chat2DBContext.getDBManage();
-        metaSchema.dropTable(param.getDatabaseName(), param.getTableSchema(), param.getTableName());
+        metaSchema.dropTable(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getTableSchema(), param.getTableName());
         return ActionResult.isSuccess();
     }
 
@@ -79,13 +79,13 @@ public class TableServiceImpl implements TableService {
     @Override
     public DataResult<Table> query(TableQueryParam param, TableSelector selector) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        List<Table> tables = metaSchema.tables(param.getDatabaseName(), param.getSchemaName(), param.getTableName());
+        List<Table> tables = metaSchema.tables(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName());
         if (!CollectionUtils.isEmpty(tables)) {
             Table table = tables.get(0);
             table.setIndexList(
-                metaSchema.indexes(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                metaSchema.indexes(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
             table.setColumnList(
-                metaSchema.columns(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                metaSchema.columns(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
             return DataResult.of(table);
         }
         return DataResult.of(null);
@@ -104,7 +104,7 @@ public class TableServiceImpl implements TableService {
 
         List<Table> list = CacheManage.getList(tableKey, Table.class,
             (key) -> param.isRefresh(), (key) ->
-                metaSchema.tables(param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                metaSchema.tables(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
 
         list = pinTable(list, param);
         if (CollectionUtils.isEmpty(list)) {
@@ -144,13 +144,13 @@ public class TableServiceImpl implements TableService {
     @Override
     public List<TableColumn> queryColumns(TableQueryParam param) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        return metaSchema.columns(param.getDatabaseName(), param.getSchemaName(), param.getTableName(), null);
+        return metaSchema.columns(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName(), null);
     }
 
     @Override
     public List<TableIndex> queryIndexes(TableQueryParam param) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        return metaSchema.indexes(param.getDatabaseName(), param.getSchemaName(), param.getTableName());
+        return metaSchema.indexes(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName());
 
     }
 }

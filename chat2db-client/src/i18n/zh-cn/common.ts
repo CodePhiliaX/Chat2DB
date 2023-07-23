@@ -18,6 +18,7 @@ export default {
   'common.text.serviceStarting': '服务启动中...',
   'common.text.serviceFail': '服务启动失败',
   'common.text.column': '列',
+  'common.text.row': '行',
   'common.text.indexes': '索引',
   'common.button.save': '保存',
   'common.button.open': '打开',
@@ -47,6 +48,7 @@ export default {
   'common.text.successfulExecution': '执行成功',
   'common.text.result': '结果',
   'common.text.timeConsuming': '耗时',
+  'common.text.searchRow': '查询行数',
   'common.text.noData': '暂无数据',
   'common.text.remindMeLater': '稍后提醒我',
   'common.text.goToUpdate': '前往更新',
@@ -58,6 +60,6 @@ export default {
   'common.text.wechatPopularizeAi': '关注微信公众号，发送 “AI” 免费获取体验次数。',
   'common.text.wechatPopularizeAi2': '关注微信公众号，发送 “AI” 可以免费获得ApiKey，并赠送体验次数。',
   'common.text.wechatPopularize': '发送 “推广” 还可以免费获取更多体验次数。',
-  'common.notification.detial': '查看详情',
+  'common.notification.detail': '查看详情',
   'common.notification.solution': '解决办法',
 };

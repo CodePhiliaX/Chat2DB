@@ -117,6 +117,5 @@ export default memo<IProps>(function Tab(props) {
         </div>
       </div>
     }
-
   </div >
 })
