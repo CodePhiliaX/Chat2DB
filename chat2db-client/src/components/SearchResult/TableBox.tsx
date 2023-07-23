@@ -15,12 +15,14 @@ import styles from './TableBox.less';
 import { ThemeType } from '@/constants';
 import i18n from '@/i18n';
 import { compareStrings } from '@/utils/sort';
+import MyPagination from './Pagination';
 
 interface ITableProps {
   className?: string;
   data: IManageResultData;
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
+  onSearchTotal: () => Promise<number | undefined>;
 }
 
 interface IViewTableCellData {
@@ -44,7 +46,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
 `;
 
 export default function TableBox(props: ITableProps) {
-  const { className, data, config, onConfigChange } = props;
+  const { className, data, config, onConfigChange, onSearchTotal } = props;
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
@@ -168,31 +170,23 @@ export default function TableBox(props: ITableProps) {
   const onPageSizeChange = (pageSize: number) => {
     onConfigChange && onConfigChange({ ...config, pageSize, pageNo: 1 });
   };
+
+  const onClickTotalBtn = async () => {
+    if (props.onSearchTotal) {
+      return await props.onSearchTotal();
+    }
+  };
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
         <>
           <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
-              <Pagination
-                onChange={onPageNoChange}
-                className={styles.pagination}
-                simple
-                current={config.pageNo}
-                {...config}
-              />
-              <Select
-                // style={{ width: '54px' }}
-                popupMatchSelectWidth={false}
-                size="small"
-                defaultValue={10}
-                onChange={onPageSizeChange}
-                options={[
-                  { label: 10, value: 10 },
-                  { label: 25, value: 25 },
-                  { label: 50, value: 50 },
-                  { label: 100, value: 100 },
-                ]}
+              <MyPagination
+                data={config}
+                onPageNoChange={onPageNoChange}
+                onPageSizeChange={onPageSizeChange}
+                onClickTotalBtn={onClickTotalBtn}
               />
             </div>
           </div>
