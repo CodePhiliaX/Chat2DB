@@ -41,8 +41,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     public ListResult<Database> queryAll(DatabaseQueryAllParam param) {
         List<Database> databases = CacheManage.getList(getDataBasesKey(param.getDataSourceId()), Database.class,
             (key) -> param.isRefresh(), (key) -> {
-                Connection connection = Chat2DBContext.getConnection();
-                MetaData metaData = Chat2DBContext.getMetaData();
+                Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
+                    : param.getConnection();
+                MetaData metaData = Chat2DBContext.getMetaData(param.getDbType());
                 return metaData.databases(connection);
             });
         return ListResult.of(databases);
@@ -53,7 +54,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         List<Schema> schemas = CacheManage.getList(getSchemasKey(param.getDataSourceId(), param.getDataBaseName()),
             Schema.class,
             (key) -> param.isRefresh(), (key) -> {
-                Connection connection = Chat2DBContext.getConnection();
+                Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
+                    : param.getConnection();
                 MetaData metaData = Chat2DBContext.getMetaData();
                 return metaData.schemas(connection, param.getDataBaseName());
             });
