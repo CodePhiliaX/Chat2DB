@@ -142,6 +142,8 @@ jobs:
       - name: Copy App
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
+          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/lib
+
 
       - name: Prepare Build Electron
         run: |
@@ -215,6 +217,9 @@ jobs:
           mkdir oss_temp_file
           cp chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/dist ./oss_temp_file/dist
+          cd chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ steps.chat2db_version.outputs.substring }}
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
