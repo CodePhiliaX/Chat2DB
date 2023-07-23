@@ -1,5 +1,7 @@
 package ai.chat2db.server.domain.core.impl;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import ai.chat2db.server.domain.api.param.DataSourceTestParam;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
+import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
@@ -25,11 +28,13 @@ import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +45,7 @@ import org.springframework.stereotype.Service;
  * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
  * @date 2022/09/23
  */
+@Slf4j
 @Service
 public class DataSourceServiceImpl implements DataSourceService {
 
@@ -49,13 +55,35 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Autowired
     private DataSourceConverter dataSourceConverter;
 
+    @Autowired
+    private DatabaseService databaseService;
+
     @Override
     public DataResult<Long> create(DataSourceCreateParam param) {
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(LocalDateTime.now());
         dataSourceDO.setGmtModified(LocalDateTime.now());
         dataSourceMapper.insert(dataSourceDO);
+        preWarmingData(dataSourceDO.getId());
         return DataResult.of(dataSourceDO.getId());
+    }
+
+    private void preWarmingData(Long dataSourceId) {
+        DataResult<DataSource> dataResult = queryById(dataSourceId);
+        if (dataResult.success() && dataResult.getData() != null) {
+            DataSource dataSource = dataResult.getData();
+            try (Connection connection = IDriverManager.getConnection(dataSource.getUrl(), dataSource.getUserName(),
+                dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
+                DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
+                databaseQueryAllParam.setDataSourceId(dataSourceId);
+                databaseQueryAllParam.setConnection(connection);
+                databaseQueryAllParam.setDbType(dataSource.getType());
+                databaseQueryAllParam.setRefresh(true);
+                databaseService.queryAll(databaseQueryAllParam);
+            } catch (SQLException e) {
+                log.error("preWarmingData error", e);
+            }
+        }
     }
 
     @Override

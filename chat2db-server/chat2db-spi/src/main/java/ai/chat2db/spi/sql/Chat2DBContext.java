@@ -16,6 +16,7 @@ import ai.chat2db.spi.config.DriverConfig;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jipengfei
@@ -52,6 +53,13 @@ public class Chat2DBContext {
 
     public static MetaData getMetaData() {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getMetaData();
+    }
+
+    public static MetaData getMetaData(String dbType) {
+        if(StringUtils.isBlank(dbType)){
+            return getMetaData();
+        }
+        return PLUGIN_MAP.get(dbType).getMetaData();
     }
 
     public static DBConfig getDBConfig() {
