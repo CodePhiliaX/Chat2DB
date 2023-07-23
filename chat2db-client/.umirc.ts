@@ -48,13 +48,14 @@ export default defineConfig({
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
   ],
   favicons: ['logo.ico'],
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
     __APP_VERSION__: yarn_config.app_version || '0.0.0',
-    __APP_PORT__: yarn_config.app_port 
+    __APP_PORT__: yarn_config.app_port,
   },
 });
