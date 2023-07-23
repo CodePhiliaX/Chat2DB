@@ -40,9 +40,6 @@ public class SystemController {
      */
     @GetMapping
     public DataResult<String> get() {
-        log.info("locale:{}", LocaleContextHolder.getLocale());
-        log.info("error message:{}", I18nUtils.getMessage("common.systemError"));
-        log.info("error message:{}", I18nUtils.getMessage("common.paramDetailError", new Object[] {"参数呀"}));
         return DataResult.of("success");
     }
 
