@@ -2,6 +2,7 @@
 
 ## ⭐ New Features
 
+- Supports 25 free uses of AIGC every day.
 - Support for querying data pagination.
 - Support switching between multiple databases in PostgreSQL.
 - Support for hot updating of client-side code allows for rapid bug fixes.
@@ -9,9 +10,11 @@
 ## 🐞 Bug Fixes
 
 - Default return alias for returned results [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
+- Fixed around 100 bugs, of course, many were repetitive bugs.
 
 ## ⭐ 新特性
 
+- 支持每天25次免费使用AIGC
 - 支持查询数据分页
 - 支持PostgreSQL数据库多个database的切换
 - 支持客户端代码热更新可以快速修复bug
@@ -19,6 +22,7 @@
 ## 🐞 问题修复
 
 - 返回结果默认返回别名 [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
+- 修复了100个左右的bug，当然很多是重复bug
 
 # 2.0.4
 
