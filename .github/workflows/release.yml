@@ -219,7 +219,7 @@ jobs:
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
           cp -r chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/dist ./oss_temp_file/dist
           cd chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/ && zip -r chat2db-server-start.zip ./ 
-          cp -r chat2db-server-start.zip ../../../../oss_temp_file/${{ steps.chat2db_version.outputs.substring }}
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
