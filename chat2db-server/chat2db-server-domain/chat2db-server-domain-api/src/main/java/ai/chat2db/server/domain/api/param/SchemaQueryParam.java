@@ -1,6 +1,8 @@
 
 package ai.chat2db.server.domain.api.param;
 
+import java.sql.Connection;
+
 import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -29,4 +31,9 @@ public class SchemaQueryParam {
      * if true, refresh the cache
      */
     private boolean refresh;
+
+    /**
+     * Can be null, if null, use the default connection
+     */
+    private Connection connection;
 }
