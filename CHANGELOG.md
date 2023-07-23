@@ -3,6 +3,7 @@
 ## ⭐ New Features
 
 - Support for querying data pagination
+- 
 
 ## 🐞 Bug Fixes
 
