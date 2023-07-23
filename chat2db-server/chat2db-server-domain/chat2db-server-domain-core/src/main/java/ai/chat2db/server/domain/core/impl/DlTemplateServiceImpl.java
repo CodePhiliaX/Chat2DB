@@ -140,6 +140,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     executeResult.getDataList().set(i, newRow);
                 }
             }
+            //  Total number of fuzzy rows
+            executeResult.setFuzzyTotal(calculateFuzzyTotal(pageNo, pageSize, executeResult));
 
             result.add(executeResult);
             if (!executeResult.getSuccess()) {
@@ -149,6 +151,18 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             }
         }
         return listResult;
+    }
+
+    private String calculateFuzzyTotal(int pageNo, int pageSize, ExecuteResult executeResult) {
+        int dataSize = CollectionUtils.size(executeResult.getDataList());
+        if (pageSize <= 0) {
+            return Integer.toString(dataSize);
+        }
+        int fuzzyTotal = Math.max(pageNo - 1, 0) * pageSize + dataSize;
+        if (dataSize < pageSize) {
+            return Integer.toString(fuzzyTotal);
+        }
+        return Integer.toString(fuzzyTotal) + "+";
     }
 
     @Override
