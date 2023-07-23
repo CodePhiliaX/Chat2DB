@@ -111,10 +111,10 @@ const RenderTableBox = dvaModel(function (props: any) {
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedTableList, setSearchedTableList] = useState<ITreeNode[] | undefined>();
+  const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
 
   useEffect(() => {
-    console.log(curWorkspaceParams)
-    if (curWorkspaceParams?.dataSourceId && (curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
+    if (isReady) {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {
@@ -149,7 +149,7 @@ const RenderTableBox = dvaModel(function (props: any) {
   }
 
   function refreshTableList() {
-    if (curWorkspaceParams?.dataSourceId && (curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
+    if (isReady) {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {

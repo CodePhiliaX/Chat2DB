@@ -10,8 +10,8 @@ export type ICurWorkspaceParams = {
   dataSourceId: number;
   dataSourceName: string;
   databaseType: DatabaseTypeCode;
-  databaseName?: string;
-  schemaName?: string;
+  databaseName?: string | null; // 这里可以是null 因为有的数据库不需要databaseName 和 schemaName 用null来区分 undefined
+  schemaName?: string | null;
 };
 
 export interface IWorkspaceModelState {

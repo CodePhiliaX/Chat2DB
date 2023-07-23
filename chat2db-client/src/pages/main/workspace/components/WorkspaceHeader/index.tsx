@@ -32,7 +32,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const { curPage } = mainPageModel;
   const [cascaderLoading, setCascaderLoading] = useState(false);
   const [noConnectionModal, setNoConnectionModal] = useState(false);
-  const [curDBOptions, setCurDBOptions] = useState<IOption[]>();
+  const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
   const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
 
@@ -77,10 +77,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurDBOptions(dbList);
-      if (!dbList.length) {
-        return
-      }
-      getSchemaList(dbList[0].label, refresh);
+      getSchemaList(dbList[0]?.label, refresh);
     }).catch(error => {
       setCascaderLoading(false)
     })
@@ -112,10 +109,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
         databaseType: curConnection.type,
-        databaseName: databaseName,
-      }
-      if (schemaList[0]?.label) {
-        data.schemaName = schemaList[0]?.label
+        databaseName: databaseName || null,
+        schemaName: schemaList[0]?.label || null
       }
 
       setCurWorkspaceParams(data)
@@ -125,7 +120,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
         databaseType: curConnection.type,
-        databaseName: databaseName,
+        databaseName: databaseName || null,
       })
     }).finally(() => {
       setCascaderLoading(false)
@@ -205,7 +200,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
       databaseName: selectedOptions[0].value,
       databaseType: curConnection!.type,
     };
-    setCurSchemaOptions([]);
     getSchemaList(selectedOptions[0].label);
   };
 
@@ -225,7 +219,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={connectionOptions}
         onChange={connectionChange}
         bordered={false}
-        defaultValue={[curConnection?.id]}
+      // defaultValue={[curConnection?.id]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
@@ -233,20 +227,23 @@ const WorkspaceHeader = memo<IProps>((props) => {
         </div>
       </Cascader>
 
-      <Cascader
-        popupClassName={styles.cascaderPopup}
-        options={curDBOptions}
-        onChange={databaseChange}
-        bordered={false}
-      // defaultValue={[curWorkspaceParams.databaseName]}
-      >
-        <div className={styles.crumbsItem}>
-          <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-          {
-            !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
-          }
-        </div>
-      </Cascader>
+      {
+        !!curDBOptions?.length &&
+        <Cascader
+          popupClassName={styles.cascaderPopup}
+          options={curDBOptions}
+          onChange={databaseChange}
+          bordered={false}
+        // defaultValue={[curWorkspaceParams.databaseName]}
+        >
+          <div className={styles.crumbsItem}>
+            <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+            {
+              !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
+            }
+          </div>
+        </Cascader>
+      }
       {
         !!curSchemaOptions.length &&
         <Cascader
