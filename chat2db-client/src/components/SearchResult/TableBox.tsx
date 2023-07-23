@@ -182,6 +182,7 @@ export default function TableBox(props: ITableProps) {
                 {...config}
               />
               <Select
+                style={{ width: '54px' }}
                 size="small"
                 defaultValue={10}
                 onChange={onPageSizeChange}
