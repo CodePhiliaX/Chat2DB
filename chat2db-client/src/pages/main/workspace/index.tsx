@@ -39,6 +39,7 @@ const workspace = memo<IProps>((props) => {
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
   const [loading, setLoading] = useState(true);
+  const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
 
   useEffect(() => {
     if (pageLoading === true) {
@@ -53,7 +54,7 @@ const workspace = memo<IProps>((props) => {
   }, [curConnection]);
 
   useEffect(() => {
-    if (curWorkspaceParams.dataSourceId && (curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
+    if (isReady) {
       getConsoleList();
     }
   }, [curWorkspaceParams]);
