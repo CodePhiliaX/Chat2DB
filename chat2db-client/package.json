@@ -108,6 +108,12 @@
       ],
       "publisherName": "Chat2DB",
       "icon": "src/assets/logo/logo.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
     }
   }
 }
