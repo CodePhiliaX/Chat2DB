@@ -219,7 +219,7 @@ jobs:
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
           cp -r chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/dist ./oss_temp_file/dist
           cd chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/ && zip -r chat2db-server-start.zip ./ 
-          cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ steps.chat2db_version.outputs.substring }}
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
@@ -263,7 +263,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-release-构建完成通知",
-              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.jar) "
+              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知

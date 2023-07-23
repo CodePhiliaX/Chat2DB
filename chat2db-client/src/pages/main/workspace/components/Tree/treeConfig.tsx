@@ -118,8 +118,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     icon: '\ue62c',
     getChildren: (params: ISchemaParams) => {
       return new Promise((r: (value: ITreeNode[], b?: any) => void, j) => {
-        mysqlServer.getSchemaList(params).then(res => {
-          const data: ITreeNode[] = res.map(t => {
+        connectionService.getSchemaList(params).then(res => {
+          const data: ITreeNode[] = res.map((t: any) => {
             return {
               key: t.name,
               name: t.name,

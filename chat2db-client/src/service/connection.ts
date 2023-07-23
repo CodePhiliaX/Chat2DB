@@ -6,6 +6,7 @@ export interface IGetConnectionParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
+  refresh?: boolean
 }
 
 /**
@@ -40,7 +41,9 @@ const remove = createRequest<{ id: number }, void>('/api/connection/datasource/:
 
 const clone = createRequest<{ id: number }, void>('/api/connection/datasource/clone', { method: 'post' });
 
-const getDBList = createRequest<{ id: number }, IDB[]>('/api/connection/datasource/connect', { method: 'get' });
+const getDBList = createRequest<{ dataSourceId: number, refresh?: boolean }, any>('/api/rdb/database/list', { method: 'get' });
+
+const getSchemaList = createRequest<{ dataSourceId: number, databaseName: string; refresh?: boolean }, any>('/api/rdb/schema/list', { method: 'get' });
 
 export interface IDriverResponse {
   driverConfigList: {
@@ -81,6 +84,7 @@ export default {
   remove,
   clone,
   getDBList,
+  getSchemaList,
   close,
   testSSH,
   getDriverList,

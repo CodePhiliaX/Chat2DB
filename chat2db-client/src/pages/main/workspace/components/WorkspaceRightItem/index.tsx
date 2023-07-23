@@ -12,6 +12,8 @@ import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/hi
 import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
+import sql from '@/service/sql';
+import { isNumber } from 'lodash';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -31,8 +33,9 @@ interface IProps {
 
 const defaultResultConfig: IResultConfig = {
   pageNo: 1,
-  pageSize: 10,
+  pageSize: 200,
   total: 0,
+  hasNextPage: true,
 };
 
 const WorkspaceRightItem = memo<IProps>(function (props) {
@@ -82,15 +85,17 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     }));
 
     // 获取当前SQL的总条数
-    let reqDMLCountPromiseArr: Array<Promise<any>> = [];
-    (sqlResult || []).forEach((res) => {
-      const { originalSql } = res;
-      let p = sqlServer.getDMLCount({ ...executeSQLParams, sql: originalSql });
-      reqDMLCountPromiseArr.push(p);
-    });
-    let reqDMLCountArr = await Promise.all(reqDMLCountPromiseArr);
+    // let reqDMLCountPromiseArr: Array<Promise<any>> = [];
+    // (sqlResult || []).forEach((res) => {
+    //   const { originalSql } = res;
+    //   let p = sqlServer.getDMLCount({ ...executeSQLParams, sql: originalSql });
+    //   reqDMLCountPromiseArr.push(p);
+    // });
+    // let reqDMLCountArr = await Promise.all(reqDMLCountPromiseArr);
 
-    setResultConfig(reqDMLCountArr.map((total) => ({ ...defaultResultConfig, total })));
+    setResultConfig(
+      sqlResult.map((res) => ({ ...defaultResultConfig, total: res.fuzzyTotal, hasNextPage: res.hasNextPage })),
+    );
     setResultData(sqlResult);
     setTableLoading(false);
 
@@ -113,9 +118,24 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     resultData[index] = { ...resultData[index], ...sqlResult[0] };
     setResultData([...resultData]);
 
-    resultConfig[index] = config;
+    resultConfig[index] = {
+      ...config,
+      total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
+      hasNextPage: sqlResult[0].hasNextPage,
+    };
     setResultConfig([...resultConfig]);
     setTableLoading(false);
+  };
+
+  const handleSearchTotal = async (index: number) => {
+    const { originalSql } = resultData[index];
+    let total = await sqlServer.getDMLCount({ ...data, sql: originalSql });
+    resultConfig[index] = {
+      ...resultConfig[index],
+      total,
+    };
+    setResultConfig([...resultConfig]);
+    return total;
   };
 
   const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {
@@ -166,6 +186,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
             <SearchResult
               onTabEdit={handleResultTabEdit}
               onExecute={handleExecuteSQLbyConfigChanged}
+              onSearchTotal={handleSearchTotal}
               manageResultDataList={resultData}
               resultConfig={resultConfig}
               isLoading={tableLoading}

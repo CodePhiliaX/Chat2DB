@@ -125,17 +125,14 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 ## 📦 Docker 部署
 
 ```bash
-  docker pull chat2db/chat2db:latest
-  // 前台运行,运行后不能关闭命令行
-  docker run -ti --name=chat2db -p 10824:10824 chat2db/chat2db:latest
-  // 后台运行,运行后可以关闭命令行
-  docker run --name=chat2db -p 10824:10824 chat2db/chat2db:latest
-  // 这里正常会提示 Tomcat started on port(s): 10824 (http) with context path 就可以结束了
+  // 拉取最新客户端,然后运行docker,名字是 `chat2db` , 并且将 `/root/.chat2db` 挂载到 `~/.chat2db-docker`
+  docker run --name=chat2db -ti -p 10824:10824 -v ~/.chat2db-docker:/root/.chat2db  chat2db/chat2db:latest
+  // 这里正常会提示`Tomcat started on port(s): 10824 (http) with context path` 就可以结束了
 
-  // 如果这里提示  The container name "/chat2db" is already in use by container, 代表已经存在容器了 运行
-  dcoker run chat2db
-  // 如果想更新chat2db 则需要先rm 再运行
-  dcoker rm chat2db
+  // 如果这里提示  `The container name "/chat2db" is already in use by container`, 代表已经存在容器了 运行
+  docker start chat2db
+  // 如果想更新chat2db 则需要先rm
+  docker rm chat2db
 ```
 
 ## 🎯 运行环境

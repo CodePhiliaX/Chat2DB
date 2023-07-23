@@ -7,96 +7,181 @@ import styles from './index.less';
 import classnames from 'classnames';
 import { Cascader, Spin, Modal, Button } from 'antd';
 import Iconfont from '@/components/Iconfont';
-import { databaseMap } from '@/constants';
-import { useSafeState } from 'ahooks';
+import { databaseMap, TreeNodeType } from '@/constants';
+import { treeConfig } from '../Tree/treeConfig';
+import lodash from 'lodash';
 
 
 interface IProps {
   className?: string;
-  cascaderOptions: any;
   connectionModel: IConnectionModelType['state'];
   workspaceModel: IWorkspaceModelType['state'];
   mainPageModel: IMainPageType['state'];
   dispatch: any;
 }
 
+interface IOption {
+  label: string;
+  value: number | string;
+}
+
 const WorkspaceHeader = memo<IProps>((props) => {
-  const { className, cascaderOptions, connectionModel, workspaceModel, mainPageModel, dispatch } = props;
+  const { className, connectionModel, workspaceModel, mainPageModel, dispatch } = props;
   const { connectionList, curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
   const { curPage } = mainPageModel;
-  const [curSchemaOptions, setCurSchemaOptions] = useState<any>([]);
   const [cascaderLoading, setCascaderLoading] = useState(false);
   const [noConnectionModal, setNoConnectionModal] = useState(false);
+  const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
+  const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
+  const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
 
-  const databaseChange: any = (valueArr: any, selectedOptions: any) => {
+  // 第一次进入请求连接列表
+  useEffect(() => {
+    getConnectionList();
+  }, []);
 
-    const curWorkspaceParams = {
-      dataSourceId: curConnection?.id,
-      databaseSourceName: curConnection?.alias,
-      databaseName: selectedOptions[0].value,
-      schemaName: selectedOptions?.[0]?.next?.[0]?.value,
-      databaseType: curConnection?.type,
-    };
+  useEffect(() => {
+    if (curConnection?.id) {
+      if (curWorkspaceParams.dataSourceId !== curConnection?.id) {
+        setCurWorkspaceParams({
+          dataSourceId: curConnection.id,
+          dataSourceName: curConnection.alias,
+          databaseType: curConnection.type,
+        })
+        setCurDBOptions([])
+        setCurSchemaOptions([])
+      }
 
-    dispatch({
-      type: 'workspace/setCurWorkspaceParams',
-      payload: curWorkspaceParams,
-    });
+      getDatabaseList();
+    }
+  }, [curConnection]);
 
-    setCurSchemaOptions(selectedOptions[0].next || [])
-  };
-
-  const schemaChange: any = (valueArr: any, selectedOptions: any) => {
-    dispatch({
-      type: 'workspace/setCurWorkspaceParams',
-      payload: { ...curWorkspaceParams, schemaName: selectedOptions[0].value },
-    });
+  function getDatabaseList(refresh = false) {
+    if (!curConnection?.id) {
+      return
+    }
+    treeConfig[TreeNodeType.DATA_SOURCE].getChildren?.({
+      dataSourceId: curConnection.id,
+      refresh,
+      extraParams: {
+        databaseType: curConnection.type,
+        dataSourceId: curConnection.id,
+        dataSourceName: curConnection.name,
+      }
+    }).then(res => {
+      const dbList = res?.map((t) => {
+        return {
+          value: t.key,
+          label: t.name,
+        }
+      }) || []
+      setCurDBOptions(dbList);
+      getSchemaList(dbList[0]?.label, refresh);
+    }).catch(error => {
+      setCascaderLoading(false)
+    })
   }
 
-  const connectionListOptions = useMemo(() => {
+  function getSchemaList(databaseName: string, refresh = false) {
+    if (!curConnection?.id) {
+      return
+    }
+    treeConfig[TreeNodeType.DATABASE].getChildren?.({
+      dataSourceId: curConnection.id,
+      databaseName: databaseName,
+      refresh,
+      extraParams: {
+        databaseName: databaseName,
+        databaseType: curConnection.type,
+        dataSourceId: curConnection.id,
+        dataSourceName: curConnection.name,
+      }
+    }).then(res => {
+      const schemaList = res?.map((t) => {
+        return {
+          value: t.key,
+          label: t.name,
+        }
+      }) || []
+      setCurSchemaOptions(schemaList);
+      const data: any = {
+        dataSourceId: curConnection.id,
+        dataSourceName: curConnection.alias,
+        databaseType: curConnection.type,
+        databaseName: databaseName || null,
+        schemaName: schemaList[0]?.label || null
+      }
+
+      setCurWorkspaceParams(data)
+
+    }).catch(() => {
+      setCurWorkspaceParams({
+        dataSourceId: curConnection.id,
+        dataSourceName: curConnection.alias,
+        databaseType: curConnection.type,
+        databaseName: databaseName || null,
+      })
+    }).finally(() => {
+      setCascaderLoading(false)
+    })
+  }
+
+  useEffect(() => {
     if (!curConnection && connectionList.length) {
       connectionChange([connectionList[0].id], [connectionList[0]]);
     }
-    return connectionList?.map(t => {
+    const list = connectionList?.map(t => {
       return {
         value: t.id,
         label: t.alias
       }
     })
+    setConnectionOptions(list);
   }, [connectionList])
 
-  useEffect(() => {
-    getConnectionList();
-  }, [curPage]);
+  function setCurWorkspaceParams(payload: IWorkspaceModelType['state']['curWorkspaceParams']) {
+    if (lodash.isEqual(curWorkspaceParams, payload)) {
+      return
+    }
 
-  const getConnectionList = () => {
-    setCascaderLoading(true)
+    dispatch({
+      type: 'workspace/setCurWorkspaceParams',
+      payload,
+    });
+  }
+
+  const getConnectionList = (refresh = false) => {
+    setCascaderLoading(true);
     dispatch({
       type: 'connection/fetchConnectionList',
+      payload: {
+        refresh
+      },
       callback: (res: any) => {
-        setTimeout(() => {
-          setCascaderLoading(false)
-          if (curPage === 'workspace' && !res.data?.length) {
-            setNoConnectionModal(true)
-            return
+        if (refresh) {
+          getDatabaseList(true);
+          return
+        }
+        if (curPage === 'workspace' && !res.data?.length) {
+          setNoConnectionModal(true);
+          return
+        }
+        setNoConnectionModal(false)
+        if (curConnection?.id && res.data.length) {
+
+          const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
+          if (flag === -1) {
+            connectionChange([res.data[0].id], [res.data[0]]);
           }
-          setNoConnectionModal(false)
-          if (curConnection?.id && res.data.length) {
-            const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
-            if (flag === -1) {
-              connectionChange([res.data[0].id], [res.data[0]]);
-            }
-          }
-        }, 200);
+
+        }
       }
     });
   };
 
+  // 连接切换
   function connectionChange(id: any, data: any) {
-    // if(id[0] === curConnection?.id){
-    //   return
-    // }
     connectionList.map(t => {
       if (t.id === id[0]) {
         dispatch({
@@ -107,47 +192,58 @@ const WorkspaceHeader = memo<IProps>((props) => {
     })
   }
 
+  // 数据库切换
+  function databaseChange(valueArr: any, selectedOptions: any) {
+    const curWorkspaceParams = {
+      dataSourceId: curConnection!.id,
+      dataSourceName: curConnection!.alias,
+      databaseName: selectedOptions[0].value,
+      databaseType: curConnection!.type,
+    };
+    getSchemaList(selectedOptions[0].label);
+  };
+
+  // schema切换
+  function schemaChange(valueArr: any, selectedOptions: any) {
+    setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value })
+  }
+
   function handelRefresh() {
-    getConnectionList();
+    getConnectionList(true);
   }
 
   return <>
-    {curConnection && !!connectionList.length && curWorkspaceParams && <div className={styles.workspaceHeader}>
-      <div className={styles.databaseLogo}>
-        {curConnection?.type ?
-          <div className={styles.refreshBox} onClick={handelRefresh}>
-            {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code={databaseMap[curConnection.type]?.icon} />}
-          </div>
-          :
-          <Iconfont className={styles.typeIcon} code="&#xe640;" />}
-      </div>
+    {<div className={styles.workspaceHeader}>
       <Cascader
         popupClassName={styles.cascaderPopup}
-        options={connectionListOptions}
+        options={connectionOptions}
         onChange={connectionChange}
         bordered={false}
-        defaultValue={[curConnection?.id]}
+      // defaultValue={[curConnection?.id]}
       >
         <div className={styles.crumbsItem}>
-          <div className={styles.text}>{curConnection?.alias}</div>
+          <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
           <Iconfont className={styles.arrow} code="&#xe641;" />
         </div>
       </Cascader>
 
-      <Cascader
-        popupClassName={styles.cascaderPopup}
-        options={cascaderOptions}
-        onChange={databaseChange}
-        bordered={false}
+      {
+        !!curDBOptions?.length &&
+        <Cascader
+          popupClassName={styles.cascaderPopup}
+          options={curDBOptions}
+          onChange={databaseChange}
+          bordered={false}
         // defaultValue={[curWorkspaceParams.databaseName]}
-      >
-        <div className={styles.crumbsItem}>
-          <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-          {
-            !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
-          }
-        </div>
-      </Cascader>
+        >
+          <div className={styles.crumbsItem}>
+            <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+            {
+              !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
+            }
+          </div>
+        </Cascader>
+      }
       {
         !!curSchemaOptions.length &&
         <Cascader
@@ -155,14 +251,16 @@ const WorkspaceHeader = memo<IProps>((props) => {
           options={curSchemaOptions}
           onChange={schemaChange}
           bordered={false}
-          // defaultValue={[curWorkspaceParams.schemaName]}
+        // defaultValue={[curWorkspaceParams.schemaName]}
         >
           <div className={styles.crumbsItem}>
             <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
           </div>
         </Cascader>
       }
-      <Iconfont className={styles.refreshIcon} onClick={handelRefresh} code="&#xec08;" />
+      <div className={styles.refreshBox} onClick={handelRefresh}>
+        {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code='&#xec08;' />}
+      </div>
     </div >}
     <Modal
       open={noConnectionModal}

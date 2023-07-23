@@ -17,6 +17,7 @@ interface IProps {
   resultConfig: IResultConfig[];
   onExecute: (sql: string, config: IResultConfig, index: number) => void;
   onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
+  onSearchTotal: (index: number) => Promise<number>;
   isLoading?: boolean;
 }
 
@@ -43,7 +44,7 @@ const handleTabs = (result: IManageResultData[]) => {
 };
 
 export default memo<IProps>(function SearchResult(props) {
-  const { className, manageResultDataList = [], isLoading, onExecute } = props;
+  const { className, manageResultDataList = [], isLoading, onExecute, onSearchTotal } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
   const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
@@ -101,6 +102,11 @@ export default memo<IProps>(function SearchResult(props) {
               config={resultConfig?.[index]}
               onConfigChange={function (config: IResultConfig) {
                 onExecute && onExecute(item.originalSql, config, index);
+              }}
+              onSearchTotal={async () => {
+                if (props.onSearchTotal) {
+                  return await props.onSearchTotal(index);
+                }
               }}
             />
           </Fragment>
