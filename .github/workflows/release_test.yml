@@ -213,6 +213,7 @@ jobs:
           cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/amd
           cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/amd
           ls chat2db-client/release/
+          cp -r chat2db-client/versions/1.0.${{ github.run_id }}/dist ./oss_temp_file/mac/dist
           cd chat2db-client/versions/1.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ github.run_id }}
 
