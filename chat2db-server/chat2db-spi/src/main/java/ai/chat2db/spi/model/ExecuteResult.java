@@ -2,7 +2,6 @@ package ai.chat2db.spi.model;
 
 import java.util.List;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +33,11 @@ public class ExecuteResult {
      * 执行的sql
      */
     private String sql;
+
+    /**
+     * Original SQL without pagination
+     */
+    private String originalSql;
 
     /**
      * 描述
