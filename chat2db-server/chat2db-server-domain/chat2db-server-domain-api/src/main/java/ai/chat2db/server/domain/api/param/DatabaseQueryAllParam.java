@@ -1,7 +1,8 @@
 package ai.chat2db.server.domain.api.param;
 
-import jakarta.validation.constraints.NotNull;
+import java.sql.Connection;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +28,14 @@ public class DatabaseQueryAllParam {
      * if true, refresh the cache
      */
     private boolean refresh;
+
+    /**
+     * Can be null, if null, use the default connection
+     */
+    private Connection connection;
+
+    /**
+     * Can be null, if null, use the default dbType
+     */
+    private String dbType;
 }

@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.alibaba.fastjson2.JSON;
 
 import cn.hutool.core.io.FileUtil;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.utils.TypeReference;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -35,7 +33,7 @@ public class AutomaticUpgrade {
     public void checkVersionUpdates() {
         String appPath = getAppPath();
 
-        log.error("appPath: {}", appPath);
+        log.info("appPath: {}", appPath);
         if (StringUtils.isBlank(appPath) || !appPath.contains("app")) {
             return;
         }
@@ -146,16 +144,16 @@ public class AutomaticUpgrade {
                 }
                 fos.flush();
             }
-            System.out.println("File downloaded: " + outputPath);
+           // System.out.println("File downloaded: " + outputPath);
         }
     }
 
     private String getAppPath() {
         try {
             String jarPath = System.getProperty("project.path");
-            log.error("user home: {}", System.getProperty("user.home"));
-            log.error("project.path: {}", System.getProperty("project.path"));
-            log.error("jarPath: {}", jarPath);
+            log.info("user home: {}", System.getProperty("user.home"));
+            log.info("project.path: {}", System.getProperty("project.path"));
+            log.info("jarPath: {}", jarPath);
             return FileUtil.getParent(jarPath, 4);
         } catch (Exception e) {
             log.error("getAppPath error", e);
@@ -163,15 +161,12 @@ public class AutomaticUpgrade {
         }
     }
 
-    public static void main(String[] args) {
-        Upgrade upgrade = new Upgrade();
-        upgrade.setVersion("2.0.5");
-        List<Map<String, String>> list = new ArrayList<>();
-        Map<String, String> map = new HashMap();
-        map.put("url", "https://chat2db-stastic.oss-cn-beijing.aliyuncs.com/ali-dbhub-server-start.jar");
-        map.put("fileName", "static/chat2db-server-start.jar");
-        list.add(map);
-        upgrade.setDownloadFiles(list);
-        System.out.println(JSON.toJSONString(upgrade));
+
+    @Data
+    public static class Upgrade implements Serializable {
+
+        private String version;
+
+        private List<Map<String,String>> downloadFiles;
     }
 }
