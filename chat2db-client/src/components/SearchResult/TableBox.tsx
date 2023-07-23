@@ -182,7 +182,8 @@ export default function TableBox(props: ITableProps) {
                 {...config}
               />
               <Select
-                style={{ width: '54px' }}
+                // style={{ width: '54px' }}
+                popupMatchSelectWidth={false}
                 size="small"
                 defaultValue={10}
                 onChange={onPageSizeChange}
