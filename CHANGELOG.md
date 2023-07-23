@@ -1,52 +1,70 @@
-# 2.0.4
+# 2.0.5
+
+## ⭐ New Features
+
+- Support for querying data pagination
 
 ## 🐞 Bug Fixes
+
 - Default return alias for returned results [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
 
+## ⭐ 新特性
+
+- 支持查询数据分页
+
 ## 🐞 问题修复
+
 - 返回结果默认返回别名 [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
 
 # 2.0.4
+
 ## ⭐ New Features
+
 - Support DB2 database
 - Support renaming after console saving
 - Support prompts during SQL execution
 
 ## 🐞 Bug Fixes
+
 - Fix the bug that the database in sqlserver is all numbers
 - Fix ssh connection bug
 
 ## ⭐ 新特性
+
 - 支持DB2数据库
 - 支持控制台保存后重命名
 - 支持SQL执行中提示
 
 ## 🐞 问题修复
+
 - 修复sqlserver中database全是数字的bug
 - 修复ssh连接 bug
 
 # 2.0.2
 
 ## ⭐ New Features
+
 - Brand new AI binding process
 - Support for custom drivers
+
 ## 🐞 Bug Fixes
+
 - Optimized dataSource link editing
 - Enhanced error messages
 - Improved table selection interaction
 - Enhanced table experience
 
 ## ⭐ 新特性
+
 - 全新的AI绑定流程
 - 支持自定义驱动
 
 ## 🐞 问题修复
+
 - 优化 dataSource 链接编辑
 - 优化错误提示
 - 优化选表交互
 - 优化表格体验
-
-
 
 # 2.0.1
 
@@ -54,7 +72,8 @@
 
 - Fix bug where executing multiple SQL statements at once will prompt for exceptions
 - Fix getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
-- Fixing the Hive connection and then viewing columns results in an error. [Issue #136](https://github.com/chat2db/Chat2DB/issues/136)
+- Fixing the Hive connection and then viewing columns results in an
+  error. [Issue #136](https://github.com/chat2db/Chat2DB/issues/136)
 
 ## 🐞 问题修复
 
