@@ -14,15 +14,16 @@
 
 ## ⭐ 新特性
 
-- 支持每天25次免费使用AIGC
+- 支持每天 25 次免费使用 AIGC
 - 支持查询数据分页
-- 支持PostgreSQL数据库多个database的切换
-- 支持客户端代码热更新可以快速修复bug
+- 支持 PostgreSQL 数据库多个 database 的切换
+- 支持客户端代码热更新可以快速修复 bug
+- 支持客户端字体放大缩小
 
 ## 🐞 问题修复
 
 - 返回结果默认返回别名 [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
-- 修复了100个左右的bug，当然很多是重复bug
+- 修复了 100 个左右的 bug，当然很多是重复 bug
 
 # 2.0.4
 
@@ -39,14 +40,14 @@
 
 ## ⭐ 新特性
 
-- 支持DB2数据库
+- 支持 DB2 数据库
 - 支持控制台保存后重命名
-- 支持SQL执行中提示
+- 支持 SQL 执行中提示
 
 ## 🐞 问题修复
 
-- 修复sqlserver中database全是数字的bug
-- 修复ssh连接 bug
+- 修复 sqlserver 中 database 全是数字的 bug
+- 修复 ssh 连接 bug
 
 # 2.0.2
 
@@ -64,7 +65,7 @@
 
 ## ⭐ 新特性
 
-- 全新的AI绑定流程
+- 全新的 AI 绑定流程
 - 支持自定义驱动
 
 ## 🐞 问题修复
