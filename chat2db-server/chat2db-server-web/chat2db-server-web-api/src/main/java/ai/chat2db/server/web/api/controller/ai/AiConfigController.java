@@ -101,7 +101,7 @@ public class AiConfigController {
     public DataResult<InviteQrCodeResponse> getInviteQrCode() {
         String apiKey = getApiKey();
         if (StringUtils.isBlank(apiKey)) {
-            return DataResult.empty();
+            return DataResult.of(new InviteQrCodeResponse());
         }
         return gatewayClientService.getInviteQrCode(apiKey);
     }
