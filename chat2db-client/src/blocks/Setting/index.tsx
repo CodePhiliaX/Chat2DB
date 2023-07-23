@@ -57,7 +57,7 @@ function Setting(props: IProps) {
         return;
       }
       handleUpdateAiConfig({
-        key: res.apiKey,
+        key: res.chat2dbApiHost,
         aiType: res.aiSqlSource,
       });
       setChatGPTConfig({
