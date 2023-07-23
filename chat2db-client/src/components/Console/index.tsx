@@ -369,7 +369,7 @@ function Console(props: IProps) {
     }
 
     setIsLoading(true);
-    const { tip, wechatQrCodeUrl } = await aiServer.getInviteQrCode({});
+    const { tip, wechatQrCodeUrl } = (await aiServer.getInviteQrCode({})) || {};
     setIsLoading(false);
     setModalProps({
       imageUrl: wechatQrCodeUrl,
@@ -412,7 +412,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
