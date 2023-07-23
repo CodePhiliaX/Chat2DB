@@ -1,5 +1,6 @@
 import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
+
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 // yarn run build --app_port=xx 获取打包时命令行传入的参数
