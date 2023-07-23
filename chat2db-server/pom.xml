@@ -184,24 +184,6 @@
                 <groupId>com.dtflys.forest</groupId>
                 <artifactId>forest-spring-boot3-starter</artifactId>
                 <version>1.5.32</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>httpclient</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpclient-cache</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpcore</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpmime</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- 数据库版本管理 -->

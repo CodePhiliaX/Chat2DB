@@ -127,15 +127,30 @@ jobs:
       - name: Build Java
         run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 
+      # touch versions
+      - name: touch versions
+        run: |
+          cd chat2db-client
+          mkdir versions
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}/static
+          touch version
+          echo -n ${{ steps.chat2db_version.outputs.substring }} > version
+          cp -r version ./versions/
+
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
+          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/lib
+
 
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
           yarn run build:web:desktop --app_version=${{ steps.chat2db_version.outputs.substring }}
+          cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
+          rm -r dist
 
       # windows
       - name: Build/release Electron app for Windows
@@ -200,8 +215,11 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
           mkdir oss_temp_file
-          cp chat2db-client/static/chat2db-server-start.jar  ./oss_temp_file
+          cp chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/dist ./oss_temp_file/dist
+          cd chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ steps.chat2db_version.outputs.substring }}
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
