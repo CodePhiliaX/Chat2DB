@@ -73,6 +73,12 @@ public class ExecuteResultVO {
     private Integer pageSize;
 
     /**
+     * Total number of fuzzy rows
+     * Only select statements have
+     */
+    private String fuzzyTotal;
+
+    /**
      * 执行持续时间
      */
     private Long duration;
