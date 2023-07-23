@@ -32,7 +32,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const { curPage } = mainPageModel;
   const [cascaderLoading, setCascaderLoading] = useState(false);
   const [noConnectionModal, setNoConnectionModal] = useState(false);
-  const [curDBOptions, setCurDBOptions] = useState<IOption[]>();
+  const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
   const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
 
@@ -227,20 +227,23 @@ const WorkspaceHeader = memo<IProps>((props) => {
         </div>
       </Cascader>
 
-      <Cascader
-        popupClassName={styles.cascaderPopup}
-        options={curDBOptions}
-        onChange={databaseChange}
-        bordered={false}
-      // defaultValue={[curWorkspaceParams.databaseName]}
-      >
-        <div className={styles.crumbsItem}>
-          <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-          {
-            !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
-          }
-        </div>
-      </Cascader>
+      {
+        !!curDBOptions?.length &&
+        <Cascader
+          popupClassName={styles.cascaderPopup}
+          options={curDBOptions}
+          onChange={databaseChange}
+          bordered={false}
+        // defaultValue={[curWorkspaceParams.databaseName]}
+        >
+          <div className={styles.crumbsItem}>
+            <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+            {
+              !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
+            }
+          </div>
+        </Cascader>
+      }
       {
         !!curSchemaOptions.length &&
         <Cascader
