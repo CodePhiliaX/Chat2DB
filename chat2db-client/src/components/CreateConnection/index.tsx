@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo, useState, Fragment, useContext, useCal
 import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
+import lodash from 'lodash';
 
 import connectionService from '@/service/connection';
 
@@ -47,15 +48,15 @@ export default function CreateConnection(props: IProps) {
     backfillDataLoading: false,
     sshTestLoading: false
   });
+
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
     return deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
       const flag = t.type === backfillData.type;
       return flag
     });
-  }, []);
 
-  const [dataSourceFormConfigProps, setDataSourceFormConfigProps] = useState(dataSourceFormConfigPropsMemo);
+  }, [backfillData]);
 
   useEffect(() => {
     setBackfillData(props.connectionData);
@@ -105,7 +106,7 @@ export default function CreateConnection(props: IProps) {
       children: (
         <div className={styles.sshBox}>
           <RenderForm
-            dataSourceFormConfigProps={dataSourceFormConfigProps}
+            dataSourceFormConfigProps={dataSourceFormConfigPropsMemo}
             backfillData={backfillData!}
             form={sshForm}
             tab="ssh"
@@ -229,7 +230,7 @@ export default function CreateConnection(props: IProps) {
             <div>{databaseMap[backfillData.type]?.name}</div>
           </div>
           <div className={styles.baseInfoBox}>
-            <RenderForm dataSourceFormConfigProps={dataSourceFormConfigProps} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
+            <RenderForm dataSourceFormConfigProps={dataSourceFormConfigPropsMemo} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
           </div>
           <Collapse defaultActiveKey={['driver']} items={getItems()} />
           <div className={styles.formFooter}>
@@ -284,6 +285,7 @@ function RenderForm(props: IRenderFormProps) {
 
   useEffect(() => {
     setDataSourceFormConfig(dataSourceFormConfigProps)
+    console.log(dataSourceFormConfigProps)
   }, [dataSourceFormConfigProps])
 
   const initialValuesMemo = useMemo(() => {
@@ -317,10 +319,10 @@ function RenderForm(props: IRenderFormProps) {
     });
     dataSourceFormConfig.baseInfo.items.forEach((t: IFormItem) => {
       if (t.selects) {
+        // console.log('backfillData[t.name]', backfillData[t.name])
         t.defaultValue = backfillData[t.name] || AuthenticationType.USERANDPASSWORD
       }
     });
-    setDataSourceFormConfig({ ...dataSourceFormConfig })
   }
 
   function initialFormData(dataSourceFormConfig: IFormItem[] | undefined) {
@@ -487,7 +489,9 @@ function RenderForm(props: IRenderFormProps) {
         </div>
         {t.selects?.map((item) => {
           if (t.defaultValue === item.value) {
-            return item.items?.map((t) => renderFormItem(t));
+            return item.items?.map((t) => {
+              return renderFormItem(t)
+            });
           }
         })}
       </Fragment>
@@ -505,7 +509,9 @@ function RenderForm(props: IRenderFormProps) {
       labelAlign="left"
       onFieldsChange={onFieldsChange}
     >
-      {dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))}
+      {
+        dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))
+      }
     </Form>
   );
 }

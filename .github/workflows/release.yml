@@ -24,6 +24,7 @@ jobs:
             arch: amd64
           - os: macos-latest
             arch: arm64
+          - os: ubuntu-latest
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -71,6 +72,15 @@ jobs:
           distribution: "temurin"
           java-package: "jre"
           architecture: "aarch64"
+
+          # 安装jre Linux
+      - name: Install Jre for Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/setup-java@main
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          java-package: "jre"
 
       # java.security 开放tls1 Windows
       - name: Enable tls1
@@ -127,15 +137,29 @@ jobs:
       - name: Build Java
         run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 
+      # touch versions
+      - name: touch versions
+        run: |
+          cd chat2db-client
+          mkdir versions
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}
+          mkdir versions/${{ steps.chat2db_version.outputs.substring }}/static
+          touch version
+          echo -n ${{ steps.chat2db_version.outputs.substring }} > version
+          cp -r version ./versions/
+
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
+          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/lib
 
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
           yarn run build:web:desktop --app_version=${{ steps.chat2db_version.outputs.substring }}
+          cp -r dist ./versions/${{ steps.chat2db_version.outputs.substring }}/
+          rm -r dist
 
       # windows
       - name: Build/release Electron app for Windows
@@ -188,6 +212,16 @@ jobs:
         run: |
           xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg
 
+      # Linux
+      - name: Build/release Electron app for Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: "chat2db-client/"
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          skip_build: true
+          args: "-c.extraMetadata.version=${{ steps.chat2db_version.outputs.substring }} --linux"
+
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
         if: runner.os == 'Windows'
@@ -200,8 +234,11 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
           mkdir oss_temp_file
-          cp chat2db-client/static/chat2db-server-start.jar  ./oss_temp_file
+          cp chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/dist ./oss_temp_file/dist
+          cd chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
@@ -209,6 +246,14 @@ jobs:
         run: |
           mkdir oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
+
+      # 准备要需要的数据 Linux
+      - name: Prepare upload for Linux
+        if: runner.os == 'Linux'
+        run: |
+          mkdir oss_temp_file
+          cp -r chat2db-client/release/*.AppImage ./oss_temp_file
+          cp -r chat2db-client/release/*_amd64.deb ./oss_temp_file
 
       # 把文件上传到OSS 方便下载
       - name: Set up oss utils
@@ -245,7 +290,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-release-构建完成通知",
-              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.jar) "
+              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知

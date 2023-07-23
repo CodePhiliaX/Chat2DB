@@ -28,9 +28,36 @@
     }
     .art-sticky-scroll.art-horizontal-scroll-container {
       position: sticky;
-      bottom: 24px !important;
+      bottom: 26px !important;
     }
   }
+}
+
+.toolBar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  border-top: 1px solid var(--color-border-secondary);
+  background-color: var(--color-bg-elevated);
+  padding: 0 16px;
+  height: 30px;
+}
+.toolBarItem {
+  margin: 4px 0;
+  padding-right: 8px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  &:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+  }
+}
+
+.table {
+  flex: 1;
 }
 
 .statusBar {
@@ -44,6 +71,10 @@
   align-items: center;
   border-top: 1px solid var(--color-border-secondary);
   background-color: var(--color-bg-elevated);
+
+  & > span {
+    margin-right: 16px;
+  }
 }
 
 .tableItem {
@@ -88,6 +119,24 @@
 
   i:hover {
     color: var(--custom-primary-color);
+  }
+}
+
+.pagination {
+  :global {
+    .ant-pagination-prev,
+    .ant-pagination-next,
+    .ant-pagination-jump-prev,
+    .ant-pagination-jump-next {
+      min-width: 20px;
+    }
+    .ant-pagination-simple-pager {
+      input {
+        padding: 0px !important;
+        font-size: 12px;
+        height: 70% !important;
+      }
+    }
   }
 }
 

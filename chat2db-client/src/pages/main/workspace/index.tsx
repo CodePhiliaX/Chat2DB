@@ -4,10 +4,12 @@ import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
+import WorkspaceHeader from './components/WorkspaceHeader';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
+import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   className?: string;
@@ -31,100 +33,33 @@ interface Option {
   children?: Option[];
 }
 
-function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['state']['databaseAndSchema']) {
-  let newCascaderOptions: Option[] = [];
-  if (databaseAndSchema?.databases) {
-    newCascaderOptions = (databaseAndSchema?.databases || []).map((t) => {
-      let schemasList: Option[] = [];
-      if (t.schemas) {
-        schemasList = t.schemas.map((t) => {
-          return {
-            value: t.name,
-            label: t.name,
-          };
-        });
-      }
-      return {
-        value: t.name,
-        label: t.name,
-        children: schemasList,
-      };
-    });
-  } else if (databaseAndSchema?.schemas) {
-    newCascaderOptions = (databaseAndSchema?.schemas || []).map((t) => {
-      return {
-        value: t.name,
-        label: t.name,
-      };
-    });
-  }
-  return newCascaderOptions;
-}
-
 const workspace = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
   const { curConnection } = connectionModel;
-  const { curWorkspaceParams, databaseAndSchema } = workspaceModel;
+  const { curWorkspaceParams } = workspaceModel;
   const [loading, setLoading] = useState(true);
+  const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
 
   useEffect(() => {
     if (pageLoading === true) {
-      setLoading(true)
+      setLoading(true);
     } else {
-      setLoading(false)
+      setLoading(false);
     }
   }, [pageLoading])
 
-  console.log('pageLoading', pageLoading)
-
-
-  const cascaderOptions = useMemo(() => {
-    if (!databaseAndSchema) {
-      return
-    }
-    const res = handleDatabaseAndSchema(databaseAndSchema);
-    if (!curWorkspaceParams?.dataSourceId || curWorkspaceParams?.dataSourceId !== curConnection?.id) {
-      // 如果databaseAndSchema 发生切变 并且没选中确切的database时，需要默认选中第一个
-      const curWorkspaceParams = {
-        dataSourceId: curConnection?.id,
-        databaseSourceName: curConnection?.alias,
-        databaseName: res?.[0]?.value,
-        schemaName: res?.[0]?.children?.[0]?.value,
-        databaseType: curConnection?.type,
-      };
-      dispatch({
-        type: 'workspace/setCurWorkspaceParams',
-        payload: curWorkspaceParams,
-      });
-    }
-    return res;
-  }, [databaseAndSchema]);
-
   useEffect(() => {
-    if (curConnection?.id) {
-      dispatch({
-        type: 'workspace/fetchDatabaseAndSchemaLoading',
-        payload: {
-          dataSourceId: curConnection.id,
-        },
-      });
-    }
     clearData();
   }, [curConnection]);
 
-
   useEffect(() => {
-    if (curWorkspaceParams.dataSourceId) {
+    if (isReady) {
       getConsoleList();
     }
   }, [curWorkspaceParams]);
 
   function clearData() {
-    dispatch(({
-      type: 'workspace/setCurWorkspaceParams',
-      payload: {},
-    }))
     dispatch(({
       type: 'workspace/setOpenConsoleList',
       payload: [],
@@ -162,17 +97,21 @@ const workspace = memo<IProps>((props) => {
       },
     });
   }
+
   return (
-    <LoadingContent isLoading={loading}>
-      <DraggableContainer className={styles.box}>
-        <div ref={draggableRef} className={styles.boxLeft}>
-          <WorkspaceLeft cascaderOptions={cascaderOptions} />
-        </div>
-        <div className={styles.boxRight}>
-          <WorkspaceRight />
-        </div>
-      </DraggableContainer>
-    </LoadingContent>
+    <div className={styles.workspace}>
+      <WorkspaceHeader></WorkspaceHeader>
+      <LoadingContent coverLoading={true} isLoading={loading}>
+        <DraggableContainer className={styles.workspaceMain}>
+          <div ref={draggableRef} className={styles.boxLeft}>
+            <WorkspaceLeft />
+          </div>
+          <div className={styles.boxRight}>
+            <WorkspaceRight />
+          </div>
+        </DraggableContainer>
+      </LoadingContent >
+    </div>
   );
 });
 

@@ -9,14 +9,15 @@ interface IProps<T> {
   empty?: React.ReactNode;
   handleEmpty?: boolean;
   isLoading?: boolean;
+  coverLoading?: boolean; 
 }
 
 export default function LoadingContent<T>(props: PropsWithChildren<IProps<T>>) {
-  const { children, className, data = true, handleEmpty = false, empty, isLoading } = props;
+  const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading } = props;
   const isEmpty = !isLoading && handleEmpty && !(data as any).length;
 
   const renderContent = () => {
-    if (isLoading || !data) {
+    if ((isLoading || !data) && !coverLoading) {
       return <StateIndicator state="loading" />;
     }
 
@@ -24,12 +25,20 @@ export default function LoadingContent<T>(props: PropsWithChildren<IProps<T>>) {
       return empty || <StateIndicator state="empty" />;
     }
 
-    return children;
+    return <>
+      {children}
+      {
+        (isLoading || !data) && coverLoading &&
+        <div className={styles.coverLoading}>
+          <StateIndicator state="loading" />
+        </div>
+      }
+    </> 
   };
 
   return (
-    <div className={classnames(styles.box, className)}>{
-      renderContent()
-    }</div>
+    <div className={classnames(styles.box, className)}>
+      {renderContent()}
+    </div>
   );
 }

@@ -70,8 +70,9 @@ public class ConfigController {
 
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
-            case CHAT2DBAI:
                 saveOpenAIConfig(request);
+            case CHAT2DBAI:
+                saveChat2dbAIConfig(request);
             case RESTAI :
                 saveRestAIConfig(request);
             case AZUREAI :
@@ -85,14 +86,27 @@ public class ConfigController {
      *
      * @param request
      */
-    private void saveOpenAIConfig(AISystemConfigRequest request) {
+    private void saveChat2dbAIConfig(AISystemConfigRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(OpenAIClient.OPENAI_KEY).content(
-                request.getApiKey())
-            .build();
+                request.getChat2dbApiKey()).build();
         configService.createOrUpdate(param);
         SystemConfigParam hostParam = SystemConfigParam.builder().code(OpenAIClient.OPENAI_HOST).content(
-                request.getApiHost())
-            .build();
+                request.getChat2dbApiHost()).build();
+        configService.createOrUpdate(hostParam);
+        OpenAIClient.refresh();
+    }
+
+    /**
+     * 保存OPENAI相关配置
+     *
+     * @param request
+     */
+    private void saveOpenAIConfig(AISystemConfigRequest request) {
+        SystemConfigParam param = SystemConfigParam.builder().code(OpenAIClient.OPENAI_KEY).content(
+                request.getApiKey()).build();
+        configService.createOrUpdate(param);
+        SystemConfigParam hostParam = SystemConfigParam.builder().code(OpenAIClient.OPENAI_HOST).content(
+                request.getApiHost()).build();
         configService.createOrUpdate(hostParam);
         SystemConfigParam httpProxyHostParam = SystemConfigParam.builder().code(OpenAIClient.PROXY_HOST).content(
             request.getHttpProxyHost()).build();
@@ -161,12 +175,25 @@ public class ConfigController {
         DataResult<Config> azureEndpoint = configService.find(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT);
         DataResult<Config> azureDeployId = configService.find(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID);
         ChatGptConfig config = new ChatGptConfig();
-        config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
-        config.setAiSqlSource(Objects.nonNull(aiSqlSource.getData()) ? aiSqlSource.getData().getContent() : null);
+
+        String sqlSource = Objects.nonNull(aiSqlSource.getData()) ? aiSqlSource.getData().getContent() : AiSqlSourceEnum.CHAT2DBAI.getCode();
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.CHAT2DBAI;
+            sqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        }
+        config.setAiSqlSource(sqlSource);
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+                config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
+                config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+            case CHAT2DBAI:
+                config.setChat2dbApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
+                config.setChat2dbApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+        }
         config.setRestAiUrl(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : null);
         config.setRestAiStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
             restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
-        config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
         config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : null);
         config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : null);
         config.setAzureApiKey(Objects.nonNull(azureApiKey.getData()) ? azureApiKey.getData().getContent() : null);

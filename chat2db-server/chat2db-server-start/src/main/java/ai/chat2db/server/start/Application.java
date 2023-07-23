@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Indexed;
 
 /**
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Indexed;
 @ForestScan(basePackages = "ai.chat2db.server")
 @Indexed
 @EnableCaching
+@EnableScheduling
 public class Application {
 
     public static void main(String[] args) {

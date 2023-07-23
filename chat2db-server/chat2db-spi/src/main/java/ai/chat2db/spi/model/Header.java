@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import ai.chat2db.spi.enums.DataTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

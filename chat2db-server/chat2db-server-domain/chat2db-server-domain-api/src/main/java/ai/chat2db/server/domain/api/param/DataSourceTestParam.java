@@ -1,18 +1,16 @@
 package ai.chat2db.server.domain.api.param;
 
+import java.util.List;
 
+import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 import jakarta.validation.constraints.NotNull;
-
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.util.List;
 
 /**
  * 数据源测试参数
@@ -89,4 +87,10 @@ public class DataSourceTestParam {
      * 扩展信息
      */
     private List<KeyValue> extendInfo;
+
+
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }

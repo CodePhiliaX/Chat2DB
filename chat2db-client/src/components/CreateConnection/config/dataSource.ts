@@ -70,6 +70,8 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       required: false,
       styles: {
         width: '30%',
+        labelWidthEN: '70px',
+        labelWidthCN: '70px',
         labelAlign: 'right'
       }
     },
@@ -423,7 +425,9 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '30%',
-
+            labelWidthEN: '70px',
+            labelWidthCN: '40px',
+            labelAlign: 'right'
           }
         },
         {
@@ -565,7 +569,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
@@ -961,6 +964,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             {
 
               label: 'NONE',
+              value: AuthenticationType.NONE,
               items: [],
 
             },
