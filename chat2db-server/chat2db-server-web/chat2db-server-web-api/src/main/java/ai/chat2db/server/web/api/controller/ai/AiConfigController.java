@@ -87,7 +87,6 @@ public class AiConfigController {
         String apiKey = getApiKey();
         if (StringUtils.isBlank(apiKey)) {
             return DataResult.of(ApiKeyResponse.builder()
-                .remainingUses(0L)
                 .build());
         }
         return gatewayClientService.remaininguses(apiKey);
