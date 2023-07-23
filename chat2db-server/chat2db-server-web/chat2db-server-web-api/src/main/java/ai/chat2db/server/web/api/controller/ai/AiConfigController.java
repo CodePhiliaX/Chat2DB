@@ -87,7 +87,6 @@ public class AiConfigController {
         String apiKey = getApiKey();
         if (StringUtils.isBlank(apiKey)) {
             return DataResult.of(ApiKeyResponse.builder()
-                .remainingUses(0L)
                 .build());
         }
         return gatewayClientService.remaininguses(apiKey);
@@ -102,7 +101,7 @@ public class AiConfigController {
     public DataResult<InviteQrCodeResponse> getInviteQrCode() {
         String apiKey = getApiKey();
         if (StringUtils.isBlank(apiKey)) {
-            return DataResult.empty();
+            return DataResult.of(new InviteQrCodeResponse());
         }
         return gatewayClientService.getInviteQrCode(apiKey);
     }
