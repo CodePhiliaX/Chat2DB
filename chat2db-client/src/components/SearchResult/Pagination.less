@@ -2,6 +2,7 @@
   display: flex;
   justify-content: start;
   align-items: center;
+  // height: 30px;
 }
 
 .item-icon {
@@ -39,4 +40,12 @@
 
 .input-number {
   width: 32px;
+  :global {
+    .ant-input-number-input {
+      text-align: center;
+      padding: 0px;
+      // display: flex;
+      // justify-content: center;
+    }
+  }
 }

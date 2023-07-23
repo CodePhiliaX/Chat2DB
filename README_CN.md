@@ -55,10 +55,10 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 | 描述                     | 下载地址                                                                                                                                                   |
 | ------------------------ |--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows                  | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB%20Setup%202.0.4.exe](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB%20Setup%202.0.4.exe) |
-| MacOS ARM64 (Apple 芯片) | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4-arm64.dmg)         |
-| MacOS X64 (Intel 芯片)   | [https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4.dmg](https://oss-chat2db.alibaba.com/release/2.0.4/Chat2DB-2.0.4.dmg)                     |
-| Jar 包                   | [https://oss-chat2db.alibaba.com/release/2.0.4/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.4/chat2db-server-start.jar)       |
+| Windows                  | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe) |
+| MacOS ARM64 (Apple 芯片) | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg)         |
+| MacOS X64 (Intel 芯片)   | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg)                     |
+| Jar 包                   | [https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip)       |
 
 ## 🚀 支持的数据库
 

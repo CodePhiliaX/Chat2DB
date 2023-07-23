@@ -194,7 +194,7 @@ export default function TableBox(props: ITableProps) {
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
-            stickyTop={30}
+            stickyTop={31}
             {...pipeline.getProps()}
           />
           <div className={styles.statusBar}>

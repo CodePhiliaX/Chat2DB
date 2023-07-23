@@ -258,7 +258,6 @@ jobs:
           mkdir -p oss_temp_file/linux/
           cp -r chat2db-client/release/*.AppImage ./oss_temp_file/linux/
           cp -r chat2db-client/release/*_amd64.deb ./oss_temp_file/linux/
-          cp -r chat2db-client/release/resources ./oss_temp_file/linux/
           ls chat2db-client/release/
 
       # 把文件上传到OSS 方便下载
