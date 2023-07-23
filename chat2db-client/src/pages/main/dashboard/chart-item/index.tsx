@@ -319,6 +319,28 @@ function ChartItem(props: IChartItemProps) {
     };
   }, [initDDL]);
 
+  const handleExecuteSQL = async (sql: string) => {
+    setIsLoading(true);
+    let executeSQLParams: IExecuteSqlParams = {
+      sql,
+      ...data,
+    };
+
+    // 获取当前SQL的查询结果
+    let sqlResult = await sqlService.executeSql(executeSQLParams);
+
+    let sqlData;
+    if (sqlResult && sqlResult[0]) {
+      sqlData = handleSQLResult2ChartData(sqlResult[0]);
+    }
+    setChartData({
+      ...chartData,
+      ddl: sql,
+      sqlData,
+    });
+    setIsLoading(false);
+  };
+
   const renderEditorBlock = () => {
     const { sqlData = {} } = chartData || {};
     const options = Object.keys(sqlData).map((i) => ({ label: i, value: i }));
@@ -334,19 +356,7 @@ function ChartItem(props: IChartItemProps) {
               hasAi2Lang={false}
               hasSaveBtn={false}
               value={chartData?.ddl}
-              onExecuteSQL={(result: any, sql: string) => {
-                setIsLoading(true);
-                let sqlData;
-                if (result && result[0]) {
-                  sqlData = handleSQLResult2ChartData(result[0]);
-                }
-                setChartData({
-                  ...chartData,
-                  ddl: sql,
-                  sqlData,
-                });
-                setIsLoading(false);
-              }}
+              onExecuteSQL={handleExecuteSQL}
               editorOptions={{
                 lineNumbers: 'off',
                 theme:

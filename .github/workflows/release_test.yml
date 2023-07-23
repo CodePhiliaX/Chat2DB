@@ -24,6 +24,7 @@ jobs:
             arch: amd64
           - os: macos-latest
             arch: arm64
+          - os: ubuntu-latest
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -57,6 +58,15 @@ jobs:
           distribution: "temurin"
           java-package: "jre"
           architecture: "aarch64"
+
+      # 安装jre Linux
+      - name: Install Jre for Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: actions/setup-java@main
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          java-package: "jre"
 
       # java.security 开放tls1 Windows
       - name: Enable tls1
@@ -185,6 +195,16 @@ jobs:
         run: |
           xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg
 
+      # Linux
+      - name: Build/release Electron app for Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: "chat2db-client/"
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          skip_build: true
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=1.0.${{ github.run_id }}-Test --linux"
+
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
         if: runner.os == 'Windows'
@@ -229,6 +249,16 @@ jobs:
           cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/arm
           cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/arm
           cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/arm
+          ls chat2db-client/release/
+
+      # 准备要需要的数据 Linux
+      - name: Prepare upload for Linux
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p oss_temp_file/linux/
+          cp -r chat2db-client/release/*.AppImage ./oss_temp_file/linux/
+          cp -r chat2db-client/release/*_amd64.deb ./oss_temp_file/linux/
+          cp -r chat2db-client/release/resources ./oss_temp_file/linux/
           ls chat2db-client/release/
 
       # 把文件上传到OSS 方便下载
@@ -280,4 +310,17 @@ jobs:
             {
               "title": "MacOS-arm64-test-构建完成通知",
               "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg](https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-1.0.${{ github.run_id }}-Test-arm64.dmg) "
+            }
+
+      # 构建完成通知
+      - name: Send dingtalk message for Linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "Linux-test-打包完成通知",
+              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss-chat2db.alibaba.com/test/linux/Chat2DB-Test-1.0.${{ github.run_id }}-Test.AppImage](https://oss-chat2db.alibaba.com/test/linux/Chat2DB-Test-1.0.${{ github.run_id }}-Test.AppImage) "
             }

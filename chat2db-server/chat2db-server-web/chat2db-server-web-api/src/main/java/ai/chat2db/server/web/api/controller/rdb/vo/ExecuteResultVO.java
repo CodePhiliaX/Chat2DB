@@ -19,6 +19,11 @@ public class ExecuteResultVO {
     private String sql;
 
     /**
+     * Original SQL without pagination
+     */
+    private String originalSql;
+
+    /**
      * 描述
      */
     private String description;
