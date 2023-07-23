@@ -132,7 +132,16 @@ To facilitate users' quick use of AI capabilities, you can scan the QR code belo
 ## 📦 Docker installation
 
 ```bash
-docker pull chat2db/chat2db:latest
+```bash
+  // Pull the latest client, then run Docker with the name 'chat2db', and mount 'root. chat2db' to '~. chat2db Docker'`
+  docker run --name=chat2db -ti -p 10824:10824 -v ~/.chat2db-docker:/root/.chat2db  chat2db/chat2db:latest
+  // The normal prompt here is' Tomcat started on port (s): 10824 (http) with context path ', which will complete the process
+
+  // If the prompt 'The container name "chat2db" is already in use by container' appears here, it means that the container already exists and is running
+  docker start chat2db
+  // If you want to update chat2db, you need to first rm
+  docker rm chat2db
+```
 ```
 
 ## 🎯 Operating Environment
