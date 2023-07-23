@@ -71,8 +71,7 @@ interface IProps {
   dispatch: Function;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
-  onExecuteSQLBefore?: () => void;
-  onExecuteSQL: (result: any, sql: string, createHistoryParams) => void;
+  onExecuteSQL: (sql: string) => void;
   onConsoleSave: () => void;
   tables: any[];
 }
@@ -315,25 +314,12 @@ function Console(props: IProps) {
   };
 
   const executeSQL = (sql?: string) => {
-    props.onExecuteSQLBefore && props.onExecuteSQLBefore();
-
     const sqlContent = sql || editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent();
 
     if (!sqlContent) {
       return;
     }
-
-    let p: any = {
-      sql: sqlContent,
-      ...executeParams,
-    };
-    sqlServer.executeSql(p).then((res) => {
-      let createHistoryParams: any = {
-        ...executeParams,
-        ddl: sqlContent,
-      };
-      props.onExecuteSQL?.(res, sqlContent!, createHistoryParams);
-    });
+    props.onExecuteSQL && props.onExecuteSQL(sqlContent);
   };
 
   const saveConsole = (value?: string) => {

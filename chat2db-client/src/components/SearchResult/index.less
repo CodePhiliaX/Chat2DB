@@ -51,24 +51,6 @@
   }
 }
 
-.tableStatus {
-  display: flex;
-  align-items: center;
-
-  .dot {
-    display: inline-block;
-    margin-right: 5px;
-    width: 10px;
-    height: 10px;
-    background-color: #ff4d4f;
-    border-radius: 50%;
-  }
-
-  .successDot {
-    background-color: #52c41a;
-  }
-}
-
 .cursorTableBox {
   // display: block !important;
   // height: 100%;
@@ -93,8 +75,10 @@
 .noData {
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 12px;
 }
 
 .stateIndicator {

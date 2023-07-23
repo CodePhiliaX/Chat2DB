@@ -5,9 +5,8 @@ import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import { Spin, Popover } from 'antd';
 import { StatusType } from '@/constants';
-import { IManageResultData } from '@/typings';
+import { IManageResultData, IResultConfig } from '@/typings';
 import i18n from '@/i18n';
-import { v4 as uuidv4 } from 'uuid';
 import TableBox from './TableBox';
 import EmptyImg from '@/assets/img/empty.svg';
 import styles from './index.less';
@@ -15,6 +14,9 @@ import styles from './index.less';
 interface IProps {
   className?: string;
   manageResultDataList?: IManageResultData[];
+  resultConfig: IResultConfig[];
+  onExecute: (sql: string, config: IResultConfig, index: number) => void;
+  onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
   isLoading?: boolean;
 }
 
@@ -26,7 +28,7 @@ const handleTabs = (result: IManageResultData[]) => {
   return (result || []).map((item, index) => {
     return {
       label: (
-        <Popover content={item.sql}>
+        <Popover content={item.originalSql}>
           <Iconfont
             key={index}
             className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
@@ -40,56 +42,44 @@ const handleTabs = (result: IManageResultData[]) => {
   });
 };
 
-export default memo<IProps>(function SearchResult({ className, manageResultDataList = [], isLoading }) {
-  const [isUnfold, setIsUnfold] = useState(true);
+export default memo<IProps>(function SearchResult(props) {
+  const { className, manageResultDataList = [], isLoading, onExecute } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
+  const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
   const [tabs, setTabs] = useState<IOption[]>([]);
+
+  useEffect(() => {
+    setResultConfig(props.resultConfig);
+  }, [props.resultConfig]);
 
   useEffect(() => {
     if (!manageResultDataList.length) {
       return;
     }
-    const newManageResultDataList = manageResultDataList.map((t) => {
-      return {
-        ...t,
-        uuid: uuidv4(),
-      };
-    });
-    setCurrentTab(newManageResultDataList[0].uuid);
-    setResultDataList(newManageResultDataList);
-    setTabs(handleTabs(newManageResultDataList));
+
+    // debugger;
+    if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
+      setCurrentTab(manageResultDataList[0].uuid);
+    }
+
+    setResultDataList(manageResultDataList);
+    setTabs(handleTabs(manageResultDataList));
   }, [manageResultDataList]);
 
   function onChange(uuid: string | number) {
     setCurrentTab(uuid);
   }
 
-  const renderStatus = (text: string) => {
-    return (
-      <div className={styles.tableStatus}>
-        <i className={classnames(styles.dot, { [styles.successDot]: text == StatusType.SUCCESS })}></i>
-        {text == StatusType.SUCCESS ? '成功' : '失败'}
-      </div>
-    );
-  };
-
   function onEdit(type: 'add' | 'remove', value?: number | string) {
-    if (type === 'remove') {
-      const dataList = resultDataList.filter((t) => t.uuid !== value);
-      setResultDataList(dataList);
-      if (currentTab === value) {
-        setCurrentTab(dataList[0]?.uuid);
-      }
-    }
+    props.onTabEdit && props.onTabEdit(type, value);
   }
 
   const renderEmpty = () => {
     return (
       <div className={styles.noData}>
-        {/* {i18n('common.text.noData')} */}
-        {/* <Iconfont style={{ fontSize: '64px' }} code="&#xe642;" /> */}
         <img src={EmptyImg} />
+        <p>{i18n('common.text.noData')}</p>
       </div>
     );
   };
@@ -108,7 +98,10 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
             <TableBox
               className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
               data={item}
-              // isLoading={isLoading}
+              config={resultConfig?.[index]}
+              onConfigChange={function (config: IResultConfig) {
+                onExecute && onExecute(item.originalSql, config, index);
+              }}
             />
           </Fragment>
         );
@@ -124,7 +117,7 @@ export default memo<IProps>(function SearchResult({ className, manageResultDataL
         );
       }
     });
-  }, [currentTab]);
+  }, [currentTab, resultDataList, resultConfig]);
 
   return (
     <div className={classnames(className, styles.box)}>

@@ -1,5 +1,5 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 
 export interface IGetListParams extends IPageParams {
@@ -11,9 +11,10 @@ export interface IGetListParams extends IPageParams {
 
 export interface IExecuteSqlParams {
   sql?: string;
+  consoleId?: number;
   dataSourceId?: number;
   databaseName?: string;
-  consoleId?: number;
+  schemaName?: string;
 }
 
 export interface IExecuteSqlResponse {
@@ -32,7 +33,7 @@ export interface IConnectConsoleParams {
 
 const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', {});
 
-const executeSql = createRequest<IExecuteSqlParams, IExecuteSqlResponse>('/api/rdb/dml/execute', { method: 'post' });
+const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
 
 const connectConsole = createRequest<IConnectConsoleParams, void>('/api/connection/console/connect', { method: 'get' });
 
@@ -87,8 +88,12 @@ export interface Schema {
 }
 
 const deleteTable = createRequest<ITableParams, void>('/api/rdb/ddl/delete', { method: 'post' });
-const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', { method: 'get' });
-const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/update/example', { method: 'get' });
+const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', {
+  method: 'get',
+});
+const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/update/example', {
+  method: 'get',
+});
 const exportCreateTableSql = createRequest<ITableParams, string>('/api/rdb/ddl/export', { method: 'get' });
 const executeTable = createRequest<IExecuteTableParams, string>('/api/rdb/ddl/execute', { method: 'post' });
 
@@ -97,20 +102,17 @@ const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_
 const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get' });
 const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get' });
 
-const getDatabaseSchemaList = createRequest<{ dataSourceId: number; }, MetaSchemaVO>(
+const getDatabaseSchemaList = createRequest<{ dataSourceId: number }, MetaSchemaVO>(
   '/api/rdb/ddl/database_schema_list',
-  { method: 'get' }
+  { method: 'get' },
 );
 
-const addTablePin = createRequest<IUniversalTableParams, void>(
-  '/api/pin/table/add',
-  { method: 'post' }
-);
+const addTablePin = createRequest<IUniversalTableParams, void>('/api/pin/table/add', { method: 'post' });
 
-const deleteTablePin = createRequest<IUniversalTableParams, void>(
-  '/api/pin/table/delete',
-  { method: 'post' }
-);
+const deleteTablePin = createRequest<IUniversalTableParams, void>('/api/pin/table/delete', { method: 'post' });
+
+/** 获取当前执行SQL 所有行 */
+const getDMLCount = createRequest<IExecuteSqlParams, number>('/api/rdb/dml/count', { method: 'post' });
 
 export default {
   getList,
@@ -127,5 +129,6 @@ export default {
   getSchemaList,
   getDatabaseSchemaList,
   addTablePin,
-  deleteTablePin
+  deleteTablePin,
+  getDMLCount,
 };

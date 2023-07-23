@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TableDataType } from '@/constants/table';
-import { IManageResultData, ITableHeaderItem } from '@/typings/database';
+import { IManageResultData, IResultConfig, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
-import { Button, message, Modal, Pagination, Table } from 'antd';
+import { Button, message, Modal, Pagination, Select, Table } from 'antd';
 import antd from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem, BaseTableProps } from 'ali-react-table';
 import Iconfont from '../Iconfont';
@@ -19,7 +19,8 @@ import { compareStrings } from '@/utils/sort';
 interface ITableProps {
   className?: string;
   data: IManageResultData;
-  isLoading?: boolean;
+  config: IResultConfig;
+  onConfigChange: (config: IResultConfig) => void;
 }
 
 interface IViewTableCellData {
@@ -43,7 +44,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
 `;
 
 export default function TableBox(props: ITableProps) {
-  const { className, data, isLoading } = props;
+  const { className, data, config, onConfigChange } = props;
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
@@ -161,20 +162,43 @@ export default function TableBox(props: ITableProps) {
       }),
     );
 
+  const onPageNoChange = (pageNo: number) => {
+    onConfigChange && onConfigChange({ ...config, pageNo });
+  };
+  const onPageSizeChange = (pageSize: number) => {
+    onConfigChange && onConfigChange({ ...config, pageSize, pageNo: 1 });
+  };
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
         <>
-          {/* <div className={styles.toolBar}>
+          <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
-              <Pagination className={styles.pagination} simple defaultCurrent={2} total={50} pageSize={1} />
+              <Pagination
+                onChange={onPageNoChange}
+                className={styles.pagination}
+                simple
+                current={config.pageNo}
+                {...config}
+              />
+              <Select
+                size="small"
+                defaultValue={10}
+                onChange={onPageSizeChange}
+                options={[
+                  { label: 10, value: 10 },
+                  { label: 25, value: 25 },
+                  { label: 50, value: 50 },
+                  { label: 100, value: 100 },
+                ]}
+              />
             </div>
-          </div> */}
+          </div>
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-            // isStickyHead
-            // stickyTop={24}
+            isStickyHead
+            stickyTop={30}
             {...pipeline.getProps()}
           />
           <div className={styles.statusBar}>
