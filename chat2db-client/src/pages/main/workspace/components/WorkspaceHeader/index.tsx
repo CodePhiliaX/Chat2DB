@@ -49,6 +49,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
           dataSourceName: curConnection.alias,
           databaseType: curConnection.type,
         })
+        setCurDBOptions([])
+        setCurSchemaOptions([])
       }
 
       getDatabaseList();
@@ -203,7 +205,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
       databaseName: selectedOptions[0].value,
       databaseType: curConnection!.type,
     };
-
+    setCurSchemaOptions([]);
     getSchemaList(selectedOptions[0].label);
   };
 
