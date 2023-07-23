@@ -40,7 +40,9 @@ public class AutomaticUpgrade {
         try {
             Upgrade dataResult = getUpgrade();
 
-            if (!needUpdate(dataResult, getLocalVersion(appPath))) {
+            String oldVersion = getLocalVersion(appPath);
+
+            if (!needUpdate(dataResult, oldVersion)) {
                 return;
             }
 
@@ -49,6 +51,18 @@ public class AutomaticUpgrade {
             if (!versionFile.exists()) {
                 versionFile.mkdir();
             }
+            File oldLib = new File(
+                appPath + File.separator + "versions" + File.separator + oldVersion + File.separator + "static"
+                    + File.separator + "lib");
+
+            File newLib = new File(
+                appPath + File.separator + "versions" + File.separator + dataResult.getVersion() + File.separator
+                    + "static");
+
+            if (oldLib.exists()) {
+                FileUtil.copy(oldLib, newLib, true);
+            }
+
 
             for (Map<String, String> downloadFile : dataResult.getDownloadFiles()) {
                 downloadUpgrade(downloadFile, versionFile);
