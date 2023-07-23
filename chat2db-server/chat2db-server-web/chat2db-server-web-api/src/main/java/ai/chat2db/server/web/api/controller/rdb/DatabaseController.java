@@ -1,17 +1,19 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
-import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
+import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateDatabaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +23,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * database controller
+ */
 @ConnectionInfoAspect
-@RequestMapping("/api/rdb/datbase")
+@RequestMapping("/api/rdb/database")
 @RestController
 public class DatabaseController {
-
-    @Autowired
-    private TableService tableService;
-
-    @Autowired
-    private DlTemplateService dlTemplateService;
-
     @Autowired
     private RdbWebConverter rdbWebConverter;
 
     @Autowired
     private DatabaseService databaseService;
+
     /**
      * 查询数据库里包含的database_schema_list
      *
@@ -45,13 +44,22 @@ public class DatabaseController {
      */
     @GetMapping("/database_schema_list")
     public DataResult<MetaSchemaVO> databaseSchemaList(@Valid DataSourceBaseRequest request) {
-        MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId()).refresh(
+        MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId())
+            .refresh(
             request.isRefresh()).build();
         DataResult<MetaSchema> result = databaseService.queryDatabaseSchema(queryParam);
         MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
         return DataResult.of(schemaDto2vo);
     }
 
+    @GetMapping("list")
+    public ListResult<DatabaseVO> databaseList(@Valid DataSourceBaseRequest request) {
+        DatabaseQueryAllParam queryParam = DatabaseQueryAllParam.builder().dataSourceId(request.getDataSourceId())
+            .refresh(
+                request.isRefresh()).build();
+        ListResult<Database> result = databaseService.queryAll(queryParam);
+        return ListResult.of(rdbWebConverter.databaseDto2vo(result.getData()));
+    }
 
     /**
      * 删除数据库
@@ -76,7 +84,6 @@ public class DatabaseController {
         DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName()).build();
         return databaseService.createDatabase(param);
     }
-
 
     /**
      * 修改database

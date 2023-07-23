@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.api.model;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import ai.chat2db.spi.config.DriverConfig;
@@ -8,6 +9,7 @@ import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 import lombok.Data;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author moji
@@ -107,4 +109,16 @@ public class DataSource {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+
+    public LinkedHashMap<String,Object> getExtendMap() {
+        if (ObjectUtils.isEmpty(extendInfo)) {
+            return new LinkedHashMap<>();
+        }
+        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+        for (KeyValue keyValue : extendInfo) {
+            map.put(keyValue.getKey(),keyValue.getValue());
+        }
+        return map;
+    }
 }

@@ -18,7 +18,7 @@ import org.springframework.util.StringUtils;
 public class CacheManage {
     private static final String PATH = System.getProperty("user.home") + File.separator + ".chat2db"
         + File.separator
-        + "cache" + File.separator + "chat2db-ehcache-data";
+        + "cache" + File.separator + "chat2db-ehcache-data_" +System.getProperty("spring.profiles.active");
 
     private static final String CACHE = "meta_cache";
     private static CacheManager cacheManager;
@@ -51,7 +51,6 @@ public class CacheManage {
         return null;
     }
 
-
     public static <T> T get(String key, Class<T> clazz, Function<Object, Boolean> refresh,
         Function<Object, T> function) {
         T t;
@@ -67,7 +66,6 @@ public class CacheManage {
         }
         return t;
     }
-
 
     public static <T> List<T> getList(String key, Class<T> clazz, Function<Object, Boolean> refresh,
         Function<Object, List<T>> function) {
@@ -93,6 +91,5 @@ public class CacheManage {
     public static void close() {
         cacheManager.close();
     }
-
 
 }
