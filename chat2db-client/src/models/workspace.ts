@@ -8,7 +8,7 @@ import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
   dataSourceId: number;
-  databaseSourceName: string;
+  dataSourceName: string;
   databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
