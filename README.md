@@ -1,4 +1,3 @@
-<h1 align="center">Chat2DB</h1>
 
 <div align="center">
 
