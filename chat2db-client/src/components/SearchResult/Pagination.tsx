@@ -46,6 +46,7 @@ export default function Pagination(props: IProps) {
 
   const handleClickIcon = async (type: IIconType) => {
     if (!onPageNoChange || !data) return;
+    if (handleIsDisabled(type)) return;
     switch (type) {
       case 'first':
         onPageNoChange(1);
