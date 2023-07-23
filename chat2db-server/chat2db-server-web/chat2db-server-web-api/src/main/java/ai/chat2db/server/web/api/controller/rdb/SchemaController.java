@@ -9,6 +9,7 @@ import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateSchemaRequest;
@@ -19,9 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@ConnectionInfoAspect
+@RequestMapping("/api/rdb/schema")
+@RestController
 public class SchemaController {
-
 
     @Autowired
     private TableService tableService;
@@ -43,7 +48,8 @@ public class SchemaController {
      */
     @GetMapping("/list")
     public ListResult<SchemaVO> list(@Valid DataSourceBaseRequest request) {
-        SchemaQueryParam queryParam = SchemaQueryParam.builder().dataBaseName(request.getDatabaseName()).build();
+        SchemaQueryParam queryParam = SchemaQueryParam.builder().dataSourceId(request.getDataSourceId()).dataBaseName(
+            request.getDatabaseName()).refresh(request.isRefresh()).build();
         ListResult<Schema> tableColumns = databaseService.querySchema(queryParam);
         List<SchemaVO> tableVOS = rdbWebConverter.schemaDto2vo(tableColumns.getData());
         return ListResult.of(tableVOS);
