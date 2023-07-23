@@ -111,6 +111,7 @@
     },
     "linux": {
       "maintainer": "Jerry Fan, huanyueyaoqin@qq.com",
+      "category": "Network;",
       "target": [
         "AppImage",
         "deb"
