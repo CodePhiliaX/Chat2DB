@@ -77,10 +77,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurDBOptions(dbList);
-      if (!dbList.length) {
-        return
-      }
-      getSchemaList(dbList[0].label, refresh);
+      getSchemaList(dbList[0]?.label, refresh);
     }).catch(error => {
       setCascaderLoading(false)
     })
@@ -112,10 +109,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
         databaseType: curConnection.type,
-        databaseName: databaseName,
-      }
-      if (schemaList[0]?.label) {
-        data.schemaName = schemaList[0]?.label
+        databaseName: databaseName || null,
+        schemaName: schemaList[0]?.label || null
       }
 
       setCurWorkspaceParams(data)
@@ -125,7 +120,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
         databaseType: curConnection.type,
-        databaseName: databaseName,
+        databaseName: databaseName || null,
       })
     }).finally(() => {
       setCascaderLoading(false)
@@ -225,7 +220,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={connectionOptions}
         onChange={connectionChange}
         bordered={false}
-        defaultValue={[curConnection?.id]}
+      // defaultValue={[curConnection?.id]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
