@@ -40,7 +40,7 @@ export default function SettingAI(props: IProps) {
 
     handleUpdateAiConfig &&
       handleUpdateAiConfig({
-        key: newChatGPTConfig.apiKey,
+        key: newChatGPTConfig.chat2dbApiHost,
         aiType: newChatGPTConfig.aiSqlSource,
       });
   }
