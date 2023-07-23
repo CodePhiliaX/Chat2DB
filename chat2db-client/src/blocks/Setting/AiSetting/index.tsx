@@ -7,7 +7,6 @@ import classnames from 'classnames';
 import Popularize from '@/components/Popularize';
 import { IAIState } from '@/models/ai';
 import styles from './index.less';
-const path = require('path');
 
 interface IProps {
   handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
@@ -33,7 +32,7 @@ export default function SettingAI(props: IProps) {
       newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
     }
     if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-      newChatGPTConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
+      newChatGPTConfig.chat2dbApiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
     }
     configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
       message.success(i18n('common.text.submittedSuccessfully'));
@@ -68,9 +67,9 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.chat2dbApiKey')}
-              value={chatGPTConfig.apiKey}
+              value={chatGPTConfig.chat2dbApiKey}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, apiKey: e.target.value });
+                setChatGPTConfig({ ...chatGPTConfig, chat2dbApiKey: e.target.value });
               }}
             />
           </div>

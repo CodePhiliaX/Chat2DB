@@ -14,6 +14,7 @@ export enum TableDataType {
   ROWID = 'ROWID',
   ANY = 'ANY',
   UNKNOWN = 'UNKNOWN',
+  CHAT2DB_ROW_NUMBER = 'CHAT2DB_ROW_NUMBER',
 }
 
 export enum StatusType {

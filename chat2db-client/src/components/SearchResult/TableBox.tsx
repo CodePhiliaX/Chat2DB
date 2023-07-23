@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { TableDataType } from '@/constants/table';
 import { IManageResultData, ITableHeaderItem } from '@/typings/database';
 import { formatDate } from '@/utils/date';
-import { Button, message, Modal, Table } from 'antd';
+import { Button, message, Modal, Pagination, Table } from 'antd';
 import antd from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem, BaseTableProps } from 'ali-react-table';
 import Iconfont from '../Iconfont';
@@ -75,13 +75,29 @@ export default function TableBox(props: ITableProps) {
     () =>
       (headerList || []).map((item, index) => {
         const { dataType, name } = item;
-        const isFirstLine = index === 0;
         const isNumber = dataType === TableDataType.NUMERIC;
+        const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
+        if (isNumericalOrder) {
+          return {
+            code: 'No.',
+            name: 'No.',
+            key: name,
+            lock: true,
+            width: 48,
+            features: { sortable: compareStrings },
+            render: (value: any) => {
+              return (
+                <div className={styles.tableItem}>
+                  <div>{value}</div>
+                </div>
+              );
+            },
+          };
+        }
         return {
           code: name,
           name: name,
           key: name,
-          lock: isFirstLine,
           width: 120,
           render: (value: any, row: any, rowIndex: number) => {
             return (
@@ -94,6 +110,7 @@ export default function TableBox(props: ITableProps) {
               </div>
             );
           },
+          // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
           features: { sortable: isNumber ? compareStrings : true },
         };
       }),
@@ -111,7 +128,7 @@ export default function TableBox(props: ITableProps) {
           if (type === TableDataType.DATETIME && i) {
             rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
           } else if (i === null) {
-            rowData[columns[index].name] = '[null]';
+            rowData[columns[index].name] = '';
           } else {
             rowData[columns[index].name] = i;
           }
@@ -147,17 +164,24 @@ export default function TableBox(props: ITableProps) {
   return (
     <div className={classnames(className, styles.tableBox)}>
       {columns.length ? (
-        // <Table pagination={false} columns={columns} dataSource={tableData} scroll={{ y: '100vh' }} size="small" />
         <>
+          {/* <div className={styles.toolBar}>
+            <div className={styles.toolBarItem}>
+              <Pagination className={styles.pagination} simple defaultCurrent={2} total={50} pageSize={1} />
+            </div>
+          </div> */}
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-            isLoading={isLoading}
+            // isStickyHead
+            // stickyTop={24}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>{`${i18n('common.text.result')}：${description}. ${i18n(
-            'common.text.timeConsuming',
-          )}：${duration}ms`}</div>
+          <div className={styles.statusBar}>
+            <span>{`【${i18n('common.text.result')}】${description}.`}</span>
+            <span>{`【${i18n('common.text.timeConsuming')}】${duration}ms.`}</span>
+            <span>{`【${i18n('common.text.searchRow')}】${tableData.length} ${i18n('common.text.row')}.`}</span>
+          </div>
         </>
       ) : (
         <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />

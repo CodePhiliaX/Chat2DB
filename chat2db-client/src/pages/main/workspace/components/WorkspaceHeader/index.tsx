@@ -94,6 +94,9 @@ const WorkspaceHeader = memo<IProps>((props) => {
   };
 
   function connectionChange(id: any, data: any) {
+    // if(id[0] === curConnection?.id){
+    //   return
+    // }
     connectionList.map(t => {
       if (t.id === id[0]) {
         dispatch({
@@ -109,7 +112,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }
 
   return <>
-
     {curConnection && !!connectionList.length && curWorkspaceParams && <div className={styles.workspaceHeader}>
       <div className={styles.databaseLogo}>
         {curConnection?.type ?
@@ -124,6 +126,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={connectionListOptions}
         onChange={connectionChange}
         bordered={false}
+        defaultValue={[curConnection?.id]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curConnection?.alias}</div>
@@ -136,6 +139,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         options={cascaderOptions}
         onChange={databaseChange}
         bordered={false}
+        // defaultValue={[curWorkspaceParams.databaseName]}
       >
         <div className={styles.crumbsItem}>
           <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
@@ -151,6 +155,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           options={curSchemaOptions}
           onChange={schemaChange}
           bordered={false}
+          // defaultValue={[curWorkspaceParams.schemaName]}
         >
           <div className={styles.crumbsItem}>
             <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
