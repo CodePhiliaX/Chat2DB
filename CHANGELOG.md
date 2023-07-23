@@ -2,8 +2,9 @@
 
 ## ⭐ New Features
 
-- Support for querying data pagination
-- 
+- Support for querying data pagination.
+- Support switching between multiple databases in PostgreSQL.
+- Support for hot updating of client-side code allows for rapid bug fixes.
 
 ## 🐞 Bug Fixes
 
@@ -12,6 +13,8 @@
 ## ⭐ 新特性
 
 - 支持查询数据分页
+- 支持PostgreSQL数据库多个database的切换
+- 支持客户端代码热更新可以快速修复bug
 
 ## 🐞 问题修复
 
