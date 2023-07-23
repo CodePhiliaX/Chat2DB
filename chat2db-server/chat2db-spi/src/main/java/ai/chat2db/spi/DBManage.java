@@ -2,6 +2,7 @@ package ai.chat2db.spi;
 
 import java.sql.Connection;
 
+import ai.chat2db.spi.sql.ConnectInfo;
 import jakarta.validation.constraints.NotEmpty;
 
 /**
@@ -9,6 +10,13 @@ import jakarta.validation.constraints.NotEmpty;
  * @version : DBManage.java
  */
 public interface DBManage {
+
+
+    /**
+     * Create connection
+     * @param connectInfo
+     */
+    Connection getConnection(ConnectInfo connectInfo);
 
     /**
      * @param database
