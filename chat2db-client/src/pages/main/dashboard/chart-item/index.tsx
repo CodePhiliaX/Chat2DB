@@ -132,13 +132,39 @@ function ChartItem(props: IChartItemProps) {
     dataSource.children = handleDatabaseAndSchema(res);
     setCascaderOption([...cascaderOption]);
   };
+
+  const handleExecuteSQL = async (sql: string, chartData: IChartItem) => {
+    setIsLoading(true);
+
+    const { dataSourceId, databaseName } = chartData;
+
+    let executeSQLParams: IExecuteSqlParams = {
+      sql,
+      dataSourceId,
+      databaseName,
+    };
+
+    // 获取当前SQL的查询结果
+    let sqlResult = await sqlService.executeSql(executeSQLParams);
+
+    let sqlData;
+    if (sqlResult && sqlResult[0]) {
+      sqlData = handleSQLResult2ChartData(sqlResult[0]);
+    }
+    setChartData({
+      ...chartData,
+      ddl: sql,
+      sqlData,
+    });
+    setIsLoading(false);
+  };
+
   /** 根据id请求Chart数据 */
   const queryChartData = async () => {
     setIsLoading(true);
 
     const { id } = props;
     let res = await getChartById({ id });
-    const { dataSourceId, databaseName, ddl } = res;
     setChartData(res);
 
     // 设置级联value
@@ -150,25 +176,26 @@ function ChartItem(props: IChartItemProps) {
     const formValue = JSON.parse(res.schema || '{}');
     form.setFieldsValue(formValue);
 
-    if (ddl) {
-      setInitDDL(ddl || '');
-      let p: IExecuteSqlParams = {
-        sql: res?.ddl ?? '',
-        dataSourceId,
-        databaseName,
-      };
-      sqlService.executeSql(p).then((result) => {
-        let sqlData;
-        if (result && result[0]) {
-          sqlData = handleSQLResult2ChartData(result[0]);
-        }
+    if (res.ddl) {
+      setInitDDL(res.ddl);
+      handleExecuteSQL(res.ddl, res);
+      // let p: IExecuteSqlParams = {
+      //   sql: res?.ddl ?? '',
+      //   dataSourceId,
+      //   databaseName,
+      // };
+      // sqlService.executeSql(p).then((result) => {
+      //   let sqlData;
+      //   if (result && result[0]) {
+      //     sqlData = handleSQLResult2ChartData(result[0]);
+      //   }
 
-        setChartData({
-          ...res,
-          ...chartData,
-          sqlData,
-        });
-      });
+      //   setChartData({
+      //     ...res,
+      //     ...chartData,
+      //     sqlData,
+      //   });
+      // });
     }
     setIsLoading(false);
   };
@@ -319,28 +346,6 @@ function ChartItem(props: IChartItemProps) {
     };
   }, [initDDL]);
 
-  const handleExecuteSQL = async (sql: string) => {
-    setIsLoading(true);
-    let executeSQLParams: IExecuteSqlParams = {
-      sql,
-      ...data,
-    };
-
-    // 获取当前SQL的查询结果
-    let sqlResult = await sqlService.executeSql(executeSQLParams);
-
-    let sqlData;
-    if (sqlResult && sqlResult[0]) {
-      sqlData = handleSQLResult2ChartData(sqlResult[0]);
-    }
-    setChartData({
-      ...chartData,
-      ddl: sql,
-      sqlData,
-    });
-    setIsLoading(false);
-  };
-
   const renderEditorBlock = () => {
     const { sqlData = {} } = chartData || {};
     const options = Object.keys(sqlData).map((i) => ({ label: i, value: i }));
@@ -356,7 +361,7 @@ function ChartItem(props: IChartItemProps) {
               hasAi2Lang={false}
               hasSaveBtn={false}
               value={chartData?.ddl}
-              onExecuteSQL={handleExecuteSQL}
+              onExecuteSQL={(sql: string) => handleExecuteSQL(sql, chartData)}
               editorOptions={{
                 lineNumbers: 'off',
                 theme:
