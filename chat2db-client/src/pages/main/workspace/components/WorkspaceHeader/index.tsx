@@ -52,7 +52,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
         setCurDBOptions([])
         setCurSchemaOptions([])
       }
-
       getDatabaseList(false);
     }
   }, [curConnection]);
@@ -61,7 +60,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
     if (!curConnection?.id) {
       return
     }
-    curWorkspaceParams
     treeConfig[TreeNodeType.DATA_SOURCE].getChildren?.({
       dataSourceId: curConnection.id,
       refresh,
@@ -71,6 +69,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceName: curConnection.name,
       }
     }).then(res => {
+      res = []
       const dbList = res?.map((t) => {
         return {
           value: t.key,
@@ -86,7 +85,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }
 
   function getSchemaList(databaseName: string | null | undefined, refresh = false) {
-    if (!curConnection?.id || !databaseName) {
+    if (!curConnection?.id) {
       return
     }
     treeConfig[TreeNodeType.DATABASE].getChildren?.({
