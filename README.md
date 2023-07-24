@@ -46,38 +46,33 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 
 ## ⏬ Download and Install
 
-| Description | Download                                                                                                                                               |
-| ----------- |--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows     | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg)         |
-| MacOS X64   | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg)                     |
-| Jar 包      | [https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip)       |
+[Downloading installation package from GitHub](https://github.com/chat2db/Chat2DB/releases) 
+
+or
+
+[Downloading installation package from official website](https://sqlgpt.cn/docs/guides/download) 
+
+
 
 ## 🚀 Supported databases
 
-| Databases     | Status   |
-| ------------- | -------- |
-| Mysql         | ✅       |
-| H2            | ✅       |
-| Oracle        | ✅       |
-| PostgreSQL    | ✅       |
-| SQLServer     | ✅       |
-| SQLLite       | ✅       |
-| MariaDB       | ✅       |
-| ClickHouse    | ✅       |
-| DM            | ✅       |
-| Presto        | ✅       |
-| DB2           | ✅       |
-| OceanBase     | ✅       |
-| Redis         | ✅       |
-| Hive          | ✅       |
-| KingBase      | ✅       |
-| MongoDB       | ✅       |
-| Hbase         | Planning |
-| Elasticsearch | Planning |
-| openGauss     | Planning |
-| TiDB          | Planning |
-| InfluxDB      | Planning |
+Chat2DB supports connecting to the following databases:
+- MySQL
+- PostgreSQL
+- H2
+- Oracle
+- SQLServer
+- SQLLite
+- MariaDB
+- ClickHouseare
+- DM
+- Presto
+- DB2
+- OceanBase
+- Hive
+- KingBase
+
+Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
 
 ## 🌰 Demo
 
