@@ -19,16 +19,15 @@ export default defineConfig({
   define: {
     'process.env.UMI_ENV': process.env.UMI_ENV,
   },
-  // headScripts: [
-  //   { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
-  //   `window.dataLayer = window.dataLayer || [];
-  //   function gtag() {
-  //     window.dataLayer.push(arguments);
-  //   }
-  //   gtag('js', new Date());
-  //   gtag('config', 'G-V8M4E5SF61', {
-  //     platform: 'WEB',
-  //     version: '${yarn_config['app_version']}'
-  //   });`,
-  // ],
+  headScripts: [
+    `window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-V8M4E5SF61', {
+      platform: 'WEB',
+      version: '${yarn_config['app_version']}'
+    });`,
+  ],
 });
