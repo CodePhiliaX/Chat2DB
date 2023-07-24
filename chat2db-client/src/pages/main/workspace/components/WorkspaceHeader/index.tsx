@@ -69,7 +69,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
         dataSourceName: curConnection.name,
       }
     }).then(res => {
-      res = []
       const dbList = res?.map((t) => {
         return {
           value: t.key,
