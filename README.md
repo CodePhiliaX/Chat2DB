@@ -48,7 +48,6 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 
 [Downloading installation package from GitHub](https://github.com/chat2db/Chat2DB/releases) 
 
-or
 
 [Downloading installation package from official website](https://sqlgpt.cn/docs/guides/download) 
 
