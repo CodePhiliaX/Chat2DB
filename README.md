@@ -72,7 +72,7 @@ Chat2DB supports connecting to the following databases:
 - Hive
 - KingBase
 
-Redis and MongoDB are partially supported.Hbase Elasticsearch openGauss TiDB InfluxDB 
+Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
 
 ## 🌰 Demo
 
