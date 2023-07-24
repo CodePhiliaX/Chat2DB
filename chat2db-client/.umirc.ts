@@ -51,6 +51,15 @@ export default defineConfig({
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
     { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
+    // `window.dataLayer = window.dataLayer || [];
+    // function gtag() {
+    //   window.dataLayer.push(arguments);
+    // }
+    // gtag('js', new Date());
+    // gtag('config', 'G-V8M4E5SF61', {
+    //   platform: 'WEB',
+    //   version: '1.0.0'
+    // });`,
   ],
   favicons: ['logo.ico'],
   define: {
