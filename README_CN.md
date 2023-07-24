@@ -53,38 +53,33 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 ## ⏬ 下载安装
 
-| 描述                     | 下载地址                                                                                                                                                   |
-| ------------------------ |--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows                  | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe) |
-| MacOS ARM64 (Apple 芯片) | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg)         |
-| MacOS X64 (Intel 芯片)   | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg)                     |
-| Jar 包                   | [https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip)       |
+
+[GitHub下载安装包](https://github.com/chat2db/Chat2DB/releases) 
+
+或
+
+[官网下载安装包](https://sqlgpt.cn/docs/guides/download) 
 
 ## 🚀 支持的数据库
 
-| 数据库        | 支持计划 |
-| ------------- | -------- |
-| Mysql         | ✅       |
-| H2            | ✅       |
-| Oracle        | ✅       |
-| PostgreSQL    | ✅       |
-| SQLServer     | ✅       |
-| SQLLite       | ✅       |
-| MariaDB       | ✅       |
-| ClickHouse    | ✅       |
-| DM            | ✅       |
-| Presto        | ✅       |
-| DB2           | ✅       |
-| OceanBase     | ✅       |
-| Redis         | ✅       |
-| Hive          | ✅       |
-| KingBase      | ✅       |
-| MongoDB       | ✅       |
-| Hbase         | Planning |
-| Elasticsearch | Planning |
-| openGauss     | Planning |
-| TiDB          | Planning |
-| InfluxDB      | Planning |
+Chat2DB 支持的数据库连接有:
+- MySQL
+- PostgreSQL
+- H2
+- Oracle
+- SQLServer
+- SQLLite
+- MariaDB
+- ClickHouseare
+- DM
+- Presto
+- DB2
+- OceanBase
+- Hive
+- KingBase
+
+Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
+
 
 ## 🌰 使用 Demo
 
