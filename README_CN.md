@@ -40,10 +40,10 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 ## ✨ 特性
 
 - 🌈 AI 智能助手，支持自然语言转 SQL、SQL 转自然语言、SQL 优化建议
-- 🔥 SQL 查询、AI 查询和数据报表完美集成的一体化解决方案设计与实现
-- 👭 支持团队协作，研发无需知道线上数据库密码，解决企业数据库账号安全问题
+- 🔥 智能报表，利用AIGC能力，一句话生成报表。
+- 👭 支持个人模式、支持团队协作模式，让研发协同效率更高。
+- 🔌 除支持目前主流数据库外，还支持国产数据库如：达梦、Oceanbase、北大金仓。
 - ⚙️ 强大的数据管理能力，支持数据表、视图、存储过程、函数、触发器、索引、序列、用户、角色、授权等管理
-- 🔌 强大的扩展能力，目前已经支持 MySQL、PostgreSQL、Oracle、SQLServer、ClickHouse、OceanBase、H2、SQLite 等等，未来会支持更多的数据库
 - 🛡 前端使用 Electron 开发，提供 Windows、Mac、Linux 客户端、网页版本一体化的解决方案
 - 🎁 支持环境隔离、线上、日常数据权限分离
 
@@ -53,38 +53,33 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 ## ⏬ 下载安装
 
-| 描述                     | 下载地址                                                                                                                                                   |
-| ------------------------ |--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Windows                  | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB%20Setup%202.0.5.exe) |
-| MacOS ARM64 (Apple 芯片) | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5-arm64.dmg)         |
-| MacOS X64 (Intel 芯片)   | [https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg](https://oss-chat2db.alibaba.com/release/2.0.5/Chat2DB-2.0.5.dmg)                     |
-| Jar 包                   | [https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/release/2.0.5/chat2db-server-start.zip)       |
+
+[GitHub下载安装包](https://github.com/chat2db/Chat2DB/releases) 
+
+或
+
+[官网下载安装包](https://sqlgpt.cn/docs/guides/download) 
 
 ## 🚀 支持的数据库
 
-| 数据库        | 支持计划 |
-| ------------- | -------- |
-| Mysql         | ✅       |
-| H2            | ✅       |
-| Oracle        | ✅       |
-| PostgreSQL    | ✅       |
-| SQLServer     | ✅       |
-| SQLLite       | ✅       |
-| MariaDB       | ✅       |
-| ClickHouse    | ✅       |
-| DM            | ✅       |
-| Presto        | ✅       |
-| DB2           | ✅       |
-| OceanBase     | ✅       |
-| Redis         | ✅       |
-| Hive          | ✅       |
-| KingBase      | ✅       |
-| MongoDB       | ✅       |
-| Hbase         | Planning |
-| Elasticsearch | Planning |
-| openGauss     | Planning |
-| TiDB          | Planning |
-| InfluxDB      | Planning |
+Chat2DB 支持的数据库连接有:
+- MySQL
+- PostgreSQL
+- H2
+- Oracle
+- SQLServer
+- SQLLite
+- MariaDB
+- ClickHouseare
+- DM
+- Presto
+- DB2
+- OceanBase
+- Hive
+- KingBase
+
+Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
+
 
 ## 🌰 使用 Demo
 
