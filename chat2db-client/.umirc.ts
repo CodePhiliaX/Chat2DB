@@ -1,5 +1,6 @@
 import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
+
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 // yarn run build --app_port=xx 获取打包时命令行传入的参数
@@ -48,13 +49,13 @@ export default defineConfig({
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
   ],
   favicons: ['logo.ico'],
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
     __APP_VERSION__: yarn_config.app_version || '0.0.0',
-    __APP_PORT__: yarn_config.app_port 
+    __APP_PORT__: yarn_config.app_port,
   },
 });

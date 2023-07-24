@@ -105,7 +105,7 @@ export default function TableBox(props: ITableProps) {
           render: (value: any, row: any, rowIndex: number) => {
             return (
               <div className={styles.tableItem}>
-                <div>{value}</div>
+                {value}
                 <div className={styles.tableHoverBox}>
                   <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
                   <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
@@ -194,7 +194,7 @@ export default function TableBox(props: ITableProps) {
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
-            stickyTop={30}
+            stickyTop={31}
             {...pipeline.getProps()}
           />
           <div className={styles.statusBar}>

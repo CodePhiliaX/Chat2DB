@@ -20,6 +20,7 @@ export default defineConfig({
     'process.env.UMI_ENV': process.env.UMI_ENV,
   },
   headScripts: [
+    { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
     `window.dataLayer = window.dataLayer || [];
     function gtag() {
       window.dataLayer.push(arguments);
