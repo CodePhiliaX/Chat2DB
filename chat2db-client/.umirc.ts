@@ -50,7 +50,6 @@ export default defineConfig({
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
-    { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
   ],
   favicons: ['logo.ico'],
   define: {
