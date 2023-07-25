@@ -191,8 +191,12 @@ public class ConfigController {
             case OPENAI :
                 config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
                 config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+                config.setChat2dbApiKey("");
+                config.setChat2dbApiHost("");
                 break;
             case CHAT2DBAI:
+                config.setApiKey("");
+                config.setApiHost("");
                 config.setChat2dbApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
                 config.setChat2dbApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
                 break;
