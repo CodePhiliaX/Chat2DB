@@ -1,3 +1,13 @@
+# 2.0.6
+
+## 🐞 Bug Fixes
+
+- Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom disappears  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+
+## 🐞 问题修复
+
+- Fixed: 当选择的库下面表过多时最下面的“新建控制台”按钮消失  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+
 # 2.0.5
 
 ## ⭐ New Features

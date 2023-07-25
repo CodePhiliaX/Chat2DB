@@ -52,8 +52,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         setCurDBOptions([])
         setCurSchemaOptions([])
       }
-
-      getDatabaseList();
+      getDatabaseList(false);
     }
   }, [curConnection]);
 
@@ -77,13 +76,14 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurDBOptions(dbList);
-      getSchemaList(dbList[0]?.label, refresh);
+      const databaseName = curWorkspaceParams.dataSourceId !== curConnection?.id ? dbList[0]?.label : curWorkspaceParams.databaseName
+      getSchemaList(databaseName, refresh);
     }).catch(error => {
-      setCascaderLoading(false)
+      setCascaderLoading(false);
     })
   }
 
-  function getSchemaList(databaseName: string, refresh = false) {
+  function getSchemaList(databaseName: string | null | undefined, refresh = false) {
     if (!curConnection?.id) {
       return
     }
@@ -105,12 +105,13 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurSchemaOptions(schemaList);
+      const schemaName = curWorkspaceParams.dataSourceId !== curConnection?.id ? schemaList[0]?.label : curWorkspaceParams.schemaName
       const data: any = {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
         databaseType: curConnection.type,
         databaseName: databaseName || null,
-        schemaName: schemaList[0]?.label || null
+        schemaName: schemaName || null
       }
 
       setCurWorkspaceParams(data)
@@ -167,14 +168,12 @@ const WorkspaceHeader = memo<IProps>((props) => {
           setNoConnectionModal(true);
           return
         }
-        setNoConnectionModal(false)
+        setNoConnectionModal(false);
         if (curConnection?.id && res.data.length) {
-
           const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
           if (flag === -1) {
             connectionChange([res.data[0].id], [res.data[0]]);
           }
-
         }
       }
     });
@@ -194,12 +193,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
 
   // 数据库切换
   function databaseChange(valueArr: any, selectedOptions: any) {
-    const curWorkspaceParams = {
-      dataSourceId: curConnection!.id,
-      dataSourceName: curConnection!.alias,
-      databaseName: selectedOptions[0].value,
-      databaseType: curConnection!.type,
-    };
     getSchemaList(selectedOptions[0].label);
   };
 
