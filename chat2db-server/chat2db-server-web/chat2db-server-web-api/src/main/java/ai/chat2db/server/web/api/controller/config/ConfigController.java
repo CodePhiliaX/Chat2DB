@@ -71,12 +71,16 @@ public class ConfigController {
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
                 saveOpenAIConfig(request);
+                break;
             case CHAT2DBAI:
                 saveChat2dbAIConfig(request);
+                break;
             case RESTAI :
                 saveRestAIConfig(request);
+                break;
             case AZUREAI :
                 saveAzureAIConfig(request);
+                break;
         }
         return ActionResult.isSuccess();
     }
@@ -187,9 +191,11 @@ public class ConfigController {
             case OPENAI :
                 config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
                 config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+                break;
             case CHAT2DBAI:
                 config.setChat2dbApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
                 config.setChat2dbApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+                break;
         }
         config.setRestAiUrl(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : null);
         config.setRestAiStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
