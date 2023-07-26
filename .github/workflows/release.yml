@@ -109,6 +109,13 @@ jobs:
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
+      - name: Copy Jre for Linux
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          mkdir chat2db-client/static
+          cp -r $JAVA_HOME chat2db-client/static/jre
+          chmod -R 777 chat2db-client/static/jre/
+
       # 安装node
       - name: Install Node.js
         uses: actions/setup-node@main
@@ -221,6 +228,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           skip_build: true
           args: "-c.extraMetadata.version=${{ steps.chat2db_version.outputs.substring }} --linux"
+          release: true
 
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
@@ -316,5 +324,5 @@ jobs:
           content: |
             {
               "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang]https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage)"
+              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage](https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage)"
             }
