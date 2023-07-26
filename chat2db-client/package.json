@@ -94,7 +94,7 @@
       "shortcutName": "Chat2DB"
     },
     "mac": {
-      "icon": "src/assets/logo/logo.icns",
+      "icon": "src/assets/logo/logo.ico",
       "target": [
         "zip",
         "dmg"
@@ -107,10 +107,10 @@
         }
       ],
       "publisherName": "Chat2DB",
-      "icon": "src/assets/logo/logo.png"
+      "icon": "src/assets/logo/logo.webp"
     },
     "linux": {
-      "maintainer": "Jerry Fan, huanyueyaoqin@qq.com",
+      "maintainer": "Chat2DB, huanyueyaoqin@qq.com",
       "category": "Network;",
       "target": [
         "AppImage",
