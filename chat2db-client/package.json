@@ -94,7 +94,7 @@
       "shortcutName": "Chat2DB"
     },
     "mac": {
-      "icon": "src/assets/logo/logo.ico",
+      "icon": "src/assets/logo/logo.icns",
       "target": [
         "zip",
         "dmg"
@@ -107,7 +107,7 @@
         }
       ],
       "publisherName": "Chat2DB",
-      "icon": "src/assets/logo/logo.webp"
+      "icon": "src/assets/logo/logo.ico"
     },
     "linux": {
       "maintainer": "Chat2DB, huanyueyaoqin@qq.com",
