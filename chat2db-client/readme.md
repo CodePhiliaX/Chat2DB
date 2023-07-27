@@ -22,9 +22,9 @@
    注意：因为electron包比较难下载，如果yarn时electron下载失败或超时，可以删除掉chat2db-client/package.json下的electron，再次yarn
 
 ## TS书写规范
-  1. 所有的interfase 与 type 必须已I开头
-    `interfase IState { name: string }` // good
-    `interfase State { name: string }` // bad
+  1. 所有的interface 与 type 必须已I开头
+    `interface IState { name: string }` // good
+    `interface State { name: string }` // bad
   
 
 ## 如何使用国际化 
