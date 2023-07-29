@@ -27,6 +27,7 @@ import ai.chat2db.server.domain.api.enums.ExportSizeEnum;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
@@ -106,6 +107,7 @@ public class RdbDmlExportController {
         } else {
             doExportInsert(sql, response, fileName, dbType, tableName);
         }
+       String SS= ConfigUtils.APP_PATH;
     }
 
     private void doExportCsv(String sql, HttpServletResponse response, String fileName)
