@@ -29,4 +29,4 @@ jobs:
           ls ${{ env.JAVA_HOME }}
           ls ${{ env.JAVA_HOME }}/conf/security
           cat ${{ env.JAVA_HOME }}/conf/security/java.security
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
+          sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
