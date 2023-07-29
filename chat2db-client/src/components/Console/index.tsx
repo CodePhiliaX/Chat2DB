@@ -6,7 +6,6 @@ import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import { format } from 'sql-formatter';
-import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,7 +15,7 @@ import { ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import { chatErrorCodeArr, chatErrorToInvite, chatErrorToLogin } from '@/constants/chat';
+import { chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import styles from './index.less';
@@ -83,7 +82,6 @@ function Console(props: IProps) {
     appendValue,
     isActive,
     hasSaveBtn = true,
-    value,
     aiModel,
     dispatch,
     source,
@@ -103,6 +101,14 @@ function Console(props: IProps) {
   const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
+
+  /**
+   * 当前选择的AI类型是Chat2DBAi
+   */
+  const isChat2DBAi = useMemo(
+    () => aiModel.aiConfig.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
+    [aiModel.aiConfig.aiSqlSource],
+  );
 
   useEffect(() => {
     if (appendValue) {
@@ -170,7 +176,7 @@ function Console(props: IProps) {
     setIsLoading(true);
     const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
     setIsLoading(false);
-    // console.log('weiChatConfig', wechatQrCodeUrl, token);
+
     setPopularizeModal(true);
     setModalProps({
       imageUrl: wechatQrCodeUrl,
@@ -180,18 +186,19 @@ function Console(props: IProps) {
     if (shouldPoll) {
       let pollCnt = 0;
       aiFetchIntervalRef.current = setInterval(async () => {
-        const { apiKey } = await aiServer.getLoginStatus({ token });
+        const { apiKey } = (await aiServer.getLoginStatus({ token })) || {};
         pollCnt++;
         if (apiKey || pollCnt >= 60) {
           clearInterval(aiFetchIntervalRef.current);
         }
         if (apiKey) {
           setPopularizeModal(false);
+
           await dispatch({
-            type: 'ai/setKeyAndAiType',
+            type: 'ai/aiConfig',
             payload: {
-              key: apiKey,
-              aiType: AiSqlSourceType.CHAT2DBAI,
+              ...aiModel.aiConfig,
+              apiKey,
             },
           });
           await dispatch({
@@ -206,8 +213,8 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType) => {
-    const { key } = aiModel?.keyAndAiType;
-    if (!key) {
+    const { apiKey } = aiModel?.aiConfig;
+    if (!apiKey && isChat2DBAi) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
@@ -231,18 +238,20 @@ function Console(props: IProps) {
 
     const handleMessage = (message: string) => {
       setIsLoading(false);
-
+      console.log('message', message);
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
-          dispatch({
-            type: 'ai/fetchRemainingUse',
-            payload: {
-              key,
-            },
-          });
+          if (isChat2DBAi) {
+            dispatch({
+              type: 'ai/fetchRemainingUse',
+              payload: {
+                key: apiKey,
+              },
+            });
+          }
           if (isNL2SQL) {
             editorRef?.current?.setValue('\n\n\n');
           } else {
@@ -254,33 +263,27 @@ function Console(props: IProps) {
           return;
         }
 
-        // let hasError = false;
-        // chatErrorCodeArr.forEach((err) => {
-        //   if (message.includes(err)) {
-        //     hasError = true;
-        //   }
-        // });
         let hasErrorToLogin = false;
         chatErrorToLogin.forEach((err) => {
           if (message.includes(err)) {
             hasErrorToLogin = true;
           }
         });
-        let hasErrorToInvite = false;
-        chatErrorToInvite.forEach((err) => {
-          if (message.includes(err)) {
-            hasErrorToInvite = true;
-          }
-        });
-        if (hasErrorToLogin || hasErrorToInvite) {
+        // let hasErrorToInvite = false;
+        // chatErrorToInvite.forEach((err) => {
+        //   if (message.includes(err)) {
+        //     hasErrorToInvite = true;
+        //   }
+        // });
+        if (hasErrorToLogin) {
           closeEventSource();
           setIsLoading(false);
           hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
-          hasErrorToInvite && handleClickRemainBtn();
+          // hasErrorToInvite && handleClickRemainBtn();
           dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
-              key,
+              key: apiKey,
             },
           });
           return;
@@ -307,10 +310,6 @@ function Console(props: IProps) {
       onMessage: handleMessage,
       onError: handleError,
     });
-  };
-
-  const onPressChatInput = (value: string) => {
-    handleAiChat(value, IPromptType.NL_2_SQL);
   };
 
   const executeSQL = (sql?: string) => {
@@ -360,7 +359,7 @@ function Console(props: IProps) {
 
   const handleClickRemainBtn = async () => {
     if (
-      !aiModel.keyAndAiType.key ||
+      !aiModel.aiConfig.apiKey ||
       aiModel.remainingUse?.remainingUses === null ||
       aiModel.remainingUse?.remainingUses === undefined
     ) {
@@ -368,12 +367,12 @@ function Console(props: IProps) {
       return;
     }
 
-    setIsLoading(true);
-    const { tip, wechatQrCodeUrl } = (await aiServer.getInviteQrCode({})) || {};
-    setIsLoading(false);
+    // setIsLoading(true);
+    // const { tip, wechatQrCodeUrl } = (await aiServer.getInviteQrCode({})) || {};
+    // setIsLoading(false);
     setModalProps({
-      imageUrl: wechatQrCodeUrl,
-      tip,
+      // imageUrl: wechatQrCodeUrl,
+      tip: '测试测试==前往公众号',
     });
     setPopularizeModal(true);
   };
@@ -383,9 +382,12 @@ function Console(props: IProps) {
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
+            aiType={aiModel.aiConfig.aiSqlSource}
             tables={tableListName}
             remainingUse={aiModel.remainingUse}
-            onPressEnter={onPressChatInput}
+            onPressEnter={(value: string) => {
+              handleAiChat(value, IPromptType.NL_2_SQL);
+            }}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
               if (tables.length > 8) {
@@ -412,7 +414,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
