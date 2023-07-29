@@ -275,8 +275,8 @@ public class ConfigController {
      */
     @GetMapping("/system_config/ai")
     public DataResult<AIConfig> getChatAiSystemConfig(String aiSqlSource) {
+        DataResult<Config> dbSqlSource = configService.find(RestAIClient.AI_SQL_SOURCE);
         if (StringUtils.isBlank(aiSqlSource)) {
-            DataResult<Config> dbSqlSource = configService.find(RestAIClient.AI_SQL_SOURCE);
             if (Objects.nonNull(dbSqlSource.getData())) {
                 aiSqlSource = dbSqlSource.getData().getContent();
             }
@@ -284,39 +284,44 @@ public class ConfigController {
         AIConfig config = new AIConfig();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
         if (Objects.isNull(aiSqlSourceEnum)) {
-            aiSqlSourceEnum = AiSqlSourceEnum.CHAT2DBAI;
             aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+            config.setAiSqlSource(aiSqlSource);
+            return DataResult.of(config);
         }
         config.setAiSqlSource(aiSqlSource);
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
-                DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
-                DataResult<Config> apiHost = configService.find(OpenAIClient.OPENAI_HOST);
-                DataResult<Config> httpProxyHost = configService.find(OpenAIClient.PROXY_HOST);
-                DataResult<Config> httpProxyPort = configService.find(OpenAIClient.PROXY_PORT);
-                config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
-                config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
-                config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : null);
-                config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : null);
+                if (!StringUtils.equals(dbSqlSource.getData().getContent(), AiSqlSourceEnum.CHAT2DBAI.getCode())) {
+                    DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+                    DataResult<Config> apiHost = configService.find(OpenAIClient.OPENAI_HOST);
+                    DataResult<Config> httpProxyHost = configService.find(OpenAIClient.PROXY_HOST);
+                    DataResult<Config> httpProxyPort = configService.find(OpenAIClient.PROXY_PORT);
+                    config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : "");
+                    config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : "");
+                    config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : "");
+                    config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : "");
+                }
                 break;
             case CHAT2DBAI:
-                apiKey = configService.find(OpenAIClient.OPENAI_KEY);
-                apiHost = configService.find(OpenAIClient.OPENAI_HOST);
-                config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null);
-                config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : null);
+                if (!StringUtils.equals(dbSqlSource.getData().getContent(), AiSqlSourceEnum.OPENAI.getCode())) {
+                    DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+                    DataResult<Config> apiHost = configService.find(OpenAIClient.OPENAI_HOST);
+                    config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : "");
+                    config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : "");
+                }
                 break;
             case AZUREAI:
                 DataResult<Config> azureApiKey = configService.find(AzureOpenAIClient.AZURE_CHATGPT_API_KEY);
                 DataResult<Config> azureEndpoint = configService.find(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT);
                 DataResult<Config> azureDeployId = configService.find(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID);
-                config.setApiKey(Objects.nonNull(azureApiKey.getData()) ? azureApiKey.getData().getContent() : null);
-                config.setApiHost(Objects.nonNull(azureEndpoint.getData()) ? azureEndpoint.getData().getContent() : null);
-                config.setModel(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : null);
+                config.setApiKey(Objects.nonNull(azureApiKey.getData()) ? azureApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(azureEndpoint.getData()) ? azureEndpoint.getData().getContent() : "");
+                config.setModel(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : "");
                 break;
             case RESTAI:
                 DataResult<Config> restAiUrl = configService.find(RestAIClient.REST_AI_URL);
                 DataResult<Config> restAiHttpMethod = configService.find(RestAIClient.REST_AI_STREAM_OUT);
-                config.setApiHost(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : null);
+                config.setApiHost(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : "");
                 config.setStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
                     restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
                 break;
