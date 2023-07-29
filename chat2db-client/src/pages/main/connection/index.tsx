@@ -29,19 +29,9 @@ interface IProps {
 function Connections(props: IProps) {
   const { connectionModel, workspaceModel, dispatch } = props;
   const { connectionList } = connectionModel;
+  const { curWorkspaceParams } = workspaceModel;
   const volatileRef = useRef<any>();
-  // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
-
-  useEffect(() => {
-    getConnectionList();
-  }, []);
-
-  const getConnectionList = () => {
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
-  };
 
   function handleCreateConnections(database: IDatabase) {
     setCurConnection({
@@ -100,25 +90,42 @@ function Connections(props: IProps) {
                     {
                       key: 'EnterWorkSpace',
                       label: i18n('connection.button.connect'),
-                      onClick: () => {
+                      onClick: ({ domEvent }) => {
+                        domEvent.stopPropagation();
                         handleMenuItemDoubleClick(t);
                       },
                     },
                     {
                       key: 'Delete',
                       label: i18n('common.button.delete'),
-                      onClick: async ({ domEvent }) => {
+                      onClick: ({ domEvent }) => {
                         // 禁止冒泡到menuItem
                         domEvent.stopPropagation();
-                        await connectionService.remove({ id: key });
-                        setCurConnection({});
-                        getConnectionList();
+                        connectionService.remove({ id: key }).then(() => {
+                          if (curConnection.id === key) {
+                            setCurConnection({});
+                          }
+                          // // 如果当前工作区正好选中了这个连接，那么就把当前工作区的记录清空
+                          // if (curWorkspaceParams.dataSourceId === key) {
+                          //   dispatch({
+                          //     type: 'workspace/setCurWorkspaceParams',
+                          //     payload: {}
+                          //   })
+                          //   dispatch({
+                          //     type: 'connection/setCurConnection',
+                          //     payload: {}
+                          //   })
+                          // }
+                          dispatch({
+                            type: 'connection/fetchConnectionList',
+                          });
+                        })
                       },
                     },
                   ],
                 }}
               >
-                <div className={styles.moreButton}>
+                <div className={styles.moreButton} onClick={(e) => { e.stopPropagation() }}>
                   <Iconfont code="&#xe601;"></Iconfont>
                 </div>
               </Dropdown>
@@ -161,7 +168,14 @@ function Connections(props: IProps) {
                 closeCreateConnection={() => {
                   setCurConnection({});
                 }}
-                submitCallback={getConnectionList}
+                submitCallback={() => {
+                  dispatch({
+                    type: 'connection/fetchConnectionList',
+                    callback: (res: any) => {
+                      setCurConnection(res.data[res.data?.length - 1]);
+                    }
+                  });
+                }}
               />
             }
           </div>

@@ -59,7 +59,6 @@ export default memo<IProps>(function SearchResult(props) {
       return;
     }
 
-    // debugger;
     if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
       setCurrentTab(manageResultDataList[0].uuid);
     }
