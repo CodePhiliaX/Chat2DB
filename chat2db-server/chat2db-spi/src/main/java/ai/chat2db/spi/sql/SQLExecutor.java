@@ -8,20 +8,26 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.common.util.I18nUtils;
-import ai.chat2db.spi.model.*;
-
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.Header;
+import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.TableIndexColumn;
 import ai.chat2db.spi.util.ResultSetUtils;
 import cn.hutool.core.date.TimeInterval;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import static ai.chat2db.spi.util.ResultSetUtils.buildColumn;
 import static ai.chat2db.spi.util.ResultSetUtils.buildFunction;
@@ -67,7 +73,7 @@ public class SQLExecutor {
      */
 
     public <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
-        if (StringUtils.isEmpty(sql)) {
+        if (StringUtils.isBlank(sql)) {
             return null;
         }
         log.info("execute:{}", sql);
@@ -85,6 +91,48 @@ public class SQLExecutor {
         return null;
     }
 
+    public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
+        Consumer<List<String>> rowConsumer) {
+        Assert.notNull(sql, "SQL must not be null");
+        log.info("execute:{}", sql);
+        try (Statement stmt = connection.createStatement();) {
+            boolean query = stmt.execute(sql);
+            // 代表是查询
+            if (query) {
+                ResultSet rs = null;
+                try {
+                    rs = stmt.getResultSet();
+                    // 获取有几列
+                    ResultSetMetaData resultSetMetaData = rs.getMetaData();
+                    int col = resultSetMetaData.getColumnCount();
+
+                    // 获取header信息
+                    List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
+                    for (int i = 1; i <= col; i++) {
+                        headerList.add(Header.builder()
+                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                            .build());
+                    }
+                    headerConsumer.accept(headerList);
+
+                    while (rs.next()) {
+                        List<String> row = Lists.newArrayListWithExpectedSize(col);
+                        for (int i = 1; i <= col; i++) {
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i));
+                        }
+                        rowConsumer.accept(row);
+                    }
+                } finally {
+                    JdbcUtils.closeResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * 执行sql
      *
@@ -100,7 +148,7 @@ public class SQLExecutor {
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
             TimeInterval timeInterval = new TimeInterval();
-            boolean query = stmt.execute(sql.replaceFirst(";", ""));
+            boolean query = stmt.execute(sql);
             executeResult.setDescription(I18nUtils.getMessage("sqlResult.success"));
             // 代表是查询
             if (query) {
