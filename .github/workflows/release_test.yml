@@ -84,7 +84,7 @@ jobs:
       - name: Enable tls1
         if: ${{ runner.os == 'Linux' }}
         run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
 
       # 复制jre Windows
       - name: Copy Jre for Windows
@@ -281,7 +281,7 @@ jobs:
           content: |
             {
               "title": "Windows-test-打包完成通知",
-              "text": "# Windows-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[http://oss.sqlgpt.cn/test/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](http://oss.sqlgpt.cn/test/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
+              "text": "# Windows-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
             }
 
       # 构建完成通知
@@ -294,7 +294,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[http://oss.sqlgpt.cn/${{ github.run_id }}/chat2db-server-start.zip](http://oss.sqlgpt.cn/test/${{ github.run_id }}/chat2db-server-start.zip) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ github.run_id }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知
@@ -307,7 +307,7 @@ jobs:
           content: |
             {
               "title": "MacOS-arm64-test-构建完成通知",
-              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
+              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
             }
 
       # 构建完成通知
@@ -320,5 +320,5 @@ jobs:
           content: |
             {
               "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](http://oss.sqlgpt.cn/test/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
+              "text": "# Linux-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
             }
