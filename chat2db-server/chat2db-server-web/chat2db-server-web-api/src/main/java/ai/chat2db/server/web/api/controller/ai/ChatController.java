@@ -16,18 +16,18 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.tools.common.util.I18nUtils;
-import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
-import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
-import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatRole;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.enums.GptVersionType;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
+import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
@@ -35,10 +35,9 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.util.OpenAIClient;
+import ai.chat2db.spi.model.TableColumn;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.azure.ai.openai.models.ChatMessage;
-import com.azure.ai.openai.models.ChatRole;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unfbx.chatgpt.entity.chat.Message;
@@ -357,7 +356,7 @@ public class ChatController {
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
-        List<ChatMessage> messages = (List<ChatMessage>)LocalCache.CACHE.get(uid);
+        List<AzureChatMessage> messages = (List<AzureChatMessage>)LocalCache.CACHE.get(uid);
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
                 messages = messages.subList(1, contextLength);
@@ -365,12 +364,13 @@ public class ChatController {
         } else {
             messages = Lists.newArrayList();
         }
-        ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(prompt);
+        AzureChatMessage currentMessage = new AzureChatMessage(AzureChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
 
         sseEmitter.send(SseEmitter.event().id(uid).name("sseEmitter connected！！！！").data(LocalDateTime.now()).reconnectTime(3000));
         sseEmitter.onCompletion(() -> {
             log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on completion");
+            SseEmitter.event().id("[DONE]").data("[DONE]");
         });
         sseEmitter.onTimeout(
             () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on timeout#" + sseEmitter.getTimeout()));

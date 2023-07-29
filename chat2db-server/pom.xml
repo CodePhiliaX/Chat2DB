@@ -234,25 +234,6 @@
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.4</version>
             </dependency>
-             <dependency>
-                <groupId>com.azure</groupId>
-                <artifactId>azure-ai-openai</artifactId>
-                <version>1.0.0-beta.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-tcnative-boringssl-static</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>io.projectreactor.netty</groupId>
-                        <artifactId>reactor-netty-http</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>io.netty</groupId>
-                        <artifactId>netty-transport-native-kqueue</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
             <dependency>
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
