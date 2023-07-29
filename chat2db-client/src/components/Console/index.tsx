@@ -15,7 +15,7 @@ import { ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import { chatErrorToLogin } from '@/constants/chat';
+import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import styles from './index.less';
@@ -68,6 +68,7 @@ interface IProps {
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
   dispatch: Function;
+  remainingBtnLoading: boolean;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (sql: string) => void;
@@ -195,7 +196,7 @@ function Console(props: IProps) {
           setPopularizeModal(false);
 
           await dispatch({
-            type: 'ai/aiConfig',
+            type: 'ai/setAiConfig',
             payload: {
               ...aiModel.aiConfig,
               apiKey,
@@ -204,7 +205,7 @@ function Console(props: IProps) {
           await dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
-              key: apiKey,
+              apiKey,
             },
           });
         }
@@ -248,7 +249,7 @@ function Console(props: IProps) {
             dispatch({
               type: 'ai/fetchRemainingUse',
               payload: {
-                key: apiKey,
+                apiKey,
               },
             });
           }
@@ -269,12 +270,20 @@ function Console(props: IProps) {
             hasErrorToLogin = true;
           }
         });
-        // let hasErrorToInvite = false;
-        // chatErrorToInvite.forEach((err) => {
-        //   if (message.includes(err)) {
-        //     hasErrorToInvite = true;
-        //   }
-        // });
+        let hasKeyLimitedOrExpired = false;
+        chatErrorForKey.forEach((err) => {
+          if (message.includes(err)) {
+            hasKeyLimitedOrExpired = true;
+          }
+        });
+
+        if (hasKeyLimitedOrExpired) {
+          closeEventSource();
+          setIsLoading(false);
+          handlePopUp();
+          return;
+        }
+
         if (hasErrorToLogin) {
           closeEventSource();
           setIsLoading(false);
@@ -283,7 +292,7 @@ function Console(props: IProps) {
           dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
-              key: apiKey,
+              apiKey,
             },
           });
           return;
@@ -358,21 +367,28 @@ function Console(props: IProps) {
   );
 
   const handleClickRemainBtn = async () => {
-    if (
-      !aiModel.aiConfig.apiKey ||
-      aiModel.remainingUse?.remainingUses === null ||
-      aiModel.remainingUse?.remainingUses === undefined
-    ) {
+    if (!isChat2DBAi) return;
+
+    // chat2dbAi模型下，没有key，就需要登录
+    if (!aiModel.aiConfig.apiKey) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
+    handlePopUp();
+  };
 
-    // setIsLoading(true);
-    // const { tip, wechatQrCodeUrl } = (await aiServer.getInviteQrCode({})) || {};
-    // setIsLoading(false);
+  /**
+   * 弹框 关注公众号
+   */
+  const handlePopUp = () => {
     setModalProps({
-      // imageUrl: wechatQrCodeUrl,
-      tip: '测试测试==前往公众号',
+      imageUrl: 'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp',
+      tip: (
+        <>
+          {aiModel.remainingUse?.remainingUses === 0 && <p>Key次数用完或者过期</p>}
+          <p>微信扫描二维码并关注公众号“每天”可以获得 25 次 AI 使用机会。</p>
+        </>
+      ),
     });
     setPopularizeModal(true);
   };
@@ -382,9 +398,11 @@ function Console(props: IProps) {
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
+            disabled={isLoading}
             aiType={aiModel.aiConfig.aiSqlSource}
-            tables={tableListName}
             remainingUse={aiModel.remainingUse}
+            remainingBtnLoading={props.remainingBtnLoading}
+            tables={tableListName}
             onPressEnter={(value: string) => {
               handleAiChat(value, IPromptType.NL_2_SQL);
             }}
@@ -464,7 +482,8 @@ function Console(props: IProps) {
   );
 }
 
-const dvaModel = connect(({ ai }: { ai: IAIState }) => ({
+const dvaModel = connect(({ ai, loading }: { ai: IAIState; loading: any }) => ({
   aiModel: ai,
+  remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
 }));
 export default dvaModel(Console);
