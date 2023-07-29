@@ -8,6 +8,7 @@ import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
 import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
@@ -64,15 +65,15 @@ public class AiConfigController {
         // Representative successfully logged in
         if (StringUtils.isNotBlank(qrCodeResponse.getApiKey())) {
             SystemConfigParam param = SystemConfigParam.builder()
-                .code(OpenAIClient.OPENAI_KEY).content(qrCodeResponse.getApiKey())
+                .code(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).content(qrCodeResponse.getApiKey())
                 .build();
             configService.createOrUpdate(param);
             SystemConfigParam hostParam = SystemConfigParam.builder()
-                .code(OpenAIClient.OPENAI_HOST)
+                .code(Chat2dbAIClient.CHAT2DB_OPENAI_HOST)
                 .content(chat2dbProperties.getGateway().getModelBaseUrl() + "/model")
                 .build();
             configService.createOrUpdate(hostParam);
-            OpenAIClient.refresh();
+            Chat2dbAIClient.refresh();
         }
         return dataResult;
     }
@@ -107,7 +108,7 @@ public class AiConfigController {
     }
 
     private String getApiKey() {
-        DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+        DataResult<Config> apiKey = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
         return Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null;
     }
 }
