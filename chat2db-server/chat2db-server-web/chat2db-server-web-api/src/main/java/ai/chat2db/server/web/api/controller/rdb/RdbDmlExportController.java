@@ -1,28 +1,41 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.SQLUtils.FormatOption;
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
+import com.alibaba.druid.sql.ast.statement.SQLInsertStatement.ValuesClause;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.visitor.VisitorFeature;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.alibaba.excel.util.BeanMapUtils;
 import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 
 import ai.chat2db.server.domain.api.enums.ExportSizeEnum;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
-import ai.chat2db.server.domain.api.service.DlTemplateService;
+import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
-import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.JdbcUtils;
+import ai.chat2db.spi.util.SqlUtils;
+import cn.hutool.core.date.DatePattern;
 import com.google.common.collect.Lists;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -32,8 +45,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.beans.BeanMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,11 +61,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class RdbDmlExportController {
 
-    @Autowired
-    private RdbWebConverter rdbWebConverter;
+    /**
+     * Format insert statement
+     */
+    private static final FormatOption INSERT_FORMAT_OPTION = new FormatOption(true, false);
 
-    @Autowired
-    private DlTemplateService dlTemplateService;
+    static {
+        INSERT_FORMAT_OPTION.config(VisitorFeature.OutputNameQuote, true);
+    }
 
     /**
      * export data
@@ -66,20 +80,6 @@ public class RdbDmlExportController {
     public void export(@Valid @RequestBody DataExportRequest request, HttpServletResponse response) throws IOException {
         ExportSizeEnum exportSize = EasyEnumUtils.getEnum(ExportSizeEnum.class, request.getExportSize());
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
-        BeanMap beanMap = BeanMap.create(request);
-        log.info("x:{}", beanMap.get("sql"));
-
-        com.alibaba.excel.support.cglib.beans.BeanMap beanMap2 = BeanMapUtils.create(request);
-        log.info("te:{}", beanMap2.get("sql"));
-
-        if (exportType == ExportTypeEnum.CSV) {
-            doExportCsv(exportSize, request, response);
-        }
-
-    }
-
-    private void doExportCsv(ExportSizeEnum exportSize, DataExportRequest request, HttpServletResponse response)
-        throws IOException {
         String sql;
         if (exportSize == ExportSizeEnum.CURRENT_PAGE) {
             sql = request.getSql();
@@ -89,15 +89,29 @@ public class RdbDmlExportController {
         if (StringUtils.isBlank(sql)) {
             throw new ParamBusinessException("exportSize");
         }
-        //
-        //ublic void download(HttpServletResponse response) throws IOException {
-        //    // 这里注意 有同学反应使用swagger 会导致各种问题，请直接用浏览器或者用postman
-        response.setContentType("text/csv");
+        DbType dbType = JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+        SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+        if (!(sqlStatement instanceof SQLSelectStatement)) {
+            throw new BusinessException("dataSource.sqlAnalysisError");
+        }
+        String tableName = SqlUtils.getTableName(sql, dbType);
         response.setCharacterEncoding("utf-8");
-        // 这里URLEncoder.encode可以防止中文乱码 当然和easyexcel没有关系
-        String fileName = URLEncoder.encode("测试", StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+        String fileName = URLEncoder.encode(
+                tableName + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
+                StandardCharsets.UTF_8)
+            .replaceAll("\\+", "%20");
+
+        if (exportType == ExportTypeEnum.CSV) {
+            doExportCsv(sql, response, fileName);
+        } else {
+            doExportInsert(sql, response, fileName, dbType, tableName);
+        }
+    }
+
+    private void doExportCsv(String sql, HttpServletResponse response, String fileName)
+        throws IOException {
+        response.setContentType("text/csv");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".csv");
-        //    EasyExcel.write(response.getOutputStream(), DownloadData.class).sheet("模板").doWrite(data());
 
         ExcelWrapper excelWrapper = new ExcelWrapper();
         try {
@@ -119,6 +133,41 @@ public class RdbDmlExportController {
                 excelWrapper.getExcelWriter().finish();
             }
         }
+    }
+
+    private void doExportInsert(String sql, HttpServletResponse response, String fileName, DbType dbType,
+        String tableName)
+        throws IOException {
+        response.setContentType("text/sql");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".sql");
+
+        try (PrintWriter printWriter = response.getWriter()) {
+            InsertWrapper insertWrapper = new InsertWrapper();
+            SQLExecutor.getInstance().executeSql(Chat2DBContext.getConnection(), sql,
+                headerList -> insertWrapper.setHeaderList(
+                    EasyCollectionUtils.toList(headerList, header -> new SQLIdentifierExpr(header.getName())))
+                , dataList -> {
+                    SQLInsertStatement sqlInsertStatement = new SQLInsertStatement();
+                    sqlInsertStatement.setDbType(dbType);
+                    sqlInsertStatement.setTableSource(new SQLExprTableSource(tableName));
+                    sqlInsertStatement.getColumns().addAll(insertWrapper.getHeaderList());
+                    ValuesClause valuesClause = new ValuesClause();
+                    for (String s : dataList) {
+                        valuesClause.addValue(s);
+                    }
+                    sqlInsertStatement.setValues(valuesClause);
+
+                    printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
+                });
+        }
+    }
+
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class InsertWrapper {
+        private List<SQLIdentifierExpr> headerList;
     }
 
     @Data

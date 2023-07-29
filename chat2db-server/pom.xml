@@ -219,7 +219,7 @@
             <dependency>
                 <groupId>org.zalando</groupId>
                 <artifactId>logbook-spring-boot-starter</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-indexer -->

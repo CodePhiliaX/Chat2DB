@@ -9,7 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.alibaba.druid.DbType;
+import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
+import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLAlterTableAddColumn;
@@ -23,9 +25,12 @@ import com.alibaba.druid.sql.ast.statement.SQLColumnPrimaryKey;
 import com.alibaba.druid.sql.ast.statement.SQLCreateIndexStatement;
 import com.alibaba.druid.sql.ast.statement.SQLDropIndexStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLNotNullConstraint;
 import com.alibaba.druid.sql.ast.statement.SQLNullConstraint;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlPrimaryKey;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlUnique;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlCharExpr;
@@ -36,6 +41,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStateme
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStatement.Item;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlTableIndex;
 
+import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.util.EasyBooleanUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
@@ -55,6 +61,8 @@ import org.apache.commons.lang3.StringUtils;
  * @version : SqlUtils.java
  */
 public class SqlUtils {
+
+    public static final String DEFAULT_TABLE_NAME = "table1";
 
     public static List<Sql> buildSql(Table oldTable, Table newTable) {
         List<Sql> sqlList = new ArrayList<>();
@@ -430,4 +438,27 @@ public class SqlUtils {
     public static String formatSQLString(Object para) {
         return para != null ? " '" + para + "' " : null;
     }
+
+    public static String getTableName(String sql, DbType dbType) {
+        SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+        if (!(sqlStatement instanceof SQLSelectStatement sqlSelectStatement)) {
+            throw new BusinessException("dataSource.sqlAnalysisError");
+        }
+        SQLExprTableSource sqlExprTableSource = (SQLExprTableSource)getSQLExprTableSource(
+            sqlSelectStatement.getSelect().getFirstQueryBlock().getFrom());
+        if (sqlExprTableSource == null) {
+            return DEFAULT_TABLE_NAME;
+        }
+        return sqlExprTableSource.getTableName();
+    }
+
+    private static SQLTableSource getSQLExprTableSource(SQLTableSource sqlTableSource) {
+        if (sqlTableSource instanceof SQLExprTableSource sqlExprTableSource) {
+            return sqlExprTableSource;
+        } else if (sqlTableSource instanceof SQLJoinTableSource sqlJoinTableSource) {
+            return getSQLExprTableSource(sqlJoinTableSource.getLeft());
+        }
+        return null;
+    }
+
 }
