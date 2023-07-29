@@ -176,7 +176,6 @@ export default function CreateConnection(props: IProps) {
               : i18n('connection.message.testConnectResult', i18n('common.text.successful')),
           );
         } else {
-          submitCallback?.();
           message.success(
             type === submitType.UPDATE
               ? i18n('common.message.modifySuccessfully')
@@ -189,6 +188,7 @@ export default function CreateConnection(props: IProps) {
               id: res,
             });
           }
+          submitCallback?.();
         }
       })
       .finally(() => {
@@ -284,8 +284,7 @@ function RenderForm(props: IRenderFormProps) {
   const [dataSourceFormConfig, setDataSourceFormConfig] = useState<IConnectionConfig>(dataSourceFormConfigProps);
 
   useEffect(() => {
-    setDataSourceFormConfig(dataSourceFormConfigProps)
-    console.log(dataSourceFormConfigProps)
+    setDataSourceFormConfig(dataSourceFormConfigProps);
   }, [dataSourceFormConfigProps])
 
   const initialValuesMemo = useMemo(() => {

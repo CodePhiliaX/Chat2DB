@@ -2,7 +2,12 @@ package ai.chat2db.server.web.api.controller.ai.listener;
 
 import java.util.Objects;
 
-import com.azure.ai.openai.models.Completions;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatChoice;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatCompletions;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureCompletionsUsage;
+import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.entity.chat.Message;
 import lombok.SneakyThrows;
@@ -24,6 +29,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class AzureOpenAIEventSourceListener extends EventSourceListener {
 
     private SseEmitter sseEmitter;
+
+    private ObjectMapper mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     public AzureOpenAIEventSourceListener(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
@@ -53,8 +60,31 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
             sseEmitter.complete();
             return;
         }
+
+        AzureChatCompletions chatCompletions = mapper.readValue(data, AzureChatCompletions.class);
+        String text = "";
+        log.info("Model ID={} is created at {}.", chatCompletions.getId(),
+            chatCompletions.getCreated());
+        for (AzureChatChoice choice : chatCompletions.getChoices()) {
+            AzureChatMessage message = choice.getDelta();
+            if (message != null) {
+                log.info("Index: {}, Chat Role: {}", choice.getIndex(), message.getRole());
+                if (message.getContent() != null) {
+                    text = message.getContent();
+                }
+            }
+        }
+
+        AzureCompletionsUsage usage = chatCompletions.getUsage();
+        if (usage != null) {
+            log.info(
+                "Usage: number of prompt token is {}, number of completion token is {}, and number of total "
+                    + "tokens in request and response is {}.%n", usage.getPromptTokens(),
+                usage.getCompletionTokens(), usage.getTotalTokens());
+        }
+
         Message message = new Message();
-        message.setContent(data);
+        message.setContent(text);
         sseEmitter.send(SseEmitter.event()
             .id(null)
             .data(message)
@@ -89,16 +119,19 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
                 return;
             }
             ResponseBody body = response.body();
-            String bodyString = null;
+            String bodyString = Objects.nonNull(t) ? t.getMessage() : "";
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("Azure OpenAI  sse连接异常data：{}，异常：{}", bodyString, t);
+                if (StringUtils.isBlank(bodyString) && Objects.nonNull(t)) {
+                    bodyString = t.getMessage();
+                }
+                log.error("Azure OpenAI sse response：{}", bodyString);
             } else {
-                log.error("Azure OpenAI  sse连接异常data：{}，异常：{}", response, t);
+                log.error("Azure OpenAI sse response：{}，error：{}", response, t);
             }
             eventSource.cancel();
             Message message = new Message();
-            message.setContent("Azure OpenAI出现异常,请在帮助中查看详细日志：" + bodyString);
+            message.setContent("Azure OpenAI error：" + bodyString);
             sseEmitter.send(SseEmitter.event()
                 .id("[ERROR]")
                 .data(message));

@@ -2,21 +2,25 @@ package ai.chat2db.server.web.api.controller.ai.azure.client;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
-import com.azure.ai.openai.OpenAIClient;
-import com.azure.ai.openai.OpenAIClientBuilder;
-import com.azure.ai.openai.models.ChatChoice;
-import com.azure.ai.openai.models.ChatCompletions;
-import com.azure.ai.openai.models.ChatCompletionsOptions;
-import com.azure.ai.openai.models.ChatMessage;
-import com.azure.ai.openai.models.CompletionsUsage;
-import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.util.IterableStream;
+import ai.chat2db.server.web.api.controller.ai.azure.interceptor.AzureHeaderAuthorizationInterceptor;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatCompletionsOptions;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
+import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 自定义AI接口client
@@ -27,30 +31,115 @@ import org.apache.commons.lang3.StringUtils;
 public class AzureOpenAiStreamClient {
 
     /**
+     * apikey
+     */
+    @Getter
+    @NotNull
+    private String apiKey;
+
+    /**
+     * endpoint
+     */
+    @Getter
+    @NotNull
+    private String endpoint;
+
+    /**
      * deployId
      */
+    @Getter
     private String deployId;
 
     /**
-     * client
+     * okHttpClient
      */
-    private OpenAIClient client;
+    @Getter
+    private OkHttpClient okHttpClient;
+
 
     /**
-     * 构造实例对象
-     *
-     * @param apiKey
-     * @param endpoint
+     * @param builder
      */
-    public AzureOpenAiStreamClient(String apiKey, String endpoint, String deployId) {
-        this.deployId = deployId;
-        if (StringUtils.isBlank(apiKey)) {
-            return;
+    private AzureOpenAiStreamClient(Builder builder) {
+        this.apiKey = builder.apiKey;
+        this.endpoint = builder.endpoint;
+        this.deployId = builder.deployId;
+        if (Objects.isNull(builder.okHttpClient)) {
+            builder.okHttpClient = this.okHttpClient();
         }
-        this.client = new OpenAIClientBuilder()
-            .credential(new AzureKeyCredential(apiKey))
-            .endpoint(endpoint)
-            .buildClient();
+        okHttpClient = builder.okHttpClient;
+    }
+
+    /**
+     * okhttpclient
+     */
+    private OkHttpClient okHttpClient() {
+        OkHttpClient okHttpClient = new OkHttpClient
+            .Builder()
+            .addInterceptor(new AzureHeaderAuthorizationInterceptor(this.apiKey))
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(50, TimeUnit.SECONDS)
+            .readTimeout(50, TimeUnit.SECONDS)
+            .build();
+        return okHttpClient;
+    }
+
+    /**
+     * 构造
+     *
+     * @return
+     */
+    public static AzureOpenAiStreamClient.Builder builder() {
+        return new AzureOpenAiStreamClient.Builder();
+    }
+
+    public static final class Builder {
+        private String apiKey;
+
+        private String endpoint;
+
+        private String deployId;
+
+        /**
+         * 自定义OkhttpClient
+         */
+        private OkHttpClient okHttpClient;
+
+        public Builder() {
+        }
+
+        public AzureOpenAiStreamClient.Builder apiKey(String apiKeyValue) {
+            this.apiKey = apiKeyValue;
+            return this;
+        }
+
+        /**
+         * @param endpointValue
+         * @return
+         */
+        public AzureOpenAiStreamClient.Builder endpoint(String endpointValue) {
+            this.endpoint = endpointValue;
+            return this;
+        }
+
+        /**
+         * @param deployIdValue
+         * @return
+         */
+        public AzureOpenAiStreamClient.Builder deployId(String deployIdValue) {
+            this.deployId = deployIdValue;
+            return this;
+        }
+
+        public AzureOpenAiStreamClient.Builder okHttpClient(OkHttpClient val) {
+            this.okHttpClient = val;
+            return this;
+        }
+
+        public AzureOpenAiStreamClient build() {
+            return new AzureOpenAiStreamClient(this);
+        }
+
     }
 
     /**
@@ -59,49 +148,40 @@ public class AzureOpenAiStreamClient {
      * @param chatMessages
      * @param eventSourceListener
      */
-    public void streamCompletions(List<ChatMessage> chatMessages, EventSourceListener eventSourceListener) {
+    public void streamCompletions(List<AzureChatMessage> chatMessages, EventSourceListener eventSourceListener) {
         if (CollectionUtils.isEmpty(chatMessages)) {
-            log.error("参数异常：Azure Prompt不能为空");
+            log.error("param error：Azure Prompt cannot be empty");
             throw new ParamBusinessException("prompt");
         }
         if (Objects.isNull(eventSourceListener)) {
-            log.error("参数异常：AzureEventSourceListener不能为空");
+            log.error("param error：AzureEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("开始调用Azure Open AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
+        log.info("Azure Open AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
-            IterableStream<ChatCompletions> chatCompletionsStream = client.getChatCompletionsStream(deployId,
-                new ChatCompletionsOptions(chatMessages));
 
-            chatCompletionsStream.forEach(chatCompletions -> {
-                String text = "";
-                log.info("Model ID={} is created at {}.", chatCompletions.getId(),
-                    chatCompletions.getCreated());
-                for (ChatChoice choice : chatCompletions.getChoices()) {
-                    ChatMessage message = choice.getDelta();
-                    if (message != null) {
-                        log.info("Index: {}, Chat Role: {}", choice.getIndex(), message.getRole());
-                        text = message.getContent();
-                    }
-                }
-                if (Objects.nonNull(text)) {
-                    eventSourceListener.onEvent(null, "[DATA]", null, text);
-                }
-                CompletionsUsage usage = chatCompletions.getUsage();
-                if (usage != null) {
-                    log.info(
-                        "Usage: number of prompt token is {}, number of completion token is {}, and number of total "
-                            + "tokens in request and response is {}.%n", usage.getPromptTokens(),
-                        usage.getCompletionTokens(), usage.getTotalTokens());
-                }
-            });
-            log.info("结束调用非流式输出自定义AI");
+            AzureChatCompletionsOptions chatCompletionsOptions = new AzureChatCompletionsOptions(chatMessages);
+            chatCompletionsOptions.setStream(true);
+            chatCompletionsOptions.setModel(this.deployId);
+
+            EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
+            ObjectMapper mapper = new ObjectMapper();
+            String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
+            if (!endpoint.endsWith("/")) {
+                endpoint = endpoint + "/";
+            }
+            String url = this.endpoint + "openai/deployments/"+ deployId + "/chat/completions?api-version=2023-05-15";
+            Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
+                .build();
+            //创建事件
+            EventSource eventSource = factory.newEventSource(request, eventSourceListener);
+            log.info("finish invoking azure ai");
         } catch (Exception e) {
-            log.error("请求参数解析异常", e);
+            log.error("azure ai error", e);
             eventSourceListener.onFailure(null, e, null);
             throw new ParamBusinessException();
-        } finally {
-            eventSourceListener.onEvent(null, "[DONE]", null, "[DONE]");
         }
     }
 

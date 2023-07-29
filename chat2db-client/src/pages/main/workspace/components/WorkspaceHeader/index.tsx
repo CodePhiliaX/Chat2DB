@@ -1,16 +1,16 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
+import classnames from 'classnames';
 import { connect } from 'umi';
+import lodash from 'lodash';
+import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import styles from './index.less';
-import classnames from 'classnames';
 import { Cascader, Spin, Modal, Button } from 'antd';
-import Iconfont from '@/components/Iconfont';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
-import lodash from 'lodash';
-
+import { useUpdateEffect } from '@/hooks/useUpdateEffect'
+import styles from './index.less';
 
 interface IProps {
   className?: string;
@@ -32,17 +32,29 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const { curPage } = mainPageModel;
   const [cascaderLoading, setCascaderLoading] = useState(false);
   const [noConnectionModal, setNoConnectionModal] = useState(false);
+  const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
   const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
-  const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
-
-  // 第一次进入请求连接列表
-  useEffect(() => {
-    getConnectionList();
-  }, []);
 
   useEffect(() => {
-    if (curConnection?.id) {
+    if (curPage !== 'workspace') {
+      return
+    }
+    // 如果没有curConnection默认选第一个
+    if (!curConnection?.id && connectionList.length) {
+      connectionChange([connectionList[0].id], [connectionList[0]]);
+      return
+    }
+    // 如果都有的话
+    if (curConnection?.id && connectionList.length) {
+      // 如果curConnection不再connectionList里，也是默认选第一个
+      const flag = connectionList.findIndex((t: any) => t.id === curConnection?.id)
+      if (flag === -1) {
+        connectionChange([connectionList[0].id], [connectionList[0]]);
+        return
+      }
+
+      // 如果切换了curConnection 导致curWorkspaceParams与curConnection不同
       if (curWorkspaceParams.dataSourceId !== curConnection?.id) {
         setCurWorkspaceParams({
           dataSourceId: curConnection.id,
@@ -52,11 +64,34 @@ const WorkspaceHeader = memo<IProps>((props) => {
         setCurDBOptions([])
         setCurSchemaOptions([])
       }
+
+      // 获取database列表
       getDatabaseList(false);
     }
-  }, [curConnection]);
+  }, [connectionList, curConnection, curPage])
+
+  useUpdateEffect(() => {
+    // connectionList转换成可用的ConnectionOptions
+    setConnectionOptions(connectionList?.map(t => {
+      return {
+        value: t.id,
+        label: t.alias
+      }
+    }));
+    if (!connectionList.length) {
+      dispatch({
+        type: 'workspace/setCurWorkspaceParams',
+        payload: {}
+      })
+      dispatch({
+        type: 'connection/setCurConnection',
+        payload: {}
+      })
+    }
+  }, [connectionList])
 
   function getDatabaseList(refresh = false) {
+    setCascaderLoading(true);
     if (!curConnection?.id) {
       return
     }
@@ -76,7 +111,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurDBOptions(dbList);
-      const databaseName = curWorkspaceParams.dataSourceId !== curConnection?.id ? dbList[0]?.label : curWorkspaceParams.databaseName
+      // 如果是切换那么就默认取列表的第一个database， 如果不是切换那么就取缓存的，如果缓存没有还是取列表第一个（这里是兜底，如果原先他并没有database，后来他加了database，如果还是取缓存的空就不对了）
+      const databaseName = curWorkspaceParams.dataSourceId !== curConnection?.id ? dbList[0]?.label : curWorkspaceParams.databaseName || dbList[0]?.label
       getSchemaList(databaseName, refresh);
     }).catch(error => {
       setCascaderLoading(false);
@@ -105,7 +141,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         }
       }) || []
       setCurSchemaOptions(schemaList);
-      const schemaName = curWorkspaceParams.dataSourceId !== curConnection?.id ? schemaList[0]?.label : curWorkspaceParams.schemaName
+      const schemaName = curWorkspaceParams.dataSourceId !== curConnection?.id ? schemaList[0]?.label : curWorkspaceParams.schemaName || schemaList[0]?.label
       const data: any = {
         dataSourceId: curConnection.id,
         dataSourceName: curConnection.alias,
@@ -128,19 +164,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
     })
   }
 
-  useEffect(() => {
-    if (!curConnection && connectionList.length) {
-      connectionChange([connectionList[0].id], [connectionList[0]]);
-    }
-    const list = connectionList?.map(t => {
-      return {
-        value: t.id,
-        label: t.alias
-      }
-    })
-    setConnectionOptions(list);
-  }, [connectionList])
-
   function setCurWorkspaceParams(payload: IWorkspaceModelType['state']['curWorkspaceParams']) {
     if (lodash.isEqual(curWorkspaceParams, payload)) {
       return
@@ -152,29 +175,15 @@ const WorkspaceHeader = memo<IProps>((props) => {
     });
   }
 
-  const getConnectionList = (refresh = false) => {
+  const getConnectionList = () => {
     setCascaderLoading(true);
     dispatch({
       type: 'connection/fetchConnectionList',
       payload: {
-        refresh
+        refresh: true
       },
       callback: (res: any) => {
-        if (refresh) {
-          getDatabaseList(true);
-          return
-        }
-        if (curPage === 'workspace' && !res.data?.length) {
-          setNoConnectionModal(true);
-          return
-        }
-        setNoConnectionModal(false);
-        if (curConnection?.id && res.data.length) {
-          const flag = res.data.findIndex((t: any) => t.id === curConnection?.id)
-          if (flag === -1) {
-            connectionChange([res.data[0].id], [res.data[0]]);
-          }
-        }
+        getDatabaseList(true);
       }
     });
   };
@@ -182,7 +191,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   // 连接切换
   function connectionChange(id: any, data: any) {
     connectionList.map(t => {
-      if (t.id === id[0]) {
+      if (t.id === id[0] && curWorkspaceParams.dataSourceId !== id[0]) {
         dispatch({
           type: 'connection/setCurConnection',
           payload: t
@@ -193,68 +202,75 @@ const WorkspaceHeader = memo<IProps>((props) => {
 
   // 数据库切换
   function databaseChange(valueArr: any, selectedOptions: any) {
-    getSchemaList(selectedOptions[0].label);
+    if (selectedOptions[0].label !== curWorkspaceParams.databaseName) {
+      getSchemaList(selectedOptions[0].label);
+    }
   };
 
   // schema切换
   function schemaChange(valueArr: any, selectedOptions: any) {
-    setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value })
+    if (selectedOptions[0].label !== curWorkspaceParams.schemaName) {
+      setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value })
+    }
   }
 
   function handelRefresh() {
-    getConnectionList(true);
+    getConnectionList();
   }
 
   return <>
-    {<div className={styles.workspaceHeader}>
-      <Cascader
-        popupClassName={styles.cascaderPopup}
-        options={connectionOptions}
-        onChange={connectionChange}
-        bordered={false}
-      // defaultValue={[curConnection?.id]}
-      >
-        <div className={styles.crumbsItem}>
-          <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
-          <Iconfont className={styles.arrow} code="&#xe641;" />
-        </div>
-      </Cascader>
+    {
+      !!connectionList.length &&
+      <div className={styles.workspaceHeader}>
+        <Cascader
+          popupClassName={styles.cascaderPopup}
+          options={connectionOptions}
+          onChange={connectionChange}
+          bordered={false}
+          defaultValue={[curConnection?.id || '']}
+        >
+          <div className={styles.crumbsItem}>
+            <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
+            <Iconfont className={styles.arrow} code="&#xe641;" />
+          </div>
+        </Cascader>
 
-      {
-        !!curDBOptions?.length &&
-        <Cascader
-          popupClassName={styles.cascaderPopup}
-          options={curDBOptions}
-          onChange={databaseChange}
-          bordered={false}
-        // defaultValue={[curWorkspaceParams.databaseName]}
-        >
-          <div className={styles.crumbsItem}>
-            <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-            {
-              !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
-            }
-          </div>
-        </Cascader>
-      }
-      {
-        !!curSchemaOptions.length &&
-        <Cascader
-          popupClassName={styles.cascaderPopup}
-          options={curSchemaOptions}
-          onChange={schemaChange}
-          bordered={false}
-        // defaultValue={[curWorkspaceParams.schemaName]}
-        >
-          <div className={styles.crumbsItem}>
-            <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
-          </div>
-        </Cascader>
-      }
-      <div className={styles.refreshBox} onClick={handelRefresh}>
-        {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code='&#xec08;' />}
-      </div>
-    </div >}
+        {
+          !!curDBOptions?.length &&
+          <Cascader
+            popupClassName={styles.cascaderPopup}
+            options={curDBOptions}
+            onChange={databaseChange}
+            bordered={false}
+            defaultValue={[curWorkspaceParams?.databaseName || '']}
+          >
+            <div className={styles.crumbsItem}>
+              <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+              {
+                !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
+              }
+            </div>
+          </Cascader>
+        }
+        {
+          !!curSchemaOptions.length &&
+          <Cascader
+            popupClassName={styles.cascaderPopup}
+            options={curSchemaOptions}
+            onChange={schemaChange}
+            bordered={false}
+            defaultValue={[curWorkspaceParams?.schemaName || '']}
+          >
+            <div className={styles.crumbsItem}>
+              <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
+            </div>
+          </Cascader>
+        }
+        <div className={styles.refreshBox} onClick={handelRefresh}>
+          {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code='&#xec08;' />}
+        </div>
+      </div >
+    }
     <Modal
       open={noConnectionModal}
       closeIcon={<></>}
@@ -268,6 +284,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           您当前还没有创建任何连接
         </div>
         <Button type='primary' className={styles.createButton} onClick={() => {
+          setNoConnectionModal(false);
           dispatch({
             type: 'mainPage/updateCurPage',
             payload: 'connections',
