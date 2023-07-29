@@ -367,7 +367,12 @@ public class ChatController {
         if (CollectionUtils.isEmpty(tableNames)) {
             return Maps.newHashMap();
         }
-        List<TableColumn> tableColumns = tableService.queryColumns(tableQueryParam);
+        List<TableColumn> tableColumns = Lists.newArrayList();
+        try {
+            tableColumns = tableService.queryColumns(tableQueryParam);
+        } catch (Exception exception) {
+            log.error("query table error, do nothing");
+        }
         if (CollectionUtils.isEmpty(tableColumns)) {
             return Maps.newHashMap();
         }
