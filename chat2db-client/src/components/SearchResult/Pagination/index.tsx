@@ -5,7 +5,7 @@ import { Button, InputNumber, Popover, Select } from 'antd';
 import { IResultConfig } from '@/typings';
 import i18n from '@/i18n';
 import _ from 'lodash';
-import styles from './Pagination.less';
+import styles from './index.less';
 
 interface IProps {
   onPageSizeChange?: (pageSize: number) => void;

@@ -1,6 +1,7 @@
 import createRequest from './base';
 import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
 export interface IGetListParams extends IPageParams {
   dataSourceId: number;
@@ -114,6 +115,16 @@ const deleteTablePin = createRequest<IUniversalTableParams, void>('/api/pin/tabl
 /** 获取当前执行SQL 所有行 */
 const getDMLCount = createRequest<IExecuteSqlParams, number>('/api/rdb/dml/count', { method: 'post' });
 
+export interface IExportParams extends IExecuteSqlParams {
+  originalSql: string;
+  exportType: ExportTypeEnum;
+  exportSize: ExportSizeEnum;
+}
+/**
+ * 导出-表格
+ */
+const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
+
 export default {
   getList,
   executeSql,
@@ -131,4 +142,5 @@ export default {
   addTablePin,
   deleteTablePin,
   getDMLCount,
+  exportResultTable
 };
