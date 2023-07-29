@@ -9,7 +9,8 @@ interface IProps {
   imageUrl?: string;
   tip?: string;
 }
-const url = 'https://oss-chat2db.alibaba.com/static/wechat.webp';
+const url =
+  'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp';
 export default memo<IProps>(function Popularize(props) {
   const { className } = props;
 
@@ -19,7 +20,7 @@ export default memo<IProps>(function Popularize(props) {
     }
     let dom;
     if (props.source === 'setting') {
-      dom = <p>{i18n('common.text.wechatPopularizeAi2')}</p>;
+      dom = <p>{'关注公众号获取AI Key'}</p>;
     } else {
       dom = <p>{i18n('common.text.wechatPopularizeAi')}</p>;
     }
