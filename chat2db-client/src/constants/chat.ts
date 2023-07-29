@@ -14,4 +14,4 @@ export const chatError = {
 export const chatErrorCodeArr = Object.keys(chatError);
 
 export const chatErrorToLogin = ['CHAT2DB_KEY_INVALID', 'CHAT2DB_AUTH_HEADER_MISSING', 'CHAT2DB_AUTH_TOKEN_MISSING'];
-export const chatErrorToInvite = ['CHAT2DB_KEY_LIMIT', 'CHAT2DB_KEY_EXPIRED'];
+export const chatErrorForKey = ['CHAT2DB_KEY_LIMIT', 'CHAT2DB_KEY_EXPIRED'];
