@@ -1,5 +1,6 @@
 package ai.chat2db.server.web.api.controller.ai.listener;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatChoice;
@@ -93,8 +94,15 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
 
     @Override
     public void onClosed(EventSource eventSource) {
+        try {
+            sseEmitter.send(SseEmitter.event()
+                .id("[DONE]")
+                .data("[DONE]"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         sseEmitter.complete();
-        log.info("AzureOpenAI关闭sse连接...");
+        log.info("AzureOpenAI close sse connection...");
     }
 
     @Override
@@ -102,11 +110,6 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
         try {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
-                if ("No route to host".equals(message)) {
-                    message = "网络连接超时，请检查网络连通性，参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>";
-                } else {
-                    message = "Azure AI无法正常访问，请参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
-                }
                 Message sseMessage = new Message();
                 sseMessage.setContent(message);
                 sseEmitter.send(SseEmitter.event()
