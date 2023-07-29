@@ -55,10 +55,9 @@ const AIModel: IAIModelType = {
         payload: res,
       });
       if (res.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-        const res = (yield aiService.getRemainingUse({})) as IRemainingUse;
         yield put({
-          type: 'setRemainUse',
-          payload: res,
+          type: 'fetchRemainingUse',
+          payload: { apiKey: res.apiKey },
         });
       }
     },
@@ -74,20 +73,16 @@ const AIModel: IAIModelType = {
           payload: aiConfig,
         });
 
-        // 如果设置的是Chat2DBAI，需要查询下剩余次数
-        if (apiKey && aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-          const res = (yield aiService.getRemainingUse({})) as IRemainingUse;
-          yield put({
-            type: 'setRemainUse',
-            payload: res,
-          });
-        }
+        yield put({
+          type: 'fetchRemainingUse',
+          payload: { apiKey: aiConfig?.apiKey },
+        });
       } catch (error) {}
     },
-    *fetchRemainingUse({ payload }, { put }) {
+    *fetchRemainingUse({ payload }: { type: any; payload?: { apiKey?: string } }, { put }) {
+      const { apiKey } = payload || {};
       try {
-        const { key } = payload;
-        if (!key) {
+        if (!apiKey) {
           yield put({
             type: 'setRemainUse',
             payload: undefined,
