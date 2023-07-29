@@ -23,7 +23,8 @@ public class AsyncContextRefreshedListener implements ApplicationListener<Contex
         // Successfully set up startup
         String currentVersion = ConfigUtils.getLocalVersion();
         ConfigJson configJson = ConfigUtils.getConfig();
-        if (!StringUtils.equals(currentVersion, configJson.getLatestStartupSuccessVersion())) {
+        if (StringUtils.isNotBlank(currentVersion) && !StringUtils.equals(currentVersion,
+            configJson.getLatestStartupSuccessVersion())) {
             configJson.setLatestStartupSuccessVersion(currentVersion);
             ConfigUtils.setConfig(configJson);
         }
