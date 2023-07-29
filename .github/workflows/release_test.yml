@@ -269,7 +269,7 @@ jobs:
           ossutil-version: "latest"
       - name: Upload to oss
         run: |
-          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/
+          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
 
       # 构建完成通知
       - name: Send dingtalk message for Windows
