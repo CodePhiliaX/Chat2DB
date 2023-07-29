@@ -62,4 +62,6 @@ export default {
   'common.text.wechatPopularize': '发送 “推广” 还可以免费获取更多体验次数。',
   'common.notification.detail': '查看详情',
   'common.notification.solution': '解决办法',
+  'common.button.copyError': '复制错误报告',
+  'common.button.copyErrorTips': '（这里会复制接口信息以及详细参数，如有敏感参数，请先解析JSON处理后在发送）',
 };
