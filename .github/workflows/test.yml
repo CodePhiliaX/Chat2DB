@@ -8,8 +8,7 @@
 #      fail-fast: false
 #      matrix:
 #        include:
-#          - os: windows-latest
-#          - os: macos-latest
+#          - os: ubuntu-latest
 #    runs-on: ${{ matrix.os }}
 #    steps:
 #      - name: Check out Git repository
@@ -23,17 +22,9 @@
 #          distribution: "temurin"
 #          java-package: "jre"
 #
-#      # java.security 开放tls1 Windows
+#      # java.security 开放tls1 Linux
 #      - name: Enable tls1
-#        if: ${{ runner.os == 'Windows' }}
+#        if: ${{ runner.os == 'Linux' }}
 #        run: |
-#          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
-#          cat "${{ env.JAVA_HOME }}/conf/security/java.security"
-#
-#
-#      # java.security 开放tls1 macOS
-#      - name: Enable tls1
-#        if: ${{ runner.os == 'macOS' }}
-#        run: |
-#          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
-#          cat $JAVA_HOME/conf/security/java.security
+#          sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
+#          cat ${{ env.JAVA_HOME }}/conf/security/java.security

@@ -80,6 +80,12 @@ jobs:
         run: |
           sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
 
+      # java.security 开放tls1 Linux
+      - name: Enable tls1
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
+
       # 复制jre Windows
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
@@ -218,55 +224,33 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           mkdir oss_temp_file
-          mkdir oss_temp_file/win
-          mkdir oss_temp_file/win/x64
-          cp -r chat2db-client/release/*Setup*.exe ./oss_temp_file/win/x64
-          cp -r chat2db-client/release/*Setup*.exe.blockmap ./oss_temp_file/win/x64
-          cp -r chat2db-client/release/latest.yml ./oss_temp_file/win/x64
-          ls chat2db-client/release/
+          cp -r chat2db-client/release/*Setup*.exe ./oss_temp_file
 
       # 准备要需要的数据 MacOS amd64
       - name: Prepare upload for MacOS amd64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
           mkdir oss_temp_file
-          mkdir oss_temp_file/jar
-          mkdir oss_temp_file/jar/${{ github.run_id }}
-          mkdir oss_temp_file/mac
-          mkdir oss_temp_file/mac/amd
-          cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar ./oss_temp_file/jar/${{ github.run_id }}
-          cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/amd
-          cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/amd
-          cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/amd
-          cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/amd
-          cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/amd
-          ls chat2db-client/release/
-          cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/mac/dist
+          cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
           cd chat2db-client/versions/99.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
-          cp -r chat2db-server-start.zip ../../../../oss_temp_file/jar/${{ github.run_id }}
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
+
 
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
           mkdir oss_temp_file
-          mkdir oss_temp_file/mac
-          mkdir oss_temp_file/mac/arm
-          cp -r chat2db-client/release/*.zip ./oss_temp_file/mac/arm
-          cp -r chat2db-client/release/*.zip.blockmap ./oss_temp_file/mac/arm
-          cp -r chat2db-client/release/*.dmg ./oss_temp_file/mac/arm
-          cp -r chat2db-client/release/*.dmg.blockmap ./oss_temp_file/mac/arm
-          cp -r chat2db-client/release/latest-mac.yml ./oss_temp_file/mac/arm
-          ls chat2db-client/release/
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file
 
       # 准备要需要的数据 Linux
       - name: Prepare upload for Linux
         if: runner.os == 'Linux'
         run: |
-          mkdir -p oss_temp_file/linux/
-          cp -r chat2db-client/release/*.AppImage ./oss_temp_file/linux/
-          cp -r chat2db-client/release/*_amd64.deb ./oss_temp_file/linux/
-          ls chat2db-client/release/
+          mkdir oss_temp_file
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file
 
       # 把文件上传到OSS 方便下载
       - name: Set up oss utils
@@ -278,7 +262,7 @@ jobs:
           ossutil-version: "latest"
       - name: Upload to oss
         run: |
-          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db/test/
+          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
 
       # 构建完成通知
       - name: Send dingtalk message for Windows
@@ -290,7 +274,7 @@ jobs:
           content: |
             {
               "title": "Windows-test-打包完成通知",
-              "text": "# Windows-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss-chat2db.alibaba.com/test/win/x64/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](https://oss-chat2db.alibaba.com/test/win/x64/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
+              "text": "# Windows-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
             }
 
       # 构建完成通知
@@ -303,7 +287,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](https://oss-chat2db.alibaba.com/test/mac/amd/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.zip](https://oss-chat2db.alibaba.com/test/jar/${{ github.run_id }}/chat2db-server-start.zip) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ github.run_id }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知
@@ -316,7 +300,7 @@ jobs:
           content: |
             {
               "title": "MacOS-arm64-test-构建完成通知",
-              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](https://oss-chat2db.alibaba.com/test/mac/arm/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
+              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
             }
 
       # 构建完成通知
@@ -329,5 +313,5 @@ jobs:
           content: |
             {
               "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss-chat2db.alibaba.com/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss-chat2db.alibaba.com/test/linux/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](https://oss-chat2db.alibaba.com/test/linux/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
+              "text": "# Linux-test-打包完成通知   \n ![bang](http://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](http://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
             }
