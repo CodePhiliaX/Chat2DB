@@ -48,13 +48,13 @@ const AIModel: IAIModelType = {
     },
   },
   effects: {
-    *getAiSystemConfig({}, { put }) {
+    *getAiSystemConfig({ }, { put }) {
       const res = (yield configService.getAiSystemConfig({})) as IAiConfig;
       yield put({
         type: 'setAiConfig',
         payload: res,
       });
-      if (res.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+      if (res?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
         yield put({
           type: 'fetchRemainingUse',
           payload: { apiKey: res.apiKey },
@@ -77,7 +77,7 @@ const AIModel: IAIModelType = {
           type: 'fetchRemainingUse',
           payload: { apiKey: aiConfig?.apiKey },
         });
-      } catch (error) {}
+      } catch (error) { }
     },
     *fetchRemainingUse({ payload }: { type: any; payload?: { apiKey?: string } }, { put, select }) {
       const currentState = (yield select((state: any) => state.ai)) as IAIState;
@@ -96,7 +96,7 @@ const AIModel: IAIModelType = {
           payload: res,
         });
         return res;
-      } catch {}
+      } catch { }
     },
   },
 };

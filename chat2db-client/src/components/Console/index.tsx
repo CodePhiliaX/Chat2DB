@@ -107,8 +107,8 @@ function Console(props: IProps) {
    * 当前选择的AI类型是Chat2DBAi
    */
   const isChat2DBAi = useMemo(
-    () => aiModel.aiConfig.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
-    [aiModel.aiConfig.aiSqlSource],
+    () => aiModel.aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
+    [aiModel.aiConfig?.aiSqlSource],
   );
 
   useEffect(() => {
@@ -198,7 +198,7 @@ function Console(props: IProps) {
           await dispatch({
             type: 'ai/setAiConfig',
             payload: {
-              ...aiModel.aiConfig,
+              ...(aiModel.aiConfig || {}),
               apiKey,
             },
           });
@@ -214,7 +214,7 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType) => {
-    const { apiKey } = aiModel?.aiConfig;
+    const { apiKey } = aiModel?.aiConfig || {};
     if (!apiKey && isChat2DBAi) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
@@ -370,7 +370,7 @@ function Console(props: IProps) {
     if (!isChat2DBAi) return;
 
     // chat2dbAi模型下，没有key，就需要登录
-    if (!aiModel.aiConfig.apiKey) {
+    if (!aiModel.aiConfig?.apiKey) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
@@ -399,7 +399,7 @@ function Console(props: IProps) {
         {hasAiChat && (
           <ChatInput
             disabled={isLoading}
-            aiType={aiModel.aiConfig.aiSqlSource}
+            aiType={aiModel.aiConfig?.aiSqlSource}
             remainingUse={aiModel.remainingUse}
             remainingBtnLoading={props.remainingBtnLoading}
             tables={tableListName}
@@ -432,7 +432,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
