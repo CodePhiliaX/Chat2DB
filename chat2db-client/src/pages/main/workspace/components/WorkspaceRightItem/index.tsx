@@ -10,10 +10,11 @@ import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState } from '@/models/workspace';
 import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
-import sqlServer, { IExecuteSqlParams } from '@/service/sql';
+import sqlServer, { IExecuteSqlParams, IExportParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import sql from '@/service/sql';
 import { isNumber } from 'lodash';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -138,6 +139,12 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     return total;
   };
 
+  const handleExportSQLResult = async (originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+    const params: IExportParams = { ...data, originalSql, exportType, exportSize };
+
+    await sqlServer.exportResultTable(params);
+  };
+
   const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {
     if (type === 'remove') {
       const tabIndex = resultData.findIndex((d) => d.uuid === uuid);
@@ -187,6 +194,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
               onTabEdit={handleResultTabEdit}
               onExecute={handleExecuteSQLbyConfigChanged}
               onSearchTotal={handleSearchTotal}
+              onExport={handleExportSQLResult}
               manageResultDataList={resultData}
               resultConfig={resultConfig}
               isLoading={tableLoading}
