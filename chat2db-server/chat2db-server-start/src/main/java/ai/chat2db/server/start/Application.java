@@ -35,7 +35,7 @@ public class Application {
         String currentVersion = ConfigUtils.getLocalVersion();
         ConfigJson configJson = ConfigUtils.getConfig();
         // Represents that the current version has been successfully launched
-        if (StringUtils.equals(currentVersion, configJson.getLatestStartupSuccessVersion())) {
+        if (StringUtils.isNotBlank(currentVersion) && StringUtils.equals(currentVersion, configJson.getLatestStartupSuccessVersion())) {
             // Flyway doesn't need to start every time to increase startup speed
             args = ArrayUtils.add(args, "--spring.flyway.enabled=false");
             log.info("The current version {} has been successfully launched once and will no longer load Flyway.",
