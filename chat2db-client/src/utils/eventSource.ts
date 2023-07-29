@@ -17,7 +17,7 @@ const connectToEventSource = (params: { url: string; uid: string; onMessage: Fun
   const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, p);
 
   eventSource.onmessage = (event) => {
-    console.log('onmessage', event);
+    // console.log('onmessage', event);
     onMessage(event.data);
   };
 

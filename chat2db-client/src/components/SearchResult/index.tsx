@@ -1,10 +1,9 @@
-import React, { memo, useEffect, useState, useRef, useMemo, Fragment } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
 import classnames from 'classnames';
 import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import { Spin, Popover } from 'antd';
-import { StatusType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import i18n from '@/i18n';
 import TableBox from './TableBox';
@@ -59,7 +58,6 @@ export default memo<IProps>(function SearchResult(props) {
       return;
     }
 
-    // debugger;
     if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
       setCurrentTab(manageResultDataList[0].uuid);
     }
