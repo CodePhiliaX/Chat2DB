@@ -22,6 +22,6 @@ public class ParamBusinessException extends BusinessException {
     }
 
     public ParamBusinessException(String paramString) {
-        super("common.paramDetailError");
+        super("common.paramDetailError", new Object[] {paramString});
     }
 }

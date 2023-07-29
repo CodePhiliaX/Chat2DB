@@ -356,6 +356,7 @@ public class ChatController {
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
+        uid += "_azure";
         List<AzureChatMessage> messages = (List<AzureChatMessage>)LocalCache.CACHE.get(uid);
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
@@ -368,12 +369,12 @@ public class ChatController {
         messages.add(currentMessage);
 
         sseEmitter.send(SseEmitter.event().id(uid).name("sseEmitter connected！！！！").data(LocalDateTime.now()).reconnectTime(3000));
+        String finalUid = uid;
         sseEmitter.onCompletion(() -> {
-            log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on completion");
-            SseEmitter.event().id("[DONE]").data("[DONE]");
+            log.info(LocalDateTime.now() + ", uid#" + finalUid + ", sseEmitter on completion");
         });
         sseEmitter.onTimeout(
-            () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on timeout#" + sseEmitter.getTimeout()));
+            () -> log.info(LocalDateTime.now() + ", uid#" + finalUid + ", sseEmitter on timeout#" + sseEmitter.getTimeout()));
         sseEmitter.onError(
             throwable -> {
                 try {

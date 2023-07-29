@@ -4,19 +4,15 @@ import java.util.List;
 
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DmlRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
-
+import ai.chat2db.spi.model.ExecuteResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,39 +35,6 @@ public class RdbDmlController {
 
     @Autowired
     private DlTemplateService dlTemplateService;
-
-    /**
-     * 导出结果集Excel
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("/export/excel")
-    public ActionResult export(DataExportRequest request) {
-        return null;
-    }
-
-    /**
-     * 导出结果集Insert
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("/export/insert")
-    public ActionResult exportInsert(DataExportRequest request) {
-        return null;
-    }
-
-    /**
-     * 导出选中行Insert
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("/export/insert/selected")
-    public ActionResult exportInsertSelected(DataExportRequest request) {
-        return null;
-    }
 
     /**
      * 增删改查等数据运维
