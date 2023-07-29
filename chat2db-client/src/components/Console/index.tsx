@@ -238,8 +238,8 @@ function Console(props: IProps) {
     });
 
     const handleMessage = (message: string) => {
+      // console.log('message', message);
       setIsLoading(false);
-      console.log('message', message);
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
