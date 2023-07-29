@@ -6,6 +6,7 @@ import i18n from '@/i18n';
 import classnames from 'classnames';
 import { IAiConfig } from '@/typings/setting';
 import styles from './index.less';
+import Popularize from '@/components/Popularize';
 interface IProps {
   handleApplyAiConfig: (aiConfig: IAiConfig) => void;
   aiConfig: IAiConfig;
@@ -201,10 +202,8 @@ export default function SettingAI(props: IProps) {
           {i18n('setting.button.apply')}
         </Button>
       </div>
-      {/* {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
-        <Popularize source='setting'></Popularize>
-      )
-      } */}
+
+      {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />}
     </>
   );
 }
