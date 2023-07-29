@@ -5,7 +5,7 @@ import { Checkbox, Dropdown, Input, Modal, Popover, Select } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
-import { IRemainingUse } from '@/typings/ai';
+import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
 
 interface IProps {
@@ -14,6 +14,7 @@ interface IProps {
   tables?: string[];
   selectedTables?: string[];
   remainingUse?: IRemainingUse;
+  aiType: AiSqlSourceType;
   onPressEnter: (value: string) => void;
   onSelectTables?: (tables: string[]) => void;
   onClickRemainBtn: Function;
@@ -59,19 +60,22 @@ function ChatInput(props: IProps) {
     const remainCnt = props?.remainingUse?.remainingUses ?? '-';
     return (
       <div className={styles.suffixBlock}>
+        <div className={styles.enterIcon}></div>
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottom">
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-        <div
-          className={styles.remainBlock}
-          onClick={() => {
-            props.onClickRemainBtn && props.onClickRemainBtn();
-          }}
-        >
-          {i18n('chat.input.remain', remainCnt)}
-        </div>
+        {props.aiType === AiSqlSourceType.CHAT2DBAI && (
+          <div
+            className={styles.remainBlock}
+            onClick={() => {
+              props.onClickRemainBtn && props.onClickRemainBtn();
+            }}
+          >
+            {i18n('chat.input.remain', remainCnt)}
+          </div>
+        )}
       </div>
     );
   };
