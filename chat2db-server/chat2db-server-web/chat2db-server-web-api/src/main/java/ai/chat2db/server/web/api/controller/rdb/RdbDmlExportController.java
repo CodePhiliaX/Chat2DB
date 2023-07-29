@@ -97,7 +97,7 @@ public class RdbDmlExportController {
         String tableName = SqlUtils.getTableName(sql, dbType);
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(
-                tableName + "-" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
+                tableName + "_" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
                 StandardCharsets.UTF_8)
             .replaceAll("\\+", "%20");
 
