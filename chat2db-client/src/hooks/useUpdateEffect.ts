@@ -1,4 +1,4 @@
-import {useRef, useEffect} from 'react';
+import { useRef, useEffect } from 'react';
 
 export function useUpdateEffect(fn: Function, arr: any[]) {
   const first = useRef(true);
