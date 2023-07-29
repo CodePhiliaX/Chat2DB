@@ -3,9 +3,12 @@ package ai.chat2db.spi.util;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * exception utils
  */
+@Slf4j
 public class ExceptionUtils {
 
     /**
@@ -15,17 +18,12 @@ public class ExceptionUtils {
      * @return
      */
     public static String getErrorInfoFromException(Throwable throwable) {
-        String errorDetail = "";
-        try {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            throwable.printStackTrace(pw);
-            errorDetail = " \r\n " + sw.toString() + " \r\n ";
-            sw.close();
-            pw.close();
-        } catch (Exception e2) {
+        try (StringWriter stringWriter = new StringWriter(); PrintWriter printWriter = new PrintWriter(stringWriter)) {
+            throwable.printStackTrace(printWriter);
+            return stringWriter.toString();
+        } catch (Exception e) {
+            log.error("ErrorInfoFromException", e);
             return "ErrorInfoFromException";
         }
-        return errorDetail;
     }
 }
