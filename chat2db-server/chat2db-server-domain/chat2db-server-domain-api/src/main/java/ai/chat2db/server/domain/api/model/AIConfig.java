@@ -15,28 +15,28 @@ public class AIConfig {
     /**
      * APIKEY
      */
-    private String apiKey;
+    private String apiKey = "";
 
     /**
      * APIHOST
      */
-    private String apiHost;
+    private String apiHost = "";
 
     /**
      * api http proxy host
      */
-    private String httpProxyHost;
+    private String httpProxyHost = "";
 
     /**
      * api http proxy port
      */
-    private String httpProxyPort;
+    private String httpProxyPort = "";
 
     /**
      * @see AiSqlSourceEnum
      */
     @NotNull
-    private String aiSqlSource;
+    private String aiSqlSource = "";
 
     /**
      * return data stream
@@ -47,5 +47,5 @@ public class AIConfig {
     /**
      * deployed model, default gpt-3.5-turbo
      */
-    private String model;
+    private String model = "";
 }
