@@ -79,10 +79,11 @@ const AIModel: IAIModelType = {
         });
       } catch (error) {}
     },
-    *fetchRemainingUse({ payload }: { type: any; payload?: { apiKey?: string } }, { put }) {
+    *fetchRemainingUse({ payload }: { type: any; payload?: { apiKey?: string } }, { put, select }) {
+      const currentState = (yield select((state: any) => state.ai)) as IAIState;
       const { apiKey } = payload || {};
       try {
-        if (!apiKey) {
+        if (!apiKey || currentState.aiConfig.aiSqlSource !== AiSqlSourceType.CHAT2DBAI) {
           yield put({
             type: 'setRemainUse',
             payload: undefined,
