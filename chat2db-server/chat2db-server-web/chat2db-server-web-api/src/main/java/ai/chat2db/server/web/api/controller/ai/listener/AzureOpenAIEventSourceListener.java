@@ -1,5 +1,6 @@
 package ai.chat2db.server.web.api.controller.ai.listener;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatChoice;
@@ -93,8 +94,15 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
 
     @Override
     public void onClosed(EventSource eventSource) {
+        try {
+            sseEmitter.send(SseEmitter.event()
+                .id("[DONE]")
+                .data("[DONE]"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         sseEmitter.complete();
-        log.info("AzureOpenAI关闭sse连接...");
+        log.info("AzureOpenAI close sse connection...");
     }
 
     @Override
