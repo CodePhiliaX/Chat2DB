@@ -58,11 +58,11 @@ public class ConfigController {
     @PostMapping("/system_config/chatgpt")
     public ActionResult addChatGptSystemConfig(@RequestBody AISystemConfigRequest request) {
         String sqlSource = StringUtils.isNotBlank(request.getAiSqlSource()) ? request.getAiSqlSource()
-            : AiSqlSourceEnum.OPENAI.getCode();
+            : AiSqlSourceEnum.CHAT2DBAI.getCode();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
         if (Objects.isNull(aiSqlSourceEnum)) {
-            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
-            sqlSource = AiSqlSourceEnum.OPENAI.getCode();
+            aiSqlSourceEnum = AiSqlSourceEnum.CHAT2DBAI;
+            sqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
         }
         SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE).content(sqlSource)
             .build();
