@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.ai;
 
 import java.util.Objects;
 
+import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
@@ -9,6 +10,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
 import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
@@ -64,6 +66,9 @@ public class AiConfigController {
         QrCodeResponse qrCodeResponse = dataResult.getData();
         // Representative successfully logged in
         if (StringUtils.isNotBlank(qrCodeResponse.getApiKey())) {
+            SystemConfigParam sqlSourceParam = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE)
+                    .content(AiSqlSourceEnum.CHAT2DBAI.getCode()).build();
+            configService.createOrUpdate(sqlSourceParam);
             SystemConfigParam param = SystemConfigParam.builder()
                 .code(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).content(qrCodeResponse.getApiKey())
                 .build();
