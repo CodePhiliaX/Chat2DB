@@ -13,8 +13,8 @@ import lombok.Setter;
  * 数据源连接表
  * </p>
  *
- * @author ali-dbhub
- * @since 2023-03-05
+ * @author chat2db
+ * @since 2023-07-30
  */
 @Getter
 @Setter
@@ -58,4 +58,14 @@ public class DbhubUserDO implements Serializable {
      * 邮箱
      */
     private String email;
+
+    /**
+     * 角色编码
+     */
+    private String roleCode;
+
+    /**
+     * 用户状态
+     */
+    private String status;
 }

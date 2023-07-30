@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-server-common-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-domain-core</artifactId>
         </dependency>
         <dependency>

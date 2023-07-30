@@ -1,10 +1,10 @@
 
-package ai.chat2db.server.admin.api.controller.datasource;
+package ai.chat2db.server.admin.api.controller.user;
 
-import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourceAccessPageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.converter.DataSourceAdminConverter;
+import ai.chat2db.server.admin.api.controller.user.request.DataSourceAccessBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.DataSourceAccessPageQueryRequest;
+import ai.chat2db.server.admin.api.controller.user.vo.DataSourceAccessPageQueryVO;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;

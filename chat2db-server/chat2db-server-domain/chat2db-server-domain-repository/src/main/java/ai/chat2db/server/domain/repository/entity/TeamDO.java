@@ -65,6 +65,11 @@ public class TeamDO implements Serializable {
     private String status;
 
     /**
+     * 角色编码
+     */
+    private String roleCode;
+
+    /**
      * 团队描述
      */
     private String description;
