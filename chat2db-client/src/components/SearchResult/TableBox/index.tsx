@@ -63,7 +63,7 @@ export default function TableBox(props: ITableProps) {
       {
         label: '导出全部数据为csv',
         key: '1',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
         },
@@ -71,7 +71,7 @@ export default function TableBox(props: ITableProps) {
       {
         label: '导出全部数据为插入语句',
         key: '2',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
         },
@@ -79,7 +79,7 @@ export default function TableBox(props: ITableProps) {
       {
         label: '导出当前页数据为csv',
         key: '3',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
         },
@@ -87,7 +87,7 @@ export default function TableBox(props: ITableProps) {
       {
         label: '导出当前页数据为插入语句',
         key: '4',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
         },
@@ -264,6 +264,7 @@ export default function TableBox(props: ITableProps) {
         open={!!viewTableCellData?.name}
         onCancel={handleCancel}
         width="60vw"
+        height="70vh"
         maskClosable={false}
         footer={
           <>

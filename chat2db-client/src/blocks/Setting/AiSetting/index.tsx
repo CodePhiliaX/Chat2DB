@@ -195,15 +195,12 @@ export default function SettingAI(props: IProps) {
         </div>
       )}
       <div className={styles.bottomButton}>
-        {/* <Button >
-
-        </Button> */}
         <Button type="primary" onClick={handleApplyAiConfig}>
           {i18n('setting.button.apply')}
         </Button>
       </div>
 
-      {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />}
+      {/* {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />} */}
     </>
   );
 }
