@@ -202,7 +202,7 @@ $ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # 启动应用 chat
 
 加群前请先 Star 和 Fork，谢谢~关注微信公众号可加入微信、钉钉、QQ 群一起讨论，并可以获取 Chat2DB 最新动态和更新。
 
-<a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="30%"/></a>
+<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="30%"/></a>
 
 ## ❤️ 致谢
 
