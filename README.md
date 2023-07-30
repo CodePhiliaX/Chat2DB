@@ -190,7 +190,7 @@ $ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the cha
 Please star and fork on GitHub before joining the group.
 Follow our WeChat public account.
 
-<a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
+<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="40%"/></a>
 
 ## ❤️ Acknowledgements
 
