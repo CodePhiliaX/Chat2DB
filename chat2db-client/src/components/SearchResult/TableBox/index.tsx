@@ -22,6 +22,7 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
+  onExport: () => void;
 }
 
 interface IViewTableCellData {
@@ -188,16 +189,16 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-            {/* <div className={styles.toolBarItem}>
+            <div className={styles.toolBarItem}>
               <Button
-                type='text'
+                type="text"
                 onClick={() => {
-                  console.log('config', config);
+                  props.onExport && props.onExport();
                 }}
               >
                 导出Excel
               </Button>
-            </div> */}
+            </div>
           </div>
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}

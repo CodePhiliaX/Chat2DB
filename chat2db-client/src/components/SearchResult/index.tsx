@@ -8,6 +8,7 @@ import { IManageResultData, IResultConfig } from '@/typings';
 import i18n from '@/i18n';
 import TableBox from './TableBox';
 import EmptyImg from '@/assets/img/empty.svg';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import styles from './index.less';
 
 interface IProps {
@@ -15,6 +16,7 @@ interface IProps {
   manageResultDataList?: IManageResultData[];
   resultConfig: IResultConfig[];
   onExecute: (sql: string, config: IResultConfig, index: number) => void;
+  onExport: (originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => Promise<void>;
   onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
   onSearchTotal: (index: number) => Promise<number>;
   isLoading?: boolean;
@@ -105,6 +107,9 @@ export default memo<IProps>(function SearchResult(props) {
                 if (props.onSearchTotal) {
                   return await props.onSearchTotal(index);
                 }
+              }}
+              onExport={() => {
+                props.onExport && props.onExport(item.originalSql, ExportTypeEnum.CSV, ExportSizeEnum.ALL);
               }}
             />
           </Fragment>
