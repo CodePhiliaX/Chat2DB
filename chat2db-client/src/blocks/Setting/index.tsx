@@ -9,11 +9,10 @@ import ProxySetting from './ProxySetting';
 import About from './About';
 import { connect } from 'umi';
 import { IAIState } from '@/models/ai';
-import styles from './index.less';
-import configService from '@/service/config';
-import { AiSqlSourceType } from '@/typings/ai';
 import TestVersion from '@/components/TestVersion';
 import { IAiConfig } from '@/typings';
+
+import styles from './index.less';
 
 interface IProps {
   aiConfig: IAiConfig;
@@ -27,6 +26,12 @@ function Setting(props: IProps) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [currentMenu, setCurrentMenu] = useState(0);
+
+  useEffect(() => {
+    if (isModalVisible) {
+      getAiSystemConfig();
+    }
+  }, [isModalVisible]);
 
   useEffect(() => {
     getAiSystemConfig();
