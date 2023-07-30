@@ -11,13 +11,14 @@ import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
-import { ITreeNode } from '@/typings';
+import { IAiConfig, ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
+import configService from '@/service/config';
 import styles from './index.less';
 
 enum IPromptType {
@@ -213,8 +214,14 @@ function Console(props: IProps) {
     }
   };
 
-  const handleAiChat = async (content: string, promptType: IPromptType) => {
-    const { apiKey } = aiModel?.aiConfig || {};
+  const handleAIChatInEditor = async (content: string, promptType: IPromptType) => {
+    const aiConfig = await configService.getAiSystemConfig({});
+    handleAiChat(content, promptType, aiConfig);
+  };
+
+  const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig) => {
+    const { apiKey, aiSqlSource } = aiConfig || props.aiModel?.aiConfig || {};
+    const isChat2DBAi = aiSqlSource === AiSqlSourceType.CHAT2DBAI;
     if (!apiKey && isChat2DBAi) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
@@ -349,17 +356,17 @@ function Console(props: IProps) {
     {
       id: 'explainSQL',
       label: i18n('common.text.explainSQL'),
-      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
+      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_EXPLAIN),
     },
     {
       id: 'optimizeSQL',
       label: i18n('common.text.optimizeSQL'),
-      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
+      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_OPTIMIZER),
     },
     {
       id: 'changeSQL',
       label: i18n('common.text.conversionSQL'),
-      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
+      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_2_SQL),
     },
   ];
 
