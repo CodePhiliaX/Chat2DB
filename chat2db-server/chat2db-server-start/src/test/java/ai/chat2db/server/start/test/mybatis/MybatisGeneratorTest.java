@@ -37,13 +37,13 @@ public class MybatisGeneratorTest extends BaseTest {
 
     private void doGenerator(List<String> tableList) {
 
-        // 当前项目地址 拿到的是ali-dbhub-server-start地址
+        // 当前项目地址 拿到的是chat2db-server-start地址
         String outputDir = System.getProperty("user.dir")
-            + "/../ali-dbhub-server-domain/ali-dbhub-server-domain-repository/src/main"
+            + "/../chat2db-server-domain/chat2db-server-domain-repository/src/main"
             + "/java";
         String xmlDir = System.getProperty("user.dir")
-            + "/../ali-dbhub-server-domain/ali-dbhub-server-domain-repository/src/main"
-            + "/resources/com/alibaba/dbhub/server/domain/repository";
+            + "/../chat2db-server-domain/chat2db-server-domain-repository/src/main"
+            + "/resources/ai/chat2db/server/domain/repository";
 
         // 不要生成service controller
         Map<OutputFile, String> pathInfo = new HashMap<>();
@@ -58,7 +58,7 @@ public class MybatisGeneratorTest extends BaseTest {
             //全局配置
             .globalConfig(builder -> {
                 // 设置作者
-                builder.author("ali-dbhub")
+                builder.author("chat2db")
                     //执行完毕不打开文件夹
                     .disableOpenDir()
                     // 指定输出目录

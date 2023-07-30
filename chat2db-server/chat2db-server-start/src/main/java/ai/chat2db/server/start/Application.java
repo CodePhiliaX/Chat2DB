@@ -4,7 +4,6 @@ import ai.chat2db.server.tools.common.model.ConfigJson;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import com.dtflys.forest.springboot.annotation.ForestScan;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -37,7 +36,7 @@ public class Application {
         // Represents that the current version has been successfully launched
         if (StringUtils.isNotBlank(currentVersion) && StringUtils.equals(currentVersion, configJson.getLatestStartupSuccessVersion())) {
             // Flyway doesn't need to start every time to increase startup speed
-            args = ArrayUtils.add(args, "--spring.flyway.enabled=false");
+            //args = ArrayUtils.add(args, "--spring.flyway.enabled=false");
             log.info("The current version {} has been successfully launched once and will no longer load Flyway.",
                 currentVersion);
         }
