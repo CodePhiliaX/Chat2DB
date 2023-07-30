@@ -60,6 +60,7 @@ export default {
   'common.text.wechatPopularizeAi': '关注微信公众号，发送 “AI” 免费获取体验次数。',
   'common.text.wechatPopularizeAi2': '关注微信公众号，发送 “AI” 可以免费获得ApiKey，并赠送体验次数。',
   'common.text.wechatPopularize': '发送 “推广” 还可以免费获取更多体验次数。',
+  'common.text.export': '导出',
   'common.notification.detail': '查看详情',
   'common.notification.solution': '解决办法',
   'common.button.copyError': '复制错误报告',
