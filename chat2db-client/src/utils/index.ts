@@ -195,3 +195,23 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
   // 如果两个版本号完全相等，则返回false
   return false;
 }
+
+// Copy
+export function copy(message: string) {
+  navigator.clipboard.writeText(message);
+}
+
+// 获取应用的一些基本信息
+export function getApplicationMessage() {
+  const env = __ENV__;
+  const versions = __APP_VERSION__;
+  const buildTime = __BUILD_TIME__;
+  const userAgent = navigator.userAgent;
+  return {
+    env,
+    versions,
+    buildTime,
+    userAgent
+  }
+}
+

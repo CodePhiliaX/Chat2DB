@@ -1,21 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { TableDataType } from '@/constants/table';
-import { IManageResultData, IResultConfig, ITableHeaderItem } from '@/typings/database';
+import { IManageResultData, IResultConfig } from '@/typings/database';
 import { formatDate } from '@/utils/date';
-import { Button, message, Modal, Pagination, Select, Table } from 'antd';
-import antd from 'antd';
-import { BaseTable, ArtColumn, useTablePipeline, features, SortItem, BaseTableProps } from 'ali-react-table';
-import Iconfont from '../Iconfont';
+import { Button, message, Modal } from 'antd';
+import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
+import Iconfont from '../../Iconfont';
 import classnames from 'classnames';
-import StateIndicator from '../StateIndicator';
-import MonacoEditor from '../Console/MonacoEditor';
+import StateIndicator from '../../StateIndicator';
+import MonacoEditor from '../../Console/MonacoEditor';
 import { useTheme } from '@/hooks/useTheme';
 import styled from 'styled-components';
-import styles from './TableBox.less';
 import { ThemeType } from '@/constants';
 import i18n from '@/i18n';
 import { compareStrings } from '@/utils/sort';
-import MyPagination from './Pagination';
+import MyPagination from '../Pagination';
+import styles from './index.less';
 
 interface ITableProps {
   className?: string;
@@ -23,6 +22,7 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
+  onExport: () => void;
 }
 
 interface IViewTableCellData {
@@ -188,6 +188,16 @@ export default function TableBox(props: ITableProps) {
                 onPageSizeChange={onPageSizeChange}
                 onClickTotalBtn={onClickTotalBtn}
               />
+            </div>
+            <div className={styles.toolBarItem}>
+              <Button
+                type="text"
+                onClick={() => {
+                  props.onExport && props.onExport();
+                }}
+              >
+                导出Excel
+              </Button>
             </div>
           </div>
           <DarkSupportBaseTable

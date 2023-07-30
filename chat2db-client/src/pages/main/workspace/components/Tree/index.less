@@ -98,20 +98,30 @@
 }
 
 .contentText {
+  width: 0;
   flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .name {
-  flex: 1;
   .f-lines(1);
 }
+
 .type {
   font-size: 12px;
   flex-shrink: 0;
   text-align: right;
   color: var(--color-primary);
+}
+
+.describe{
+  flex: 1;
+  font-size: 10px;
+  margin-left: 20px;
+  color: var(--color-text-tertiary);
+  .f-single-line();
 }
 
 .indent {

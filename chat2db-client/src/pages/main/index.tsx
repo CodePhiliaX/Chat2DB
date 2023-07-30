@@ -60,8 +60,13 @@ interface IProps {
 function MainPage(props: IProps) {
   const { mainModel, workspaceModel, connectionModel, dispatch } = props;
   const { curPage } = mainModel;
-  const { curConnection } = connectionModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
+
+  useEffect(() => {
+    dispatch({
+      type: 'connection/fetchConnectionList',
+    });
+  }, []);
 
   useEffect(() => {
     // activeNav 发生变化，同步到全局状态管理
@@ -99,7 +104,7 @@ function MainPage(props: IProps) {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (

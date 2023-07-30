@@ -174,6 +174,8 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           if (!success && errorLevel === 'toast' && !noNeedToastErrorCode.includes(errorCode)) {
             delayTimeFn(() => {
               window._notificationApi({
+                requestUrl: eventualUrl,
+                requestParams: JSON.stringify(params),
                 errorCode,
                 errorMessage,
                 errorDetail,

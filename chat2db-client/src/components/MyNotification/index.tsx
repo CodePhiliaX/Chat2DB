@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, ConfigProvider, Modal, notification, Space } from 'antd';
-import styles from './index.less';
+import { Button, ConfigProvider, message, Modal, notification, Space, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import { IconType } from 'antd/es/notification/interface';
 import Iconfont from '../Iconfont';
+import { copy, getApplicationMessage } from '@/utils'
+import styles from './index.less';
 
 interface IProps {
   type?: IconType;
@@ -16,6 +17,10 @@ interface IProps {
   errorDetail: string;
   /** 问题wiki路径 */
   solutionLink: string;
+  /** 请求的接口 */
+  requestUrl: string;
+  /** 请求的参数 */
+  requestParams: string;
 }
 
 function MyNotification() {
@@ -68,24 +73,47 @@ function MyNotification() {
       description: renderDescription(),
       placement: 'bottomRight',
       btn,
-      duration: null,
     });
   }, []);
+
+  function renderModalTitle() {
+    return <div className={styles.modalTitle}>
+      {`${props?.errorCode}：${props?.errorMessage} `}
+    </div>
+  }
+
+  function copyError() {
+    const errorMessage = {
+      getApplicationMessage: getApplicationMessage(),
+      ...props,
+    }
+    copy(JSON.stringify(errorMessage))
+    message.success(i18n('common.button.copySuccessfully'))
+  }
+
+  function renderModalFooter() {
+    return <div className={styles.modalFooter} onClick={copyError}>
+      <Iconfont code="&#xeb4e;" />{i18n('common.button.copyError')}
+      <span className={styles.copyErrorTips}>{i18n('common.button.copyErrorTips')}</span>
+    </div>
+  }
 
   return (
     <>
       {notificationDom}
       <Modal
         className={styles.modal}
+        title={renderModalTitle()}
         open={open}
-        title={props?.errorCode}
         width="70vw"
-        footer={[]}
+        footer={renderModalFooter()}
         onCancel={() => {
           setOpen(false);
         }}
       >
-        {props?.errorDetail}
+        <div className={styles.errorDetail}>
+          {props?.errorDetail}
+        </div>
       </Modal>
     </>
   );
