@@ -23,7 +23,7 @@ import org.springframework.stereotype.Indexed;
 @SpringBootApplication
 @ComponentScan(value = {"ai.chat2db.server"})
 @MapperScan("ai.chat2db.server.domain.repository.mapper")
-@ForestScan(basePackages = "ai.chat2db.server")
+@ForestScan(basePackages = "ai.chat2db.server.web.api.http")
 @Indexed
 @EnableCaching
 @EnableScheduling
