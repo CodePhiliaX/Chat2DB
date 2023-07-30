@@ -345,26 +345,23 @@ function Console(props: IProps) {
     });
   };
 
-  const addAction = useMemo(
-    () => [
-      {
-        id: 'explainSQL',
-        label: i18n('common.text.explainSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
-      },
-      {
-        id: 'optimizeSQL',
-        label: i18n('common.text.optimizeSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
-      },
-      {
-        id: 'changeSQL',
-        label: i18n('common.text.conversionSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
-      },
-    ],
-    [],
-  );
+  const addAction = [
+    {
+      id: 'explainSQL',
+      label: i18n('common.text.explainSQL'),
+      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
+    },
+    {
+      id: 'optimizeSQL',
+      label: i18n('common.text.optimizeSQL'),
+      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
+    },
+    {
+      id: 'changeSQL',
+      label: i18n('common.text.conversionSQL'),
+      action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
+    },
+  ];
 
   const handleClickRemainBtn = async () => {
     if (!isChat2DBAi) return;
