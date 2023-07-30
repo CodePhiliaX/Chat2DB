@@ -1,14 +1,14 @@
-import React, { memo, useEffect, useState, useRef, useMemo, Fragment } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
 import classnames from 'classnames';
 import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 import { Spin, Popover } from 'antd';
-import { StatusType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import i18n from '@/i18n';
 import TableBox from './TableBox';
 import EmptyImg from '@/assets/img/empty.svg';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import styles from './index.less';
 
 interface IProps {
@@ -16,6 +16,7 @@ interface IProps {
   manageResultDataList?: IManageResultData[];
   resultConfig: IResultConfig[];
   onExecute: (sql: string, config: IResultConfig, index: number) => void;
+  onExport: (originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => Promise<void>;
   onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
   onSearchTotal: (index: number) => Promise<number>;
   isLoading?: boolean;
@@ -59,7 +60,6 @@ export default memo<IProps>(function SearchResult(props) {
       return;
     }
 
-    // debugger;
     if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
       setCurrentTab(manageResultDataList[0].uuid);
     }
@@ -107,6 +107,9 @@ export default memo<IProps>(function SearchResult(props) {
                 if (props.onSearchTotal) {
                   return await props.onSearchTotal(index);
                 }
+              }}
+              onExport={() => {
+                props.onExport && props.onExport(item.originalSql, ExportTypeEnum.CSV, ExportSizeEnum.ALL);
               }}
             />
           </Fragment>

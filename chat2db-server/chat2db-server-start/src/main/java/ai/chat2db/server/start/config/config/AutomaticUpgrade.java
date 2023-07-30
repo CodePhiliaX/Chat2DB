@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import ai.chat2db.server.tools.common.util.ConfigUtils;
 import cn.hutool.core.io.FileUtil;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.utils.TypeReference;
@@ -31,7 +32,7 @@ public class AutomaticUpgrade {
 
     @Scheduled(fixedRate = 3600000) // 每小时运行一次
     public void checkVersionUpdates() {
-        String appPath = getAppPath();
+        String appPath = ConfigUtils.APP_PATH;
 
         log.info("appPath: {}", appPath);
         if (StringUtils.isBlank(appPath) || !appPath.contains("app")) {
@@ -40,7 +41,7 @@ public class AutomaticUpgrade {
         try {
             Upgrade dataResult = getUpgrade();
 
-            String oldVersion = getLocalVersion(appPath);
+            String oldVersion = ConfigUtils.getLocalVersion();
 
             if (!needUpdate(dataResult, oldVersion)) {
                 return;
@@ -63,12 +64,11 @@ public class AutomaticUpgrade {
                 FileUtil.copy(oldLib, newLib, true);
             }
 
-
             for (Map<String, String> downloadFile : dataResult.getDownloadFiles()) {
                 downloadUpgrade(downloadFile, versionFile);
             }
 
-            updateVersion(appPath, dataResult.getVersion());
+            ConfigUtils.updateVersion(dataResult.getVersion());
         } catch (Exception e) {
             log.error("checkVersionUpdates error", e);
         }
@@ -112,30 +112,11 @@ public class AutomaticUpgrade {
         String[] versionArray = upgrade.getVersion().split("\\.");
         String[] localVersionArray = localVersion.split("\\.");
         for (int i = 0; i < versionArray.length; i++) {
-            if (Integer.parseInt(versionArray[i]) > Integer.parseInt(localVersionArray[i])) {
+            if (Long.parseLong(versionArray[i]) > Long.parseLong(localVersionArray[i])) {
                 return true;
             }
         }
         return false;
-    }
-
-    private void updateVersion(String appFile, String version) {
-        String versionPath = appFile + File.separator + "versions" + File.separator + "version";
-        File versionFile = new File(versionPath);
-        if (!versionFile.exists()) {
-            versionFile.mkdir();
-        }
-        FileUtil.writeUtf8String(version, versionFile);
-    }
-
-    private String getLocalVersion(String appFile) {
-        String versionPath = appFile + File.separator + "versions" + File.separator + "version";
-        File file = new File(versionPath);
-        if (file.exists()) {
-            return FileUtil.readUtf8String(file);
-        } else {
-            return null;
-        }
     }
 
     private void download(String url, String outputPath) throws IOException {
@@ -158,29 +139,15 @@ public class AutomaticUpgrade {
                 }
                 fos.flush();
             }
-           // System.out.println("File downloaded: " + outputPath);
+            // System.out.println("File downloaded: " + outputPath);
         }
     }
-
-    private String getAppPath() {
-        try {
-            String jarPath = System.getProperty("project.path");
-            log.info("user home: {}", System.getProperty("user.home"));
-            log.info("project.path: {}", System.getProperty("project.path"));
-            log.info("jarPath: {}", jarPath);
-            return FileUtil.getParent(jarPath, 4);
-        } catch (Exception e) {
-            log.error("getAppPath error", e);
-            return null;
-        }
-    }
-
 
     @Data
     public static class Upgrade implements Serializable {
 
         private String version;
 
-        private List<Map<String,String>> downloadFiles;
+        private List<Map<String, String>> downloadFiles;
     }
 }

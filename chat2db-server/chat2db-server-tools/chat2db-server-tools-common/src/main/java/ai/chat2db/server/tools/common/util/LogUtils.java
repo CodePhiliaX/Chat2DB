@@ -68,7 +68,7 @@ public class LogUtils {
      * @return
      */
     public static String generateTraceId() {
-        String traceId = UUID.fastUUID().toString();
+        String traceId = UUID.fastUUID().toString().replaceAll("-", "");
         TRACE_ID_THREAD_LOCAL.set(traceId);
         return traceId;
     }

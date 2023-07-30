@@ -16,18 +16,18 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.tools.common.util.I18nUtils;
-import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
-import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
-import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatRole;
+import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
-import ai.chat2db.server.web.api.controller.ai.enums.GptVersionType;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
+import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
@@ -35,16 +35,12 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.util.OpenAIClient;
+import ai.chat2db.spi.model.TableColumn;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.azure.ai.openai.models.ChatMessage;
-import com.azure.ai.openai.models.ChatRole;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unfbx.chatgpt.entity.chat.Message;
-import com.unfbx.chatgpt.entity.completions.Completion;
-import com.unfbx.chatgpt.exception.BaseException;
-import com.unfbx.chatgpt.exception.CommonError;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +52,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -165,27 +160,6 @@ public class ChatController {
     }
 
     /**
-     * 问答对话模型
-     *
-     * @param msg
-     * @param headers
-     * @return
-     * @throws IOException
-     */
-    @GetMapping("/chat1")
-    @CrossOrigin
-    public SseEmitter chat(@RequestParam("message") String msg, @RequestHeader Map<String, String> headers)
-        throws IOException {
-        //默认30秒超时,设置为0L则永不超时
-        SseEmitter sseEmitter = new SseEmitter(CHAT_TIMEOUT);
-        String uid = headers.get("uid");
-        if (StrUtil.isBlank(uid)) {
-            throw new BaseException(CommonError.SYS_ERROR);
-        }
-        return distributeAI(msg, sseEmitter, uid);
-    }
-
-    /**
      * SQL转换模型
      *
      * @param queryRequest
@@ -217,32 +191,6 @@ public class ChatController {
      *
      * @return
      */
-    private SseEmitter distributeAI(String msg, SseEmitter sseEmitter, String uid) throws IOException {
-        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
-        if (Objects.nonNull(config)) {
-            aiSqlSource = config.getContent();
-        }
-        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
-        if (Objects.isNull(aiSqlSourceEnum)) {
-            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
-        }
-        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
-            case OPENAI :
-            case CHAT2DBAI:
-                return chatWithOpenAi(msg, sseEmitter, uid);
-            case RESTAI :
-                return chatWithRestAi(msg, sseEmitter);
-        }
-        return chatWithOpenAi(msg, sseEmitter, uid);
-    }
-
-    /**
-     * distribute with different AI
-     *
-     * @return
-     */
     private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
@@ -254,16 +202,18 @@ public class ChatController {
         if (Objects.isNull(aiSqlSourceEnum)) {
             aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
         }
+        uid = aiSqlSourceEnum.getCode() + uid;
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
             case OPENAI :
+                return chatWithOpenAi(queryRequest, sseEmitter, uid);
             case CHAT2DBAI:
-                return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
+                return chatWithChat2dbAi(queryRequest, sseEmitter, uid);
             case RESTAI :
-                return chatWithRestAi(queryRequest.getMessage(), sseEmitter);
+                return chatWithRestAi(queryRequest, sseEmitter);
             case AZUREAI :
                 return chatWithAzureAi(queryRequest, sseEmitter, uid);
         }
-        return chatWithOpenAiSql(queryRequest, sseEmitter, uid);
+        return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
 
     /**
@@ -273,9 +223,9 @@ public class ChatController {
      * @param sseEmitter
      * @return
      */
-    private SseEmitter chatWithRestAi(String prompt, SseEmitter sseEmitter) {
+    private SseEmitter chatWithRestAi(ChatQueryRequest prompt, SseEmitter sseEmitter) {
         RestAIEventSourceListener eventSourceListener = new RestAIEventSourceListener(sseEmitter);
-        RestAIClient.getInstance().restCompletions(prompt, eventSourceListener);
+        RestAIClient.getInstance().restCompletions(buildPrompt(prompt), eventSourceListener);
         return sseEmitter;
     }
 
@@ -288,7 +238,7 @@ public class ChatController {
      * @return
      * @throws IOException
      */
-    private SseEmitter chatWithOpenAiSql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid)
+    private SseEmitter chatWithOpenAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid)
         throws IOException {
         String prompt = buildPrompt(queryRequest);
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
@@ -297,48 +247,48 @@ public class ChatController {
             throw new ParamBusinessException();
         }
 
-        GptVersionType modelType = EasyEnumUtils.getEnum(GptVersionType.class, gptVersion);
-        switch (modelType) {
-            case GPT3:
-                return chatGpt3(prompt, sseEmitter, uid);
-            case GPT35:
-                List<Message> messages = new ArrayList<>();
-                prompt = prompt.replaceAll("#", "");
-                log.info(prompt);
-                Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
-                messages.add(currentMessage);
-                return chatGpt35(messages, sseEmitter, uid);
-            default:
-                break;
-        }
-        return chatGpt3(prompt, sseEmitter, uid);
+        List<Message> messages = new ArrayList<>();
+        prompt = prompt.replaceAll("#", "");
+        log.info(prompt);
+        Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
+        messages.add(currentMessage);
+        buildSseEmitter(sseEmitter, uid);
+
+        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
+        OpenAIClient.getInstance().streamChatCompletion(messages, openAIEventSourceListener);
+        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
+        return sseEmitter;
     }
 
     /**
-     * 使用OPENAI聊天相关接口
+     * 使用OPENAI SQL接口
      *
-     * @param msg
+     * @param queryRequest
      * @param sseEmitter
      * @param uid
      * @return
      * @throws IOException
      */
-    private SseEmitter chatWithOpenAi(String msg, SseEmitter sseEmitter, String uid) throws IOException {
-        String messageContext = (String)LocalCache.CACHE.get(uid);
-        List<Message> messages = new ArrayList<>();
-        if (StrUtil.isNotBlank(messageContext)) {
-            messages = JSONUtil.toList(messageContext, Message.class);
-            if (messages.size() >= contextLength) {
-                messages = messages.subList(1, contextLength);
-            }
-            Message currentMessage = Message.builder().content(msg).role(Message.Role.USER).build();
-            messages.add(currentMessage);
-        } else {
-            Message currentMessage = Message.builder().content(msg).role(Message.Role.USER).build();
-            messages.add(currentMessage);
+    private SseEmitter chatWithChat2dbAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid)
+        throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
+            log.error("exceed max token length:{}，input length:{}", MAX_PROMPT_LENGTH,
+                prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
+            throw new ParamBusinessException();
         }
 
-        return chatGpt35(messages, sseEmitter, uid);
+        prompt = prompt.replaceAll("#", "");
+        log.info(prompt);
+        Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
+        List<Message> messages = new ArrayList<>();
+        messages.add(currentMessage);
+        buildSseEmitter(sseEmitter, uid);
+
+        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
+        Chat2dbAIClient.getInstance().streamChatCompletion(messages, openAIEventSourceListener);
+        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
+        return sseEmitter;
     }
 
     /**
@@ -357,7 +307,7 @@ public class ChatController {
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
-        List<ChatMessage> messages = (List<ChatMessage>)LocalCache.CACHE.get(uid);
+        List<AzureChatMessage> messages = (List<AzureChatMessage>)LocalCache.CACHE.get(uid);
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
                 messages = messages.subList(1, contextLength);
@@ -365,26 +315,11 @@ public class ChatController {
         } else {
             messages = Lists.newArrayList();
         }
-        ChatMessage currentMessage = new ChatMessage(ChatRole.USER).setContent(prompt);
+        AzureChatMessage currentMessage = new AzureChatMessage(AzureChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
 
-        sseEmitter.send(SseEmitter.event().id(uid).name("sseEmitter connected！！！！").data(LocalDateTime.now()).reconnectTime(3000));
-        sseEmitter.onCompletion(() -> {
-            log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on completion");
-        });
-        sseEmitter.onTimeout(
-            () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", sseEmitter on timeout#" + sseEmitter.getTimeout()));
-        sseEmitter.onError(
-            throwable -> {
-                try {
-                    log.info(LocalDateTime.now() + ", uid#" + "765431" + ", sseEmitter on error#" + throwable.toString());
-                    sseEmitter.send(SseEmitter.event().id("765431").name("exception occurs！").data(throwable.getMessage())
-                        .reconnectTime(3000));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
+        buildSseEmitter(sseEmitter, uid);
+
         AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
         AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
@@ -392,15 +327,15 @@ public class ChatController {
     }
 
     /**
-     * 使用GPT3.5模型
+     * construct sseEmitter
      *
-     * @param messages
      * @param sseEmitter
      * @param uid
      * @return
+     * @throws IOException
      */
-    private SseEmitter chatGpt35(List<Message> messages, SseEmitter sseEmitter, String uid) throws IOException {
-        sseEmitter.send(SseEmitter.event().id(uid).name("连接成功！！！！").data(LocalDateTime.now()).reconnectTime(3000));
+    private SseEmitter buildSseEmitter(SseEmitter sseEmitter, String uid) throws IOException {
+        sseEmitter.send(SseEmitter.event().id(uid).name("connect successfully！！！！").data(LocalDateTime.now()).reconnectTime(3000));
         sseEmitter.onCompletion(() -> {
             log.info(LocalDateTime.now() + ", uid#" + uid + ", on completion");
         });
@@ -417,46 +352,6 @@ public class ChatController {
                 }
             }
         );
-        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
-        OpenAIClient.getInstance().streamChatCompletion(messages, openAIEventSourceListener);
-        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
-        return sseEmitter;
-    }
-
-    /**
-     * 使用GPT3.0模型
-     *
-     * @param prompt
-     * @param sseEmitter
-     * @param uid
-     * @return
-     */
-    private SseEmitter chatGpt3(String prompt, SseEmitter sseEmitter, String uid) throws IOException {
-        sseEmitter.send(SseEmitter.event().id(uid).name("chatGpt3连接成功！！！！").data(LocalDateTime.now())
-            .reconnectTime(3000));
-        sseEmitter.onCompletion(() -> {
-            log.info(LocalDateTime.now() + ", uid#" + uid + ", on completion");
-        });
-        sseEmitter.onTimeout(
-            () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", chatGpt3 on timeout#" + sseEmitter.getTimeout()));
-        sseEmitter.onError(
-            throwable -> {
-                try {
-                    log.info(LocalDateTime.now() + ", uid#" + "765431" + ", chatGpt3 on error#" + throwable.toString());
-                    sseEmitter.send(SseEmitter.event().id("765431").name("chatGpt3 发生异常！")
-                        .data(throwable.getMessage())
-                        .reconnectTime(3000));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        );
-
-        // 获取返回结果
-        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
-        Completion completion = Completion.builder().maxTokens(RETURN_TOKEN_LENGTH).stream(true).stop(
-            Lists.newArrayList("#", ";")).user(uid).prompt(prompt).build();
-        OpenAIClient.getInstance().streamCompletions(completion, openAIEventSourceListener);
         return sseEmitter;
     }
 
@@ -472,7 +367,12 @@ public class ChatController {
         if (CollectionUtils.isEmpty(tableNames)) {
             return Maps.newHashMap();
         }
-        List<TableColumn> tableColumns = tableService.queryColumns(tableQueryParam);
+        List<TableColumn> tableColumns = Lists.newArrayList();
+        try {
+            tableColumns = tableService.queryColumns(tableQueryParam);
+        } catch (Exception exception) {
+            log.error("query table error, do nothing");
+        }
         if (CollectionUtils.isEmpty(tableColumns)) {
             return Maps.newHashMap();
         }
@@ -520,4 +420,116 @@ public class ChatController {
         }
         return schemaProperty;
     }
+
+    ///**
+    // * 问答对话模型
+    // *
+    // * @param msg
+    // * @param headers
+    // * @return
+    // * @throws IOException
+    // */
+    //@GetMapping("/chat1")
+    //@CrossOrigin
+    //public SseEmitter chat(@RequestParam("message") String msg, @RequestHeader Map<String, String> headers)
+    //    throws IOException {
+    //    //默认30秒超时,设置为0L则永不超时
+    //    SseEmitter sseEmitter = new SseEmitter(CHAT_TIMEOUT);
+    //    String uid = headers.get("uid");
+    //    if (StrUtil.isBlank(uid)) {
+    //        throw new BaseException(CommonError.SYS_ERROR);
+    //    }
+    //    return distributeAI(msg, sseEmitter, uid);
+    //}
+
+    ///**
+    // * distribute with different AI
+    // *
+    // * @return
+    // */
+    //private SseEmitter distributeAI(String msg, SseEmitter sseEmitter, String uid) throws IOException {
+    //    ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+    //    Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+    //    String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+    //    if (Objects.nonNull(config)) {
+    //        aiSqlSource = config.getContent();
+    //    }
+    //    AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
+    //    if (Objects.isNull(aiSqlSourceEnum)) {
+    //        aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+    //    }
+    //    switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+    //        case OPENAI :
+    //            return chatWithOpenAi(msg, sseEmitter, uid);
+    //        case CHAT2DBAI:
+    //            return chatWithOpenAi(msg, sseEmitter, uid);
+    //        case RESTAI :
+    //            return chatWithRestAi(msg, sseEmitter);
+    //    }
+    //    return chatWithOpenAi(msg, sseEmitter, uid);
+    //}
+
+    ///**
+    // * 使用OPENAI聊天相关接口
+    // *
+    // * @param msg
+    // * @param sseEmitter
+    // * @param uid
+    // * @return
+    // * @throws IOException
+    // */
+    //private SseEmitter chatWithOpenAi(String msg, SseEmitter sseEmitter, String uid) throws IOException {
+    //    String messageContext = (String)LocalCache.CACHE.get(uid);
+    //    List<Message> messages = new ArrayList<>();
+    //    if (StrUtil.isNotBlank(messageContext)) {
+    //        messages = JSONUtil.toList(messageContext, Message.class);
+    //        if (messages.size() >= contextLength) {
+    //            messages = messages.subList(1, contextLength);
+    //        }
+    //        Message currentMessage = Message.builder().content(msg).role(Message.Role.USER).build();
+    //        messages.add(currentMessage);
+    //    } else {
+    //        Message currentMessage = Message.builder().content(msg).role(Message.Role.USER).build();
+    //        messages.add(currentMessage);
+    //    }
+    //
+    //    return chatGpt35(messages, sseEmitter, uid);
+    //}
+
+    ///**
+    // * 使用GPT3.0模型
+    // *
+    // * @param prompt
+    // * @param sseEmitter
+    // * @param uid
+    // * @return
+    // */
+    //private SseEmitter chatGpt3(String prompt, SseEmitter sseEmitter, String uid) throws IOException {
+    //    sseEmitter.send(SseEmitter.event().id(uid).name("chatGpt3连接成功！！！！").data(LocalDateTime.now())
+    //        .reconnectTime(3000));
+    //    sseEmitter.onCompletion(() -> {
+    //        log.info(LocalDateTime.now() + ", uid#" + uid + ", on completion");
+    //    });
+    //    sseEmitter.onTimeout(
+    //        () -> log.info(LocalDateTime.now() + ", uid#" + uid + ", chatGpt3 on timeout#" + sseEmitter.getTimeout()));
+    //    sseEmitter.onError(
+    //        throwable -> {
+    //            try {
+    //                log.info(LocalDateTime.now() + ", uid#" + "765431" + ", chatGpt3 on error#" + throwable.toString());
+    //                sseEmitter.send(SseEmitter.event().id("765431").name("chatGpt3 发生异常！")
+    //                    .data(throwable.getMessage())
+    //                    .reconnectTime(3000));
+    //            } catch (IOException e) {
+    //                e.printStackTrace();
+    //            }
+    //        }
+    //    );
+    //
+    //    // 获取返回结果
+    //    OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
+    //    Completion completion = Completion.builder().maxTokens(RETURN_TOKEN_LENGTH).stream(true).stop(
+    //        Lists.newArrayList("#", ";")).user(uid).prompt(prompt).build();
+    //    OpenAIClient.getInstance().streamCompletions(completion, openAIEventSourceListener);
+    //    return sseEmitter;
+    //}
 }

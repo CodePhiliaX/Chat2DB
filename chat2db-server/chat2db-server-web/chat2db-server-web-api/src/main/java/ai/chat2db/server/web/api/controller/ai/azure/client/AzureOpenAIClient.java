@@ -69,7 +69,8 @@ public class AzureOpenAIClient {
             deployId = deployConfig.getContent();
         }
         log.info("refresh azure openai apikey:{}", maskApiKey(key));
-        OPEN_AI_CLIENT = new AzureOpenAiStreamClient(key, apiEndpoint, deployId);
+        OPEN_AI_CLIENT = AzureOpenAiStreamClient.builder().apiKey(key).endpoint(apiEndpoint).deployId(deployId)
+            .build();
         apiKey = key;
     }
 

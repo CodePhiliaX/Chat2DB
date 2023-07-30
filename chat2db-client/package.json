@@ -110,7 +110,7 @@
       "icon": "src/assets/logo/logo.png"
     },
     "linux": {
-      "maintainer": "Jerry Fan, huanyueyaoqin@qq.com",
+      "maintainer": "Chat2DB, huanyueyaoqin@qq.com",
       "category": "Network;",
       "target": [
         "AppImage",

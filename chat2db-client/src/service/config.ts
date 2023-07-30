@@ -1,4 +1,4 @@
-import { AiSqlSourceType } from '@/typings/ai';
+import { IAiConfig } from '@/typings';
 import createRequest from './base';
 const getSystemConfig = createRequest<{ code: string }, { code: string; content: string }>(
   '/api/config/system_config/:code',
@@ -9,25 +9,11 @@ const setSystemConfig = createRequest<{ code: string; content: string }, void>('
   method: 'post',
 });
 
-export interface IChatGPTConfig {
-  chat2dbApiKey: string;
-  chat2dbApiHost: string;
-  apiKey: string;
-  httpProxyHost: string;
-  httpProxyPort: string;
-  restAiUrl: string;
-  apiHost: string;
-  aiSqlSource: AiSqlSourceType;
-  restAiStream: boolean;
-  azureEndpoint: string;
-  azureApiKey: string;
-  azureDeploymentId: string;
-}
-const getChatGptSystemConfig = createRequest<void, IChatGPTConfig>('/api/config/system_config/chatgpt', {
+const getAiSystemConfig = createRequest<{ aiSqlSource?: string }, IAiConfig>('/api/config/system_config/ai', {
   errorLevel: false,
 });
 
-const setChatGptSystemConfig = createRequest<IChatGPTConfig, void>('/api/config/system_config/chatgpt', {
+const setAiSystemConfig = createRequest<IAiConfig, void>('/api/config/system_config/ai', {
   errorLevel: 'toast',
   method: 'post',
 });
@@ -35,6 +21,6 @@ const setChatGptSystemConfig = createRequest<IChatGPTConfig, void>('/api/config/
 export default {
   getSystemConfig,
   setSystemConfig,
-  getChatGptSystemConfig,
-  setChatGptSystemConfig,
+  getAiSystemConfig,
+  setAiSystemConfig,
 };

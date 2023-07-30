@@ -219,7 +219,7 @@
             <dependency>
                 <groupId>org.zalando</groupId>
                 <artifactId>logbook-spring-boot-starter</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-indexer -->
@@ -235,11 +235,6 @@
                 <version>1.9.4</version>
             </dependency>
             <dependency>
-                <groupId>com.azure</groupId>
-                <artifactId>azure-ai-openai</artifactId>
-                <version>1.0.0-beta.2</version>
-            </dependency>
-            <dependency>
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>3.10.8</version>
@@ -253,6 +248,11 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>3.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -209,6 +209,11 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
           <div className={styles.contentText} >
             <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
             {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
+            {/* {data.treeNodeType === TreeNodeType.TABLE &&
+              <Tooltip placement='right' title='我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀'>
+                <div className={styles.describe}>我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀</div>
+              </Tooltip>
+            } */}
           </div>
         </div>
         <div className='moreBox'>

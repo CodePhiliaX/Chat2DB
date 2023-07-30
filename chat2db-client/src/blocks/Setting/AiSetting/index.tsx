@@ -1,89 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import configService, { IChatGPTConfig } from '@/service/config';
+import configService from '@/service/config';
 import { AiSqlSourceType } from '@/typings/ai';
-import { Button, Input, message, Radio } from 'antd';
+import { Button, Input, Radio } from 'antd';
 import i18n from '@/i18n';
 import classnames from 'classnames';
-import Popularize from '@/components/Popularize';
-import { IAIState } from '@/models/ai';
+import { IAiConfig } from '@/typings/setting';
 import styles from './index.less';
-
+import Popularize from '@/components/Popularize';
 interface IProps {
-  handleUpdateAiConfig: (payload: IAIState['keyAndAiType']) => void;
-  chatGPTConfig: IChatGPTConfig;
+  handleApplyAiConfig: (aiConfig: IAiConfig) => void;
+  aiConfig: IAiConfig;
 }
 
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
-  const { handleUpdateAiConfig } = props;
-  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(props?.chatGPTConfig);
+  const [aiConfig, setAiConfig] = useState<IAiConfig>(props?.aiConfig);
 
-  if (!chatGPTConfig) {
+  if (!aiConfig) {
     return null;
   }
 
   useEffect(() => {
-    setChatGPTConfig(props.chatGPTConfig);
-  }, [props.chatGPTConfig]);
+    setAiConfig(props.aiConfig);
+  }, [props.aiConfig]);
 
-  function changeChatGPTApiKey() {
-    const newChatGPTConfig = { ...chatGPTConfig };
-    if (newChatGPTConfig.apiHost && !newChatGPTConfig.apiHost?.endsWith('/')) {
-      newChatGPTConfig.apiHost = newChatGPTConfig.apiHost + '/';
-    }
-    if (chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-      newChatGPTConfig.chat2dbApiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
-    }
-    configService.setChatGptSystemConfig(newChatGPTConfig).then((res) => {
-      message.success(i18n('common.text.submittedSuccessfully'));
+  const handleAiTypeChange = async (e) => {
+    const aiSqlSource = e.target.value;
+
+    // 查询对应ai类型的配置
+    const res = await configService.getAiSystemConfig({
+      aiSqlSource,
     });
+    setAiConfig(res);
+  };
 
-    handleUpdateAiConfig &&
-      handleUpdateAiConfig({
-        key: newChatGPTConfig.chat2dbApiHost,
-        aiType: newChatGPTConfig.aiSqlSource,
-      });
-  }
+  /** 应用Ai配置 */
+  const handleApplyAiConfig = () => {
+    const newAiConfig = { ...aiConfig };
+    if (newAiConfig.apiHost && !newAiConfig.apiHost?.endsWith('/')) {
+      newAiConfig.apiHost = newAiConfig.apiHost + '/';
+    }
+    if (aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+      newAiConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
+    }
+
+    if (props.handleApplyAiConfig) {
+      props.handleApplyAiConfig(newAiConfig);
+    }
+  };
 
   return (
     <>
       <div className={styles.aiSqlSource}>
         <div className={styles.aiSqlSourceTitle}>{i18n('setting.title.aiSource')}:</div>
-        <Radio.Group
-          onChange={(e) => {
-            setChatGPTConfig({ ...chatGPTConfig, aiSqlSource: e.target.value });
-          }}
-          value={chatGPTConfig?.aiSqlSource}
-        >
+        <Radio.Group onChange={handleAiTypeChange} value={aiConfig?.aiSqlSource}>
           <Radio value={AiSqlSourceType.CHAT2DBAI}>Chat2DB AI</Radio>
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
         </Radio.Group>
       </div>
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
+
+      {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.chat2dbApiKey')}
-              value={chatGPTConfig.chat2dbApiKey}
+              value={aiConfig.apiKey}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, chat2dbApiKey: e.target.value });
+                setAiConfig({ ...aiConfig, apiKey: e.target.value });
               }}
             />
           </div>
         </div>
       )}
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
+      {aiConfig?.aiSqlSource === AiSqlSourceType.OPENAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.apiKey')}
-              value={chatGPTConfig.apiKey}
+              value={aiConfig.apiKey}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, apiKey: e.target.value });
+                setAiConfig({ ...aiConfig, apiKey: e.target.value });
               }}
             />
           </div>
@@ -91,9 +91,9 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.apiHost')}
-              value={chatGPTConfig.apiHost}
+              value={aiConfig.apiHost}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, apiHost: e.target.value });
+                setAiConfig({ ...aiConfig, apiHost: e.target.value });
               }}
             />
           </div>
@@ -101,10 +101,10 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.httpsProxy', 'host')}
-              value={chatGPTConfig.httpProxyHost}
+              value={aiConfig.httpProxyHost}
               onChange={(e) => {
-                setChatGPTConfig({
-                  ...chatGPTConfig,
+                setAiConfig({
+                  ...aiConfig,
                   httpProxyHost: e.target.value,
                 });
               }}
@@ -114,10 +114,10 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.httpsProxy', 'port')}
-              value={chatGPTConfig.httpProxyPort}
+              value={aiConfig.httpProxyPort}
               onChange={(e) => {
-                setChatGPTConfig({
-                  ...chatGPTConfig,
+                setAiConfig({
+                  ...aiConfig,
                   httpProxyPort: e.target.value,
                 });
               }}
@@ -125,15 +125,15 @@ export default function SettingAI(props: IProps) {
           </div>
         </div>
       )}
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.AZUREAI && (
+      {aiConfig?.aiSqlSource === AiSqlSourceType.AZUREAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.azureOpenAIKey')}
-              value={chatGPTConfig.azureApiKey}
+              value={aiConfig.apiKey}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, azureApiKey: e.target.value });
+                setAiConfig({ ...aiConfig, apiKey: e.target.value });
               }}
             />
           </div>
@@ -141,9 +141,9 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.azureEndpoint')}
-              value={chatGPTConfig.azureEndpoint}
+              value={aiConfig.apiHost}
               onChange={(e) => {
-                setChatGPTConfig({ ...chatGPTConfig, azureEndpoint: e.target.value });
+                setAiConfig({ ...aiConfig, apiHost: e.target.value });
               }}
             />
           </div>
@@ -151,28 +151,28 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.azureDeployment')}
-              value={chatGPTConfig.azureDeploymentId}
+              value={aiConfig.model}
               onChange={(e) => {
-                setChatGPTConfig({
-                  ...chatGPTConfig,
-                  azureDeploymentId: e.target.value,
+                setAiConfig({
+                  ...aiConfig,
+                  model: e.target.value,
                 });
               }}
             />
           </div>
         </div>
       )}
-      {chatGPTConfig?.aiSqlSource === AiSqlSourceType.RESTAI && (
+      {aiConfig?.aiSqlSource === AiSqlSourceType.RESTAI && (
         <div>
           <div className={styles.title}>{i18n('setting.label.customAiUrl')}</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
               placeholder={i18n('setting.placeholder.customUrl')}
-              value={chatGPTConfig.restAiUrl}
+              value={aiConfig.apiHost}
               onChange={(e) => {
-                setChatGPTConfig({
-                  ...chatGPTConfig,
-                  restAiUrl: e.target.value,
+                setAiConfig({
+                  ...aiConfig,
+                  apiHost: e.target.value,
                 });
               }}
             />
@@ -181,12 +181,12 @@ export default function SettingAI(props: IProps) {
           <div className={classnames(styles.content)}>
             <Radio.Group
               onChange={(e) => {
-                setChatGPTConfig({
-                  ...chatGPTConfig,
-                  restAiStream: e.target.value,
+                setAiConfig({
+                  ...aiConfig,
+                  stream: e.target.value,
                 });
               }}
-              value={chatGPTConfig.restAiStream}
+              value={aiConfig.stream}
             >
               <Radio value={true}>{i18n('common.text.is')}</Radio>
               <Radio value={false}>{i18n('common.text.no')}</Radio>
@@ -195,14 +195,15 @@ export default function SettingAI(props: IProps) {
         </div>
       )}
       <div className={styles.bottomButton}>
-        <Button type="primary" onClick={changeChatGPTApiKey}>
+        {/* <Button >
+
+        </Button> */}
+        <Button type="primary" onClick={handleApplyAiConfig}>
           {i18n('setting.button.apply')}
         </Button>
       </div>
-      {/* {chatGPTConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && (
-        <Popularize source='setting'></Popularize>
-      )
-      } */}
+
+      {aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />}
     </>
   );
 }
