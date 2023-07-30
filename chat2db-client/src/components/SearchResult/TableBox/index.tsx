@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { TableDataType } from '@/constants/table';
 import { IManageResultData, IResultConfig } from '@/typings/database';
 import { formatDate } from '@/utils/date';
-import { Button, message, Modal } from 'antd';
+import { Button, Dropdown, MenuProps, message, Modal, Space } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import Iconfont from '../../Iconfont';
 import classnames from 'classnames';
@@ -14,6 +14,8 @@ import { ThemeType } from '@/constants';
 import i18n from '@/i18n';
 import { compareStrings } from '@/utils/sort';
 import MyPagination from '../Pagination';
+import { DownOutlined, UserOutlined } from '@ant-design/icons';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import styles from './index.less';
 
 interface ITableProps {
@@ -22,6 +24,7 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
+  onExport: (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => void;
 }
 
 interface IViewTableCellData {
@@ -50,6 +53,44 @@ export default function TableBox(props: ITableProps) {
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
+
+  const items: MenuProps['items'] = useMemo(
+    () => [
+      {
+        label: '导出全部数据为csv',
+        key: '1',
+        icon: <UserOutlined />,
+        onClick: () => {
+          props.onExport && props.onExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
+        },
+      },
+      {
+        label: '导出全部数据为插入语句',
+        key: '2',
+        icon: <UserOutlined />,
+        onClick: () => {
+          props.onExport && props.onExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
+        },
+      },
+      {
+        label: '导出当前页数据为csv',
+        key: '3',
+        icon: <UserOutlined />,
+        onClick: () => {
+          props.onExport && props.onExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
+        },
+      },
+      {
+        label: '导出当前页数据为插入语句',
+        key: '4',
+        icon: <UserOutlined />,
+        onClick: () => {
+          props.onExport && props.onExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
+        },
+      },
+    ],
+    [],
+  );
 
   const defaultSorts: SortItem[] = useMemo(
     () =>
@@ -188,16 +229,15 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-            {/* <div className={styles.toolBarItem}>
-              <Button
-                type='text'
-                onClick={() => {
-                  console.log('config', config);
-                }}
-              >
-                导出Excel
+
+            <Dropdown menu={{ items }}>
+              <Button>
+                <Space>
+                  {i18n('common.text.export')}
+                  <DownOutlined />
+                </Space>
               </Button>
-            </div> */}
+            </Dropdown>
           </div>
           <DarkSupportBaseTable
             className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
