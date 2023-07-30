@@ -24,7 +24,7 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
-  onExport: (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => void;
+  onExport: (sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => void;
 }
 
 interface IViewTableCellData {
@@ -54,6 +54,10 @@ export default function TableBox(props: ITableProps) {
   const [appTheme] = useTheme();
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
+  const handleExport = (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+    props.onExport && props.onExport(data.sql, data.originalSql, exportType, exportSize);
+  };
+
   const items: MenuProps['items'] = useMemo(
     () => [
       {
@@ -61,7 +65,7 @@ export default function TableBox(props: ITableProps) {
         key: '1',
         icon: <UserOutlined />,
         onClick: () => {
-          props.onExport && props.onExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
+          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
         },
       },
       {
@@ -69,7 +73,7 @@ export default function TableBox(props: ITableProps) {
         key: '2',
         icon: <UserOutlined />,
         onClick: () => {
-          props.onExport && props.onExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
+          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
         },
       },
       {
@@ -77,7 +81,7 @@ export default function TableBox(props: ITableProps) {
         key: '3',
         icon: <UserOutlined />,
         onClick: () => {
-          props.onExport && props.onExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
+          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
         },
       },
       {
@@ -85,11 +89,11 @@ export default function TableBox(props: ITableProps) {
         key: '4',
         icon: <UserOutlined />,
         onClick: () => {
-          props.onExport && props.onExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
+          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
         },
       },
     ],
-    [],
+    [data],
   );
 
   const defaultSorts: SortItem[] = useMemo(
