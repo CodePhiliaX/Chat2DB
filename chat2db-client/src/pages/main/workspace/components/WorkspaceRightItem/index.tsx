@@ -139,8 +139,13 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     return total;
   };
 
-  const handleExportSQLResult = async (originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
-    const params: IExportParams = { ...data, originalSql, exportType, exportSize };
+  const handleExportSQLResult = async (
+    sql: string,
+    originalSql: string,
+    exportType: ExportTypeEnum,
+    exportSize: ExportSizeEnum,
+  ) => {
+    const params: IExportParams = { ...data, sql, originalSql, exportType, exportSize };
 
     await sqlServer.exportResultTable(params);
   };
