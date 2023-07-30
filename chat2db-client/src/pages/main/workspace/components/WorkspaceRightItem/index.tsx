@@ -15,6 +15,7 @@ import { v4 as uuidV4 } from 'uuid';
 import sql from '@/service/sql';
 import { isNumber } from 'lodash';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
+import { downloadFile } from '@/utils/common';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -146,8 +147,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     exportSize: ExportSizeEnum,
   ) => {
     const params: IExportParams = { ...data, sql, originalSql, exportType, exportSize };
-
-    await sqlServer.exportResultTable(params);
+    downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
 
   const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {

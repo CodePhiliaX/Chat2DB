@@ -123,7 +123,7 @@ export interface IExportParams extends IExecuteSqlParams {
 /**
  * 导出-表格
  */
-const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
+// const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
 
 export default {
   getList,
@@ -142,5 +142,5 @@ export default {
   addTablePin,
   deleteTablePin,
   getDMLCount,
-  exportResultTable
+  // exportResultTable
 };
