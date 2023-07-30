@@ -4,17 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import ai.chat2db.server.start.test.common.BaseTest;
-
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.google.common.collect.Lists;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +32,7 @@ public class MybatisGeneratorTest extends BaseTest {
         //doGenerator(Lists.newArrayList("data_source"));
         //doGenerator(Lists.newArrayList("operation_log"));
         //doGenerator(Lists.newArrayList("operation_saved"));
-        doGenerator(Lists.newArrayList("dbhub_user"));
+        doGenerator(Lists.newArrayList("environment","data_source","team","team_dbhub_user","team_role","data_source_access"));
     }
 
     private void doGenerator(List<String> tableList) {
