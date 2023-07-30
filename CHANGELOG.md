@@ -1,3 +1,13 @@
+# 2.0.7
+## ⭐ New Features
+
+- Export query result as file is supported
+
+## 🐞 Bug Fixes
+
+- Fixed ai config issues [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
+
+
 # 2.0.6
 
 ## 🐞 Bug Fixes
