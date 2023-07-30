@@ -2,15 +2,11 @@
 package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.user.converter.DataSourceAdminConverter;
 import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
-import ai.chat2db.server.admin.api.controller.user.request.UserUpdateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
-import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,18 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * User Management
+ * User Team Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/user")
+@RequestMapping("/api/admin/user/team")
 @RestController
-public class UserController {
-
-    @Resource
-    private DataSourceService dataSourceService;
-    @Resource
-    private DataSourceAdminConverter dataSourceAdminConverter;
+public class UserTeamController {
 
     /**
      * Pagination query
@@ -57,18 +48,6 @@ public class UserController {
     public DataResult<Long> create(@RequestBody UserCreateRequest request) {
         return null;
 
-    }
-
-    /**
-     * update
-     *
-     * @param request
-     * @return
-     * @version 2.1.0
-     */
-    @PostMapping("/update")
-    public ActionResult update(@RequestBody UserUpdateRequest request) {
-        return null;
     }
 
     /**

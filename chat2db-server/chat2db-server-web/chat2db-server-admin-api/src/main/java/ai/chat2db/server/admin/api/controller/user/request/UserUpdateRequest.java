@@ -1,23 +1,15 @@
-package ai.chat2db.server.domain.api.model;
+package ai.chat2db.server.admin.api.controller.user.request;
 
-import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 用户信息
- *
- * @author Jiaju Zhuang
+ * create
+ *@author Jiaju Zhuang
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
+public class UserUpdateRequest {
     /**
      * 主键
      */
@@ -47,13 +39,6 @@ public class User {
      */
     @NotNull
     private String email;
-
-    /**
-     * 角色编码
-     *
-     * @see RoleCodeEnum
-     */
-    private String roleCode;
 
     /**
      * 用户状态

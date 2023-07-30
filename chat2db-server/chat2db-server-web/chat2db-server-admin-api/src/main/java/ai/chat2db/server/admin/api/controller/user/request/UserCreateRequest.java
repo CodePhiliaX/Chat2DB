@@ -1,5 +1,6 @@
 package ai.chat2db.server.admin.api.controller.user.request;
 
+import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -9,12 +10,6 @@ import lombok.Data;
  */
 @Data
 public class UserCreateRequest {
-    /**
-     * 主键
-     */
-    @NotNull
-    private Long id;
-
     /**
      * 用户名
      */
@@ -38,4 +33,12 @@ public class UserCreateRequest {
      */
     @NotNull
     private String email;
+
+    /**
+     * 用户状态
+     *
+     * @see ValidStatusEnum
+     */
+    @NotNull
+    private String status;
 }
