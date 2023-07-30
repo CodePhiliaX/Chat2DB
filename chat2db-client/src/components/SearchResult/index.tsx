@@ -108,8 +108,8 @@ export default memo<IProps>(function SearchResult(props) {
                   return await props.onSearchTotal(index);
                 }
               }}
-              onExport={() => {
-                props.onExport && props.onExport(item.originalSql, ExportTypeEnum.CSV, ExportSizeEnum.ALL);
+              onExport={(exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+                props.onExport && props.onExport(item.originalSql, exportType, exportSize);
               }}
             />
           </Fragment>
