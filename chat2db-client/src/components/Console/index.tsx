@@ -382,11 +382,12 @@ function Console(props: IProps) {
    */
   const handlePopUp = () => {
     setModalProps({
-      imageUrl: 'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp',
+      imageUrl:
+        'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp',
       tip: (
         <>
           {aiModel.remainingUse?.remainingUses === 0 && <p>Key次数用完或者过期</p>}
-          <p>微信扫描二维码并关注公众号“每天”可以获得 25 次 AI 使用机会。</p>
+          <p>微信扫描二维码并关注公众号获得 AI 使用机会。</p>
         </>
       ),
     });
@@ -432,7 +433,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-        // onChange={}
+          // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>

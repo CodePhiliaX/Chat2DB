@@ -61,33 +61,33 @@ export default function TableBox(props: ITableProps) {
   const items: MenuProps['items'] = useMemo(
     () => [
       {
-        label: '导出全部数据为csv',
+        label: i18n('workspace.table.export.all.csv'),
         key: '1',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
         },
       },
       {
-        label: '导出全部数据为插入语句',
+        label: i18n('workspace.table.export.all.insert'),
         key: '2',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
         },
       },
       {
-        label: '导出当前页数据为csv',
+        label: i18n('workspace.table.export.cur.csv'),
         key: '3',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
         },
       },
       {
-        label: '导出当前页数据为插入语句',
+        label: i18n('workspace.table.export.cur.insert'),
         key: '4',
-        icon: <UserOutlined />,
+        // icon: <UserOutlined />,
         onClick: () => {
           handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
         },
@@ -264,6 +264,7 @@ export default function TableBox(props: ITableProps) {
         open={!!viewTableCellData?.name}
         onCancel={handleCancel}
         width="60vw"
+        height="70vh"
         maskClosable={false}
         footer={
           <>
