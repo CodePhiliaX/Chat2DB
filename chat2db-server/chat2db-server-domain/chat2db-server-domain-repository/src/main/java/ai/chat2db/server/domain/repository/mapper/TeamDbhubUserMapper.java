@@ -1,16 +1,16 @@
 package ai.chat2db.server.domain.repository.mapper;
 
-import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.entity.TeamDbhubUserDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 数据源连接表 Mapper 接口
+ * 用户团队表 Mapper 接口
  * </p>
  *
  * @author chat2db
  * @since 2023-07-30
  */
-public interface DataSourceMapper extends BaseMapper<DataSourceDO> {
+public interface TeamDbhubUserMapper extends BaseMapper<TeamDbhubUserDO> {
 
 }

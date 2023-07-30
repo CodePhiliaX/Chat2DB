@@ -1,11 +1,10 @@
 package ai.chat2db.server.domain.repository.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,8 +13,8 @@ import lombok.Setter;
  * 数据源连接表
  * </p>
  *
- * @author ali-dbhub
- * @since 2022-12-28
+ * @author chat2db
+ * @since 2023-07-30
  */
 @Getter
 @Setter
@@ -41,7 +40,7 @@ public class DataSourceDO implements Serializable {
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源名称
+     * 别名
      */
     private String alias;
 
@@ -76,22 +75,22 @@ public class DataSourceDO implements Serializable {
     private Long userId;
 
     /**
-     * host
+     * host地址
      */
     private String host;
 
     /**
-     * port
+     * 端口
      */
     private String port;
 
     /**
-     * ssh
+     * ssh配置信息json
      */
     private String ssh;
 
     /**
-     * ssh
+     * ssl配置信息json
      */
     private String ssl;
 
@@ -101,7 +100,7 @@ public class DataSourceDO implements Serializable {
     private String sid;
 
     /**
-     * driver
+     * 驱动信息
      */
     private String driver;
 
@@ -111,12 +110,17 @@ public class DataSourceDO implements Serializable {
     private String jdbc;
 
     /**
-     * 扩展信息
+     * 自定义扩展字段json
      */
     private String extendInfo;
 
     /**
-     * 驱动配置
+     * driver_config配置
      */
     private String driverConfig;
+
+    /**
+     * 环境id
+     */
+    private Long environmentId;
 }
