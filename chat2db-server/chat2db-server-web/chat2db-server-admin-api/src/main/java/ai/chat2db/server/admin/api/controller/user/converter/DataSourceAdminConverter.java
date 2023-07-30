@@ -1,10 +1,8 @@
-package ai.chat2db.server.admin.api.controller.datasource.converter;
+package ai.chat2db.server.admin.api.controller.user.converter;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
-import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
-import ai.chat2db.server.domain.api.model.DataSource;
+import ai.chat2db.server.admin.api.controller.user.request.DataSourceUpdateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
@@ -36,13 +34,13 @@ public abstract class DataSourceAdminConverter {
      */
     public abstract DataSourcePageQueryParam request2paramAccess(CommonPageQueryRequest request);
 
-    /**
-     * conversion
-     *
-     * @param dto
-     * @return
-     */
-    public abstract DataSourcePageQueryVO dto2vo(DataSource dto);
+    ///**
+    // * conversion
+    // *
+    // * @param dto
+    // * @return
+    // */
+    //public abstract DataSourcePageQueryVO dto2vo(DataSource dto);
 
     /**
      * 参数转换
@@ -53,7 +51,7 @@ public abstract class DataSourceAdminConverter {
     @Mappings({
         @Mapping(source = "user", target = "userName")
     })
-    public abstract DataSourceCreateParam createReq2param(DataSourceCreateRequest request);
+    public abstract DataSourceCreateParam createReq2param(UserCreateRequest request);
 
     /**
      * 参数转换

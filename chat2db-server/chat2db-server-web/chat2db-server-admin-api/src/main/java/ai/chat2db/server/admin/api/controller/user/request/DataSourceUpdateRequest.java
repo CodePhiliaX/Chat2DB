@@ -1,41 +1,31 @@
-package ai.chat2db.server.domain.api.model;
+package ai.chat2db.server.admin.api.controller.user.request;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 
+import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.springframework.util.ObjectUtils;
 
 /**
  * @author moji
- * @version DataSourceDTO.java, v 0.1 2022年09月23日 15:39 moji Exp $
- * @date 2022/09/23
+ * @version ConnectionCreateRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @date 2022/09/16
  */
 @Data
-public class DataSource {
+public class DataSourceUpdateRequest {
 
     /**
-     * 主键
+     * 主键id
      */
+    @NotNull
     private Long id;
 
     /**
-     * 创建时间
-     */
-    private LocalDateTime gmtCreate;
-
-    /**
-     * 修改时间
-     */
-    private LocalDateTime gmtModified;
-
-    /**
-     * 别名
+     * 连接别名
      */
     private String alias;
 
@@ -45,9 +35,9 @@ public class DataSource {
     private String url;
 
     /**
-     * 用户名
+     * 连接用户
      */
-    private String userName;
+    private String user;
 
     /**
      * 密码
@@ -55,14 +45,17 @@ public class DataSource {
     private String password;
 
     /**
-     * 数据库类型
+     * 连接类型
      */
     private String type;
 
     /**
      * 环境类型
+     * @see EnvTypeEnum
      */
     private String envType;
+
+
 
     /**
      * host
@@ -94,6 +87,7 @@ public class DataSource {
      */
     private String driver;
 
+
     /**
      * jdbc版本
      */
@@ -108,25 +102,4 @@ public class DataSource {
      * 驱动配置
      */
     private DriverConfig driverConfig;
-
-    /**
-     * 环境id
-     */
-    private Long environmentId;
-
-    /**
-     * 环境
-     */
-    private Environment environment;
-
-    public LinkedHashMap<String, Object> getExtendMap() {
-        if (ObjectUtils.isEmpty(extendInfo)) {
-            return new LinkedHashMap<>();
-        }
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        for (KeyValue keyValue : extendInfo) {
-            map.put(keyValue.getKey(), keyValue.getValue());
-        }
-        return map;
-    }
 }

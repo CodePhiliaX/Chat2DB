@@ -4,32 +4,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>ai.chat2db</groupId>
-        <artifactId>chat2db-server-domain</artifactId>
+        <artifactId>chat2db-server-web</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>chat2db-server-domain-api</artifactId>
+    <artifactId>chat2db-server-common-api</artifactId>
+    <packaging>jar</packaging>
+    <name>chat2db-server-common-api</name>
 
     <dependencies>
         <dependency>
             <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-server-tools-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <scope>provided</scope>
+            <artifactId>chat2db-server-tools-common</artifactId>
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-spi</artifactId>
+            <artifactId>chat2db-server-domain-api</artifactId>
         </dependency>
     </dependencies>
+
 </project>

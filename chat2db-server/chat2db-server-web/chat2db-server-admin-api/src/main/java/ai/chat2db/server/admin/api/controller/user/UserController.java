@@ -1,12 +1,12 @@
 
-package ai.chat2db.server.admin.api.controller.datasource;
+package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCloneRequest;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
-import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
-import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.converter.DataSourceAdminConverter;
+import ai.chat2db.server.admin.api.controller.user.request.DataSourceCloneRequest;
+import ai.chat2db.server.admin.api.controller.user.request.DataSourceUpdateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Data Source Management
+ * User Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/data/source")
+@RequestMapping("/api/admin/user")
 @RestController
-public class DataSourceController {
+public class UserController {
 
     @Resource
     private DataSourceService dataSourceService;
@@ -45,9 +45,8 @@ public class DataSourceController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<DataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return dataSourceService.queryPage(dataSourceAdminConverter.request2param(request), null)
-            .mapToWeb(dataSourceAdminConverter::dto2vo);
+    public WebPageResult<UserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
+        return null;
     }
 
     /**
@@ -58,7 +57,7 @@ public class DataSourceController {
      * @version 2.1.0
      */
     @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody DataSourceCreateRequest request) {
+    public DataResult<Long> create(@RequestBody UserCreateRequest request) {
         DataSourceCreateParam param = dataSourceAdminConverter.createReq2param(request);
         return dataSourceService.create(param);
     }

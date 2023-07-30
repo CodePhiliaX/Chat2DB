@@ -1,16 +1,16 @@
 
-package ai.chat2db.server.admin.api.controller.datasource.request;
+package ai.chat2db.server.admin.api.controller.common.request;
 
 import ai.chat2db.server.tools.base.wrapper.request.PageQueryRequest;
 import lombok.Data;
 
 /**
- * Pagination query
+ * Common pagination query
  *
  * @author Jiaju Zhuang
  */
 @Data
-public class DataSourcePageQueryRequest extends PageQueryRequest {
+public class CommonPageQueryRequest extends PageQueryRequest {
 
     /**
      * searchKey

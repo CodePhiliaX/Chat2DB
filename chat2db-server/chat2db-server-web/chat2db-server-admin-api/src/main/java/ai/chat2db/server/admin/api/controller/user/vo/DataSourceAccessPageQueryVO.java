@@ -1,5 +1,5 @@
 
-package ai.chat2db.server.admin.api.controller.datasource.vo;
+package ai.chat2db.server.admin.api.controller.user.vo;
 
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import jakarta.validation.constraints.NotNull;
