@@ -51,7 +51,6 @@
   display: flex;
   justify-content: start;
   align-items: center;
-  white-space: pre;
   &:not(:last-child) {
     border-right: 1px solid var(--color-border);
   }
@@ -59,10 +58,6 @@
 
 .table {
   flex: 1;
-}
-
-.monacoEditor{
-  height: 60vh;
 }
 
 .statusBar {
@@ -83,12 +78,12 @@
 }
 
 .tableItem {
-  position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  // cursor: pointer;
+  // display: flex;
+  // align-items: center;
+  // justify-content: space-between;
 
   // height: 100%;
   max-height: 120px;
@@ -99,30 +94,32 @@
   // }
 
   &:hover .tableHoverBox {
-    display: flex;
+    // display: flex !important;
+    display: block;
   }
 }
 
 .tableHoverBox {
-  align-items: center;
   position: absolute;
   top: 0px;
   right: 0px;
   width: 40px;
   display: none;
   align-items: center;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  // position: absolute;
+  background-color: var(--color-bg-elevated);
+  // top: 0;
+  // right: 0;
+  // bottom: 0;
+  cursor: pointer;
 
   i {
     font-size: 15px;
     margin: 0px 2px;
-    cursor: pointer;
   }
 
   i:hover {
-    color: var(--color-primary);
+    color: var(--custom-primary-color);
   }
 }
 
@@ -142,4 +139,8 @@
       }
     }
   }
+}
+
+.monacoEditor {
+  height: 60vh;
 }
