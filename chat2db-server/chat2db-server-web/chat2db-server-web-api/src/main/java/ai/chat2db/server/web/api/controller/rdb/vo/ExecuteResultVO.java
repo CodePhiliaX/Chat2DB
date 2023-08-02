@@ -39,6 +39,11 @@ public class ExecuteResultVO {
     private Boolean success;
 
     /**
+     * 修改行数 查询sql不会返回
+     */
+    private Integer updateCount;
+
+    /**
      * 展示头的列表
      */
     private List<HeaderVO> headerList;

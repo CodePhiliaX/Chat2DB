@@ -49,7 +49,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
 
 export default function TableBox(props: ITableProps) {
   const { className, data, config, onConfigChange, onSearchTotal } = props;
-  const { headerList, dataList, duration, description } = data || {};
+  const { headerList, dataList, duration, description, sqlType } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
@@ -175,12 +175,11 @@ export default function TableBox(props: ITableProps) {
           if (type === TableDataType.DATETIME && i) {
             rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
           } else if (i === null) {
-            rowData[columns[index].name] = '';
+            rowData[columns[index].name] = '<null>';
           } else {
             rowData[columns[index].name] = i;
           }
         });
-        rowData.key = rowIndex;
         return rowData;
       });
     }
@@ -220,9 +219,24 @@ export default function TableBox(props: ITableProps) {
       return await props.onSearchTotal();
     }
   };
-  return (
-    <div className={classnames(className, styles.tableBox)}>
-      {columns.length ? (
+  const renderContent = () => {
+    const bottomStatus = (
+      <div className={styles.statusBar}>
+        <span>{`【${i18n('common.text.result')}】${description}.`}</span>
+        <span>{`【${i18n('common.text.timeConsuming')}】${duration}ms.`}</span>
+        <span>{`【${i18n('common.text.searchRow')}】${tableData.length} ${i18n('common.text.row')}.`}</span>
+      </div>
+    );
+
+    if (!columns.length || sqlType !== 'SELECT') {
+      return (
+        <>
+          <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
+          <div style={{ position: 'absolute', bottom: 0 }}>{bottomStatus}</div>
+        </>
+      );
+    } else {
+      return (
         <>
           <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
@@ -250,15 +264,15 @@ export default function TableBox(props: ITableProps) {
             stickyTop={31}
             {...pipeline.getProps()}
           />
-          <div className={styles.statusBar}>
-            <span>{`【${i18n('common.text.result')}】${description}.`}</span>
-            <span>{`【${i18n('common.text.timeConsuming')}】${duration}ms.`}</span>
-            <span>{`【${i18n('common.text.searchRow')}】${tableData.length} ${i18n('common.text.row')}.`}</span>
-          </div>
+          {bottomStatus}
         </>
-      ) : (
-        <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
-      )}
+      );
+    }
+  };
+  return (
+    <div className={classnames(className, styles.tableBox)}>
+      {renderContent()}
+
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}
