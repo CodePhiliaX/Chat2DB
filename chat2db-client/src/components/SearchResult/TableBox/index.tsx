@@ -180,7 +180,6 @@ export default function TableBox(props: ITableProps) {
             rowData[columns[index].name] = i;
           }
         });
-        rowData.key = rowIndex;
         return rowData;
       });
     }
