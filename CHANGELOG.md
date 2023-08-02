@@ -3,10 +3,12 @@
 ## 🐞 Bug Fixes
 
 - Repair the Scientific notation in some databases  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- Fix some cases where data is not displayed
 
 ## 🐞 问题修复
 
 - 修复部分数据库出现科学计数法的情况  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- 修复部分情况数据不展示
 
 # 2.0.7
 
