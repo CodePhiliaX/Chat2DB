@@ -169,7 +169,7 @@ $ yarn run start:web
 $ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
 $ cd chat2db-server/chat2db-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+$ java -jar  -Dloader.path=/lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
 ```
 
 ## 📑 Documentation
