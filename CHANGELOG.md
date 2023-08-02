@@ -1,3 +1,13 @@
+# 2.0.8
+
+## 🐞 Bug Fixes
+
+- Repair the Scientific notation in some databases  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+
+## 🐞 问题修复
+
+- 修复部分数据库出现科学计数法的情况  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+
 # 2.0.7
 
 ## ⭐ New Features

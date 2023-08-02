@@ -1,5 +1,6 @@
 package ai.chat2db.spi.util;
 
+import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
@@ -180,6 +181,15 @@ public class JdbcUtils {
         if (obj instanceof LocalDate localDate) {
             return Objects.toString(localDate);
         }
+        if (obj instanceof BigDecimal bigDecimal) {
+            return bigDecimal.toPlainString();
+        }
+        if (obj instanceof Double d) {
+            return BigDecimal.valueOf(d).toPlainString();
+        }
+        if (obj instanceof Float f) {
+            return BigDecimal.valueOf(f).toPlainString();
+        }
         if (obj instanceof Number num) {
             return Objects.toString(num);
         }
@@ -196,11 +206,11 @@ public class JdbcUtils {
      * @return
      */
     public static DataSourceConnect testConnect(String url, String host, String port,
-                                                String userName, String password, String dbType,
-                                                DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
+        String userName, String password, String dbType,
+        DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
         DataSourceConnect dataSourceConnect = DataSourceConnect.builder()
-                .success(Boolean.TRUE)
-                .build();
+            .success(Boolean.TRUE)
+            .build();
         Session session = null;
         Connection connection = null;
         // 加载驱动
@@ -213,7 +223,7 @@ public class JdbcUtils {
             }
             // 创建连接
             connection = IDriverManager.getConnection(url, userName, password,
-                    driverConfig, properties);
+                driverConfig, properties);
         } catch (Exception e) {
             log.error("connection fail:", e);
             dataSourceConnect.setSuccess(Boolean.FALSE);
@@ -235,7 +245,7 @@ public class JdbcUtils {
             }
             if (session != null) {
                 try {
-                    if(StringUtils.isNotBlank(ssh.getLocalPort())) {
+                    if (StringUtils.isNotBlank(ssh.getLocalPort())) {
                         session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
                     }
                     session.disconnect();
