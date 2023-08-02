@@ -1,5 +1,4 @@
-import { IPageResponse } from '@/typings/common';
-import { IChartItem, IDashboardItem } from '@/typings/dashboard';
+import { IChartItem, IDashboardItem, IPageResponse } from '@/typings';
 import createRequest from './base';
 
 /** 获取报表列表 */

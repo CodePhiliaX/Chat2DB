@@ -12,4 +12,9 @@ spring:
         web-allow-others: true
 # 端口号
 server:
-  port: 10824
+  port: 10822
+
+chat2db:
+  gateway:
+    base-url: http://test.sqlgpt.cn/gateway
+    model-base-url: http://test.sqlgpt.cn/gateway

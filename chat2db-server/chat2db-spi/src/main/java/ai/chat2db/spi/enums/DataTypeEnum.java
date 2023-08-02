@@ -55,35 +55,35 @@ public enum DataTypeEnum implements BaseEnum<String> {
      */
     ARRAY("数组"),
 
-
     /**
      * 对象
      */
     OBJECT("对象"),
-
 
     /**
      * 引用
      */
     REFERENCE("引用"),
 
-
     /**
      * 行号
      */
     ROWID("行号"),
-
 
     /**
      * 任何
      */
     ANY("任何"),
 
-
     /**
      * 未知
      */
     UNKNOWN("未知"),
+
+    /**
+     * 行号
+     */
+    CHAT2DB_ROW_NUMBER("行号"),
     ;
 
     final String description;

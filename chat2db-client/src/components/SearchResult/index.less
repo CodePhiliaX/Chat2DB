@@ -6,6 +6,10 @@
   flex-direction: column;
 }
 
+.tabs {
+  border-bottom: 1px solid var(--color-border);
+}
+
 .recordIcon {
   font-size: 16px;
   margin-right: 4px;
@@ -14,20 +18,14 @@
 .resultHeader {
   flex-shrink: 0;
   overflow-x: scroll;
-  padding: 0px 10px;
-  background-color: var(--color-bg-300);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-elevated);
 
   &::-webkit-scrollbar {
     display: none;
   }
 
-  & ::after {
-    height: 0px !important;
-  }
-
   .statusIcon {
-    margin-right: 4px;
+    margin-right: 6px;
     font-size: 12px;
   }
 
@@ -40,81 +38,57 @@
   }
 }
 
-.resultContent {
+.resultContentWrapper {
   flex: 1;
-  width: 100%;
-  position: relative;
-  overflow: auto;
-}
 
-.tableStatus {
-  display: flex;
-  align-items: center;
-
-  .dot {
-    display: inline-block;
-    margin-right: 5px;
-    width: 10px;
-    height: 10px;
-    background-color: #ff4d4f;
-    border-radius: 50%;
+  :global {
+    .ant-spin-container {
+      height: 100%;
+      width: 100%;
+      position: relative;
+      overflow: auto;
+    }
   }
-
-  .successDot {
-    background-color: #52c41a;
-  }
-}
-
-.tableBox {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 0;
-  opacity: 0;
-  overflow: auto;
-  background-color: var(--color-bg-100);
 }
 
 .cursorTableBox {
-  z-index: 1;
-  opacity: 1;
+  // display: block !important;
+  // height: 100%;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  // background-color: var(--bgcolor);
 }
 
 .tableIndex {
   width: 50px;
 }
 
-.tableHoverBox {
-  display: none;
-  align-items: center;
-  position: absolute;
-  background-color: var(--color-bg-200);
-  top: 0;
-  right: 0;
-  bottom: 0;
-
-  i {
-    font-size: 15px;
-    margin: 0px 2px;
-  }
-
-  i:hover {
-    color: var(--custom-primary-color);
-  }
-}
-
 .monacoEditor {
   height: 300px;
 }
 
-.tableItem {
-  width: 100%;
-  .f-lines(1);
-  cursor: pointer;
+.monacoEditor {
+  margin: -15px;
+}
 
-  &:hover .tableHoverBox {
-    display: flex;
-  }
+.noData {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+
+.stateIndicator {
+  display: none;
+}
+
+.cursorStateIndicator {
+  margin: 0 auto;
+  max-width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

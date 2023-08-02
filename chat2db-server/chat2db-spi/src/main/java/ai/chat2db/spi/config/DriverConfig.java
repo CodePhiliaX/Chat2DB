@@ -1,12 +1,10 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.config;
 
 import java.util.List;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jipengfei
@@ -24,14 +22,27 @@ public class DriverConfig {
      */
     private String jdbcDriverClass;
 
-    /**
-     * name
-     */
-    private String name;
+    ///**
+    // * name
+    // */
+    //private String name;
 
     /**
      * downloadJdbcDriverUrls
      */
     private List<String> downloadJdbcDriverUrls;
 
+
+    private String dbType;
+
+    /**
+     * 自定义
+     */
+    private boolean custom;
+
+
+    public boolean notEmpty() {
+       return StringUtils.isNotBlank(getJdbcDriver()) && StringUtils.isNotBlank(
+            getJdbcDriverClass());
+    }
 }

@@ -1,7 +1,9 @@
-import { formatDate } from './src/utils/date';
 import { defineConfig } from 'umi';
+import { extractYarnConfig } from './src/utils/webpack';
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const UMI_PublicPath = process.env.UMI_PublicPath || './static/front/';
+
+// const UMI_PublicPath = process.env.UMI_PublicPath || './static/front/';
+const yarn_config = extractYarnConfig(process.argv);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
@@ -9,19 +11,23 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
-
-  config.plugin('define').use(require('webpack').DefinePlugin, [
-    {
-      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
-      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
-    },
-  ]);
 };
 
 export default defineConfig({
-  publicPath: UMI_PublicPath,
+  publicPath: './static/front/',
   chainWebpack,
   define: {
     'process.env.UMI_ENV': process.env.UMI_ENV,
-  }
+  },
+  headScripts: [
+    `window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      window.dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-V8M4E5SF61', {
+      platform: 'WEB',
+      version: '${yarn_config['app_version']}'
+    });`,
+  ],
 });

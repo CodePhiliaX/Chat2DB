@@ -1,24 +1,29 @@
 package ai.chat2db.spi.util;
 
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
+
+import com.alibaba.druid.DbType;
+
 import ai.chat2db.spi.config.DriverConfig;
-import cn.hutool.core.date.DateUtil;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
-import ai.chat2db.spi.sql.SSHManager;
-import com.alibaba.druid.DbType;
-import com.jcraft.jsch.JSchException;
+import ai.chat2db.spi.ssh.SSHManager;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
-
-import java.sql.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
-import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * jdbc工具类
@@ -27,18 +32,6 @@ import java.util.Map;
  */
 @Slf4j
 public class JdbcUtils {
-
-    private static final String DEFAULT_DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final DateTimeFormatter DEFAULT_DATETIME_FORMAT = DateTimeFormatter
-            .ofPattern(DEFAULT_DATETIME_PATTERN, Locale.getDefault())
-            .withZone(ZoneId.systemDefault());
-
-    private static final DateTimeFormatter DEFAULT_DATE_FORMAT = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd", Locale.getDefault())
-            .withZone(ZoneId.systemDefault());
-    private static final DateTimeFormatter DEFAULT_DATETIME_TZ_FORMAT = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd HH:mm:ss.SSS Z", Locale.getDefault())
-            .withZone(ZoneId.systemDefault());
 
     /**
      * 获取德鲁伊的的数据库类型
@@ -160,37 +153,37 @@ public class JdbcUtils {
             return "(CLOB " + clob.length() + ")";
         }
         if (obj instanceof Timestamp timestamp) {
-            return DateUtil.format(timestamp, DEFAULT_DATETIME_FORMAT);
+            return Objects.toString(timestamp);
         }
 
         String className = obj.getClass().getName();
         if ("oracle.sql.TIMESTAMP".equals(className) || "oracle.sql.TIMESTAMPTZ".equals(className)) {
-            return DateUtil.format(rs.getTimestamp(index), DEFAULT_DATETIME_TZ_FORMAT);
+            return Objects.toString(rs.getTimestamp(index));
         }
         if (className.startsWith("oracle.sql.DATE")) {
             String metaDataClassName = rs.getMetaData().getColumnClassName(index);
             if ("java.sql.Timestamp".equals(metaDataClassName) || "oracle.sql.TIMESTAMP".equals(metaDataClassName)) {
-                return DateUtil.format(rs.getTimestamp(index), DEFAULT_DATETIME_FORMAT);
+                return Objects.toString(rs.getTimestamp(index));
             } else {
-                return DateUtil.format(rs.getDate(index), DEFAULT_DATETIME_FORMAT);
+                return Objects.toString(rs.getDate(index));
             }
         }
         if (obj instanceof Date date) {
             if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
-                return DateUtil.format(rs.getDate(index), DEFAULT_DATETIME_FORMAT);
+                return Objects.toString(rs.getDate(index));
             }
-            return DateUtil.format(date, DEFAULT_DATETIME_FORMAT);
+            return Objects.toString(date);
         }
         if (obj instanceof LocalDateTime localDateTime) {
-            return localDateTime.toString();
+            return Objects.toString(localDateTime);
         }
         if (obj instanceof LocalDate localDate) {
-            return localDate.toString();
+            return Objects.toString(localDate);
         }
-        if (obj instanceof Number) {
-            return obj.toString();
+        if (obj instanceof Number num) {
+            return Objects.toString(num);
         }
-        return obj.toString();
+        return Objects.toString(obj);
     }
 
     /**
@@ -213,6 +206,8 @@ public class JdbcUtils {
         // 加载驱动
         try {
             if (ssh.isUse()) {
+                ssh.setRHost(host);
+                ssh.setRPort(port);
                 session = SSHManager.getSSHSession(ssh);
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
             }
@@ -228,6 +223,7 @@ public class JdbcUtils {
                 t = t.getCause();
             }
             dataSourceConnect.setMessage(t.getMessage());
+            dataSourceConnect.setErrorDetail(ExceptionUtils.getErrorInfoFromException(t));
             return dataSourceConnect;
         } finally {
             if (connection != null) {
@@ -239,10 +235,13 @@ public class JdbcUtils {
             }
             if (session != null) {
                 try {
-                    session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
-                } catch (JSchException e) {
+                    if(StringUtils.isNotBlank(ssh.getLocalPort())) {
+                        session.delPortForwardingL(Integer.parseInt(ssh.getLocalPort()));
+                    }
+                    session.disconnect();
+                } catch (Exception e) {
+
                 }
-                session.disconnect();
             }
         }
         dataSourceConnect.setDescription("成功");

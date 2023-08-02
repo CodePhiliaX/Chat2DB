@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2022 All Rights Reserved.
- */
+
 package ai.chat2db.server.web.api.aspect;
 
 import ai.chat2db.server.domain.api.model.DataSource;
@@ -10,6 +7,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsoleRequestInfo;
+import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +28,6 @@ public class ConnectionInfoHandler {
 
     @Autowired
     private DataSourceService dataSourceService;
-
 
     @Around("within(@ai.chat2db.server.web.api.aspect.ConnectionInfoAspect *)")
     public Object connectionInfoHandler(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
@@ -60,7 +57,7 @@ public class ConnectionInfoHandler {
     public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId) {
         DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
         DataSource dataSource = result.getData();
-        if (!result.success() && dataSource == null) {
+        if (!result.success() || dataSource == null) {
             throw new ParamBusinessException("dataSourceId");
         }
         ConnectInfo connectInfo = new ConnectInfo();
@@ -81,6 +78,10 @@ public class ConnectionInfoHandler {
         connectInfo.setUrl(dataSource.getUrl());
         connectInfo.setPort(dataSource.getPort() != null ? Integer.parseInt(dataSource.getPort()) : null);
         connectInfo.setHost(dataSource.getHost());
+        DriverConfig driverConfig = dataSource.getDriverConfig();
+        if (driverConfig != null && driverConfig.notEmpty()) {
+            connectInfo.setDriverConfig(driverConfig);
+        }
         return connectInfo;
     }
 

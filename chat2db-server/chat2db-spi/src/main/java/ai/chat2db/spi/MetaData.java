@@ -1,9 +1,6 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
 package ai.chat2db.spi;
 
+import java.sql.Connection;
 import java.util.List;
 
 import ai.chat2db.spi.model.*;
@@ -18,92 +15,117 @@ import jakarta.validation.constraints.NotEmpty;
 public interface MetaData {
     /**
      * Query all databases.
+     * @param connection
      *
      * @return
      */
-    List<Database> databases();
+    List<Database> databases(Connection connection);
 
     /**
      * Querying all schemas under a database
      *
+     * @param connection
      * @param databaseName
      * @return
      */
-    List<Schema> schemas(String databaseName);
+    List<Schema> schemas(Connection connection, String databaseName);
 
     /**
      * Querying DDL information
      *
+     * @param connection
      * @param databaseName
      * @param tableName
      * @return
      */
-    String tableDDL(@NotEmpty String databaseName, String schemaName, @NotEmpty String tableName);
+    String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+        @NotEmpty String tableName);
 
     /**
      * Querying all table under a schema.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
+     * @param tableName
      * @return
      */
-    List<Table> tables(@NotEmpty String databaseName, String schemaName, String tableName);
+    List<Table> tables(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName);
 
     /**
      * Querying all views under a schema.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
      * @return
      */
-    List<? extends Table> views(@NotEmpty String databaseName, String schemaName);
+    List<Table> views(Connection connection, @NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all functions under a schema.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
      * @return
      */
-    List<Function> functions(@NotEmpty String databaseName, String schemaName);
+    List<Function> functions(Connection connection, @NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all triggers under a schema.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
      * @return
      */
-    List<Trigger> triggers(@NotEmpty String databaseName, String schemaName);
+    List<Trigger> triggers(Connection connection, @NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all procedures under a schema.
      *
+     * @param connection
+     * @param schemaName
      * @param databaseName
      * @return
      */
-    List<Procedure> procedures(@NotEmpty String databaseName, String schemaName);
+    List<Procedure> procedures(Connection connection, @NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all columns under a table.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
+     * @param tableName
      * @return
      */
-    List<TableColumn> columns(@NotEmpty String databaseName, String schemaName,
+    List<TableColumn> columns(Connection connection, @NotEmpty String databaseName, String schemaName,
         @NotEmpty String tableName);
 
     /**
      * Querying all columns under a table.
      *
+     * @param connection
      * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @param columnName
      * @return
      */
-    List<TableColumn> columns(@NotEmpty String databaseName, String schemaName, String tableName,
+    List<TableColumn> columns(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName,
         String columnName);
 
     /**
      * Querying all indexes under a table.
      *
+     * @param connection
+     * @param databaseName
      * @param databaseName
      * @return
      */
-    List<TableIndex> indexes(@NotEmpty String databaseName, String schemaName, @NotEmpty String tableName);
+    List<TableIndex> indexes(Connection connection, @NotEmpty String databaseName, String schemaName,
+        @NotEmpty String tableName);
 
 }

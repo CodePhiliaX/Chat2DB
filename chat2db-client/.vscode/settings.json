@@ -13,21 +13,43 @@
   "[less]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "explorer.confirmDelete": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  },
   "git.mergeEditor": false,
   "cSpell.words": [
-    "antd",
+    "AZUREAI",
     "Appstore",
-    "Cascader",
     "CLICKHOUSE",
-    "datas",
-    "datasource",
-    "dbhub",
+    "Cascader",
+    "DBAI",
     "Iconfont",
     "JDBC",
     "KEYPAIR",
+    "Mddhhmmss",
+    "OPENAI",
+    "RESTAI",
     "SQLSERVER",
+    "Sercurity",
     "USERANDPASSWORD",
+    "ahooks",
+    "antd",
+    "chatgpt",
+    "datas",
+    "datasource",
+    "dbhub",
+    "echarts",
+    "favicons",
+    "findstr",
+    "lsof",
+    "netstat",
+    "pgsql",
+    "remaininguses",
+    "sortablejs",
+    "umijs",
     "uuidv",
     "wireframe"
-  ]
+  ],
+  "typescript.tsdk": "/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/node_modules/typescript/lib"
 }

@@ -1,18 +1,15 @@
-import { formatDate } from './src/utils/date';
+import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
+
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
+// yarn run build --app_port=xx 获取打包时命令行传入的参数
+const yarn_config = extractYarnConfig(process.argv);
 
 const chainWebpack = (config: any, { webpack }: any) => {
   config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
     {
       languages: ['mysql', 'pgsql', 'sql'],
-    },
-  ]);
-
-  config.plugin('define').use(require('webpack').DefinePlugin, [
-    {
-      __BUILD_TIME__: JSON.stringify(formatDate(new Date(), 'yyyyMMddhhmmss')),
-      __APP_VERSION__: JSON.stringify(process.env.APP_VERSION || '0.0.0'),
     },
   ]);
 };
@@ -42,10 +39,33 @@ export default defineConfig({
       target: 'http://127.0.0.1:10821',
       changeOrigin: true,
     },
+    '/client/remaininguses/': {
+      target: 'http://127.0.0.1:1889',
+      changeOrigin: true,
+    },
   },
-  headScripts: ['if (window.myAPI) { window.myAPI.startServerForSpawn() }'],
+  headScripts: [
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+      localStorage.clear();
+      localStorage.setItem('app-local-storage-versions', 'v2');
+    }`,
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
+    // `window.dataLayer = window.dataLayer || [];
+    // function gtag() {
+    //   window.dataLayer.push(arguments);
+    // }
+    // gtag('js', new Date());
+    // gtag('config', 'G-V8M4E5SF61', {
+    //   platform: 'WEB',
+    //   version: '1.0.0'
+    // });`,
+  ],
   favicons: ['logo.ico'],
   define: {
-    'process.env.UMI_ENV': process.env.UMI_ENV,
-  }
+    __ENV__: process.env.UMI_ENV,
+    __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
+    __APP_VERSION__: yarn_config.app_version || '0.0.0',
+    __APP_PORT__: yarn_config.app_port,
+  },
 });

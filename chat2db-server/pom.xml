@@ -182,26 +182,8 @@
             <!-- http -->
             <dependency>
                 <groupId>com.dtflys.forest</groupId>
-                <artifactId>forest-spring-boot-starter</artifactId>
+                <artifactId>forest-spring-boot3-starter</artifactId>
                 <version>1.5.32</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>httpclient</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpclient-cache</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpcore</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpmime</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- 数据库版本管理 -->
@@ -237,7 +219,7 @@
             <dependency>
                 <groupId>org.zalando</groupId>
                 <artifactId>logbook-spring-boot-starter</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-indexer -->
@@ -251,6 +233,26 @@
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
                 <version>1.9.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>3.10.8</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>3.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -321,10 +323,10 @@
                 <version>3.1.2</version>
                 <configuration>
                     <includes>
-                        <include>/com/alibaba/dbhub/server/test/**/*.java</include>
+                        <include>/ai/chat2db/server/test/**/*.java</include>
                     </includes>
                     <excludes>
-                        <include>/com/alibaba/dbhub/server/test/temp/**/*.java</include>
+                        <include>/ai/chat2db/server/test/temp/**/*.java</include>
                     </excludes>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>

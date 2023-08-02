@@ -1,5 +1,4 @@
-import { DatabaseTypeCode } from '@/constants/database';
-import { TableDataType } from '@/constants/table';
+import { DatabaseTypeCode, TableDataType } from '@/constants';
 
 export interface IDatabase {
   name: string;
@@ -10,7 +9,7 @@ export interface IDatabase {
 
 export interface ITableHeaderItem {
   dataType: TableDataType;
-  stringValue: string;
+  name: string;
 }
 
 export interface IManageResultData {
@@ -19,5 +18,18 @@ export interface IManageResultData {
   description: string;
   message: string;
   sql: string;
+  originalSql: string;
   success: boolean;
+  uuid?: string;
+  duration: number;
+  fuzzyTotal: string;
+  hasNextPage: boolean;
+}
+
+/** 查询结果 配置属性 */
+export interface IResultConfig {
+  pageNo: number;
+  pageSize: number;
+  total: number | string;
+  hasNextPage: boolean;
 }

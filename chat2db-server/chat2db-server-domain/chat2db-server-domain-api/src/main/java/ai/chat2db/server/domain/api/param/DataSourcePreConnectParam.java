@@ -1,12 +1,12 @@
 package ai.chat2db.server.domain.api.param;
 
 import java.util.List;
-import java.util.Map;
 
+import ai.chat2db.spi.config.DriverConfig;
+import ai.chat2db.spi.model.KeyValue;
+import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.model.SSLInfo;
 import jakarta.validation.constraints.NotNull;
-
-import ai.chat2db.spi.model.*;
-
 import lombok.Data;
 
 /**
@@ -86,4 +86,9 @@ public class DataSourcePreConnectParam {
      * 扩展信息
      */
     private List<KeyValue> extendInfo;
+
+    /**
+     * 驱动配置
+     */
+    private DriverConfig driverConfig;
 }

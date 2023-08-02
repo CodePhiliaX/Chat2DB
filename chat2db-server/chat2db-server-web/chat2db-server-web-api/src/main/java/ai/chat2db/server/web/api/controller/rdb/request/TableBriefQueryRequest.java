@@ -27,7 +27,6 @@ public class TableBriefQueryRequest extends PageQueryRequest implements DataSour
     /**
      * DB名称
      */
-    @NotNull
     private String databaseName;
 
     /**
@@ -39,4 +38,9 @@ public class TableBriefQueryRequest extends PageQueryRequest implements DataSour
      * 模糊搜索词
      */
     private String searchKey;
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
 }

@@ -19,6 +19,11 @@ public class ExecuteResultVO {
     private String sql;
 
     /**
+     * Original SQL without pagination
+     */
+    private String originalSql;
+
+    /**
      * 描述
      */
     private String description;
@@ -66,6 +71,12 @@ public class ExecuteResultVO {
      * 只有select语句才有
      */
     private Integer pageSize;
+
+    /**
+     * Total number of fuzzy rows
+     * Only select statements have
+     */
+    private String fuzzyTotal;
 
     /**
      * 执行持续时间

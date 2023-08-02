@@ -42,6 +42,9 @@ public abstract class DataSourceConverter {
     @Mapping(target = "extendInfo",
         expression = "java(param.getExtendInfo()==null?null: com.alibaba.fastjson2.JSON.toJSONString(param"
             + ".getExtendInfo()))")
+    @Mapping(target = "driverConfig",
+        expression = "java(param.getDriverConfig()==null?null: com.alibaba.fastjson2.JSON.toJSONString(param"
+            + ".getDriverConfig()))")
     public abstract DataSourceDO param2do(DataSourceCreateParam param);
 
     /**
@@ -114,7 +117,10 @@ public abstract class DataSourceConverter {
             expression = "java(param.getSsl()==null?null: com.alibaba.fastjson2.JSON.toJSONString(param.getSsl()))"),
         @Mapping(target = "extendInfo",
             expression = "java(param.getExtendInfo()==null?null: com.alibaba.fastjson2.JSON.toJSONString(param"
-                + ".getExtendInfo()))")
+                + ".getExtendInfo()))"),
+        @Mapping(target = "driverConfig",
+            expression = "java(param.getDriverConfig()==null?null: com.alibaba.fastjson2.JSON.toJSONString(param"
+                + ".getDriverConfig()))")
     })
     public abstract DataSourceDO param2do(DataSourceUpdateParam param);
 
@@ -155,8 +161,13 @@ public abstract class DataSourceConverter {
             "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getSsl(),ai.chat2db.spi"
                 + ".model.SSLInfo"
                 + ".class))")
+    @Mapping(target = "driverConfig",
+        expression =
+            "java(com.alibaba.fastjson2.JSON.parseObject(dataSourceDO.getDriverConfig(),ai.chat2db.spi.config"
+                + ".DriverConfig"
+                + ".class))")
     @Mapping(target = "extendInfo",
-        expression = "java(com.alibaba.fastjson2.JSON.parseArray(dataSourceDO.getExtendInfo(),KeyValue.class))")
+        expression = "java(com.alibaba.fastjson2.JSON.parseArray(dataSourceDO.getExtendInfo(),ai.chat2db.spi.model.KeyValue.class))")
     public abstract DataSource do2dto(DataSourceDO dataSourceDO);
 
     /**

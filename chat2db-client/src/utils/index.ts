@@ -1,9 +1,9 @@
-import { ThemeType } from '@/constants/common';
-import { ITreeNode } from '@/typings/tree';
+import { ThemeType } from '@/constants';
+import { ITreeNode } from '@/typings';
+import lodash from 'lodash';
 
 export function getOsTheme() {
-  return window.matchMedia &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
     ? ThemeType.Dark
     : ThemeType.Light;
 }
@@ -12,9 +12,7 @@ export function deepClone(target: any) {
   const map = new WeakMap();
 
   function isObject(target: any) {
-    return (
-      (typeof target === 'object' && target) || typeof target === 'function'
-    );
+    return (typeof target === 'object' && target) || typeof target === 'function';
   }
 
   function clone(data: any) {
@@ -74,28 +72,18 @@ export function deepClone(target: any) {
 }
 
 // 模糊匹配树并且高亮
-export function approximateTreeNode(
-  treeData: ITreeNode[],
-  target: string,
-  isDelete = true,
-) {
+export function approximateTreeNode(treeData: ITreeNode[], target: string, isDelete = true) {
   if (target) {
-    const newTree: ITreeNode[] = JSON.parse(JSON.stringify(treeData));
+    const newTree: ITreeNode[] = lodash.cloneDeep(treeData || []);
     newTree.map((item, index) => {
       // 暂时不递归，只搜索datasource
       // if(item.children?.length){
       //   item.children = approximateTreeNode(item.children, target,false);
       // }
-      if (
-        item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 &&
-        isDelete
-      ) {
+      if (item.name?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
         delete newTree[index];
       } else {
-        item.name = item.name?.replace(
-          target,
-          `<span style='color:red;'>${target}</span>`,
-        );
+        item.name = item.name?.replace(target, `<span style='color:red;'>${target}</span>`);
       }
     });
     return newTree.filter((i) => i);
@@ -104,9 +92,126 @@ export function approximateTreeNode(
   }
 }
 
+// 模糊匹配树并且高亮
+export function approximateList<T, K extends keyof T>(
+  data: T[],
+  target: string,
+  // @ts-ignore'
+  keyName: K = 'name',
+  isDelete = true,
+) {
+  if (target) {
+    const newData: T[] = lodash.cloneDeep(data || []);
+    newData.map((item, index) => {
+      // 暂时不递归，只搜索datasource
+      // if(item.children?.length){
+      //   item.children = approximateTreeNode(item.children, target,false);
+      // }
+      // @ts-ignore'
+      if (item[keyName]?.toUpperCase()?.indexOf(target?.toUpperCase()) == -1 && isDelete) {
+        delete newData[index];
+      } else {
+        // @ts-ignore'
+        item[keyName] = item[keyName]?.replace(target, `<span style='color:red;'>${target}</span>`);
+      }
+    });
+    return newData.filter((i) => i);
+  } else {
+    return data;
+  }
+}
+
 // 获取var变量的值
 export const callVar = (css: string) => {
-  return getComputedStyle(document.documentElement)
-    .getPropertyValue(css)
-    .trim();
+  return getComputedStyle(document.documentElement).getPropertyValue(css).trim();
 };
+
+// 给我一个 obj[]， 和 obj的 key 和 value，给你返index
+export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value: any) {
+  let flag = -1;
+  list.forEach((t: T, index) => {
+    Object.keys(t).forEach((j: K) => {
+      if (j === key && t[j] === value) {
+        flag = index;
+      }
+    });
+  });
+  return flag;
+}
+
+// 处理console的保存和删除操作
+export function handleLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
+  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
+  let savedObj: any = {};
+  if (saved) {
+    savedObj = JSON.parse(saved);
+  }
+
+  if (type === 'save') {
+    savedObj[id] = text || '';
+  } else if (type === 'delete') {
+    delete savedObj[id];
+  }
+
+  localStorage.setItem(`timing-auto-save-console-v1`, JSON.stringify(savedObj));
+}
+
+// 获取保存的console
+export function readLocalStorageSavedConsoleText(id: number) {
+  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
+  let savedObj: any = {};
+  if (saved) {
+    savedObj = JSON.parse(saved);
+  }
+  return savedObj[id] || '';
+}
+
+// 清理就版本不兼容的LocalStorage
+export function clearOlderLocalStorage() {
+  if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    localStorage.clear();
+    localStorage.setItem('app-local-storage-versions', 'v2');
+  }
+}
+
+// 判断是否需要更新版本
+export function isVersionHigher(version: string, currentVersion: string): boolean {
+  // 按照 . 分割版本号
+  const versionParts = version.split('.');
+  const currentVersionParts = currentVersion.split('.');
+
+  // 按照从左到右的顺序比较每一位的大小
+  for (let i = 0; i < versionParts.length; i++) {
+    const part = parseInt(versionParts[i]);
+    const currentPart = parseInt(currentVersionParts[i] || '0');
+
+    if (part > currentPart) {
+      return true;
+    } else if (part < currentPart) {
+      return false;
+    }
+  }
+
+  // 如果两个版本号完全相等，则返回false
+  return false;
+}
+
+// Copy
+export function copy(message: string) {
+  navigator.clipboard.writeText(message);
+}
+
+// 获取应用的一些基本信息
+export function getApplicationMessage() {
+  const env = __ENV__;
+  const versions = __APP_VERSION__;
+  const buildTime = __BUILD_TIME__;
+  const userAgent = navigator.userAgent;
+  return {
+    env,
+    versions,
+    buildTime,
+    userAgent
+  }
+}
+

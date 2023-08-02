@@ -8,6 +8,24 @@
 
 目录结构 tree ./ -L 2 -I node_modules
 
+## 启动项目
+  强制使用yarn，因为环境变量、lock文件只维护了yarn，npm/pnpm可能会产生意想不到的bug
+  node版本要求16以上
+  `npm i -g yarn`
+  `yarn`
+  `yarn run build:web:prod`
+  `cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front` (复制打包结果到指定目录。windows可能命令不一样，可以手动复制下)
+  之后就可以启动后端了 `mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml`
+
+  启动前端项目调试
+  `yarn run start:web`
+   注意：因为electron包比较难下载，如果yarn时electron下载失败或超时，可以删除掉chat2db-client/package.json下的electron，再次yarn
+
+## TS书写规范
+  1. 所有的interfase 与 type 必须已I开头
+    `interfase IState { name: string }` // good
+    `interfase State { name: string }` // bad
+  
 
 ## 如何使用国际化 
 

@@ -1,5 +1,5 @@
 export default {
-  'connection.title.connections': '连接池',
+  'connection.title.connections': '连接',
   'connection.title.createConnection': '创建数据源',
   'connection.title.editConnection': '修改数据源',
   'connection.label.name': '名称',
@@ -17,5 +17,12 @@ export default {
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',
   'connection.tableHeader.value': '值',
-  'connection.menu.enterToWorkSpace': '前往数据源',
+  'connection.title.uploadDriver': '上传',
+  'connection.tips.customUpload': '上传驱动',
+  'connection.title.driver': '驱动',
+  'connection.button.clickUpload': '点击上传',
+  'connection.text.downloadDriver': '下载驱动',
+  'connection.text.downloadSuccess': '下载成功',
+  'connection.text.tryAgainDownload': '尝试重新下载',
+  'connection.text.downloading': '下载中...',
 }

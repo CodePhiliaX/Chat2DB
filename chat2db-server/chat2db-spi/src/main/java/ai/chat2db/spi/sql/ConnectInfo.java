@@ -1,7 +1,4 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.sql;
 
 import java.sql.Connection;
@@ -124,7 +121,7 @@ public class ConnectInfo {
 
 
 
-
+    
     private DriverConfig driverConfig;
 
 

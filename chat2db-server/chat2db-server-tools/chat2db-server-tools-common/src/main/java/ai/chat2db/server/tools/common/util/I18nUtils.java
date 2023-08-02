@@ -1,5 +1,7 @@
 package ai.chat2db.server.tools.common.util;
 
+import java.util.Locale;
+
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class I18nUtils implements InitializingBean {
-    public static final String DEFAULT_message_Code="";
+    public static final String DEFAULT_message_Code="common.systemError";
     @Resource
     private MessageSource messageSource;
     private static MessageSource messageSourceStatic;
@@ -32,7 +34,16 @@ public class I18nUtils implements InitializingBean {
         } catch (NoSuchMessageException e) {
             log.error("no message.", e);
         }
-        return messageSourceStatic.getMessage(messageCode, args, LocaleContextHolder.getLocale());
+        return messageSourceStatic.getMessage(DEFAULT_message_Code, args, LocaleContextHolder.getLocale());
+    }
+
+    /**
+     * 是否是英文
+     *
+     * @return
+     */
+    public static Boolean isEn() {
+        return LocaleContextHolder.getLocale().equals(Locale.US);
     }
 
     @Override

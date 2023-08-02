@@ -14,8 +14,9 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  width: 80px;
+  width: 68px;
   background-color: var(--color-bg-elevated);
+  border-right: 1px solid var(--color-border-secondary);
   user-select: none;
   overflow: hidden;
 }
@@ -35,28 +36,33 @@
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  margin: 30px auto 10px;
+  margin: 20px auto;
   cursor: pointer;
 }
 
 .navList {
   flex: 1;
-  width: 100px;
-  padding: 0px 20px;
-  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
   li {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     align-items: center;
     margin-bottom: 10px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     font-size: 12px;
-    padding: 5px;
-    border-radius: 3px;
     color: var(--color-text);
     cursor: pointer;
 
     .icon {
-      font-size: 28px;
+      font-size: 20px;
+      color: var(--custom-color-icon);
     }
 
     &:last-of-type {
@@ -64,12 +70,18 @@
     }
 
     &:hover {
-      background: var(--color-bg-hover);
+      .icon {
+        color: var(--color-primary);
+      }
+      background-color: var(--color-primary-bg-hover);
     }
   }
 
   .activeNav {
-    color: var(--color-primary);
+    .icon {
+      color: var(--color-primary);
+    }
+    background-color: var(--color-primary-bg-hover);
   }
 }
 
@@ -79,6 +91,17 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.questionIcon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  color: var(--custom-color-icon);
+  &:hover {
+    background-color: var(--color-primary-bg-hover);
+    color: var(--color-primary);
+  }
 }
 
 .layoutRight {

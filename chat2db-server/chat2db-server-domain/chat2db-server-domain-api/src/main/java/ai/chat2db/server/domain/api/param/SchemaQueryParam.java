@@ -1,8 +1,7 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.server.domain.api.param;
+
+import java.sql.Connection;
 
 import jakarta.validation.constraints.NotNull;
 
@@ -25,4 +24,16 @@ public class SchemaQueryParam {
     private Long dataSourceId;
 
     private String dataBaseName;
+
+
+
+    /**
+     * if true, refresh the cache
+     */
+    private boolean refresh;
+
+    /**
+     * Can be null, if null, use the default connection
+     */
+    private Connection connection;
 }

@@ -14,7 +14,6 @@ public class DBConfigBuilder {
         driverConfig.setJdbcDriver("postgresql-42.5.1.jar");
         driverConfig.setJdbcDriverClass("org.postgresql.Driver");
         driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/postgresql-42.5.1.jar"));
-        driverConfig.setName(driverConfig.getJdbcDriver() + ":" + driverConfig.getJdbcDriverClass());
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

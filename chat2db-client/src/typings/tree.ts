@@ -1,10 +1,9 @@
-import { TreeNodeType } from '@/constants/tree';
-import { DatabaseTypeCode } from '@/constants/database';
+import { TreeNodeType, DatabaseTypeCode } from '@/constants';
 
 export interface IExtraParams {
   databaseType?: DatabaseTypeCode;
   dataSourceName?: string;
-  dataSourceId?: number;	
+  dataSourceId?: number;
   databaseName?: string;
   schemaName?: string;
   tableName?: string;
@@ -17,5 +16,6 @@ export interface ITreeNode {
   isLeaf?: boolean;
   children?: ITreeNode[];
   columnType?: string;
-  extraParams?: IExtraParams; 
+  extraParams?: IExtraParams;
+  pinned?: boolean;
 }

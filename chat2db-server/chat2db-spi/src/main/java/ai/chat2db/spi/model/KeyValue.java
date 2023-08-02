@@ -1,9 +1,7 @@
-/**
- * alibaba.com Inc.
- * Copyright (c) 2004-2023 All Rights Reserved.
- */
+
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
  * @version : KeyValue.java
  */
 @Data
-public class KeyValue {
+public class KeyValue implements Serializable {
     /**
      * 属性名
      */

@@ -4,6 +4,7 @@ import menu from './menu';
 import setting from './setting';
 import workspace from './workspace';
 import dashboard from './dashboard';
+import chat from './chat';
 
 export default {
   lang: 'en',
@@ -12,5 +13,6 @@ export default {
   ...connection,
   ...workspace,
   ...menu,
-  ...dashboard
+  ...dashboard,
+  ...chat
 };
