@@ -184,11 +184,11 @@ public class SQLExecutor {
                         }
                     }
                     executeResult.setDuration(timeInterval.interval());
-                    return executeResult;
                 } finally {
                     JdbcUtils.closeResultSet(rs);
                 }
             } else {
+                executeResult.setDuration(timeInterval.interval());
                 // 修改或者其他
                 executeResult.setUpdateCount(stmt.getUpdateCount());
             }
