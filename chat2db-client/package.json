@@ -52,7 +52,7 @@
     "@umijs/plugins": "^4.0.55",
     "concurrently": "^8.1.0",
     "cross-env": "^7.0.3",
-    "electron": "^22.0.0",
+    "electron": "^22.3.0",
     "electron-builder": "^23.6.0",
     "electron-debug": "^3.2.0",
     "electron-reload": "^2.0.0-alpha.1",

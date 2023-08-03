@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment, useCallback } from 'react';
 import classnames from 'classnames';
 import Tabs, { IOption } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
@@ -16,7 +16,7 @@ interface IProps {
   manageResultDataList?: IManageResultData[];
   resultConfig: IResultConfig[];
   onExecute: (sql: string, config: IResultConfig, index: number) => void;
-  onExport: (originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => Promise<void>;
+  onExport: (sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => Promise<void>;
   onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
   onSearchTotal: (index: number) => Promise<number>;
   isLoading?: boolean;
@@ -45,7 +45,7 @@ const handleTabs = (result: IManageResultData[]) => {
 };
 
 export default memo<IProps>(function SearchResult(props) {
-  const { className, manageResultDataList = [], isLoading, onExecute, onSearchTotal } = props;
+  const { className, manageResultDataList = [], isLoading, onExecute, onExport } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
   const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
@@ -64,7 +64,7 @@ export default memo<IProps>(function SearchResult(props) {
       setCurrentTab(manageResultDataList[0].uuid);
     }
 
-    setResultDataList(manageResultDataList);
+    setResultDataList([...manageResultDataList]);
     setTabs(handleTabs(manageResultDataList));
   }, [manageResultDataList]);
 
@@ -85,48 +85,50 @@ export default memo<IProps>(function SearchResult(props) {
     );
   };
 
-  const renderTable = useMemo(() => {
+  const renderTable = () => {
     if (!tabs || !tabs.length) {
       return renderEmpty();
     }
     if (!resultDataList || !resultDataList.length) {
       return renderEmpty();
     }
-    return (resultDataList || []).map((item, index: number) => {
-      if (item.success) {
-        return (
-          <Fragment key={item.uuid!}>
-            <TableBox
-              className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
-              data={item}
-              config={resultConfig?.[index]}
-              onConfigChange={function (config: IResultConfig) {
-                onExecute && onExecute(item.originalSql, config, index);
-              }}
-              onSearchTotal={async () => {
-                if (props.onSearchTotal) {
-                  return await props.onSearchTotal(index);
-                }
-              }}
-              onExport={() => {
-                props.onExport && props.onExport(item.originalSql, ExportTypeEnum.CSV, ExportSizeEnum.ALL);
-              }}
-            />
-          </Fragment>
-        );
-      } else {
-        return (
-          <Fragment key={item.uuid}>
-            <StateIndicator
-              className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })}
-              state="error"
-              text={item.message}
-            />
-          </Fragment>
-        );
-      }
-    });
-  }, [currentTab, resultDataList, resultConfig]);
+
+    return renderTableContent;
+  };
+
+  const renderTableContent = (resultDataList || []).map((item, index: number) => {
+    console.log(item.sql, item.originalSql);
+    if (item.success) {
+      return (
+        <TableBox
+          key={item.uuid!}
+          className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
+          data={item}
+          config={resultConfig?.[index]}
+          onConfigChange={(config: IResultConfig) => {
+            onExecute && onExecute(item.originalSql, config, index);
+          }}
+          onSearchTotal={async () => {
+            if (props.onSearchTotal) {
+              return await props.onSearchTotal(index);
+            }
+          }}
+          onExport={(sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+            onExport && onExport(sql, originalSql, exportType, exportSize);
+          }}
+        />
+      );
+    } else {
+      return (
+        <StateIndicator
+          key={item.uuid}
+          className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })}
+          state="error"
+          text={item.message}
+        />
+      );
+    }
+  });
 
   return (
     <div className={classnames(className, styles.box)}>
@@ -144,7 +146,7 @@ export default memo<IProps>(function SearchResult(props) {
         </div>
       ) : null}
       <Spin spinning={isLoading} wrapperClassName={styles.resultContentWrapper}>
-        {renderTable}
+        {renderTable()}
       </Spin>
     </div>
   );

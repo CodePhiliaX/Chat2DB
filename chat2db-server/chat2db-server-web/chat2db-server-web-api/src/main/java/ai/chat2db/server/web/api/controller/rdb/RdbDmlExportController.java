@@ -118,6 +118,7 @@ public class RdbDmlExportController {
         ExcelWrapper excelWrapper = new ExcelWrapper();
         try {
             ExcelWriterBuilder excelWriterBuilder = EasyExcel.write(response.getOutputStream())
+                .charset(StandardCharsets.UTF_8)
                 .excelType(ExcelTypeEnum.CSV);
             excelWrapper.setExcelWriterBuilder(excelWriterBuilder);
             SQLExecutor.getInstance().executeSql(Chat2DBContext.getConnection(), sql, headerList -> {
