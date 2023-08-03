@@ -47,7 +47,7 @@ function createWindow() {
 // const menu = Menu.buildFromTemplate(menuBar);
 // Menu.setApplicationMenu(menu);
 
-app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('--disable-gpu-sandbox');
 
 app.on('ready', () => {
   createWindow();
