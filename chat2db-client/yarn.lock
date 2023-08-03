@@ -2421,10 +2421,10 @@
   resolved "https://registry.npmmirror.com/@types/node/-/node-20.4.2.tgz#129cc9ae69f93824f92fac653eebfb4812ab4af9"
   integrity sha512-Dd0BYtWgnWJKwO1jkmTrzofjK2QXXcai0dmtzvIBhcA+RsG5h8R3xlyta0kGOZRNfL9GuRtb1knmPEhQrePCEw==
 
-"@types/node@^18.11.18":
-  version "18.17.1"
-  resolved "https://registry.npmmirror.com/@types/node/-/node-18.17.1.tgz#84c32903bf3a09f7878c391d31ff08f6fe7d8335"
-  integrity sha512-xlR1jahfizdplZYRU59JlUx9uzF1ARa8jbhM11ccpCJya8kvos5jwdm2ZAgxSCwOl0fq21svP18EVwPBXMQudw==
+"@types/node@^16.11.26":
+  version "16.18.39"
+  resolved "https://registry.npmmirror.com/@types/node/-/node-16.18.39.tgz#aa39a1a87a40ef6098ee69689a1acb0c1b034832"
+  integrity sha512-8q9ZexmdYYyc5/cfujaXb4YOucpQxAV4RMG0himLyDUOEr8Mr79VrqsFI+cQ2M2h89YIuy95lbxuYjxT4Hk4kQ==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
@@ -4732,13 +4732,13 @@ electron-to-chromium@^1.4.431:
   resolved "https://registry.npmmirror.com/electron-to-chromium/-/electron-to-chromium-1.4.464.tgz#2f94bad78dff34e527aacbfc5d0b1a33cf046507"
   integrity sha512-guZ84yoou4+ILNdj0XEbmGs6DEWj6zpVOWYpY09GU66yEb0DSYvP/biBPzHn0GuW/3RC/pnaYNUWlQE1fJYtgA==
 
-electron@^25.3.0:
-  version "25.4.0"
-  resolved "https://registry.npmmirror.com/electron/-/electron-25.4.0.tgz#d45b1cf3e4e96eb5bff5fee704d7aa13b532f3a5"
-  integrity sha512-VLTRxDhL4UvQbqM7pTNENnJo62cdAPZT92N+B7BZQ5Xfok1wuVPEewIjBot4K7U3EpLUuHn1veeLzho3ihiP+Q==
+electron@^22.3.0:
+  version "22.3.18"
+  resolved "https://registry.npmmirror.com/electron/-/electron-22.3.18.tgz#5ee55633b3912fec9df6d8f039acf2c016274cfc"
+  integrity sha512-JgjB966ghTBszAX/GgVgDY/2CktWCjTZWGJI0WISRHDudBZ8/WPkI/hIjsMiLQLe0wSTk6S+WHOYbIqyw0I/sg==
   dependencies:
     "@electron/get" "^2.0.0"
-    "@types/node" "^18.11.18"
+    "@types/node" "^16.11.26"
     extract-zip "^2.0.1"
 
 elliptic@^6.5.3:
