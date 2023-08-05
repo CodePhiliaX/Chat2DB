@@ -68,4 +68,7 @@ export default {
   'common.button.copyErrorTips':
     '（The interface information and detailed parameters will be copied here. If there are sensitive parameters, please parse JSON first and then send them）',
   'common.tips.formatError': 'Formatting failed, please check whether the sql is correct',
+  'common.text.executeSelectedSQL': 'Execute selected SQL',
+  'common.text.refreshPage': 'Refresh page',
+  'common.text.saveConsole': 'Save console',
 };
