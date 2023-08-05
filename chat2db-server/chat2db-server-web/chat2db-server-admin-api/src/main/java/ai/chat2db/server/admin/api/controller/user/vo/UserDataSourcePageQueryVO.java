@@ -1,7 +1,7 @@
 
 package ai.chat2db.server.admin.api.controller.user.vo;
 
-import ai.chat2db.server.admin.api.controller.team.vo.SimpleTeamVO;
+import ai.chat2db.server.admin.api.controller.datasource.vo.SimpleDataSourceVO;
 import lombok.Data;
 
 /**
@@ -10,11 +10,7 @@ import lombok.Data;
  * @author Jiaju Zhuang
  */
 @Data
-public class UserTeamPageQueryVO {
-    /**
-     * 主键
-     */
-    private Long id;
+public class UserDataSourcePageQueryVO {
 
     /**
      * user id
@@ -22,7 +18,7 @@ public class UserTeamPageQueryVO {
     private Long userId;
 
     /**
-     * 团队
+     * Data Source
      */
-    private SimpleTeamVO team;
+    private SimpleDataSourceVO dataSource;
 }

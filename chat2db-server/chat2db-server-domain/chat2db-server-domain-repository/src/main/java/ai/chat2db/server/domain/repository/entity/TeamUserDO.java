@@ -1,10 +1,11 @@
 package ai.chat2db.server.domain.repository.entity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,12 +15,12 @@ import lombok.Setter;
  * </p>
  *
  * @author chat2db
- * @since 2023-07-30
+ * @since 2023-08-05
  */
 @Getter
 @Setter
-@TableName("TEAM_DBHUB_USER")
-public class TeamDbhubUserDO implements Serializable {
+@TableName("TEAM_USER")
+public class TeamUserDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,5 +58,5 @@ public class TeamDbhubUserDO implements Serializable {
     /**
      * 用户id
      */
-    private Long dbhubUserId;
+    private Long userId;
 }
