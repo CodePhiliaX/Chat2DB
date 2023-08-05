@@ -28,6 +28,7 @@
     "ahooks": "^3.7.7",
     "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
+    "copy-to-clipboard": "^3.3.3",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
     "event-source-polyfill": "^1.0.31",
