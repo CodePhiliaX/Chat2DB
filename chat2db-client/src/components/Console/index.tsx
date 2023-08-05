@@ -176,42 +176,47 @@ function Console(props: IProps) {
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
     setIsLoading(true);
-    const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
-    setIsLoading(false);
+    try {
+      const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
+      setIsLoading(false);
 
-    setPopularizeModal(true);
-    setModalProps({
-      imageUrl: wechatQrCodeUrl,
-      token,
-      tip,
-    });
-    if (shouldPoll) {
-      let pollCnt = 0;
-      aiFetchIntervalRef.current = setInterval(async () => {
-        const { apiKey } = (await aiServer.getLoginStatus({ token })) || {};
-        pollCnt++;
-        if (apiKey || pollCnt >= 60) {
-          clearInterval(aiFetchIntervalRef.current);
-        }
-        if (apiKey) {
-          setPopularizeModal(false);
+      setPopularizeModal(true);
+      setModalProps({
+        imageUrl: wechatQrCodeUrl,
+        token,
+        tip,
+      });
+      if (shouldPoll) {
+        let pollCnt = 0;
+        aiFetchIntervalRef.current = setInterval(async () => {
+          const { apiKey } = (await aiServer.getLoginStatus({ token })) || {};
+          pollCnt++;
+          if (apiKey || pollCnt >= 60) {
+            clearInterval(aiFetchIntervalRef.current);
+          }
+          if (apiKey) {
+            setPopularizeModal(false);
 
-          await dispatch({
-            type: 'ai/setAiConfig',
-            payload: {
-              ...(aiModel.aiConfig || {}),
-              apiKey,
-            },
-          });
-          await dispatch({
-            type: 'ai/fetchRemainingUse',
-            payload: {
-              apiKey,
-            },
-          });
-        }
-      }, 3000);
+            await dispatch({
+              type: 'ai/setAiConfig',
+              payload: {
+                ...(aiModel.aiConfig || {}),
+                apiKey,
+              },
+            });
+            await dispatch({
+              type: 'ai/fetchRemainingUse',
+              payload: {
+                apiKey,
+              },
+            });
+          }
+        }, 3000);
+      }
+    }catch (e) {
+      setIsLoading(false);
     }
+
   };
 
   const handleAIChatInEditor = async (content: string, promptType: IPromptType) => {
