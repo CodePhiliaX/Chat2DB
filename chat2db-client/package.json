@@ -13,7 +13,7 @@
     "build:desktop": "npm run build:web:desktop && npm run build:main:prod",
     "build:main": "cross-env NODE_ENV=development electron-builder",
     "build:main:prod": "cross-env NODE_ENV=production electron-builder",
-    "build:prod": "npm run build:web:prod && npm run build:main:prod",
+    "build:prod": "npm run build:web:prod && npm run build:main:prod cross-env UMI_PublicPath=${npm_config_public_path}",
     "build:web": "umi build",
     "build:web:desktop": "cross-env UMI_ENV=desktop cross-env APP_VERSION=${npm_config_app_version} cross-env APP_PORT=${npm_config_app_port} umi build",
     "build:web:prod": "cross-env UMI_ENV=prod cross-env APP_VERSION=${npm_config_app_version} cross-env APP_PORT=${npm_config_app_port} umi build",

@@ -259,7 +259,8 @@ function TreeNodeRightClick(props: IProps) {
       open={verifyDialog}
       onOk={handleOk}
       width={400}
-      onCancel={(() => { setVerifyDialog(false) })}>
+      onCancel={(() => { setVerifyDialog(false) })}
+    >
       <Input placeholder={i18n('workspace.menu.deleteTablePlaceHolder')} value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
     </Modal>
     {/* 这里后续肯定是要提出去的 */}
