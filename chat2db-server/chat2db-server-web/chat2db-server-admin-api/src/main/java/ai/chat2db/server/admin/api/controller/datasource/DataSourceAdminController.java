@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/api/admin/data_source")
 @RestController
-public class DataSourceController {
+public class DataSourceAdminController {
 
     @Resource
     private DataSourceService dataSourceService;

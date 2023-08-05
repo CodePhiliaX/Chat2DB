@@ -23,15 +23,24 @@ VALUES (2, 1, 1, '测试环境', '测试', 'TEST');
 ALTER TABLE `data_source`
     ADD COLUMN `environment_id` bigint(20) unsigned NOT NULL DEFAULT 2 COMMENT '环境id';
 
+ALTER TABLE `data_source`
+    modify COLUMN `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
+
+update data_source
+set user_id= 1;
+
 ALTER TABLE `dbhub_user`
     ADD COLUMN `role_code` varchar(32) DEFAULT NULL COMMENT '角色编码';
 
 ALTER TABLE `dbhub_user`
     ADD `status` varchar(32) NOT NULL DEFAULT 'VALID' COMMENT '用户状态';
 
+
+
 update dbhub_user
 set role_code= 'DESKTOP'
 where id = 1;
+
 
 CREATE TABLE IF NOT EXISTS `team`
 (

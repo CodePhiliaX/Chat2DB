@@ -18,11 +18,14 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.common.model.LoginUser;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -31,9 +34,10 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,12 +61,15 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Autowired
     private DatabaseService databaseService;
+    @Resource
+    private DataSourceCustomMapper dataSourceCustomMapper;
 
     @Override
     public DataResult<Long> create(DataSourceCreateParam param) {
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(LocalDateTime.now());
         dataSourceDO.setGmtModified(LocalDateTime.now());
+        dataSourceDO.setUserId(ContextUtils.getUserId());
         dataSourceMapper.insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
         return DataResult.of(dataSourceDO.getId());
@@ -120,9 +127,11 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public PageResult<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector) {
-        QueryWrapper<DataSourceDO> queryWrapper = new QueryWrapper<>();
+        LambdaQueryWrapper<DataSourceDO> queryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
-            queryWrapper.like("alias", param.getSearchKey());
+            queryWrapper.and(wrapper -> wrapper.like(DataSourceDO::getAlias, "%" + param.getSearchKey() + "%")
+                .or()
+                .like(DataSourceDO::getUrl, "%" + param.getSearchKey() + "%"));
         }
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
@@ -130,6 +139,17 @@ public class DataSourceServiceImpl implements DataSourceService {
         IPage<DataSourceDO> iPage = dataSourceMapper.selectPage(page, queryWrapper);
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
         return PageResult.of(dataSources, iPage.getTotal(), param);
+    }
+
+    @Override
+    public PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector) {
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
+            new Page<>(param.getPageNo(), param.getPageSize()),
+            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey());
+        List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
+        return PageResult.of(dataSources, iPage.getTotal(), param);
+
     }
 
     @Override

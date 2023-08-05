@@ -2,21 +2,19 @@ package ai.chat2db.server.domain.api.service;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
-
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
-import ai.chat2db.spi.model.Database;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-
-import com.jcraft.jsch.JSchException;
+import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
+import ai.chat2db.spi.model.Database;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 数据源管理服务
@@ -77,12 +75,23 @@ public interface DataSourceService {
     PageResult<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector);
 
     /**
+     * 分页查询数据源列表
+     * Need to determine permissions
+     *
+     * @param param
+     * @param selector
+     * @return
+     * @throws PermissionDeniedBusinessException
+     */
+    PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector);
+
+    /**
      * 通过ID列表查询数据源
      *
      * @param ids
      * @return
      */
-    ListResult<DataSource> queryByIds(List<Long>ids);
+    ListResult<DataSource> queryByIds(List<Long> ids);
 
     /**
      * 数据源连接测试

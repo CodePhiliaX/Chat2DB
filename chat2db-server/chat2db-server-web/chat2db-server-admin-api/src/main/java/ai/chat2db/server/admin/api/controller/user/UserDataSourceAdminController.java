@@ -1,9 +1,9 @@
 
-package ai.chat2db.server.admin.api.controller.team;
+package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.team.request.TeamDataSourceBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.team.vo.TeamDataSourcePageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Team Data Source Management
+ * User Data Source Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/team/data_source")
+@RequestMapping("/api/admin/user/data_source")
 @RestController
-public class TeamDataSourceController {
+public class UserDataSourceAdminController {
 
     /**
      * Pagination query
@@ -33,7 +33,7 @@ public class TeamDataSourceController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<TeamDataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
         return null;
     }
 
@@ -45,7 +45,7 @@ public class TeamDataSourceController {
      * @version 2.1.0
      */
     @PostMapping("/batch_create")
-    public DataResult<Long> create(@RequestBody TeamDataSourceBatchCreateRequest request) {
+    public DataResult<Long> create(@RequestBody UserTeamBatchCreateRequest request) {
         return null;
 
     }
