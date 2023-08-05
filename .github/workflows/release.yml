@@ -285,7 +285,7 @@ jobs:
           content: |
             {
               "title": "Windows-release-打包完成通知",
-              "text": "# Windows-release-打包完成通知   \n ![bang]http://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe]http://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe) "
+              "text": "# Windows-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe) "
             }
 
       # 构建完成通知
@@ -298,7 +298,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-release-构建完成通知",
-              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang]http://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg]http://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip]http://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip) "
+              "text": "# MacOS-amd64-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知
@@ -311,7 +311,7 @@ jobs:
           content: |
             {
               "title": "MacOS-arm64-release-构建完成通知",
-              "text": "# MacOS-arm64-release-打包完成通知   \n ![bang]http://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg]http://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg) "
+              "text": "# MacOS-arm64-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg) "
             }
 
       # 构建完成通知
@@ -324,5 +324,5 @@ jobs:
           content: |
             {
               "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang]http://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss-chat2db.alibaba.com/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage]http://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage)"
+              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.AppImage)"
             }
