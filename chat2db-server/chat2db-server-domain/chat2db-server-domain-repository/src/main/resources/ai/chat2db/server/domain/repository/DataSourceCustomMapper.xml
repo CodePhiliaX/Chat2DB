@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper">
+
+    <select id="selectPageWithPermission" resultType="ai.chat2db.server.domain.repository.entity.DataSourceDO">
+        select ds.*
+        from DATA_SOURCE ds
+        <where>
+            <if test="admin != true">
+                <choose>
+                    <when test="userId == 1">
+                        ds.USER_ID = #{userId}
+                    </when>
+                    <otherwise>
+                        (ds.USER_ID = #{userId}
+                        or exists(select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER' and
+                        dsa.ACCESS_OBJECT_ID = #{userId})
+                        or exists(select 1
+                        from DATA_SOURCE_ACCESS dsa
+                        LEFT JOIN TEAM_USER tu on tu.ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
+                        where tu.USER_ID = #{userId})
+                        )
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="searchKey != '' and searchKey != null ">
+                and (ds.alias like concat('%',#{searchKey},'%') or ds.url like concat('%',#{searchKey},'%'))
+            </if>
+        </where>
+
+    </select>
+</mapper>

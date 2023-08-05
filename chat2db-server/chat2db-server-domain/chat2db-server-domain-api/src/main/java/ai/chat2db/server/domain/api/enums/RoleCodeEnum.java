@@ -13,23 +13,25 @@ public enum RoleCodeEnum implements BaseEnum<String> {
     /**
      * DESKTOP
      */
-    DESKTOP("DESKTOP"),
-
-    /**
-     * USER
-     */
-    USER("USER"),
+    DESKTOP("DESKTOP", 1L),
 
     /**
      * ADMIN
      */
-    ADMIN("ADMIN"),
+    ADMIN("ADMIN", 2L),
+
+    /**
+     * USER
+     */
+    USER("USER", null),
 
     ;
     final String description;
+    final Long defaultUserId;
 
-    RoleCodeEnum(String description) {
+    RoleCodeEnum(String description, Long defaultUserId) {
         this.description = description;
+        this.defaultUserId = defaultUserId;
     }
 
     @Override

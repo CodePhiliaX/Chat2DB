@@ -1,7 +1,7 @@
 
 package ai.chat2db.server.admin.api.controller.common;
 
-import ai.chat2db.server.admin.api.controller.common.request.TeamUserPageQueryRequest;
+import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.common.vo.TeamUserListVO;
 import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
 import ai.chat2db.server.domain.api.service.DataSourceService;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/api/admin/common")
 @RestController
-public class CommonController {
+public class CommonAdminController {
 
     @Resource
     private DataSourceService dataSourceService;
@@ -33,8 +33,32 @@ public class CommonController {
      * @return
      * @version 2.1.0
      */
-    @GetMapping("/team-user/list")
-    public WebPageResult<TeamUserListVO> teamUserList(@Valid TeamUserPageQueryRequest request) {
+    @GetMapping("/team_user/list")
+    public WebPageResult<TeamUserListVO> teamUserList(@Valid CommonPageQueryRequest request) {
+        return null;
+    }
+
+    /**
+     * Fuzzy query of users
+     *
+     * @param request
+     * @return
+     * @version 2.1.0
+     */
+    @GetMapping("/user/list")
+    public WebPageResult<TeamUserListVO> userList(@Valid CommonPageQueryRequest request) {
+        return null;
+    }
+
+    /**
+     * Fuzzy query of  teams
+     *
+     * @param request
+     * @return
+     * @version 2.1.0
+     */
+    @GetMapping("/team/list")
+    public WebPageResult<TeamUserListVO> teamList(@Valid CommonPageQueryRequest request) {
         return null;
     }
 

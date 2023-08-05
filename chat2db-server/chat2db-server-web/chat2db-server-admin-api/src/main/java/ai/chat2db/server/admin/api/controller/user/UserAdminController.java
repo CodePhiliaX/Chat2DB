@@ -2,11 +2,15 @@
 package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.user.vo.UserTeamPageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.converter.DataSourceAdminConverter;
+import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserUpdateRequest;
+import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
+import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +21,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * User Team Management
+ * User Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/user/team")
+@RequestMapping("/api/admin/user")
 @RestController
-public class UserTeamController {
+public class UserAdminController {
+
+    @Resource
+    private DataSourceService dataSourceService;
+    @Resource
+    private DataSourceAdminConverter dataSourceAdminConverter;
 
     /**
      * Pagination query
@@ -33,7 +42,7 @@ public class UserTeamController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<UserTeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<UserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
         return null;
     }
 
@@ -44,10 +53,22 @@ public class UserTeamController {
      * @return
      * @version 2.1.0
      */
-    @PostMapping("/batch_create")
-    public DataResult<Long> create(@RequestBody UserTeamBatchCreateRequest request) {
+    @PostMapping("/create")
+    public DataResult<Long> create(@RequestBody UserCreateRequest request) {
         return null;
 
+    }
+
+    /**
+     * update
+     *
+     * @param request
+     * @return
+     * @version 2.1.0
+     */
+    @PostMapping("/update")
+    public ActionResult update(@RequestBody UserUpdateRequest request) {
+        return null;
     }
 
     /**

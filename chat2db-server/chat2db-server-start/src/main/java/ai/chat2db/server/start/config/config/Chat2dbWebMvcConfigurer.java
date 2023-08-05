@@ -5,10 +5,16 @@ import java.util.Enumeration;
 
 import com.alibaba.fastjson2.JSON;
 
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.service.UserService;
+import ai.chat2db.server.domain.core.cache.CacheKey;
+import ai.chat2db.server.domain.core.cache.MemoryCacheManage;
 import ai.chat2db.server.tools.base.constant.SymbolConstant;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.common.config.Chat2dbProperties;
+import ai.chat2db.server.tools.common.enums.ModeEnum;
+import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
 import ai.chat2db.server.tools.common.exception.RedirectBusinessException;
 import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.model.LoginUser;
@@ -21,6 +27,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +57,8 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
 
     @Resource
     private UserService userService;
+    @Resource
+    private Chat2dbProperties chat2dbProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -60,24 +69,36 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                     @NotNull Object handler) {
                     String userIdString = (String)StpUtil.getLoginIdDefaultNull();
+                    Long userId;
                     // 未登录
                     if (!StringUtils.isNumeric(userIdString)) {
-                        // TODO 这个版本默认放开登录 不管用户是否登录 都算登录，下个版本做权限
-                        userIdString = "1";
-                        //return true;
+                        if (chat2dbProperties.getMode() == ModeEnum.DESKTOP) {
+                            userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
+                        } else {
+                            return true;
+                        }
                     }
-                    // 已经登录 查询用户信息
-                    Long userId = Long.parseLong(userIdString);
-                    User user = userService.query(userId).getData();
-                    if (user == null) {
+                    userId = Long.parseLong(userIdString);
+                    Long finalUserId = userId;
+                    LoginUser loginUser = MemoryCacheManage.computeIfAbsent(CacheKey.getLoginUserKey(userId), () -> {
+                        User user = userService.query(finalUserId).getData();
+                        if (user == null) {
+                            return null;
+                        }
+                        return LoginUser.builder()
+                            .id(user.getId())
+                            .nickName(user.getNickName())
+                            .admin(RoleCodeEnum.ADMIN.getCode().equals(user.getRoleCode()))
+                            .build();
+                    });
+
+                    if (loginUser == null) {
                         // 代表用户可能被删除了
                         return true;
                     }
 
                     ContextUtils.setContext(Context.builder()
-                        .loginUser(LoginUser.builder()
-                            .id(user.getId()).nickName(user.getNickName())
-                            .build())
+                        .loginUser(loginUser)
                         .build());
                     return true;
                 }
@@ -106,7 +127,8 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         String path = SaHolder.getRequest().getRequestPath();
                         if (path.startsWith(API_PREFIX)) {
                             response.getWriter().println(JSON.toJSONString(
-                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"), "")));
+                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"),
+                                    "")));
                             return false;
                         } else {
                             throw new RedirectBusinessException(
@@ -125,6 +147,23 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
             .excludePathPatterns("/**/*-a")
             // _a结尾的统一放行
             .excludePathPatterns("/**/*_a");
+
+        // 校验权限
+        registry.addInterceptor(new AsyncHandlerInterceptor() {
+                @Override
+                public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+                    @NotNull Object handler) throws IOException {
+                    LoginUser loginUser = ContextUtils.getLoginUser();
+                    if (BooleanUtils.isNotTrue(loginUser.getAdmin())) {
+                        throw new PermissionDeniedBusinessException();
+                    }
+                    return true;
+                }
+            })
+            .order(3)
+            .addPathPatterns("/api/admin/**")
+            .addPathPatterns("/admin/**")
+        ;
 
     }
 

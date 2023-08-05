@@ -1,10 +1,9 @@
 
-package ai.chat2db.server.admin.api.controller.team;
+package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.team.request.TeamCreateRequest;
-import ai.chat2db.server.admin.api.controller.team.request.TeamUpdateRequest;
-import ai.chat2db.server.admin.api.controller.team.vo.TeamPageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.vo.UserTeamPageQueryVO;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
@@ -18,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Team Management
+ * User Team Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/team")
+@RequestMapping("/api/admin/user/team")
 @RestController
-public class TeamController {
+public class UserTeamAdminController {
 
     /**
      * Pagination query
@@ -34,7 +33,7 @@ public class TeamController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<TeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<UserTeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
         return null;
     }
 
@@ -45,22 +44,10 @@ public class TeamController {
      * @return
      * @version 2.1.0
      */
-    @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody TeamCreateRequest request) {
+    @PostMapping("/batch_create")
+    public DataResult<Long> create(@RequestBody UserTeamBatchCreateRequest request) {
         return null;
 
-    }
-
-    /**
-     * update
-     *
-     * @param request
-     * @return
-     * @version 2.1.0
-     */
-    @PostMapping("/update")
-    public ActionResult update(@RequestBody TeamUpdateRequest request) {
-        return null;
     }
 
     /**
