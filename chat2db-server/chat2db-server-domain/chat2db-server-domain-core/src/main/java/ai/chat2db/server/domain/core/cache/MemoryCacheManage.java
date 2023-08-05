@@ -33,7 +33,7 @@ public class MemoryCacheManage {
             .createCache(CACHE,
                 CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, byte[].class,
                         ResourcePoolsBuilder.newResourcePoolsBuilder()
-                            .offheap(10, MemoryUnit.MB))
+                            .offheap(5, MemoryUnit.MB))
                     .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(10))));
     }
 

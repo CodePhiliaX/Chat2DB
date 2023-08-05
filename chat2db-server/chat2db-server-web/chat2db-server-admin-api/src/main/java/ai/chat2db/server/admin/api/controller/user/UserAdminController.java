@@ -2,7 +2,7 @@
 package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.user.converter.DataSourceAdminConverter;
+import ai.chat2db.server.admin.api.controller.user.converter.UserAdminConverter;
 import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserUpdateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
@@ -32,7 +32,7 @@ public class UserAdminController {
     @Resource
     private DataSourceService dataSourceService;
     @Resource
-    private DataSourceAdminConverter dataSourceAdminConverter;
+    private UserAdminConverter dataSourceAdminConverter;
 
     /**
      * Pagination query

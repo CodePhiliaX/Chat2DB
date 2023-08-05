@@ -38,8 +38,11 @@ ALTER TABLE `dbhub_user`
 
 
 update dbhub_user
-set role_code= 'DESKTOP'
+set role_code= 'DESKTOP',user_name='_desktop_default_user_name',password='_desktop_default_user_name',nick_name='桌面端用户'
 where id = 1;
+INSERT INTO DBHUB_USER (USER_NAME, PASSWORD, NICK_NAME, EMAIL, ROLE_CODE) VALUES ('chat2db', 'chat2db', '管理员', null, 'ADMIN');
+
+create UNIQUE INDEX uk_user_user_name on dbhub_user (user_name);
 
 
 CREATE TABLE IF NOT EXISTS `team`

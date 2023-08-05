@@ -47,7 +47,7 @@ public class Application {
         ModeEnum mode = EasyEnumUtils.getEnum(ModeEnum.class, System.getProperty("chat2db.mode"));
         if (mode == ModeEnum.DESKTOP) {
             // In this mode, no user login is required, so only local access is available
-            args = ArrayUtils.add(args, "--server.address = 0.0.0.0");
+            args = ArrayUtils.add(args, "--server.address=0.0.0.0");
         }
         SpringApplication.run(Application.class, args);
     }

@@ -77,8 +77,9 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         } else {
                             return true;
                         }
+                    } else {
+                        userId = Long.parseLong(userIdString);
                     }
-                    userId = Long.parseLong(userIdString);
                     Long finalUserId = userId;
                     LoginUser loginUser = MemoryCacheManage.computeIfAbsent(CacheKey.getLoginUserKey(userId), () -> {
                         User user = userService.query(finalUserId).getData();
