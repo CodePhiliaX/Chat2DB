@@ -1,3 +1,14 @@
+
+# 2.0.9
+
+## 🐞 Bug Fixes
+
+-Fix the issue of Windows flash back
+
+## 🐞 问题修复
+
+- 修复windows闪退的问题
+
 # 2.0.8
 
 ## 🐞 Bug Fixes
