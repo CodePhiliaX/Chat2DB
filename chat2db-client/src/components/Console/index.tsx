@@ -437,7 +437,7 @@ function Console(props: IProps) {
           onExecute={executeSQL}
           options={props.editorOptions}
           tables={props.tables}
-          // onChange={}
+        // onChange={}
         />
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
@@ -466,8 +466,17 @@ function Console(props: IProps) {
         <Button
           type="text"
           onClick={() => {
-            const contextTmp = editorRef?.current?.getAllContent();
-            editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
+            let formatRes = '';
+            try {
+              const contextTmp = editorRef?.current?.getAllContent();
+              formatRes = format(contextTmp || '');
+            }
+            catch { }
+            if (formatRes) {
+              editorRef?.current?.setValue(formatRes, 'cover');
+            } else {
+              message.error(i18n('common.tips.formatError'))
+            }
           }}
         >
           {i18n('common.button.format')}

@@ -12,10 +12,11 @@ export interface IExtraParams {
 export interface ITreeNode {
   key: string | number;
   name: string;
-  treeNodeType: TreeNodeType;
-  isLeaf?: boolean;
+  treeNodeType: TreeNodeType; // 节点的类型 表、列、文件等等
+  isLeaf?: boolean; // 是否为叶子节点
   children?: ITreeNode[];
-  columnType?: string;
+  columnType?: string; // 列的类型
   extraParams?: IExtraParams;
-  pinned?: boolean;
+  pinned?: boolean; // 是否置顶
+  comment: string; // 表列的注释
 }
