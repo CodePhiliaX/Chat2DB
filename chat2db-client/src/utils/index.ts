@@ -1,5 +1,6 @@
 import { ThemeType } from '@/constants';
 import { ITreeNode } from '@/typings';
+import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
 
 export function getOsTheme() {
@@ -198,7 +199,7 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
 
 // Copy
 export function copy(message: string) {
-  navigator.clipboard.writeText(message);
+  clipboardCopy(message);
 }
 
 // 获取应用的一些基本信息
