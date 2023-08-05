@@ -7,9 +7,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        - os: macos-latest
-          arch: amd64
-        - os: ubuntu-latest
+        include:
+          - os: macos-latest
+            arch: amd64
+          - os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out Git repository
