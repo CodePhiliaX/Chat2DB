@@ -30,7 +30,7 @@
   具体转换在 /theme/index.ts 中的 InjectThemeVar
   - js 在window._AppThemePack中去取 eg：`window._AppThemePack.controlItemBgActive`  // good
   - css eg: `background: var(--control-item-bg-active)`  // good
-  - css `color: #fff` ` // bad
+  - css `color: #fff` // bad
 
 ## 如何使用国际化 
 

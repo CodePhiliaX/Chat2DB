@@ -87,7 +87,7 @@ export default memo<IProps>(function Tab(props) {
     >
       {
         t.value === editingTab ?
-          <input onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
+          <input value={t.label as string} onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
           :
           <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
             {t.label}

@@ -22,6 +22,7 @@ export interface IWorkspaceModelState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
+  curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
 }
@@ -30,12 +31,14 @@ export interface IWorkspaceModelType {
   namespace: 'workspace';
   state: IWorkspaceModelState;
   reducers: {
-    setDatabaseAndSchema: Reducer<IWorkspaceModelState['databaseAndSchema']>;
-    setCurWorkspaceParams: Reducer<IWorkspaceModelState['curWorkspaceParams']>;
-    setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
-    setConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setOpenConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setCurTableList: Reducer<IWorkspaceModelState['curTableList']>;
+    // TS TODO:
+    setDatabaseAndSchema: Reducer<IWorkspaceModelState>;
+    setCurWorkspaceParams: Reducer<IWorkspaceModelState>;
+    setDoubleClickTreeNodeData: Reducer<IWorkspaceModelState>;
+    setConsoleList: Reducer<IWorkspaceModelState>;
+    setOpenConsoleList: Reducer<IWorkspaceModelState>;
+    setCurConsoleId: Reducer<IWorkspaceModelState>;
+    setCurTableList: Reducer<IWorkspaceModelState>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
@@ -56,6 +59,7 @@ const WorkspaceModel: IWorkspaceModelType = {
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
+    curConsoleId: null
   },
 
   reducers: {
@@ -89,11 +93,20 @@ const WorkspaceModel: IWorkspaceModelType = {
       };
     },
 
+    // 工作台页面打开的console列表
     setOpenConsoleList(state, { payload }) {
       return {
         ...state,
         openConsoleList: payload,
       };
+    },
+
+    // 当前聚焦的console
+    setCurConsoleId(state, { payload }) {
+      return {
+        ...state,
+        curConsoleId: payload
+      }
     },
 
     setCurTableList(state, { payload }) {
