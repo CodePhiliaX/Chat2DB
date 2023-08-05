@@ -3,7 +3,7 @@ package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.user.vo.UserTeamPageQueryVO;
+import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * User Team Management
+ * User Data Source Management
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/user/team")
+@RequestMapping("/api/admin/user/data_source")
 @RestController
-public class UserTeamController {
+public class UserDataSourceController {
 
     /**
      * Pagination query
@@ -33,7 +33,7 @@ public class UserTeamController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<UserTeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
         return null;
     }
 

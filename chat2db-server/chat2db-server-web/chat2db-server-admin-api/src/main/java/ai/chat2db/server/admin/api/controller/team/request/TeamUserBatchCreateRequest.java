@@ -1,4 +1,4 @@
-package ai.chat2db.server.admin.api.controller.user.request;
+package ai.chat2db.server.admin.api.controller.team.request;
 
 import java.util.List;
 
@@ -18,18 +18,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceAccessBatchCreateRequest {
+public class TeamUserBatchCreateRequest {
 
     /**
-     * 数据源id
+     * team id
      */
-    @NotNull
-    private Long dataSourceId;
+    private Long teamId;
 
     /**
-     * DataSource Access Object
+     * user id list
      */
     @NotNull
     @NotEmpty
-    private List<DataSourceAccessObjectRequest> accessObjectList;
+    private List<Long> userIdList;
 }

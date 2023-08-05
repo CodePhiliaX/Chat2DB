@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Jiaju Zhuang
  */
-@RequestMapping("/api/admin/data/source/access")
+@RequestMapping("/api/admin/data_source/access")
 @RestController
 public class DataSourceAccessController {
 
@@ -51,7 +51,7 @@ public class DataSourceAccessController {
      * @return
      * @version 2.1.0
      */
-    @PostMapping("/batch-create")
+    @PostMapping("/batch_create")
     public ActionResult batchCreate(@RequestBody DataSourceAccessBatchCreateRequest request) {
         return null;
     }

@@ -1,29 +1,15 @@
-package ai.chat2db.server.domain.api.model;
+package ai.chat2db.server.admin.api.controller.team.request;
 
-import java.io.Serial;
-import java.io.Serializable;
-
-import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * Team
+ * update
  *
  * @author Jiaju Zhuang
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Team implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
-
+public class TeamUpdateRequest {
     /**
      * 主键
      */
@@ -54,5 +40,4 @@ public class Team implements Serializable {
      * 团队描述
      */
     private String description;
-
 }

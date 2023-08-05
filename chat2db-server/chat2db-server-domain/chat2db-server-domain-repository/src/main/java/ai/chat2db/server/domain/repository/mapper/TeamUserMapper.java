@@ -1,6 +1,6 @@
 package ai.chat2db.server.domain.repository.mapper;
 
-import ai.chat2db.server.domain.repository.entity.TeamDbhubUserDO;
+import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author chat2db
- * @since 2023-07-30
+ * @since 2023-08-05
  */
-public interface TeamDbhubUserMapper extends BaseMapper<TeamDbhubUserDO> {
+public interface TeamUserMapper extends BaseMapper<TeamUserDO> {
 
 }

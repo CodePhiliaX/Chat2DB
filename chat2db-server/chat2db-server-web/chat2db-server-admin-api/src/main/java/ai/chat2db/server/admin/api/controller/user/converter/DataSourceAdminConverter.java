@@ -1,7 +1,7 @@
 package ai.chat2db.server.admin.api.controller.user.converter;
 
 import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
-import ai.chat2db.server.admin.api.controller.user.request.DataSourceUpdateRequest;
+import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
