@@ -7,6 +7,7 @@ import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import ShortcutKey from '@/components/ShortcutKey';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
@@ -188,8 +189,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
     // }
   };
 
-  function render() {
-    return <div className={styles.ears}>Chat2DB</div>;
+  function renderEmpty() {
+    return <div className={styles.ears}><ShortcutKey /></div>;
   }
 
   function editableNameOnBlur(t: IOption) {
@@ -221,7 +222,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <LoadingContent data={openConsoleList} handleEmpty empty={render()}>
+      <LoadingContent data={openConsoleList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
           <Tabs
             className={styles.tabs}

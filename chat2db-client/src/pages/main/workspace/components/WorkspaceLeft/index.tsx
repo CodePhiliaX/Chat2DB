@@ -82,6 +82,16 @@ const WorkspaceLeft = memo<IProps>(function (props) {
     addConsole();
   }
 
+  useEffect(() => {
+    document.addEventListener('keydown', (e) => {
+      console.log(e.metaKey, e.key === 't')
+      if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+        e.preventDefault();
+        addConsole();
+      }
+    }, false)
+  }, [])
+
   return (
     <div className={classnames(styles.box, className)}>
       <RenderSaveBox></RenderSaveBox>
