@@ -46,7 +46,7 @@ public class DataSourceAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<DataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return dataSourceService.queryPage(dataSourceAdminConverter.request2param(request), null)
+        return dataSourceService.queryPageWithPermission(dataSourceAdminConverter.request2param(request), null)
             .mapToWeb(dataSourceAdminConverter::dto2vo);
     }
 
@@ -81,6 +81,7 @@ public class DataSourceAdminController {
      *
      * @param request
      * @return
+     * @version 2.1.0
      */
     @PostMapping("/clone")
     public DataResult<Long> clone(@RequestBody DataSourceCloneRequest request) {
@@ -92,6 +93,7 @@ public class DataSourceAdminController {
      *
      * @param id
      * @return
+     * @version 2.1.0
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {

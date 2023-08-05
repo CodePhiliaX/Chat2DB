@@ -32,7 +32,7 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
-      
+
 chat2db:
   version: 1.0.0
 
@@ -41,6 +41,12 @@ logging:
   level:
     org:
       flywaydb: debug
+    ai:
+      chat2db:
+        server:
+          domain:
+            repository:
+              mapper: debug
 # 登录功能
 sa-token:
   # token名称 (同时也是cookie名称)
