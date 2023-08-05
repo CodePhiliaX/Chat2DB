@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `team`
 create UNIQUE INDEX uk_team_code on team (code);
 
 
-CREATE TABLE IF NOT EXISTS `team_dbhub_user`
+CREATE TABLE IF NOT EXISTS `team_user`
 (
     `id`               bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
     `gmt_create`       datetime            NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -61,14 +61,14 @@ CREATE TABLE IF NOT EXISTS `team_dbhub_user`
     `create_user_id`   bigint(20) unsigned NOT NULL COMMENT '创建人用户id',
     `modified_user_id` bigint(20) unsigned NOT NULL COMMENT '修改人用户id',
     `team_id`          bigint(20) unsigned NOT NULL COMMENT '团队id',
-    `dbhub_user_id`    bigint(20) unsigned NOT NULL COMMENT '用户id',
+    `user_id`    bigint(20) unsigned NOT NULL COMMENT '用户id',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户团队表'
 ;
 
-create INDEX idx_team_dbhub_user_team_id on team_dbhub_user (`team_id`);
-create INDEX idx_team_dbhub_user_dbhub_user_id on team_dbhub_user (`dbhub_user_id`);
+create INDEX idx_team_user_team_id on team_user (`team_id`);
+create INDEX idx_team_user_user_id on team_user (`user_id`);
 
 CREATE TABLE IF NOT EXISTS `data_source_access`
 (
