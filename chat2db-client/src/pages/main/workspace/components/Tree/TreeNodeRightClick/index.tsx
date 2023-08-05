@@ -65,7 +65,7 @@ function TreeNodeRightClick(props: IProps) {
         handle: () => {
           mysqlServer.exportCreateTableSql({
             ...curWorkspaceParams,
-            tableName: data.name
+            tableName: data.key
           } as any).then(res => {
             setMonacoDefaultValue(res);
             setMonacoVerifyDialog(true);
@@ -272,7 +272,9 @@ function TreeNodeRightClick(props: IProps) {
         title={`${data.name}-DDL`}
         open={monacoVerifyDialog}
         width="600px"
-        onCancel={(() => { setMonacoVerifyDialog(false) })}>
+        onCancel={(() => { setMonacoVerifyDialog(false) })}
+        footer={false}
+      >
         <div className={styles.monacoEditorBox}>
           <MonacoEditor
             id='edit-dialog'
