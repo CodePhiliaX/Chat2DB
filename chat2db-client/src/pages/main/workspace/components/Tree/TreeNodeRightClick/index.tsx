@@ -91,7 +91,7 @@ function TreeNodeRightClick(props: IProps) {
         text: '新建表',
         icon: '\ue6b6',
         handle: () => {
-          const operationData: IOperationData = {
+          const operationData = {
             type: 'new',
             nodeData: data
           }
@@ -132,9 +132,7 @@ function TreeNodeRightClick(props: IProps) {
       return {
         text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
-        handle: () => {
-          handelTop();
-        }
+        handle: handelTop
       }
     },
   }
@@ -143,7 +141,7 @@ function TreeNodeRightClick(props: IProps) {
     const api = data.pinned ? 'deleteTablePin' : 'addTablePin'
     mysqlServer[api]({
       ...curWorkspaceParams,
-      tableName: data.name
+      tableName: data.key
     } as any).then(res => {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
@@ -173,10 +171,10 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function handleOk() {
-    if (verifyTableName === data.name) {
+    if (verifyTableName === data.key) {
       let p: any = {
         ...data.extraParams,
-        tableName: data.name,
+        tableName: data.key,
       }
       mysqlServer.deleteTable(p).then(res => {
         // notificationApi.success(
@@ -257,7 +255,7 @@ function TreeNodeRightClick(props: IProps) {
     }
     <Modal
       maskClosable={false}
-      title={`${i18n('workspace.menu.deleteTable')}-${data.name}`}
+      title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}
       open={verifyDialog}
       onOk={handleOk}
       width={400}
@@ -269,7 +267,7 @@ function TreeNodeRightClick(props: IProps) {
       monacoVerifyDialog &&
       <Modal
         maskClosable={false}
-        title={`${data.name}-DDL`}
+        title={`${data.key}-DDL`}
         open={monacoVerifyDialog}
         width="600px"
         onCancel={(() => { setMonacoVerifyDialog(false) })}
