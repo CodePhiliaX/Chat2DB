@@ -70,7 +70,7 @@ public class ResultSetUtils {
         tableColumn.setName(getString(resultSet, "COLUMN_NAME"));
         tableColumn.setComment(getString(resultSet, "REMARKS"));
         tableColumn.setDefaultValue(getString(resultSet, "COLUMN_DEF"));
-        tableColumn.setTypeName(getString(resultSet, "TYPE_NAME"));
+        tableColumn.setColumnType(getString(resultSet, "TYPE_NAME"));
         tableColumn.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
         tableColumn.setDataType(resultSet.getInt("DATA_TYPE"));
         tableColumn.setNullable(resultSet.getInt("NULLABLE") == 1);
