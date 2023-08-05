@@ -206,7 +206,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       return Object.keys(hintData).map((key) => ({
         label: key,
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: key,
+        insertText: `\`${key}\``,
         detail: '<Database>',
       }));
     };

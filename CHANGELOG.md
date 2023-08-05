@@ -1,4 +1,28 @@
+
+# 2.0.9
+
+## 🐞 Bug Fixes
+
+-Fix the issue of Windows flash back
+
+## 🐞 问题修复
+
+- 修复windows闪退的问题
+
+# 2.0.8
+
+## 🐞 Bug Fixes
+
+- Repair the Scientific notation in some databases  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- Fix some cases where data is not displayed
+
+## 🐞 问题修复
+
+- 修复部分数据库出现科学计数法的情况  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- 修复部分情况数据不展示
+
 # 2.0.7
+
 ## ⭐ New Features
 
 - Export query result as file is supported
@@ -7,12 +31,20 @@
 
 - Fixed ai config issues [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
 
+## ⭐ 新特性
+
+- 支持导出查询结果
+
+## 🐞 问题修复
+
+- 修复ai配置 [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
 
 # 2.0.6
 
 ## 🐞 Bug Fixes
 
-- Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom disappears  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+- Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom
+  disappears  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
 
 ## 🐞 问题修复
 

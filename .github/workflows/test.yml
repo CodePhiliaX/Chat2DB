@@ -8,6 +8,8 @@
 #      fail-fast: false
 #      matrix:
 #        include:
+#          - os: macos-latest
+#            arch: amd64
 #          - os: ubuntu-latest
 #    runs-on: ${{ matrix.os }}
 #    steps:
@@ -24,7 +26,7 @@
 #
 #      # java.security 开放tls1 Linux
 #      - name: Enable tls1
-#        if: ${{ runner.os == 'Linux' }}
 #        run: |
-#          sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
-#          cat ${{ env.JAVA_HOME }}/conf/security/java.security
+#          ls ${{ env.JAVA_HOME }}
+#          ls ${{ env.JAVA_HOME }}/legal/jdk.zipfs/
+#          cat ${{ env.JAVA_HOME }}/legal/jdk.zipfs/ADDITIONAL_LICENSE_INFO

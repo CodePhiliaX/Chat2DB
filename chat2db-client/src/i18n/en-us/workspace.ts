@@ -11,4 +11,8 @@ export default {
     'The table name you entered is not the same as the table name you want to delete, please confirm again',
   'workspace.table.total': 'Total',
   'workspace.table.total.tip': 'Load total number of rows',
+  'workspace.table.export.all.csv': 'Export result set csv',
+  'workspace.table.export.cur.csv': 'Export result of current page set csv',
+  'workspace.table.export.all.insert': 'Export result set insert sql',
+  'workspace.table.export.cur.insert': 'Export result of current page set insert sql',
 };
