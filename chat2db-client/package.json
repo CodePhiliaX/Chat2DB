@@ -16,7 +16,7 @@
     "build:prod": "npm run build:web:prod && npm run build:main:prod",
     "build:web": "umi build",
     "build:web:desktop": "cross-env UMI_ENV=desktop cross-env APP_VERSION=${npm_config_app_version} cross-env APP_PORT=${npm_config_app_port} umi build",
-    "build:web:prod": "cross-env UMI_ENV=prod cross-env APP_VERSION=${npm_config_app_version} cross-env APP_PORT=${npm_config_app_port} umi build",
+    "build:web:prod": "cross-env UMI_ENV=prod cross-env APP_VERSION=${npm_config_app_version} cross-env APP_PORT=${npm_config_app_port} cross-env UMI_PublicPath=${npm_config_public_path} umi build",
     "postinstall": "umi setup",
     "lint": "umi lint",
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
@@ -28,6 +28,7 @@
     "ahooks": "^3.7.7",
     "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
+    "copy-to-clipboard": "^3.3.3",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
     "event-source-polyfill": "^1.0.31",
@@ -79,7 +80,6 @@
     "files": [
       "dist/**/*",
       "!node_modules",
-      "static/",
       "src/main",
       "versions/**/*",
       "package.json"

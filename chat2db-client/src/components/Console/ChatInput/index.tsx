@@ -73,7 +73,7 @@ function ChatInput(props: IProps) {
             <div
               className={styles.remainBlock}
               onClick={() => {
-                props.onClickRemainBtn && props.onClickRemainBtn();
+                // props.onClickRemainBtn && props.onClickRemainBtn();
               }}
             >
               {i18n('chat.input.remain', remainCnt)}

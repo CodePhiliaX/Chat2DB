@@ -1,21 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { TableDataType } from '@/constants/table';
-import { IManageResultData, IResultConfig } from '@/typings/database';
-import { formatDate } from '@/utils/date';
 import { Button, Dropdown, MenuProps, message, Modal, Space } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
-import Iconfont from '../../Iconfont';
-import classnames from 'classnames';
-import StateIndicator from '../../StateIndicator';
-import MonacoEditor from '../../Console/MonacoEditor';
-import { useTheme } from '@/hooks/useTheme';
 import styled from 'styled-components';
-import { ThemeType } from '@/constants';
+import classnames from 'classnames';
 import i18n from '@/i18n';
+import { ThemeType } from '@/constants';
+import { TableDataType } from '@/constants/table';
+import { useTheme } from '@/hooks/useTheme';
+import { IManageResultData, IResultConfig } from '@/typings/database';
 import { compareStrings } from '@/utils/sort';
-import MyPagination from '../Pagination';
 import { DownOutlined, UserOutlined } from '@ant-design/icons';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
+import { formatDate } from '@/utils/date';
+import { copy } from '@/utils';
+import Iconfont from '../../Iconfont';
+import StateIndicator from '../../StateIndicator';
+import MonacoEditor from '../../Console/MonacoEditor';
+import MyPagination from '../Pagination';
 import styles from './index.less';
 
 interface ITableProps {
@@ -53,6 +54,7 @@ export default function TableBox(props: ITableProps) {
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [appTheme] = useTheme();
   const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
+  const [messageApi, contextHolder] = message.useMessage();
 
   const handleExport = (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     props.onExport && props.onExport(data.sql, data.originalSql, exportType, exportSize);
@@ -110,8 +112,8 @@ export default function TableBox(props: ITableProps) {
   }
 
   function copyTableCell(data: IViewTableCellData) {
-    navigator.clipboard.writeText(data?.value || viewTableCellData?.value);
-    message.success(i18n('common.button.copySuccessfully'));
+    copy(data?.value || viewTableCellData?.value);
+    messageApi.success(i18n('common.button.copySuccessfully'));
   }
 
   function handleCancel() {
@@ -272,7 +274,6 @@ export default function TableBox(props: ITableProps) {
   return (
     <div className={classnames(className, styles.tableBox)}>
       {renderContent()}
-
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}
@@ -303,6 +304,7 @@ export default function TableBox(props: ITableProps) {
           />
         </div>
       </Modal>
+      {contextHolder}
     </div>
   );
 }
