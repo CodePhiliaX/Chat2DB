@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Checkbox, Dropdown, Input, Modal, Popover, Select, Spin } from 'antd';
+import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
@@ -23,6 +23,8 @@ interface IProps {
 }
 
 function ChatInput(props: IProps) {
+  const [value, setValue] = useState(props.value);
+
   const onPressEnter = (e: any) => {
     if (!e.target.value) {
       return;
@@ -62,7 +64,15 @@ function ChatInput(props: IProps) {
     const remainCnt = props?.remainingUse?.remainingUses ?? '-';
     return (
       <div className={styles.suffixBlock}>
-        <div className={styles.enterIcon}></div>
+        <Button
+          type="primary"
+          className={styles.enterIcon}
+          onClick={() => {
+            if (value) {
+              props.onPressEnter && props.onPressEnter(value);
+            }
+          }}
+        />
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottom">
             <Iconfont code="&#xe618;" />
@@ -73,7 +83,7 @@ function ChatInput(props: IProps) {
             <div
               className={styles.remainBlock}
               onClick={() => {
-                props.onClickRemainBtn && props.onClickRemainBtn();
+                // props.onClickRemainBtn && props.onClickRemainBtn();
               }}
             >
               {i18n('chat.input.remain', remainCnt)}
@@ -89,7 +99,8 @@ function ChatInput(props: IProps) {
       <img className={styles.chatAi} src={AIImg} />
       <Input
         disabled={props.disabled}
-        defaultValue={props.value}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         bordered={false}
         placeholder={i18n('workspace.ai.input.placeholder')}
         onPressEnter={onPressEnter}

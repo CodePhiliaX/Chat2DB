@@ -65,7 +65,7 @@ function TreeNodeRightClick(props: IProps) {
         handle: () => {
           mysqlServer.exportCreateTableSql({
             ...curWorkspaceParams,
-            tableName: data.name
+            tableName: data.key
           } as any).then(res => {
             setMonacoDefaultValue(res);
             setMonacoVerifyDialog(true);
@@ -91,7 +91,7 @@ function TreeNodeRightClick(props: IProps) {
         text: '新建表',
         icon: '\ue6b6',
         handle: () => {
-          const operationData: IOperationData = {
+          const operationData = {
             type: 'new',
             nodeData: data
           }
@@ -132,9 +132,7 @@ function TreeNodeRightClick(props: IProps) {
       return {
         text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
-        handle: () => {
-          handelTop();
-        }
+        handle: handelTop
       }
     },
   }
@@ -143,7 +141,7 @@ function TreeNodeRightClick(props: IProps) {
     const api = data.pinned ? 'deleteTablePin' : 'addTablePin'
     mysqlServer[api]({
       ...curWorkspaceParams,
-      tableName: data.name
+      tableName: data.key
     } as any).then(res => {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
@@ -165,18 +163,16 @@ function TreeNodeRightClick(props: IProps) {
       ...data,
       ...data.extraParams
     }).then(res => {
-      setTimeout(() => {
-        data.children = res;
-        setIsLoading(false);
-      }, 200);
+      data.children = res;
+      setIsLoading(false);
     })
   }
 
   function handleOk() {
-    if (verifyTableName === data.name) {
+    if (verifyTableName === data.key) {
       let p: any = {
         ...data.extraParams,
-        tableName: data.name,
+        tableName: data.key,
       }
       mysqlServer.deleteTable(p).then(res => {
         // notificationApi.success(
@@ -257,11 +253,12 @@ function TreeNodeRightClick(props: IProps) {
     }
     <Modal
       maskClosable={false}
-      title={`${i18n('workspace.menu.deleteTable')}-${data.name}`}
+      title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}
       open={verifyDialog}
       onOk={handleOk}
       width={400}
-      onCancel={(() => { setVerifyDialog(false) })}>
+      onCancel={(() => { setVerifyDialog(false) })}
+    >
       <Input placeholder={i18n('workspace.menu.deleteTablePlaceHolder')} value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
     </Modal>
     {/* 这里后续肯定是要提出去的 */}
@@ -269,10 +266,12 @@ function TreeNodeRightClick(props: IProps) {
       monacoVerifyDialog &&
       <Modal
         maskClosable={false}
-        title={`${data.name}-DDL`}
+        title={`${data.key}-DDL`}
         open={monacoVerifyDialog}
         width="600px"
-        onCancel={(() => { setMonacoVerifyDialog(false) })}>
+        onCancel={(() => { setMonacoVerifyDialog(false) })}
+        footer={false}
+      >
         <div className={styles.monacoEditorBox}>
           <MonacoEditor
             id='edit-dialog'
