@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.TeamUserCustomMapper">
+    <select id="comprehensivePageQuery" resultType="ai.chat2db.server.domain.repository.entity.TeamUserDO">
+        select tu.*
+        from TEAM_USER tu
+        <if test="teamRoleCode != null ">
+            left join TEAM t on t.id = tu.TEAM_ID
+        </if>
+        <where>
+            <if test="teamId != null ">
+                and tu.TEAM_ID = #{teamId}
+            </if>
+            <if test="userId != null ">
+                and tu.USER_ID = #{userId}
+            </if>
+            <if test="teamRoleCode != null ">
+                and t.ROLE_CODE = #{teamRoleCode}
+                and t.STATUS = 'VALID'
+            </if>
+        </where>
+    </select>
+
+</mapper>

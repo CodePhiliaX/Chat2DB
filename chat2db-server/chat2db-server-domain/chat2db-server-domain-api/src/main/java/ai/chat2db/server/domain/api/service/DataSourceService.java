@@ -3,11 +3,11 @@ package ai.chat2db.server.domain.api.service;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceSelector;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -73,7 +73,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    DataResult<Long> copyById(@NotNull Long id);
+    DataResult<Long> copyByIdWithPermission(@NotNull Long id);
 
     /**
      * 分页查询数据源列表

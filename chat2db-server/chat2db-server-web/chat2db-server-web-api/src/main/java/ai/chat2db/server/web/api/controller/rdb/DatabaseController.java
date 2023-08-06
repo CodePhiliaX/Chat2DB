@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
-import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;

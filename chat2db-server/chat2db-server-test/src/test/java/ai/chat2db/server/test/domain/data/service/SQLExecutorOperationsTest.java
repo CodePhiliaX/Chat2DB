@@ -1,7 +1,7 @@
 package ai.chat2db.server.test.domain.data.service;
 
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;

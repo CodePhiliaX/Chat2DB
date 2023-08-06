@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Team
+ * Team user
  *
  * @author Jiaju Zhuang
  */
@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Team implements Serializable {
+public class TeamUser implements Serializable {
 
     @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
@@ -31,34 +31,27 @@ public class Team implements Serializable {
     private Long id;
 
     /**
-     * 团队编码
+     * 团队id
      */
     @NotNull
-    private String code;
+    private Long teamId;
 
     /**
-     * 团队名称
+     * 团队
      */
     @NotNull
-    private String name;
+    private Team team;
 
     /**
-     * 团队状态
-     *
-     * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
+     * 用户id
      */
     @NotNull
-    private String status;
+    private Long userId;
 
     /**
-     * 角色编码
+     * 用户
      */
-    private String roleCode;
-
-
-    /**
-     * 团队描述
-     */
-    private String description;
+    @NotNull
+    private User user;
 
 }

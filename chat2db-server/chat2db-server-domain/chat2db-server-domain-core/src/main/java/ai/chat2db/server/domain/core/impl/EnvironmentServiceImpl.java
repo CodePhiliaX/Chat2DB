@@ -55,7 +55,7 @@ public class EnvironmentServiceImpl implements EnvironmentService {
         }
         IPage<EnvironmentDO> iPage = environmentMapper.selectPage(new Page<>(param.getPageNo(), param.getPageSize()),
             queryWrapper);
-        List<Environment> dataSources = environmentConverter.do2dto(iPage.getRecords());
-        return PageResult.of(dataSources, iPage.getTotal(), param);
+        List<Environment> dataList = environmentConverter.do2dto(iPage.getRecords());
+        return PageResult.of(dataList, iPage.getTotal(), param);
     }
 }

@@ -1,5 +1,5 @@
 
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.datasource;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

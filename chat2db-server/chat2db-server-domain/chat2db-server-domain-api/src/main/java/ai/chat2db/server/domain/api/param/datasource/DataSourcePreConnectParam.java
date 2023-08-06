@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.datasource;
 
 import java.util.List;
 
@@ -7,45 +7,44 @@ import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 /**
- * 数据源测试参数
- *
- * @author Jiaju Zhuang
+ * @author moji
+ * @version ConnectionCreateRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @date 2022/09/16
  */
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DataSourceTestParam {
+public class DataSourcePreConnectParam {
 
     /**
-     * 数据库类型
-     *
-     * @see DbTypeEnum
+     * 连接别名
      */
-    @NotNull
-    private String dbType;
+    private String alias;
 
     /**
-     * 请求连接
+     * 连接地址
      */
     @NotNull
     private String url;
 
     /**
-     * 用户名
+     * 连接用户
      */
-    private String username;
+    private String user;
 
     /**
      * 密码
      */
+    @NotNull
     private String password;
+
+    /**
+     * 连接类型
+     */
+    @NotNull
+    private String type;
+
 
     /**
      * host
@@ -87,7 +86,6 @@ public class DataSourceTestParam {
      * 扩展信息
      */
     private List<KeyValue> extendInfo;
-
 
     /**
      * 驱动配置
