@@ -21,6 +21,25 @@ const keyboardKey = (function () {
 
 const shortcutsList = [
   {
+    title: i18n('common.text.textToSQL'),
+    keys: [
+      'Enter'
+    ]
+  },
+  {
+    title: i18n('common.text.optimizeSQL'),
+    keys: [
+      i18n('common.text.editorRightClick')
+    ]
+  },
+  {
+    title: i18n('common.text.executeSelectedSQL'),
+    keys: [
+      keyboardKey.command,
+      'Enter'
+    ]
+  },
+  {
     title: i18n('common.text.saveConsole'),
     keys: [
       keyboardKey.command,
@@ -34,20 +53,13 @@ const shortcutsList = [
       'R'
     ]
   },
-  {
-    title: i18n('common.button.createConsole'),
-    keys: [
-      keyboardKey.command,
-      'T'
-    ]
-  },
-  {
-    title: i18n('common.text.executeSelectedSQL'),
-    keys: [
-      keyboardKey.command,
-      'Enter'
-    ]
-  },
+  // {
+  //   title: i18n('common.button.createConsole'),
+  //   keys: [
+  //     keyboardKey.command,
+  //     'T'
+  //   ]
+  // },
 ]
 
 export default memo<IProps>(function ShortcutKey(props) {
@@ -63,7 +75,7 @@ export default memo<IProps>(function ShortcutKey(props) {
             <div className={styles.title}>
               {t.title}
             </div>
-            <div>
+            <div className={styles.plusSignBox}>
               {t.keys.map((item, i) => {
                 return <Fragment key={i}>
                   <span>

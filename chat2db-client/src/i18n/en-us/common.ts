@@ -71,4 +71,6 @@ export default {
   'common.text.executeSelectedSQL': 'Execute selected SQL',
   'common.text.refreshPage': 'Refresh page',
   'common.text.saveConsole': 'Save console',
+  'common.text.textToSQL': 'Plain text to SQL',
+  'common.text.editorRightClick': 'Editor right click',
 };
