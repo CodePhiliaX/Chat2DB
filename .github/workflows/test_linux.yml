@@ -99,7 +99,7 @@ jobs:
           ls -la
           rm ADDITIONAL_LICENSE_INFO
           ls -la
-          cd jdk.zipfs
+          cd ../jdk.zipfs
           ls -la
           rm ADDITIONAL_LICENSE_INFO
           ls -la
