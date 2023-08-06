@@ -93,6 +93,11 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
+      - name: Test File
+        run: |
+          cd chat2db-client/static/jre/legal/java.base
+          ls -la
+
       # Linux
       - name: Build/release Electron app for Linux
         if: ${{ runner.os == 'Linux' }}
