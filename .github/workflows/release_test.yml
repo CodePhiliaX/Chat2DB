@@ -237,7 +237,6 @@ jobs:
           cd chat2db-client/versions/99.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
-
       # 准备要需要的数据 MacOS arm64
       - name: Prepare upload for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
@@ -250,7 +249,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           mkdir oss_temp_file
-          cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/release/*.AppImage ./oss_temp_file
 
       # 把文件上传到OSS 方便下载
       - name: Set up oss utils
