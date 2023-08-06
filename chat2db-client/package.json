@@ -80,7 +80,7 @@
     "files": [
       "dist/**/*",
       "!node_modules",
-      "static/",
+
       "src/main",
       "versions/**/*",
       "package.json"
