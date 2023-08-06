@@ -66,13 +66,15 @@ function ChatInput(props: IProps) {
       <div className={styles.suffixBlock}>
         <Button
           type="primary"
-          className={styles.enterIcon}
+          className={styles.enter}
           onClick={() => {
             if (value) {
               props.onPressEnter && props.onPressEnter(value);
             }
           }}
-        />
+        >
+          <Iconfont code="&#xe643;" className={styles.enterIcon} />
+        </Button>
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottom">
             <Iconfont code="&#xe618;" />
