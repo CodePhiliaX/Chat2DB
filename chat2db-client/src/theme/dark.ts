@@ -12,10 +12,25 @@ const antdPrimaryColor: IAntdPrimaryColor = {
     colorPrimary: '#3c8618',
   },
   [PrimaryColorType.Golden_Purple]: {
-    colorPrimary: '#51258f',
+    colorPrimary: '#7688c9',
   },
   [PrimaryColorType.Polar_Blue]: {
     colorPrimary: '#1677ff',
+  },
+  [PrimaryColorType.Silver]: {
+    colorPrimary: '#c3b7a4',
+  },
+  [PrimaryColorType.Red]: {
+    colorPrimary: '#fd6874',
+  },
+  [PrimaryColorType.Orange]: {
+    colorPrimary: '#ffa940',
+  },
+  [PrimaryColorType.Blue2]: {
+    colorPrimary: '#009cc7',
+  },
+  [PrimaryColorType.Gold]: {
+    colorPrimary: '#b59a6d',
   },
 };
 

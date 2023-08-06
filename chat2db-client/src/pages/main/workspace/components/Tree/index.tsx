@@ -84,11 +84,9 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
       ...(data.extraParams || {}),
     }).then(res => {
       if (res.length) {
-        setTimeout(() => {
-          data.children = res;
-          setShowChildren(true);
-          setIsLoading(false);
-        }, 200);
+        data.children = res;
+        setShowChildren(true);
+        setIsLoading(false);
       }
       else {
         // 处理树可能出现不连续的情况 
