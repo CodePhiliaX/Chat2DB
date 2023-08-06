@@ -1,11 +1,12 @@
 
 package ai.chat2db.server.admin.api.controller.datasource;
 
-import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
+import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAccessAdminConverter;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourceAccessPageQueryVO;
-import ai.chat2db.server.domain.api.service.DataSourceService;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
+import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
@@ -27,10 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DataSourceAccessAdminController {
 
+    private static final DataSourceAccessSelector DATA_SOURCE_ACCESS_SELECTOR = DataSourceAccessSelector.builder()
+        .accessObject(Boolean.TRUE)
+        .build();
+
     @Resource
-    private DataSourceService dataSourceService;
+    private DataSourceAccessService dataSourceAccessService;
     @Resource
-    private DataSourceAdminConverter dataSourceAdminConverter;
+    private DataSourceAccessAdminConverter dataSourceAccessAdminConverter;
 
     /**
      * Pagination query
@@ -41,7 +46,9 @@ public class DataSourceAccessAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<DataSourceAccessPageQueryVO> page(@Valid DataSourceAccessPageQueryRequest request) {
-        return null;
+        return dataSourceAccessService.comprehensivePageQuery(dataSourceAccessAdminConverter.request2param(request),
+                DATA_SOURCE_ACCESS_SELECTOR)
+            .mapToWeb(dataSourceAccessAdminConverter::dto2vo);
     }
 
     /**
@@ -53,7 +60,7 @@ public class DataSourceAccessAdminController {
      */
     @PostMapping("/batch_create")
     public ActionResult batchCreate(@RequestBody DataSourceAccessBatchCreateRequest request) {
-        return null;
+        return dataSourceAccessService.batchCreate(dataSourceAccessAdminConverter.request2param(request));
     }
 
     /**
