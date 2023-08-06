@@ -1,5 +1,5 @@
 # Workflow's name
-name: Build Test Client
+name: Build Linux Client
 
 # Workflow's trigger
 # 在release_test 分支收到推送的时候触发
@@ -94,14 +94,14 @@ jobs:
           rm -r dist
 
       # Linux
-      - name: Build/release Electron app for Linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          package_root: "chat2db-client/"
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --linux"
+      # - name: Build/release Electron app for Linux
+      #   if: ${{ runner.os == 'Linux' }}
+      #   uses: samuelmeuli/action-electron-builder@v1
+      #   with:
+      #     package_root: "chat2db-client/"
+      #     GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      #     skip_build: true
+      #     args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --linux"
 
       # 准备要需要的数据 Linux
       - name: Prepare upload for Linux
