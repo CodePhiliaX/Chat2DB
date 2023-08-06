@@ -163,10 +163,8 @@ function TreeNodeRightClick(props: IProps) {
       ...data,
       ...data.extraParams
     }).then(res => {
-      setTimeout(() => {
-        data.children = res;
-        setIsLoading(false);
-      }, 200);
+      data.children = res;
+      setIsLoading(false);
     })
   }
 

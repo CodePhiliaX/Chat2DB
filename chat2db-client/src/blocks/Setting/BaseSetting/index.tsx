@@ -46,18 +46,38 @@ const colorList = [
   {
     code: 'polar-green',
     name: i18n('setting.label.green'),
-    color: '#1d3712',
+    color: '#039e74',
   },
   {
     code: 'golden-purple',
     name: i18n('setting.label.violet'),
-    color: '#301c4d',
+    color: '#9373ee',
   },
-  // {
-  //   code: 'sunset-orange',
-  //   name: '日暮',
-  //   color: "#593815"
-  // },
+  {
+    code: 'blue2',
+    name: i18n('setting.label.violet'),
+    color: '#00c3ee',
+  },
+  {
+    code: 'gold',
+    name: i18n('setting.label.violet'),
+    color: '#9a7d56',
+  },
+  {
+    code: 'silver',
+    name: i18n('setting.label.violet'),
+    color: '#8e8374',
+  },
+  {
+    code: 'red',
+    name: i18n('setting.label.violet'),
+    color: '#fd6874',
+  },
+  {
+    code: 'orange',
+    name: i18n('setting.label.violet'),
+    color: '#fa8c16',
+  },
 ];
 
 // baseBody 基础设置
@@ -128,7 +148,7 @@ export default function BaseSetting() {
               >
                 {currentPrimaryColor == item.code && <Iconfont code="&#xe617;" />}
               </div>
-              <div className={styles.colorName}>{item.name}</div>
+              {/* <div className={styles.colorName}>{item.name}</div> */}
             </div>
           );
         })}
