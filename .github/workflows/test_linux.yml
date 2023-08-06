@@ -97,6 +97,8 @@ jobs:
         run: |
           cd chat2db-client/static/jre/legal/java.base
           ls -la
+          rm ADDITIONAL_LICENSE_INFO
+          ls -la
 
       # Linux
       - name: Build/release Electron app for Linux
