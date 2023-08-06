@@ -1,6 +1,8 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -21,6 +23,7 @@ import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -40,13 +43,41 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ListResult<Database> queryAll(DatabaseQueryAllParam param) {
         List<Database> databases = CacheManage.getList(getDataBasesKey(param.getDataSourceId()), Database.class,
-            (key) -> param.isRefresh(), (key) -> {
-                Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
-                    : param.getConnection();
-                MetaData metaData = Chat2DBContext.getMetaData(param.getDbType());
-                return metaData.databases(connection);
-            });
+            (key) -> param.isRefresh(),
+            (key) -> getDatabases(param.getDbType(), param.getConnection() == null ? Chat2DBContext.getConnection()
+                : param.getConnection())
+        );
         return ListResult.of(databases);
+    }
+
+    private List<Database> getDatabases(String dbType, Connection connection) {
+        MetaData metaData = Chat2DBContext.getMetaData(dbType);
+        List<Database> databases = metaData.databases(connection);
+        sortDatabases(databases,connection);
+        return databases;
+    }
+
+    private void sortDatabases(List<Database> databases,Connection connection) {
+        if (CollectionUtils.isEmpty(databases)) {
+            return;
+        }
+        String ulr = null;
+        try {
+            ulr = connection.getMetaData().getURL();
+        } catch (SQLException e) {
+            log.error("get url error", e);
+        }
+        // If the database name contains the name of the current database, the current database is placed in the first place
+        int num = -1;
+        for (int i = 0; i < databases.size(); i++) {
+            if (StringUtils.isNotBlank(ulr) && ulr.contains(databases.get(i).getName())) {
+                num = i;
+                break;
+            }
+        }
+        if (num != -1 && num != 0) {
+            Collections.swap(databases, num, 0);
+        }
     }
 
     @Override
