@@ -3,23 +3,18 @@
 
 ## 🐞 Bug Fixes
 
-- Activate the console for the latest operation when you create or start a console、Records the last console used 
- 
-- The replication function of the browser, such as edge, is unavailable 
- 
-- table Indicates an error when ddl is exported after the search 
- 
+- Activate the console for the latest operation when you create or start a console、Records the last console used
+- The replication function of the browser, such as edge, is unavailable
+- table Indicates an error when ddl is exported after the search
 - Adds table comments and column field types and comments
 
 ## 🐞 问题修复
 
 - 新建、开打console时激活最新操作的console、记录最后一次使用的console
-
 - edge等浏览器复制功能无法正常使用
-
 - table搜索后导出ddl报错
-
 - 增加表注释以及列字段类型和注释
+- 当数据源添加了database默认选择第一个database
 
 # 2.0.9
 
