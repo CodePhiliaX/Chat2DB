@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnvironmentVO implements Serializable {
+public class SimpleEnvironmentVO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;

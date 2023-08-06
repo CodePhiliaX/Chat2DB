@@ -100,4 +100,5 @@ public class DataSourceUpdateParam {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
 }

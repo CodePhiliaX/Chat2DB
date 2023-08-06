@@ -94,4 +94,11 @@ public class DataSourceCreateParam {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
 }

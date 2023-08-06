@@ -2,7 +2,6 @@ package ai.chat2db.server.admin.api.controller.datasource.request;
 
 import java.util.List;
 
-import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
@@ -52,12 +51,6 @@ public class DataSourceCreateRequest {
     private String type;
 
     /**
-     * 环境类型
-     * @see EnvTypeEnum
-     */
-    private String envType;
-
-    /**
      * host
      */
     private String host;
@@ -103,6 +96,11 @@ public class DataSourceCreateRequest {
      */
     private DriverConfig driverConfig;
 
+    /**
+     * 环境id
+     */
+    @NotNull
+    private Long environmentId;
 
 
 }

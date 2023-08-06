@@ -4,6 +4,7 @@ import ai.chat2db.server.tools.common.enums.ModeEnum;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
+import cn.hutool.core.lang.UUID;
 import com.dtflys.forest.springboot.annotation.ForestScan;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -49,6 +50,18 @@ public class Application {
             // In this mode, no user login is required, so only local access is available
             args = ArrayUtils.add(args, "--server.address=0.0.0.0");
         }
+
+        String jwtSecretKey = System.getProperty("sa-token.jwt-secret-key");
+        // The user did not specify the jws key
+        if (StringUtils.isBlank(jwtSecretKey)) {
+            if (StringUtils.isBlank(configJson.getJwtSecretKey())) {
+                configJson.setJwtSecretKey(UUID.fastUUID().toString().replaceAll("-", ""));
+                ConfigUtils.setConfig(configJson);
+            }
+            // Ensure that the jwt Secret Key for each application is unique
+            args = ArrayUtils.add(args, "--sa-token.jwt-secret-key=" + configJson.getJwtSecretKey());
+        }
+
         SpringApplication.run(Application.class, args);
     }
 }

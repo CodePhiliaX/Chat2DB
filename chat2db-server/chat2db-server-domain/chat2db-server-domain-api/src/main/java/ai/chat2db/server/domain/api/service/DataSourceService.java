@@ -31,7 +31,8 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    DataResult<Long> create(DataSourceCreateParam param);
+    DataResult<Long> createWithPermission(DataSourceCreateParam param);
+    
 
     /**
      * 更新数据源连接
@@ -39,7 +40,7 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    ActionResult update(DataSourceUpdateParam param);
+    ActionResult updateWithPermission(DataSourceUpdateParam param);
 
     /**
      * 删除数据源连接
@@ -47,7 +48,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    ActionResult delete(@NotNull Long id);
+    ActionResult deleteWithPermission(@NotNull Long id);
 
     /**
      * 根据id查询数据源连接详情
@@ -56,6 +57,15 @@ public interface DataSourceService {
      * @return
      */
     DataResult<DataSource> queryById(@NotNull Long id);
+
+    /**
+     * 根据id查询数据源连接详情
+     *
+     * @param id
+     * @return
+     * @throws ai.chat2db.server.tools.common.exception.DataNotFoundException
+     */
+    DataResult<DataSource> queryExistent(@NotNull Long id);
 
     /**
      * 克隆连接

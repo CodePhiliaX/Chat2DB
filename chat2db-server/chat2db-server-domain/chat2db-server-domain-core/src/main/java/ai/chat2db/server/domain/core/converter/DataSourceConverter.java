@@ -168,6 +168,7 @@ public abstract class DataSourceConverter {
                 + ".class))")
     @Mapping(target = "extendInfo",
         expression = "java(com.alibaba.fastjson2.JSON.parseArray(dataSourceDO.getExtendInfo(),ai.chat2db.spi.model.KeyValue.class))")
+    @Mapping(target = "environment.id", source = "environmentId")
     public abstract DataSource do2dto(DataSourceDO dataSourceDO);
 
     /**

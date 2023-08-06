@@ -14,7 +14,7 @@ import lombok.Setter;
  * </p>
  *
  * @author chat2db
- * @since 2023-08-05
+ * @since 2023-08-06
  */
 @Getter
 @Setter
@@ -123,4 +123,9 @@ public class DataSourceDO implements Serializable {
      * 环境id
      */
     private Long environmentId;
+
+    /**
+     * 连接类型
+     */
+    private String kind;
 }

@@ -198,7 +198,7 @@ public class DataSourceController {
     @PostMapping("/datasource/create")
     public DataResult<Long> create(@RequestBody DataSourceCreateRequest request) {
         DataSourceCreateParam param = dataSourceWebConverter.createReq2param(request);
-        return dataSourceService.create(param);
+        return dataSourceService.createWithPermission(param);
     }
 
     /**
@@ -210,7 +210,7 @@ public class DataSourceController {
     @RequestMapping(value = "/datasource/update",method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceWebConverter.updateReq2param(request);
-        return dataSourceService.update(param);
+        return dataSourceService.updateWithPermission(param);
     }
 
     /**
@@ -232,7 +232,7 @@ public class DataSourceController {
      */
     @DeleteMapping("/datasource/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return dataSourceService.delete(id);
+        return dataSourceService.deleteWithPermission(id);
     }
 
 }

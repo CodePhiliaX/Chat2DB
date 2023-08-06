@@ -11,8 +11,6 @@ import ai.chat2db.server.tools.base.wrapper.Result;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult.Page;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -161,6 +159,7 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
     public static <T> PageResult<T> of(List<T> data, PageQueryParam param) {
         return new PageResult<>(data, 0L, param.getPageNo(), param.getPageSize());
     }
+
 
     /**
      * 构建空的返回对象
