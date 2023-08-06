@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@main
         with:
           java-version: "17"
-          distribution: "temurin"
+          distribution: "amazon"
           java-package: "jre"
 
       # java.security 开放tls1 Linux
@@ -93,16 +93,16 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
-      - name: Test File
-        run: |
-          cd chat2db-client/static/jre/legal/java.base
-          ls -la
-          rm ADDITIONAL_LICENSE_INFO
-          ls -la
-          cd ../jdk.zipfs
-          ls -la
-          rm ADDITIONAL_LICENSE_INFO
-          ls -la
+      # - name: Test File
+      #   run: |
+      #     cd chat2db-client/static/jre/legal/java.base
+      #     ls -la
+      #     rm ADDITIONAL_LICENSE_INFO
+      #     ls -la
+      #     cd ../jdk.zipfs
+      #     ls -la
+      #     rm ADDITIONAL_LICENSE_INFO
+      #     ls -la
 
       # Linux
       - name: Build/release Electron app for Linux
