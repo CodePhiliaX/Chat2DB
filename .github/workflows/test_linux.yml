@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@main
         with:
           java-version: "17"
-          distribution: "amazon"
+          distribution: "corretto"
           java-package: "jre"
 
       # java.security 开放tls1 Linux
