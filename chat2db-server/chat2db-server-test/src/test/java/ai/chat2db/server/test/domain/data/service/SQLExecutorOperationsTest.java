@@ -89,7 +89,7 @@ public class SQLExecutorOperationsTest extends BaseTest {
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUserName(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
-            DataResult<Long> dataSourceConnect = dataSourceService.create(dataSourceCreateParam);
+            DataResult<Long> dataSourceConnect = dataSourceService.createWithPermission(dataSourceCreateParam);
             Assertions.assertTrue(dataSourceConnect.getSuccess(), "创建数据库连接池失败");
             // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "创建数据库连接池失败");
         }

@@ -1,7 +1,7 @@
 
 package ai.chat2db.server.admin.api.controller.user;
 
-import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;

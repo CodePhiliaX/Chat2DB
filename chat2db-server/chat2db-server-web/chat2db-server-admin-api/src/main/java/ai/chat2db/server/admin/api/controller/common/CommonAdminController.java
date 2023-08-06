@@ -1,7 +1,7 @@
 
 package ai.chat2db.server.admin.api.controller.common;
 
-import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.common.vo.TeamUserListVO;
 import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
 import ai.chat2db.server.domain.api.service.DataSourceService;

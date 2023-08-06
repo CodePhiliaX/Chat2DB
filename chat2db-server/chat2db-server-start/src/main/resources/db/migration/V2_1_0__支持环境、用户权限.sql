@@ -26,6 +26,9 @@ ALTER TABLE `data_source`
 ALTER TABLE `data_source`
     modify COLUMN `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
 
+ALTER TABLE `data_source`
+    ADD COLUMN `kind` varchar(32) NOT NULL DEFAULT 'PRIVATE' COMMENT '连接类型';
+
 update data_source
 set user_id= 1;
 

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.DataSourceCloseParam;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
@@ -17,6 +18,8 @@ import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
+import ai.chat2db.server.domain.core.converter.EnvironmentConverter;
+import ai.chat2db.server.domain.core.util.PermissionUtils;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
@@ -24,8 +27,13 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.common.exception.DataNotFoundException;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -39,6 +47,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +72,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DatabaseService databaseService;
     @Resource
     private DataSourceCustomMapper dataSourceCustomMapper;
+    @Resource
+    private EnvironmentConverter environmentConverter;
 
     @Override
-    public DataResult<Long> create(DataSourceCreateParam param) {
+    public DataResult<Long> createWithPermission(DataSourceCreateParam param) {
+        DataSourceKindEnum dataSourceKind = EasyEnumUtils.getEnum(DataSourceKindEnum.class, param.getKind());
+        if (dataSourceKind == null) {
+            throw new ParamBusinessException("kind");
+        }
+        if (dataSourceKind == DataSourceKindEnum.SHARED && !ContextUtils.getLoginUser().getAdmin()) {
+            throw new PermissionDeniedBusinessException();
+        }
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(LocalDateTime.now());
         dataSourceDO.setGmtModified(LocalDateTime.now());
@@ -94,7 +112,10 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public ActionResult update(DataSourceUpdateParam param) {
+    public ActionResult updateWithPermission(DataSourceUpdateParam param) {
+        DataSource dataSource = queryExistent(param.getId()).getData();
+        PermissionUtils.checkPermission(dataSource.getUserId());
+
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(LocalDateTime.now());
         dataSourceMapper.updateById(dataSourceDO);
@@ -102,7 +123,11 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public ActionResult deleteWithPermission(Long id) {
+
+        DataSource dataSource = queryExistent(id).getData();
+        PermissionUtils.checkPermission(dataSource.getUserId());
+
         dataSourceMapper.deleteById(id);
         return ActionResult.isSuccess();
     }
@@ -111,6 +136,15 @@ public class DataSourceServiceImpl implements DataSourceService {
     public DataResult<DataSource> queryById(Long id) {
         DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
         return DataResult.of(dataSourceConverter.do2dto(dataSourceDO));
+    }
+
+    @Override
+    public DataResult<DataSource> queryExistent(Long id) {
+        DataResult<DataSource> dataResult = queryById(id);
+        if (dataResult.getData() == null) {
+            throw new DataNotFoundException();
+        }
+        return dataResult;
     }
 
     @Override
@@ -138,6 +172,9 @@ public class DataSourceServiceImpl implements DataSourceService {
         Page<DataSourceDO> page = new Page<>(start, offset);
         IPage<DataSourceDO> iPage = dataSourceMapper.selectPage(page, queryWrapper);
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
+
+        fillData(dataSources,selector);
+
         return PageResult.of(dataSources, iPage.getTotal(), param);
     }
 
@@ -148,6 +185,9 @@ public class DataSourceServiceImpl implements DataSourceService {
             new Page<>(param.getPageNo(), param.getPageSize()),
             BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey());
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
+
+        fillData(dataSources,selector);
+
         return PageResult.of(dataSources, iPage.getTotal(), param);
 
     }
@@ -192,6 +232,21 @@ public class DataSourceServiceImpl implements DataSourceService {
         closeParam.setDataSourceId(id);
         SQLExecutor.getInstance().close();
         return ActionResult.isSuccess();
+    }
+
+    private void fillData(List<DataSource> list, DataSourceSelector selector) {
+        if (CollectionUtils.isEmpty(list) || selector == null) {
+            return;
+        }
+
+        fillEnvironment(list, selector);
+    }
+
+    private void fillEnvironment(List<DataSource> list, DataSourceSelector selector) {
+        if (BooleanUtils.isNotTrue(selector.getEnvironment())) {
+            return;
+        }
+        environmentConverter.fillDetail(EasyCollectionUtils.toList(list, DataSource::getEnvironment));
     }
 
 }

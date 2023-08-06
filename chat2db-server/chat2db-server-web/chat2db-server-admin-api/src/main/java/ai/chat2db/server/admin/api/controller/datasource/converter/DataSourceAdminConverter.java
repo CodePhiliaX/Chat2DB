@@ -1,9 +1,10 @@
 package ai.chat2db.server.admin.api.controller.datasource.converter;
 
-import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
@@ -17,7 +18,7 @@ import org.mapstruct.Mappings;
  *
  * @author Jiaju Zhuang
  */
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",imports = {DataSourceKindEnum.class})
 public abstract class DataSourceAdminConverter {
 
     /**
@@ -51,7 +52,8 @@ public abstract class DataSourceAdminConverter {
      * @return
      */
     @Mappings({
-        @Mapping(source = "user", target = "userName")
+        @Mapping(source = "user", target = "userName"),
+        @Mapping(target = "kind", expression = "java(DataSourceKindEnum.SHARED.getCode())"),
     })
     public abstract DataSourceCreateParam createReq2param(DataSourceCreateRequest request);
 

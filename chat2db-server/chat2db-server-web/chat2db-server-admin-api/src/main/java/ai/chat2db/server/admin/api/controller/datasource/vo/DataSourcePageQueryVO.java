@@ -1,7 +1,7 @@
 
 package ai.chat2db.server.admin.api.controller.datasource.vo;
 
-import ai.chat2db.server.common.api.controller.vo.EnvironmentVO;
+import ai.chat2db.server.common.api.controller.vo.SimpleEnvironmentVO;
 import lombok.Data;
 
 /**
@@ -35,5 +35,5 @@ public class DataSourcePageQueryVO {
     /**
      * 环境
      */
-    private EnvironmentVO environment;
+    private SimpleEnvironmentVO environment;
 }

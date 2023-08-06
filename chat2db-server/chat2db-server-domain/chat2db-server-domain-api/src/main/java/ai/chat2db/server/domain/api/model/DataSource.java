@@ -119,6 +119,18 @@ public class DataSource {
      */
     private Environment environment;
 
+    /**
+     * 用户id
+     */
+    private Long userId;
+
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
+
     public LinkedHashMap<String, Object> getExtendMap() {
         if (ObjectUtils.isEmpty(extendInfo)) {
             return new LinkedHashMap<>();

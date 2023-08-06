@@ -2,7 +2,6 @@ package ai.chat2db.server.admin.api.controller.datasource.request;
 
 import java.util.List;
 
-import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
@@ -51,11 +50,10 @@ public class DataSourceUpdateRequest {
 
     /**
      * 环境类型
+     *
      * @see EnvTypeEnum
      */
     private String envType;
-
-
 
     /**
      * host
@@ -87,7 +85,6 @@ public class DataSourceUpdateRequest {
      */
     private String driver;
 
-
     /**
      * jdbc版本
      */
@@ -102,4 +99,10 @@ public class DataSourceUpdateRequest {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 环境id
+     */
+    @NotNull
+    private Long environmentId;
 }

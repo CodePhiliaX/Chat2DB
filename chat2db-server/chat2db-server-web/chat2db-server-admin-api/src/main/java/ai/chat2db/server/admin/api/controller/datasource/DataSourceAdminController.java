@@ -1,13 +1,14 @@
 
 package ai.chat2db.server.admin.api.controller.datasource;
 
-import ai.chat2db.server.admin.api.controller.common.request.CommonPageQueryRequest;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCloneRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
 import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -32,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DataSourceAdminController {
 
+    private static final DataSourceSelector DATA_SOURCE_SELECTOR = DataSourceSelector.builder()
+        .environment(Boolean.TRUE)
+        .build();
     @Resource
     private DataSourceService dataSourceService;
     @Resource
@@ -46,7 +50,7 @@ public class DataSourceAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<DataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return dataSourceService.queryPageWithPermission(dataSourceAdminConverter.request2param(request), null)
+        return dataSourceService.queryPageWithPermission(dataSourceAdminConverter.request2param(request), DATA_SOURCE_SELECTOR)
             .mapToWeb(dataSourceAdminConverter::dto2vo);
     }
 
@@ -58,9 +62,9 @@ public class DataSourceAdminController {
      * @version 2.1.0
      */
     @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody DataSourceCreateRequest request) {
+    public DataResult<Long> create(@Valid @RequestBody DataSourceCreateRequest request) {
         DataSourceCreateParam param = dataSourceAdminConverter.createReq2param(request);
-        return dataSourceService.create(param);
+        return dataSourceService.createWithPermission(param);
     }
 
     /**
@@ -71,9 +75,9 @@ public class DataSourceAdminController {
      * @version 2.1.0
      */
     @PostMapping("/update")
-    public ActionResult update(@RequestBody DataSourceUpdateRequest request) {
+    public ActionResult update(@Valid @RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceAdminConverter.updateReq2param(request);
-        return dataSourceService.update(param);
+        return dataSourceService.updateWithPermission(param);
     }
 
     /**
@@ -97,6 +101,6 @@ public class DataSourceAdminController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return dataSourceService.delete(id);
+        return dataSourceService.deleteWithPermission(id);
     }
 }

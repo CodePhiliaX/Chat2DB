@@ -83,6 +83,7 @@ public class MybatisGeneratorTest extends BaseTest {
                     //开启实体类配置
                     .entityBuilder()
                     .formatFileName("%sDO")
+                    .enableFileOverride()
                     //.addTableFills(new Column("gmt_create", FieldFill.INSERT)) // 表字段填充
                     //.addTableFills(new Column("update_time", FieldFill.INSERT_UPDATE)) // 表字段填充
                     //开启lombok
