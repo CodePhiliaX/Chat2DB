@@ -50,14 +50,17 @@ export default memo<IProps>(function Driver(props) {
 
   function getDriverList() {
     connectionService.getDriverList({ dbType: backfillData.type }).then(res => {
+      if (!res) {
+        return
+      }
       setDriverObj({
         ...res,
         driverConfigList: res.driverConfigList || []
       });
       if (res.driverConfigList?.length && !backfillData?.driverConfig?.jdbcDriver) {
         const data = {
-          jdbcDriverClass: res.driverConfigList[0].jdbcDriverClass,
-          jdbcDriver: res.driverConfigList[0].jdbcDriver
+          jdbcDriverClass: res.driverConfigList[0]?.jdbcDriverClass,
+          jdbcDriver: res.driverConfigList[0]?.jdbcDriver
         }
         driverForm.setFieldsValue(data);
         onChange(data);

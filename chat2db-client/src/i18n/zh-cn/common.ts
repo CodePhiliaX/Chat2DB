@@ -69,4 +69,6 @@ export default {
   'common.text.executeSelectedSQL': '执行选中SQL',
   'common.text.refreshPage': '刷新页面',
   'common.text.saveConsole': '保存控制台',
+  'common.text.textToSQL': '纯文本转SQL',
+  'common.text.editorRightClick': '编辑器右键',
 };
