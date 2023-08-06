@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.datasource;
 
 import java.util.List;
 
@@ -11,39 +11,48 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionCreateRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
- * @date 2022/09/16
+ * @version DataSourceCreateParam.java, v 0.1 2022年09月23日 15:23 moji Exp $
+ * @date 2022/09/23
  */
 @Data
-public class DataSourcePreConnectParam {
+public class DataSourceUpdateParam {
 
     /**
-     * 连接别名
+     * 主键
+     */
+    @NotNull
+    private Long id;
+
+    /**
+     * 别名
      */
     private String alias;
 
     /**
      * 连接地址
      */
-    @NotNull
     private String url;
 
     /**
-     * 连接用户
+     * 用户名
      */
-    private String user;
+    private String userName;
 
     /**
      * 密码
      */
-    @NotNull
     private String password;
 
     /**
-     * 连接类型
+     * 数据库类型
      */
-    @NotNull
     private String type;
+
+    /**
+     * 环境类型
+     */
+    private String envType;
+
 
 
     /**
@@ -91,4 +100,5 @@ public class DataSourcePreConnectParam {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
 }

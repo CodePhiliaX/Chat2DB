@@ -3,13 +3,13 @@ package ai.chat2db.server.domain.core.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.DataSourceTestParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceTestParam;
 import ai.chat2db.server.domain.core.util.DesUtil;
 import ai.chat2db.server.domain.api.param.ConsoleCreateParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 
 import lombok.extern.slf4j.Slf4j;

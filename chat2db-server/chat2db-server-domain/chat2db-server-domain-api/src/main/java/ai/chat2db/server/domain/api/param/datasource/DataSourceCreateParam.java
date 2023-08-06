@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.datasource;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.Data;
 
 /**
@@ -15,13 +15,7 @@ import lombok.Data;
  * @date 2022/09/23
  */
 @Data
-public class DataSourceUpdateParam {
-
-    /**
-     * 主键
-     */
-    @NotNull
-    private Long id;
+public class DataSourceCreateParam {
 
     /**
      * 别名
@@ -52,7 +46,6 @@ public class DataSourceUpdateParam {
      * 环境类型
      */
     private String envType;
-
 
 
     /**
@@ -96,9 +89,16 @@ public class DataSourceUpdateParam {
      */
     private List<KeyValue> extendInfo;
 
+
     /**
      * 驱动配置
      */
     private DriverConfig driverConfig;
 
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
 }

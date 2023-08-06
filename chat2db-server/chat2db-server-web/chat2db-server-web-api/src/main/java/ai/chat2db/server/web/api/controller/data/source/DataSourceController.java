@@ -5,11 +5,11 @@ import java.util.List;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceSelector;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
@@ -221,7 +221,7 @@ public class DataSourceController {
      */
     @PostMapping("/datasource/clone")
     public DataResult<Long> copy(@RequestBody DataSourceCloneRequest request) {
-        return dataSourceService.copyById(request.getId());
+        return dataSourceService.copyByIdWithPermission(request.getId());
     }
 
     /**

@@ -1,7 +1,8 @@
 package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.*;
-import ai.chat2db.server.tools.base.wrapper.Result;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;

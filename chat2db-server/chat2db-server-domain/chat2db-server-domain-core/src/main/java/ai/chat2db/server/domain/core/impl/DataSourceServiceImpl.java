@@ -7,14 +7,14 @@ import java.util.List;
 
 import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.DataSourceCloseParam;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceSelector;
-import ai.chat2db.server.domain.api.param.DataSourceTestParam;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCloseParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceTestParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
@@ -148,7 +148,10 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public DataResult<Long> copyById(Long id) {
+    public DataResult<Long> copyByIdWithPermission(Long id) {
+        DataSource dataSource = queryExistent(id).getData();
+        PermissionUtils.checkPermission(dataSource.getUserId());
+
         DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
         dataSourceDO.setId(null);
         String alias = dataSourceDO.getAlias() + "Copy";

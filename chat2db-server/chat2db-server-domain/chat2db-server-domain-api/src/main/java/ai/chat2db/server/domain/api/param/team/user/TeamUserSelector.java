@@ -1,6 +1,4 @@
-package ai.chat2db.server.domain.api.param;
-
-import jakarta.validation.constraints.NotNull;
+package ai.chat2db.server.domain.api.param.team.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 数据源关闭
+ * select
  *
  * @author Jiaju Zhuang
  */
@@ -16,11 +14,14 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceCloseParam {
+public class TeamUserSelector {
     /**
-     * 对应数据库存储的来源id
+     * 团队
      */
-    @NotNull
-    private Long dataSourceId;
+    private Boolean team;
 
+    /**
+     * 用户
+     */
+    private Boolean user;
 }

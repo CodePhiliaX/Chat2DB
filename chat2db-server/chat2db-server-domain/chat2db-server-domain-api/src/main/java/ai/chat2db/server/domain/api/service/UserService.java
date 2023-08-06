@@ -1,8 +1,11 @@
 package ai.chat2db.server.domain.api.service;
 
+import java.util.List;
+
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.param.UserQueryParam;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 
 /**
@@ -26,6 +29,14 @@ public interface UserService {
      * @return
      */
     DataResult<User> query(String userName);
+
+    /**
+     * List Query Data
+     *
+     * @param idList
+     * @return
+     */
+    ListResult<User> listQuery(List<Long> idList);
 
     /**
      * 查询用户信息

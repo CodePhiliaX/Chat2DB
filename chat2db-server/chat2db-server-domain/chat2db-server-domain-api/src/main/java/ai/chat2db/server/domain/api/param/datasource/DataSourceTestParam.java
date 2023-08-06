@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.datasource;
 
 import java.util.List;
 
@@ -6,47 +6,46 @@ import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
-
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
- * @author moji
- * @version DataSourceCreateParam.java, v 0.1 2022年09月23日 15:23 moji Exp $
- * @date 2022/09/23
+ * 数据源测试参数
+ *
+ * @author Jiaju Zhuang
  */
 @Data
-public class DataSourceCreateParam {
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DataSourceTestParam {
 
     /**
-     * 别名
+     * 数据库类型
+     *
+     * @see DbTypeEnum
      */
-    private String alias;
+    @NotNull
+    private String dbType;
 
     /**
-     * 连接地址
+     * 请求连接
      */
+    @NotNull
     private String url;
 
     /**
      * 用户名
      */
-    private String userName;
+    private String username;
 
     /**
      * 密码
      */
     private String password;
-
-    /**
-     * 数据库类型
-     */
-    private String type;
-
-    /**
-     * 环境类型
-     */
-    private String envType;
-
 
     /**
      * host
@@ -94,11 +93,4 @@ public class DataSourceCreateParam {
      * 驱动配置
      */
     private DriverConfig driverConfig;
-
-    /**
-     * 连接类型
-     *
-     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
-     */
-    private String kind;
 }

@@ -7,9 +7,9 @@ import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceClone
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourceSelector;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -89,7 +89,7 @@ public class DataSourceAdminController {
      */
     @PostMapping("/clone")
     public DataResult<Long> clone(@RequestBody DataSourceCloneRequest request) {
-        return dataSourceService.copyById(request.getId());
+        return dataSourceService.copyByIdWithPermission(request.getId());
     }
 
     /**

@@ -37,9 +37,4 @@ public class LoginUser implements Serializable {
      * Is it an administrator
      */
     private Boolean admin;
-
-    /**
-     * Is it an desktop
-     */
-    private Boolean desktop;
 }
