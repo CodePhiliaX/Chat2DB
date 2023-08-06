@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS `team_user`
 
 create INDEX idx_team_user_team_id on team_user (`team_id`);
 create INDEX idx_team_user_user_id on team_user (`user_id`);
+create UNIQUE INDEX uk_team_user on team_user (`team_id`,`user_id`);
 
 CREATE TABLE IF NOT EXISTS `data_source_access`
 (
@@ -100,5 +101,6 @@ CREATE TABLE IF NOT EXISTS `data_source_access`
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据源授权'
 ;
 
-create INDEX data_source_access_data_source_id on data_source_access (`data_source_id`);
-create INDEX data_source_access_access_object_id on data_source_access (`access_object_type`, `access_object_id`);
+create INDEX idx_data_source_access_data_source_id on data_source_access (`data_source_id`);
+create INDEX idx_data_source_access_access_object_id on data_source_access (`access_object_type`, `access_object_id`);
+create UNIQUE INDEX uk_data_source_access on data_source_access (`data_source_id`,`access_object_type`, `access_object_id`);

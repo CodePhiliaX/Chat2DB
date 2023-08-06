@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -76,6 +77,7 @@ public class DataSourceAccess implements Serializable {
 
     /**
      * 授权对象
+     * @see DataSourceAccessSelector#setAccessObject(Boolean)
      */
     @NotNull
     private DataSourceAccessObject accessObject;

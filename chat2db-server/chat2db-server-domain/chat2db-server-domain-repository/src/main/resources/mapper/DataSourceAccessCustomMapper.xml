@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper">
+    <select id="comprehensivePageQuery" resultType="ai.chat2db.server.domain.repository.entity.DataSourceAccessDO">
+        select dsa.*
+        from DATA_SOURCE_ACCESS dsa
+        <if test="searchKey != null ">
+            left join TEAM t on t.id =dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
+            left join DBHUB_USER du on du.ID=dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'USER'
+        </if>
+        <where>
+            <if test="dataSourceId != null ">
+                and dsa.DATA_SOURCE_ID = #{dataSourceId}
+            </if>
+            <if test="searchKey != null ">
+                and (t.CODE like concat('%',#{searchKey},'%') or t.NAME like concat('%',#{searchKey},'%') or
+                du.USER_NAME like concat('%',#{searchKey},'%') or du.NICK_NAME like concat('%',#{searchKey},'%') or
+                du.EMAIL like concat('%',#{searchKey},'%'))
+            </if>
+        </where>
+    </select>
+
+</mapper>
