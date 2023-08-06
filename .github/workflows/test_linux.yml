@@ -23,8 +23,8 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: actions/setup-java@main
         with:
-          java-version: "temurin"
-          distribution: "corretto"
+          java-version: "17"
+          distribution: "temurin"
           java-package: "jre"
 
       # java.security 开放tls1 Linux
