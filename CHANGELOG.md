@@ -3,9 +3,7 @@
 
 ## 🐞 Bug Fixes
 
-- Activate the console for the latest operation when you create or start a console 
- 
-- Records the last console used 
+- Activate the console for the latest operation when you create or start a console、Records the last console used 
  
 - The replication function of the browser, such as edge, is unavailable 
  
@@ -15,9 +13,7 @@
 
 ## 🐞 问题修复
 
-- 新建、开打console时激活最新操作的console
-
-- 记录最后一次使用的console
+- 新建、开打console时激活最新操作的console、记录最后一次使用的console
 
 - edge等浏览器复制功能无法正常使用
 
