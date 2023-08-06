@@ -23,7 +23,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: actions/setup-java@main
         with:
-          java-version: "17"
+          java-version: "temurin"
           distribution: "corretto"
           java-package: "jre"
 
@@ -93,16 +93,12 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
-      # - name: Test File
-      #   run: |
-      #     cd chat2db-client/static/jre/legal/java.base
-      #     ls -la
-      #     rm ADDITIONAL_LICENSE_INFO
-      #     ls -la
-      #     cd ../jdk.zipfs
-      #     ls -la
-      #     rm ADDITIONAL_LICENSE_INFO
-      #     ls -la
+      - name: Test File
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
 
       # Linux
       - name: Build/release Electron app for Linux
