@@ -1,5 +1,6 @@
-import { ThemeType } from '@/constants';
+import { ThemeType, OSType } from '@/constants';
 import { ITreeNode } from '@/typings';
+import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
 
 export function getOsTheme() {
@@ -198,7 +199,7 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
 
 // Copy
 export function copy(message: string) {
-  navigator.clipboard.writeText(message);
+  clipboardCopy(message);
 }
 
 // 获取应用的一些基本信息
@@ -212,6 +213,20 @@ export function getApplicationMessage() {
     versions,
     buildTime,
     userAgent
+  }
+}
+
+// os is mac or windows
+export function OSnow(): {
+  isMac: boolean;
+  isWin: boolean;
+} {
+  const agent = navigator.userAgent.toLowerCase();
+  const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
+  const isWin = agent.indexOf("win32") >= 0 || agent.indexOf("wow32") >= 0 || agent.indexOf("win64") >= 0 || agent.indexOf("wow64") >= 0
+  return {
+    isMac,
+    isWin
   }
 }
 

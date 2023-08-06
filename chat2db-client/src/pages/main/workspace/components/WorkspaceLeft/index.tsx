@@ -34,13 +34,13 @@ const dvaModel = connect(
 
 const WorkspaceLeft = memo<IProps>(function (props) {
   const { className, workspaceModel, dispatch } = props;
-  const { curWorkspaceParams } = workspaceModel;
-
+  const { curWorkspaceParams, openConsoleList } = workspaceModel;
 
   function getConsoleList() {
     let p: any = {
       pageNo: 1,
       pageSize: 999,
+      orderByDesc: false,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       ...curWorkspaceParams,
     };
@@ -60,7 +60,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
   const addConsole = (params?: ICreateConsole) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
     let p = {
-      name: `new console`,
+      name: `new console${openConsoleList?.length || ''}`,
       ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
@@ -70,13 +70,27 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
     }
     historyService.saveConsole(params || p).then(res => {
+      dispatch({
+        type: 'workspace/setCurConsoleId',
+        payload: res,
+      });
       getConsoleList();
     })
   }
 
   function createConsole() {
-    addConsole()
+    addConsole();
   }
+
+  useEffect(() => {
+    document.addEventListener('keydown', (e) => {
+      console.log(e.metaKey, e.key === 't')
+      if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+        e.preventDefault();
+        addConsole();
+      }
+    }, false)
+  }, [])
 
   return (
     <div className={classnames(styles.box, className)}>
@@ -214,6 +228,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
       payload: {
         pageNo: 1,
         pageSize: 999,
+        orderByDesc: true,
         status: ConsoleStatus.RELEASE,
         ...curWorkspaceParams,
       },
@@ -252,14 +267,22 @@ const RenderSaveBox = dvaModel(function (props: any) {
   }
 
   function openConsole(data: IConsole) {
+
     let p: any = {
       id: data.id,
       tabOpened: ConsoleOpenedStatus.IS_OPEN
     };
     historyServer.updateSavedConsole(p).then((res) => {
+
+      dispatch({
+        type: 'workspace/setCurConsoleId',
+        payload: data.id,
+      });
+
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
+          orderByDesc: false,
           tabOpened: ConsoleOpenedStatus.IS_OPEN,
           ...curWorkspaceParams
         },
@@ -281,6 +304,7 @@ const RenderSaveBox = dvaModel(function (props: any) {
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
+          orderByDesc: true,
           tabOpened: ConsoleOpenedStatus.IS_OPEN,
           ...curWorkspaceParams
         },
@@ -294,8 +318,8 @@ const RenderSaveBox = dvaModel(function (props: any) {
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
+          orderByDesc: true,
           status: ConsoleStatus.RELEASE,
-          orderByDesc: Boolean,
           ...curWorkspaceParams
         },
         callback: (res: any) => {

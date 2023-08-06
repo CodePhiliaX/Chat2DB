@@ -7,10 +7,12 @@ import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import ShortcutKey from '@/components/ShortcutKey';
 import WorkspaceRightItem from '../WorkspaceRightItem';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
 import { handleLocalStorageSavedConsole } from '@/utils';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 
 interface IProps {
   className?: string;
@@ -22,7 +24,7 @@ interface IProps {
 const WorkspaceRight = memo<IProps>(function (props) {
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
   const { className, aiModel, workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList } = workspaceModel;
+  const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList, curConsoleId } = workspaceModel;
 
   useEffect(() => {
     // 这里只处理没有console的情况下
@@ -52,21 +54,46 @@ const WorkspaceRight = memo<IProps>(function (props) {
     });
   }, [doubleClickTreeNodeData]);
 
+  useUpdateEffect(() => {
+    if (activeConsoleId) {
+      localStorage.setItem('active-console-id', activeConsoleId.toString())
+    } else {
+      localStorage.removeItem('active-console-id')
+    }
+  }, [activeConsoleId])
+
   useEffect(() => {
+    const newActiveConsoleId = curConsoleId || activeConsoleId || Number(localStorage.getItem('active-console-id') || 0);
+    // 用完之后就清掉curConsoleId
     if (!openConsoleList?.length) {
       setActiveConsoleId(undefined);
-    } else if (!activeConsoleId) {
+    } else if (!newActiveConsoleId) {
       setActiveConsoleId(openConsoleList[0].id);
     } else {
+      // 如果你指定了让我打开哪个那我就打开哪个
+      if (curConsoleId) {
+        setActiveConsoleId(curConsoleId);
+        dispatch({
+          type: 'workspace/setCurConsoleId',
+          payload: null,
+        });
+        return
+      }
+
       let flag = false;
       openConsoleList?.forEach((t) => {
-        if (t.id === activeConsoleId) {
+        if (t.id === newActiveConsoleId) {
           flag = true;
         }
       });
-      if (!flag) {
+      if (flag) {
+        setActiveConsoleId(newActiveConsoleId);
+      } else {
+        // 如果发现当前列表里并没有newActiveConsoleId
         setActiveConsoleId(openConsoleList?.[openConsoleList?.length - 1].id);
       }
+
+
     }
   }, [openConsoleList]);
 
@@ -162,8 +189,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
     // }
   };
 
-  function render() {
-    return <div className={styles.ears}>Chat2DB</div>;
+  function renderEmpty() {
+    return <div className={styles.ears}><ShortcutKey /></div>;
   }
 
   function editableNameOnBlur(t: IOption) {
@@ -178,7 +205,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
         payload: {
           pageNo: 1,
           pageSize: 999,
-          orderByDesc: false,
+          orderByDesc: true,
           status: ConsoleStatus.RELEASE,
           ...curWorkspaceParams,
         },
@@ -195,7 +222,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <LoadingContent data={openConsoleList} handleEmpty empty={render()}>
+      <LoadingContent data={openConsoleList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
           <Tabs
             className={styles.tabs}

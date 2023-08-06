@@ -35,6 +35,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [connectionOptions, setConnectionOptions] = useState<IOption[]>([]);
   const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
+  const [isRefresh, setIsRefresh] = useState(false);
 
   useEffect(() => {
     if (curPage !== 'workspace') {
@@ -66,7 +67,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
       }
 
       // 获取database列表
-      getDatabaseList(false);
+      getDatabaseList(isRefresh);
+      setIsRefresh(false);
     }
   }, [connectionList, curConnection, curPage])
 
@@ -177,14 +179,12 @@ const WorkspaceHeader = memo<IProps>((props) => {
 
   const getConnectionList = () => {
     setCascaderLoading(true);
+    setIsRefresh(true);
     dispatch({
       type: 'connection/fetchConnectionList',
       payload: {
         refresh: true
       },
-      callback: (res: any) => {
-        getDatabaseList(true);
-      }
     });
   };
 

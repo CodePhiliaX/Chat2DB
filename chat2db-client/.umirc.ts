@@ -44,6 +44,9 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  targets: {
+    chrome: 80,
+  },
   headScripts: [
     `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
       localStorage.clear();
