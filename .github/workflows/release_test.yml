@@ -101,7 +101,7 @@ jobs:
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
-      # 复制jre macOS
+      # 复制jre Linux
       - name: Copy Jre for Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
@@ -210,6 +210,14 @@ jobs:
           xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg
 
       # Linux
+      - name: Delete File
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
+
       - name: Build/release Electron app for Linux
         if: ${{ runner.os == 'Linux' }}
         uses: samuelmeuli/action-electron-builder@v1
