@@ -2,10 +2,13 @@ package ai.chat2db.plugin.sqlserver;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.sql.SQLExecutor;
+import com.google.common.collect.Lists;
 
 public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     private String functionSQL
@@ -58,5 +61,25 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             return null;
         });
+    }
+    @Override
+    public List<Database> databases(Connection connection) {
+        List<Database> databases = Lists.newArrayList();
+        SQLExecutor.getInstance().executeSql(connection, "SELECT name "
+                + "FROM sys.databases",
+            resultSet -> {
+                try {
+                    while (resultSet.next()) {
+                        Database database = new Database();
+                        String databaseName = resultSet.getString("name");
+                        database.setName(databaseName);
+                        databases.add(database);
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                return null;
+            });
+        return databases;
     }
 }
