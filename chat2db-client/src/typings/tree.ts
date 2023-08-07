@@ -18,5 +18,5 @@ export interface ITreeNode {
   columnType?: string; // 列的类型
   extraParams?: IExtraParams;
   pinned?: boolean; // 是否置顶
-  comment: string; // 表列的注释
+  comment?: string; // 表列的注释
 }

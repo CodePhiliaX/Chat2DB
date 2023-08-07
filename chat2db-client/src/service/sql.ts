@@ -64,6 +64,7 @@ export interface IColumn {
   numericPrecision: number;
   numericScale: number;
   characterMaximumLength: number;
+  comment: string;
 }
 
 export interface ISchemaParams {
