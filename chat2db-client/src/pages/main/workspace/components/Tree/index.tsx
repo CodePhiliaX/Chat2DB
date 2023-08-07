@@ -35,7 +35,6 @@ function Tree(props: IProps) {
   const [treeData, setTreeData] = useState<ITreeNode[] | undefined>();
   const [searchedTreeData, setSearchedTreeData] = useState<ITreeNode[] | null>(null);
 
-
   useEffect(() => {
     setTreeData(initialData);
   }, [initialData])

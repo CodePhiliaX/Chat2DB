@@ -178,6 +178,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
               treeNodeType: TreeNodeType.TABLE,
               key: t.name,
               pinned: t.pinned,
+              comment: t.comment,
               extraParams: {
                 ...params.extraParams,
                 tableName: t.name
@@ -239,6 +240,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
               key: item.name,
               isLeaf: true,
               columnType: item.columnType,
+              comment: item.comment,
             }
           })
           r(tableList);
