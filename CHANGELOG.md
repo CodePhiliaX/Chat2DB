@@ -1,3 +1,16 @@
+# 2.0.11
+
+## 🐞 Bug Fixes
+
+- Fix the issue where SSH does not support older versions of encryption algorithms
+- Fix the issue of SQL Server 2008 not being able to connect
+- Fix the issue of not being able to view table name notes and field notes
+
+## 🐞 问题修复
+
+- 修复 SSH 不支持老版本加密算法的问题
+- 修复 SQLServer2008 无法连接的问题
+- 修复无法查看表名备注、字段备注的问题
 
 # 2.0.10
 
