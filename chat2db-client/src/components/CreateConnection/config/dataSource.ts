@@ -606,7 +606,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
     extendInfo: [
       {
         "key": "encrypt",
-        "value": "true"
+        "value": "false"
       },
       {
         "key": "trustServerCertificate",
