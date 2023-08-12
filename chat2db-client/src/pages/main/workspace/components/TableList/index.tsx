@@ -40,7 +40,7 @@ const dvaModel = connect(
 );
 
 const TableList = dvaModel(function (props: any) {
-  const { workspaceModel, dispatch, tableLoading } = props;
+  const { workspaceModel, dispatch } = props;
   const { curWorkspaceParams, curTableList, curViewList } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
@@ -48,15 +48,18 @@ const TableList = dvaModel(function (props: any) {
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
   const [curType, setCurType] = useState<IOption>(optionsList[0]);
   const [curList, setCurList] = useState<ITreeNode[]>([]);
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (isReady) {
+      setTableLoading(true);
+      setCurList([]);
       treeConfig[curType.value].getChildren!({
         ...curWorkspaceParams,
         extraParams: curWorkspaceParams,
       }).then(res => {
         setCurList(res);
-        console.log(res)
+        setTableLoading(false);
         if (curType.value === TreeNodeType.TABLES) {
           dispatch({
             type: 'workspace/setCurTableList',
