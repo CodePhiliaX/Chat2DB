@@ -32,3 +32,34 @@ export enum OSType {
   MAC = 'Mac',
   RESTS = 'rests',
 }
+
+export enum OperationType {
+  CONSOLE = 'console',
+  FUNCTION = 'function',
+  PROCEDURE = 'procedure',
+  VIEW = 'view',
+  TRIGGER = 'trigger',
+}
+
+export const operationTypeConfig: {
+  [key in OperationType]: {
+    icon: string
+  };
+} = {
+  [OperationType.CONSOLE]: {
+    icon: '\ue619'
+  },
+  [OperationType.VIEW]: {
+    icon: '\ue647'
+  },
+  [OperationType.FUNCTION]: {
+    icon: '\ue6fd'
+  },
+  [OperationType.PROCEDURE]: {
+    icon: '\ue647'
+  },
+
+  [OperationType.TRIGGER]: {
+    icon: '\ue647'
+  }
+}

@@ -15,4 +15,8 @@ export default {
   'workspace.table.export.cur.csv': 'Export result of current page set csv',
   'workspace.table.export.all.insert': 'Export result set insert sql',
   'workspace.table.export.cur.insert': 'Export result of current page set insert sql',
+  'workspace.tree.view': 'View',
+  'workspace.tree.trigger': 'Trigger',
+  'workspace.tree.function': 'Function',
+  'workspace.tree.procedure': 'Procedure',
 };

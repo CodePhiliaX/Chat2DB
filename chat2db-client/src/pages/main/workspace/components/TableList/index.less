@@ -1,0 +1,65 @@
+@import '../../../../../styles/var.less';
+
+.tableModule {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+}
+
+.leftModuleTitle {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+  .leftModuleTitleText {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 26px;
+    cursor: pointer;
+    user-select: none;
+    .modelName {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .iconBox {
+      display: flex;
+      align-items: center;
+    }
+    .refreshIcon {
+      margin-right: 10px;
+    }
+    .refreshIcon,
+    .searchIcon {
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+  .leftModuleTitleSearch {
+    height: 26px;
+  }
+}
+
+.treeBox {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+  margin: 0px -10px;
+}
+
+.refreshIconBox{
+  cursor: pointer;
+  &:hover{
+    color: var(--color-primary)
+  }
+}
+
+.cascaderPopup{
+  :global{
+    .ant-cascader-menu{
+      height: auto;
+    }
+  }
+}

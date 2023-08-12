@@ -40,6 +40,18 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string, unfold
   [TreeNodeType.INDEX]: {
     icon: '\ue65b'
   },
+  [TreeNodeType.VIEW]: {
+    icon: '\ue647'
+  },
+  [TreeNodeType.FUNCTION]: {
+    icon: '\ue6fd'
+  },
+  [TreeNodeType.PROCEDURE]: {
+    icon: '\ue647'
+  },
+  [TreeNodeType.TRIGGER]: {
+    icon: '\ue647'
+  },
 }
 
 export enum OperationColumn {
@@ -92,7 +104,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         connectionService.getDBList(params).then(res => {
-          const data: ITreeNode[] = res.map(t => {
+          const data: ITreeNode[] = res.map((t:any)=> {
             return {
               key: t.name,
               name: t.name,
@@ -167,6 +179,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh
     ],
   },
+
   [TreeNodeType.TABLES]: {
     icon: '\ueac5',
     getChildren: (params) => {
@@ -195,11 +208,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh
     ],
   },
+
   [TreeNodeType.TABLE]: {
     icon: '\ue63e',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
-        const tableList = [
+        const list = [
           {
             name: 'columns',
             treeNodeType: TreeNodeType.COLUMNS,
@@ -220,13 +234,179 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           },
         ]
 
-        r(tableList);
+        r(list);
       })
     },
     operationColumn: [
       OperationColumn.ExportDDL, OperationColumn.DeleteTable, OperationColumn.Top
     ],
   },
+
+  [TreeNodeType.VIEWS]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer.getViewList(params).then(res => {
+          const viewList: ITreeNode[] = res.data?.map((t: any) => {
+            return {
+              name: t.name,
+              treeNodeType: TreeNodeType.VIEW,
+              key: t.name,
+              pinned: t.pinned,
+              comment: t.comment,
+              extraParams: {
+                ...params.extraParams,
+                tableName: t.name
+              }
+            }
+          })
+          r(viewList);
+        }).catch(error => {
+          j(error)
+        })
+      })
+    },
+  },
+
+  [TreeNodeType.FUNCTIONS]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer.getFunctionList(params).then(res => {
+          const list: ITreeNode[] = res.data?.map((t: any) => {
+            return {
+              name: t.functionName,
+              treeNodeType: TreeNodeType.FUNCTION,
+              key: t.name,
+              pinned: t.pinned,
+              comment: t.comment,
+              isLeaf: true,
+              extraParams: {
+                ...params.extraParams,
+                functionName: t.functionName
+              }
+            }
+          })
+          r(list);
+        }).catch(error => {
+          j(error)
+        })
+      })
+    },
+  },
+
+  [TreeNodeType.FUNCTION]: {
+    icon: '\ue6fd',
+  },
+
+  [TreeNodeType.PROCEDURES]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer.getProcedureList(params).then(res => {
+          const list: ITreeNode[] = res.data?.map((t: any) => {
+            return {
+              name: t.procedureName,
+              treeNodeType: TreeNodeType.PROCEDURE,
+              key: t.name,
+              pinned: t.pinned,
+              comment: t.comment,
+              isLeaf: true,
+              extraParams: {
+                ...params.extraParams,
+                procedureName: t.procedureName
+              }
+            }
+          })
+          r(list);
+        }).catch(error => {
+          j(error)
+        })
+      })
+    },
+  },
+
+  [TreeNodeType.PROCEDURE]: {
+    icon: '\ue611'
+  },
+
+  [TreeNodeType.TRIGGERS]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer.getTriggerList(params).then(res => {
+          const list: ITreeNode[] = res.data?.map((t: any) => {
+            return {
+              name: t.triggerName,
+              treeNodeType: TreeNodeType.TRIGGER,
+              key: t.name,
+              pinned: t.pinned,
+              comment: t.comment,
+              isLeaf: true,
+              extraParams: {
+                ...params.extraParams,
+                triggerName: t.triggerName
+              }
+            }
+          })
+          r(list);
+        }).catch(error => {
+          j(error)
+        })
+      })
+    },
+  },
+
+  [TreeNodeType.TRIGGER]: {
+    icon: '\ue611'
+  },
+
+  [TreeNodeType.VIEW]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        const list = [
+          {
+            name: 'columns',
+            treeNodeType: TreeNodeType.COLUMNS,
+            key: 'columns',
+            extraParams: params.extraParams
+          },
+        ]
+        r(list);
+      })
+    },
+  },
+
+  [TreeNodeType.VIEWCOLUMNS]: {
+    icon: '\ue647',
+    getChildren: (params) => {
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer.getViewColumnList(params).then(res => {
+          const list: ITreeNode[] = res.data?.map((t: any) => {
+            return {
+              name: t.name,
+              treeNodeType: TreeNodeType.VIEWCOLUMN,
+              key: t.name,
+              pinned: t.pinned,
+              comment: t.comment,
+              isLeaf: true,
+              extraParams: {
+                ...params.extraParams,
+              }
+            }
+          })
+          r(list);
+        }).catch(error => {
+          j(error)
+        })
+      })
+    },
+  },
+  [TreeNodeType.VIEWCOLUMN]: {
+    icon: '\ue647',
+  },
+
   [TreeNodeType.COLUMNS]: {
     icon: '\ueac5',
     getChildren: (params: ITableParams) => {

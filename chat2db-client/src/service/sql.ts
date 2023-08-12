@@ -1,5 +1,5 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
@@ -32,7 +32,7 @@ export interface IConnectConsoleParams {
   databaseName: string;
 }
 
-const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', {});
+const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
 
 const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
 
@@ -126,7 +126,63 @@ export interface IExportParams extends IExecuteSqlParams {
  */
 // const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
 
+/** 获取视图列表 */
+const getViewList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', { method: 'get' });
+
+/** 获取函数列表 */
+const getFunctionList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', { method: 'get' });
+
+/** 获取触发器列表 */
+const getTriggerList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', { method: 'get' });
+
+/** 获取过程列表 */
+const getProcedureList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', { method: 'get' });
+
+/** 获取视图列列表 */
+const getViewColumnList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', { method: 'get' });
+
+/** 获取视图详情 */
+const getViewDetail = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  tableName: string
+}, {ddl: string}>('/api/rdb/view/detail', { method: 'get' });
+
+/** 获取触发器详情 */
+const getTriggerDetail = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  triggerName: string
+}, {triggerBody: string}>('/api/rdb/trigger/detail', { method: 'get' });
+
+/** 获取函数详情 */
+const getFunctionDetail = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  functionName: string
+}, {functionBody: string}>('/api/rdb/function/detail', { method: 'get' });
+
+/** 获取过程详情 */
+const getProcedureDetail = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  procedureName: string
+}, {procedureBody: string}>('/api/rdb/procedure/detail', { method: 'get' });
+
 export default {
+  getTriggerDetail,
+  getProcedureDetail,
+  getFunctionDetail,
+  getViewDetail,
+  getViewColumnList,
+  getProcedureList,
+  getTriggerList,
+  getFunctionList,
+  getViewList,
   getList,
   executeSql,
   connectConsole,
