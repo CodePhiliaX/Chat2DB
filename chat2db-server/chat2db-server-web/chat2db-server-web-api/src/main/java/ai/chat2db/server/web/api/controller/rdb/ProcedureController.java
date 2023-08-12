@@ -9,6 +9,7 @@ import ai.chat2db.server.web.api.controller.rdb.request.ProcedureDetailRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.ProcedurePageRequest;
 import ai.chat2db.spi.model.Procedure;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ProcedureController {
 
+    @Autowired
     private ProcedureService procedureService;
 
     @GetMapping("/list")
