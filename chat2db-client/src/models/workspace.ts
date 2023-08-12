@@ -25,6 +25,7 @@ export interface IWorkspaceModelState {
   curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
+  curViewList: ITreeNode[];
 }
 
 export interface IWorkspaceModelType {
@@ -39,6 +40,7 @@ export interface IWorkspaceModelType {
     setOpenConsoleList: Reducer<IWorkspaceModelState>;
     setCurConsoleId: Reducer<IWorkspaceModelState>;
     setCurTableList: Reducer<IWorkspaceModelState>;
+    setCurViewList: Reducer<IWorkspaceModelState>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
@@ -46,6 +48,7 @@ export interface IWorkspaceModelType {
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
+    fetchGetCurViewList: Effect;
   };
 }
 
@@ -59,6 +62,7 @@ const WorkspaceModel: IWorkspaceModelType = {
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
+    curViewList: [],
     curConsoleId: null
   },
 
@@ -113,6 +117,14 @@ const WorkspaceModel: IWorkspaceModelType = {
       return {
         ...state,
         curTableList: payload,
+      };
+    },
+
+    // 视图列表
+    setCurViewList(state, { payload }) {
+      return {
+        ...state,
+        curViewList: payload,
       };
     },
   },
@@ -186,6 +198,26 @@ const WorkspaceModel: IWorkspaceModelType = {
         }
         yield put({
           type: 'setCurTableList',
+          payload: res,
+        });
+      }
+      catch {
+
+      }
+    },
+    *fetchGetCurViewList({ payload, callback }, { put, call }) {
+      try {
+        const res = (yield treeConfig[TreeNodeType.VIEWS].getChildren!({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload,
+        })) as ITreeNode[];
+        // 异步操作完成后调用回调函数
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+        yield put({
+          type: 'setCurViewList',
           payload: res,
         });
       }

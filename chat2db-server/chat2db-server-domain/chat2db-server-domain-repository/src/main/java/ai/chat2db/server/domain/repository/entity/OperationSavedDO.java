@@ -83,4 +83,9 @@ public class OperationSavedDO implements Serializable {
      * schema名称
      */
     private String dbSchemaName;
+
+    /**
+     * operation type
+     */
+    private String operationType;
 }
