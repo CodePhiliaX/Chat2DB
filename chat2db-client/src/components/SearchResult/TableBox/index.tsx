@@ -234,7 +234,7 @@ export default function TableBox(props: ITableProps) {
       return (
         <>
           <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
-          <div style={{ position: 'absolute', bottom: 0 }}>{bottomStatus}</div>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>{bottomStatus}</div>
         </>
       );
     } else {
