@@ -32,6 +32,11 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
      */
     CHAT2DBAI("CHAT2DB OPENAI"),
 
+    /**
+     * CLAUDE AI
+     */
+    CLAUDEAI("CLAUDE AI"),
+
     ;
 
     final String description;
