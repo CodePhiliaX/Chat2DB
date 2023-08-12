@@ -6,13 +6,25 @@ import { ThemeType, PrimaryColorType } from '@/constants';
 import { getPrimaryColor, getTheme, setPrimaryColor, setTheme } from '@/utils/localStorage';
 
 const initialTheme = () => {
-  let backgroundColor = getTheme() || ThemeType.Dark;
+  const localStorageTheme = getTheme();
+  const localStoragePrimaryColor = getPrimaryColor();
 
-  let primaryColor = getPrimaryColor() || PrimaryColorType.Golden_Purple;
+  // 判断localStorage的theme在不在ThemeType中, 如果存在就用localStorageTheme
+  let backgroundColor = ThemeType.Light
+  if (Object.values(ThemeType).includes(localStorageTheme)) {
+    backgroundColor = localStorageTheme;
+  }
+
+  let primaryColor = PrimaryColorType.Golden_Purple
+  if (Object.values(PrimaryColorType).includes(localStoragePrimaryColor)) {
+    primaryColor = localStoragePrimaryColor;
+  }
 
   if (backgroundColor === ThemeType.FollowOs) {
     backgroundColor = getOsTheme();
   }
+  document.documentElement.setAttribute('theme', backgroundColor);
+  document.documentElement.setAttribute('primary-color', primaryColor);
   return {
     backgroundColor,
     primaryColor,
