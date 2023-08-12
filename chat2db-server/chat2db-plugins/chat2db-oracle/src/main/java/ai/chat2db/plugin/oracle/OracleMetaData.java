@@ -36,51 +36,44 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         = "SELECT LINE, TEXT "
         + "FROM ALL_SOURCE "
         + "WHERE TYPE = '%s' AND NAME = '%s' "
-        + "ORDER BY LINE;";
+        + "ORDER BY LINE";
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
         String functionName) {
 
         String sql = String.format(ROUTINES_SQL, "FUNCTION", functionName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                StringBuilder sb = new StringBuilder();
-                while (resultSet.next()) {
-                    sb.append(resultSet.getString("TEXT") + "\n");
-                }
-                Function function = new Function();
-                function.setDatabaseName(databaseName);
-                function.setSchemaName(schemaName);
-                function.setFunctionName(functionName);
-                function.setFunctionBody(sb.toString());
-                return function;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            StringBuilder sb = new StringBuilder();
+            while (resultSet.next()) {
+                sb.append(resultSet.getString("TEXT") + "\n");
             }
+            Function function = new Function();
+            function.setDatabaseName(databaseName);
+            function.setSchemaName(schemaName);
+            function.setFunctionName(functionName);
+            function.setFunctionBody(sb.toString());
+            return function;
+
         });
 
     }
 
     private static String TRIGGER_SQL_LIST
         = "SELECT TRIGGER_NAME "
-        + "FROM ALL_TRIGGERS WHERE OWNER = '%s';";
+        + "FROM ALL_TRIGGERS WHERE OWNER = '%s'";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         List<Trigger> triggers = new ArrayList<>();
-        return SQLExecutor.getInstance().executeSql(connection, String.format(TRIGGER_SQL_LIST, schemaName),
+        return SQLExecutor.getInstance().execute(connection, String.format(TRIGGER_SQL_LIST, schemaName),
             resultSet -> {
-                try {
-                    while (resultSet.next()) {
-                        Trigger trigger = new Trigger();
-                        trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
-                        trigger.setSchemaName(schemaName);
-                        trigger.setDatabaseName(databaseName);
-                        triggers.add(trigger);
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                while (resultSet.next()) {
+                    Trigger trigger = new Trigger();
+                    trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                    trigger.setSchemaName(schemaName);
+                    trigger.setDatabaseName(databaseName);
+                    triggers.add(trigger);
                 }
                 return triggers;
             });
@@ -91,21 +84,17 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         String triggerName) {
 
         String sql = String.format(ROUTINES_SQL, "TRIGGER", triggerName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                StringBuilder sb = new StringBuilder();
-                while (resultSet.next()) {
-                    sb.append(resultSet.getString("TEXT") + "\n");
-                }
-                Trigger trigger = new Trigger();
-                trigger.setDatabaseName(databaseName);
-                trigger.setSchemaName(schemaName);
-                trigger.setTriggerName(triggerName);
-                trigger.setTriggerBody(resultSet.getString(sb.toString()));
-                return trigger;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            StringBuilder sb = new StringBuilder();
+            while (resultSet.next()) {
+                sb.append(resultSet.getString("TEXT") + "\n");
             }
+            Trigger trigger = new Trigger();
+            trigger.setDatabaseName(databaseName);
+            trigger.setSchemaName(schemaName);
+            trigger.setTriggerName(triggerName);
+            trigger.setTriggerBody(resultSet.getString(sb.toString()));
+            return trigger;
         });
     }
 
@@ -113,45 +102,35 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
         String procedureName) {
         String sql = String.format(ROUTINES_SQL, "PROCEDURE", procedureName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                StringBuilder sb = new StringBuilder();
-                while (resultSet.next()) {
-                    sb.append(resultSet.getString("TEXT") + "\n");
-                }
-                Procedure procedure = new Procedure();
-                procedure.setDatabaseName(databaseName);
-                procedure.setSchemaName(schemaName);
-                procedure.setProcedureName(procedureName);
-                procedure.setProcedureBody(sb.toString());
-                return procedure;
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            StringBuilder sb = new StringBuilder();
+            while (resultSet.next()) {
+                sb.append(resultSet.getString("TEXT") + "\n");
             }
+            Procedure procedure = new Procedure();
+            procedure.setDatabaseName(databaseName);
+            procedure.setSchemaName(schemaName);
+            procedure.setProcedureName(procedureName);
+            procedure.setProcedureBody(sb.toString());
+            return procedure;
         });
     }
 
-
     private static String VIEW_SQL
-        = "SELECT VIEW_NAME, TEXT FROM ALL_VIEWS WHERE OWNER = '%s' AND VIEW_NAME = '%s';";
+        = "SELECT VIEW_NAME, TEXT FROM ALL_VIEWS WHERE OWNER = '%s' AND VIEW_NAME = '%s'";
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
         String sql = String.format(VIEW_SQL, schemaName, viewName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    Table table = new Table();
-                    table.setDatabaseName(databaseName);
-                    table.setSchemaName(schemaName);
-                    table.setName(viewName);
-                    table.setDdl(resultSet.getString("TEXT"));
-                    return table;
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Table table = new Table();
+            table.setDatabaseName(databaseName);
+            table.setSchemaName(schemaName);
+            table.setName(viewName);
+            if (resultSet.next()) {
+                table.setDdl(resultSet.getString("TEXT"));
             }
-            return null;
+            return table;
         });
     }
 }
