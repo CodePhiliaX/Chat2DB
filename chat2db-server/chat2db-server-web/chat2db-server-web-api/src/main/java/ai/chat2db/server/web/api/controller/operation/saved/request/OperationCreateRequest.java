@@ -43,4 +43,9 @@ public class OperationCreateRequest extends DataSourceBaseRequest {
      * 是否在tab中被打开,y表示打开,n表示未打开
      */
     private String tabOpened;
+
+    /**
+     * operation type
+     */
+    private String operationType;
 }
