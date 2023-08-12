@@ -139,7 +139,13 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
   }
 
   function nodeDoubleClick() {
-    if (data.treeNodeType === TreeNodeType.TABLE) {
+    if (
+      data.treeNodeType === TreeNodeType.TABLE ||
+      data.treeNodeType === TreeNodeType.FUNCTION ||
+      data.treeNodeType === TreeNodeType.TRIGGER ||
+      data.treeNodeType === TreeNodeType.VIEW ||
+      data.treeNodeType === TreeNodeType.PROCEDURE
+    ) {
       dispatch({
         type: 'workspace/setDoubleClickTreeNodeData',
         payload: data
