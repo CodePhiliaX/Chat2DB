@@ -15,8 +15,8 @@ import jakarta.validation.constraints.NotEmpty;
 public interface MetaData {
     /**
      * Query all databases.
-     * @param connection
      *
+     * @param connection
      * @return
      */
     List<Database> databases(Connection connection);
@@ -128,4 +128,36 @@ public interface MetaData {
     List<TableIndex> indexes(Connection connection, @NotEmpty String databaseName, String schemaName,
         @NotEmpty String tableName);
 
+    /**
+     * Querying function detail under a schema.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param functionName
+     * @return
+     */
+    Function function(Connection connection, @NotEmpty String databaseName, String schemaName, String functionName);
+
+    /**
+     * Querying  trigger  under a schema.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param triggerName
+     * @return
+     */
+    Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName, String triggerName);
+
+    /**
+     * Querying all procedures under a schema.
+     *
+     * @param connection
+     * @param schemaName
+     * @param databaseName
+     * @param procedureName
+     * @return
+     */
+    Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,String procedureName);
 }

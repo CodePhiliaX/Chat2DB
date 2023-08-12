@@ -43,6 +43,13 @@ public class ConnectInfo {
      */
     private String databaseName;
 
+
+
+    /**
+     * schema
+     */
+    private String schemaName;
+
     /**
      * 控制台ID
      */
@@ -73,6 +80,9 @@ public class ConnectInfo {
      */
     private String dbType;
 
+    /**
+     * 端口
+     */
     private Integer port;
 
     /**
@@ -486,4 +496,11 @@ public class ConnectInfo {
         this.gmtModified = gmtModified;
     }
 
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
 }

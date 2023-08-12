@@ -36,4 +36,9 @@ public class TableVO {
      * 是否已经被固定
      */
     private boolean pinned;
+
+    /**
+     * ddl
+     */
+    private String ddl;
 }

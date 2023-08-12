@@ -90,4 +90,19 @@ public class DefaultMetaService implements MetaData {
     public List<TableIndex> indexes(Connection connection,String databaseName, String schemaName, String tableName) {
         return SQLExecutor.getInstance().indexes(connection,databaseName, schemaName, tableName);
     }
+
+    @Override
+    public Function function(Connection connection, String databaseName, String schemaName, String functionName) {
+        return null;
+    }
+
+    @Override
+    public Trigger trigger(Connection connection, String databaseName, String schemaName, String triggerName) {
+        return null;
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, String databaseName, String schemaName, String procedureName) {
+        return null;
+    }
 }
