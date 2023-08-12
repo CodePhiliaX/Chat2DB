@@ -19,12 +19,7 @@ public class ViewServiceImpl implements ViewService {
     @Override
     public DataResult<Table> detail(String databaseName, String schemaName, String tableName) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        String ddl = metaSchema.tableDDL(Chat2DBContext.getConnection(), databaseName, schemaName, tableName);
-        Table table = new Table();
-        table.setDdl(ddl);
-        table.setName(tableName);
-        table.setSchemaName(schemaName);
-        table.setDatabaseName(databaseName);
+        Table table = metaSchema.view(Chat2DBContext.getConnection(), databaseName, schemaName, tableName);
         return DataResult.of(table);
     }
 

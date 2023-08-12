@@ -9,6 +9,7 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.Trigger;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
@@ -127,6 +128,30 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        });
+    }
+
+
+    private static String VIEW_SQL
+        = "SELECT VIEW_NAME, TEXT FROM ALL_VIEWS WHERE OWNER = '%s' AND VIEW_NAME = '%s';";
+
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_SQL, schemaName, viewName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Table table = new Table();
+                    table.setDatabaseName(databaseName);
+                    table.setSchemaName(schemaName);
+                    table.setName(viewName);
+                    table.setDdl(resultSet.getString("TEXT"));
+                    return table;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
         });
     }
 }

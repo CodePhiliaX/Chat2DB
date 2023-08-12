@@ -9,6 +9,7 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.Trigger;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
@@ -129,6 +130,29 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                     procedure.setProcedureName(procedureName);
                     procedure.setProcedureBody(resultSet.getString("ROUTINE_DEFINITION"));
                     return procedure;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
+
+    private static String VIEW_SQL
+        = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
+
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Table table = new Table();
+                    table.setDatabaseName(databaseName);
+                    table.setSchemaName(schemaName);
+                    table.setName(viewName);
+                    table.setDdl(resultSet.getString("definition"));
+                    return table;
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
