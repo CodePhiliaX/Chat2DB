@@ -50,16 +50,16 @@ export const operationTypeConfig: {
     icon: '\ue619'
   },
   [OperationType.VIEW]: {
-    icon: '\ue647'
+    icon: '\ue70c'
   },
   [OperationType.FUNCTION]: {
-    icon: '\ue6fd'
+    icon: '\ue76a'
   },
   [OperationType.PROCEDURE]: {
-    icon: '\ue647'
+    icon: '\ue73c'
   },
 
   [OperationType.TRIGGER]: {
-    icon: '\ue647'
+    icon: '\ue64a'
   }
 }

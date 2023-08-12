@@ -41,16 +41,16 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string, unfold
     icon: '\ue65b'
   },
   [TreeNodeType.VIEW]: {
-    icon: '\ue647'
+    icon: '\ue70c'
   },
   [TreeNodeType.FUNCTION]: {
-    icon: '\ue6fd'
+    icon: '\ue76a'
   },
   [TreeNodeType.PROCEDURE]: {
-    icon: '\ue647'
+    icon: '\ue73c'
   },
   [TreeNodeType.TRIGGER]: {
-    icon: '\ue647'
+    icon: '\ue64a'
   },
 }
 
@@ -243,7 +243,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.VIEWS]: {
-    icon: '\ue647',
+    icon: '\ue70c',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer.getViewList(params).then(res => {
@@ -269,7 +269,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.FUNCTIONS]: {
-    icon: '\ue647',
+    icon: '\ue76a',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer.getFunctionList(params).then(res => {
@@ -296,11 +296,11 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.FUNCTION]: {
-    icon: '\ue6fd',
+    icon: '\ue76a',
   },
 
   [TreeNodeType.PROCEDURES]: {
-    icon: '\ue647',
+    icon: '\ue73c',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer.getProcedureList(params).then(res => {
@@ -327,11 +327,11 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.PROCEDURE]: {
-    icon: '\ue611'
+    icon: '\ue73c'
   },
 
   [TreeNodeType.TRIGGERS]: {
-    icon: '\ue647',
+    icon: '\ue64a',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer.getTriggerList(params).then(res => {
@@ -358,11 +358,11 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.TRIGGER]: {
-    icon: '\ue611'
+    icon: '\ue64a'
   },
 
   [TreeNodeType.VIEW]: {
-    icon: '\ue647',
+    icon: '\ue70c',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         const list = [

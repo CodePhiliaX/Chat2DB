@@ -34,6 +34,11 @@ const WorkspaceRight = memo<IProps>(function (props) {
       return;
     }
 
+    dispatch({
+      type: 'workspace/setConsoleList',
+      payload: [],
+    })
+  
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.VIEW) {
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, tableName, dataSourceId } = extraParams || {};
@@ -141,8 +146,6 @@ const WorkspaceRight = memo<IProps>(function (props) {
         // 如果发现当前列表里并没有newActiveConsoleId
         setActiveConsoleId(openConsoleList?.[openConsoleList?.length - 1].id);
       }
-
-
     }
   }, [openConsoleList]);
 
