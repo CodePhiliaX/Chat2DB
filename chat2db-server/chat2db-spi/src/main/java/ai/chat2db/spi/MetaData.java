@@ -53,6 +53,18 @@ public interface MetaData {
     List<Table> tables(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName);
 
     /**
+     * Querying view information.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param viewName
+     * @return
+     */
+    Table view(Connection connection, @NotEmpty String databaseName, String schemaName, String viewName);
+
+
+    /**
      * Querying all views under a schema.
      *
      * @param connection

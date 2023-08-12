@@ -74,36 +74,38 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
             // 解析sql分页
             SQLStatement sqlStatement;
+            boolean autoLimit = false;
             try {
                 sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+                // 是否需要代码帮忙分页
+
+                if (sqlStatement instanceof SQLSelectStatement) {
+                    //  不是查询全部数据 而且 用户自己没有传分页
+                    autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement,
+                        dbType)
+                        == null;
+                    if (autoLimit) {
+                        pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
+                        pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
+                        int offset = (pageNo - 1) * pageSize;
+                        try {
+                            sql = PagerUtils.limit(sql, dbType, offset, pageSize);
+                        } catch (Exception e) {
+                            autoLimit = false;
+                        }
+                    }
+                    sqlType = SqlTypeEnum.SELECT.getCode();
+                }
             } catch (ParserException e) {
                 log.warn("解析sql失败:{}", sql, e);
-                ExecuteResult executeResult = ExecuteResult.builder()
-                    .success(Boolean.FALSE)
-                    .originalSql(originalSql)
-                    .sql(sql)
-                    .message(e.getMessage())
-                    .build();
-                result.add(executeResult);
-                continue;
-            }
-            // 是否需要代码帮忙分页
-            boolean autoLimit = false;
-            if (sqlStatement instanceof SQLSelectStatement) {
-                //  不是查询全部数据 而且 用户自己没有传分页
-                autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement, dbType)
-                    == null;
-                if (autoLimit) {
-                    pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
-                    pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
-                    int offset = (pageNo - 1) * pageSize;
-                    try {
-                        sql = PagerUtils.limit(sql, dbType, offset, pageSize);
-                    } catch (Exception e) {
-                        autoLimit = false;
-                    }
-                }
-                sqlType = SqlTypeEnum.SELECT.getCode();
+                //ExecuteResult executeResult = ExecuteResult.builder()
+                //    .success(Boolean.FALSE)
+                //    .originalSql(originalSql)
+                //    .sql(sql)
+                //    .message(e.getMessage())
+                //    .build();
+                //result.add(executeResult);
+                //continue;
             }
 
             ExecuteResult executeResult = execute(sql);

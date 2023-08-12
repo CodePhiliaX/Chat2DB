@@ -56,6 +56,11 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        return null;
+    }
+
+    @Override
     public List<Table> views(Connection connection,String databaseName, String schemaName) {
         return SQLExecutor.getInstance().tables(connection,databaseName, schemaName, null, new String[]{"VIEW"});
     }

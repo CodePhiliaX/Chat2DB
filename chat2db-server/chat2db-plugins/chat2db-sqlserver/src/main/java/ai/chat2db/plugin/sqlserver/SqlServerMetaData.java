@@ -2,13 +2,17 @@ package ai.chat2db.plugin.sqlserver;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.Function;
+import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.Trigger;
 import ai.chat2db.spi.sql.SQLExecutor;
-import com.google.common.collect.Lists;
+import jakarta.validation.constraints.NotEmpty;
 
 public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     private String functionSQL
@@ -62,24 +66,124 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             return null;
         });
     }
+
+    private static String ROUTINES_SQL
+        = "SELECT type_desc, OBJECT_NAME(object_id) AS FunctionName, OBJECT_DEFINITION(object_id) AS functionDefinition FROM sys.objects WHERE type_desc IN(%s) and name = '%s' ;";
+
     @Override
-    public List<Database> databases(Connection connection) {
-        List<Database> databases = Lists.newArrayList();
-        SQLExecutor.getInstance().executeSql(connection, "SELECT name "
-                + "FROM sys.databases",
-            resultSet -> {
-                try {
-                    while (resultSet.next()) {
-                        Database database = new Database();
-                        String databaseName = resultSet.getString("name");
-                        database.setName(databaseName);
-                        databases.add(database);
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String functionName) {
+
+        String sql = String.format(ROUTINES_SQL,"'SQL_SCALAR_FUNCTION', 'SQL_TABLE_VALUED_FUNCTION'", functionName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Function function = new Function();
+                    function.setDatabaseName(databaseName);
+                    function.setSchemaName(schemaName);
+                    function.setFunctionName(functionName);
+                    function.setFunctionBody(resultSet.getString("functionDefinition"));
+                    return function;
                 }
-                return null;
-            });
-        return databases;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+
+    }
+
+    private static String TRIGGER_SQL
+        = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS TriggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects WHERE xtype = 'TR' and name = '%s';";
+
+    private static String TRIGGER_SQL_LIST
+        = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS TriggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects WHERE xtype = 'TR' ";
+
+
+    @Override
+    public List<Trigger> triggers(Connection connection,String databaseName, String schemaName) {
+        List<Trigger> triggers = new ArrayList<>();
+        return SQLExecutor.getInstance().executeSql(connection, TRIGGER_SQL_LIST, resultSet -> {
+            try {
+                while (resultSet.next()) {
+                    Trigger trigger = new Trigger();
+                    trigger.setTriggerName(resultSet.getString("triggerName"));
+                    trigger.setSchemaName(schemaName);
+                    trigger.setDatabaseName(databaseName);
+                    triggers.add(trigger);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return triggers;
+        });
+    }
+
+
+    @Override
+    public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String triggerName) {
+
+        String sql = String.format(TRIGGER_SQL, triggerName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Trigger trigger = new Trigger();
+                    trigger.setDatabaseName(databaseName);
+                    trigger.setSchemaName(schemaName);
+                    trigger.setTriggerName(triggerName);
+                    trigger.setTriggerBody(resultSet.getString("triggerName"));
+                    return trigger;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String procedureName) {
+        String sql = String.format(ROUTINES_SQL,"'SQL_STORED_PROCEDURE'", procedureName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Procedure procedure = new Procedure();
+                    procedure.setDatabaseName(databaseName);
+                    procedure.setSchemaName(schemaName);
+                    procedure.setProcedureName(procedureName);
+                    procedure.setProcedureBody(resultSet.getString("procedureDefinition"));
+                    return procedure;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
+    }
+
+
+    private static String VIEW_SQL
+        = "SELECT TABLE_SCHEMA, TABLE_NAME, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
+
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_SQL, schemaName, viewName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                if (resultSet.next()) {
+                    Table table = new Table();
+                    table.setDatabaseName(databaseName);
+                    table.setSchemaName(schemaName);
+                    table.setName(viewName);
+                    table.setDdl(resultSet.getString("VIEW_DEFINITION"));
+                    return table;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        });
     }
 }

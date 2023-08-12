@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.api.service;
 
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Function;
 import jakarta.validation.constraints.NotEmpty;
@@ -18,5 +19,12 @@ public interface FunctionService {
      */
     ListResult<Function> functions(@NotEmpty String databaseName, String schemaName);
 
-
+    /**
+     * Querying function information.
+     * @param databaseName
+     * @param schemaName
+     * @param functionName
+     * @return
+     */
+    DataResult<Function> detail(String databaseName, String schemaName, String functionName);
 }
