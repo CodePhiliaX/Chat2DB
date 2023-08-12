@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.service.ProcedureService;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.spi.model.Procedure;
@@ -18,7 +19,10 @@ public class ProcedureController {
     private ProcedureService procedureService;
 
     @GetMapping("/list")
-    public ListResult<Procedure> list(@Valid TableBriefQueryRequest request) {
-        return procedureService.procedures(request.getDatabaseName(), request.getSchemaName());
+    public WebPageResult<Procedure> list(@Valid TableBriefQueryRequest request) {
+        ListResult<Procedure> procedureListResult = procedureService.procedures(request.getDatabaseName(),
+            request.getSchemaName());
+        return WebPageResult.of(procedureListResult.getData(), Long.valueOf(procedureListResult.getData().size()), 1,
+            procedureListResult.getData().size());
     }
 }

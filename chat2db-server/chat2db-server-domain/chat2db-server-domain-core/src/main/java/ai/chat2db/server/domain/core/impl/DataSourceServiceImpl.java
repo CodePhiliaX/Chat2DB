@@ -1,7 +1,6 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,6 +71,10 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataResult<DataSource> dataResult = queryById(dataSourceId);
         if (dataResult.success() && dataResult.getData() != null) {
             DataSource dataSource = dataResult.getData();
+            DriverConfig driverConfig = dataSource.getDriverConfig();
+            if (driverConfig == null || StringUtils.isBlank(driverConfig.getJdbcDriver())) {
+                return;
+            }
             try (Connection connection = IDriverManager.getConnection(dataSource.getUrl(), dataSource.getUserName(),
                 dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
                 DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
@@ -80,7 +83,7 @@ public class DataSourceServiceImpl implements DataSourceService {
                 databaseQueryAllParam.setDbType(dataSource.getType());
                 databaseQueryAllParam.setRefresh(true);
                 databaseService.queryAll(databaseQueryAllParam);
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 log.error("preWarmingData error", e);
             }
         }

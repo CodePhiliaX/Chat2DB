@@ -44,6 +44,7 @@ public class ResultSetUtils {
         return procedure;
     }
 
+
     public static TableIndexColumn buildTableIndexColumn(ResultSet resultSet) throws SQLException {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
         tableIndexColumn.setColumnName(getString(resultSet, "COLUMN_NAME"));

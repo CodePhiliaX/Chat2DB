@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.service.FunctionService;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.spi.model.Function;
@@ -19,9 +20,12 @@ public class FunctionController {
     @Autowired
     private FunctionService functionService;
 
-
     @GetMapping("/list")
-    public ListResult<Function> list(@Valid TableBriefQueryRequest request) {
-        return functionService.functions(request.getDatabaseName(), request.getSchemaName());
+    public WebPageResult<Function> list(@Valid TableBriefQueryRequest request) {
+        ListResult<Function> functionListResult = functionService.functions(request.getDatabaseName(),
+            request.getSchemaName());
+        return WebPageResult.of(functionListResult.getData(), Long.valueOf(functionListResult.getData().size()), 1,
+            functionListResult.getData().size());
     }
+
 }

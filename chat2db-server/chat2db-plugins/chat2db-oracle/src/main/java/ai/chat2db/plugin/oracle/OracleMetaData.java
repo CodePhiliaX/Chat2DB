@@ -2,17 +2,23 @@ package ai.chat2db.plugin.oracle;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.model.Function;
+import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Trigger;
 import ai.chat2db.spi.sql.SQLExecutor;
+import jakarta.validation.constraints.NotEmpty;
 
 public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "select dbms_metadata.get_ddl('TABLE','"+tableName+"') as sql from dual,"
-                + "user_tables where table_name = '" + tableName + "'";
-        return SQLExecutor.getInstance().executeSql(connection,sql, resultSet -> {
+        String sql = "select dbms_metadata.get_ddl('TABLE','" + tableName + "') as sql from dual,"
+            + "user_tables where table_name = '" + tableName + "'";
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
             try {
                 if (resultSet.next()) {
                     return resultSet.getString("sql");
@@ -22,6 +28,105 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             }
 
             return null;
+        });
+    }
+
+    private static String ROUTINES_SQL
+        = "SELECT LINE, TEXT "
+        + "FROM ALL_SOURCE "
+        + "WHERE TYPE = '%s' AND NAME = '%s' "
+        + "ORDER BY LINE;";
+
+    @Override
+    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String functionName) {
+
+        String sql = String.format(ROUTINES_SQL, "FUNCTION", functionName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                StringBuilder sb = new StringBuilder();
+                while (resultSet.next()) {
+                    sb.append(resultSet.getString("TEXT") + "\n");
+                }
+                Function function = new Function();
+                function.setDatabaseName(databaseName);
+                function.setSchemaName(schemaName);
+                function.setFunctionName(functionName);
+                function.setFunctionBody(sb.toString());
+                return function;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    private static String TRIGGER_SQL_LIST
+        = "SELECT TRIGGER_NAME "
+        + "FROM ALL_TRIGGERS WHERE OWNER = '%s';";
+
+    @Override
+    public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
+        List<Trigger> triggers = new ArrayList<>();
+        return SQLExecutor.getInstance().executeSql(connection, String.format(TRIGGER_SQL_LIST, schemaName),
+            resultSet -> {
+                try {
+                    while (resultSet.next()) {
+                        Trigger trigger = new Trigger();
+                        trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                        trigger.setSchemaName(schemaName);
+                        trigger.setDatabaseName(databaseName);
+                        triggers.add(trigger);
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                return triggers;
+            });
+    }
+
+    @Override
+    public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String triggerName) {
+
+        String sql = String.format(ROUTINES_SQL, "TRIGGER", triggerName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                StringBuilder sb = new StringBuilder();
+                while (resultSet.next()) {
+                    sb.append(resultSet.getString("TEXT") + "\n");
+                }
+                Trigger trigger = new Trigger();
+                trigger.setDatabaseName(databaseName);
+                trigger.setSchemaName(schemaName);
+                trigger.setTriggerName(triggerName);
+                trigger.setTriggerBody(resultSet.getString(sb.toString()));
+                return trigger;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String procedureName) {
+        String sql = String.format(ROUTINES_SQL, "PROCEDURE", procedureName);
+        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
+            try {
+                StringBuilder sb = new StringBuilder();
+                while (resultSet.next()) {
+                    sb.append(resultSet.getString("TEXT") + "\n");
+                }
+                Procedure procedure = new Procedure();
+                procedure.setDatabaseName(databaseName);
+                procedure.setSchemaName(schemaName);
+                procedure.setProcedureName(procedureName);
+                procedure.setProcedureBody(sb.toString());
+                return procedure;
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 }
