@@ -9,11 +9,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * SQL Controller
+ */
 @ConnectionInfoAspect
 @RequestMapping("/api/sql")
 @RestController
 public class SqlController {
 
+    /**
+     * SQL Format
+     * @param sqlFormatRequest
+     * @return
+     */
     @GetMapping("/format")
     public DataResult<String> list(@Valid SqlFormatRequest sqlFormatRequest) {
 
