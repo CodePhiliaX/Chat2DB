@@ -1,4 +1,4 @@
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, OperationType } from '@/constants';
 
 export interface IPageResponse<T> {
   data: T[];
@@ -26,6 +26,7 @@ export interface IConsole {
   status: ConsoleStatus;
   connectable: boolean;
   tabOpened?: ConsoleOpenedStatus;
+  operationType: OperationType;
 }
 
 export interface Option {

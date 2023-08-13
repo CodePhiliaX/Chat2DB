@@ -101,6 +101,9 @@ public class OperationServiceImpl implements OperationService {
         if (StringUtils.isNotBlank(param.getTabOpened())) {
             queryWrapper.eq("tab_opened", param.getTabOpened());
         }
+        if (StringUtils.isNotBlank(param.getOperationType())) {
+            queryWrapper.eq("operation_type", param.getOperationType());
+        }
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<OperationSavedDO> page = new Page<>(start, offset);

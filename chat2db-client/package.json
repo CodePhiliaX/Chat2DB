@@ -114,8 +114,7 @@
       "maintainer": "Chat2DB, huanyueyaoqin@qq.com",
       "category": "Network;",
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ]
     }
   }

@@ -24,10 +24,14 @@ import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
 import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatRole;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.claude.client.ClaudeAIClient;
+import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatCompletionsOptions;
+import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.listener.ClaudeAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
@@ -212,6 +216,8 @@ public class ChatController {
                 return chatWithRestAi(queryRequest, sseEmitter);
             case AZUREAI :
                 return chatWithAzureAi(queryRequest, sseEmitter, uid);
+            case CLAUDEAI:
+                return chatWithClaudeAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -323,6 +329,31 @@ public class ChatController {
         AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
         AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+
+    /**
+     * chat with claude ai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithClaudeAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        ClaudeChatMessage claudeChatMessage = new ClaudeChatMessage();
+        claudeChatMessage.setText(prompt);
+        ClaudeChatCompletionsOptions chatCompletionsOptions = new ClaudeChatCompletionsOptions();
+        chatCompletionsOptions.setPrompt(prompt);
+        claudeChatMessage.setCompletion(chatCompletionsOptions);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        ClaudeAIEventSourceListener sourceListener = new ClaudeAIEventSourceListener(sseEmitter);
+        ClaudeAIClient.getInstance().streamCompletions(claudeChatMessage, sourceListener);
         return sseEmitter;
     }
 

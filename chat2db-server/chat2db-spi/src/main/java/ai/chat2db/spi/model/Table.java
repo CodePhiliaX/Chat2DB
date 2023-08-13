@@ -63,5 +63,10 @@ public class Table {
      * 是否置顶
      */
     private boolean pinned;
+
+    /**
+     * ddl
+     */
+    private String ddl;
 }
 

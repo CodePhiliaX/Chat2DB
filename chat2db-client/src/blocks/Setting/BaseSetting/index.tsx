@@ -16,14 +16,14 @@ const { Option } = Select;
 
 const themeList = [
   {
-    code: ThemeType.Dark,
-    name: i18n('setting.text.dark'),
-    img: themeDarkImg,
-  },
-  {
     code: ThemeType.Light,
     name: i18n('setting.text.light'),
     img: themeLightImg,
+  },
+  {
+    code: ThemeType.Dark,
+    name: i18n('setting.text.dark'),
+    img: themeDarkImg,
   },
   {
     code: ThemeType.FollowOs,
@@ -39,25 +39,45 @@ const themeList = [
 
 const colorList = [
   {
+    code: 'golden-purple',
+    name: i18n('setting.label.violet'),
+    color: '#9373ee',
+  },
+  {
     code: 'polar-blue',
     name: i18n('setting.label.blue'),
     color: '#1a90ff',
   },
   {
-    code: 'polar-green',
-    name: i18n('setting.label.green'),
-    color: '#1d3712',
+    code: 'blue2',
+    name: i18n('setting.label.violet'),
+    color: '#00c3ee',
   },
   {
-    code: 'golden-purple',
-    name: i18n('setting.label.violet'),
-    color: '#301c4d',
+    code: 'polar-green',
+    name: i18n('setting.label.green'),
+    color: '#039e74',
   },
-  // {
-  //   code: 'sunset-orange',
-  //   name: '日暮',
-  //   color: "#593815"
-  // },
+  {
+    code: 'gold',
+    name: i18n('setting.label.violet'),
+    color: '#9a7d56',
+  },
+  {
+    code: 'silver',
+    name: i18n('setting.label.violet'),
+    color: '#8e8374',
+  },
+  {
+    code: 'red',
+    name: i18n('setting.label.violet'),
+    color: '#fd6874',
+  },
+  {
+    code: 'orange',
+    name: i18n('setting.label.violet'),
+    color: '#fa8c16',
+  },
 ];
 
 // baseBody 基础设置
@@ -128,10 +148,20 @@ export default function BaseSetting() {
               >
                 {currentPrimaryColor == item.code && <Iconfont code="&#xe617;" />}
               </div>
-              <div className={styles.colorName}>{item.name}</div>
+              {/* <div className={styles.colorName}>{item.name}</div> */}
             </div>
           );
         })}
+        {/* <ColorPicker placement='bottomLeft' onChange={setCustomColor}>
+          <div className={classnames(styles.themeColorItem, styles.customColorItem) }>
+            <div
+              className={styles.colorLump}
+              onClick={()=>{}}
+            >
+              自定义
+            </div>
+          </div>
+        </ColorPicker> */}
       </ul>
     </>
   );

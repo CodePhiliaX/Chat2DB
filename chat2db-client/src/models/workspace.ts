@@ -22,20 +22,25 @@ export interface IWorkspaceModelState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
+  curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
+  curViewList: ITreeNode[];
 }
 
 export interface IWorkspaceModelType {
   namespace: 'workspace';
   state: IWorkspaceModelState;
   reducers: {
-    setDatabaseAndSchema: Reducer<IWorkspaceModelState['databaseAndSchema']>;
-    setCurWorkspaceParams: Reducer<IWorkspaceModelState['curWorkspaceParams']>;
-    setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
-    setConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setOpenConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setCurTableList: Reducer<IWorkspaceModelState['curTableList']>;
+    // TS TODO:
+    setDatabaseAndSchema: Reducer<IWorkspaceModelState>;
+    setCurWorkspaceParams: Reducer<IWorkspaceModelState>;
+    setDoubleClickTreeNodeData: Reducer<IWorkspaceModelState>;
+    setConsoleList: Reducer<IWorkspaceModelState>;
+    setOpenConsoleList: Reducer<IWorkspaceModelState>;
+    setCurConsoleId: Reducer<IWorkspaceModelState>;
+    setCurTableList: Reducer<IWorkspaceModelState>;
+    setCurViewList: Reducer<IWorkspaceModelState>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
@@ -43,6 +48,7 @@ export interface IWorkspaceModelType {
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
+    fetchGetCurViewList: Effect;
   };
 }
 
@@ -56,6 +62,8 @@ const WorkspaceModel: IWorkspaceModelType = {
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
+    curViewList: [],
+    curConsoleId: null
   },
 
   reducers: {
@@ -89,6 +97,7 @@ const WorkspaceModel: IWorkspaceModelType = {
       };
     },
 
+    // 工作台页面打开的console列表
     setOpenConsoleList(state, { payload }) {
       return {
         ...state,
@@ -96,10 +105,26 @@ const WorkspaceModel: IWorkspaceModelType = {
       };
     },
 
+    // 当前聚焦的console
+    setCurConsoleId(state, { payload }) {
+      return {
+        ...state,
+        curConsoleId: payload
+      }
+    },
+
     setCurTableList(state, { payload }) {
       return {
         ...state,
         curTableList: payload,
+      };
+    },
+
+    // 视图列表
+    setCurViewList(state, { payload }) {
+      return {
+        ...state,
+        curViewList: payload,
       };
     },
   },
@@ -173,6 +198,26 @@ const WorkspaceModel: IWorkspaceModelType = {
         }
         yield put({
           type: 'setCurTableList',
+          payload: res,
+        });
+      }
+      catch {
+
+      }
+    },
+    *fetchGetCurViewList({ payload, callback }, { put, call }) {
+      try {
+        const res = (yield treeConfig[TreeNodeType.VIEWS].getChildren!({
+          pageNo: 1,
+          pageSize: 999,
+          ...payload,
+        })) as ITreeNode[];
+        // 异步操作完成后调用回调函数
+        if (callback && typeof callback === 'function') {
+          callback(res);
+        }
+        yield put({
+          type: 'setCurViewList',
           payload: res,
         });
       }

@@ -5,6 +5,7 @@ import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsoleRequestInfo;
 import ai.chat2db.spi.config.DriverConfig;
@@ -36,11 +37,16 @@ public class ConnectionInfoHandler {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
-                    if (param instanceof DataSourceConsoleRequestInfo) {
+                    if(param instanceof DataSourceBaseRequest){
+                        Long dataSourceId = ((DataSourceBaseRequest)param).getDataSourceId();
+                        String schemaName = ((DataSourceBaseRequest)param).getSchemaName();
+                        String database = ((DataSourceBaseRequest)param).getDatabaseName();
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database, null,schemaName));
+                    }else if (param instanceof DataSourceConsoleRequestInfo) {
                         Long dataSourceId = ((DataSourceConsoleRequestInfo)param).getDataSourceId();
                         Long consoleId = ((DataSourceConsoleRequestInfo)param).getConsoleId();
                         String database = ((DataSourceConsoleRequestInfo)param).getDatabaseName();
-                        Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId));
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId,null));
                     } else if (param instanceof DataSourceBaseRequestInfo) {
                         Long dataSourceId = ((DataSourceBaseRequestInfo)param).getDataSourceId();
                         String database = ((DataSourceBaseRequestInfo)param).getDatabaseName();
@@ -54,7 +60,7 @@ public class ConnectionInfoHandler {
         }
     }
 
-    public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId) {
+    public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId,String schemaName) {
         DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
         DataSource dataSource = result.getData();
         if (!result.success() || dataSource == null) {
@@ -69,6 +75,7 @@ public class ConnectionInfoHandler {
         connectInfo.setDbType(dataSource.getType());
         connectInfo.setUrl(dataSource.getUrl());
         connectInfo.setDatabase(database);
+        connectInfo.setSchemaName(schemaName);
         connectInfo.setConsoleOwn(false);
         connectInfo.setDriver(dataSource.getDriver());
         connectInfo.setSsh(dataSource.getSsh());
@@ -86,6 +93,6 @@ public class ConnectionInfoHandler {
     }
 
     public ConnectInfo toInfo(Long dataSourceId, String database) {
-        return toInfo(dataSourceId, database, null);
+        return toInfo(dataSourceId, database, null,null);
     }
 }

@@ -37,4 +37,7 @@ public class Function {
     private Short functionType;
 
     private String specificName;
+
+    private String functionBody;
+
 }

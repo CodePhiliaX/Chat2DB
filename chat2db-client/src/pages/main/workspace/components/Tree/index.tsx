@@ -1,17 +1,14 @@
-import React, { memo, useEffect, useRef, useContext, useState, useImperativeHandle } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'umi';
-import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import { Dropdown, Modal, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
 import { ITreeNode } from '@/typings';
 import { callVar, approximateTreeNode } from '@/utils';
 import { TreeNodeType, databaseMap } from '@/constants';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
-import { workspaceActionType } from '@/pages/main/workspace/context';
 import { IWorkspaceModelType } from '@/models/workspace';
 
 interface IProps {
@@ -37,7 +34,6 @@ function Tree(props: IProps) {
   const { className, initialData } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | undefined>();
   const [searchedTreeData, setSearchedTreeData] = useState<ITreeNode[] | null>(null);
-
 
   useEffect(() => {
     setTreeData(initialData);
@@ -87,11 +83,9 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
       ...(data.extraParams || {}),
     }).then(res => {
       if (res.length) {
-        setTimeout(() => {
-          data.children = res;
-          setShowChildren(true);
-          setIsLoading(false);
-        }, 200);
+        data.children = res;
+        setShowChildren(true);
+        setIsLoading(false);
       }
       else {
         // 处理树可能出现不连续的情况 
@@ -109,17 +103,6 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
     });
   }
 
-  // useEffect(() => {
-  //   if (data?.dataSourceId === needRefreshNodeTree?.dataSourceId &&
-  //     data?.databaseName === needRefreshNodeTree?.databaseName &&
-  //     data.nodeType === needRefreshNodeTree.nodeType) {
-  //     setIsLoading(true);
-  //     setNeedRefreshNodeTree(false);
-  //     data.children = [];
-  //     loadData(data)
-  //   }
-  // }, [needRefreshNodeTree])
-
   useEffect(() => {
     setShowChildren(showAllChildrenPenetrate);
   }, [showAllChildrenPenetrate])
@@ -136,14 +119,6 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
       setShowChildren(!showChildren);
     }
   };
-
-  // const renderMenu = () => {
-  //   return <TreeNodeRightClick
-  //     data={data}
-  //     setTreeData={setTreeData}
-  //     setIsLoading={setIsLoading}
-  //   />
-  // }
 
   const recognizeIcon = (treeNodeType: TreeNodeType) => {
     if (treeNodeType === TreeNodeType.DATA_SOURCE) {
@@ -164,7 +139,13 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
   }
 
   function nodeDoubleClick() {
-    if (data.treeNodeType === TreeNodeType.TABLE) {
+    if (
+      data.treeNodeType === TreeNodeType.TABLE ||
+      data.treeNodeType === TreeNodeType.FUNCTION ||
+      data.treeNodeType === TreeNodeType.TRIGGER ||
+      data.treeNodeType === TreeNodeType.VIEW ||
+      data.treeNodeType === TreeNodeType.PROCEDURE
+    ) {
       dispatch({
         type: 'workspace/setDoubleClickTreeNodeData',
         payload: data
@@ -175,58 +156,52 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
   }
 
   return show ? <>
-    {/* <Tooltip placement="right" title={renderTitle(data)}>
-    </Tooltip> */}
-    <div
-      className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })} >
-      <div className={styles.left}>
-        {
-          indentArr.map((item, i) => {
-            return <div key={i} className={styles.indent}></div>
-          })
-        }
-      </div>
-      <div className={styles.right}>
-        {
-          !data.isLeaf &&
-          <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
-            {
-              isLoading
-                ?
-                <div className={styles.loadingIcon}>
-                  <Iconfont code='&#xe6cd;' />
-                </div>
-                :
-                <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xeb6d;' />
-            }
-            {/* <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xe608;' /> */}
+    <Tooltip placement='right' color={window._AppThemePack.colorPrimary} title={data.comment}>
+      <div
+        className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })} >
+        <div className={styles.left}>
+          {
+            indentArr.map((item, i) => {
+              return <div key={i} className={styles.indent}></div>
+            })
+          }
+        </div>
+        <div className={styles.right}>
+          {
+            !data.isLeaf &&
+            <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
+              {
+                isLoading
+                  ?
+                  <div className={styles.loadingIcon}>
+                    <Iconfont code='&#xe6cd;' />
+                  </div>
+                  :
+                  <Iconfont className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })} code='&#xeb6d;' />
+              }
+            </div>
+          }
+          <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
+            <div className={styles.typeIcon}>
+              <Iconfont code={recognizeIcon(data.treeNodeType)!}></Iconfont>
+            </div>
+            <div className={styles.contentText} >
+              <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
+              {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
+            </div>
           </div>
-        }
-        <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
-          <div className={styles.typeIcon}>
-            <Iconfont code={recognizeIcon(data.treeNodeType)!}></Iconfont>
-          </div>
-          <div className={styles.contentText} >
-            <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
-            {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
-            {/* {data.treeNodeType === TreeNodeType.TABLE &&
-              <Tooltip placement='right' title='我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀'>
-                <div className={styles.describe}>我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀我是描述呀</div>
-              </Tooltip>
-            } */}
+          <div className='moreBox'>
+            <TreeNodeRightClick
+              setIsLoading={setIsLoading}
+              dispatch={dispatch}
+              className={styles.moreButton}
+              data={data}
+              workspaceModel={workspaceModel}
+            ></TreeNodeRightClick>
           </div>
         </div>
-        <div className='moreBox'>
-          <TreeNodeRightClick
-            setIsLoading={setIsLoading}
-            dispatch={dispatch}
-            className={styles.moreButton}
-            data={data}
-            workspaceModel={workspaceModel}
-          ></TreeNodeRightClick>
-        </div>
       </div>
-    </div>
+    </Tooltip>
     {
       data.children?.map((item: any, i: number) => {
         return <TreeNode
