@@ -49,7 +49,7 @@ public class LogUtils {
         }
 
         StringBuilder maskedString = new StringBuilder(input);
-        for (int i = 0; i < input.length(); i += 2) {
+        for (int i = 0; i < input.length(); i += 4) {
             maskedString.setCharAt(i, '*');
         }
         return maskedString.toString();
