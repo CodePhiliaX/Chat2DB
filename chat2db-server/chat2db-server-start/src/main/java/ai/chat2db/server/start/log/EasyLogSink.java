@@ -54,10 +54,10 @@ public class EasyLogSink implements Sink {
         webLog.setStartTime(LocalDateTime.ofInstant(correlation.getStart(), ZoneId.systemDefault()));
         webLog.setEndTime(LocalDateTime.ofInstant(correlation.getEnd(), ZoneId.systemDefault()));
         try {
-            webLog.setRequest(LogUtils.cutLog(new String(request.getBody(), StandardCharsets.UTF_8)));
+            webLog.setRequest(LogUtils.maskString(LogUtils.cutLog(new String(request.getBody(), StandardCharsets.UTF_8))));
             if (ContentTypeUtils.isContentTypeJSON(response.getContentType()) || ContentTypeUtils.isContentTypeHTML(
                 response.getContentType())) {
-                webLog.setResponse(LogUtils.cutLog(new String(response.getBody(), StandardCharsets.UTF_8)));
+                webLog.setResponse(LogUtils.maskString(LogUtils.cutLog(new String(response.getBody(), StandardCharsets.UTF_8))));
             } else {
                 webLog.setResponse(response.getContentType() + ":[" + response.getBody().length + "]");
             }

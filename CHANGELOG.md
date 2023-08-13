@@ -2,7 +2,7 @@
 
 ## ⭐ New Features
 
-- Supports viewing views, functions, triggers, and procedures 
+- 🔥Supports viewing views, functions, triggers, and procedures 
 - Support selected sql formatting 
 - Added new dark themes
 
@@ -11,10 +11,11 @@
 - Fixed sql formatting failure issue
 - Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing page crashes
 - Logs desensitize sensitive data
+- Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
 
 ## ⭐ 新特性
 
-- 支持查看视图、函数、触发器、过程
+- 🔥支持查看视图、函数、触发器、存储过程
 - 支持选中sql格式化
 - 增加新的暗色主题
 
@@ -23,7 +24,7 @@
 - 修复sql格式化会失败问题
 - 修复本地存储的主题色、背景色与新版本不兼容时会导致页面崩溃问题
 - 日志对敏感数据进行脱敏
-
+- 修复 `CLOB` 不展示具体内容的问题  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
 
 # 2.0.11
 
