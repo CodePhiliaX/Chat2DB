@@ -91,6 +91,9 @@ function Chart(props: IProps) {
 
   const onClickDashboardItem = async (dashboard: IDashboardItem) => {
     const { id } = dashboard;
+    if (curDashboard?.id === id) {
+      return;
+    }
     let res = await getDashboardById({ id });
     setCurDashboard(res);
   };
@@ -237,8 +240,7 @@ function Chart(props: IProps) {
     );
   };
 
-  const updateAiRemainUse = () => {};
-
+  // console.log('form', form);
   return (
     <>
       <DraggableContainer className={cs(styles.box, className)}>
@@ -271,14 +273,15 @@ function Chart(props: IProps) {
             }
             queryDashboardList();
             setOpenAddDashboard(false);
-            form.setFieldsValue({});
+            form.resetFields();
           } catch (errorInfo) {
+            form.resetFields();
             console.log('Failed:', errorInfo);
           }
         }}
         onCancel={() => {
           setOpenAddDashboard(false);
-          form.setFieldsValue({});
+          form.resetFields();
         }}
         okText={i18n('common.button.confirm')}
         cancelText={i18n('common.button.cancel')}
