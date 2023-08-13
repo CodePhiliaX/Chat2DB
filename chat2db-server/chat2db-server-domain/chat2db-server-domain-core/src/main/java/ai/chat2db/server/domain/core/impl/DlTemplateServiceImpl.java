@@ -12,7 +12,6 @@ import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
 
 import ai.chat2db.server.domain.api.param.DlCountParam;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
@@ -31,6 +30,7 @@ import ai.chat2db.spi.model.Header;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
+import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -58,7 +58,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         sqlAnalyseParam.setSql(param.getSql());
         DbType dbType =
             JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
-        List<String> sqlList = SQLParserUtils.splitAndRemoveComment(param.getSql(), dbType);
+        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
         if (CollectionUtils.isEmpty(sqlList)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
