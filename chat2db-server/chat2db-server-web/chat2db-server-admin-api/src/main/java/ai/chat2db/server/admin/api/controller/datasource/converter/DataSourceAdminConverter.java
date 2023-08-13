@@ -27,6 +27,9 @@ public abstract class DataSourceAdminConverter {
      * @param request
      * @return
      */
+    @Mappings({
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
+    })
     public abstract DataSourcePageQueryParam request2param(CommonPageQueryRequest request);
 
     /**
@@ -35,6 +38,9 @@ public abstract class DataSourceAdminConverter {
      * @param request
      * @return
      */
+    @Mappings({
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
+    })
     public abstract DataSourcePageQueryParam request2paramAccess(CommonPageQueryRequest request);
 
     /**

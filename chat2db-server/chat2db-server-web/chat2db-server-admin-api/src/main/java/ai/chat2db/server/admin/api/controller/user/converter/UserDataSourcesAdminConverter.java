@@ -27,6 +27,7 @@ public abstract class UserDataSourcesAdminConverter {
      */
     @Mappings({
         @Mapping(source = "searchKey", target = "userOrTeamSearchKey"),
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
     public abstract DataSourceAccessComprehensivePageQueryParam request2param(CommonPageQueryRequest request);
 

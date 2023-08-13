@@ -10,6 +10,8 @@ import ai.chat2db.server.domain.api.param.team.TeamCreateParam;
 import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 /**
  * converter
@@ -26,6 +28,9 @@ public abstract class TeamAdminConverter {
      * @param request
      * @return
      */
+    @Mappings({
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
+    })
     public abstract TeamPageQueryParam request2param(CommonPageQueryRequest request);
 
 
