@@ -1,4 +1,4 @@
-# 2.0.12
+# 2.0.13
 
 ## ⭐ New Features
 
@@ -12,6 +12,12 @@
 - Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing page crashes
 - Logs desensitize sensitive data
 - Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- Fix the problem that non-Select does not display query results
+- Fix the problem that Oracle cannot query without schema
+- Fix the problem of special type of SQL execution error reporting
+
+
+
 
 ## ⭐ 新特性
 
@@ -25,6 +31,9 @@
 - 修复本地存储的主题色、背景色与新版本不兼容时会导致页面崩溃问题
 - 日志对敏感数据进行脱敏
 - 修复 `CLOB` 不展示具体内容的问题  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- 修复非Select不展示查询结果的问题
+- 修复Oracle不带schema无法查询的问题
+- 修复特殊类型的SQL执行报错的问题
 
 # 2.0.11
 
