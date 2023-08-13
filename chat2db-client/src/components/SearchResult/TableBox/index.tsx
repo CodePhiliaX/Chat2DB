@@ -37,7 +37,7 @@ const DarkSupportBaseTable: any = styled(BaseTable)`
   &.dark {
     --bgcolor: var(--color-bg-base);
     --header-bgcolor: var(--color-bg-elevated);
-    --hover-bgcolor: #46484a;
+    --hover-bgcolor: #1a1b1c;
     --header-hover-bgcolor: #606164;
     --highlight-bgcolor: #191a1b;
     --header-highlight-bgcolor: #191a1b;
@@ -230,7 +230,7 @@ export default function TableBox(props: ITableProps) {
       </div>
     );
 
-    if (!columns.length || sqlType !== 'SELECT') {
+    if (!columns.length) {
       return (
         <>
           <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
