@@ -230,7 +230,7 @@ export default function TableBox(props: ITableProps) {
       </div>
     );
 
-    if (!columns.length || sqlType !== 'SELECT') {
+    if (!columns.length) {
       return (
         <>
           <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
