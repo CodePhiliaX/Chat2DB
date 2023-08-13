@@ -5,6 +5,7 @@ import lodash from 'lodash';
 import styles from './index.less';
 
 export interface IOption {
+  prefixIcon?: string;
   label: string | React.ReactNode;
   value: number | string;
 }
@@ -89,8 +90,11 @@ export default memo<IProps>(function Tab(props) {
         t.value === editingTab ?
           <input value={t.label as string} onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
           :
-          <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
-            {t.label}
+          <div className={styles.textBox} key={t.value} onClick={changeTab.bind(null, t)}>
+            {t.prefixIcon && <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />}
+            <div className={styles.text}>
+              {t.label}
+            </div>
           </div>
       }
       <div className={styles.icon} onClick={deleteTab.bind(null, t)}>

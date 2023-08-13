@@ -148,10 +148,10 @@ public class JdbcUtils {
         }
 
         if (obj instanceof Blob blob) {
-            return "(BLOB " + blob.length() + ")";
+            return rs.getString(index);
         }
         if (obj instanceof Clob clob) {
-            return "(CLOB " + clob.length() + ")";
+            return clob.getSubString(1, Math.toIntExact(clob.length()));
         }
         if (obj instanceof Timestamp timestamp) {
             return Objects.toString(timestamp);

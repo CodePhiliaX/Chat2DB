@@ -1,7 +1,9 @@
-import { ThemeType, OSType } from '@/constants';
+import { ThemeType, OSType, DatabaseTypeCode } from '@/constants';
 import { ITreeNode } from '@/typings';
 import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
+import sqlServer from '@/service/sql';
+import { format } from 'sql-formatter';
 
 export function getOsTheme() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -228,5 +230,30 @@ export function OSnow(): {
     isMac,
     isWin
   }
+}
+
+// 格式化sql
+export function formatSql(sql: string, dbType: DatabaseTypeCode) {
+  return new Promise((r: (sql: string) => void, j) => {
+    let formatRes = '';
+    try {
+      formatRes = format(sql || '');
+    }
+    catch { 
+
+    }
+    // 如果格式化失败，直接返回原始sql
+    if (!formatRes) {
+      sqlServer.sqlFormat({
+        sql,
+        dbType,
+      }).then((res) => {
+        formatRes = res;
+        r(formatRes);
+      })
+    } else {
+      r(formatRes);
+    }
+  })
 }
 

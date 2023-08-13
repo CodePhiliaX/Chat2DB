@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
-import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
+import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState } from '@/models/workspace';
 import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/history';
@@ -54,11 +54,13 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     if (!doubleClickTreeNodeData) {
       return;
     }
-    const { extraParams } = doubleClickTreeNodeData;
-    const { tableName } = extraParams || {};
-    const ddl = `SELECT * FROM ${tableName};\n`;
-    if (isActive) {
-      setAppendValue({ text: ddl });
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { tableName } = extraParams || {};
+      const ddl = `SELECT * FROM ${tableName};\n`;
+      if (isActive) {
+        setAppendValue({ text: ddl });
+      }
     }
     dispatch({
       type: 'workspace/setDoubleClickTreeNodeData',

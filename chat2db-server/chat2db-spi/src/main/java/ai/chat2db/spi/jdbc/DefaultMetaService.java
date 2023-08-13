@@ -56,6 +56,11 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        return null;
+    }
+
+    @Override
     public List<Table> views(Connection connection,String databaseName, String schemaName) {
         return SQLExecutor.getInstance().tables(connection,databaseName, schemaName, null, new String[]{"VIEW"});
     }
@@ -89,5 +94,20 @@ public class DefaultMetaService implements MetaData {
     @Override
     public List<TableIndex> indexes(Connection connection,String databaseName, String schemaName, String tableName) {
         return SQLExecutor.getInstance().indexes(connection,databaseName, schemaName, tableName);
+    }
+
+    @Override
+    public Function function(Connection connection, String databaseName, String schemaName, String functionName) {
+        return null;
+    }
+
+    @Override
+    public Trigger trigger(Connection connection, String databaseName, String schemaName, String triggerName) {
+        return null;
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, String databaseName, String schemaName, String procedureName) {
+        return null;
     }
 }

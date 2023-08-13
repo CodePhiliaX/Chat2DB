@@ -7,11 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
-
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
-import { isEn } from '@/utils/check';
+import { isEn } from '@/i18n';
 import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
 import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
@@ -98,7 +97,6 @@ function AppContainer() {
   // 初始化app
   function collectInitApp() {
     monitorOsTheme();
-    initTheme();
     initLang();
     setInitEnd(true);
   }
@@ -117,19 +115,6 @@ function AppContainer() {
     return () => {
       themeMedia.removeListener(change);
     };
-  }
-
-  // 初始化主题
-  function initTheme() {
-    let theme = getTheme();
-    if (theme === ThemeType.FollowOs) {
-      theme =
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? ThemeType.Dark
-          : ThemeType.Light) || ThemeType.Dark;
-    }
-    document.documentElement.setAttribute('theme', theme);
-    document.documentElement.setAttribute('primary-color', getPrimaryColor());
   }
 
   // 初始化语言
