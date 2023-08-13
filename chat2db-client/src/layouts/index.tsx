@@ -7,11 +7,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
-
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
-import { isEn } from '@/utils/check';
+import { isEn } from '@/i18n';
 import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
 import { InjectThemeVar } from '@/theme';
 import styles from './index.less';
