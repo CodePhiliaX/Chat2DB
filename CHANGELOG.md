@@ -1,3 +1,13 @@
+# 2.0.12
+
+## 🐞 Bug Fixes
+
+- Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+
+## 🐞 问题修复
+
+- 修复 `CLOB` 不展示具体内容的问题  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+
 # 2.0.11
 
 ## 🐞 Bug Fixes
