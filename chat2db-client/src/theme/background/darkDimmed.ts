@@ -35,7 +35,7 @@ const antdPrimaryColor: IAntdPrimaryColor = {
 };
 
 const antdLightTheme = {
-  algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
+  algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
   customName: 'dark-dimmed',
   antdPrimaryColor,
   token: {
@@ -47,6 +47,7 @@ const antdLightTheme = {
     colorBgElevated: 'rgb(34, 39, 46)',
     colorBorder: 'rgb(68, 76, 86)',
     colorBorderSecondary: 'rgba(55, 62, 71, 0.4)',
+    controlItemBgActive: 'rgba(241, 241, 244, 0.08);',
     // ...commonToken,
     // colorText: "rgb(241, 241, 244)",
     // colorBgBase: '#191a23',
