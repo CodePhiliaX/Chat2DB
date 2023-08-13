@@ -61,25 +61,20 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
-        return SQLExecutor.getInstance().executeSql(connection,
+        return SQLExecutor.getInstance().execute(connection,
             "SELECT catalog_name, schema_name FROM information_schema.schemata;", resultSet -> {
                 List<Schema> databases = new ArrayList<>();
-                try {
-                    while (resultSet.next()) {
-                        Schema schema = new Schema();
-                        String name = resultSet.getString("schema_name");
-                        String catalogName = resultSet.getString("catalog_name");
-                        schema.setName(name);
-                        schema.setDatabaseName(catalogName);
-                        databases.add(schema);
-                    }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                while (resultSet.next()) {
+                    Schema schema = new Schema();
+                    String name = resultSet.getString("schema_name");
+                    String catalogName = resultSet.getString("catalog_name");
+                    schema.setName(name);
+                    schema.setDatabaseName(catalogName);
+                    databases.add(schema);
                 }
                 return databases;
             });
     }
-
 
     private static String ROUTINES_SQL
         = " SELECT p.proname, p.prokind, pg_catalog.pg_get_functiondef(p.oid) as \"code\" FROM pg_catalog.pg_proc p "
@@ -89,21 +84,16 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
         String functionName) {
 
-        String sql = String.format(ROUTINES_SQL,"f", functionName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    Function function = new Function();
-                    function.setDatabaseName(databaseName);
-                    function.setSchemaName(schemaName);
-                    function.setFunctionName(functionName);
-                    function.setFunctionBody(resultSet.getString("code"));
-                    return function;
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        String sql = String.format(ROUTINES_SQL, "f", functionName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Function function = new Function();
+            function.setDatabaseName(databaseName);
+            function.setSchemaName(schemaName);
+            function.setFunctionName(functionName);
+            if (resultSet.next()) {
+                function.setFunctionBody(resultSet.getString("code"));
             }
-            return null;
+            return function;
         });
 
     }
@@ -118,68 +108,53 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         + "\"enabled\", pg_get_triggerdef(t.oid) AS \"trigger_body\" FROM pg_trigger t JOIN pg_class c ON c.oid = t"
         + ".tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = '%s';";
 
-
     @Override
-    public List<Trigger> triggers(Connection connection,String databaseName, String schemaName) {
+    public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         List<Trigger> triggers = new ArrayList<>();
         String sql = String.format(TRIGGER_SQL_LIST, schemaName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                while (resultSet.next()) {
-                    Trigger trigger = new Trigger();
-                    trigger.setTriggerName(resultSet.getString("trigger_name"));
-                    trigger.setSchemaName(schemaName);
-                    trigger.setDatabaseName(databaseName);
-                    triggers.add(trigger);
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Trigger trigger = new Trigger();
+                trigger.setTriggerName(resultSet.getString("trigger_name"));
+                trigger.setSchemaName(schemaName);
+                trigger.setDatabaseName(databaseName);
+                triggers.add(trigger);
             }
             return triggers;
         });
     }
-
 
     @Override
     public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
         String triggerName) {
 
         String sql = String.format(TRIGGER_SQL, schemaName, triggerName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    Trigger trigger = new Trigger();
-                    trigger.setDatabaseName(databaseName);
-                    trigger.setSchemaName(schemaName);
-                    trigger.setTriggerName(triggerName);
-                    trigger.setTriggerBody(resultSet.getString("trigger_body"));
-                    return trigger;
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Trigger trigger = new Trigger();
+            trigger.setDatabaseName(databaseName);
+            trigger.setSchemaName(schemaName);
+            trigger.setTriggerName(triggerName);
+            if (resultSet.next()) {
+                trigger.setTriggerBody(resultSet.getString("trigger_body"));
             }
-            return null;
+
+            return trigger;
         });
     }
 
     @Override
     public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
         String procedureName) {
-        String sql = String.format(ROUTINES_SQL,"p", procedureName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    Procedure procedure = new Procedure();
-                    procedure.setDatabaseName(databaseName);
-                    procedure.setSchemaName(schemaName);
-                    procedure.setProcedureName(procedureName);
-                    procedure.setProcedureBody(resultSet.getString("code"));
-                    return procedure;
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        String sql = String.format(ROUTINES_SQL, "p", procedureName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Procedure procedure = new Procedure();
+            procedure.setDatabaseName(databaseName);
+            procedure.setSchemaName(schemaName);
+            procedure.setProcedureName(procedureName);
+            if (resultSet.next()) {
+                procedure.setProcedureBody(resultSet.getString("code"));
             }
-            return null;
+            return procedure;
         });
     }
 
@@ -189,20 +164,15 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
         String sql = String.format(VIEW_SQL, schemaName, viewName);
-        return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    Table table = new Table();
-                    table.setDatabaseName(databaseName);
-                    table.setSchemaName(schemaName);
-                    table.setName(viewName);
-                    table.setDdl(resultSet.getString("definition"));
-                    return table;
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Table table = new Table();
+            table.setDatabaseName(databaseName);
+            table.setSchemaName(schemaName);
+            table.setName(viewName);
+            if (resultSet.next()) {
+                table.setDdl(resultSet.getString("definition"));
             }
-            return null;
+            return table;
         });
     }
 }
