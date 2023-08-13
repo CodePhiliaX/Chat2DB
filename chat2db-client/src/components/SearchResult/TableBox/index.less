@@ -13,14 +13,21 @@
     //   border-bottom: 0;
     //   // height: 400px !important;
     // }
-    .hGEOgo td.first {
-      border-left: 0;
-    }
-    .hGEOgo tr.first th {
-      border-top: 0;
-    }
-    .hGEOgo th.first {
-      border-left: 0;
+    .hGEOgo {
+      --header-bgcolor: #fafafa;
+      --header-color: #000;
+      th {
+        font-weight: bold;
+      }
+      th.first {
+        border-left: 0;
+      }
+      td.first {
+        border-left: 0;
+      }
+      tr.first th {
+        border-top: 0;
+      }
     }
 
     .art-table-cell {
