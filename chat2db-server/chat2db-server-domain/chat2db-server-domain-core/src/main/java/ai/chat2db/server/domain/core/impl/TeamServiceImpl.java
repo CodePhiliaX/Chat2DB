@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.core.impl;
 
 import java.util.List;
 
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.Team;
 import ai.chat2db.server.domain.api.param.team.TeamCreateParam;
 import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
@@ -15,6 +16,9 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -70,14 +74,26 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public DataResult<Long> create(TeamCreateParam param) {
-        TeamDO data = teamConverter.param2do(param);
+        LambdaQueryWrapper<TeamDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TeamDO::getCode, param.getCode());
+        Page<TeamDO> page = new Page<>(1, 1);
+        page.setSearchCount(false);
+        IPage<TeamDO> iPage = teamMapper.selectPage(page, queryWrapper);
+        if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
+            throw new DataAlreadyExistsBusinessException("code", param.getCode());
+        }
+        if (RoleCodeEnum.DESKTOP.getCode().equals(param.getRoleCode())) {
+            throw new ParamBusinessException("roleCode");
+        }
+
+        TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
         teamMapper.insert(data);
         return DataResult.of(data.getId());
     }
 
     @Override
     public DataResult<Long> update(TeamUpdateParam param) {
-        TeamDO data = teamConverter.param2do(param);
+        TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
         teamMapper.updateById(data);
         return DataResult.of(data.getId());
     }

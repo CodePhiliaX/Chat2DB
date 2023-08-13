@@ -1,5 +1,6 @@
 package ai.chat2db.server.admin.api.controller.user.request;
 
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -15,12 +16,6 @@ public class UserUpdateRequest {
      */
     @NotNull
     private Long id;
-
-    /**
-     * 用户名
-     */
-    @NotNull
-    private String userName;
 
     /**
      * 密码
@@ -39,6 +34,14 @@ public class UserUpdateRequest {
      */
     @NotNull
     private String email;
+
+
+    /**
+     * 角色编码
+     *
+     * @see RoleCodeEnum
+     */
+    private String roleCode;
 
     /**
      * 用户状态

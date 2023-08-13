@@ -45,7 +45,11 @@ public abstract class TeamConverter {
      * @param param
      * @return
      */
-    public abstract TeamDO param2do(TeamCreateParam param);
+    @Mappings({
+        @Mapping(target = "createUserId", source = "userId"),
+        @Mapping(target = "modifiedUserId", source = "userId"),
+    })
+    public abstract TeamDO param2do(TeamCreateParam param, Long userId);
 
     /**
      * convert
@@ -53,7 +57,10 @@ public abstract class TeamConverter {
      * @param param
      * @return
      */
-    public abstract TeamDO param2do(TeamUpdateParam param);
+    @Mappings({
+        @Mapping(target = "modifiedUserId", source = "userId"),
+    })
+    public abstract TeamDO param2do(TeamUpdateParam param, Long userId);
 
     /**
      * Fill in detailed information

@@ -30,6 +30,15 @@ public class TeamCreateParam {
     @NotNull
     private String status;
 
+
+    /**
+     * 角色编码
+     *
+     * @see ai.chat2db.server.domain.api.enums.RoleCodeEnum
+     */
+    @NotNull
+    private String roleCode;
+
     /**
      * 团队描述
      */
