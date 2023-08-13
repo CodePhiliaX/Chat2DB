@@ -43,7 +43,7 @@ public class LogUtils {
      * @param input
      * @return
      */
-    private static String maskString(String input) {
+    public static String maskString(String input) {
         if (StringUtils.isBlank(input)) {
             return input;
         }
@@ -78,7 +78,7 @@ public class LogUtils {
         if (Objects.isNull(log)) {
             return null;
         }
-        return EasyStringUtils.limitString(maskString(removeCrlf(log.toString())), MAX_LOG_LENGTH);
+        return EasyStringUtils.limitString(removeCrlf(log.toString()), MAX_LOG_LENGTH);
     }
 
     /**
