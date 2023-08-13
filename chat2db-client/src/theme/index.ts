@@ -1,5 +1,6 @@
-import antdDarkTheme from './dark';
-import antdLightTheme from './light';
+import antdDarkTheme from './background/dark';
+import antdDarkDimmedTheme from './background/darkDimmed';
+import antdLightTheme from './background/light';
 import { ThemeType, PrimaryColorType } from '@/constants';
 import { ITheme } from '@/typings/theme';
 import lodash from 'lodash';
@@ -7,6 +8,7 @@ import lodash from 'lodash';
 const antdThemeConfigs = {
   [ThemeType.Dark]: antdDarkTheme,
   [ThemeType.Light]: antdLightTheme,
+  [ThemeType.DarkDimmed]: antdDarkDimmedTheme,
 };
 
 export function getAntdThemeConfig(theme: ITheme) {

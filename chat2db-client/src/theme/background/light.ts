@@ -1,6 +1,6 @@
 import { theme } from 'antd';
 import { PrimaryColorType } from '@/constants';
-import { commonToken } from './common';
+import { commonToken } from '../common';
 
 type IAntdPrimaryColor = {
   [key in PrimaryColorType]: any;
@@ -9,44 +9,44 @@ type IAntdPrimaryColor = {
 // 主题色
 const antdPrimaryColor: IAntdPrimaryColor = {
   [PrimaryColorType.Polar_Green]: {
-    colorPrimary: '#3c8618',
+    colorPrimary: '#039e74',
   },
   [PrimaryColorType.Golden_Purple]: {
-    colorPrimary: '#7688c9',
+    colorPrimary: '#9373ee',
   },
   [PrimaryColorType.Polar_Blue]: {
-    colorPrimary: '#1677ff',
+    colorPrimary: '#587df1',
   },
   [PrimaryColorType.Silver]: {
-    colorPrimary: '#c3b7a4',
+    colorPrimary: '#8e8374',
   },
   [PrimaryColorType.Red]: {
     colorPrimary: '#fd6874',
   },
   [PrimaryColorType.Orange]: {
-    colorPrimary: '#ffa940',
+    colorPrimary: '#fa8c16',
   },
   [PrimaryColorType.Blue2]: {
-    colorPrimary: '#009cc7',
+    colorPrimary: '#00c3ee',
   },
   [PrimaryColorType.Gold]: {
-    colorPrimary: '#b59a6d',
+    colorPrimary: '#9a7d56',
   },
 };
 
-const antDarkTheme = {
-  algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
-  customName: 'dark',
+const antdLightTheme = {
+  algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
+  customName: 'light',
   antdPrimaryColor,
   token: {
     ...commonToken,
-    colorText: "rgb(241, 241, 244)",
-    colorBgBase: '#0a0b0c',
-    colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
-    colorBgContainer: '#0a0b0c',
-    colorBgElevated: '#131418',
-    colorBorder: '#36373a',
+    colorText: "#232429",
+    colorBgBase: '#fff',
+    colorHoverBg: '#eee',
+    colorBgContainer: '#fff',
+    colorBgElevated: '#f6f8fa',
+    colorBorder: '#d3d3d4',
   },
 };
 
-export default antDarkTheme;
+export default antdLightTheme;
