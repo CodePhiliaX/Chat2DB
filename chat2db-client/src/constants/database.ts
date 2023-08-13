@@ -118,20 +118,20 @@ export const databaseMap: {
     // port: 54321,
     icon: '\ue6a0',
   },
-  [DatabaseTypeCode.MONGODB]: {
-    name: 'MongoDB',
-    img: moreDBLogo,
-    code: DatabaseTypeCode.MONGODB,
-    // port: 27017,
-    icon: '\uec21',
-  },
-  [DatabaseTypeCode.REDIS]: {
-    name: 'Redis',
-    img: moreDBLogo,
-    code: DatabaseTypeCode.REDIS,
-    // port: 6379,
-    icon: '\ue6a2',
-  },
+  // [DatabaseTypeCode.MONGODB]: {
+  //   name: 'MongoDB',
+  //   img: moreDBLogo,
+  //   code: DatabaseTypeCode.MONGODB,
+  //   // port: 27017,
+  //   icon: '\uec21',
+  // },
+  // [DatabaseTypeCode.REDIS]: {
+  //   name: 'Redis',
+  //   img: moreDBLogo,
+  //   code: DatabaseTypeCode.REDIS,
+  //   // port: 6379,
+  //   icon: '\ue6a2',
+  // },
 };
 
 export const databaseTypeList = Object.keys(databaseMap).map((keys) => {
