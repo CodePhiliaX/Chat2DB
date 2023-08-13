@@ -1,3 +1,33 @@
+# 2.0.11
+
+## 🐞 Bug Fixes
+
+- Fix the issue where SSH does not support older versions of encryption algorithms
+- Fix the issue of SQL Server 2008 not being able to connect
+- Fix the issue of not being able to view table name notes and field notes
+
+## 🐞 问题修复
+
+- 修复 SSH 不支持老版本加密算法的问题
+- 修复 SQLServer2008 无法连接的问题
+- 修复无法查看表名备注、字段备注的问题
+
+# 2.0.10
+
+## 🐞 Bug Fixes
+
+- Activate the console for the latest operation when you create or start a console、Records the last console used
+- The replication function of the browser, such as edge, is unavailable
+- table Indicates an error when ddl is exported after the search
+- Adds table comments and column field types and comments
+
+## 🐞 问题修复
+
+- 新建、开打console时激活最新操作的console、记录最后一次使用的console
+- edge等浏览器复制功能无法正常使用
+- table搜索后导出ddl报错
+- 增加表注释以及列字段类型和注释
+- 当数据源添加了database默认选择第一个database
 
 # 2.0.9
 

@@ -85,7 +85,26 @@ public class SQLExecutor {
                     return function.apply(rs);
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public <R> R execute(Connection connection, String sql, ResultSetFunction<R> function) {
+        if (StringUtils.isBlank(sql)) {
+            return null;
+        }
+        log.info("execute:{}", sql);
+        try (Statement stmt = connection.createStatement();) {
+            boolean query = stmt.execute(sql);
+            // 代表是查询
+            if (query) {
+                try (ResultSet rs = stmt.getResultSet();) {
+                    return function.apply(rs);
+                }
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return null;
@@ -288,7 +307,7 @@ public class SQLExecutor {
                 while (resultSet.next()) {
                     n++;
                     tables.add(buildTable(resultSet));
-                    if (n >= 5000) {// 最多只取5000条
+                    if (n >= 1000) {// 最多只取1000条
                         break;
                     }
                 }

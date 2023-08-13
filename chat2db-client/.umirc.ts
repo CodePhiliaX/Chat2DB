@@ -44,7 +44,7 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
-  targets:{
+  targets: {
     chrome: 80,
   },
   headScripts: [

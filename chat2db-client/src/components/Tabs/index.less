@@ -31,6 +31,10 @@
   margin: 0px 2px;
   cursor: pointer;
   user-select: none;
+  .text{
+    display: flex;
+    align-items: center;
+  }
   &:hover {
     .tab-focus();
     .text {
@@ -130,4 +134,9 @@
   input:focus{
     outline: none;
   }
+}
+
+.prefixIcon{
+  flex-shrink: 0;
+  margin-right: 4px;
 }

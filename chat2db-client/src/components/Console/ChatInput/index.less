@@ -7,7 +7,6 @@
 }
 
 .chatShortcut {
-
   padding: 4px 8px;
   color: #8a9099;
   font-size: 12px;
@@ -26,23 +25,19 @@
   margin-right: 14px;
 }
 
-
 .suffixBlock {
   display: flex;
   align-items: center;
 }
 
-.enterIcon:after {
-  display: block;
-  content: '\21B5';
-  // transform: translateY(-50%);
-  font-size: 14px;
-  color: var(--color-text-quaternary);
-  line-height: 100%;
-  text-align: center;
-  margin-top: 2px;
-  margin-right: 8px;
-
+.enter {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  margin-right: 16px;
+  .enterIcon {
+    font-size: 12px;
+  }
 }
 
 .tableSelectBlock {
@@ -54,7 +49,6 @@
   &:hover {
     background-color: var(--color-bg-elevated);
   }
-
 }
 
 .remainBlock {
@@ -65,7 +59,6 @@
   &:hover {
     //cursor: pointer;
   }
-
 }
 
 .aiSelectedTable {
@@ -77,5 +70,5 @@
 .aiSelectedTableTips {
   padding-bottom: 4px;
   border-bottom: 1px solid var(--color-border-secondary);
-  margin-bottom: 4px
+  margin-bottom: 4px;
 }

@@ -1,0 +1,41 @@
+@import '../../styles/var.less';
+
+.box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .letterpress{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 80px;
+    font-weight: 900;
+    color: var(--color-text);
+    opacity: 0.15;
+    overflow: hidden;
+    margin-bottom: 30px;
+  }
+
+  .shortcutsItem{
+    display: flex;
+    justify-content: center;
+    font-size: 14px;
+    margin: 10px 0px;
+    color: var(--color-text-tertiary);
+
+    .title{
+      width: 200px;
+      text-align: right;
+      margin-right: 10px;
+    }
+    .plusSignBox{
+      width: 200px;
+    }
+    .plusSign{
+      margin: 0px 4px;
+    }
+  }
+
+}

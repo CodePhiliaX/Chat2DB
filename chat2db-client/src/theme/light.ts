@@ -9,13 +9,28 @@ type IAntdPrimaryColor = {
 // 主题色
 const antdPrimaryColor: IAntdPrimaryColor = {
   [PrimaryColorType.Polar_Green]: {
-    colorPrimary: '#3c8618',
+    colorPrimary: '#039e74',
   },
   [PrimaryColorType.Golden_Purple]: {
-    colorPrimary: '#51258f',
+    colorPrimary: '#9373ee',
   },
   [PrimaryColorType.Polar_Blue]: {
-    colorPrimary: '#597EF7',
+    colorPrimary: '#587df1',
+  },
+  [PrimaryColorType.Silver]: {
+    colorPrimary: '#8e8374',
+  },
+  [PrimaryColorType.Red]: {
+    colorPrimary: '#fd6874',
+  },
+  [PrimaryColorType.Orange]: {
+    colorPrimary: '#fa8c16',
+  },
+  [PrimaryColorType.Blue2]: {
+    colorPrimary: '#00c3ee',
+  },
+  [PrimaryColorType.Gold]: {
+    colorPrimary: '#9a7d56',
   },
 };
 
