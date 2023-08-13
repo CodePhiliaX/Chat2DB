@@ -90,9 +90,11 @@ export default memo<IProps>(function Tab(props) {
         t.value === editingTab ?
           <input value={t.label as string} onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
           :
-          <div className={styles.text} key={t.value} onClick={changeTab.bind(null, t)}>
+          <div className={styles.textBox} key={t.value} onClick={changeTab.bind(null, t)}>
             {t.prefixIcon && <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />}
-            {t.label}
+            <div className={styles.text}>
+              {t.label}
+            </div>
           </div>
       }
       <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
