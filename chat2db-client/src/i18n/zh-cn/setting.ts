@@ -10,6 +10,7 @@ export default {
   'setting.label.green': '极光绿',
   'setting.label.violet': '酱紫',
   'setting.text.dark': '暗色',
+  'setting.text.dark2': '暗色2',
   'setting.text.light': '亮色',
   'setting.text.followOS': '自动',
   'setting.title.language': '语言',
