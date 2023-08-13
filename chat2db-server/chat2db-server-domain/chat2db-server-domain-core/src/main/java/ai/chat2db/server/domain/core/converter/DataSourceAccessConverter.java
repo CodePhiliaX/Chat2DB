@@ -28,6 +28,7 @@ public abstract class DataSourceAccessConverter {
     @Mappings({
         @Mapping(target = "accessObject.id", source = "accessObjectId"),
         @Mapping(target = "accessObject.type", source = "accessObjectType"),
+        @Mapping(target = "dataSource.id", source = "dataSourceId"),
     })
     public abstract DataSourceAccess do2dto(DataSourceAccessDO data);
 
@@ -59,6 +60,7 @@ public abstract class DataSourceAccessConverter {
         @Mapping(target = "modifiedUserId", source = "userId"),
     })
     public abstract DataSourceAccessDO param2do(DataSourceAccessCreatParam param, Long userId);
+
 
     /**
      * convert
