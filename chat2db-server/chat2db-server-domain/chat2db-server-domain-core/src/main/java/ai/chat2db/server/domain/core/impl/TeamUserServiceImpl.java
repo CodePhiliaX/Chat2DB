@@ -52,7 +52,7 @@ public class TeamUserServiceImpl implements TeamUserService {
         Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         IPage<TeamUserDO> iPage = teamUserCustomMapper.comprehensivePageQuery(page, param.getTeamId(),
-            param.getUserId(), param.getTeamRoleCode(),param.getTeamSearchKey(),param.getUserSearchKey());
+            param.getUserId(), param.getTeamRoleCode(), param.getTeamSearchKey(), param.getUserSearchKey());
 
         List<TeamUser> list = teamUserConverter.do2dto(iPage.getRecords());
 
@@ -93,7 +93,7 @@ public class TeamUserServiceImpl implements TeamUserService {
     }
 
     private void fillTeam(List<TeamUser> list, TeamUserSelector selector) {
-        if (BooleanUtils.isNotTrue(selector.getUser())) {
+        if (BooleanUtils.isNotTrue(selector.getTeam())) {
             return;
         }
         teamConverter.fillDetail(EasyCollectionUtils.toList(list, TeamUser::getTeam));

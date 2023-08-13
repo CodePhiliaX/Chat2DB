@@ -1,7 +1,7 @@
 package ai.chat2db.server.admin.api.controller.user.converter;
 
+import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserTeamPageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserComprehensivePageQueryParam;
 import org.mapstruct.Mapper;
@@ -26,7 +26,7 @@ public abstract class UserTeamAdminConverter {
         @Mapping(source = "searchKey", target = "teamSearchKey"),
         @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
-    public abstract TeamUserComprehensivePageQueryParam request2param(CommonPageQueryRequest request);
+    public abstract TeamUserComprehensivePageQueryParam request2param(UserTeamPageCommonQueryRequest request);
 
     /**
      * conversion

@@ -1,8 +1,9 @@
 package ai.chat2db.server.admin.api.controller.user.converter;
 
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
 import ai.chat2db.server.domain.api.model.DataSourceAccess;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessBatchCreatParam;
@@ -16,7 +17,7 @@ import org.mapstruct.Mappings;
  *
  * @author Jiaju Zhuang
  */
-@Mapper(componentModel = "spring", imports = {DataSourceKindEnum.class})
+@Mapper(componentModel = "spring", imports = {DataSourceKindEnum.class, AccessObjectTypeEnum.class})
 public abstract class UserDataSourcesAdminConverter {
 
     /**
@@ -26,10 +27,12 @@ public abstract class UserDataSourcesAdminConverter {
      * @return
      */
     @Mappings({
+        @Mapping(source = "userId", target = "accessObjectId"),
+        @Mapping(target = "accessObjectType", expression = "java(AccessObjectTypeEnum.USER.name())"),
         @Mapping(source = "searchKey", target = "userOrTeamSearchKey"),
         @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
-    public abstract DataSourceAccessComprehensivePageQueryParam request2param(CommonPageQueryRequest request);
+    public abstract DataSourceAccessComprehensivePageQueryParam request2param(UserTeamPageCommonQueryRequest request);
 
     /**
      * convert

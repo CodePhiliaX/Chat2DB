@@ -34,6 +34,18 @@ public abstract class TeamUserConverter {
     /**
      * convert
      *
+     * @param data
+     * @return
+     */
+    @Mappings({
+        @Mapping(target = "team.id", source = "teamId"),
+        @Mapping(target = "user.id", source = "userId"),
+    })
+    public abstract TeamUser do2dto(TeamUserDO data);
+
+    /**
+     * convert
+     *
      * @param list
      * @return
      */

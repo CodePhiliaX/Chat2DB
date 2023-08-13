@@ -3,8 +3,8 @@ package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.user.converter.UserDataSourcesAdminConverter;
 import ai.chat2db.server.admin.api.controller.user.request.UserDataSourceBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserDataSourceAdminController {
     private static final DataSourceAccessSelector DATA_SOURCE_ACCESS_SELECTOR = DataSourceAccessSelector.builder()
-        .accessObject(Boolean.TRUE)
+        .dataSource(Boolean.TRUE)
         .build();
 
     @Resource
@@ -46,7 +46,7 @@ public class UserDataSourceAdminController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid UserTeamPageCommonQueryRequest request) {
         return dataSourceAccessService.comprehensivePageQuery(userDataSourcesAdminConverter.request2param(request),
                 DATA_SOURCE_ACCESS_SELECTOR)
             .mapToWeb(userDataSourcesAdminConverter::dto2vo);

@@ -15,6 +15,7 @@ import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.DataSourceAccessConverter;
+import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
@@ -48,6 +49,8 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     @Resource
     private DataSourceAccessConverter dataSourceAccessConverter;
     @Resource
+    private DataSourceConverter dataSourceConverter;
+    @Resource
     private UserService userService;
     @Resource
     private TeamService teamService;
@@ -58,7 +61,8 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
         Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         IPage<DataSourceAccessDO> iPage = dataSourceAccessCustomMapper.comprehensivePageQuery(page,
-            param.getDataSourceId(), param.getUserOrTeamSearchKey(),
+            param.getDataSourceId(), param.getAccessObjectType(), param.getAccessObjectId(),
+            param.getUserOrTeamSearchKey(),
             param.getDataSourceSearchKey());
 
         List<DataSourceAccess> list = dataSourceAccessConverter.do2dto(iPage.getRecords());
@@ -88,6 +92,15 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
         }
 
         fillAccessObject(list, selector);
+
+        fillDataSource(list, selector);
+    }
+
+    private void fillDataSource(List<DataSourceAccess> list, DataSourceAccessSelector selector) {
+        if (BooleanUtils.isNotTrue(selector.getDataSource())) {
+            return;
+        }
+        dataSourceConverter.fillDetail(EasyCollectionUtils.toList(list, DataSourceAccess::getDataSource));
     }
 
     private void fillAccessObject(List<DataSourceAccess> list, DataSourceAccessSelector selector) {

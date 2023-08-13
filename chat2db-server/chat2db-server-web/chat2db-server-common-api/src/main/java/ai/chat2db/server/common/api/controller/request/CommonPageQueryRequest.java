@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class CommonPageQueryRequest extends PageQueryRequest {
 
+
     /**
      * searchKey
      */
