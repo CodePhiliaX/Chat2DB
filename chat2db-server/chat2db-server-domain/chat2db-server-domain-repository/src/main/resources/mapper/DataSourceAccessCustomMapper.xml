@@ -15,7 +15,7 @@
             <if test="dataSourceId != null ">
                 and dsa.DATA_SOURCE_ID = #{dataSourceId}
             </if>
-            <if test="searchKey != null ">
+            <if test="userOrTeamSearchKey != null ">
                 and (t.CODE like concat('%',#{userOrTeamSearchKey},'%') or t.NAME like concat('%',#{userOrTeamSearchKey},'%') or
                 du.USER_NAME like concat('%',#{userOrTeamSearchKey},'%') or du.NICK_NAME like concat('%',#{userOrTeamSearchKey},'%') or
                 du.EMAIL like concat('%',#{userOrTeamSearchKey},'%'))
