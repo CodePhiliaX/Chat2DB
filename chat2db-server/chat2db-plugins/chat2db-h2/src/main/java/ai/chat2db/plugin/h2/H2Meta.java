@@ -94,7 +94,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
 
     private static String ROUTINES_SQL
         =
-        "SELECT SPECIFIC_NAME, ROUTINE_COMMENT, ROUTINE_DEFINITION FROM information_schema.routines WHERE "
+        "SELECT SPECIFIC_NAME, ROUTINE_DEFINITION FROM information_schema.routines WHERE "
             + "routine_type = '%s' AND ROUTINE_SCHEMA ='%s'  AND "
             + "routine_name = '%s';";
 
@@ -110,7 +110,6 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             function.setFunctionName(functionName);
             if (resultSet.next()) {
                 function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
                 function.setFunctionBody(resultSet.getString("ROUTINE_DEFINITION"));
             }
 
@@ -120,16 +119,16 @@ public class H2Meta extends DefaultMetaService implements MetaData {
     }
 
     private static String TRIGGER_SQL
-        = "SELECT TRIGGER_NAME,EVENT_MANIPULATION, ACTION_STATEMENT  FROM INFORMATION_SCHEMA.TRIGGERS where "
+        = "SELECT TRIGGER_NAME,JAVA_CLASS  FROM INFORMATION_SCHEMA.TRIGGERS where "
         + "TRIGGER_SCHEMA = '%s' AND TRIGGER_NAME = '%s';";
 
     private static String TRIGGER_SQL_LIST
-        = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '%s';";
+        = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_CATALOG = '%s' AND TRIGGER_SCHEMA = '%s';";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         List<Trigger> triggers = new ArrayList<>();
-        String sql = String.format(TRIGGER_SQL_LIST, databaseName);
+        String sql = String.format(TRIGGER_SQL_LIST, databaseName,schemaName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
                 Trigger trigger = new Trigger();
@@ -153,7 +152,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             trigger.setSchemaName(schemaName);
             trigger.setTriggerName(triggerName);
             if (resultSet.next()) {
-                trigger.setTriggerBody(resultSet.getString("ACTION_STATEMENT"));
+                trigger.setTriggerBody(resultSet.getString("JAVA_CLASS"));
             }
             return trigger;
         });
@@ -170,7 +169,6 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             procedure.setProcedureName(procedureName);
             if (resultSet.next()) {
                 procedure.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                procedure.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
                 procedure.setProcedureBody(resultSet.getString("ROUTINE_DEFINITION"));
             }
             return procedure;

@@ -13,6 +13,7 @@ import { ITreeNode } from '@/typings';
 import { TreeNodeType } from '@/constants';
 import styles from './index.less';
 import { approximateTreeNode } from '@/utils';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 
 interface IOption {
   value: TreeNodeType;
@@ -50,12 +51,17 @@ const TableList = dvaModel(function (props: any) {
   const [curList, setCurList] = useState<ITreeNode[]>([]);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
 
+  useUpdateEffect(() => {
+    setCurList([]);
+    getList();
+  }, [curType]);
+
   useEffect(() => {
     setCurList([]);
     if (isReady) {
-      getList();
+      setCurType({...optionsList[0]});
     }
-  }, [curWorkspaceParams, curType]);
+  }, [curWorkspaceParams]);
 
 
 

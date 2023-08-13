@@ -54,7 +54,7 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
     if (!doubleClickTreeNodeData) {
       return;
     }
-    if(doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE){
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
       const { extraParams } = doubleClickTreeNodeData;
       const { tableName } = extraParams || {};
       const ddl = `SELECT * FROM ${tableName};\n`;
