@@ -24,6 +24,7 @@ export interface IManageResultData {
   duration: number;
   fuzzyTotal: string;
   hasNextPage: boolean;
+  sqlType: 'SELECT' | 'UNKNOWN';
 }
 
 /** 查询结果 配置属性 */
