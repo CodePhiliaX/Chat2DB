@@ -51,24 +51,13 @@ const TableList = dvaModel(function (props: any) {
   const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setCurList([]);
     if (isReady) {
-      setTableLoading(true);
-      setCurList([]);
-      treeConfig[curType.value].getChildren!({
-        ...curWorkspaceParams,
-        extraParams: curWorkspaceParams,
-      }).then(res => {
-        setCurList(res);
-        setTableLoading(false);
-        if (curType.value === TreeNodeType.TABLES) {
-          dispatch({
-            type: 'workspace/setCurTableList',
-            payload: res,
-          })
-        }
-      })
+      getList();
     }
   }, [curWorkspaceParams, curType]);
+
+
 
   useEffect(() => {
     if (searching) {
@@ -77,6 +66,24 @@ const TableList = dvaModel(function (props: any) {
       });
     }
   }, [searching])
+
+  function getList(refresh: boolean = false) {
+    setTableLoading(true);
+    treeConfig[curType.value].getChildren!({
+      refresh,
+      ...curWorkspaceParams,
+      extraParams: curWorkspaceParams,
+    }).then(res => {
+      setCurList(res);
+      setTableLoading(false);
+      if (curType.value === TreeNodeType.TABLES) {
+        dispatch({
+          type: 'workspace/setCurTableList',
+          payload: res,
+        })
+      }
+    })
+  }
 
   function openSearch() {
     setSearching(true);
@@ -95,14 +102,8 @@ const TableList = dvaModel(function (props: any) {
 
   function refreshTableList() {
     if (isReady) {
-      dispatch({
-        type: 'workspace/fetchGetCurTableList',
-        payload: {
-          ...curWorkspaceParams,
-          refresh: true,
-          extraParams: curWorkspaceParams,
-        }
-      })
+      setCurList([]);
+      getList(true);
     }
   }
 
