@@ -10,6 +10,7 @@ export default {
   'setting.label.green': 'Green',
   'setting.label.violet': 'Violet',
   'setting.text.dark': 'Dark',
+  'setting.text.dark2': 'Dark-2',
   'setting.text.light': 'Light',
   'setting.text.followOS': 'FollowOS',
   'setting.title.language': 'Language',

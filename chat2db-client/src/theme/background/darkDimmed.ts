@@ -1,6 +1,6 @@
 import { theme } from 'antd';
 import { PrimaryColorType } from '@/constants';
-import { commonToken } from './common';
+import { commonToken } from '../common';
 
 type IAntdPrimaryColor = {
   [key in PrimaryColorType]: any;
@@ -34,19 +34,28 @@ const antdPrimaryColor: IAntdPrimaryColor = {
   },
 };
 
-const antDarkTheme = {
-  algorithm: [theme.darkAlgorithm, theme.compactAlgorithm],
-  customName: 'dark',
+const antdLightTheme = {
+  algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
+  customName: 'dark-dimmed',
   antdPrimaryColor,
   token: {
     ...commonToken,
-    colorText: "rgb(241, 241, 244)",
-    colorBgBase: '#0a0b0c',
+    colorTextBase: 'rgb(241, 241, 244)',
+    colorBgBase: 'rgb(28, 33, 40)',
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
-    colorBgContainer: '#0a0b0c',
-    colorBgElevated: '#131418',
-    colorBorder: '#36373a',
+    colorBgContainer: 'rgb(28, 33, 40)',
+    colorBgElevated: 'rgb(34, 39, 46)',
+    colorBorder: 'rgb(68, 76, 86)',
+    colorBorderSecondary: 'rgba(55, 62, 71, 0.4)',
+    // ...commonToken,
+    // colorText: "rgb(241, 241, 244)",
+    // colorBgBase: '#191a23',
+    // colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
+    // colorBgContainer: '#191a23',
+    // colorBgElevated: '#202123',
+    // colorBorder: 'rgba(231, 235, 254, 0.075)',
+    // colorBorderSecondary: 'rgba(231, 235, 254, 0.075)',
   },
 };
 
-export default antDarkTheme;
+export default antdLightTheme;
