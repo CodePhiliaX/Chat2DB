@@ -1,7 +1,13 @@
 export enum ThemeType {
   Light = 'light',
   Dark = 'dark',
+  DarkDimmed = 'darkDimmed',
   FollowOs = 'followOs',
+}
+
+export enum EditorThemeType {
+  DashboardLightTheme = 'DashboardLightTheme',
+  DashboardBlackTheme = 'DashboardBlackTheme',
 }
 
 export enum PrimaryColorType {
@@ -18,11 +24,4 @@ export enum PrimaryColorType {
 export enum LangType {
   EN_US = 'en-us',
   ZH_CN = 'zh-cn',
-}
-
-export enum EditorThemeType {
-  Default = 'Default',
-  BlackTheme = 'BlackTheme',
-  DashboardLightTheme = 'DashboardLightTheme',
-  DashboardBlackTheme = 'DashboardBlackTheme',
 }

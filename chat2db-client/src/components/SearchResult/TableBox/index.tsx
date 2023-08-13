@@ -33,16 +33,16 @@ interface IViewTableCellData {
   value: any;
 }
 
-const DarkSupportBaseTable: any = styled(BaseTable)`
-  &.dark {
+const SupportBaseTable: any = styled(BaseTable)`
+  &.supportBaseTable {
     --bgcolor: var(--color-bg-base);
     --header-bgcolor: var(--color-bg-elevated);
-    --hover-bgcolor: #46484a;
-    --header-hover-bgcolor: #606164;
-    --highlight-bgcolor: #191a1b;
-    --header-highlight-bgcolor: #191a1b;
+    --hover-bgcolor: var(--color-hover-bg);
+    --header-hover-bgcolor: var(--color-hover-bg);
+    --highlight-bgcolor: var(--color-hover-bg);
+    --header-highlight-bgcolor: var(--color-hover-bg);
     --color: var(--color-text);
-    --header-color: #dadde1;
+    --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
     --border-color: var(--color-border-secondary);
   }
@@ -230,11 +230,11 @@ export default function TableBox(props: ITableProps) {
       </div>
     );
 
-    if (!columns.length || sqlType !== 'SELECT') {
+    if (!columns.length) {
       return (
         <>
           <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
-          <div style={{ position: 'absolute', bottom: 0 }}>{bottomStatus}</div>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>{bottomStatus}</div>
         </>
       );
     } else {
@@ -259,8 +259,8 @@ export default function TableBox(props: ITableProps) {
               </Button>
             </Dropdown>
           </div>
-          <DarkSupportBaseTable
-            className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
+          <SupportBaseTable
+            className={classnames('supportBaseTable', props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
             stickyTop={31}
@@ -279,7 +279,6 @@ export default function TableBox(props: ITableProps) {
         open={!!viewTableCellData?.name}
         onCancel={handleCancel}
         width="60vw"
-        height="70vh"
         maskClosable={false}
         footer={
           <>

@@ -40,6 +40,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlCreateTableStateme
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStatement;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlRenameTableStatement.Item;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlTableIndex;
+import com.alibaba.druid.sql.parser.SQLParserUtils;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.util.EasyBooleanUtils;
@@ -52,6 +53,9 @@ import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableIndexColumn;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.Statements;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -459,6 +463,20 @@ public class SqlUtils {
             return getSQLExprTableSource(sqlJoinTableSource.getLeft());
         }
         return null;
+    }
+
+    public static List<String> parse(String sql,DbType dbType) {
+        List<String> list = new ArrayList<>();
+        try {
+            Statements statements = CCJSqlParserUtil.parseStatements(sql);
+            // 遍历每个语句
+            for (Statement stmt : statements.getStatements()) {
+                list.add(stmt.toString());
+            }
+        } catch (Exception e) {
+            list = SQLParserUtils.splitAndRemoveComment(sql, dbType);
+        }
+        return list;
     }
 
 }

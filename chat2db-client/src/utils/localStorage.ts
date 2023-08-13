@@ -10,8 +10,8 @@ export function setLang(lang: LangType) {
 }
 
 export function getTheme(): ThemeType {
-  const themeColor:any = localStorage.getItem('theme') as ThemeType
-  if(themeColor){
+  const themeColor: any = localStorage.getItem('theme') as ThemeType
+  if (themeColor) {
     return themeColor
   }
   localStorage.setItem('theme', ThemeType.Light)
@@ -25,7 +25,7 @@ export function setTheme(theme: ThemeType) {
 
 export function getPrimaryColor(): PrimaryColorType {
   const primaryColor = localStorage.getItem('primary-color') as PrimaryColorType
-  if(primaryColor){
+  if (primaryColor) {
     return primaryColor
   }
   localStorage.setItem('primary-color', PrimaryColorType.Golden_Purple)

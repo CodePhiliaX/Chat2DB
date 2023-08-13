@@ -10,14 +10,19 @@ import java.util.Map;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.model.Function;
+import ai.chat2db.spi.model.Procedure;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
 
 public class H2Meta extends DefaultMetaService implements MetaData {
     @Override
-    public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String tableName) {
-        return getDDL(connection,databaseName, schemaName, tableName);
+    public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+        @NotEmpty String tableName) {
+        return getDDL(connection, databaseName, schemaName, tableName);
     }
-
 
     private String getDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         try {
@@ -48,7 +53,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
 
             // 查询表索引信息
             ResultSet indexes = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName, false,
-                    false);
+                false);
             Map<String, List<String>> indexMap = new HashMap<>();
             while (indexes.next()) {
                 String indexName = indexes.getString("INDEX_NAME");
@@ -75,7 +80,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
                 List<String> columnList = entry.getValue();
                 String indexColumns = String.join(", ", columnList);
                 String createIndexDDL = String.format("CREATE INDEX %s ON %s (%s);", indexName, tableName,
-                        indexColumns);
+                    indexColumns);
                 System.out.println(createIndexDDL);
                 createTableDDL.append(createIndexDDL);
             }
@@ -85,5 +90,107 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             e.printStackTrace();
         }
         return "";
+    }
+
+    private static String ROUTINES_SQL
+        =
+        "SELECT SPECIFIC_NAME, ROUTINE_DEFINITION FROM information_schema.routines WHERE "
+            + "routine_type = '%s' AND ROUTINE_SCHEMA ='%s'  AND "
+            + "routine_name = '%s';";
+
+    @Override
+    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String functionName) {
+
+        String sql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Function function = new Function();
+            function.setDatabaseName(databaseName);
+            function.setSchemaName(schemaName);
+            function.setFunctionName(functionName);
+            if (resultSet.next()) {
+                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                function.setFunctionBody(resultSet.getString("ROUTINE_DEFINITION"));
+            }
+
+            return function;
+        });
+
+    }
+
+    private static String TRIGGER_SQL
+        = "SELECT TRIGGER_NAME,JAVA_CLASS  FROM INFORMATION_SCHEMA.TRIGGERS where "
+        + "TRIGGER_SCHEMA = '%s' AND TRIGGER_NAME = '%s';";
+
+    private static String TRIGGER_SQL_LIST
+        = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_CATALOG = '%s' AND TRIGGER_SCHEMA = '%s';";
+
+    @Override
+    public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
+        List<Trigger> triggers = new ArrayList<>();
+        String sql = String.format(TRIGGER_SQL_LIST, databaseName,schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Trigger trigger = new Trigger();
+                trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                trigger.setSchemaName(schemaName);
+                trigger.setDatabaseName(databaseName);
+                triggers.add(trigger);
+            }
+            return triggers;
+        });
+    }
+
+    @Override
+    public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String triggerName) {
+
+        String sql = String.format(TRIGGER_SQL, databaseName, triggerName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Trigger trigger = new Trigger();
+            trigger.setDatabaseName(databaseName);
+            trigger.setSchemaName(schemaName);
+            trigger.setTriggerName(triggerName);
+            if (resultSet.next()) {
+                trigger.setTriggerBody(resultSet.getString("JAVA_CLASS"));
+            }
+            return trigger;
+        });
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
+        String procedureName) {
+        String sql = String.format(ROUTINES_SQL, "PROCEDURE", databaseName, procedureName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Procedure procedure = new Procedure();
+            procedure.setDatabaseName(databaseName);
+            procedure.setSchemaName(schemaName);
+            procedure.setProcedureName(procedureName);
+            if (resultSet.next()) {
+                procedure.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                procedure.setProcedureBody(resultSet.getString("ROUTINE_DEFINITION"));
+            }
+            return procedure;
+        });
+    }
+
+    private static String VIEW_SQL
+        = "SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_CATALOG = '%s' AND TABLE_SCHEMA = '%s' "
+        + "AND TABLE_NAME = '%s';";
+
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_SQL, databaseName, schemaName, viewName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Table table = new Table();
+            table.setDatabaseName(databaseName);
+            table.setSchemaName(schemaName);
+            table.setName(viewName);
+            if (resultSet.next()) {
+                table.setDdl(resultSet.getString("VIEW_DEFINITION"));
+            }
+            return table;
+        });
     }
 }
