@@ -9,6 +9,8 @@ import ai.chat2db.server.domain.api.param.user.UserCreateParam;
 import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
 import ai.chat2db.server.domain.api.param.user.UserUpdateParam;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 
 /**
  * converter
@@ -24,8 +26,10 @@ public abstract class UserAdminConverter {
      * @param request
      * @return
      */
+    @Mappings({
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
+    })
     public abstract UserPageQueryParam request2param(CommonPageQueryRequest request);
-
 
     /**
      * conversion
@@ -35,7 +39,6 @@ public abstract class UserAdminConverter {
      */
     public abstract UserPageQueryVO dto2vo(User dto);
 
-
     /**
      * conversion
      *
@@ -43,7 +46,6 @@ public abstract class UserAdminConverter {
      * @return
      */
     public abstract UserCreateParam request2param(UserCreateRequest request);
-
 
     /**
      * conversion

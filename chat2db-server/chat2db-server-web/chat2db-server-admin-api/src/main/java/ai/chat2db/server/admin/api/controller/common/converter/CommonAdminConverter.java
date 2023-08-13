@@ -1,12 +1,15 @@
 package ai.chat2db.server.admin.api.controller.common.converter;
 
 import ai.chat2db.server.admin.api.controller.common.vo.TeamUserListVO;
+import ai.chat2db.server.admin.api.controller.datasource.vo.SimpleDataSourceVO;
 import ai.chat2db.server.admin.api.controller.team.vo.SimpleTeamVO;
 import ai.chat2db.server.admin.api.controller.user.vo.SimpleUserVO;
 import ai.chat2db.server.common.api.controller.request.CommonQueryRequest;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
+import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.model.Team;
 import ai.chat2db.server.domain.api.model.User;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
 import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
 import org.mapstruct.Mapper;
@@ -46,10 +49,29 @@ public abstract class CommonAdminConverter {
     /**
      * conversion
      *
+     * @param request
+     * @return
+     */
+    @Mappings({
+        @Mapping(target = "pageSize", expression = "java(10)"),
+    })
+    public abstract DataSourcePageQueryParam request2paramDataSource(CommonQueryRequest request);
+
+    /**
+     * conversion
+     *
      * @param dto
      * @return
      */
     public abstract SimpleTeamVO dto2voTeam(Team dto);
+
+    /**
+     * conversion
+     *
+     * @param dto
+     * @return
+     */
+    public abstract SimpleDataSourceVO dto2voDataSource(DataSource dto);
 
     /**
      * conversion

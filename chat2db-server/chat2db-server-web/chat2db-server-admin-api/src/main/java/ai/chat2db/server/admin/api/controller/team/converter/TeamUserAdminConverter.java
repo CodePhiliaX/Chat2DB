@@ -26,6 +26,7 @@ public abstract class TeamUserAdminConverter {
      */
     @Mappings({
         @Mapping(source = "searchKey", target = "userSearchKey"),
+        @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
     public abstract TeamUserComprehensivePageQueryParam request2param(CommonPageQueryRequest request);
 
