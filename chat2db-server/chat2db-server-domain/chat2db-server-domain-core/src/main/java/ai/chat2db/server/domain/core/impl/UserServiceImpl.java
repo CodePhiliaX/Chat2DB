@@ -18,6 +18,8 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
+import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -86,17 +88,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<Long> update(UserUpdateParam user) {
-        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
+    public DataResult<Long> update(UserUpdateParam param) {
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(param.getId())) {
             throw new BusinessException("user.canNotOperateSystemAccount");
         }
-        DbhubUserDO data = userConverter.param2do(user);
+        if (RoleCodeEnum.DESKTOP.getCode().equals(param.getRoleCode())) {
+            throw new ParamBusinessException("roleCode");
+        }
+
+        DbhubUserDO data = userConverter.param2do(param);
         if (Objects.nonNull(data.getPassword())) {
             String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
             data.setPassword(bcryptPassword);
         }
 
-        if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId())) {
+        if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(param.getId())) {
             data.setStatus(null);
             data.setEmail(null);
             data.setUserName(null);
@@ -116,8 +122,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<Long> create(UserCreateParam user) {
-        DbhubUserDO data = userConverter.param2do(user);
+    public DataResult<Long> create(UserCreateParam param) {
+        LambdaQueryWrapper<DbhubUserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.and(wrapper -> wrapper.eq(DbhubUserDO::getUserName, param.getUserName())
+            .or()
+            .eq(DbhubUserDO::getEmail, param.getEmail()));
+        Page<DbhubUserDO> page = new Page<>(1, 1);
+        page.setSearchCount(false);
+        IPage<DbhubUserDO> iPage = dbhubUserMapper.selectPage(page, queryWrapper);
+        if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
+            throw new DataAlreadyExistsBusinessException("userName or email",
+                param.getUserName() + " or " + param.getEmail());
+        }
+        if (RoleCodeEnum.DESKTOP.getCode().equals(param.getRoleCode())) {
+            throw new ParamBusinessException("roleCode");
+        }
+
+        DbhubUserDO data = userConverter.param2do(param);
         String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
         data.setPassword(bcryptPassword);
         dbhubUserMapper.insert(data);

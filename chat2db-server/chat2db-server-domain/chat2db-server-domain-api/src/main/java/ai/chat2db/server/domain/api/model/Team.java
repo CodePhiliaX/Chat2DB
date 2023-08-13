@@ -53,6 +53,7 @@ public class Team implements Serializable {
     /**
      * 角色编码
      */
+    @NotNull
     private String roleCode;
 
 

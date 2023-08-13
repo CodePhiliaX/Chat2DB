@@ -29,6 +29,13 @@ public class TeamUpdateParam {
     private String status;
 
     /**
+     * 角色编码
+     *
+     * @see ai.chat2db.server.domain.api.enums.RoleCodeEnum
+     */
+    private String roleCode;
+
+    /**
      * 团队描述
      */
     private String description;
