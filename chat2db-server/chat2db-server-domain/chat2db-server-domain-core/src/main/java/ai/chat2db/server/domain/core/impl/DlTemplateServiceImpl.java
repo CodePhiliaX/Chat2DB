@@ -67,84 +67,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         ListResult<ExecuteResult> listResult = ListResult.of(result);
         // 执行sql
         for (String originalSql : sqlList) {
-            String sql = originalSql;
-            int pageNo = 0;
-            int pageSize = 0;
-            String sqlType = SqlTypeEnum.UNKNOWN.getCode();
-
-            // 解析sql分页
-            SQLStatement sqlStatement;
-            boolean autoLimit = false;
-            try {
-                sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
-                // 是否需要代码帮忙分页
-
-                if (sqlStatement instanceof SQLSelectStatement) {
-                    //  不是查询全部数据 而且 用户自己没有传分页
-                    autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement,
-                        dbType)
-                        == null;
-                    if (autoLimit) {
-                        pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
-                        pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
-                        int offset = (pageNo - 1) * pageSize;
-                        try {
-                            sql = PagerUtils.limit(sql, dbType, offset, pageSize);
-                        } catch (Exception e) {
-                            autoLimit = false;
-                        }
-                    }
-                    sqlType = SqlTypeEnum.SELECT.getCode();
-                }
-            } catch (ParserException e) {
-                log.warn("解析sql失败:{}", sql, e);
-                //ExecuteResult executeResult = ExecuteResult.builder()
-                //    .success(Boolean.FALSE)
-                //    .originalSql(originalSql)
-                //    .sql(sql)
-                //    .message(e.getMessage())
-                //    .build();
-                //result.add(executeResult);
-                //continue;
-            }
-
-            ExecuteResult executeResult = execute(sql);
-            executeResult.setSqlType(sqlType);
-            executeResult.setOriginalSql(originalSql);
-            // 自动分页
-            if (autoLimit) {
-                executeResult.setPageNo(pageNo);
-                executeResult.setPageSize(pageSize);
-                executeResult.setHasNextPage(
-                    CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
-            } else {
-                executeResult.setPageNo(1);
-                executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
-                executeResult.setHasNextPage(Boolean.FALSE);
-            }
-            // Splice row numbers
-            List<Header> newHeaderList = new ArrayList<>();
-            newHeaderList.add(Header.builder()
-                .name(I18nUtils.getMessage("sqlResult.rowNumber"))
-                .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                    .getCode()).build());
-            if (executeResult.getHeaderList() != null) {
-                newHeaderList.addAll(executeResult.getHeaderList());
-            }
-            executeResult.setHeaderList(newHeaderList);
-            if (executeResult.getDataList() != null) {
-                int rowNumberIncrement = 1 + Math.max(pageNo - 1, 0) * pageSize;
-                for (int i = 0; i < executeResult.getDataList().size(); i++) {
-                    List<String> row = executeResult.getDataList().get(i);
-                    List<String> newRow = Lists.newArrayListWithExpectedSize(row.size() + 1);
-                    newRow.add(Integer.toString(i + rowNumberIncrement));
-                    newRow.addAll(row);
-                    executeResult.getDataList().set(i, newRow);
-                }
-            }
-            //  Total number of fuzzy rows
-            executeResult.setFuzzyTotal(calculateFuzzyTotal(pageNo, pageSize, executeResult));
-
+            ExecuteResult executeResult = executeSQL(originalSql,dbType,param);
             result.add(executeResult);
             if (!executeResult.getSuccess()) {
                 listResult.setSuccess(false);
@@ -154,6 +77,81 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
         return listResult;
     }
+
+    private ExecuteResult executeSQL(String originalSql,DbType dbType,DlExecuteParam param) {
+        String sql = originalSql;
+        int pageNo = 0;
+        int pageSize = 0;
+        String sqlType = SqlTypeEnum.UNKNOWN.getCode();
+
+        // 解析sql分页
+        SQLStatement sqlStatement;
+        boolean autoLimit = false;
+        try {
+            sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+            // 是否需要代码帮忙分页
+            if (sqlStatement instanceof SQLSelectStatement) {
+                //  不是查询全部数据 而且 用户自己没有传分页
+                autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement,
+                    dbType)
+                    == null;
+                if (autoLimit) {
+                    pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
+                    pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
+                    int offset = (pageNo - 1) * pageSize;
+                    try {
+                        sql = PagerUtils.limit(sql, dbType, offset, pageSize);
+                    } catch (Exception e) {
+                        autoLimit = false;
+                    }
+                }
+                sqlType = SqlTypeEnum.SELECT.getCode();
+            }
+        } catch (ParserException e) {
+            log.warn("解析sql失败:{}", sql, e);
+        }
+
+        ExecuteResult executeResult = execute(sql);
+        executeResult.setSqlType(sqlType);
+        executeResult.setOriginalSql(originalSql);
+        // 自动分页
+        if (autoLimit) {
+            executeResult.setPageNo(pageNo);
+            executeResult.setPageSize(pageSize);
+            executeResult.setHasNextPage(
+                CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
+        } else {
+            executeResult.setPageNo(1);
+            executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
+            executeResult.setHasNextPage(Boolean.FALSE);
+        }
+        // Splice row numbers
+        List<Header> newHeaderList = new ArrayList<>();
+        newHeaderList.add(Header.builder()
+            .name(I18nUtils.getMessage("sqlResult.rowNumber"))
+            .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
+                .getCode()).build());
+        if (executeResult.getHeaderList() != null) {
+            newHeaderList.addAll(executeResult.getHeaderList());
+        }
+        executeResult.setHeaderList(newHeaderList);
+        if (executeResult.getDataList() != null) {
+            int rowNumberIncrement = 1 + Math.max(pageNo - 1, 0) * pageSize;
+            for (int i = 0; i < executeResult.getDataList().size(); i++) {
+                List<String> row = executeResult.getDataList().get(i);
+                List<String> newRow = Lists.newArrayListWithExpectedSize(row.size() + 1);
+                newRow.add(Integer.toString(i + rowNumberIncrement));
+                newRow.addAll(row);
+                executeResult.getDataList().set(i, newRow);
+            }
+        }
+        //  Total number of fuzzy rows
+        executeResult.setFuzzyTotal(calculateFuzzyTotal(pageNo, pageSize, executeResult));
+        return executeResult;
+    }
+
+
+
 
     private String calculateFuzzyTotal(int pageNo, int pageSize, ExecuteResult executeResult) {
         int dataSize = CollectionUtils.size(executeResult.getDataList());
