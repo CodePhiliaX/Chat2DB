@@ -1,8 +1,13 @@
 @import '../../styles/var.less';
 
 .tab-focus() {
-  border-radius: 8px 8px 0 0;
-  background-color: var(--color-bg-base);
+  background-color: var(--color-bg-elevated) !important;
+  // 添加内阴影
+  box-shadow: inset 0 -1px 0 0 var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
+  .icon{
+    display: flex;
+  }
 }
 
 .tab-focus-line() {
@@ -13,7 +18,9 @@
 .tab {
   display: flex;
   overflow: auto;
-  &::-webkit-scrollbar {display:none}
+  &:hover{
+    &::-webkit-scrollbar {display:block;}
+  }
 }
 
 .tabList {
@@ -25,33 +32,28 @@
   display: flex;
   align-items: center;
   padding: 0px 10px;
-  line-height: 30px;
-  height: 30px;
-  width: 100px;
-  margin: 0px 2px;
+  line-height: 32px;
+  height: 32px;
+  width: 120px;
   cursor: pointer;
   user-select: none;
-  .text{
+  border-right: 1px solid var(--color-border);
+  .textBox{
+    flex: 1;
     display: flex;
     align-items: center;
   }
-  &:hover {
-    .tab-focus();
-    .text {
-      color: var(--color-primary);
-    }
-  }
-  .text {
+  .text{
     flex: 1;
     width: 0;
     .f-single-line();
   }
   .icon {
-    display: flex;
+    display: none;
     align-items: center;
     flex-shrink: 0;
     height: 20px;
-    margin-left: 2px;
+    margin-left: 4px;
     cursor: pointer;
     i {
       font-size: 12px;
@@ -59,6 +61,13 @@
     &:hover {
       color: var(--color-primary);
     }
+  }
+  &:hover {
+    .icon { 
+      display: flex;
+    }
+    background-color: var(--color-bg-hover);
+    color: var(--color-primary);
   }
 }
 
