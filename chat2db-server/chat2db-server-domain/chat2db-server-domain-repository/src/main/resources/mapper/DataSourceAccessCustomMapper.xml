@@ -4,18 +4,24 @@
     <select id="comprehensivePageQuery" resultType="ai.chat2db.server.domain.repository.entity.DataSourceAccessDO">
         select dsa.*
         from DATA_SOURCE_ACCESS dsa
-        <if test="searchKey != null ">
+        <if test="userOrTeamSearchKey != null ">
             left join TEAM t on t.id =dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
             left join DBHUB_USER du on du.ID=dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'USER'
+        </if>
+        <if test="dataSourceSearchKey != null ">
+            left join DATA_SOURCE ds on ds.id =dsa.DATA_SOURCE_ID
         </if>
         <where>
             <if test="dataSourceId != null ">
                 and dsa.DATA_SOURCE_ID = #{dataSourceId}
             </if>
             <if test="searchKey != null ">
-                and (t.CODE like concat('%',#{searchKey},'%') or t.NAME like concat('%',#{searchKey},'%') or
-                du.USER_NAME like concat('%',#{searchKey},'%') or du.NICK_NAME like concat('%',#{searchKey},'%') or
-                du.EMAIL like concat('%',#{searchKey},'%'))
+                and (t.CODE like concat('%',#{userOrTeamSearchKey},'%') or t.NAME like concat('%',#{userOrTeamSearchKey},'%') or
+                du.USER_NAME like concat('%',#{userOrTeamSearchKey},'%') or du.NICK_NAME like concat('%',#{userOrTeamSearchKey},'%') or
+                du.EMAIL like concat('%',#{userOrTeamSearchKey},'%'))
+            </if>
+            <if test="dataSourceSearchKey != null ">
+                and (ds.ALIAS like concat('%',#{dataSourceSearchKey},'%') or ds.URL like concat('%',#{dataSourceSearchKey},'%'))
             </if>
         </where>
     </select>

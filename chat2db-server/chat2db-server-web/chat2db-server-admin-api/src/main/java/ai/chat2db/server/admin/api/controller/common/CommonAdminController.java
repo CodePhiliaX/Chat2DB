@@ -1,11 +1,19 @@
 
 package ai.chat2db.server.admin.api.controller.common;
 
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import java.util.List;
+
+import ai.chat2db.server.admin.api.controller.common.converter.CommonAdminConverter;
 import ai.chat2db.server.admin.api.controller.common.vo.TeamUserListVO;
-import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
-import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.admin.api.controller.team.vo.SimpleTeamVO;
+import ai.chat2db.server.admin.api.controller.user.vo.SimpleUserVO;
+import ai.chat2db.server.common.api.controller.request.CommonQueryRequest;
+import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
+import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
+import ai.chat2db.server.domain.api.service.TeamService;
+import ai.chat2db.server.domain.api.service.UserService;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommonAdminController {
 
     @Resource
-    private DataSourceService dataSourceService;
+    private UserService userService;
     @Resource
-    private DataSourceAdminConverter dataSourceAdminConverter;
+    private TeamService teamService;
+    @Resource
+    private CommonAdminConverter commonAdminConverter;
 
     /**
      * Fuzzy query of users or teams
@@ -34,8 +44,18 @@ public class CommonAdminController {
      * @version 2.1.0
      */
     @GetMapping("/team_user/list")
-    public WebPageResult<TeamUserListVO> teamUserList(@Valid CommonPageQueryRequest request) {
-        return null;
+    public ListResult<TeamUserListVO> teamUserList(@Valid CommonQueryRequest request) {
+        UserPageQueryParam userPageQueryParam = commonAdminConverter.request2paramUser(request);
+        List<TeamUserListVO> result = Lists.newArrayList();
+        result.addAll(userService.pageQuery(userPageQueryParam, null)
+            .mapToList(commonAdminConverter::dto2voTeamUser)
+            .getData());
+
+        TeamPageQueryParam teamPageQueryParam = commonAdminConverter.request2paramTeam(request);
+        result.addAll(teamService.pageQuery(teamPageQueryParam, null)
+            .mapToList(commonAdminConverter::dto2voTeamUser)
+            .getData());
+        return ListResult.of(result);
     }
 
     /**
@@ -46,8 +66,9 @@ public class CommonAdminController {
      * @version 2.1.0
      */
     @GetMapping("/user/list")
-    public WebPageResult<TeamUserListVO> userList(@Valid CommonPageQueryRequest request) {
-        return null;
+    public ListResult<SimpleUserVO> userList(@Valid CommonQueryRequest request) {
+        return userService.pageQuery(commonAdminConverter.request2paramUser(request), null)
+            .mapToList(commonAdminConverter::dto2voUser);
     }
 
     /**
@@ -58,8 +79,9 @@ public class CommonAdminController {
      * @version 2.1.0
      */
     @GetMapping("/team/list")
-    public WebPageResult<TeamUserListVO> teamList(@Valid CommonPageQueryRequest request) {
-        return null;
+    public ListResult<SimpleTeamVO> teamList(@Valid CommonQueryRequest request) {
+        return teamService.pageQuery(commonAdminConverter.request2paramTeam(request), null)
+            .mapToList(commonAdminConverter::dto2voTeam);
     }
 
 }

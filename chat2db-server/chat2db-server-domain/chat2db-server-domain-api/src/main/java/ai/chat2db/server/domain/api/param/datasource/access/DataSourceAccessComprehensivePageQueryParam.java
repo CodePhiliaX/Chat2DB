@@ -18,7 +18,12 @@ public class DataSourceAccessComprehensivePageQueryParam extends PageQueryParam 
     private Long dataSourceId;
 
     /**
-     * searchKey
+     * Query keywords for users or teams
      */
-    private String searchKey;
+    private String userOrTeamSearchKey;
+
+    /**
+     * Query keywords for data source
+     */
+    private String dataSourceSearchKey;
 }

@@ -3,12 +3,18 @@ package ai.chat2db.server.domain.core.impl;
 import java.util.List;
 import java.util.Objects;
 
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.User;
-import ai.chat2db.server.domain.api.param.UserQueryParam;
+import ai.chat2db.server.domain.api.param.user.UserCreateParam;
+import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
+import ai.chat2db.server.domain.api.param.user.UserSelector;
+import ai.chat2db.server.domain.api.param.user.UserUpdateParam;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.UserConverter;
 import ai.chat2db.server.domain.repository.entity.DbhubUserDO;
 import ai.chat2db.server.domain.repository.mapper.DbhubUserMapper;
+import ai.chat2db.server.tools.base.excption.BusinessException;
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
@@ -18,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -61,37 +68,56 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PageResult<User> queryPage(UserQueryParam param) {
-        LambdaQueryWrapper<DbhubUserDO> query = new LambdaQueryWrapper<>();
-        if (Objects.nonNull(param.getKeyWord())) {
-            query.like(DbhubUserDO::getUserName, param.getKeyWord());
+    public PageResult<User> pageQuery(UserPageQueryParam param, UserSelector selector) {
+        LambdaQueryWrapper<DbhubUserDO> queryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotBlank(param.getSearchKey())) {
+            queryWrapper.and(wrapper -> wrapper.like(DbhubUserDO::getUserName, "%" + param.getSearchKey() + "%")
+                .or()
+                .like(DbhubUserDO::getNickName, "%" + param.getSearchKey() + "%")
+                .or()
+                .like(DbhubUserDO::getEmail, "%" + param.getSearchKey() + "%"));
         }
+        // Default not to query desktop accounts
+        queryWrapper.ne(DbhubUserDO::getId, RoleCodeEnum.DESKTOP.getDefaultUserId());
         Page<DbhubUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
-        page.setOptimizeCountSql(false);
-        IPage<DbhubUserDO> iPage = dbhubUserMapper.selectPage(page, query);
+        page.setSearchCount(param.getEnableReturnCount());
+        IPage<DbhubUserDO> iPage = dbhubUserMapper.selectPage(page, queryWrapper);
         return PageResult.of(userConverter.do2dto(iPage.getRecords()), iPage.getTotal(), param);
     }
 
     @Override
-    public DataResult<Boolean> update(User user) {
-        DbhubUserDO dbhubUserDO = userConverter.dto2do(user);
-        if (Objects.nonNull(dbhubUserDO.getPassword())) {
-            String bcryptPassword = DigestUtil.bcrypt(dbhubUserDO.getPassword());
-            dbhubUserDO.setPassword(bcryptPassword);
+    public DataResult<Long> update(UserUpdateParam user) {
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
+            throw new BusinessException("user.canNotOperateSystemAccount");
         }
-        int n = dbhubUserMapper.updateById(dbhubUserDO);
-        return DataResult.of(n == 1);
+        DbhubUserDO data = userConverter.param2do(user);
+        if (Objects.nonNull(data.getPassword())) {
+            String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
+            data.setPassword(bcryptPassword);
+        }
+
+        if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId())) {
+            data.setStatus(null);
+            data.setEmail(null);
+            data.setUserName(null);
+            data.setRoleCode(null);
+        }
+        dbhubUserMapper.updateById(data);
+        return DataResult.of(data.getId());
     }
 
     @Override
-    public DataResult<Boolean> delete(Long id) {
-        int n = dbhubUserMapper.deleteById(id);
-        return DataResult.of(n == 1);
+    public ActionResult delete(Long id) {
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(id) || RoleCodeEnum.ADMIN.getDefaultUserId().equals(id)) {
+            throw new BusinessException("user.canNotOperateSystemAccount");
+        }
+        dbhubUserMapper.deleteById(id);
+        return ActionResult.isSuccess();
     }
 
     @Override
-    public DataResult<Long> create(User user) {
-        DbhubUserDO data = userConverter.dto2do(user);
+    public DataResult<Long> create(UserCreateParam user) {
+        DbhubUserDO data = userConverter.param2do(user);
         String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
         data.setPassword(bcryptPassword);
         dbhubUserMapper.insert(data);

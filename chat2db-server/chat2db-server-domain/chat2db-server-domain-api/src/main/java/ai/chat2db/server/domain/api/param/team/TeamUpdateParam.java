@@ -1,4 +1,4 @@
-package ai.chat2db.server.admin.api.controller.team.request;
+package ai.chat2db.server.domain.api.param.team;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
  * @author Jiaju Zhuang
  */
 @Data
-public class TeamUpdateRequest {
+public class TeamUpdateParam {
     /**
      * 主键
      */
@@ -19,7 +19,6 @@ public class TeamUpdateRequest {
     /**
      * 团队名称
      */
-    @NotNull
     private String name;
 
     /**
@@ -27,7 +26,6 @@ public class TeamUpdateRequest {
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */
-    @NotNull
     private String status;
 
     /**

@@ -62,6 +62,12 @@ public class DataSourceAccess implements Serializable {
     private Long dataSourceId;
 
     /**
+     * 数据源
+     */
+    @NotNull
+    private DataSource dataSource;
+
+    /**
      * 授权类型
      *
      * @see AccessObjectTypeEnum

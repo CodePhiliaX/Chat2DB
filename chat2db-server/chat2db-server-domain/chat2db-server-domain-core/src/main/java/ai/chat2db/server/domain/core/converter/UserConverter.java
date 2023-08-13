@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import ai.chat2db.server.domain.api.model.User;
+import ai.chat2db.server.domain.api.param.user.UserCreateParam;
+import ai.chat2db.server.domain.api.param.user.UserUpdateParam;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.repository.entity.DbhubUserDO;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
@@ -49,6 +51,20 @@ public abstract class UserConverter {
      * @return
      */
     public abstract DbhubUserDO dto2do(User user);
+
+    /**
+     *
+     * @param user
+     * @return
+     */
+    public abstract DbhubUserDO param2do(UserCreateParam user);
+
+    /**
+     *
+     * @param user
+     * @return
+     */
+    public abstract DbhubUserDO param2do(UserUpdateParam user);
 
     /**
      * Fill in detailed information

@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param.datasource.access;
+package ai.chat2db.server.domain.api.param.team;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * slecetor
+ * select
  *
  * @author Jiaju Zhuang
  */
@@ -14,16 +14,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceAccessSelector {
-
+public class TeamSelector {
     /**
-     * 授权对象
+     * empty
      */
-    private Boolean accessObject;
+    private Boolean empty;
 
-
-    /**
-     * 数据源
-     */
-    private Boolean dataSource;
 }

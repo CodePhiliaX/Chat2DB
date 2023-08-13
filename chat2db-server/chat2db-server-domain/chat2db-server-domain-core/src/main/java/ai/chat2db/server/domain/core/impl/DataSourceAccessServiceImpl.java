@@ -3,16 +3,13 @@ package ai.chat2db.server.domain.core.impl;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson2.JSON;
-
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.model.DataSourceAccess;
 import ai.chat2db.server.domain.api.model.DataSourceAccessObject;
 import ai.chat2db.server.domain.api.model.Team;
 import ai.chat2db.server.domain.api.model.User;
-import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessBatchCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessComprehensivePageQueryParam;
-import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessObjectParam;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.domain.api.service.TeamService;
@@ -22,10 +19,10 @@ import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -58,8 +55,11 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     @Override
     public PageResult<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
         DataSourceAccessSelector selector) {
-        IPage<DataSourceAccessDO> iPage = dataSourceAccessCustomMapper.comprehensivePageQuery(
-            new Page<>(param.getPageNo(), param.getPageSize()), param.getDataSourceId(), param.getSearchKey());
+        Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
+        page.setSearchCount(param.getEnableReturnCount());
+        IPage<DataSourceAccessDO> iPage = dataSourceAccessCustomMapper.comprehensivePageQuery(page,
+            param.getDataSourceId(), param.getUserOrTeamSearchKey(),
+            param.getDataSourceSearchKey());
 
         List<DataSourceAccess> list = dataSourceAccessConverter.do2dto(iPage.getRecords());
 
@@ -69,25 +69,11 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     }
 
     @Override
-    public ActionResult batchCreate(DataSourceAccessBatchCreatParam param) {
-        if (CollectionUtils.isEmpty(param.getAccessObjectList())) {
-            return ActionResult.isSuccess();
-        }
-        for (DataSourceAccessObjectParam dataSourceAccessObjectParam : param.getAccessObjectList()) {
-            LambdaQueryWrapper<DataSourceAccessDO> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(DataSourceAccessDO::getAccessObjectType, dataSourceAccessObjectParam.getType());
-            queryWrapper.eq(DataSourceAccessDO::getDataSourceId, dataSourceAccessObjectParam.getId());
-            DataSourceAccessDO query = dataSourceAccessMapper.selectOne(queryWrapper);
-            if (query != null) {
-                log.info("The data source already exists, no need to add it again,{}",
-                    JSON.toJSONString(dataSourceAccessObjectParam));
-                continue;
-            }
-            dataSourceAccessMapper.insert(
-                dataSourceAccessConverter.param2do(param.getDataSourceId(), dataSourceAccessObjectParam.getId(),
-                    dataSourceAccessObjectParam.getType(), ContextUtils.getUserId()));
-        }
-        return ActionResult.isSuccess();
+    public DataResult<Long> create(DataSourceAccessCreatParam param) {
+        DataSourceAccessDO data = dataSourceAccessConverter.param2do(param, ContextUtils.getUserId());
+
+        dataSourceAccessMapper.insert(data);
+        return DataResult.of(data.getId());
     }
 
     @Override
