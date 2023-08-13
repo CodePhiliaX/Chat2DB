@@ -471,7 +471,7 @@ function Console(props: IProps) {
           type="text"
           onClick={() => {
             // 格式化sql
-            const sql = editorRef?.current?.getCurrentSelectContent() || ''
+            const sql = editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent() || ''
             formatSql(sql, executeParams.type!).then((res) => {
               editorRef?.current?.setValue(res, 'select');
             });
