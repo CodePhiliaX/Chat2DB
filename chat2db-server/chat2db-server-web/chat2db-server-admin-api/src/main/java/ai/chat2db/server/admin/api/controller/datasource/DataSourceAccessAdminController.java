@@ -5,6 +5,7 @@ import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAcc
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourceAccessPageQueryVO;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -59,8 +60,14 @@ public class DataSourceAccessAdminController {
      * @version 2.1.0
      */
     @PostMapping("/batch_create")
-    public ActionResult batchCreate(@RequestBody DataSourceAccessBatchCreateRequest request) {
-        return dataSourceAccessService.batchCreate(dataSourceAccessAdminConverter.request2param(request));
+    public ActionResult batchCreate(@Valid @RequestBody DataSourceAccessBatchCreateRequest request) {
+        request.getAccessObjectList()
+            .forEach(accessObject -> dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
+                .dataSourceId(request.getDataSourceId())
+                .accessObjectId(accessObject.getId())
+                .accessObjectType(accessObject.getType())
+                .build()));
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -71,7 +78,7 @@ public class DataSourceAccessAdminController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return null;
+        return dataSourceAccessService.delete(id);
     }
 
 }

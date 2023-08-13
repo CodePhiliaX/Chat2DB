@@ -1,12 +1,12 @@
 
 package ai.chat2db.server.admin.api.controller.user;
 
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.converter.UserAdminConverter;
 import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserUpdateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
-import ai.chat2db.server.domain.api.service.DataSourceService;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
@@ -30,9 +30,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserAdminController {
 
     @Resource
-    private DataSourceService dataSourceService;
+    private UserService userService;
     @Resource
-    private UserAdminConverter dataSourceAdminConverter;
+    private UserAdminConverter userAdminConverter;
 
     /**
      * Pagination query
@@ -43,7 +43,8 @@ public class UserAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<UserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return null;
+        return userService.pageQuery(userAdminConverter.request2param(request), null)
+            .mapToWeb(userAdminConverter::dto2vo);
     }
 
     /**
@@ -54,9 +55,8 @@ public class UserAdminController {
      * @version 2.1.0
      */
     @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody UserCreateRequest request) {
-        return null;
-
+    public DataResult<Long> create(@Valid @RequestBody UserCreateRequest request) {
+        return userService.create(userAdminConverter.request2param(request));
     }
 
     /**
@@ -67,8 +67,8 @@ public class UserAdminController {
      * @version 2.1.0
      */
     @PostMapping("/update")
-    public ActionResult update(@RequestBody UserUpdateRequest request) {
-        return null;
+    public DataResult<Long> update(@RequestBody UserUpdateRequest request) {
+        return userService.update(userAdminConverter.request2param(request));
     }
 
     /**
@@ -79,6 +79,6 @@ public class UserAdminController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return null;
+        return userService.delete(id);
     }
 }

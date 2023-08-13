@@ -5,6 +5,7 @@ import java.util.Map;
 
 import ai.chat2db.server.domain.api.model.Environment;
 import ai.chat2db.server.domain.api.model.TeamUser;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
 import ai.chat2db.server.domain.api.service.EnvironmentService;
 import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
@@ -37,6 +38,20 @@ public abstract class TeamUserConverter {
      * @return
      */
     public abstract List<TeamUser> do2dto(List<TeamUserDO> list);
+
+    /**
+     * convert
+     *
+     * @param param
+
+     * @return
+     */
+    @Mappings({
+        @Mapping(target = "createUserId", source = "userId"),
+        @Mapping(target = "modifiedUserId", source = "userId"),
+    })
+    public abstract TeamUserDO param2do(TeamUserCreatParam param, Long userId);
+
 
     /**
      * Fill in detailed information

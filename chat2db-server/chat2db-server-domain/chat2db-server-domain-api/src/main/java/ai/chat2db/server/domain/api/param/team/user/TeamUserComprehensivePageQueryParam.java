@@ -27,4 +27,14 @@ public class TeamUserComprehensivePageQueryParam extends PageQueryParam {
      * @see ai.chat2db.server.domain.api.enums.RoleCodeEnum
      */
     private String teamRoleCode;
+
+    /**
+     * Query keywords for team
+     */
+    private String teamSearchKey;
+
+    /**
+     * Query keywords for user
+     */
+    private String userSearchKey;
 }

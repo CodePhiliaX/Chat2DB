@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import ai.chat2db.server.domain.api.model.Team;
+import ai.chat2db.server.domain.api.param.team.TeamCreateParam;
+import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.repository.entity.TeamDO;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
@@ -36,6 +38,22 @@ public abstract class TeamConverter {
      * @return
      */
     public abstract List<Team> do2dto(List<TeamDO> list);
+
+    /**
+     * convert
+     *
+     * @param param
+     * @return
+     */
+    public abstract TeamDO param2do(TeamCreateParam param);
+
+    /**
+     * convert
+     *
+     * @param param
+     * @return
+     */
+    public abstract TeamDO param2do(TeamUpdateParam param);
 
     /**
      * Fill in detailed information

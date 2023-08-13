@@ -1,13 +1,16 @@
 
 package ai.chat2db.server.admin.api.controller.team;
 
+import ai.chat2db.server.admin.api.controller.team.converter.TeamAdminConverter;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamCreateRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamUpdateRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamPageQueryVO;
+import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/team")
 @RestController
 public class TeamAdminController {
+    @Resource
+    private TeamService teamService;
+    @Resource
+    private TeamAdminConverter teamAdminConverter;
 
     /**
      * Pagination query
@@ -35,7 +42,8 @@ public class TeamAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<TeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return null;
+        return teamService.pageQuery(teamAdminConverter.request2param(request), null)
+            .mapToWeb(teamAdminConverter::dto2vo);
     }
 
     /**
@@ -47,8 +55,7 @@ public class TeamAdminController {
      */
     @PostMapping("/create")
     public DataResult<Long> create(@RequestBody TeamCreateRequest request) {
-        return null;
-
+        return teamService.create(teamAdminConverter.request2param(request));
     }
 
     /**
@@ -59,8 +66,8 @@ public class TeamAdminController {
      * @version 2.1.0
      */
     @PostMapping("/update")
-    public ActionResult update(@RequestBody TeamUpdateRequest request) {
-        return null;
+    public DataResult<Long> update(@RequestBody TeamUpdateRequest request) {
+        return teamService.update(teamAdminConverter.request2param(request));
     }
 
     /**
@@ -71,6 +78,6 @@ public class TeamAdminController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return null;
+        return teamService.delete(id);
     }
 }

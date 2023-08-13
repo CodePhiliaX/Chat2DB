@@ -23,6 +23,7 @@ public class TeamDataSourceBatchCreateRequest {
     /**
      * team id
      */
+    @NotNull
     private Long teamId;
 
 

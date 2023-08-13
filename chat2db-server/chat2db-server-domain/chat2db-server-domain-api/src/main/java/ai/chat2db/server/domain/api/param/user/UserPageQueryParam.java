@@ -1,16 +1,13 @@
-package ai.chat2db.server.domain.api.param;
-
-import java.io.Serial;
+package ai.chat2db.server.domain.api.param.user;
 
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 用户查询参数
+ * * page query
  *
  * @author Jiaju Zhuang
  */
@@ -18,11 +15,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserQueryParam extends PageQueryParam {
-    @Serial
-    private static final long serialVersionUID = 7341467383637825621L;
+public class UserPageQueryParam extends PageQueryParam {
+
     /**
-     * 用户名
+     * searchKey
      */
-    private String keyWord;
+    private String searchKey;
 }

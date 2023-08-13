@@ -1,12 +1,16 @@
 
 package ai.chat2db.server.admin.api.controller.team;
 
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.admin.api.controller.team.converter.TeamUserAdminConverter;
 import ai.chat2db.server.admin.api.controller.team.request.TeamUserBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamUserPageQueryVO;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
+import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/team/user")
 @RestController
 public class TeamUserAdminController {
+    private static final TeamUserSelector TEAM_USER_SELECTOR = TeamUserSelector.builder()
+        .user(Boolean.TRUE)
+        .build();
+
+    @Resource
+    private TeamUserService teamUserService;
+    @Resource
+    private TeamUserAdminConverter teamUserAdminConverter;
 
     /**
      * Pagination query
@@ -34,7 +46,8 @@ public class TeamUserAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<TeamUserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return null;
+        return teamUserService.comprehensivePageQuery(teamUserAdminConverter.request2param(request), TEAM_USER_SELECTOR)
+            .mapToWeb(teamUserAdminConverter::dto2vo);
     }
 
     /**
@@ -45,9 +58,13 @@ public class TeamUserAdminController {
      * @version 2.1.0
      */
     @PostMapping("/batch_create")
-    public DataResult<Long> create(@RequestBody TeamUserBatchCreateRequest request) {
-        return null;
-
+    public ActionResult create(@Valid @RequestBody TeamUserBatchCreateRequest request) {
+        request.getUserIdList()
+            .forEach(userId -> teamUserService.create(TeamUserCreatParam.builder()
+                .teamId(request.getTeamId())
+                .userId(userId)
+                .build()));
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -58,6 +75,6 @@ public class TeamUserAdminController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return null;
+        return teamUserService.delete(id);
     }
 }

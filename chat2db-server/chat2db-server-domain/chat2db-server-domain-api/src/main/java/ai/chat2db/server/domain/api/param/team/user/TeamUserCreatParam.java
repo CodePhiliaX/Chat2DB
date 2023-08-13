@@ -1,8 +1,5 @@
-package ai.chat2db.server.admin.api.controller.team.request;
+package ai.chat2db.server.domain.api.param.team.user;
 
-import java.util.List;
-
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * create
+ * Team User
  *
  * @author Jiaju Zhuang
  */
@@ -18,8 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeamUserBatchCreateRequest {
-
+public class TeamUserCreatParam {
     /**
      * team id
      */
@@ -27,9 +23,7 @@ public class TeamUserBatchCreateRequest {
     private Long teamId;
 
     /**
-     * user id list
+     * user id
      */
-    @NotNull
-    @NotEmpty
-    private List<Long> userIdList;
+    private Long userId;
 }

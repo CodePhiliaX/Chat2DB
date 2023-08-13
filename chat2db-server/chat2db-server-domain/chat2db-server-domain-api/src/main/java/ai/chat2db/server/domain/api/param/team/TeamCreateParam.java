@@ -1,20 +1,20 @@
-package ai.chat2db.server.admin.api.controller.team.request;
+package ai.chat2db.server.domain.api.param.team;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * update
+ * create
  *
  * @author Jiaju Zhuang
  */
 @Data
-public class TeamUpdateRequest {
+public class TeamCreateParam {
     /**
-     * 主键
+     * 团队编码
      */
     @NotNull
-    private Long id;
+    private String code;
 
     /**
      * 团队名称

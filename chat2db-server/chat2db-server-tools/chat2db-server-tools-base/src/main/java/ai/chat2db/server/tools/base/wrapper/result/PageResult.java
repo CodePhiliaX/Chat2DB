@@ -274,6 +274,25 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
 
     /**
      * 将当前的类型转换成另外一个类型
+     *
+     * @param mapper 转换的方法
+     * @param <R>    返回的类型
+     * @return 分页返回对象
+     */
+    public <R> ListResult<R> mapToList(Function<T, R> mapper) {
+        List<R> returnData = hasData(this) ? getData().stream().map(mapper).collect(Collectors.toList())
+            : Collections.emptyList();
+        ListResult<R> result = new ListResult<>();
+        result.setSuccess(getSuccess());
+        result.setErrorCode(getErrorCode());
+        result.setErrorMessage(getErrorMessage());
+        result.setTraceId(getTraceId());
+        result.setData(returnData);
+        return result;
+    }
+
+    /**
+     * 将当前的类型转换成另外一个类型
      * 并且转换成web的类型
      * 这里注意如果当前项目在web层用的也是 <code>PageResult</code> 则直接使用 <code>map</code>方法接口即可
      *
