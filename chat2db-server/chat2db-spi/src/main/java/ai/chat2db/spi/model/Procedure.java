@@ -37,4 +37,6 @@ public class Procedure {
     private Short procedureType;
 
     private String specificName;
+
+    private String procedureBody;
 }

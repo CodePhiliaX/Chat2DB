@@ -2,9 +2,10 @@ import React, { memo, useRef, useEffect, useState } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType, operationTypeConfig, OperationType } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
+import sqlService from '@/service/sql';
 import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
@@ -13,6 +14,8 @@ import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
 import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import Tree from 'antd/es/tree/Tree';
+import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   className?: string;
@@ -27,27 +30,78 @@ const WorkspaceRight = memo<IProps>(function (props) {
   const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList, curConsoleId } = workspaceModel;
 
   useEffect(() => {
-    // 这里只处理没有console的情况下
-    if (!doubleClickTreeNodeData || openConsoleList?.length) {
+    if (!doubleClickTreeNodeData) {
       return;
     }
 
-    const { extraParams } = doubleClickTreeNodeData;
-    const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType, tableName } = extraParams || {};
-    const ddl = `SELECT * FROM ${tableName};\n`;
-    const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
-    let p: any = {
-      name: name,
-      type: databaseType!,
-      dataSourceId: dataSourceId!,
-      databaseName: databaseName,
-      schemaName: schemaName,
-      dataSourceName: dataSourceName!,
-      status: ConsoleStatus.DRAFT,
-      ddl,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN,
-    };
-    addConsole(p);
+    dispatch({
+      type: 'workspace/setConsoleList',
+      payload: [],
+    })
+  
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.VIEW) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { databaseName, schemaName, tableName, dataSourceId } = extraParams || {};
+      sqlService.getViewDetail({
+        dataSourceId: dataSourceId!,
+        databaseName: databaseName!,
+        tableName: tableName!,
+        schemaName,
+      }).then(res=>{
+        const name = doubleClickTreeNodeData.name
+        createConsole(doubleClickTreeNodeData, res.ddl, name);
+      })
+    }
+
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TRIGGER) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { databaseName, schemaName, triggerName, dataSourceId, } = extraParams || {};
+      sqlService.getTriggerDetail({
+        dataSourceId: dataSourceId!,
+        databaseName: databaseName!,
+        triggerName: triggerName!,
+        schemaName,
+      }).then(res=>{
+        const name = doubleClickTreeNodeData.name
+        createConsole(doubleClickTreeNodeData, res.triggerBody, name);
+      })
+    }
+
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.PROCEDURE) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { databaseName, schemaName, procedureName, dataSourceId } = extraParams || {};
+      sqlService.getProcedureDetail({
+        dataSourceId: dataSourceId!,
+        databaseName: databaseName!,
+        procedureName: procedureName!,
+        schemaName,
+      }).then(res=>{
+        const name = doubleClickTreeNodeData.name
+        createConsole(doubleClickTreeNodeData, res.procedureBody, name);
+      })
+    }
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.FUNCTION) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { databaseName, schemaName, dataSourceId, functionName } = extraParams || {};
+      sqlService.getFunctionDetail({
+        dataSourceId: dataSourceId!,
+        databaseName: databaseName!,
+        functionName: functionName!,
+        schemaName,
+      }).then(res=>{
+        const name = doubleClickTreeNodeData.name
+        createConsole(doubleClickTreeNodeData, res.functionBody, name);
+      })
+    }
+
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE && !openConsoleList?.length) {
+      const { extraParams } = doubleClickTreeNodeData;
+      const { databaseName, schemaName, tableName, } = extraParams || {};
+      const ddl = `SELECT * FROM ${tableName};\n`;
+      const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
+      createConsole(doubleClickTreeNodeData, ddl, name);
+    }
+
     dispatch({
       type: 'workspace/setDoubleClickTreeNodeData',
       payload: '',
@@ -92,10 +146,27 @@ const WorkspaceRight = memo<IProps>(function (props) {
         // 如果发现当前列表里并没有newActiveConsoleId
         setActiveConsoleId(openConsoleList?.[openConsoleList?.length - 1].id);
       }
-
-
     }
   }, [openConsoleList]);
+
+
+  function createConsole(doubleClickTreeNodeData: any, ddl: string, name: string) {
+    const { extraParams } = doubleClickTreeNodeData;
+    const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType } = extraParams || {};
+    let p: any = {
+      name,
+      type: databaseType!,
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName,
+      schemaName: schemaName,
+      dataSourceName: dataSourceName!,
+      status: ConsoleStatus.DRAFT,
+      operationType: doubleClickTreeNodeData.treeNodeType,
+      ddl,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+    };
+    addConsole(p);
+  }
 
   function getConsoleList() {
     let p: any = {
@@ -141,6 +212,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      operationType: OperationType.CONSOLE,
     };
     historyService.saveConsole(params || p).then((res) => {
       setActiveConsoleId(res);
@@ -233,6 +305,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
             activeTab={activeConsoleId}
             tabs={(openConsoleList || [])?.map((t, i) => {
               return {
+                prefixIcon: operationTypeConfig[t.operationType]?.icon || operationTypeConfig.console.icon,
                 label: t.name,
                 value: t.id,
               };

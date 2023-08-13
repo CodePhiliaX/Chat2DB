@@ -14,7 +14,7 @@ interface IProps<T> {
 
 export default function LoadingContent<T>(props: PropsWithChildren<IProps<T>>) {
   const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading } = props;
-  const isEmpty = !isLoading && handleEmpty && !(data as any).length;
+  const isEmpty = !isLoading && handleEmpty && !(data as any)?.length;
 
   const renderContent = () => {
     if ((isLoading || !data) && !coverLoading) {

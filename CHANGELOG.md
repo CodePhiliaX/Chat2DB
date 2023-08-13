@@ -1,3 +1,44 @@
+# 2.0.12
+
+## ⭐ New Features
+
+- 🔥Supports viewing views, functions, triggers, and procedures 
+- Support selected sql formatting 
+- Added new dark themes
+
+## 🐞 Bug Fixes
+
+- Fixed sql formatting failure issue
+- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing page crashes
+- Logs desensitize sensitive data
+- Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+
+## ⭐ 新特性
+
+- 🔥支持查看视图、函数、触发器、存储过程
+- 支持选中sql格式化
+- 增加新的暗色主题
+
+## 🐞 问题修复
+
+- 修复sql格式化会失败问题
+- 修复本地存储的主题色、背景色与新版本不兼容时会导致页面崩溃问题
+- 日志对敏感数据进行脱敏
+- 修复 `CLOB` 不展示具体内容的问题  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+
+# 2.0.11
+
+## 🐞 Bug Fixes
+
+- Fix the issue where SSH does not support older versions of encryption algorithms
+- Fix the issue of SQL Server 2008 not being able to connect
+- Fix the issue of not being able to view table name notes and field notes
+
+## 🐞 问题修复
+
+- 修复 SSH 不支持老版本加密算法的问题
+- 修复 SQLServer2008 无法连接的问题
+- 修复无法查看表名备注、字段备注的问题
 
 # 2.0.10
 

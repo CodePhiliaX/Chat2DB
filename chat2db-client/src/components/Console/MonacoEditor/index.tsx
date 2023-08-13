@@ -67,12 +67,12 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       ...options,
       value: defaultValue || '',
       language: language,
-      theme: appTheme.backgroundColor === ThemeType.Light ? EditorThemeType.Default : EditorThemeType.BlackTheme,
+      theme: appTheme.backgroundColor,
     });
     editorRef.current = editorIns;
     didMount && didMount(editorIns);
 
-    monaco.editor.defineTheme(EditorThemeType.Default, {
+    monaco.editor.defineTheme(ThemeType.Light, {
       base: 'vs',
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
@@ -82,7 +82,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       },
     });
 
-    monaco.editor.defineTheme(EditorThemeType.BlackTheme, {
+    monaco.editor.defineTheme(ThemeType.Dark, {
       base: 'vs-dark',
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
@@ -90,6 +90,16 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         // 相关颜色属性配置
         'editor.foreground': '#ffffff',
         'editor.background': '#0A0B0C', //背景色
+      },
+    });
+    monaco.editor.defineTheme(ThemeType.DarkDimmed, {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [{ background: '#15161a' }] as any,
+      colors: {
+        // 相关颜色属性配置
+        'editor.foreground': '#ffffff',
+        'editor.background': '#1c2128', //背景色
       },
     });
 
@@ -136,12 +146,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   // 监听主题色变化切换编辑器主题色
   useEffect(() => {
-    const isDark = appTheme.backgroundColor === ThemeType.Dark;
     if (options?.theme) {
       monaco.editor.setTheme(options.theme);
-    } else {
-      monaco.editor.setTheme(isDark ? 'BlackTheme' : 'Default');
+      return
     }
+    monaco.editor.setTheme(appTheme.backgroundColor);
   }, [appTheme.backgroundColor, options?.theme]);
 
   // useEffect(() => {
@@ -206,7 +215,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       return Object.keys(hintData).map((key) => ({
         label: key,
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `\`${key}\``,
+        insertText: `${key}`,
         detail: '<Database>',
       }));
     };
@@ -306,12 +315,22 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     return;
   }
   switch (range) {
+    // 覆盖所有内容
     case 'cover':
       newRange = model.getFullModelRange();
       break;
+    // 在开头添加内容
     case 'front':
       newRange = new monaco.Range(1, 1, 1, 1);
       break;
+    // 格式化选中区域的sql
+    case 'select':
+      const selection = editor.getSelection();
+      if (selection) {
+        newRange = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
+      }
+      break;
+    // 在末尾添加内容
     case 'end':
       const lastLine = editor.getModel().getLineCount();
       const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);

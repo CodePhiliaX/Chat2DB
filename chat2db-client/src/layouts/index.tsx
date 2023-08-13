@@ -98,7 +98,6 @@ function AppContainer() {
   // 初始化app
   function collectInitApp() {
     monitorOsTheme();
-    initTheme();
     initLang();
     setInitEnd(true);
   }
@@ -117,19 +116,6 @@ function AppContainer() {
     return () => {
       themeMedia.removeListener(change);
     };
-  }
-
-  // 初始化主题
-  function initTheme() {
-    let theme = getTheme();
-    if (theme === ThemeType.FollowOs) {
-      theme =
-        (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? ThemeType.Dark
-          : ThemeType.Light) || ThemeType.Dark;
-    }
-    document.documentElement.setAttribute('theme', theme);
-    document.documentElement.setAttribute('primary-color', getPrimaryColor());
   }
 
   // 初始化语言

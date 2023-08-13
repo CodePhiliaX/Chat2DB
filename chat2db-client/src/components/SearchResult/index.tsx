@@ -97,7 +97,6 @@ export default memo<IProps>(function SearchResult(props) {
   };
 
   const renderTableContent = (resultDataList || []).map((item, index: number) => {
-    console.log(item.sql, item.originalSql);
     if (item.success) {
       return (
         <TableBox

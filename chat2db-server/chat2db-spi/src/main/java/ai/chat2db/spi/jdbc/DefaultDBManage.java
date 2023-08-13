@@ -117,6 +117,21 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
+    public void dropFunction(Connection connection, String databaseName, String schemaName, String functionName) {
+
+    }
+
+    @Override
+    public void dropTrigger(Connection connection, String databaseName, String schemaName, String triggerName) {
+
+    }
+
+    @Override
+    public void dropProcedure(Connection connection, String databaseName, String schemaName, String triggerName) {
+
+    }
+
+    @Override
     public void dropTable(Connection connection,String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE "+ tableName ;
         SQLExecutor.getInstance().executeSql(connection,sql, resultSet -> null);

@@ -1,6 +1,6 @@
 import { theme } from 'antd';
 import { PrimaryColorType } from '@/constants';
-import { commonToken } from './common';
+import { commonToken } from '../common';
 
 type IAntdPrimaryColor = {
   [key in PrimaryColorType]: any;
@@ -42,10 +42,11 @@ const antdLightTheme = {
     ...commonToken,
     colorText: "#232429",
     colorBgBase: '#fff',
-    colorHoverBg: '#eee',
+    colorHoverBg: 'rgba(0, 0, 0, 0.03)',
     colorBgContainer: '#fff',
-    colorBgElevated: '#F8F9FA',
-    colorBorder: '#d3d3d4',
+    colorBgElevated: '#f6f8fa',
+    colorBorder: 'rgba(211, 211, 212, 0.4)',
+    colorBorderSecondary: 'rgba(211, 211, 212, 0.4)',
   },
 };
 
