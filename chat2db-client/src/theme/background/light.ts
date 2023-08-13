@@ -42,10 +42,11 @@ const antdLightTheme = {
     ...commonToken,
     colorText: "#232429",
     colorBgBase: '#fff',
-    colorHoverBg: '#eee',
+    colorHoverBg: 'rgba(0, 0, 0, 0.03)',
     colorBgContainer: '#fff',
     colorBgElevated: '#f6f8fa',
-    colorBorder: '#d3d3d4',
+    colorBorder: 'rgba(211, 211, 212, 0.4)',
+    colorBorderSecondary: 'rgba(211, 211, 212, 0.4)',
   },
 };
 

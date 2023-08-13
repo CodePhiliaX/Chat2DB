@@ -45,7 +45,8 @@ const antDarkTheme = {
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
     colorBgContainer: '#0a0b0c',
     colorBgElevated: '#131418',
-    colorBorder: '#36373a',
+    colorBorder: 'rgba(54, 55, 58,0.4)',
+    colorBorderSecondary: 'rgba(54, 55, 58,0.4)',
   },
 };
 

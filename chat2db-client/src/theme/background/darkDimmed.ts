@@ -45,7 +45,7 @@ const antdLightTheme = {
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
     colorBgContainer: 'rgb(28, 33, 40)',
     colorBgElevated: 'rgb(34, 39, 46)',
-    colorBorder: 'rgb(68, 76, 86)',
+    colorBorder: 'rgba(55, 62, 71, 0.4)',
     colorBorderSecondary: 'rgba(55, 62, 71, 0.4)',
     controlItemBgActive: 'rgba(241, 241, 244, 0.08);',
     // ...commonToken,
