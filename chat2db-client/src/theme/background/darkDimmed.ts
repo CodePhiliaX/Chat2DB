@@ -12,7 +12,7 @@ const antdPrimaryColor: IAntdPrimaryColor = {
     colorPrimary: '#3c8618',
   },
   [PrimaryColorType.Golden_Purple]: {
-    colorPrimary: '#7688c9',
+    colorPrimary: '#8276c9',
   },
   [PrimaryColorType.Polar_Blue]: {
     colorPrimary: '#1677ff',
