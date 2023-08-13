@@ -149,7 +149,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     if (options?.theme) {
       monaco.editor.setTheme(options.theme);
       return
-    } 
+    }
     monaco.editor.setTheme(appTheme.backgroundColor);
   }, [appTheme.backgroundColor, options?.theme]);
 
@@ -315,12 +315,22 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     return;
   }
   switch (range) {
+    // 覆盖所有内容
     case 'cover':
       newRange = model.getFullModelRange();
       break;
+    // 在开头添加内容
     case 'front':
       newRange = new monaco.Range(1, 1, 1, 1);
       break;
+    // 格式化选中区域的sql
+    case 'select':
+      const selection = editor.getSelection();
+      if (selection) {
+        newRange = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
+      }
+      break;
+    // 在末尾添加内容
     case 'end':
       const lastLine = editor.getModel().getLineCount();
       const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
