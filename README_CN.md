@@ -12,6 +12,8 @@
 [![GitHub Contributors](https://img.shields.io/github/contributors/chat2db/Chat2DB)](https://github.com/chat2db/Chat2DB/graphs/contributors)
 
 </div>
+
+<div align="center">
 Languages： 中文 [English](README.md)
 </div>
 
