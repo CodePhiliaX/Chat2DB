@@ -29,6 +29,9 @@ Languages： 中文 [English](README.md)
 
 </div>
 
+如果觉得 Chat2DB 对您有帮助的话，请帮忙<a target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
+的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+
 ## 案例视频
 
 https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d202e505f
