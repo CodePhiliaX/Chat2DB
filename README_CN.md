@@ -14,11 +14,14 @@
 </div>
 
 <div align="center">
-Languages： 中文 [English](README.md)
-</div>
 
+  Languages： 中文 [English](README.md)
+  
 如果觉得 Chat2DB 对您有帮助的话，请帮忙<a target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
 的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+</div>
+
+
 
 ## 案例视频
 
