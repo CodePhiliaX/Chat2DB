@@ -171,9 +171,16 @@ const getProcedureDetail = createRequest<{
   databaseName: string;
   schemaName?: string;
   procedureName: string
-}, {procedureBody: string}>('/api/rdb/procedure/detail', { method: 'get' });
+}, { procedureBody: string }>('/api/rdb/procedure/detail', { method: 'get' });
+
+/** 格式化sql */
+const sqlFormat  = createRequest<{
+  sql: string;
+  dbType: DatabaseTypeCode;
+}, string>('/api/sql/format', { method: 'get' });
 
 export default {
+  sqlFormat,
   getTriggerDetail,
   getProcedureDetail,
   getFunctionDetail,
