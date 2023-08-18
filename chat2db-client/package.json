@@ -31,12 +31,14 @@
     "copy-to-clipboard": "^3.3.3",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
+    "electron-log": "^4.4.8",
     "event-source-polyfill": "^1.0.31",
     "lodash": "^4.17.21",
     "markdown-it-link-attributes": "^4.0.1",
     "monaco-editor": "^0.34.0",
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
+    "node-machine-id": "^1.1.12",
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",
@@ -79,11 +81,14 @@
     "asar": false,
     "files": [
       "dist/**/*",
-      "!node_modules",
       "static/",
       "src/main",
       "versions/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*",
+      "node_modules/uuid",
+      "node_modules/electron-log",
+      "node_modules/node-machine-id"
     ],
     "nsis": {
       "oneClick": false,
