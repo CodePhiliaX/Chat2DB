@@ -5,7 +5,6 @@ import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
-import { format } from 'sql-formatter';
 import historyServer from '@/service/history';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +13,7 @@ import Iconfont from '../Iconfont';
 import { IAiConfig, ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
+import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText, formatSql } from '@/utils';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
@@ -162,7 +161,7 @@ function Console(props: IProps) {
   function timingAutoSave() {
     timerRef.current = setInterval(() => {
       handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
-    }, 5000);
+    }, 500);
   }
 
   const tableListName = useMemo(() => {
@@ -213,7 +212,7 @@ function Console(props: IProps) {
           }
         }, 3000);
       }
-    }catch (e) {
+    } catch (e) {
       setIsLoading(false);
     }
 
@@ -471,17 +470,11 @@ function Console(props: IProps) {
         <Button
           type="text"
           onClick={() => {
-            let formatRes = '';
-            try {
-              const contextTmp = editorRef?.current?.getAllContent();
-              formatRes = format(contextTmp || '');
-            }
-            catch { }
-            if (formatRes) {
-              editorRef?.current?.setValue(formatRes, 'cover');
-            } else {
-              message.error(i18n('common.tips.formatError'))
-            }
+            // 格式化sql
+            const sql = editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent() || ''
+            formatSql(sql, executeParams.type!).then((res) => {
+              editorRef?.current?.setValue(res, 'select');
+            });
           }}
         >
           {i18n('common.button.format')}

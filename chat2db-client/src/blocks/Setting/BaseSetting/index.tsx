@@ -26,6 +26,11 @@ const themeList = [
     img: themeDarkImg,
   },
   {
+    code: ThemeType.DarkDimmed,
+    name: i18n('setting.text.dark2'),
+    img: themeDarkImg
+  },
+  {
     code: ThemeType.FollowOs,
     name: i18n('setting.text.followOS'),
     img: themeAutoImg,
@@ -83,9 +88,9 @@ const colorList = [
 // baseBody 基础设置
 export default function BaseSetting() {
   const [lang, setLang] = useState(currentLang);
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>(localStorage.getItem('theme'));
-  const [currentPrimaryColor, setCurrentPrimaryColor] = useState(localStorage.getItem('primary-color'));
   const [appTheme, setAppTheme] = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>(appTheme.backgroundColor);
+  const [currentPrimaryColor, setCurrentPrimaryColor] = useState(localStorage.getItem('primary-color'));
 
   const changePrimaryColor = (item: any) => {
     const html = document.documentElement;
@@ -103,12 +108,13 @@ export default function BaseSetting() {
     location.reload();
   }
 
-  function handleChangeTheme(theme: ThemeType) {
+  // TODO: 这里写 ThemeType 为什么报错呢
+  function handleChangeTheme(backgroundColor: any) {
     setAppTheme({
       ...appTheme,
-      backgroundColor: theme,
+      backgroundColor,
     });
-    setCurrentTheme(theme);
+    setCurrentTheme(backgroundColor);
   }
 
   return (

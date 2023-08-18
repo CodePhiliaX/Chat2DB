@@ -33,20 +33,22 @@ interface IViewTableCellData {
   value: any;
 }
 
-const DarkSupportBaseTable: any = styled(BaseTable)`
-  &.dark {
+const SupportBaseTable: any = styled(BaseTable)`
+  &.supportBaseTable {
     --bgcolor: var(--color-bg-base);
     --header-bgcolor: var(--color-bg-elevated);
-    --hover-bgcolor: #46484a;
-    --header-hover-bgcolor: #606164;
-    --highlight-bgcolor: #191a1b;
-    --header-highlight-bgcolor: #191a1b;
+    --hover-bgcolor: var(--color-hover-bg);
+    --header-hover-bgcolor: var(--color-hover-bg);
+    --highlight-bgcolor: var(--color-hover-bg);
+    --header-highlight-bgcolor: var(--color-hover-bg);
     --color: var(--color-text);
-    --header-color: #dadde1;
+    --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
     --border-color: var(--color-border-secondary);
   }
 `;
+
+const preCode = '$$chat2db_';
 
 export default function TableBox(props: ITableProps) {
   const { className, data, config, onConfigChange, onSearchTotal } = props;
@@ -128,7 +130,7 @@ export default function TableBox(props: ITableProps) {
         const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
         if (isNumericalOrder) {
           return {
-            code: 'No.',
+            code: `${preCode}No.`,
             name: 'No.',
             key: name,
             lock: true,
@@ -144,7 +146,7 @@ export default function TableBox(props: ITableProps) {
           };
         }
         return {
-          code: name,
+          code: `${preCode}${name}`,
           name: name,
           key: name,
           width: 120,
@@ -174,12 +176,13 @@ export default function TableBox(props: ITableProps) {
         const rowData: any = {};
         item.map((i: string | null, index: number) => {
           const { dataType: type } = headerList[index] || {};
+          const name = `${preCode}${columns[index].name}`;
           if (type === TableDataType.DATETIME && i) {
-            rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
+            rowData[name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
           } else if (i === null) {
-            rowData[columns[index].name] = '<null>';
+            rowData[name] = '<null>';
           } else {
-            rowData[columns[index].name] = i;
+            rowData[name] = i;
           }
         });
         return rowData;
@@ -230,7 +233,7 @@ export default function TableBox(props: ITableProps) {
       </div>
     );
 
-    if (!columns.length || sqlType !== 'SELECT') {
+    if (!columns.length) {
       return (
         <>
           <StateIndicator state="success" text={i18n('common.text.successfulExecution')} />
@@ -259,8 +262,8 @@ export default function TableBox(props: ITableProps) {
               </Button>
             </Dropdown>
           </div>
-          <DarkSupportBaseTable
-            className={classnames({ dark: isDarkTheme }, props.className, styles.table)}
+          <SupportBaseTable
+            className={classnames('supportBaseTable', props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
             stickyTop={31}
@@ -279,7 +282,6 @@ export default function TableBox(props: ITableProps) {
         open={!!viewTableCellData?.name}
         onCancel={handleCancel}
         width="60vw"
-        height="70vh"
         maskClosable={false}
         footer={
           <>
