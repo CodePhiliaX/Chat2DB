@@ -1,30 +1,24 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams } from '@/types';
-import { IUser } from '@/typings';
+import { IPageParams, IPageResponse } from '@/typings';
+import { IUser } from '@/typings/user';
 
 /** 用户登录接口 */
-const userLogin = createRequest<
-  { userName: string; password: string },
-  boolean
->('/oauth/login_a', {
+const userLogin = createRequest<{ userName: string; password: string }, boolean>('/api/oauth/login_a', {
   method: 'post',
 });
 
 /** 用户登出 */
-const userLogout = createRequest<void, void>('/oauth/logout_a', {
+const userLogout = createRequest<void, void>('/api/oauth/logout_a', {
   method: 'post',
 });
 
 /** 获取用户信息 */
-const getUser = createRequest<void, void>('/oauth/user_a', { method: 'get' });
+const getUser = createRequest<void, void>('/api/oauth/user_a', { method: 'get' });
 
 /** 获取用户列表信息 */
-const getUserList = createRequest<IPageParams, IPageResponse<IUser>>(
-  '/api/user/list',
-  {
-    method: 'get',
-  },
-);
+const getUserList = createRequest<IPageParams, IPageResponse<IUser>>('/api/user/list', {
+  method: 'get',
+});
 
 /** 创建新用户 */
 const createUser = createRequest<IUser, boolean>('/api/user/create', {
@@ -46,13 +40,4 @@ const deleteUser = createRequest<{ id: number }>('/api/user/:id', {
   method: 'delete',
 });
 
-export {
-  createUser,
-  updateUser,
-  queryUserById,
-  deleteUser,
-  getUserList,
-  userLogin,
-  userLogout,
-  getUser,
-};
+export { createUser, updateUser, queryUserById, deleteUser, getUserList, userLogin, userLogout, getUser };
