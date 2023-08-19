@@ -4,6 +4,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  background-image: url('../../assets/img/login-bg.svg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 }
 
 .logo {
@@ -34,6 +38,7 @@
   border-radius: 8px;
   padding: 48px;
   color: var(--color-text);
+  background-color: var(--color-bg-container);
   margin-bottom: 48px;
   .loginWelcome {
     font-size: 24px;
@@ -60,5 +65,23 @@
   .loginFormSubmit {
     margin-top: 24px;
     width: 100%;
+  }
+}
+
+.setting {
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  height: auto;
+  width: auto;
+
+  .settingBtn {
+    padding: 0px 12px;
+    font-size: 14px;
+    color: var(--color-text);
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+    }
   }
 }
