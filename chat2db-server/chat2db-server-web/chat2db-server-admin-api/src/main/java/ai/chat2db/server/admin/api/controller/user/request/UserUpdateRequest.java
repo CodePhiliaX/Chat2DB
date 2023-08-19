@@ -20,7 +20,6 @@ public class UserUpdateRequest {
     /**
      * 密码
      */
-    @NotNull
     private String password;
 
     /**
