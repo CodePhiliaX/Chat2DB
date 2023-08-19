@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jiaju Zhuang
  */
 @RestController
-@RequestMapping("/oauth")
+@RequestMapping("/api/oauth")
 @Slf4j
 public class OauthController {
 

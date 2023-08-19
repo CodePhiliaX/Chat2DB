@@ -6,6 +6,7 @@ import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQue
 import ai.chat2db.server.admin.api.controller.user.request.UserTeamBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserTeamPageQueryVO;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
 import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -59,10 +60,19 @@ public class UserTeamAdminController {
     @PostMapping("/batch_create")
     public ActionResult bacthCreate(@Valid @RequestBody UserTeamBatchCreateRequest request) {
         request.getTeamIdList()
-            .forEach(teamId -> teamUserService.create(TeamUserCreatParam.builder()
-                .teamId(teamId)
-                .userId(request.getUserId())
-                .build()));
+            .forEach(teamId -> {
+                TeamUserPageQueryParam teamUserPageQueryParam = new TeamUserPageQueryParam();
+                teamUserPageQueryParam.setTeamId(teamId);
+                teamUserPageQueryParam.setUserId(request.getUserId());
+                teamUserPageQueryParam.queryOne();
+                if (teamUserService.pageQuery(teamUserPageQueryParam, null).hasData()) {
+                    return;
+                }
+                teamUserService.create(TeamUserCreatParam.builder()
+                    .teamId(teamId)
+                    .userId(request.getUserId())
+                    .build());
+            });
         return ActionResult.isSuccess();
     }
 
