@@ -35,7 +35,7 @@ const codeMessage: { [errorCode: number]: string } = {
 
 enum ErrorCode {
   /** 需要登录 */
-  NEED_LOGGED_IN = 'NEED_LOGGED_IN',
+  NEED_LOGGED_IN = 'common.needLoggedIn',
 }
 
 const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
@@ -180,7 +180,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
                 errorMessage,
                 errorDetail,
                 solutionLink,
-              })
+              });
               // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);
