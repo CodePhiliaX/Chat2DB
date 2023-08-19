@@ -117,7 +117,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public ActionResult updateWithPermission(DataSourceUpdateParam param) {
         DataSource dataSource = queryExistent(param.getId()).getData();
-        PermissionUtils.checkPermission(dataSource.getUserId());
+        PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(LocalDateTime.now());
@@ -129,7 +129,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     public ActionResult deleteWithPermission(Long id) {
 
         DataSource dataSource = queryExistent(id).getData();
-        PermissionUtils.checkPermission(dataSource.getUserId());
+        PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         dataSourceMapper.deleteById(id);
         return ActionResult.isSuccess();
@@ -153,7 +153,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public DataResult<Long> copyByIdWithPermission(Long id) {
         DataSource dataSource = queryExistent(id).getData();
-        PermissionUtils.checkPermission(dataSource.getUserId());
+        PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
         dataSourceDO.setId(null);

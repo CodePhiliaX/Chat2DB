@@ -17,4 +17,6 @@ public interface DataSourceAccessCustomMapper extends Mapper<DataSourceAccessDO>
         @Param("accessObjectId") Long accessObjectId,
         @Param("userOrTeamSearchKey") String userOrTeamSearchKey,
         @Param("dataSourceSearchKey") String dataSourceSearchKey);
+
+    DataSourceAccessDO checkTeamPermission( @Param("dataSourceId") Long dataSourceId, @Param("userId") Long userId);
 }
