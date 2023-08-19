@@ -160,7 +160,6 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
         return new PageResult<>(data, 0L, param.getPageNo(), param.getPageSize());
     }
 
-
     /**
      * 构建空的返回对象
      *
@@ -221,6 +220,15 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
             hasNextPage = calculateHasNextPage();
         }
         return hasNextPage;
+    }
+
+    /**
+     * 判断是否存在数据
+     *
+     * @return 是否存在数据
+     */
+    public boolean hasData() {
+        return hasData(this);
     }
 
     /**

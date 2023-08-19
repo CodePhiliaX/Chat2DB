@@ -5,6 +5,7 @@ import java.util.List;
 import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserComprehensivePageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
 import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.domain.core.converter.TeamConverter;
@@ -18,6 +19,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
@@ -45,6 +47,24 @@ public class TeamUserServiceImpl implements TeamUserService {
     private UserConverter userConverter;
     @Resource
     private TeamConverter teamConverter;
+
+    @Override
+    public PageResult<TeamUser> pageQuery(TeamUserPageQueryParam param, TeamUserSelector selector) {
+        LambdaQueryWrapper<TeamUserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TeamUserDO::getTeamId, param.getTeamId())
+            .eq(TeamUserDO::getUserId, param.getUserId())
+        ;
+
+        Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
+        page.setSearchCount(param.getEnableReturnCount());
+        IPage<TeamUserDO> iPage = teamUserMapper.selectPage(page, queryWrapper);
+
+        List<TeamUser> list = teamUserConverter.do2dto(iPage.getRecords());
+
+        fillData(list, selector);
+
+        return PageResult.of(list, iPage.getTotal(), param);
+    }
 
     @Override
     public PageResult<TeamUser> comprehensivePageQuery(TeamUserComprehensivePageQueryParam param,
