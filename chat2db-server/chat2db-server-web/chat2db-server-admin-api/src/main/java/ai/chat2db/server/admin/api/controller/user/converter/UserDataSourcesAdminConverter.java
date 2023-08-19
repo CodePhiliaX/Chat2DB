@@ -48,6 +48,9 @@ public abstract class UserDataSourcesAdminConverter {
      * @param dto
      * @return
      */
+    @Mappings({
+        @Mapping(target = "userId", source = "accessObjectId"),
+    })
     public abstract UserDataSourcePageQueryVO dto2vo(DataSourceAccess dto);
 
 }

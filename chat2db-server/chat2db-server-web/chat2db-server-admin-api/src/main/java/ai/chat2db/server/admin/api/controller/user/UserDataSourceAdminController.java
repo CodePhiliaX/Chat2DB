@@ -6,7 +6,9 @@ import ai.chat2db.server.admin.api.controller.user.request.UserDataSourceBatchCr
 import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -31,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserDataSourceAdminController {
     private static final DataSourceAccessSelector DATA_SOURCE_ACCESS_SELECTOR = DataSourceAccessSelector.builder()
         .dataSource(Boolean.TRUE)
+        .dataSourceSelector(DataSourceSelector.builder()
+            .environment(Boolean.TRUE)
+            .build())
         .build();
 
     @Resource
@@ -62,11 +67,21 @@ public class UserDataSourceAdminController {
     @PostMapping("/batch_create")
     public ActionResult create(@RequestBody UserDataSourceBatchCreateRequest request) {
         request.getDataSourceIdList()
-            .forEach(dataSourceId -> dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
-                .dataSourceId(dataSourceId)
-                .accessObjectId(request.getUserId())
-                .accessObjectType(AccessObjectTypeEnum.USER.getCode())
-                .build()));
+            .forEach(dataSourceId -> {
+                DataSourceAccessPageQueryParam dataSourceAccessPageQueryParam = new DataSourceAccessPageQueryParam();
+                dataSourceAccessPageQueryParam.setDataSourceId(dataSourceId);
+                dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.USER.getCode());
+                dataSourceAccessPageQueryParam.setAccessObjectId(request.getUserId());
+                dataSourceAccessPageQueryParam.queryOne();
+                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).hasData()) {
+                    return;
+                }
+                dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
+                    .dataSourceId(dataSourceId)
+                    .accessObjectId(request.getUserId())
+                    .accessObjectType(AccessObjectTypeEnum.USER.getCode())
+                    .build());
+            });
         return ActionResult.isSuccess();
     }
 

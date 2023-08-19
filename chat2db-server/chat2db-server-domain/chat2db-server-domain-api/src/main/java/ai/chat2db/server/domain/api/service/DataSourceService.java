@@ -32,7 +32,6 @@ public interface DataSourceService {
      * @return
      */
     DataResult<Long> createWithPermission(DataSourceCreateParam param);
-    
 
     /**
      * 更新数据源连接
@@ -100,8 +99,17 @@ public interface DataSourceService {
      *
      * @param ids
      * @return
+     * @deprecated Use {@link #listQuery(List, DataSourceSelector)}
      */
     ListResult<DataSource> queryByIds(List<Long> ids);
+
+    /**
+     * 通过ID列表查询数据源
+     *
+     * @param idList
+     * @return
+     */
+    ListResult<DataSource> listQuery(List<Long> idList, DataSourceSelector selector);
 
     /**
      * 数据源连接测试
