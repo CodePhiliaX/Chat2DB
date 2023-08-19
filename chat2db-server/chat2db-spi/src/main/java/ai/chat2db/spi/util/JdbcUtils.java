@@ -1,27 +1,23 @@
 package ai.chat2db.spi.util;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
 
 import com.alibaba.druid.DbType;
 
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.ssh.SSHManager;
+import cn.hutool.core.io.unit.DataSizeUtil;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +29,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class JdbcUtils {
+
+    private static final long MAX_RESULT_SIZE = 256 * 1024;
 
     /**
      * 获取德鲁伊的的数据库类型
@@ -141,59 +139,40 @@ public class JdbcUtils {
      * @return
      * @throws SQLException
      */
-    public static String getResultSetValue(ResultSet rs, int index) throws SQLException {
+    public static String getResultSetValue(ResultSet rs, int index, boolean limitSize) throws SQLException {
         Object obj = rs.getObject(index);
         if (obj == null) {
             return null;
         }
-
-        if (obj instanceof Blob blob) {
-            return rs.getString(index);
-        }
-        if (obj instanceof Clob clob) {
-            return clob.getSubString(1, Math.toIntExact(clob.length()));
-        }
-        if (obj instanceof Timestamp timestamp) {
-            return Objects.toString(timestamp);
-        }
-
-        String className = obj.getClass().getName();
-        if ("oracle.sql.TIMESTAMP".equals(className) || "oracle.sql.TIMESTAMPTZ".equals(className)) {
-            return Objects.toString(rs.getTimestamp(index));
-        }
-        if (className.startsWith("oracle.sql.DATE")) {
-            String metaDataClassName = rs.getMetaData().getColumnClassName(index);
-            if ("java.sql.Timestamp".equals(metaDataClassName) || "oracle.sql.TIMESTAMP".equals(metaDataClassName)) {
-                return Objects.toString(rs.getTimestamp(index));
-            } else {
-                return Objects.toString(rs.getDate(index));
-            }
-        }
-        if (obj instanceof Date date) {
-            if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
-                return Objects.toString(rs.getDate(index));
-            }
-            return Objects.toString(date);
-        }
-        if (obj instanceof LocalDateTime localDateTime) {
-            return Objects.toString(localDateTime);
-        }
-        if (obj instanceof LocalDate localDate) {
-            return Objects.toString(localDate);
-        }
         if (obj instanceof BigDecimal bigDecimal) {
             return bigDecimal.toPlainString();
-        }
-        if (obj instanceof Double d) {
+        } else if (obj instanceof Double d) {
             return BigDecimal.valueOf(d).toPlainString();
-        }
-        if (obj instanceof Float f) {
+        } else if (obj instanceof Float f) {
             return BigDecimal.valueOf(f).toPlainString();
+        } else if (obj instanceof Clob) {
+            return largeString(rs, index, limitSize);
+        } else if (obj instanceof byte[]) {
+            return largeString(rs, index, limitSize);
         }
-        if (obj instanceof Number num) {
-            return Objects.toString(num);
+        return rs.getString(index);
+    }
+
+    private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {
+        String result = rs.getString(index);
+        if (result == null) {
+            return null;
         }
-        return Objects.toString(obj);
+        if (!limitSize) {
+            return result;
+        }
+
+        if (result.length() > MAX_RESULT_SIZE) {
+            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(result.length()) + " ,"
+                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result.substring(0,
+                Math.toIntExact(MAX_RESULT_SIZE));
+        }
+        return result;
     }
 
     /**
