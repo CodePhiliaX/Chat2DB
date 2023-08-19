@@ -107,7 +107,7 @@ public class RdbDmlExportController {
         } else {
             doExportInsert(sql, response, fileName, dbType, tableName);
         }
-       String SS= ConfigUtils.APP_PATH;
+        String SS = ConfigUtils.APP_PATH;
     }
 
     private void doExportCsv(String sql, HttpServletResponse response, String fileName)
@@ -130,7 +130,7 @@ public class RdbDmlExportController {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            });
+            }, false);
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -161,7 +161,7 @@ public class RdbDmlExportController {
                     sqlInsertStatement.setValues(valuesClause);
 
                     printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                });
+                }, false);
         }
     }
 
