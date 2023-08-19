@@ -17,7 +17,7 @@ public class PermissionUtils {
      *
      * @param createUserId The creator of the current content
      */
-    public static void checkPermission(Long createUserId) {
+    public static void checkOperationPermission(Long createUserId) {
         LoginUser loginUser = ContextUtils.getLoginUser();
         // Representative is desktop mode
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(loginUser.getId())) {
@@ -35,5 +35,25 @@ public class PermissionUtils {
         if (!loginUser.getId().equals(createUserId)) {
             throw new PermissionDeniedBusinessException();
         }
+    }
+
+    /**
+     * 校验是否有查询权限
+     *
+     * @param createUserId
+     * @return
+     */
+    public static boolean checkBaseQueryPermission(Long createUserId) {
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        // Representative is desktop mode
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(loginUser.getId())) {
+            if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(createUserId)) {
+                return true;
+            } else {
+                throw new PermissionDeniedBusinessException();
+            }
+        }
+        // Administrators can edit anything
+        return loginUser.getAdmin();
     }
 }

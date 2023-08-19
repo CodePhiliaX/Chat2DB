@@ -35,4 +35,17 @@
         </where>
     </select>
 
+    <select id="checkTeamPermission" resultType="ai.chat2db.server.domain.repository.entity.DataSourceAccessDO">
+        select dsa.*
+        from DATA_SOURCE_ACCESS dsa
+        left join TEAM t on t.id =dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM' and t.status='VALID'
+        left join TEAM_USER tu on tu.TEAM_ID =t.ID
+        <where>
+            dsa.DATA_SOURCE_ID = #{dataSourceId}
+            and tu.USER_ID = #{userId}
+            limit 1
+        </where>
+    </select>
+
+
 </mapper>
