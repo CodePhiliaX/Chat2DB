@@ -47,7 +47,7 @@ export const operationTypeConfig: {
   };
 } = {
   [OperationType.CONSOLE]: {
-    icon: '\ue619'
+    icon: '\uec83'
   },
   [OperationType.VIEW]: {
     icon: '\ue70c'
