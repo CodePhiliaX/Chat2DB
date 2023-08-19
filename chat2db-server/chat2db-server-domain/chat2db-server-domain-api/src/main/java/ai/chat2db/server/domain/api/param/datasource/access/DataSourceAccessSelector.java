@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.api.param.datasource.access;
 
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,13 @@ public class DataSourceAccessSelector {
      */
     private Boolean accessObject;
 
-
     /**
      * 数据源
      */
     private Boolean dataSource;
+
+    /**
+     * 数据源
+     */
+    private DataSourceSelector dataSourceSelector;
 }

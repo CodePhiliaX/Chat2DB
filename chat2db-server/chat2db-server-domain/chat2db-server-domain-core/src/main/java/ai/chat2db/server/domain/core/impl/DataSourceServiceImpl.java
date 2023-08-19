@@ -179,7 +179,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         IPage<DataSourceDO> iPage = dataSourceMapper.selectPage(page, queryWrapper);
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
-        fillData(dataSources,selector);
+        fillData(dataSources, selector);
 
         return PageResult.of(dataSources, iPage.getTotal(), param);
     }
@@ -192,7 +192,7 @@ public class DataSourceServiceImpl implements DataSourceService {
             BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey());
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
-        fillData(dataSources,selector);
+        fillData(dataSources, selector);
 
         return PageResult.of(dataSources, iPage.getTotal(), param);
 
@@ -200,9 +200,19 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public ListResult<DataSource> queryByIds(List<Long> ids) {
-        List<DataSourceDO> dataSourceDOS = dataSourceMapper.selectBatchIds(ids);
-        List<DataSource> dataSources = dataSourceConverter.do2dto(dataSourceDOS);
-        return ListResult.of(dataSources);
+        return listQuery(ids, null);
+    }
+
+    @Override
+    public ListResult<DataSource> listQuery(List<Long> idList, DataSourceSelector selector) {
+        if (CollectionUtils.isEmpty(idList)) {
+            return ListResult.empty();
+        }
+        List<DataSourceDO> dataList = dataSourceMapper.selectBatchIds(idList);
+        List<DataSource> list = dataSourceConverter.do2dto(dataList);
+
+        fillData(list, selector);
+        return ListResult.of(list);
     }
 
     @Override

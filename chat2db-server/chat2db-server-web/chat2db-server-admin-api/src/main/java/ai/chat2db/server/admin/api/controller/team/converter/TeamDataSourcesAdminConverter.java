@@ -45,6 +45,9 @@ public abstract class TeamDataSourcesAdminConverter {
      * @param dto
      * @return
      */
+    @Mappings({
+        @Mapping(target = "teamId", source = "accessObjectId"),
+    })
     public abstract TeamDataSourcePageQueryVO dto2vo(DataSourceAccess dto);
 
 }

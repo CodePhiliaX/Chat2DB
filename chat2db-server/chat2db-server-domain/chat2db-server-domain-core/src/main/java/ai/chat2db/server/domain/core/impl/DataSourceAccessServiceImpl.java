@@ -7,16 +7,20 @@ import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.model.DataSourceAccess;
 import ai.chat2db.server.domain.api.model.DataSourceAccessObject;
 import ai.chat2db.server.domain.api.model.Team;
+import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessComprehensivePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
+import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.DataSourceAccessConverter;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
+import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -24,6 +28,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
@@ -54,6 +59,25 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     private UserService userService;
     @Resource
     private TeamService teamService;
+
+    @Override
+    public PageResult<DataSourceAccess> pageQuery(DataSourceAccessPageQueryParam param, DataSourceAccessSelector selector) {
+        LambdaQueryWrapper<DataSourceAccessDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DataSourceAccessDO::getDataSourceId, param.getDataSourceId())
+            .eq(DataSourceAccessDO::getAccessObjectType, param.getAccessObjectType())
+            .eq(DataSourceAccessDO::getAccessObjectId, param.getAccessObjectId())
+        ;
+
+        Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
+        page.setSearchCount(param.getEnableReturnCount());
+        IPage<DataSourceAccessDO> iPage = dataSourceAccessMapper.selectPage(page, queryWrapper);
+
+        List<DataSourceAccess> list = dataSourceAccessConverter.do2dto(iPage.getRecords());
+
+        fillData(list, selector);
+
+        return PageResult.of(list, iPage.getTotal(), param);
+    }
 
     @Override
     public PageResult<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
@@ -100,7 +124,8 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
         if (BooleanUtils.isNotTrue(selector.getDataSource())) {
             return;
         }
-        dataSourceConverter.fillDetail(EasyCollectionUtils.toList(list, DataSourceAccess::getDataSource));
+        dataSourceConverter.fillDetail(EasyCollectionUtils.toList(list, DataSourceAccess::getDataSource),
+            selector.getDataSourceSelector());
     }
 
     private void fillAccessObject(List<DataSourceAccess> list, DataSourceAccessSelector selector) {

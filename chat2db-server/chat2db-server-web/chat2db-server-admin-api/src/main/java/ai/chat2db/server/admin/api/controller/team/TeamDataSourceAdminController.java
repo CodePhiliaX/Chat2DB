@@ -6,7 +6,9 @@ import ai.chat2db.server.admin.api.controller.team.request.TeamDataSourceBatchCr
 import ai.chat2db.server.admin.api.controller.team.vo.TeamDataSourcePageQueryVO;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
+import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -30,7 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TeamDataSourceAdminController {
     private static final DataSourceAccessSelector DATA_SOURCE_ACCESS_SELECTOR = DataSourceAccessSelector.builder()
-        .accessObject(Boolean.TRUE)
+        .dataSource(Boolean.TRUE)
+        .dataSourceSelector(DataSourceSelector.builder()
+            .environment(Boolean.TRUE)
+            .build())
         .build();
 
     @Resource
@@ -62,11 +67,21 @@ public class TeamDataSourceAdminController {
     @PostMapping("/batch_create")
     public ActionResult create(@Valid @RequestBody TeamDataSourceBatchCreateRequest request) {
         request.getDataSourceIdList()
-            .forEach(dataSourceId -> dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
-                .dataSourceId(dataSourceId)
-                .accessObjectId(request.getTeamId())
-                .accessObjectType(AccessObjectTypeEnum.TEAM.getCode())
-                .build()));
+            .forEach(dataSourceId -> {
+                DataSourceAccessPageQueryParam dataSourceAccessPageQueryParam = new DataSourceAccessPageQueryParam();
+                dataSourceAccessPageQueryParam.setDataSourceId(dataSourceId);
+                dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.TEAM.getCode());
+                dataSourceAccessPageQueryParam.setAccessObjectId(request.getTeamId());
+                dataSourceAccessPageQueryParam.queryOne();
+                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).hasData()) {
+                    return;
+                }
+                dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
+                    .dataSourceId(dataSourceId)
+                    .accessObjectId(request.getTeamId())
+                    .accessObjectType(AccessObjectTypeEnum.TEAM.getCode())
+                    .build());
+            });
         return ActionResult.isSuccess();
     }
 
