@@ -14,6 +14,9 @@ import Workspace from './workspace';
 import Dashboard from './dashboard';
 
 import styles from './index.less';
+import { getUser, userLogout } from '@/service/user';
+import { ILoginUser } from '@/typings/user';
+import { Dropdown } from 'antd';
 
 const navConfig: INavItem[] = [
   {
@@ -58,9 +61,18 @@ interface IProps {
 }
 
 function MainPage(props: IProps) {
-  const { mainModel, workspaceModel, connectionModel, dispatch } = props;
+  const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
+  const [userInfo, setUserInfo] = useState<ILoginUser>();
+
+  useEffect(() => {
+    getUser().then((res) => {
+      if (res) {
+        setUserInfo(res);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     dispatch({
@@ -101,10 +113,36 @@ function MainPage(props: IProps) {
     }
   }
 
+  const handleLogout = () => {
+    userLogout().then((res) => {
+      setUserInfo(undefined);
+      window.location.href = '/#/login';
+    });
+  };
+
+  const renderUser = () => {
+    return (
+      <Dropdown
+        menu={{
+          items: [
+            {
+              key: '1',
+              label: <div onClick={handleLogout}>退出登录</div>,
+            },
+          ],
+        }}
+        placement="bottomRight"
+        arrow={{ pointAtCenter: true }}
+      >
+        <Iconfont code="&#xe666;" className={styles.questionIcon} />
+      </Dropdown>
+    );
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
@@ -129,7 +167,8 @@ function MainPage(props: IProps) {
               window.open('https://github.com/chat2db/chat2db/wiki');
             }}
           /> */}
-          <Setting className={styles.setIcon}></Setting>
+          {userInfo ? renderUser() : null}
+          <Setting className={styles.setIcon} />
         </div>
       </div>
       <div className={styles.layoutRight}>

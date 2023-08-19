@@ -8,3 +8,18 @@ export interface IUser {
   email: string;
   role?: IRole;
 }
+
+export interface ILoginUser {
+  /**
+   * Is it an administrator
+   */
+  admin?: boolean;
+  /**
+   * 用户id
+   */
+  id?: number;
+  /**
+   * 昵称
+   */
+  nickName?: string;
+}
