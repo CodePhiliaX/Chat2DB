@@ -17,8 +17,9 @@ import styles from './index.less';
 import { getUser, userLogout } from '@/service/user';
 import { ILoginUser } from '@/typings/user';
 import { Dropdown } from 'antd';
+import Team from './team';
 
-const navConfig: INavItem[] = [
+let navConfig: INavItem[] = [
   {
     key: 'workspace',
     icon: '\ue616',
@@ -64,12 +65,23 @@ function MainPage(props: IProps) {
   const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
+  // const [activeNav, setActiveNav] = useState<INavItem>(navConfig[4]);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
 
   useEffect(() => {
     getUser().then((res) => {
       if (res) {
         setUserInfo(res);
+        if (res.admin) {
+          navConfig.splice(3, 0, {
+            key: 'team',
+            icon: '\ue66d',
+            iconFontSize: 20,
+            isLoad: false,
+            component: <Team />,
+          });
+          setActiveNav(navConfig[3]);
+        }
       }
     });
   }, []);
