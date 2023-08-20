@@ -14,19 +14,20 @@ export interface IPageParams {
   pageSize: number;
 }
 
+// 控制台详情
 export interface IConsole {
-  id: number;
-  name: string;
-  ddl: string;
-  dataSourceId: number;
-  dataSourceName: string;
-  databaseName?: string;
-  schemaName?: string;
-  type: DatabaseTypeCode;
-  status: ConsoleStatus;
-  connectable: boolean;
-  tabOpened?: ConsoleOpenedStatus;
-  operationType: OperationType;
+  id: number; // consoleId
+  name: string; // 控制台名称
+  ddl: string; // 控制台内的sql
+  dataSourceId: number; // 数据源id
+  dataSourceName: string; // 数据源名称
+  databaseName?: string; // 数据库名称
+  schemaName?: string; // schema名称
+  type: DatabaseTypeCode; // 数据库类型
+  status: ConsoleStatus; // 控制台状态
+  connectable: boolean; // 是否可连接
+  tabOpened?: ConsoleOpenedStatus; // 控制台tab是否打开
+  operationType: OperationType; // 操作类型
 }
 
 export interface Option {

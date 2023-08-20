@@ -402,6 +402,21 @@ function Console(props: IProps) {
     setPopularizeModal(true);
   };
 
+  /**
+   * 格式化sql
+   */
+  const handelSQLFormat = () => {
+    let setValueType = 'select';
+    let sql = editorRef?.current?.getCurrentSelectContent();
+    if (!sql) {
+      sql = editorRef?.current?.getAllContent() || '';
+      setValueType = 'cover';
+    }
+    formatSql(sql, executeParams.type!).then(res => {
+      editorRef?.current?.setValue(res, setValueType);
+    });
+  };
+
   return (
     <div className={styles.console}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
@@ -467,16 +482,7 @@ function Console(props: IProps) {
             </Button>
           )}
         </div>
-        <Button
-          type="text"
-          onClick={() => {
-            // 格式化sql
-            const sql = editorRef?.current?.getCurrentSelectContent() || editorRef?.current?.getAllContent() || ''
-            formatSql(sql, executeParams.type!).then((res) => {
-              editorRef?.current?.setValue(res, 'select');
-            });
-          }}
-        >
+        <Button type="text" onClick={handelSQLFormat}>
           {i18n('common.button.format')}
         </Button>
       </div>
