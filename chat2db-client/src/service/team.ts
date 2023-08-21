@@ -1,6 +1,13 @@
 import createRequest from './base';
 import { IPageParams, IPageResponse } from '@/typings';
-import { IDataSourcePageQueryVO, ITeamPageQueryVO, ITeamVO, IUserPageQueryVO, IUserVO } from '@/typings/team';
+import {
+  IDataSourcePageQueryVO,
+  ITeamPageQueryVO,
+  ITeamVO,
+  IUserPageQueryVO,
+  IUserVO,
+  TeamUserPageQueryVO,
+} from '@/typings/team';
 
 /**
  * 获取共享链接列表
@@ -31,5 +38,39 @@ const getTeamManagementList = createRequest<IPageParams, IPageResponse<ITeamPage
 const createTeam = createRequest<ITeamVO, { data: number }>('/api/admin/team/create', {
   method: 'post',
 });
+const updateTeam = createRequest<ITeamVO, { data: number }>('/api/admin/team/update', {
+  method: 'post',
+});
+const deleteTeam = createRequest<{ id: number }, {}>('/api/admin/team/:id', {
+  method: 'delete',
+});
 
-export { getDataSourceList, getUserManagementList, createUser, getTeamManagementList, createTeam };
+/** 团队-团队管理中获取包含用户列表 */
+const getUserListFromTeam = createRequest<IPageParams & { teamId: number }, IPageResponse<TeamUserPageQueryVO>>(
+  '/api/admin/team/user/page',
+  {
+    method: 'get',
+  },
+);
+const deleteUserFromTeam = createRequest<{ id: number }, {}>('/api/admin/team/user/:id', {
+  method: 'delete',
+});
+
+// ======================= 通用列表 =====================
+/** 通用-获取user列表 */
+const getCommonUserList = createRequest<{ searchKey: string }, IUserPageQueryVO[]>('/api/admin/common/user/list', {
+  method: 'get',
+});
+
+export {
+  getDataSourceList,
+  getUserManagementList,
+  createUser,
+  getTeamManagementList,
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  getUserListFromTeam,
+  deleteUserFromTeam,
+  getCommonUserList,
+};
