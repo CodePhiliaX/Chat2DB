@@ -48,6 +48,8 @@ const SupportBaseTable: any = styled(BaseTable)`
   }
 `;
 
+const preCode = '$$chat2db_';
+
 export default function TableBox(props: ITableProps) {
   const { className, data, config, onConfigChange, onSearchTotal } = props;
   const { headerList, dataList, duration, description, sqlType } = data || {};
@@ -128,7 +130,7 @@ export default function TableBox(props: ITableProps) {
         const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
         if (isNumericalOrder) {
           return {
-            code: 'No.',
+            code: `${preCode}No.`,
             name: 'No.',
             key: name,
             lock: true,
@@ -144,7 +146,7 @@ export default function TableBox(props: ITableProps) {
           };
         }
         return {
-          code: name,
+          code: `${preCode}${name}`,
           name: name,
           key: name,
           width: 120,
@@ -173,13 +175,11 @@ export default function TableBox(props: ITableProps) {
       return (dataList || []).map((item, rowIndex) => {
         const rowData: any = {};
         item.map((i: string | null, index: number) => {
-          const { dataType: type } = headerList[index] || {};
-          if (type === TableDataType.DATETIME && i) {
-            rowData[columns[index].name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
-          } else if (i === null) {
-            rowData[columns[index].name] = '<null>';
+          const name = `${preCode}${columns[index].name}`;
+          if (i === null) {
+            rowData[name] = '<null>';
           } else {
-            rowData[columns[index].name] = i;
+            rowData[name] = i;
           }
         });
         return rowData;
