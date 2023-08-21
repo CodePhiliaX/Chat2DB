@@ -1,5 +1,5 @@
 import { createUser, getUserManagementList } from '@/service/team';
-import { IUserPageQueryVO, IUserStatus, IUserVO, RoleStatusType, UserStatusType } from '@/typings/team';
+import { IUserPageQueryVO, IUserVO, RoleType, StatusType } from '@/typings/team';
 import { Button, Form, Input, Modal, Radio, Table, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
@@ -43,7 +43,7 @@ function UserManagement() {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
-        render: (status: IUserStatus) => <Tag color={status === UserStatusType.VALID ? 'green' : 'red'}>{status}</Tag>,
+        render: (status: StatusType) => <Tag color={status === StatusType.VALID ? 'green' : 'red'}>{status}</Tag>,
       },
     ],
     [],
@@ -135,8 +135,8 @@ function UserManagement() {
           form={form}
           autoComplete={'off'}
           initialValues={{
-            roleCode: RoleStatusType.USER,
-            status: UserStatusType.VALID,
+            roleCode: RoleType.USER,
+            status: StatusType.VALID,
           }}
         >
           <Form.Item label="用户名" name="userName" rules={[requireRule]}>
@@ -153,14 +153,14 @@ function UserManagement() {
           </Form.Item>
           <Form.Item label="角色" name="roleCode" rules={[requireRule]}>
             <Radio.Group>
-              <Radio value={RoleStatusType.ADMIN}>管理员</Radio>
-              <Radio value={RoleStatusType.USER}>用户</Radio>
+              <Radio value={RoleType.ADMIN}>管理员</Radio>
+              <Radio value={RoleType.USER}>用户</Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item label="状态" name="status" rules={[requireRule]}>
             <Radio.Group>
-              <Radio value={UserStatusType.VALID}>有效</Radio>
-              <Radio value={UserStatusType.INVALID}>无效</Radio>
+              <Radio value={StatusType.VALID}>有效</Radio>
+              <Radio value={StatusType.INVALID}>无效</Radio>
             </Radio.Group>
           </Form.Item>
         </Form>

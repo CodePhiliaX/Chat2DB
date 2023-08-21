@@ -1,9 +1,22 @@
+// ===================== Universal ==================
+export enum ManagementType {
+  DATASOURCE = 'DATASOURCE',
+  TEAM = 'TEAM',
+  USER = 'USER',
+}
+
+export enum StatusType {
+  INVALID = 'INVALID',
+  VALID = 'VALID',
+}
+
+export enum RoleType {
+  ADMIN = 'ADMIN',
+  USER = 'USER',
+}
+
 // ===================== DataSource ==================
-/**
- * Pagination query
- *
- * DataSourcePageQueryVO
- */
+
 export interface IDataSourcePageQueryVO {
   /**
    * 连接别名
@@ -27,11 +40,6 @@ export interface IDataSourcePageQueryVO {
   url?: string;
 }
 
-/**
- * 环境
- *
- * SimpleEnvironmentVO
- */
 export interface ISimpleEnvironmentVO {
   /**
    * 主键
@@ -59,21 +67,6 @@ export enum StyleType {
 }
 
 // ===================== User ======================
-export enum RoleStatusType {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
-export enum UserStatusType {
-  INVALID = 'INVALID',
-  VALID = 'VALID',
-}
-export type IRoleStatus = keyof typeof RoleStatusType;
-export type IUserStatus = keyof typeof UserStatusType;
-/**
- * Pagination query
- *
- * UserPageQueryVO
- */
 export interface IUserPageQueryVO {
   /**
    * 主键
@@ -86,7 +79,7 @@ export interface IUserPageQueryVO {
   /**
    * 用户状态
    */
-  status?: IUserStatus;
+  status?: StatusType;
   /**
    * 用户名
    */
@@ -112,11 +105,11 @@ export interface IUserVO {
   /**
    * 角色编码
    */
-  roleCode: IRoleStatus;
+  roleCode: RoleType;
   /**
    * 用户状态
    */
-  status: IUserStatus;
+  status: StatusType;
   /**
    * 用户名
    */
@@ -124,30 +117,28 @@ export interface IUserVO {
 }
 
 // ===================== Team =====================
-export enum TeamStatusType {
-  INVALID = 'INVALID',
-  VALID = 'VALID',
-}
+
 export interface ITeamPageQueryVO {
   /**
    * 团队编码
    */
-  code?: string;
+  code: string;
   /**
    * 主键
    */
-  id?: number;
+  id: number;
   /**
    * 团队名称
    */
-  name?: string;
+  name: string;
   /**
    * 团队状态
    */
-  status?: TeamStatusType;
+  status: StatusType;
 }
 
 export interface ITeamVO {
+  id?: number;
   /**
    * 团队编码
    */
@@ -161,11 +152,13 @@ export interface ITeamVO {
    */
   name: string;
   /**
-   * 角色编码
-   */
-  roleCode: string;
-  /**
    * 团队状态
    */
-  status: TeamStatusType;
+  status: StatusType;
+}
+
+export interface TeamUserPageQueryVO {
+  id: number;
+  teamId: number;
+  user: IUserVO;
 }
