@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const registerAppMenu = require('./menu');
+const registerAnalysis = require('./analysis');
 const i18n = require('./i18n');
 const { loadMainResource } = require('./utils');
 
@@ -52,6 +53,7 @@ app.commandLine.appendSwitch('--disable-gpu-sandbox');
 app.on('ready', () => {
   createWindow();
   registerAppMenu();
+  registerAnalysis();
 
   app.on('activate', function () {
     if (mainWindow === null) {
