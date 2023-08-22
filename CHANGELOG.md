@@ -1,3 +1,22 @@
+# 2.0.13
+
+## ⭐ New Features
+
+## 🐞 Bug Fixes
+- Fixed a bug where sql formatting was not selected 
+- Fixed open view lag issue 
+- Solve the white screen problem of connected non-relational databases (non-relational databases are not supported)
+
+## ⭐ 新特性
+
+
+
+## 🐞 问题修复
+- 修复不选中sql格式化的bug
+- 修复打开视图卡顿问题
+- 解决已连接的非关系型数据库打开白屏问题（暂不支持非关系性数据库）
+
+
 # 2.0.12
 
 ## ⭐ New Features

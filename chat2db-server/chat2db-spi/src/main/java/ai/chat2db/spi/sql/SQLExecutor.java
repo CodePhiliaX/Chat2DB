@@ -112,6 +112,11 @@ public class SQLExecutor {
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
         Consumer<List<String>> rowConsumer) {
+        executeSql(connection, sql, headerConsumer, rowConsumer, true);
+    }
+
+    public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
+        Consumer<List<String>> rowConsumer, boolean limitSize) {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement();) {
@@ -139,7 +144,7 @@ public class SQLExecutor {
                     while (rs.next()) {
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         for (int i = 1; i <= col; i++) {
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i));
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitSize));
                         }
                         rowConsumer.accept(row);
                     }
@@ -160,6 +165,17 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection) throws SQLException {
+        return execute(sql, connection, true);
+    }
+
+    /**
+     * 执行sql
+     *
+     * @param sql
+     * @return
+     * @throws SQLException
+     */
+    public ExecuteResult execute(final String sql, Connection connection, boolean limitSize) throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
 
@@ -199,7 +215,7 @@ public class SQLExecutor {
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i));
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitSize));
                         }
                     }
                     executeResult.setDuration(timeInterval.interval());
@@ -224,7 +240,7 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(Connection connection, String sql) throws SQLException {
-        return execute(sql, connection);
+        return execute(sql, connection, true);
     }
 
     /**
