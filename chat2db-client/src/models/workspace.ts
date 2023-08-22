@@ -48,7 +48,6 @@ export interface IWorkspaceModelType {
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
-    fetchGetCurViewList: Effect;
   };
 }
 
@@ -96,7 +95,6 @@ const WorkspaceModel: IWorkspaceModelType = {
         consoleList: payload,
       };
     },
-
     // 工作台页面打开的console列表
     setOpenConsoleList(state, { payload }) {
       return {
@@ -130,6 +128,7 @@ const WorkspaceModel: IWorkspaceModelType = {
   },
 
   effects: {
+    // 获取当前连接下的及联databaseAndSchema数据
     *fetchDatabaseAndSchema({ payload, callback }, { put }) {
       try {
         const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
@@ -145,6 +144,7 @@ const WorkspaceModel: IWorkspaceModelType = {
 
       }
     },
+    // 获取当前连接下的及联databaseAndSchema数据Loading
     *fetchDatabaseAndSchemaLoading({ payload }, { put }) {
       try {
         const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
@@ -157,6 +157,7 @@ const WorkspaceModel: IWorkspaceModelType = {
 
       }
     },
+    // 获取保存的控制台列表
     *fetchGetSavedConsole({ payload, callback }, { put }) {
       try {
         const res = (yield historyService.getSavedConsoleList({
@@ -171,6 +172,7 @@ const WorkspaceModel: IWorkspaceModelType = {
       catch {
       }
     },
+    // 获取保存的控制台列表Loading
     *fetchGetSavedConsoleLoading({ payload, callback }, { put }) {
       try {
         const res = (yield historyService.getSavedConsoleList({
@@ -185,6 +187,7 @@ const WorkspaceModel: IWorkspaceModelType = {
       catch {
       }
     },
+    // 获取当前连接下的表列表
     *fetchGetCurTableList({ payload, callback }, { put, call }) {
       try {
         const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
@@ -198,26 +201,6 @@ const WorkspaceModel: IWorkspaceModelType = {
         }
         yield put({
           type: 'setCurTableList',
-          payload: res,
-        });
-      }
-      catch {
-
-      }
-    },
-    *fetchGetCurViewList({ payload, callback }, { put, call }) {
-      try {
-        const res = (yield treeConfig[TreeNodeType.VIEWS].getChildren!({
-          pageNo: 1,
-          pageSize: 999,
-          ...payload,
-        })) as ITreeNode[];
-        // 异步操作完成后调用回调函数
-        if (callback && typeof callback === 'function') {
-          callback(res);
-        }
-        yield put({
-          type: 'setCurViewList',
           payload: res,
         });
       }

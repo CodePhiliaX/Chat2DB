@@ -16,6 +16,7 @@ import sql from '@/service/sql';
 import { isNumber } from 'lodash';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { downloadFile } from '@/utils/common';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect'
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -67,6 +68,10 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
       payload: '',
     });
   }, [doubleClickTreeNodeData]);
+
+  useUpdateEffect(() => {
+    setAppendValue({ text: data.initDDL });
+  }, [data.initDDL])
 
   /**
    * 执行SQL
