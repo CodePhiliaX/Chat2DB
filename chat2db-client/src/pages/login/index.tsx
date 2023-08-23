@@ -4,6 +4,8 @@ import { getUser, userLogin } from '@/service/user';
 import { history } from 'umi';
 import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
+import Setting from '@/blocks/Setting';
+import Iconfont from '@/components/Iconfont';
 
 interface IFormData {
   userName: string;
@@ -14,7 +16,6 @@ const App: React.FC = () => {
   const handleLogin = async (formData: { userName: string; password: string }) => {
     let res = await userLogin(formData);
     if (res) {
-      console.log('res', res);
       window.location.href = '/';
     }
   };
@@ -55,6 +56,19 @@ const App: React.FC = () => {
           </Button>
         </Form>
       </div>
+
+      <Setting
+        className={styles.setting}
+        render={
+          <Button
+            type="text"
+            icon={<Iconfont style={{ fontSize: '14px' }} code="&#xe630;" />}
+            className={styles.settingBtn}
+          >
+            设 置
+          </Button>
+        }
+      />
     </div>
   );
 };
