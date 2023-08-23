@@ -12,11 +12,12 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.controller.operation.saved.converter.OperationWebConverter;
+import ai.chat2db.server.web.api.controller.operation.saved.request.BatchTabCloseRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationQueryRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationUpdateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.vo.OperationVO;
-
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,6 +94,26 @@ public class OperationSavedController {
     public ActionResult update(@RequestBody OperationUpdateRequest request) {
         OperationUpdateParam param = operationWebConverter.updateReq2param(request);
         return operationService.update(param);
+    }
+
+    /**
+     * 批量关闭标签
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/batch_tab_close", method = {RequestMethod.POST, RequestMethod.PUT})
+    public ActionResult batchTabClose(@RequestBody BatchTabCloseRequest request) {
+        if (CollectionUtils.isEmpty(request.getIdList())) {
+            return ActionResult.isSuccess();
+        }
+        request.getIdList().forEach(id -> {
+            OperationUpdateParam param = new OperationUpdateParam();
+            param.setId(id);
+            param.setTabOpened("n");
+            operationService.update(param);
+        });
+        return ActionResult.isSuccess();
     }
 
     /**

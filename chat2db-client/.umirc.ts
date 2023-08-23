@@ -41,10 +41,6 @@ export default defineConfig({
       target: 'http://127.0.0.1:10821',
       changeOrigin: true,
     },
-    '/oauth': {
-      target: 'http://127.0.0.1:10821',
-      changeOrigin: true,
-    },
     '/client/remaininguses/': {
       target: 'http://127.0.0.1:1889',
       changeOrigin: true,

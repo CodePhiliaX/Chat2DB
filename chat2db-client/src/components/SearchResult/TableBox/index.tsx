@@ -175,11 +175,8 @@ export default function TableBox(props: ITableProps) {
       return (dataList || []).map((item, rowIndex) => {
         const rowData: any = {};
         item.map((i: string | null, index: number) => {
-          const { dataType: type } = headerList[index] || {};
           const name = `${preCode}${columns[index].name}`;
-          if (type === TableDataType.DATETIME && i) {
-            rowData[name] = formatDate(i, 'yyyy-MM-dd hh:mm:ss');
-          } else if (i === null) {
+          if (i === null) {
             rowData[name] = '<null>';
           } else {
             rowData[name] = i;

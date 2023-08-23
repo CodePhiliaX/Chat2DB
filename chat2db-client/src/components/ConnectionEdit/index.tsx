@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, Fragment, useContext, useCallback, useLayoutEffect } from 'react';
+import React, { memo, useEffect, useMemo, useState, Fragment, forwardRef, ForwardedRef, useImperativeHandle, useCallback, useLayoutEffect } from 'react';
 import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -34,10 +34,15 @@ interface IProps {
   closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
   submitCallback?: Function;
+  submit?: (data: IConnectionDetails) => void;
 }
 
-export default function CreateConnection(props: IProps) {
-  const { className, closeCreateConnection, submitCallback, connectionData } = props;
+export interface ICreateConnectionFunction {
+  getData: () => IConnectionDetails;
+}
+
+export default forwardRef(function CreateConnection(props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) {
+  const { className, closeCreateConnection, submitCallback, connectionData, submit } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
   const [driveData, setDriveData] = useState<any>({});
@@ -132,12 +137,14 @@ export default function CreateConnection(props: IProps) {
     },
   ];
 
-  // 测试、保存、修改连接
-  function saveConnection(type: submitType) {
+  useImperativeHandle(ref, () => ({
+    getData,
+  }))
+
+  function getData() {
     const ssh = sshForm.getFieldsValue();
     const baseInfo = baseInfoForm.getFieldsValue();
     const extendInfo: any = [];
-    const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
     extendTableData.map((t: any) => {
       if (t.label || t.value) {
         extendInfo.push({
@@ -147,56 +154,71 @@ export default function CreateConnection(props: IProps) {
       }
     });
 
-    let p: any = {
+    const data = {
       ssh,
       driverConfig: driveData,
       ...baseInfo,
       extendInfo,
       connectionEnvType: ConnectionEnvType.DAILY,
       type: backfillData.type,
-    };
+    }
+
+    if (backfillData.id) {
+      data.id = backfillData.id;
+    }
+
+    return data;
+  }
+
+  // 测试、保存、修改连接
+  function saveConnection(type: submitType) {
+    let p = getData();
 
     if (type !== submitType.SAVE) {
       p.id = backfillData.id;
     }
 
+    if (type === submitType.SAVE || type === submitType.UPDATE) {
+      submit?.(p);
+      return
+    }
+
     const api: any = connectionService[type](p);
+    const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
 
     setLoading({
       ...loadings,
       [loadingsButton]: true,
     });
 
-    api
-      .then((res: any) => {
-        if (type === submitType.TEST) {
-          message.success(
-            res === false
-              ? i18n('connection.message.testConnectResult', i18n('common.text.failure'))
-              : i18n('connection.message.testConnectResult', i18n('common.text.successful')),
-          );
-        } else {
-          message.success(
-            type === submitType.UPDATE
-              ? i18n('common.message.modifySuccessfully')
-              : i18n('common.message.addedSuccessfully'),
-          );
+    api.then((res: any) => {
+      if (type === submitType.TEST) {
+        message.success(
+          res === false
+            ? i18n('connection.message.testConnectResult', i18n('common.text.failure'))
+            : i18n('connection.message.testConnectResult', i18n('common.text.successful')),
+        );
+      } else {
+        message.success(
+          type === submitType.UPDATE
+            ? i18n('common.message.modifySuccessfully')
+            : i18n('common.message.addedSuccessfully'),
+        );
 
-          if (type === submitType.SAVE) {
-            setBackfillData({
-              ...backfillData,
-              id: res,
-            });
-          }
-          submitCallback?.();
+        if (type === submitType.SAVE) {
+          setBackfillData({
+            ...backfillData,
+            id: res,
+          });
         }
-      })
-      .finally(() => {
-        setLoading({
-          ...loadings,
-          [loadingsButton]: false,
-        });
+        submitCallback?.();
+      }
+    }).finally(() => {
+      setLoading({
+        ...loadings,
+        [loadingsButton]: false,
       });
+    });
   }
 
   function onCancel() {
@@ -222,7 +244,7 @@ export default function CreateConnection(props: IProps) {
   }
 
   return (
-    <div className={classnames(styles.box, className)}>
+    <div ref={ref as any} className={classnames(styles.box, className)}>
       <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
         <div className={styles.connectionBox}>
           <div className={styles.title}>
@@ -263,7 +285,7 @@ export default function CreateConnection(props: IProps) {
       </LoadingContent>
     </div>
   );
-}
+})
 
 interface IRenderFormProps {
   tab: ITabsType;
