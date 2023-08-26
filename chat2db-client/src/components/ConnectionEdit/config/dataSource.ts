@@ -148,7 +148,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           inputType: InputType.SELECT,
           labelNameCN: '环境',
           labelNameEN: 'Env',
-          name: 'env',
+          name: 'environmentId',
           required: true,
           selects: [],
           styles: {
