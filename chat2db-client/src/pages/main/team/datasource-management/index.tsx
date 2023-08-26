@@ -1,12 +1,19 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Table, Popconfirm, message } from 'antd';
-import { IDataSourcePageQueryVO } from '@/typings/team';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Input, Table, Popconfirm, message, Drawer } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
+import ConnectionServer from '@/service/connection'
+import { createDataSource, deleteDataSource, getDataSourceList, updateDataSource } from '@/service/team';
+import { IConnectionDetails } from '@/typings';
+import { AffiliationType, IDataSourceVO } from '@/typings/team';
+import i18n from '@/i18n';
+import { isValid } from '@/utils/check';
+import CreateConnection from '@/blocks/CreateConnection';
+import UniversalDrawer from '../universal-drawer';
 import styles from './index.less';
-import { getDataSourceList } from '@/service/team';
+import { isNumber } from 'lodash';
 
 function DataSourceManagement() {
-  const [dataSource, setDataSource] = useState<IDataSourcePageQueryVO[]>([]);
+  const [dataSource, setDataSource] = useState<IDataSourceVO[]>([]);
   const [pagination, setPagination] = useState({
     searchKey: '',
     current: 1,
@@ -14,9 +21,15 @@ function DataSourceManagement() {
     total: 0,
     showSizeChanger: true,
     showQuickJumper: true,
-    pageSizeOptions: ['10', '20', '30', '40'],
+    // pageSizeOptions: ['10', '20', '30', '40'],
   });
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showCreateConnection, setShowCreateConnection] = useState(false)
+  const connectionInfo = useRef<IConnectionDetails>();
+
+  const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type: AffiliationType; id?: number }>({
+    open: false,
+    type: AffiliationType['DATASOURCE_USER/TEAM']
+  })
 
   const columns = useMemo(
     () => [
@@ -33,17 +46,34 @@ function DataSourceManagement() {
       {
         title: '操作',
         key: 'action',
-        render: (_, record: any) => (
-          <Popconfirm
-            title="确定要删除这条记录吗？"
-            onConfirm={() => handleDelete(record.id)}
-            okText="确认"
-            cancelText="取消"
-          >
-            <a href="#" onClick={(e) => e.preventDefault()}>
-              删除
-            </a>
-          </Popconfirm>
+        width: 180,
+        render: (_: any, record: IDataSourceVO) => (
+          <>
+            <Button type='link' onClick={() => {
+              handleEdit(record)
+            }}>
+              {i18n('common.button.edit')}
+            </Button>
+            <Button type='link' onClick={() => {
+              setDrawerInfo({
+                ...drawerInfo,
+                open: true,
+                id: record.id,
+              })
+            }}>
+              权限管理
+            </Button>
+            <Popconfirm
+              title={i18n('common.tips.delete.confirm')}
+              onConfirm={() => handleDelete(record.id)}
+              okText={i18n('common.button.affirm')}
+              cancelText={i18n('common.button.cancel')}
+            >
+              <a href="#" onClick={(e) => e.preventDefault()}>
+                {i18n('common.button.delete')}
+              </a>
+            </Popconfirm>
+          </>
         ),
       },
     ],
@@ -70,23 +100,57 @@ function DataSourceManagement() {
   };
 
   const handleTableChange = (p: any) => {
-    console.log('handleTableChange', p);
+
     setPagination({
       ...pagination,
       ...p,
     });
   };
 
-  const handleDelete = async (recordId: number) => {
-    const success = true; // Replace with actual API response
+  const handleAddDataSource = () => {
+    connectionInfo.current = undefined;
+    setShowCreateConnection(true);
+  }
 
-    if (success) {
+  const handleEdit = async (record: IDataSourceVO) => {
+    const { id } = record;
+    if (!id) {
+      return;
+    }
+
+    let detail = await ConnectionServer.getDetails({ id })
+    connectionInfo.current = detail;
+    setShowCreateConnection(true)
+  }
+
+  const handleDelete = async (id?: number) => {
+    if (isNumber(id)) {
+      await deleteDataSource({ id })
       message.success('删除成功');
       queryDataSourceList();
-    } else {
-      message.error('删除失败');
     }
   };
+
+  const handleConfirmConnection = async (data: IConnectionDetails) => {
+    if (JSON.stringify(connectionInfo.current) === '{}') {
+      return;
+    }
+    connectionInfo.current = {
+      ...data,
+      environmentId: 2,
+    }
+
+    const isUpdate = isValid(connectionInfo?.current?.id);
+    const requestApi = isUpdate ? updateDataSource : createDataSource;
+    try {
+      await requestApi({ ...connectionInfo.current })
+      message.success(isUpdate ? '更新成功' : '创建成功')
+      setShowCreateConnection(false)
+      queryDataSourceList()
+    } catch {
+
+    }
+  }
 
   return (
     <div>
@@ -97,8 +161,8 @@ function DataSourceManagement() {
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
-          添加
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddDataSource}>
+          添加链接
         </Button>
       </div>
       <Table
@@ -107,6 +171,26 @@ function DataSourceManagement() {
         columns={columns}
         pagination={pagination}
         onChange={handleTableChange}
+      />
+
+      <Drawer
+        title={connectionInfo?.current?.id ? '编辑链接' : '添加链接'}
+        width={1000}
+        open={showCreateConnection}
+        onClose={() => setShowCreateConnection(false)}
+      >
+        <CreateConnection connectionDetail={connectionInfo.current} onSubmit={handleConfirmConnection} />
+      </Drawer>
+
+      <UniversalDrawer
+        {...drawerInfo}
+        byId={drawerInfo.id}
+        onClose={() => {
+          setDrawerInfo({
+            ...drawerInfo,
+            open: false
+          })
+        }}
       />
     </div>
   );

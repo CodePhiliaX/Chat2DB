@@ -7,7 +7,7 @@ import UserManagement from './user-management';
 import TeamManagement from './team-management';
 
 const Team = () => {
-  const [activeKey, setActiveKey] = useState<string>('2');
+  const [activeKey, setActiveKey] = useState<string>('0');
   const tabList = useMemo(
     () => [
       {
