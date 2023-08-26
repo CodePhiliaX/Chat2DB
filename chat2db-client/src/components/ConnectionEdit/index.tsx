@@ -53,15 +53,40 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     backfillDataLoading: false,
     sshTestLoading: false
   });
+  const [envList, setEnvList] = useState<{value:string,label:string}[]>([]);
+
+
+  useEffect(() => {
+    setTimeout(() => {
+      setEnvList([
+        {
+          value: 'prod',
+          label: '生产环境'
+        },
+        {
+          value: 'daily',
+          label: '日常环境'
+        },
+        {
+          value: 'pre',
+          label: '预发环境'
+        },
+      ])
+    }, 3000);
+  }, []);
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
-    return deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
-      const flag = t.type === backfillData.type;
-      return flag
+    const data = deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
+      return t.type === backfillData.type
     });
-
-  }, [backfillData]);
+    data.baseInfo.items.forEach((t: IFormItem) => {
+      if (t.name === 'env' && envList?.length) {
+        t.selects = envList;
+      }
+    })
+    return data;
+  }, [backfillData, envList]);
 
   useEffect(() => {
     setBackfillData(props.connectionData);

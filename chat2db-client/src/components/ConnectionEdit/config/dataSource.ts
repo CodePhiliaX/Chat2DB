@@ -144,6 +144,18 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
         },
         {
+          defaultValue: '',
+          inputType: InputType.SELECT,
+          labelNameCN: '环境',
+          labelNameEN: 'Env',
+          name: 'env',
+          required: true,
+          selects: [],
+          styles: {
+            width: '50%',
+          }
+        },
+        {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
           labelNameCN: '主机',
