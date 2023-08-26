@@ -19,6 +19,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -61,7 +62,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public PageResult<Team> pageQuery(TeamPageQueryParam param, TeamSelector selector) {
-        LambdaQueryWrapper<TeamDO> queryWrapper = new LambdaQueryWrapper<>();
+        EasyLambdaQueryWrapper<TeamDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(TeamDO::getCode, "%" + param.getSearchKey() + "%")
                 .or()
@@ -69,6 +70,7 @@ public class TeamServiceImpl implements TeamService {
         }
         Page<TeamDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
+        queryWrapper.orderBy(param.getOrderByList());
         IPage<TeamDO> iPage = teamMapper.selectPage(page, queryWrapper);
         List<Team> list = teamConverter.do2dto(iPage.getRecords());
 
