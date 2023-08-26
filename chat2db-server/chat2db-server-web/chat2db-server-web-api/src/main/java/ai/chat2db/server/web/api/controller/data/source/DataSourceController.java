@@ -166,6 +166,7 @@ public class DataSourceController {
      *
      * @param request
      * @return
+     * @version 2.1.0
      */
     @GetMapping("/datasource/list")
     public WebPageResult<DataSourceVO> list(DataSourceQueryRequest request) {
