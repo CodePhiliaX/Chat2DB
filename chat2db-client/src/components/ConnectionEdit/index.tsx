@@ -79,6 +79,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     data.baseInfo.items.forEach((t: IFormItem) => {
       if (t.name === 'env' && envList?.length) {
         t.selects = envList;
+        t.defaultValue = envList[0].value;
       }
     })
     return data;
