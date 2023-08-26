@@ -63,6 +63,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class DataSourceController {
 
+    private static final DataSourceSelector DATA_SOURCE_SELECTOR= DataSourceSelector.builder()
+        .environment(Boolean.TRUE)
+        .build();
+
     @Autowired
     private DataSourceService dataSourceService;
 
@@ -166,7 +170,7 @@ public class DataSourceController {
     @GetMapping("/datasource/list")
     public WebPageResult<DataSourceVO> list(DataSourceQueryRequest request) {
         DataSourcePageQueryParam param = dataSourceWebConverter.queryReq2param(request);
-        PageResult<DataSource> result = dataSourceService.queryPage(param, new DataSourceSelector());
+        PageResult<DataSource> result = dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR);
         List<DataSourceVO> dataSourceVOS = dataSourceWebConverter.dto2vo(result.getData());
         return WebPageResult.of(dataSourceVOS, result.getTotal(), result.getPageNo(), result.getPageSize());
     }
