@@ -1,7 +1,7 @@
 package ai.chat2db.server.admin.api.controller.user.converter;
 
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
@@ -32,7 +32,7 @@ public abstract class UserDataSourcesAdminConverter {
         @Mapping(source = "searchKey", target = "userOrTeamSearchKey"),
         @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
-    public abstract DataSourceAccessComprehensivePageQueryParam request2param(UserTeamPageCommonQueryRequest request);
+    public abstract DataSourceAccessComprehensivePageQueryParam request2param(UserPageCommonQueryRequest request);
 
     /**
      * convert

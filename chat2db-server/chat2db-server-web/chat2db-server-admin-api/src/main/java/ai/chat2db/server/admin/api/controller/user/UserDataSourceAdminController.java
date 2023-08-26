@@ -3,7 +3,7 @@ package ai.chat2db.server.admin.api.controller.user;
 
 import ai.chat2db.server.admin.api.controller.user.converter.UserDataSourcesAdminConverter;
 import ai.chat2db.server.admin.api.controller.user.request.UserDataSourceBatchCreateRequest;
-import ai.chat2db.server.admin.api.controller.user.request.UserTeamPageCommonQueryRequest;
+import ai.chat2db.server.admin.api.controller.user.request.UserPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserDataSourcePageQueryVO;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
@@ -52,7 +52,7 @@ public class UserDataSourceAdminController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid UserTeamPageCommonQueryRequest request) {
+    public WebPageResult<UserDataSourcePageQueryVO> page(@Valid UserPageCommonQueryRequest request) {
         return dataSourceAccessService.comprehensivePageQuery(userDataSourcesAdminConverter.request2param(request),
                 DATA_SOURCE_ACCESS_SELECTOR)
             .mapToWeb(userDataSourcesAdminConverter::dto2vo);
