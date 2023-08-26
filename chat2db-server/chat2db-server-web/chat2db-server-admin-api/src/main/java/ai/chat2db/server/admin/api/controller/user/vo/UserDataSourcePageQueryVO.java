@@ -2,6 +2,7 @@
 package ai.chat2db.server.admin.api.controller.user.vo;
 
 import ai.chat2db.server.admin.api.controller.datasource.vo.SimpleDataSourceVO;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -11,6 +12,12 @@ import lombok.Data;
  */
 @Data
 public class UserDataSourcePageQueryVO {
+
+    /**
+     * 主键
+     */
+    @NotNull
+    private Long id;
 
     /**
      * user id
