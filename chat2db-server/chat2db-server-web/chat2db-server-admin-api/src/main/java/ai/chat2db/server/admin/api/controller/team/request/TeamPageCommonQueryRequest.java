@@ -1,5 +1,5 @@
 
-package ai.chat2db.server.admin.api.controller.user.request;
+package ai.chat2db.server.admin.api.controller.team.request;
 
 import ai.chat2db.server.tools.base.wrapper.request.PageQueryRequest;
 import jakarta.validation.constraints.NotNull;
@@ -11,12 +11,12 @@ import lombok.Data;
  * @author Jiaju Zhuang
  */
 @Data
-public class UserTeamPageCommonQueryRequest extends PageQueryRequest {
+public class TeamPageCommonQueryRequest extends PageQueryRequest {
     /**
-     * user id
+     * team id
      */
     @NotNull
-    private Long userId;
+    private Long teamId;
 
     /**
      * searchKey

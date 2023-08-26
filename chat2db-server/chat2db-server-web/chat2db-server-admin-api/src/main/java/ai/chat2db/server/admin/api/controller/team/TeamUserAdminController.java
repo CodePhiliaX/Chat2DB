@@ -2,9 +2,9 @@
 package ai.chat2db.server.admin.api.controller.team;
 
 import ai.chat2db.server.admin.api.controller.team.converter.TeamUserAdminConverter;
+import ai.chat2db.server.admin.api.controller.team.request.TeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamUserBatchCreateRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamUserPageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
@@ -47,7 +47,7 @@ public class TeamUserAdminController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<TeamUserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<TeamUserPageQueryVO> page(@Valid TeamPageCommonQueryRequest request) {
         return teamUserService.comprehensivePageQuery(teamUserAdminConverter.request2param(request), TEAM_USER_SELECTOR)
             .mapToWeb(teamUserAdminConverter::dto2vo);
     }
