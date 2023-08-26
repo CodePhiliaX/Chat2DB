@@ -8,6 +8,8 @@ import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdat
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam.OrderCondition;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
@@ -49,7 +51,9 @@ public class DataSourceAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<DataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return dataSourceService.queryPageWithPermission(dataSourceAdminConverter.request2param(request), DATA_SOURCE_SELECTOR)
+        DataSourcePageQueryParam param = dataSourceAdminConverter.request2param(request);
+        param.orderBy(OrderCondition.ID_DESC);
+        return dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR)
             .mapToWeb(dataSourceAdminConverter::dto2vo);
     }
 
