@@ -1,10 +1,11 @@
 package ai.chat2db.server.domain.repository.entity;
 
+import java.io.Serializable;
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ import lombok.Setter;
  * </p>
  *
  * @author chat2db
- * @since 2023-07-30
+ * @since 2023-08-26
  */
 @Getter
 @Setter
@@ -32,12 +33,12 @@ public class TeamDO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime gmtCreate;
+    private Date gmtCreate;
 
     /**
      * 修改时间
      */
-    private LocalDateTime gmtModified;
+    private Date gmtModified;
 
     /**
      * 创建人用户id

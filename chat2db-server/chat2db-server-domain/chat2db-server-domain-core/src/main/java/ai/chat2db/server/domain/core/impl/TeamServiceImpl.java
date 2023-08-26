@@ -10,6 +10,7 @@ import ai.chat2db.server.domain.api.param.team.TeamSelector;
 import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.core.converter.TeamConverter;
+import ai.chat2db.server.domain.core.converter.UserConverter;
 import ai.chat2db.server.domain.repository.entity.TeamDO;
 import ai.chat2db.server.domain.repository.mapper.TeamMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -19,12 +20,14 @@ import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +44,8 @@ public class TeamServiceImpl implements TeamService {
     private TeamMapper teamMapper;
     @Resource
     private TeamConverter teamConverter;
+    @Resource
+    private UserConverter userConverter;
 
     @Override
     public ListResult<Team> listQuery(List<Long> idList) {
@@ -108,5 +113,14 @@ public class TeamServiceImpl implements TeamService {
         if (CollectionUtils.isEmpty(list) || selector == null) {
             return;
         }
+        fillUser(list, selector);
     }
+
+    private void fillUser(List<Team> list, TeamSelector selector) {
+        if (BooleanUtils.isNotTrue(selector.getModifiedUser())) {
+            return;
+        }
+        userConverter.fillDetail(EasyCollectionUtils.toList(list, Team::getModifiedUser));
+    }
+
 }

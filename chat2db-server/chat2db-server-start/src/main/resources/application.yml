@@ -34,6 +34,9 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
 
 chat2db:
   version: 1.0.0

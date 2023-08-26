@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.api.model;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Date;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import jakarta.validation.constraints.NotNull;
@@ -51,15 +52,23 @@ public class Team implements Serializable {
     private String status;
 
     /**
-     * 角色编码
-     */
-    @NotNull
-    private String roleCode;
-
-
-    /**
      * 团队描述
      */
     private String description;
+
+    /**
+     * 修改时间
+     */
+    private Date gmtModified;
+
+    /**
+     * 修改人用户id
+     */
+    private Long modifiedUserId;
+
+    /**
+     * 修改人用户
+     */
+    private User modifiedUser;
 
 }
