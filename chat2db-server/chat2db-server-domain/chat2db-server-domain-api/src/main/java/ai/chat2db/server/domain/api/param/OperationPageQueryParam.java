@@ -46,4 +46,9 @@ public class OperationPageQueryParam extends PageQueryParam {
      * operation type
      */
     private String operationType;
+
+    /**
+     * 用户id
+     */
+    private Long userId;
 }
