@@ -21,6 +21,8 @@ export default memo<IProps>(function CreateConnection(props) {
   useEffect(() => {
     if (connectionDetail) {
       setCurConnection(connectionDetail)
+    } else {
+      setCurConnection({})
     }
   }, [connectionDetail])
 
@@ -35,7 +37,7 @@ export default memo<IProps>(function CreateConnection(props) {
     });
   }
 
-  function handelSubmit(data: IConnectionDetails) {
+  function handleSubmit(data: IConnectionDetails) {
     onSubmit?.(data)
   }
 
@@ -53,7 +55,7 @@ export default memo<IProps>(function CreateConnection(props) {
               setCurConnection({});
             }}
             connectionData={curConnection as any}
-            submit={handelSubmit}
+            submit={handleSubmit}
           />
         }
       </div>

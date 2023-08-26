@@ -4,101 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.layoutLeft {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  width: 220px;
-  overflow: hidden;
-  background-color: var(--color-bg-elevated);
-  border-right: 1px solid var(--color-border-secondary);
-  border-top: 0px;
-  border-bottom: 0px;
-}
-
-.pageTitle {
-  font-size: 20px;
-  line-height: 24px;
-  font-weight: 500;
-  margin: 20px 0px 10px;
-  padding-left: 20px;
-}
-
-.menuBox {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0px 8px;
-
-  .menu {
-    min-height: 100%;
-    background-color: var(--color-bg-medium);
-  }
-
-  .menuItemIcon {
-    color: var(--color-primary) !important;
-  }
-
-  .menuItem {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    padding: 8px;
-    margin-bottom: 4px;
-    height: 20px;
-    border-radius: 8px;
-    user-select: none;
-
-    .menuItemsTitle {
-      flex: 1;
-      width: 0;
-      .f-single-line();
-    }
-
-    .moreButton {
-      flex-shrink: 0;
-      display: none;
-      transform: rotate(90deg);
-    }
-
-    &:hover {
-      background-color: var(--color-hover-bg);
-      .moreButton {
-        display: block;
-      }
-    }
-  }
-
-  .menuItemActive {
-    color: var(--color-primary);
-    // background-color: var(--color-primary-bg);
-    background-color: var(--color-hover-bg);
-  }
-
-  :global {
-    .ant-menu-inline {
-      border-inline-end: none !important;
-    }
-
-    .ant-menu-item {
-      padding-left: 14px !important;
-    }
-  }
-}
-
-.addConnection {
-  margin: 0 20px 10px;
-}
-
-.layoutRight {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
+  min-height: 100%;
 }
 
 .dataBaseList {
@@ -135,6 +41,7 @@
 
   .databaseItemRight {
     display: none;
+
     i {
       font-size: 16px;
     }
@@ -148,6 +55,7 @@
 
     .databaseItemRight {
       display: block;
+
       i {
         color: var(--color-primary);
       }
@@ -178,12 +86,6 @@
 }
 
 .createConnections {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
   background-color: var(--color-bg);
   overflow-y: auto;
   transform: scale(0.2);
@@ -191,7 +93,6 @@
 }
 
 .showCreateConnections {
-  z-index: 1;
   transform: scale(1);
   transition: transform 0.3s ease-in-out;
 }

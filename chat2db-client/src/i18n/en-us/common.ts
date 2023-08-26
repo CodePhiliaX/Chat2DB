@@ -73,4 +73,7 @@ export default {
   'common.text.saveConsole': 'Save console',
   'common.text.textToSQL': 'Plain text to SQL',
   'common.text.editorRightClick': 'Editor right click',
+  'common.form.error.required': 'This field is required!',
+  'common.form.error.email': 'The input is not a valid email!',
+  'common.tips.delete.confirm': 'Are you sure to delete it?'
 };
