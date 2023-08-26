@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
+import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
@@ -63,6 +64,8 @@ public class MybatisGeneratorTest extends BaseTest {
                 builder.author("chat2db")
                     //执行完毕不打开文件夹
                     .disableOpenDir()
+                    // 还是使用date
+                    .dateType(DateType.ONLY_DATE)
                     // 指定输出目录
                     .outputDir(outputDir);
             })

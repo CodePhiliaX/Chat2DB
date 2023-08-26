@@ -1,7 +1,6 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
@@ -41,6 +40,7 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -84,8 +84,8 @@ public class DataSourceServiceImpl implements DataSourceService {
             throw new PermissionDeniedBusinessException();
         }
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
-        dataSourceDO.setGmtCreate(LocalDateTime.now());
-        dataSourceDO.setGmtModified(LocalDateTime.now());
+        dataSourceDO.setGmtCreate(DateUtil.date());
+        dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceDO.setUserId(ContextUtils.getUserId());
         dataSourceMapper.insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
@@ -120,7 +120,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
-        dataSourceDO.setGmtModified(LocalDateTime.now());
+        dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceMapper.updateById(dataSourceDO);
         return ActionResult.isSuccess();
     }
@@ -159,8 +159,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSourceDO.setId(null);
         String alias = dataSourceDO.getAlias() + "Copy";
         dataSourceDO.setAlias(alias);
-        dataSourceDO.setGmtCreate(LocalDateTime.now());
-        dataSourceDO.setGmtModified(LocalDateTime.now());
+        dataSourceDO.setGmtCreate(DateUtil.date());
+        dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceMapper.insert(dataSourceDO);
         return DataResult.of(dataSourceDO.getId());
     }
