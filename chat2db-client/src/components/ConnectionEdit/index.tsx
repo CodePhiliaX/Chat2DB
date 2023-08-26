@@ -64,7 +64,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     connectionService.getEnvList().then((res) => {
       setEnvList(res?.map(t => {
         return {
-          value: t.code,
+          value: t.id,
           label: t.name
         }
       }));
