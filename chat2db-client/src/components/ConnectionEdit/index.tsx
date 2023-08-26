@@ -77,7 +77,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
       return t.type === backfillData.type
     });
     data.baseInfo.items.forEach((t: IFormItem) => {
-      if (t.name === 'env' && envList?.length) {
+      if (t.name === 'environmentId' && envList?.length) {
         t.selects = envList;
         t.defaultValue = envList[0].value;
       }
