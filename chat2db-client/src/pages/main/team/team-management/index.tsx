@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createTeam, deleteTeam, getTeamManagementList, updateTeam } from '@/service/team';
 import { Button, Form, Input, Modal, Popconfirm, Radio, Table, Tag, message } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import styles from './index.less';
 import UniversalDrawer from '../universal-drawer';
-import i18n from '@/i18n';
 import { AffiliationType, ITeamVO, StatusType } from '@/typings/team';
+import i18n from '@/i18n';
+import styles from './index.less';
 
 const formItemLayout = {
   labelCol: { span: 6 },
