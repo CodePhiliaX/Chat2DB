@@ -1,8 +1,8 @@
 package ai.chat2db.server.admin.api.controller.team.converter;
 
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceAccessBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.team.request.TeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamUserPageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessBatchCreatParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserComprehensivePageQueryParam;
@@ -28,7 +28,7 @@ public abstract class TeamUserAdminConverter {
         @Mapping(source = "searchKey", target = "userSearchKey"),
         @Mapping(target = "enableReturnCount", expression = "java(true)"),
     })
-    public abstract TeamUserComprehensivePageQueryParam request2param(CommonPageQueryRequest request);
+    public abstract TeamUserComprehensivePageQueryParam request2param(TeamPageCommonQueryRequest request);
 
     /**
      * convert

@@ -3,8 +3,8 @@ package ai.chat2db.server.admin.api.controller.team;
 
 import ai.chat2db.server.admin.api.controller.team.converter.TeamDataSourcesAdminConverter;
 import ai.chat2db.server.admin.api.controller.team.request.TeamDataSourceBatchCreateRequest;
+import ai.chat2db.server.admin.api.controller.team.request.TeamPageCommonQueryRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamDataSourcePageQueryVO;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
@@ -52,7 +52,7 @@ public class TeamDataSourceAdminController {
      * @version 2.1.0
      */
     @GetMapping("/page")
-    public WebPageResult<TeamDataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
+    public WebPageResult<TeamDataSourcePageQueryVO> page(@Valid TeamPageCommonQueryRequest request) {
         return dataSourceAccessService.comprehensivePageQuery(teamDataSourcesAdminConverter.request2param(request),
                 DATA_SOURCE_ACCESS_SELECTOR)
             .mapToWeb(teamDataSourcesAdminConverter::dto2vo);
