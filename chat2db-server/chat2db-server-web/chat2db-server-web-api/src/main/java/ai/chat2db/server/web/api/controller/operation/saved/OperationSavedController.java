@@ -11,6 +11,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.operation.saved.converter.OperationWebConverter;
 import ai.chat2db.server.web.api.controller.operation.saved.request.BatchTabCloseRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationCreateRequest;
@@ -54,6 +55,7 @@ public class OperationSavedController {
     @GetMapping("/list")
     public WebPageResult<OperationVO> list(OperationQueryRequest request) {
         OperationPageQueryParam param = operationWebConverter.queryReq2param(request);
+        param.setUserId(ContextUtils.getUserId());
         PageResult<Operation> dtoPageResult = operationService.queryPage(param);
         List<OperationVO> operationVOS = operationWebConverter.dto2vo(dtoPageResult.getData());
         return WebPageResult.of(operationVOS, dtoPageResult.getTotal(), request.getPageNo(), request.getPageSize());
