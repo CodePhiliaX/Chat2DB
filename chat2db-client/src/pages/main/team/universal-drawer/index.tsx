@@ -181,7 +181,7 @@ function UniversalDrawer(props: IProps) {
         type: AffiliationType.TEAM_DATASOURCE,
         searchType: SearchType.DATASOURCE,
         title: '归属链接',
-        byIdKey: 'userId',
+        byIdKey: 'teamId',
         queryListApi: getDataSourceListFromTeam,
         updateListApi: updateDataSourceListFromTeam,
         deleteApi: deleteDataSourceFromTeam,
