@@ -39,7 +39,7 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    ActionResult updateWithPermission(DataSourceUpdateParam param);
+    DataResult<Long> updateWithPermission(DataSourceUpdateParam param);
 
     /**
      * 删除数据源连接

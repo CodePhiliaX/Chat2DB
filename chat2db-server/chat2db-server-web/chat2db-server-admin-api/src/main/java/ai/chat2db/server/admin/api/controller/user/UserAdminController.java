@@ -8,7 +8,6 @@ import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.param.user.UserSelector;
 import ai.chat2db.server.domain.api.service.UserService;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
@@ -83,7 +82,7 @@ public class UserAdminController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ActionResult delete(@PathVariable Long id) {
-        return userService.delete(id);
+    public DataResult<Boolean> delete(@PathVariable Long id) {
+        return userService.delete(id).toBooleaSuccessnDataResult();
     }
 }

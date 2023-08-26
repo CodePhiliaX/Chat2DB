@@ -115,14 +115,14 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public ActionResult updateWithPermission(DataSourceUpdateParam param) {
+    public DataResult<Long> updateWithPermission(DataSourceUpdateParam param) {
         DataSource dataSource = queryExistent(param.getId()).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceMapper.updateById(dataSourceDO);
-        return ActionResult.isSuccess();
+        return DataResult.of(dataSourceDO.getId());
     }
 
     @Override

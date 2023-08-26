@@ -12,6 +12,7 @@ import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPage
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -92,7 +93,7 @@ public class TeamDataSourceAdminController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ActionResult delete(@PathVariable Long id) {
-        return dataSourceAccessService.delete(id);
+    public DataResult<Boolean> delete(@PathVariable Long id) {
+        return dataSourceAccessService.delete(id).toBooleaSuccessnDataResult();
     }
 }

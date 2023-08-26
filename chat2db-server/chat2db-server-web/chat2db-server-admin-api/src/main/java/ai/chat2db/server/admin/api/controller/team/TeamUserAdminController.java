@@ -10,6 +10,7 @@ import ai.chat2db.server.domain.api.param.team.user.TeamUserPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
 import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -84,7 +85,7 @@ public class TeamUserAdminController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ActionResult delete(@PathVariable Long id) {
-        return teamUserService.delete(id);
+    public DataResult<Boolean> delete(@PathVariable Long id) {
+        return teamUserService.delete(id).toBooleaSuccessnDataResult();
     }
 }
