@@ -160,7 +160,10 @@ function UserManagement() {
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => {
+          form.resetFields();
+          setIsModalVisible(true)
+        }}>
           添加用户
         </Button>
       </div>
@@ -219,7 +222,7 @@ function UserManagement() {
             <Input autoComplete='off' />
           </Form.Item>
           <Form.Item label="密码" name="password" rules={[requireRule]}>
-            <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='off' />
+            <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
           </Form.Item>
           <Form.Item label="角色" name="roleCode" rules={[requireRule]}>
             <Radio.Group>
