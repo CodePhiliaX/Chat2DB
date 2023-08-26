@@ -57,23 +57,19 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
 
 
   useEffect(() => {
-    setTimeout(() => {
-      setEnvList([
-        {
-          value: 'prod',
-          label: '生产环境'
-        },
-        {
-          value: 'daily',
-          label: '日常环境'
-        },
-        {
-          value: 'pre',
-          label: '预发环境'
-        },
-      ])
-    }, 3000);
+    getEnvList();
   }, []);
+
+  function getEnvList() {
+    connectionService.getEnvList().then((res) => {
+      setEnvList(res.map((t) => {
+        return {
+          value: t.code,
+          label: t.name
+        }
+      }));
+    });
+  }
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
