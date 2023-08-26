@@ -73,9 +73,13 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
   errorLevel: false,
   method: 'get',
 });
+
 const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
 
+const getEnvList = createRequest<void, {code:string, name:string}[]>('/api/env/list', { errorLevel: false});
+
 export default {
+  getEnvList,
   getList,
   getDetails,
   save,
