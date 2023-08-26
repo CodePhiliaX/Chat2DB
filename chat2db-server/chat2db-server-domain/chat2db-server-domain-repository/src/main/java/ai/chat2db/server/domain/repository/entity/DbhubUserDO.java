@@ -68,4 +68,14 @@ public class DbhubUserDO implements Serializable {
      * 用户状态
      */
     private String status;
+
+    /**
+     * 创建人用户id
+     */
+    private Long createUserId;
+
+    /**
+     * 修改人用户id
+     */
+    private Long modifiedUserId;
 }

@@ -16,8 +16,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class UserSelector {
     /**
-     * empty
+     * 修改人用户
      */
-    private Boolean empty;
+    private Boolean modifiedUser;
 
 }
