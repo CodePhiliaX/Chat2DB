@@ -135,10 +135,7 @@ function DataSourceManagement() {
     if (JSON.stringify(connectionInfo.current) === '{}') {
       return;
     }
-    connectionInfo.current = {
-      ...data,
-      environmentId: 2,
-    }
+    connectionInfo.current = data;
 
     const isUpdate = isValid(connectionInfo?.current?.id);
     const requestApi = isUpdate ? updateDataSource : createDataSource;
