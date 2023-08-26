@@ -208,7 +208,7 @@ public class DataSourceController {
      * @return
      */
     @RequestMapping(value = "/datasource/update",method = {RequestMethod.POST, RequestMethod.PUT})
-    public ActionResult update(@RequestBody DataSourceUpdateRequest request) {
+    public DataResult<Long> update(@RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceWebConverter.updateReq2param(request);
         return dataSourceService.updateWithPermission(param);
     }

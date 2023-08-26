@@ -2,13 +2,12 @@
 package ai.chat2db.server.admin.api.controller.team;
 
 import ai.chat2db.server.admin.api.controller.team.converter.TeamAdminConverter;
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamCreateRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamUpdateRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamPageQueryVO;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.param.team.TeamSelector;
 import ai.chat2db.server.domain.api.service.TeamService;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
@@ -82,7 +81,7 @@ public class TeamAdminController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public ActionResult delete(@PathVariable Long id) {
-        return teamService.delete(id);
+    public DataResult<Boolean> delete(@PathVariable Long id) {
+        return teamService.delete(id).toBooleaSuccessnDataResult();
     }
 }

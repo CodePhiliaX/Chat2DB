@@ -1,17 +1,16 @@
 
 package ai.chat2db.server.admin.api.controller.datasource;
 
-import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.admin.api.controller.datasource.converter.DataSourceAdminConverter;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCloneRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceCreateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.request.DataSourceUpdateRequest;
 import ai.chat2db.server.admin.api.controller.datasource.vo.DataSourcePageQueryVO;
+import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import jakarta.annotation.Resource;
@@ -75,7 +74,7 @@ public class DataSourceAdminController {
      * @version 2.1.0
      */
     @PostMapping("/update")
-    public ActionResult update(@Valid @RequestBody DataSourceUpdateRequest request) {
+    public DataResult<Long> update(@Valid @RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceAdminConverter.updateReq2param(request);
         return dataSourceService.updateWithPermission(param);
     }
@@ -100,7 +99,7 @@ public class DataSourceAdminController {
      * @version 2.1.0
      */
     @DeleteMapping("/{id}")
-    public ActionResult delete(@PathVariable Long id) {
-        return dataSourceService.deleteWithPermission(id);
+    public DataResult<Boolean> delete(@PathVariable Long id) {
+        return dataSourceService.deleteWithPermission(id).toBooleaSuccessnDataResult();
     }
 }
