@@ -2,7 +2,6 @@ package ai.chat2db.server.admin.api.controller.team.request;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +30,5 @@ public class TeamDataSourceBatchCreateRequest {
      * Data Source id list
      */
     @NotNull
-    @NotEmpty
     private List<Long> dataSourceIdList;
 }

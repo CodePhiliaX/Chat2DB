@@ -2,7 +2,6 @@ package ai.chat2db.server.admin.api.controller.datasource.request;
 
 import java.util.List;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +29,5 @@ public class DataSourceAccessBatchCreateRequest {
      * DataSource Access Object
      */
     @NotNull
-    @NotEmpty
     private List<DataSourceAccessObjectRequest> accessObjectList;
 }
