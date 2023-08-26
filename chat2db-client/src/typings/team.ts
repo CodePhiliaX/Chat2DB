@@ -1,8 +1,23 @@
-// ===================== Universal ==================
+// ===================== Common ==================
 export enum ManagementType {
   DATASOURCE = 'DATASOURCE',
   TEAM = 'TEAM',
   USER = 'USER',
+}
+
+export enum AffiliationType {
+  'USER_TEAM' = 'USER_TEAM',
+  'USER_DATASOURCE' = 'USER_DATASOURCE',
+  'TEAM_USER' = 'TEAM_USER',
+  'TEAM_DATASOURCE' = 'TEAM_DATASOURCE',
+  'DATASOURCE_USER/TEAM' = 'DATASOURCE_USER/TEAM'
+}
+
+export enum SearchType {
+  DATASOURCE = 'DATASOURCE',
+  TEAM = 'TEAM',
+  USER = 'USER',
+  'USER/TEAM' = 'USER/TEAM'
 }
 
 export enum StatusType {
@@ -15,9 +30,16 @@ export enum RoleType {
   USER = 'USER',
 }
 
+export enum MemberType {
+  TEAM = 'TEAM',
+  USER = 'USER'
+}
+
+
+
 // ===================== DataSource ==================
 
-export interface IDataSourcePageQueryVO {
+export interface IDataSourceVO {
   /**
    * 连接别名
    */
@@ -25,7 +47,7 @@ export interface IDataSourcePageQueryVO {
   /**
    * 环境
    */
-  environment?: ISimpleEnvironmentVO;
+  environment?: IEnvironmentVO;
   /**
    * 环境id
    */
@@ -40,7 +62,7 @@ export interface IDataSourcePageQueryVO {
   url?: string;
 }
 
-export interface ISimpleEnvironmentVO {
+export interface IEnvironmentVO {
   /**
    * 主键
    */
@@ -56,40 +78,58 @@ export interface ISimpleEnvironmentVO {
   /**
    * 样式类型
    */
-  style?: StyleType;
-}
-/**
- * 样式类型
- */
-export enum StyleType {
-  Release = 'RELEASE',
-  Test = 'TEST',
+  style?: string;
 }
 
-// ===================== User ======================
-export interface IUserPageQueryVO {
+
+export interface IDataSourceAccessVO {
+  /**
+   * 授权对象
+   */
+  accessObject: IDataSourceAccessObjectVO;
+  /**
+   * 授权id,根据类型区分是用户还是团队
+   */
+  accessObjectId: number;
+  /**
+   * 授权类型
+   */
+  accessObjectType: RoleType;
   /**
    * 主键
    */
   id: number;
-  /**
-   * 昵称
-   */
-  nickName: string;
-  /**
-   * 用户状态
-   */
-  status?: StatusType;
-  /**
-   * 用户名
-   */
-  userName: string;
 }
 
-/**
- * UserCreateRequest
- */
+
+export interface IDataSourceAccessObjectVO {
+  /**
+   * The name of the code that belongs to the authorization type, such as user account, team
+   * code
+   */
+  code?: string;
+  /**
+   * 授权id,根据类型区分是用户还是团队
+   */
+  id?: number;
+  /**
+   * Code that belongs to the authorization type, such as user name, team name
+   */
+  name?: string;
+  /**
+   * 授权类型
+   */
+  type?: RoleType;
+}
+
+// ===================== User ======================
+
 export interface IUserVO {
+  /**
+ * 主键
+ */
+  id: number;
+
   /**
    * 邮箱
    */
@@ -116,26 +156,36 @@ export interface IUserVO {
   userName: string;
 }
 
-// ===================== Team =====================
 
-export interface ITeamPageQueryVO {
-  /**
-   * 团队编码
-   */
-  code: string;
+export interface IUserWithTeamVO {
   /**
    * 主键
    */
-  id: number;
+  id?: number;
   /**
-   * 团队名称
+   * 团队
    */
-  name: string;
+  team?: ITeamVO;
   /**
-   * 团队状态
+   * user id
    */
-  status: StatusType;
+  userId?: number;
 }
+
+export interface IUserWithDataSourceVO {
+  id?: number;
+  /**
+   * Data Source
+   */
+  dataSource?: IDataSourceVO;
+  /**
+   * user id
+   */
+  userId?: number;
+}
+
+
+// ===================== Team =====================
 
 export interface ITeamVO {
   id?: number;
@@ -157,8 +207,31 @@ export interface ITeamVO {
   status: StatusType;
 }
 
-export interface TeamUserPageQueryVO {
+export interface ITeamWithUserVO {
   id: number;
   teamId: number;
   user: IUserVO;
+}
+
+export interface ITeamWithDataSourceVO {
+  /**
+   * Data Source
+   */
+  dataSource?: IDataSourceVO;
+  /**
+   * 主键
+   */
+  id: number;
+  /**
+   * team id
+   */
+  teamId?: number;
+}
+
+// ===================== USER/TEAM =====================
+export interface ITeamAndUserVO {
+  code?: string;
+  id?: number;
+  name?: string;
+  type?: MemberType
 }
