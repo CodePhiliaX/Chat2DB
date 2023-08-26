@@ -189,7 +189,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         LoginUser loginUser = ContextUtils.getLoginUser();
         IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
             new Page<>(param.getPageNo(), param.getPageSize()),
-            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey());
+            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(),param.getKind());
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
         fillData(dataSources, selector);

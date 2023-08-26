@@ -33,6 +33,9 @@
             <if test="searchKey != '' and searchKey != null ">
                 and (ds.alias like concat('%',#{searchKey},'%') or ds.url like concat('%',#{searchKey},'%'))
             </if>
+            <if test="kind != null ">
+                and ds.kind = #{kind}
+            </if>
         </where>
     </select>
 </mapper>

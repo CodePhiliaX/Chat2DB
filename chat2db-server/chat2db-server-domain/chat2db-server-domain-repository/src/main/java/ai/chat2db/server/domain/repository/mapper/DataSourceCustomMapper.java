@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface DataSourceCustomMapper extends Mapper<DataSourceDO> {
     IPage<DataSourceDO> selectPageWithPermission(IPage<DataSourceDO> page, @Param("admin") Boolean admin,
-        @Param("userId") Long userId,
-        @Param("searchKey") String searchKey);
+        @Param("userId") Long userId, @Param("searchKey") String searchKey, @Param("kind") String kind);
 
 }
