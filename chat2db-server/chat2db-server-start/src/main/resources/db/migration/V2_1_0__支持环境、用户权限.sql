@@ -38,7 +38,11 @@ ALTER TABLE `dbhub_user`
 ALTER TABLE `dbhub_user`
     ADD `status` varchar(32) NOT NULL DEFAULT 'VALID' COMMENT '用户状态';
 
+ALTER TABLE `dbhub_user`
+    ADD `create_user_id`  bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '创建人用户id';
 
+ALTER TABLE `dbhub_user`
+    ADD `modified_user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '修改人用户id';
 
 update dbhub_user
 set role_code= 'DESKTOP',user_name='_desktop_default_user_name',password='_desktop_default_user_name',nick_name='桌面端用户'
@@ -58,7 +62,6 @@ CREATE TABLE IF NOT EXISTS `team`
     `code`             varchar(128)                 DEFAULT NOT NULL COMMENT '团队编码',
     `name`             varchar(512)                 DEFAULT NULL COMMENT '团队名称',
     `status`           varchar(32)         NOT NULL DEFAULT 'VALID' COMMENT '团队状态',
-    `role_code`        varchar(32)                  DEFAULT NULL COMMENT '角色编码',
     `description`      text                         DEFAULT NULL COMMENT '团队描述',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB

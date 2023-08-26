@@ -20,12 +20,15 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +87,10 @@ public class UserServiceImpl implements UserService {
         Page<DbhubUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         IPage<DbhubUserDO> iPage = dbhubUserMapper.selectPage(page, queryWrapper);
-        return PageResult.of(userConverter.do2dto(iPage.getRecords()), iPage.getTotal(), param);
+        List<User> list = userConverter.do2dto(iPage.getRecords());
+
+        fillData(list, selector);
+        return PageResult.of(list, iPage.getTotal(), param);
     }
 
     @Override
@@ -96,7 +102,7 @@ public class UserServiceImpl implements UserService {
             throw new ParamBusinessException("roleCode");
         }
 
-        DbhubUserDO data = userConverter.param2do(param);
+        DbhubUserDO data = userConverter.param2do(param, ContextUtils.getUserId());
         if (Objects.nonNull(data.getPassword())) {
             String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
             data.setPassword(bcryptPassword);
@@ -138,10 +144,25 @@ public class UserServiceImpl implements UserService {
             throw new ParamBusinessException("roleCode");
         }
 
-        DbhubUserDO data = userConverter.param2do(param);
+        DbhubUserDO data = userConverter.param2do(param, ContextUtils.getUserId());
         String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
         data.setPassword(bcryptPassword);
         dbhubUserMapper.insert(data);
         return DataResult.of(data.getId());
     }
+
+    private void fillData(List<User> list, UserSelector selector) {
+        if (CollectionUtils.isEmpty(list) || selector == null) {
+            return;
+        }
+        fillUser(list, selector);
+    }
+
+    private void fillUser(List<User> list, UserSelector selector) {
+        if (BooleanUtils.isNotTrue(selector.getModifiedUser())) {
+            return;
+        }
+        userConverter.fillDetail(EasyCollectionUtils.toList(list, User::getModifiedUser));
+    }
+
 }

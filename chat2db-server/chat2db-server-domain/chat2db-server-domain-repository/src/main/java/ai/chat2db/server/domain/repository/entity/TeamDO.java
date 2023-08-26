@@ -1,11 +1,10 @@
 package ai.chat2db.server.domain.repository.entity;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.io.Serializable;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -64,11 +63,6 @@ public class TeamDO implements Serializable {
      * 团队状态
      */
     private String status;
-
-    /**
-     * 角色编码
-     */
-    private String roleCode;
 
     /**
      * 团队描述

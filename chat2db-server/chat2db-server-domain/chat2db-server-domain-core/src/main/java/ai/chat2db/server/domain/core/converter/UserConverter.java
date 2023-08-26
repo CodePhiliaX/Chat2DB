@@ -35,6 +35,9 @@ public abstract class UserConverter {
      * @param data
      * @return
      */
+    @Mappings({
+        @Mapping(target = "modifiedUser.id", source = "modifiedUserId"),
+    })
     public abstract User do2dto(DbhubUserDO data);
 
     /**
@@ -57,14 +60,21 @@ public abstract class UserConverter {
      * @param user
      * @return
      */
-    public abstract DbhubUserDO param2do(UserCreateParam user);
+    @Mappings({
+        @Mapping(target = "createUserId", source = "userId"),
+        @Mapping(target = "modifiedUserId", source = "userId"),
+    })
+    public abstract DbhubUserDO param2do(UserCreateParam user, Long userId);
 
     /**
      *
      * @param user
      * @return
      */
-    public abstract DbhubUserDO param2do(UserUpdateParam user);
+    @Mappings({
+        @Mapping(target = "modifiedUserId", source = "userId"),
+    })
+    public abstract DbhubUserDO param2do(UserUpdateParam user, Long userId);
 
     /**
      * Fill in detailed information
