@@ -41,10 +41,10 @@ const antdLightTheme = {
   token: {
     ...commonToken,
     colorTextBase: 'rgb(241, 241, 244)',
-    colorBgBase: 'rgb(28, 33, 40)',
+    colorBgBase: '#1c2128',
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
-    colorBgContainer: 'rgb(28, 33, 40)',
-    colorBgElevated: 'rgb(34, 39, 46)',
+    colorBgContainer: '#1c2128',
+    colorBgSubtle: '#22272e',
     colorBorder: 'rgba(55, 62, 71, 0.4)',
     colorBorderSecondary: 'rgba(55, 62, 71, 0.4)',
     controlItemBgActive: 'rgba(241, 241, 244, 0.08);',
