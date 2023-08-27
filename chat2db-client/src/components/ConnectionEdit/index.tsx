@@ -299,7 +299,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
                 loading={loadings.confirmButton}
                 onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
               >
-                {backfillData.id ? i18n('common.button.edit') : i18n('common.button.save')}
+                {backfillData.id ? i18n('common.button.modify') : i18n('common.button.save')}
               </Button>
             </div>
           </div>

@@ -9,8 +9,8 @@ import i18n from '@/i18n';
 import { isValid } from '@/utils/check';
 import CreateConnection from '@/blocks/CreateConnection';
 import UniversalDrawer from '../universal-drawer';
-import styles from './index.less';
 import { isNumber } from 'lodash';
+import styles from './index.less';
 
 function DataSourceManagement() {
   const [dataSource, setDataSource] = useState<IDataSourceVO[]>([]);
@@ -34,19 +34,19 @@ function DataSourceManagement() {
   const columns = useMemo(
     () => [
       {
-        title: '链接名称',
+        title: i18n('team.datasource.alias'),
         dataIndex: 'alias',
         key: 'alias',
       },
       {
-        title: '链接地址',
+        title: i18n('team.datasource.url'),
         dataIndex: 'url',
         key: 'url',
       },
       {
-        title: '操作',
+        title: i18n('common.text.action'),
         key: 'action',
-        width: 180,
+        width: 300,
         render: (_: any, record: IDataSourceVO) => (
           <>
             <Button type='link' onClick={() => {
@@ -61,7 +61,7 @@ function DataSourceManagement() {
                 id: record.id,
               })
             }}>
-              权限管理
+              {i18n('team.action.rightManagement')}
             </Button>
             <Popconfirm
               title={i18n('common.tips.delete.confirm')}
@@ -126,7 +126,7 @@ function DataSourceManagement() {
   const handleDelete = async (id?: number) => {
     if (isNumber(id)) {
       await deleteDataSource({ id })
-      message.success('删除成功');
+      message.success(i18n('common.text.successfullyDelete'));
       queryDataSourceList();
     }
   };
@@ -141,7 +141,7 @@ function DataSourceManagement() {
     const requestApi = isUpdate ? updateDataSource : createDataSource;
     try {
       await requestApi({ ...connectionInfo.current })
-      message.success(isUpdate ? '更新成功' : '创建成功')
+      message.success(isUpdate ? i18n('common.tips.updateSuccess') : i18n('common.tips.createSuccess'))
       setShowCreateConnection(false)
       queryDataSourceList()
     } catch {
@@ -153,13 +153,13 @@ function DataSourceManagement() {
     <div>
       <div className={styles.tableTop}>
         <Input.Search
-          style={{ width: '200px' }}
-          placeholder="输入关键字进行搜索"
+          style={{ width: '320px' }}
+          placeholder={i18n('team.input.search.placeholder')}
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddDataSource}>
-          添加链接
+          {i18n('team.action.editDatasource')}
         </Button>
       </div>
       <Table
@@ -171,7 +171,7 @@ function DataSourceManagement() {
       />
 
       <Drawer
-        title={connectionInfo?.current?.id ? '编辑链接' : '添加链接'}
+        title={connectionInfo?.current?.id ? i18n('team.action.editDatasource') : i18n('team.action.addDatasource')}
         width={1000}
         open={showCreateConnection}
         onClose={() => setShowCreateConnection(false)}
@@ -189,7 +189,7 @@ function DataSourceManagement() {
           })
         }}
       />
-    </div>
+    </div >
   );
 }
 

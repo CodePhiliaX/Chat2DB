@@ -1,27 +1,28 @@
 import React, { useMemo, useState } from 'react';
 import { ApiOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import { Tabs } from 'antd';
-import styles from './index.less';
 import DataSourceManagement from './datasource-management';
 import UserManagement from './user-management';
 import TeamManagement from './team-management';
+import i18n from '@/i18n';
+import styles from './index.less';
 
 const Team = () => {
   const [activeKey, setActiveKey] = useState<string>('0');
   const tabList = useMemo(
     () => [
       {
-        label: '共享链接管理',
+        label: i18n('team.tab.datasource'),
         icon: <ApiOutlined />,
         children: <DataSourceManagement />,
       },
       {
-        label: '用户管理',
+        label: i18n('team.tab.user'),
         icon: <UserOutlined />,
         children: <UserManagement />,
       },
       {
-        label: '团队管理',
+        label: i18n('team.tab.team'),
         icon: <TeamOutlined />,
         children: <TeamManagement />,
       },
