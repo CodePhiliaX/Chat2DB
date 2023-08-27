@@ -35,23 +35,23 @@ function UserManagement() {
   const columns = useMemo(
     () => [
       {
-        title: '用户名',
+        title: i18n('team.user.userName'),
         dataIndex: 'userName',
         key: 'userName',
       },
       {
-        title: '昵称',
+        title: i18n('team.user.nickName'),
         dataIndex: 'nickName',
         key: 'nickName',
       },
       {
-        title: '状态',
+        title: i18n('team.user.status'),
         dataIndex: 'status',
         key: 'status',
         render: (status: StatusType) => <Tag color={status === StatusType.VALID ? 'green' : 'red'}>{status}</Tag>,
       },
       {
-        title: '操作',
+        title: i18n('common.text.action'),
         key: 'action',
         width: 260,
         render: (_: any, record: IUserVO) => (
@@ -69,7 +69,7 @@ function UserManagement() {
                 id: record.id,
               })
             }}>
-              所属团队
+              {i18n('team.action.affiliation.team')}
             </Button>
             <Button type='link' onClick={() => {
               setDrawerInfo({
@@ -79,7 +79,7 @@ function UserManagement() {
                 id: record.id,
               })
             }}>
-              归属链接
+              {i18n('team.action.affiliation.datasource')}
             </Button>
             <Popconfirm
               title={i18n('common.tips.delete.confirm')}
@@ -139,7 +139,7 @@ function UserManagement() {
 
   const handleDelete = async (id: number) => {
     await deleteUser({ id })
-    message.success('删除成功')
+    message.success(i18n('common.text.successfullyDelete'))
     queryUserList()
   }
 
@@ -155,8 +155,8 @@ function UserManagement() {
       <div className={styles.tableTop}>
         <Input.Search
           maxLength={50}
-          style={{ width: '200px' }}
-          placeholder="输入关键字进行搜索"
+          style={{ width: '320px' }}
+          placeholder={i18n('team.input.search.placeholder')}
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
@@ -164,7 +164,7 @@ function UserManagement() {
           form.resetFields();
           setIsModalVisible(true)
         }}>
-          添加用户
+          {i18n('team.action.addUser')}
         </Button>
       </div>
       <Table
@@ -176,7 +176,7 @@ function UserManagement() {
       />
 
       <Modal
-        title={isEditing ? '编辑用户' : '添加用户'}
+        title={isEditing ? i18n('team.action.editUser') : i18n('team.action.addUser')}
         open={isModalVisible}
         onOk={() => {
           form
@@ -209,31 +209,31 @@ function UserManagement() {
             status: StatusType.VALID,
           }}
         >
-          <Form.Item label="用户名" name="userName" rules={[requireRule]}>
+          <Form.Item label={i18n('team.user.addForm.userName')} name="userName" rules={[requireRule]}>
             <Input maxLength={50} showCount autoComplete='off' />
           </Form.Item>
-          <Form.Item label="昵称" name="nickName" rules={[requireRule]}>
+          <Form.Item label={i18n('team.user.addForm.nickName')} name="nickName" rules={[requireRule]}>
             <Input maxLength={100} showCount />
           </Form.Item>
-          <Form.Item label="邮箱" name="email" rules={[requireRule, {
+          <Form.Item label={i18n('team.user.addForm.email')} name="email" rules={[requireRule, {
             type: 'email',
             message: i18n('common.form.error.email')
           }]}>
             <Input autoComplete='off' />
           </Form.Item>
-          <Form.Item label="密码" name="password" rules={[requireRule]}>
+          <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
             <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
           </Form.Item>
-          <Form.Item label="角色" name="roleCode" rules={[requireRule]}>
+          <Form.Item label={i18n('team.user.addForm.roleCode')} name="roleCode" rules={[requireRule]}>
             <Radio.Group>
-              <Radio value={RoleType.ADMIN}>管理员</Radio>
-              <Radio value={RoleType.USER}>用户</Radio>
+              <Radio value={RoleType.ADMIN}>{i18n('team.user.addForm.roleCode.admin')}</Radio>
+              <Radio value={RoleType.USER}>{i18n('team.user.addForm.roleCode.user')}</Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="状态" name="status" rules={[requireRule]}>
+          <Form.Item label={i18n('team.user.addForm.status')} name="status" rules={[requireRule]}>
             <Radio.Group>
-              <Radio value={StatusType.VALID}>有效</Radio>
-              <Radio value={StatusType.INVALID}>无效</Radio>
+              <Radio value={StatusType.VALID}>{i18n('team.user.addForm.status.valid')}</Radio>
+              <Radio value={StatusType.INVALID}>{i18n('team.user.addForm.status.invalid')}</Radio>
             </Radio.Group>
           </Form.Item>
         </Form>

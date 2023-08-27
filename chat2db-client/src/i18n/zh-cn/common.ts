@@ -3,6 +3,7 @@ export default {
   'common.text.is': '是',
   'common.button.affirm': '确认',
   'common.button.edit': '编辑',
+  'common.button.modify': '修改',
   'common.button.confirm': '确认',
   'common.button.cancel': '取消',
   'common.data.hour': '{1}小时',
@@ -73,5 +74,8 @@ export default {
   'common.text.editorRightClick': '编辑器右键',
   'common.form.error.required': '此项必填!',
   'common.form.error.email': '不是正确的邮箱格式',
-  'common.tips.delete.confirm': '确认要删除吗？'
+  'common.tips.delete.confirm': '确认要删除吗？',
+  'common.tips.updateSuccess': '更新成功',
+  'common.tips.createSuccess': '创建成功',
+  'common.text.action': '操作'
 };

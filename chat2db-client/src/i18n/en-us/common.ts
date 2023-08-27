@@ -3,6 +3,7 @@ export default {
   'common.text.is': 'no',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
+  'common.button.modify': 'Modify',
   'common.button.confirm': 'Confirm',
   'common.button.cancel': 'Cancel',
   'common.data.hour': '{1} {hour|hours}',
@@ -75,5 +76,8 @@ export default {
   'common.text.editorRightClick': 'Editor right click',
   'common.form.error.required': 'This field is required!',
   'common.form.error.email': 'The input is not a valid email!',
-  'common.tips.delete.confirm': 'Are you sure to delete it?'
+  'common.tips.delete.confirm': 'Are you sure to delete it?',
+  'common.tips.updateSuccess': 'Update Successfully',
+  'common.tips.createSuccess': 'Create Successfully',
+  'common.text.action': 'Action'
 };

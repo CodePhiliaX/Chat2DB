@@ -35,23 +35,23 @@ function TeamManagement() {
   const columns = useMemo(
     () => [
       {
-        title: '团队编码',
+        title: i18n('team.team.addForm.code'),
         dataIndex: 'code',
         key: 'code',
       },
       {
-        title: '团队名',
+        title: i18n('team.team.addForm.name'),
         dataIndex: 'name',
         key: 'name',
       },
       {
-        title: '状态',
+        title: i18n('team.team.addForm.status'),
         dataIndex: 'status',
         key: 'status',
         render: (status: StatusType) => <Tag color={status === StatusType.VALID ? 'green' : 'red'}>{status}</Tag>,
       },
       {
-        title: '操作',
+        title: i18n('common.text.action'),
         key: 'action',
         width: 260,
         render: (_: any, record: ITeamVO) => (
@@ -70,7 +70,7 @@ function TeamManagement() {
                 });
               }}
             >
-              包含用户
+              {i18n('team.action.affiliation.user')}
             </Button>
             <Button
               type="link"
@@ -82,7 +82,7 @@ function TeamManagement() {
                   type: AffiliationType.TEAM_DATASOURCE
                 });
               }}>
-              归属链接
+              {i18n('team.action.affiliation.datasource')}
             </Button>
             <Popconfirm
               title={i18n('common.tips.delete.confirm')}
@@ -150,7 +150,7 @@ function TeamManagement() {
   const handleDelete = async (id?: number) => {
     if (id !== undefined) {
       await deleteTeam({ id });
-      message.success('删除成功');
+      message.success(i18n('common.text.successfullyDelete'));
       queryTeamList();
     }
   };
@@ -159,13 +159,13 @@ function TeamManagement() {
     <div>
       <div className={styles.tableTop}>
         <Input.Search
-          style={{ width: '200px' }}
-          placeholder="输入关键字进行搜索"
+          style={{ width: '320px' }}
+          placeholder={i18n('team.input.search.placeholder')}
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
-          添加团队
+          {i18n('team.action.addUser')}
         </Button>
       </div>
       <Table
@@ -178,7 +178,7 @@ function TeamManagement() {
       />
 
       <Modal
-        title={form.getFieldValue('id') !== undefined ? '编辑团队' : '添加团队'}
+        title={form.getFieldValue('id') !== undefined ? i18n('team.action.editTeam') : i18n('team.action.addTeam')}
         open={isModalVisible}
         onOk={() => {
           form
@@ -207,19 +207,19 @@ function TeamManagement() {
             status: StatusType.VALID,
           }}
         >
-          <Form.Item label="团队编码" name="code" rules={[requireRule]}>
+          <Form.Item label={i18n('team.team.addForm.code')} name="code" rules={[requireRule]}>
             <Input />
           </Form.Item>
-          <Form.Item label="团队名" name="name">
+          <Form.Item label={i18n('team.team.addForm.name')} name="name">
             <Input />
           </Form.Item>
-          <Form.Item label="状态" name="status" rules={[requireRule]}>
+          <Form.Item label={i18n('team.team.addForm.status')} name="status" rules={[requireRule]}>
             <Radio.Group>
-              <Radio value={StatusType.VALID}>有效</Radio>
-              <Radio value={StatusType.INVALID}>无效</Radio>
+              <Radio value={StatusType.VALID}>{i18n('team.team.addForm.status.valid')}</Radio>
+              <Radio value={StatusType.INVALID}>{i18n('team.team.addForm.status.invalid')}</Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="描述" name="description">
+          <Form.Item label={i18n('team.team.addForm.description')} name="description">
             <Input.TextArea />
           </Form.Item>
         </Form>
