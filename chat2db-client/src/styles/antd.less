@@ -1,8 +1,22 @@
 :root {
   :global {
+    // 切换主题色时有一些动画导致切换延迟，这里禁用background动画
+    .ant-input,
+    .ant-input-password {
+      transition: all 0.2s, background-color 0s;
+    }
+    .ant-btn {
+      transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), background-color 0s;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1), background-color 0s;
+    }
+
     .ant-modal-header {
       border-bottom: 0px;
     }
+
     // .ant-modal-content {
     //   background-color: var(--color-bg-elevated) !important;
 
