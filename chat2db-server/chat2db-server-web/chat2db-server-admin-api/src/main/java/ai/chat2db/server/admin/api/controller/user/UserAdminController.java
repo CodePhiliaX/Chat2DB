@@ -6,6 +6,8 @@ import ai.chat2db.server.admin.api.controller.user.request.UserCreateRequest;
 import ai.chat2db.server.admin.api.controller.user.request.UserUpdateRequest;
 import ai.chat2db.server.admin.api.controller.user.vo.UserPageQueryVO;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam.OrderCondition;
+import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
 import ai.chat2db.server.domain.api.param.user.UserSelector;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -29,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserAdminController {
 
-    private static final UserSelector USER_SELECTOR= UserSelector.builder()
+    private static final UserSelector USER_SELECTOR = UserSelector.builder()
         .modifiedUser(Boolean.TRUE)
         .build();
 
@@ -47,7 +49,9 @@ public class UserAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<UserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return userService.pageQuery(userAdminConverter.request2param(request), USER_SELECTOR)
+        UserPageQueryParam param = userAdminConverter.request2param(request);
+        param.orderBy(OrderCondition.ID_DESC);
+        return userService.pageQuery(param, USER_SELECTOR)
             .mapToWeb(userAdminConverter::dto2vo);
     }
 

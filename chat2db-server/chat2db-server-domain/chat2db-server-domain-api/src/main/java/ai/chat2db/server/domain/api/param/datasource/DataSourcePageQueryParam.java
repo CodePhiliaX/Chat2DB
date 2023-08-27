@@ -1,8 +1,9 @@
 package ai.chat2db.server.domain.api.param.datasource;
 
+import ai.chat2db.server.tools.base.wrapper.param.OrderBy;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
-
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * @author moji
@@ -23,4 +24,16 @@ public class DataSourcePageQueryParam extends PageQueryParam {
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */
     private String kind;
+
+    @Getter
+    public enum OrderCondition implements ai.chat2db.server.tools.base.wrapper.param.OrderCondition {
+        ID_DESC(OrderBy.desc("id")),
+        ;
+
+        final OrderBy orderBy;
+
+        OrderCondition(OrderBy orderBy) {
+            this.orderBy = orderBy;
+        }
+    }
 }

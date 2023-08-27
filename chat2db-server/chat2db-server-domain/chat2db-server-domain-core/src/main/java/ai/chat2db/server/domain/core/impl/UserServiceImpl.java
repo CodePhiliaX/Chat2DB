@@ -20,6 +20,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import cn.hutool.crypto.digest.DigestUtil;
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResult<User> pageQuery(UserPageQueryParam param, UserSelector selector) {
-        LambdaQueryWrapper<DbhubUserDO> queryWrapper = new LambdaQueryWrapper<>();
+        EasyLambdaQueryWrapper<DbhubUserDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(DbhubUserDO::getUserName, "%" + param.getSearchKey() + "%")
                 .or()
@@ -84,6 +85,7 @@ public class UserServiceImpl implements UserService {
         }
         // Default not to query desktop accounts
         queryWrapper.ne(DbhubUserDO::getId, RoleCodeEnum.DESKTOP.getDefaultUserId());
+        queryWrapper.orderBy(param.getOrderByList());
         Page<DbhubUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         IPage<DbhubUserDO> iPage = dbhubUserMapper.selectPage(page, queryWrapper);
