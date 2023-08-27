@@ -36,6 +36,9 @@
             <if test="kind != null ">
                 and ds.kind = #{kind}
             </if>
+            <if test="orderBy != null ">
+                ${orderBy}
+            </if>
         </where>
     </select>
 </mapper>

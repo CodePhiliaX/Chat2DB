@@ -32,6 +32,7 @@ import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
+import ai.chat2db.server.tools.common.util.EasySqlUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -187,9 +188,12 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector) {
         LoginUser loginUser = ContextUtils.getLoginUser();
+
         IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
             new Page<>(param.getPageNo(), param.getPageSize()),
-            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(),param.getKind());
+            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(),param.getKind(),
+            EasySqlUtils.orderBy(param.getOrderByList()));
+
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
         fillData(dataSources, selector);

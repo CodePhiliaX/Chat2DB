@@ -6,6 +6,8 @@ import ai.chat2db.server.admin.api.controller.team.request.TeamCreateRequest;
 import ai.chat2db.server.admin.api.controller.team.request.TeamUpdateRequest;
 import ai.chat2db.server.admin.api.controller.team.vo.TeamPageQueryVO;
 import ai.chat2db.server.common.api.controller.request.CommonPageQueryRequest;
+import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
+import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam.OrderCondition;
 import ai.chat2db.server.domain.api.param.team.TeamSelector;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/team")
 @RestController
 public class TeamAdminController {
-    private static final TeamSelector TEAM_SELECTOR=TeamSelector.builder()
+    private static final TeamSelector TEAM_SELECTOR = TeamSelector.builder()
         .modifiedUser(Boolean.TRUE)
         .build();
 
@@ -46,7 +48,9 @@ public class TeamAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<TeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
-        return teamService.pageQuery(teamAdminConverter.request2param(request), TEAM_SELECTOR)
+        TeamPageQueryParam param = teamAdminConverter.request2param(request);
+        param.orderBy(OrderCondition.ID_DESC);
+        return teamService.pageQuery(param, TEAM_SELECTOR)
             .mapToWeb(teamAdminConverter::dto2vo);
     }
 
