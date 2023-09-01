@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,7 @@ public class TableColumn {
     /**
      * 列名
      */
+    @JsonAlias({"COLUMN_NAME"})
     private String name;
 
     /**
@@ -35,18 +37,24 @@ public class TableColumn {
      * 列的类型
      * 比如 varchar(100) ,double(10,6)
      */
+
+    @JsonAlias({"TYPE_NAME"})
     private String columnType;
 
     /**
      * 列的数据类型
      * 比如 varchar ,double
      */
+
+    @JsonAlias({"DATA_TYPE"})
     private Integer dataType;
 
 
     /**
      * 默认值
      */
+
+    @JsonAlias({"COLUMN_DEF"})
     private String defaultValue;
 
     /**
@@ -58,6 +66,7 @@ public class TableColumn {
     /**
      * 注释
      */
+    @JsonAlias({"REMARKS"})
     private String comment;
 
     /**
@@ -68,11 +77,13 @@ public class TableColumn {
     /**
      * 空间名
      */
+    @JsonAlias({"TABLE_SCHEM"})
     private String schemaName;
 
     /**
      * 数据库名
      */
+    @JsonAlias({"TABLE_CAT"})
     private String databaseName;
 
     /**
@@ -83,6 +94,8 @@ public class TableColumn {
     /**
      * column size.
      */
+
+    @JsonAlias({"COLUMN_SIZE"})
     private Integer columnSize;
 
     /**
@@ -93,11 +106,15 @@ public class TableColumn {
     /**
      * the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
      */
+
+    @JsonAlias({"DECIMAL_DIGITS"})
     private Integer decimalDigits;
 
     /**
      * Radix (typically either 10 or 2)
      */
+
+    @JsonAlias({"NUM_PREC_RADIX"})
     private Integer numPrecRadix;
 
     /**
@@ -127,12 +144,16 @@ public class TableColumn {
     /**
      * index of column in table (starting at 1)
      */
+
+    @JsonAlias({"ORDINAL_POSITION"})
     private Integer ordinalPosition;
 
     /**
      * ISO rules are used to determine the nullability for a column.
      */
-    private Boolean nullable;
+
+    @JsonAlias({"NULLABLE"})
+    private Integer nullable;
 
     /**
      * String => Indicates whether this is a generated column

@@ -3,7 +3,6 @@ package ai.chat2db.spi.jdbc;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.Database;
@@ -15,7 +14,6 @@ import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.Trigger;
 import ai.chat2db.spi.sql.SQLExecutor;
-import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * @author jipengfei
@@ -24,25 +22,12 @@ import org.apache.commons.beanutils.BeanUtils;
 public class DefaultMetaService implements MetaData {
     @Override
     public List<Database> databases(Connection connection) {
-        List<String> dataBases = SQLExecutor.getInstance().databases(connection);
-        return dataBases.stream().map(str -> Database.builder().name(str).build()).collect(Collectors.toList());
-
+        return SQLExecutor.getInstance().databases(connection);
     }
 
     @Override
     public List<Schema> schemas(Connection connection,String databaseName) {
-        List<Map<String, String>> maps = SQLExecutor.getInstance().schemas(connection, databaseName, null);
-        return maps.stream().map(map -> map2Schema(map)).collect(Collectors.toList());
-
-    }
-
-    private Schema map2Schema(Map<String, String> map) {
-        Schema schema = new Schema();
-        try {
-            BeanUtils.populate(schema, map);
-        } catch (Exception e) {
-        }
-        return schema;
+        return SQLExecutor.getInstance().schemas(connection, databaseName, null);
     }
 
     @Override
