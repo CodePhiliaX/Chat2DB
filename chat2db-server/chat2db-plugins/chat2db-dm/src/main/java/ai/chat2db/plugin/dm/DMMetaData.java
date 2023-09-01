@@ -34,7 +34,7 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
     }
 
     private static String ROUTINES_SQL
-        = "SELECT OWNER, NAME, TEXT FROM ALL_SOURCE WHERE TYPE = '%s' AND NAME = '%s' AND NAME = '%s' ORDER BY LINE";
+        = "SELECT OWNER, NAME, TEXT FROM ALL_SOURCE WHERE TYPE = '%s' AND OWNER = '%s' AND NAME = '%s' ORDER BY LINE";
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,

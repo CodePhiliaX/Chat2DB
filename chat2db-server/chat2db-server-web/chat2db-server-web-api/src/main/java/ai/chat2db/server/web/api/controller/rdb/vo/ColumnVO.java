@@ -38,7 +38,7 @@ public class ColumnVO {
     /**
      * 是否为空
      */
-    private Boolean nullable;
+    private Integer nullable;
 
     /**
      * 是否主键
