@@ -17,14 +17,20 @@
                         </when>
                         <otherwise>
                             and (ds.USER_ID = #{userId}
-                            or exists(select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER' and
-                            dsa.ACCESS_OBJECT_ID = #{userId})
-                            or exists(select 1
+                            or exists(
+                            select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER'
+                            and dsa.ACCESS_OBJECT_ID = #{userId}
+                            and dsa.DATA_SOURCE_ID = ds.ID
+                            )
+                            or exists (
+                            select 1
                             from DATA_SOURCE_ACCESS dsa
                             LEFT JOIN TEAM_USER tu on tu.ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
                             left join TEAM t on t.id = tu.TEAM_ID
-                            where tu.USER_ID = #{userId})
+                            where tu.USER_ID = #{userId}
+                            and dsa.DATA_SOURCE_ID = ds.ID
                             and t.STATUS = 'VALID'
+                            )
                             )
                         </otherwise>
                     </choose>

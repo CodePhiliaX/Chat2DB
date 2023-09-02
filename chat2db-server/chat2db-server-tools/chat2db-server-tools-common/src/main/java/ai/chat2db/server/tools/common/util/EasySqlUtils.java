@@ -47,4 +47,11 @@ public class EasySqlUtils {
         }
         return DESC;
     }
+
+    public static String buildLikeRightFuzzy(String param) {
+        if (param == null) {
+            return null;
+        }
+        return param + "%";
+    }
 }

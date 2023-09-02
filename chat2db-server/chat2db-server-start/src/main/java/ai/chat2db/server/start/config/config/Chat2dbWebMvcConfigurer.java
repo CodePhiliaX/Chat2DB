@@ -7,9 +7,7 @@ import com.alibaba.fastjson2.JSON;
 
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
-import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.model.User;
-import ai.chat2db.server.domain.api.param.team.user.TeamUserComprehensivePageQueryParam;
 import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.cache.CacheKey;
@@ -17,7 +15,6 @@ import ai.chat2db.server.domain.core.cache.MemoryCacheManage;
 import ai.chat2db.server.tools.base.constant.SymbolConstant;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.tools.common.enums.ModeEnum;
 import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
@@ -33,7 +30,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -98,19 +94,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         if (!ValidStatusEnum.VALID.getCode().equals(user.getStatus())) {
                             throw new BusinessException("oauth.invalidUserName");
                         }
-                        boolean admin;
-                        if (RoleCodeEnum.ADMIN.getCode().equals(user.getRoleCode())) {
-                            admin = true;
-                        } else {
-                            TeamUserComprehensivePageQueryParam teamUserComprehensivePageQueryParam
-                                = new TeamUserComprehensivePageQueryParam();
-                            teamUserComprehensivePageQueryParam.setUserId(user.getId());
-                            teamUserComprehensivePageQueryParam.setTeamRoleCode(RoleCodeEnum.ADMIN.getCode());
-                            teamUserComprehensivePageQueryParam.setPageSize(1);
-                            PageResult<TeamUser> pageResult = teamUserService.comprehensivePageQuery(
-                                teamUserComprehensivePageQueryParam, null);
-                            admin = CollectionUtils.isNotEmpty(pageResult.getData());
-                        }
+                        boolean admin = RoleCodeEnum.ADMIN.getCode().equals(user.getRoleCode());
 
                         return LoginUser.builder()
                             .id(user.getId())

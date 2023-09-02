@@ -72,7 +72,7 @@ public class TeamUserServiceImpl implements TeamUserService {
         Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         IPage<TeamUserDO> iPage = teamUserCustomMapper.comprehensivePageQuery(page, param.getTeamId(),
-            param.getUserId(), param.getTeamRoleCode(), param.getTeamSearchKey(), param.getUserSearchKey());
+            param.getUserId(), param.getTeamSearchKey(), param.getUserSearchKey());
 
         List<TeamUser> list = teamUserConverter.do2dto(iPage.getRecords());
 
