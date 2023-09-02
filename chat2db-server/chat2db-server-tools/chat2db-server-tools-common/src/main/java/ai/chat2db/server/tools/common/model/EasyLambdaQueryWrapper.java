@@ -1,6 +1,7 @@
 package ai.chat2db.server.tools.common.model;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +43,13 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
     public EasyLambdaQueryWrapper<T> eqWhenPresent(SFunction<T, ?> column, Object val) {
         if (val != null) {
             addCondition(true, column, EQ, val);
+        }
+        return typedThis;
+    }
+
+    public EasyLambdaQueryWrapper<T> inWhenPresent(SFunction<T, ?> column, Collection<?> coll) {
+        if (coll != null) {
+            return in(true, column, coll);
         }
         return typedThis;
     }

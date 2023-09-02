@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Objects;
 
 import ai.chat2db.server.domain.api.model.Dashboard;
-import ai.chat2db.server.domain.api.param.DashboardCreateParam;
-import ai.chat2db.server.domain.api.param.DashboardPageQueryParam;
-import ai.chat2db.server.domain.api.param.DashboardUpdateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardCreateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardPageQueryParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardQueryParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardUpdateParam;
 import ai.chat2db.server.domain.api.service.DashboardService;
 import ai.chat2db.server.domain.core.converter.DashboardConverter;
+import ai.chat2db.server.domain.core.util.PermissionUtils;
 import ai.chat2db.server.domain.repository.entity.DashboardChartRelationDO;
 import ai.chat2db.server.domain.repository.entity.DashboardDO;
 import ai.chat2db.server.domain.repository.mapper.DashboardChartRelationMapper;
@@ -18,7 +20,9 @@ import ai.chat2db.server.tools.base.enums.YesOrNoEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-
+import ai.chat2db.server.tools.common.exception.DataNotFoundException;
+import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -45,10 +49,11 @@ public class DashboardServiceImpl implements DashboardService {
     private DashboardConverter dashboardConverter;
 
     @Override
-    public DataResult<Long> create(DashboardCreateParam param) {
+    public DataResult<Long> createWithPermission(DashboardCreateParam param) {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
+        param.setUserId(ContextUtils.getUserId());
         DashboardDO dashboardDO = dashboardConverter.param2do(param);
         dashboardMapper.insert(dashboardDO);
         insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
@@ -56,7 +61,10 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ActionResult update(DashboardUpdateParam param) {
+    public ActionResult updateWithPermission(DashboardUpdateParam param) {
+        Dashboard data = queryExistent(param.getId()).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
         param.setGmtModified(LocalDateTime.now());
         DashboardDO dashboardDO = dashboardConverter.updateParam2do(param);
         dashboardMapper.updateById(dashboardDO);
@@ -84,11 +92,35 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public ActionResult delete(Long id) {
-        DashboardDO dashboardDO = dashboardMapper.selectById(id);
-        if (Objects.isNull(dashboardDO)) {
-            return ActionResult.isSuccess();
+    public DataResult<Dashboard> queryExistent(DashboardQueryParam param) {
+        EasyLambdaQueryWrapper<DashboardDO> queryWrapper = new EasyLambdaQueryWrapper<>();
+        queryWrapper
+            .eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter())
+            .eqWhenPresent(DashboardDO::getId, param.getId())
+            .eqWhenPresent(DashboardDO::getUserId, param.getUserId());
+        IPage<DashboardDO> page = dashboardMapper.selectPage(new Page<>(1, 1), queryWrapper);
+        if (CollectionUtils.isEmpty(page.getRecords())) {
+            throw new DataNotFoundException();
         }
+        return DataResult.of(dashboardConverter.do2model(page.getRecords().get(0)));
+    }
+
+    @Override
+    public DataResult<Dashboard> queryExistent(Long id) {
+        DataResult<Dashboard> dataResult = find(id);
+        if (dataResult.getData() == null) {
+            throw new DataNotFoundException();
+        }
+        return dataResult;
+    }
+
+    @Override
+    public ActionResult deleteWithPermission(Long id) {
+        Dashboard data = queryExistent(id).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
+        DashboardDO dashboardDO = new DashboardDO();
+        dashboardDO.setId(id);
         dashboardDO.setDeleted(YesOrNoEnum.YES.getLetter());
         dashboardMapper.updateById(dashboardDO);
         deleteDashboardRelation(id);

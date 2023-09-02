@@ -56,4 +56,21 @@ public class PermissionUtils {
         // Administrators can edit anything
         return loginUser.getAdmin();
     }
+
+    /**
+     * Verify if it is an administrator
+     *
+     * @return
+     */
+    public static void checkDeskTopOrAdmin() {
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        // Representative is desktop mode
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(loginUser.getId())) {
+            return;
+        }
+        if (loginUser.getAdmin()) {
+            return;
+        }
+        throw new PermissionDeniedBusinessException();
+    }
 }

@@ -3,8 +3,8 @@ package ai.chat2db.server.domain.core.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Dashboard;
-import ai.chat2db.server.domain.api.param.DashboardCreateParam;
-import ai.chat2db.server.domain.api.param.DashboardUpdateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardCreateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardUpdateParam;
 import ai.chat2db.server.domain.repository.entity.DashboardDO;
 
 import org.mapstruct.Mapper;
