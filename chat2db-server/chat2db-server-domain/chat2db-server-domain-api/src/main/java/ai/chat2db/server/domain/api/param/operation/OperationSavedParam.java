@@ -1,44 +1,19 @@
-package ai.chat2db.server.domain.api.model;
-
-import java.time.LocalDateTime;
+package ai.chat2db.server.domain.api.param.operation;
 
 import lombok.Data;
 
 /**
- * <p>
- * 我的保存表
- * </p>
- *
- * @author ali-dbhub
- * @since 2022-09-18
+ * @author moji
+ * @version UserSavedDdlCreateParam.java, v 0.1 2022年09月25日 15:40 moji Exp $
+ * @date 2022/09/25
  */
 @Data
-public class Operation {
-
-    /**
-     * 主键
-     */
-    private Long id;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime gmtCreate;
-
-    /**
-     * 修改时间
-     */
-    private LocalDateTime gmtModified;
+public class OperationSavedParam {
 
     /**
      * 数据源连接ID
      */
     private Long dataSourceId;
-
-    /**
-     * 数据源名称
-     */
-    private String dataSourceName;
 
     /**
      * db名称
@@ -49,7 +24,7 @@ public class Operation {
      * 表所在空间
      */
     private String schemaName;
-    
+
     /**
      * 保存名称
      */
@@ -79,9 +54,4 @@ public class Operation {
      * operation type
      */
     private String operationType;
-
-    /**
-     * 用户id
-     */
-    private Long userId;
 }

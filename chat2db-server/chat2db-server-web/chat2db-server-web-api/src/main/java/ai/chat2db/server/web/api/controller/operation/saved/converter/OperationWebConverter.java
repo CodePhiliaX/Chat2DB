@@ -3,9 +3,9 @@ package ai.chat2db.server.web.api.controller.operation.saved.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Operation;
-import ai.chat2db.server.domain.api.param.OperationPageQueryParam;
-import ai.chat2db.server.domain.api.param.OperationSavedParam;
-import ai.chat2db.server.domain.api.param.OperationUpdateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
+import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationQueryRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationUpdateRequest;
@@ -45,7 +45,7 @@ public abstract class OperationWebConverter {
      * @param request
      * @return
      */
-    public abstract OperationPageQueryParam queryReq2param(OperationQueryRequest request);
+    public abstract OperationPageQueryParam queryReq2param(OperationQueryRequest request, Long userId);
 
     /**
      * 模型转换

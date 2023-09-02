@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.operation;
 
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 
