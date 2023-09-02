@@ -55,7 +55,7 @@ public class Application {
         // The user did not specify the jws key
         if (StringUtils.isBlank(jwtSecretKey)) {
             if (StringUtils.isBlank(configJson.getJwtSecretKey())) {
-                configJson.setJwtSecretKey(UUID.fastUUID().toString().replaceAll("-", ""));
+                configJson.setJwtSecretKey(UUID.fastUUID().toString(true));
                 ConfigUtils.setConfig(configJson);
             }
             // Ensure that the jwt Secret Key for each application is unique
