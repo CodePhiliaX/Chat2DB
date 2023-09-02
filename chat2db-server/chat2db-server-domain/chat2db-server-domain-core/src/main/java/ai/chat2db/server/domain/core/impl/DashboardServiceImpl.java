@@ -23,11 +23,11 @@ import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.DataNotFoundException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.EasySqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -164,11 +164,11 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public PageResult<Dashboard> queryPage(DashboardPageQueryParam param) {
-        LambdaQueryWrapper<DashboardDO> queryWrapper = new LambdaQueryWrapper<>();
-        if (StringUtils.isNotBlank(param.getSearchKey())) {
-            queryWrapper.like(DashboardDO::getName, param.getSearchKey());
-        }
-        queryWrapper.eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter());
+        EasyLambdaQueryWrapper<DashboardDO> queryWrapper = new EasyLambdaQueryWrapper<>();
+        queryWrapper
+            .eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter())
+            .likeWhenPresent(DashboardDO::getName, EasySqlUtils.buildLikeRightFuzzy(param.getSearchKey()))
+            .eqWhenPresent(DashboardDO::getUserId, param.getUserId());
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<DashboardDO> page = new Page<>(start, offset);

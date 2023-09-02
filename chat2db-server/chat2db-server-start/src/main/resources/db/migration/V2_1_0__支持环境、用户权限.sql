@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS `environment`
 
 INSERT INTO `environment`
 (`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `style`)
-VALUES (1, 1, 1, '线上环境', '线上', 'RELEASE');
+VALUES (1, 1, 1, 'Release Environment', 'RELEASE', 'RELEASE');
 INSERT INTO `environment`
 (`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `style`)
-VALUES (2, 1, 1, '测试环境', '测试', 'TEST');
+VALUES (2, 1, 1, 'Test Environment', 'TEST', 'TEST');
 
 ALTER TABLE `data_source`
     ADD COLUMN `environment_id` bigint(20) unsigned NOT NULL DEFAULT 2 COMMENT '环境id';
@@ -45,9 +45,9 @@ ALTER TABLE `dbhub_user`
     ADD `modified_user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '修改人用户id';
 
 update dbhub_user
-set role_code= 'DESKTOP',user_name='_desktop_default_user_name',password='_desktop_default_user_name',nick_name='桌面端用户'
+set role_code= 'DESKTOP',user_name='_desktop_default_user_name',password='_desktop_default_user_name',nick_name='Desktop User'
 where id = 1;
-INSERT INTO DBHUB_USER (USER_NAME, PASSWORD, NICK_NAME, EMAIL, ROLE_CODE) VALUES ('chat2db', 'chat2db', '管理员', null, 'ADMIN');
+INSERT INTO DBHUB_USER (USER_NAME, PASSWORD, NICK_NAME, EMAIL, ROLE_CODE) VALUES ('chat2db', 'chat2db', 'Administrator', null, 'ADMIN');
 
 create UNIQUE INDEX uk_user_user_name on dbhub_user (user_name);
 

@@ -47,6 +47,13 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
         return typedThis;
     }
 
+    public EasyLambdaQueryWrapper<T> likeWhenPresent(SFunction<T, ?> column, Object val) {
+        if (val != null) {
+            return like(true, column, val);
+        }
+        return typedThis;
+    }
+
     public EasyLambdaQueryWrapper<T> inWhenPresent(SFunction<T, ?> column, Collection<?> coll) {
         if (coll != null) {
             return in(true, column, coll);

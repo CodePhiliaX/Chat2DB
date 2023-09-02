@@ -13,6 +13,5 @@ import org.apache.ibatis.annotations.Param;
 public interface TeamUserCustomMapper extends Mapper<TeamUserDO> {
 
     IPage<TeamUserDO> comprehensivePageQuery(IPage<TeamUserDO> page, @Param("teamId") Long teamId,
-        @Param("userId") Long userId, @Param("teamRoleCode") String teamRoleCode,
-        @Param("teamSearchKey") String teamSearchKey, @Param("userSearchKey") String userSearchKey);
+        @Param("userId") Long userId, @Param("teamSearchKey") String teamSearchKey, @Param("userSearchKey") String userSearchKey);
 }
