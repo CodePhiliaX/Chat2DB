@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,16 +27,24 @@ public class Procedure {
     //SPECIFIC_NAME String => the name which uniquely identifies this procedure within its schema. This is a user specified, or DBMS generated, name that may be different then the PROCEDURE_NAME for example with overload procedures
     //
 
+    @JsonAlias({"PROCEDURE_CAT"})
     private String databaseName;
+
+    @JsonAlias({"PROCEDURE_SCHEM"})
 
     private String schemaName;
 
+    @JsonAlias({"PROCEDURE_NAME"})
     private String procedureName;
 
+    @JsonAlias({"REMARKS"})
     private String remarks;
+
+    @JsonAlias({"PROCEDURE_TYPE"})
 
     private Short procedureType;
 
+    @JsonAlias({"SPECIFIC_NAME"})
     private String specificName;
 
     private String procedureBody;

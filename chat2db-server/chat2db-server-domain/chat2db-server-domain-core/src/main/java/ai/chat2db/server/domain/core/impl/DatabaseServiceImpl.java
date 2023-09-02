@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
 import ai.chat2db.server.domain.api.param.SchemaQueryParam;
@@ -87,10 +87,40 @@ public class DatabaseServiceImpl implements DatabaseService {
             (key) -> param.isRefresh(), (key) -> {
                 Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
                     : param.getConnection();
-                MetaData metaData = Chat2DBContext.getMetaData();
-                return metaData.schemas(connection, param.getDataBaseName());
+                return getSchemaList(param.getDataBaseName(), connection);
             });
         return ListResult.of(schemas);
+    }
+
+
+    private List<Schema> getSchemaList(String databaseName, Connection connection) {
+        MetaData metaData = Chat2DBContext.getMetaData();
+        List<Schema> schemas = metaData.schemas(connection,databaseName);
+        sortSchema(schemas,connection);
+        return schemas;
+    }
+
+    private void sortSchema(List<Schema> schemas,Connection connection) {
+        if (CollectionUtils.isEmpty(schemas)) {
+            return;
+        }
+        String ulr = null;
+        try {
+            ulr = connection.getMetaData().getURL();
+        } catch (SQLException e) {
+            log.error("get url error", e);
+        }
+        // If the database name contains the name of the current database, the current database is placed in the first place
+        int num = -1;
+        for (int i = 0; i < schemas.size(); i++) {
+            if (StringUtils.isNotBlank(ulr) && ulr.contains(schemas.get(i).getName())) {
+                num = i;
+                break;
+            }
+        }
+        if (num != -1 && num != 0) {
+            Collections.swap(schemas, num, 0);
+        }
     }
 
     @Override

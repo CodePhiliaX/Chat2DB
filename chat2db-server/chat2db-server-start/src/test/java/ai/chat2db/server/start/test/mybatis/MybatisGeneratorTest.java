@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
+import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
@@ -32,7 +33,9 @@ public class MybatisGeneratorTest extends BaseTest {
         //doGenerator(Lists.newArrayList("data_source"));
         //doGenerator(Lists.newArrayList("operation_log"));
         //doGenerator(Lists.newArrayList("operation_saved"));
-        doGenerator(Lists.newArrayList("dbhub_user"));
+        //doGenerator(Lists.newArrayList("environment","data_source","team","team_dbhub_user","data_source_access",
+        // "dbhub_user"));
+        doGenerator(Lists.newArrayList("dbhub_user","team"));
     }
 
     private void doGenerator(List<String> tableList) {
@@ -43,7 +46,7 @@ public class MybatisGeneratorTest extends BaseTest {
             + "/java";
         String xmlDir = System.getProperty("user.dir")
             + "/../chat2db-server-domain/chat2db-server-domain-repository/src/main"
-            + "/resources/ai/chat2db/server/domain/repository";
+            + "/resources/mapper";
 
         // 不要生成service controller
         Map<OutputFile, String> pathInfo = new HashMap<>();
@@ -61,6 +64,8 @@ public class MybatisGeneratorTest extends BaseTest {
                 builder.author("chat2db")
                     //执行完毕不打开文件夹
                     .disableOpenDir()
+                    // 还是使用date
+                    .dateType(DateType.ONLY_DATE)
                     // 指定输出目录
                     .outputDir(outputDir);
             })
@@ -81,14 +86,13 @@ public class MybatisGeneratorTest extends BaseTest {
                     //开启实体类配置
                     .entityBuilder()
                     .formatFileName("%sDO")
-                    // 覆盖文件
                     .enableFileOverride()
                     //.addTableFills(new Column("gmt_create", FieldFill.INSERT)) // 表字段填充
                     //.addTableFills(new Column("update_time", FieldFill.INSERT_UPDATE)) // 表字段填充
                     //开启lombok
                     .enableLombok()
                     .mapperBuilder()
-                    // 覆盖文件
+                    //// 覆盖文件
                     .enableFileOverride()
                 ;
 

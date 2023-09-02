@@ -20,4 +20,9 @@ public class ConfigJson {
      * Last successfully launched version
      */
     private String latestStartupSuccessVersion;
+
+    /**
+     * jwt
+     */
+    private String jwtSecretKey;
 }

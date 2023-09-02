@@ -3,13 +3,13 @@ package ai.chat2db.server.web.api.controller.data.source.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.web.api.controller.data.source.request.ConsoleCloseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.ConsoleConnectRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceCreateRequest;

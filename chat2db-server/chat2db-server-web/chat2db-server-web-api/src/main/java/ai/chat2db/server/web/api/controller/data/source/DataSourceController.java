@@ -5,11 +5,11 @@ import java.util.List;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePageQueryParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourceSelector;
-import ai.chat2db.server.domain.api.param.DataSourceUpdateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
@@ -62,6 +62,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 public class DataSourceController {
+
+    private static final DataSourceSelector DATA_SOURCE_SELECTOR= DataSourceSelector.builder()
+        .environment(Boolean.TRUE)
+        .build();
 
     @Autowired
     private DataSourceService dataSourceService;
@@ -162,11 +166,12 @@ public class DataSourceController {
      *
      * @param request
      * @return
+     * @version 2.1.0
      */
     @GetMapping("/datasource/list")
     public WebPageResult<DataSourceVO> list(DataSourceQueryRequest request) {
         DataSourcePageQueryParam param = dataSourceWebConverter.queryReq2param(request);
-        PageResult<DataSource> result = dataSourceService.queryPage(param, new DataSourceSelector());
+        PageResult<DataSource> result = dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR);
         List<DataSourceVO> dataSourceVOS = dataSourceWebConverter.dto2vo(result.getData());
         return WebPageResult.of(dataSourceVOS, result.getTotal(), result.getPageNo(), result.getPageSize());
     }
@@ -198,7 +203,7 @@ public class DataSourceController {
     @PostMapping("/datasource/create")
     public DataResult<Long> create(@RequestBody DataSourceCreateRequest request) {
         DataSourceCreateParam param = dataSourceWebConverter.createReq2param(request);
-        return dataSourceService.create(param);
+        return dataSourceService.createWithPermission(param);
     }
 
     /**
@@ -208,9 +213,9 @@ public class DataSourceController {
      * @return
      */
     @RequestMapping(value = "/datasource/update",method = {RequestMethod.POST, RequestMethod.PUT})
-    public ActionResult update(@RequestBody DataSourceUpdateRequest request) {
+    public DataResult<Long> update(@RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceWebConverter.updateReq2param(request);
-        return dataSourceService.update(param);
+        return dataSourceService.updateWithPermission(param);
     }
 
     /**
@@ -221,7 +226,7 @@ public class DataSourceController {
      */
     @PostMapping("/datasource/clone")
     public DataResult<Long> copy(@RequestBody DataSourceCloneRequest request) {
-        return dataSourceService.copyById(request.getId());
+        return dataSourceService.copyByIdWithPermission(request.getId());
     }
 
     /**
@@ -232,7 +237,7 @@ public class DataSourceController {
      */
     @DeleteMapping("/datasource/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return dataSourceService.delete(id);
+        return dataSourceService.deleteWithPermission(id);
     }
 
 }

@@ -134,4 +134,16 @@ public class ActionResult implements Serializable, Result {
         return result;
     }
 
+    public DataResult<Boolean> toBooleaSuccessnDataResult() {
+        return DataResult.<Boolean>builder()
+            .success(success)
+            .errorCode(errorCode)
+            .errorMessage(errorMessage)
+            .errorDetail(errorDetail)
+            .solutionLink(solutionLink)
+            .traceId(traceId)
+            .data(Boolean.TRUE)
+            .build();
+    }
+
 }

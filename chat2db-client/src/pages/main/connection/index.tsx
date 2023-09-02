@@ -1,7 +1,7 @@
 import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
-import CreateConnection from '@/components/CreateConnection';
+import ConnectionEdit from '@/components/ConnectionEdit';
 import Iconfont from '@/components/Iconfont';
 import connectionService from '@/service/connection';
 import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
@@ -163,7 +163,7 @@ function Connections(props: IProps) {
             })}
           >
             {
-              <CreateConnection
+              <ConnectionEdit
                 connectionData={curConnection as any}
                 closeCreateConnection={() => {
                   setCurConnection({});
