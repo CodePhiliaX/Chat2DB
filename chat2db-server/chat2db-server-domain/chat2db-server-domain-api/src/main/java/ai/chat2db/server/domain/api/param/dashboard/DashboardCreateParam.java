@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.param.dashboard;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,12 +11,7 @@ import lombok.Data;
  * @date 2023/06/09
  */
 @Data
-public class DashboardUpdateParam {
-
-    /**
-     * 主键
-     */
-    private Long id;
+public class DashboardCreateParam {
 
     /**
      * 创建时间

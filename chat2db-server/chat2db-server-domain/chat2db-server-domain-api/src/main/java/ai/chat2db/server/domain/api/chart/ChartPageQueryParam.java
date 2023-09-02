@@ -1,4 +1,4 @@
-package ai.chat2db.server.domain.api.param;
+package ai.chat2db.server.domain.api.chart;
 
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 
@@ -10,7 +10,12 @@ import lombok.Data;
  * @date 2022/09/25
  */
 @Data
-public class DashboardPageQueryParam extends PageQueryParam {
+public class ChartPageQueryParam extends PageQueryParam {
+
+    /**
+     * 报表ID
+     */
+    private Long dashboardId;
 
     /**
      * 搜索关键词

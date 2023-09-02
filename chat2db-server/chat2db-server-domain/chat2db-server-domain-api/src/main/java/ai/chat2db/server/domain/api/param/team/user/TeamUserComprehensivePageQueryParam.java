@@ -20,13 +20,7 @@ public class TeamUserComprehensivePageQueryParam extends PageQueryParam {
      * 用户id
      */
     private Long userId;
-
-    /**
-     * 团队角色code
-     *
-     * @see ai.chat2db.server.domain.api.enums.RoleCodeEnum
-     */
-    private String teamRoleCode;
+    
 
     /**
      * Query keywords for team
