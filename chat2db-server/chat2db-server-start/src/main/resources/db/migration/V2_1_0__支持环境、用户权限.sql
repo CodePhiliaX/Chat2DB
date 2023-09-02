@@ -107,3 +107,21 @@ CREATE TABLE IF NOT EXISTS `data_source_access`
 create INDEX idx_data_source_access_data_source_id on data_source_access (`data_source_id`);
 create INDEX idx_data_source_access_access_object_id on data_source_access (`access_object_type`, `access_object_id`);
 create UNIQUE INDEX uk_data_source_access on data_source_access (`data_source_id`,`access_object_type`, `access_object_id`);
+
+ALTER TABLE `operation_saved`
+    modify COLUMN  `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
+
+update operation_saved
+set user_id= 1;
+
+ALTER TABLE `dashboard`
+    modify   `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
+update dashboard
+set user_id= 1;
+
+
+ALTER TABLE `chart`
+    modify `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
+update chart
+set user_id= 1;
+
