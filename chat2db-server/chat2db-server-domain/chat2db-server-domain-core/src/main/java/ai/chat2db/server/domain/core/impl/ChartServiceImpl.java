@@ -26,6 +26,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.exception.DataNotFoundException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -59,6 +60,7 @@ public class ChartServiceImpl implements ChartService {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
+        param.setUserId(ContextUtils.getUserId());
         ChartDO chartDO = chartConverter.param2do(param);
         chartMapper.insert(chartDO);
         return DataResult.of(chartDO.getId());
