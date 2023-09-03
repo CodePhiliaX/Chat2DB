@@ -45,6 +45,7 @@ const antdLightTheme = {
     colorHoverBg: 'rgba(0, 0, 0, 0.03)',
     colorBgContainer: '#fff',
     colorBgSubtle: '#f6f8fa',
+    colorBgElevated: '#fff',
     colorBorder: 'rgba(211, 211, 212, 0.4)',
     colorBorderSecondary: 'rgba(211, 211, 212, 0.4)',
   },

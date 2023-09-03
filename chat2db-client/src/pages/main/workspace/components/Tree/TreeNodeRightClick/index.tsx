@@ -116,6 +116,15 @@ function TreeNodeRightClick(props: IProps) {
         }
       }
     },
+    [OperationColumn.EditTable]: (data) => {
+      return {
+        text: i18n('workspace.menu.editTable'),
+        icon: '\ue602',
+        handle: () => {
+          setVerifyDialog(true);
+        }
+      }
+    },
     [OperationColumn.EditSource]: (data) => {
       return {
         text: '编辑数据源',
