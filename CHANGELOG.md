@@ -1,24 +1,34 @@
+# 2.0.14
+
+## 🐞 Bug Fixes
+
+- Fix the issue of 'Oracle' query 'Blob' reporting errors
+- Modify the paging logic and fix some SQL queries that cannot be queried
+
+## 🐞 问题修复
+
+- 修复 `Oracle` 查询 `Blob` 报错的问题
+- 修改分页逻辑，修复部分SQL无法查询
+
 # 2.0.12
 
 ## ⭐ New Features
 
-- 🔥Supports viewing views, functions, triggers, and procedures 
-- Support selected sql formatting 
+- 🔥Supports viewing views, functions, triggers, and procedures
+- Support selected sql formatting
 - Added new dark themes
 
 ## 🐞 Bug Fixes
 
 - Fixed sql formatting failure issue
-- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing page crashes
+- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing
+  page crashes
 - Logs desensitize sensitive data
 - Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
 - Fix the problem that non-Select does not display query results
 - Fix the problem that Oracle cannot query without schema
 - Fix the problem of special type of SQL execution error reporting
 - Fix the problem that the test link is successful, but the error is reported when saving the link
-
-
-
 
 ## ⭐ 新特性
 
