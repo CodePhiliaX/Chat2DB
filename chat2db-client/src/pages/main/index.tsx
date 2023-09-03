@@ -75,8 +75,8 @@ function MainPage(props: IProps) {
         if (res.admin) {
           navConfig.splice(3, 0, {
             key: 'team',
-            icon: '\ue66d',
-            iconFontSize: 20,
+            icon: '\ue64b',
+            iconFontSize: 24,
             isLoad: false,
             component: <Team />,
           });
@@ -146,7 +146,7 @@ function MainPage(props: IProps) {
         placement="bottomRight"
         arrow={{ pointAtCenter: true }}
       >
-        <Iconfont code="&#xe666;" className={styles.questionIcon} />
+        <Iconfont code="&#xe64c;" className={styles.questionIcon} />
       </Dropdown>
     );
   };
