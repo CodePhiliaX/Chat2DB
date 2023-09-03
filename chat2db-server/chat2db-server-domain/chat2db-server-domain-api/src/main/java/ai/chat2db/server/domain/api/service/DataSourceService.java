@@ -64,7 +64,7 @@ public interface DataSourceService {
      * @return
      * @throws ai.chat2db.server.tools.common.exception.DataNotFoundException
      */
-    DataResult<DataSource> queryExistent(@NotNull Long id);
+    DataResult<DataSource> queryExistent(@NotNull Long id, DataSourceSelector selector);
 
     /**
      * 克隆连接

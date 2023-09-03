@@ -7,6 +7,7 @@ import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -101,4 +102,10 @@ public class DataSourceCreateParam {
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */
     private String kind;
+
+    /**
+     * 环境id
+     */
+    @NotNull
+    private Long environmentId;
 }

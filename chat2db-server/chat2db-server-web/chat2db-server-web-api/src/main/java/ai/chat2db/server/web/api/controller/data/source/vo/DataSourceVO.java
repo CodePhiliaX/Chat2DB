@@ -102,6 +102,11 @@ public class DataSourceVO {
     private DriverConfig driverConfig;
 
     /**
+     * 环境id
+     */
+    private Long environmentId;
+
+    /**
      * 环境
      */
     private SimpleEnvironmentVO environment;
