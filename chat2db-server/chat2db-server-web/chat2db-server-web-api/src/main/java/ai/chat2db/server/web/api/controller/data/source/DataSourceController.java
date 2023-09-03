@@ -63,7 +63,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class DataSourceController {
 
-    private static final DataSourceSelector DATA_SOURCE_SELECTOR= DataSourceSelector.builder()
+    private static final DataSourceSelector DATA_SOURCE_SELECTOR = DataSourceSelector.builder()
         .environment(Boolean.TRUE)
         .build();
 
@@ -104,7 +104,7 @@ public class DataSourceController {
             session = SSHManager.getSSHSession(sshWebConverter.toInfo(request));
         } catch (Exception e) {
             log.error("sshConnect error", e);
-            throw new ConnectionException("connection.ssh.error",null,e);
+            throw new ConnectionException("connection.ssh.error", null, e);
         } finally {
             if (session != null) {
                 session.disconnect();
@@ -184,11 +184,11 @@ public class DataSourceController {
      */
     @GetMapping("/datasource/{id}")
     public DataResult<DataSourceVO> queryById(@PathVariable("id") Long id) {
-        DataResult<DataSource> dataResult = dataSourceService.queryById(id);
+        DataResult<DataSource> dataResult = dataSourceService.queryExistent(id, DATA_SOURCE_SELECTOR);
         DataSourceVO dataSourceVO = dataSourceWebConverter.dto2vo(dataResult.getData());
-        if(StringUtils.isNotBlank(dataSourceVO.getUser())){
+        if (StringUtils.isNotBlank(dataSourceVO.getUser())) {
             dataSourceVO.setAuthenticationType("1");
-        }else {
+        } else {
             dataSourceVO.setAuthenticationType("2");
         }
         return DataResult.of(dataSourceVO);
@@ -212,7 +212,7 @@ public class DataSourceController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/datasource/update",method = {RequestMethod.POST, RequestMethod.PUT})
+    @RequestMapping(value = "/datasource/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<Long> update(@RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceWebConverter.updateReq2param(request);
         return dataSourceService.updateWithPermission(param);

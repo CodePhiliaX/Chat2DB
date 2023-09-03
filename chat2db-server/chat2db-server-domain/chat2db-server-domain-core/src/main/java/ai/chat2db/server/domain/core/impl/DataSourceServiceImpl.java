@@ -45,6 +45,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -117,7 +118,7 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public DataResult<Long> updateWithPermission(DataSourceUpdateParam param) {
-        DataSource dataSource = queryExistent(param.getId()).getData();
+        DataSource dataSource = queryExistent(param.getId(), null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
@@ -129,7 +130,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public ActionResult deleteWithPermission(Long id) {
 
-        DataSource dataSource = queryExistent(id).getData();
+        DataSource dataSource = queryExistent(id, null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         dataSourceMapper.deleteById(id);
@@ -143,17 +144,20 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public DataResult<DataSource> queryExistent(Long id) {
+    public DataResult<DataSource> queryExistent(Long id, DataSourceSelector selector) {
         DataResult<DataSource> dataResult = queryById(id);
         if (dataResult.getData() == null) {
             throw new DataNotFoundException();
         }
+
+        fillData(Lists.newArrayList(dataResult.getData()), selector);
+
         return dataResult;
     }
 
     @Override
     public DataResult<Long> copyByIdWithPermission(Long id) {
-        DataSource dataSource = queryExistent(id).getData();
+        DataSource dataSource = queryExistent(id, null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
@@ -191,7 +195,7 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
             new Page<>(param.getPageNo(), param.getPageSize()),
-            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(),param.getKind(),
+            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
             EasySqlUtils.orderBy(param.getOrderByList()));
 
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
