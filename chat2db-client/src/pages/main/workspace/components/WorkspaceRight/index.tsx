@@ -10,6 +10,7 @@ import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import WorkspaceRightItem from '../WorkspaceRightItem';
+import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
 import { handleLocalStorageSavedConsole } from '@/utils';
@@ -426,7 +427,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
               key={t.id}
               className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}
             >
-              <WorkspaceRightItem
+              <DatabaseTableEditor />
+              {/* <WorkspaceRightItem
                 isActive={activeConsoleId === t.id}
                 data={{
                   initDDL: t.ddl,
@@ -440,7 +442,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
                 workspaceModel={workspaceModel}
                 aiModel={aiModel}
                 dispatch={dispatch}
-              />
+              /> */}
             </div>
           );
         })}

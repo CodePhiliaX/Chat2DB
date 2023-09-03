@@ -62,7 +62,8 @@ export enum OperationColumn {
   DeleteTable = 'deleteTable',
   ExportDDL = 'exportDDL',
   EditSource = 'editSource',
-  Top = 'top'
+  Top = 'top',
+  EditTable = 'editTable',
 }
 
 export interface ITreeConfigItem {
@@ -104,7 +105,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         connectionService.getDBList(params).then(res => {
-          const data: ITreeNode[] = res.map((t:any)=> {
+          const data: ITreeNode[] = res.map((t: any) => {
             return {
               key: t.name,
               name: t.name,
@@ -238,7 +239,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.ExportDDL, OperationColumn.DeleteTable, OperationColumn.Top
+      OperationColumn.Top, OperationColumn.ExportDDL, OperationColumn.EditTable, OperationColumn.DeleteTable,
     ],
   },
 
