@@ -7,6 +7,7 @@ import workspace from './workspace';
 import dashboard from './dashboard';
 import chat from './chat';
 import team from './team'
+import login from './login';
 
 export default {
   lang: LangType.ZH_CN,
@@ -18,5 +19,6 @@ export default {
   ...connection,
   ...dashboard,
   ...chat,
-  ...team
+  ...team,
+  ...login
 };
