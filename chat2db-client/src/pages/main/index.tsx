@@ -18,6 +18,7 @@ import { getUser, userLogout } from '@/service/user';
 import { ILoginUser } from '@/typings/user';
 import { Dropdown } from 'antd';
 import Team from './team';
+import i18n from '@/i18n';
 
 let navConfig: INavItem[] = [
   {
@@ -139,7 +140,7 @@ function MainPage(props: IProps) {
           items: [
             {
               key: '1',
-              label: <div onClick={handleLogout}>退出登录</div>,
+              label: <div onClick={handleLogout}>{i18n('login.text.logout')}</div>,
             },
           ],
         }}
