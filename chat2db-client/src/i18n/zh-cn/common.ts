@@ -77,5 +77,6 @@ export default {
   'common.tips.delete.confirm': '确认要删除吗？',
   'common.tips.updateSuccess': '更新成功',
   'common.tips.createSuccess': '创建成功',
-  'common.text.action': '操作'
+  'common.text.action': '操作',
+  'common.button.add': '添加',
 };

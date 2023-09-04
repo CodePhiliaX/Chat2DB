@@ -79,5 +79,6 @@ export default {
   'common.tips.delete.confirm': 'Are you sure to delete it?',
   'common.tips.updateSuccess': 'Update Successfully',
   'common.tips.createSuccess': 'Create Successfully',
-  'common.text.action': 'Action'
+  'common.text.action': 'Action',
+  'common.button.add': 'Add',
 };
