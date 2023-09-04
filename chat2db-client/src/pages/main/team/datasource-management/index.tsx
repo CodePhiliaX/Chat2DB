@@ -159,7 +159,7 @@ function DataSourceManagement() {
           enterButton={<SearchOutlined />}
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddDataSource}>
-          {i18n('team.action.editDatasource')}
+          {i18n('team.action.addDatasource')}
         </Button>
       </div>
       <Table
