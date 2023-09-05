@@ -89,7 +89,7 @@ public class ChatController {
     /**
      * chat的超时时间
      */
-    private static final Long CHAT_TIMEOUT = Duration.ofMinutes(10).toMillis();
+    private static final Long CHAT_TIMEOUT = Duration.ofMinutes(50).toMillis();
 
     /**
      * 提示语最大token数
