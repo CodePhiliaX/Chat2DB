@@ -1,12 +1,13 @@
 import { IPageResponse, IConnectionDetails, IConnectionEnv } from '@/typings';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, ConnectionKind } from '@/constants';
 import createRequest from './base';
 
 export interface IGetConnectionParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
-  refresh?: boolean
+  refresh?: boolean;
+  kind?: ConnectionKind;
 }
 
 /**

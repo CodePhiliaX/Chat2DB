@@ -3,8 +3,9 @@ import classnames from 'classnames';
 import i18n from '@/i18n';
 import ConnectionEdit from '@/components/ConnectionEdit';
 import Iconfont from '@/components/Iconfont';
+import RefreshLoadingButton from '@/components/RefreshLoadingButton';
 import connectionService from '@/service/connection';
-import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
+import { DatabaseTypeCode, databaseMap, databaseTypeList, ConnectionKind } from '@/constants';
 import { IDatabase, IConnectionDetails, IConnectionEnv } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import styles from './index.less';
@@ -18,11 +19,22 @@ interface IMenu {
   label: string;
   icon: React.ReactNode;
   meta: IConnectionDetails;
+  env: IConnectionEnv;
 }
 
-interface ICarryEnvConnectionList extends IConnectionEnv {
-  connectionList?: IMenu[];
+interface IAllMenuList {
+  [ConnectionKind.Private]: {
+    list: IMenu[];
+    name: string;
+    loading: boolean;
+  },
+  [ConnectionKind.Shared]: {
+    list: IMenu[];
+    name: string;
+    loading: boolean;
+  },
 }
+
 interface IProps {
   connectionModel: IConnectionModelType['state'];
   dispatch: any;
@@ -33,39 +45,43 @@ function Connections(props: IProps) {
   const { connectionList, connectionEnvList } = connectionModel;
   const volatileRef = useRef<any>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
+  const [allMenuList, setAllMenuList] = useState<IAllMenuList>();
+
+  useEffect(() => {
+    const list: IAllMenuList = {
+      [ConnectionKind.Private]: {
+        list: [],
+        name: i18n('connection.label.private'),
+        loading: false,
+      },
+      [ConnectionKind.Shared]: {
+        list: [],
+        name: i18n('connection.label.shared'),
+        loading: false,
+      }
+    }
+    connectionList.forEach(t => {
+      const menu = {
+        key: t.id,
+        icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />,
+        label: t.alias,
+        meta: t,
+        env: t.environment,
+      }
+      if (t.kind === ConnectionKind.Shared) {
+        list[ConnectionKind.Shared].list.push(menu)
+      } else {
+        list[ConnectionKind.Private].list.push(menu)
+      }
+    });
+    setAllMenuList(list);
+  }, [connectionList])
 
   function handleCreateConnections(database: IDatabase) {
     setCurConnection({
       type: database.code,
     });
   }
-
-  const carryEnvConnectionList: ICarryEnvConnectionList[] = useMemo(() => {
-    const newConnectionEnvList: ICarryEnvConnectionList[] = [];
-    connectionList.forEach((t) => {
-      const index = connectionEnvList.findIndex((env) => {
-        return env.id === t.environmentId;
-      });
-      if(index === -1){
-        return;
-      }
-      const menu = {
-        key: t.id,
-        icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />,
-        label: t.alias,
-        meta: t,
-      };
-      if (newConnectionEnvList[index]) {
-        newConnectionEnvList[index].connectionList?.push(menu);
-      } else {
-        newConnectionEnvList[index] = {
-          ...connectionEnvList[index],
-          connectionList: [menu],
-        }
-      }
-    });
-    return newConnectionEnvList;
-  }, [connectionList, connectionEnvList]);
 
   const handleMenuItemDoubleClick = (t?: any) => {
     dispatch({
@@ -79,87 +95,131 @@ function Connections(props: IProps) {
     });
   };
 
+  const handelEnvRefresh = (kind: ConnectionKind) => {
+    let p = {
+      pageNo: 1,
+      pageSize: 999,
+      refresh: true,
+      kind,
+    }
+    if (allMenuList) {
+      setAllMenuList({
+        ...allMenuList,
+        [kind]: {
+          ...allMenuList[kind],
+          loading: true,
+        }
+      })
+    }
+    connectionService.getList(p).then(res => {
+      if (allMenuList) {
+        setAllMenuList({
+          ...allMenuList,
+          [kind]: {
+            ...allMenuList[kind],
+            list: res.data.map(t => {
+              return {
+                key: t.id,
+                icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />,
+                label: t.alias,
+                meta: t,
+                env: t.environment,
+              }
+            }),
+            loading: false,
+          }
+        })
+      }
+    });
+  }
+
   const renderMenu = () => {
     return (
       <div className={styles.menuBox}>
-        {carryEnvConnectionList.map((t) => {
-          return (
-            <>
-              <div className={styles.envLabel}>{t.name}</div>
-              {(t.connectionList || []).map((t) => {
-                const { key, label, icon } = t;
-                return (
-                  <div
-                    key={key}
-                    className={classnames(styles.menuItem, {
-                      [styles.menuItemActive]: curConnection.id === key,
-                    })}
-                    onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
-                    onClick={(event) => {
-                      if (curConnection.id !== t.meta?.id) {
-                        setCurConnection(t.meta);
-                      }
-                    }}
-                  >
-                    <div className={classnames(styles.menuItemsTitle)}>
-                      {icon}
-                      <span style={{ marginLeft: '8px' }}>{label}</span>
-                    </div>
-                    <Dropdown
-                      menu={{
-                        items: [
-                          {
-                            key: 'EnterWorkSpace',
-                            label: i18n('connection.button.connect'),
-                            onClick: ({ domEvent }) => {
-                              domEvent.stopPropagation();
-                              handleMenuItemDoubleClick(t);
-                            },
-                          },
-                          {
-                            key: 'Delete',
-                            label: i18n('common.button.delete'),
-                            onClick: ({ domEvent }) => {
-                              // 禁止冒泡到menuItem
-                              domEvent.stopPropagation();
-                              connectionService.remove({ id: key }).then(() => {
-                                if (curConnection.id === key) {
-                                  setCurConnection({});
-                                }
-                                // // 如果当前工作区正好选中了这个连接，那么就把当前工作区的记录清空
-                                // if (curWorkspaceParams.dataSourceId === key) {
-                                //   dispatch({
-                                //     type: 'workspace/setCurWorkspaceParams',
-                                //     payload: {}
-                                //   })
-                                //   dispatch({
-                                //     type: 'connection/setCurConnection',
-                                //     payload: {}
-                                //   })
-                                // }
-                                dispatch({
-                                  type: 'connection/fetchConnectionList',
-                                });
-                              });
-                            },
-                          },
-                        ],
+        {allMenuList && Object.keys(allMenuList).map(t => {
+          const data = allMenuList[t as ConnectionKind];
+          if (data.list?.length) {
+            return (
+              <>
+                <div className={styles.envLabel}>
+                  <div>{data.name}</div>
+                  <RefreshLoadingButton loading={data.loading} className={styles.envRefreshBox} onClick={() => handelEnvRefresh(t as ConnectionKind)} />
+                </div>
+                {(data.list || []).map(t => {
+                  const { key, label, icon } = t;
+                  return (
+                    <div
+                      key={key}
+                      className={classnames(styles.menuItem, {
+                        [styles.menuItemActive]: curConnection.id === key,
+                      })}
+                      onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
+                      onClick={(event) => {
+                        if (curConnection.id !== t.meta?.id) {
+                          setCurConnection(t.meta);
+                        }
                       }}
                     >
-                      <div
-                        className={styles.moreButton}
-                        onClick={(e) => {
-                          e.stopPropagation();
+                      <div className={classnames(styles.menuItemsTitle)}>
+                        {icon}
+                        <span style={{ marginLeft: '8px' }}>{label}</span>
+                      </div>
+                      <Dropdown
+                        menu={{
+                          items: [
+                            {
+                              key: 'EnterWorkSpace',
+                              label: i18n('connection.button.connect'),
+                              onClick: ({ domEvent }) => {
+                                domEvent.stopPropagation();
+                                handleMenuItemDoubleClick(t);
+                              },
+                            },
+                            {
+                              key: 'Delete',
+                              label: i18n('common.button.delete'),
+                              onClick: ({ domEvent }) => {
+                                // 禁止冒泡到menuItem
+                                domEvent.stopPropagation();
+                                connectionService.remove({ id: key }).then(() => {
+                                  if (curConnection.id === key) {
+                                    setCurConnection({});
+                                  }
+                                  // // 如果当前工作区正好选中了这个连接，那么就把当前工作区的记录清空
+                                  // if (curWorkspaceParams.dataSourceId === key) {
+                                  //   dispatch({
+                                  //     type: 'workspace/setCurWorkspaceParams',
+                                  //     payload: {}
+                                  //   })
+                                  //   dispatch({
+                                  //     type: 'connection/setCurConnection',
+                                  //     payload: {}
+                                  //   })
+                                  // }
+                                  dispatch({
+                                    type: 'connection/fetchConnectionList',
+                                  });
+                                });
+                              },
+                            },
+                          ],
                         }}
                       >
-                        <Iconfont code="&#xe601;"></Iconfont>
-                      </div>
-                    </Dropdown>
-                  </div>
-                );
-              })}
-            </>
-          );
+                        <div
+                          className={styles.moreButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <Iconfont code="&#xe601;"></Iconfont>
+                        </div>
+                      </Dropdown>
+                    </div>
+                  );
+                })}
+              </>
+            );
+          }
         })}
       </div>
     );

@@ -100,7 +100,6 @@
   justify-content: center;
   align-items: center;
   position: relative;
-
 }
 
 .dataBaseList {
@@ -198,7 +197,17 @@
   transition: transform 0.3s ease-in-out;
 }
 
-.envLabel{
+.envLabel {
+  display: flex;
+  justify-content: space-between;
   line-height: 30px;
   padding: 4px;
+  font-size: 14px;
+}
+
+.envRefreshBox {
+  &:hover {
+    cursor: pointer;
+    color: var(--color-primary);
+  }
 }
