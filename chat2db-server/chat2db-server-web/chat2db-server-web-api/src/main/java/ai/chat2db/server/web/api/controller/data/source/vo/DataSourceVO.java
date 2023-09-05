@@ -110,4 +110,11 @@ public class DataSourceVO {
      * 环境
      */
     private SimpleEnvironmentVO environment;
+
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
 }
