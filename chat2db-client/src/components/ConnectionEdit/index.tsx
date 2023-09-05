@@ -57,7 +57,6 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
   const { connectionEnvList } = connectionModel;
   const [envList, setEnvList] = useState<{ value: number, label: string }[]>([]);
 
-
   useEffect(() => {
     setEnvList(connectionEnvList?.map(t => {
       return {
