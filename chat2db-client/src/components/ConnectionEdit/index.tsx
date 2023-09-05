@@ -3,9 +3,8 @@ import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 import lodash from 'lodash';
-
+import { connect } from 'umi';
 import connectionService from '@/service/connection';
-
 import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
@@ -18,6 +17,7 @@ import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
+import { IConnectionModelType } from '@/models/connection';
 
 const { Option } = Select;
 
@@ -35,14 +35,15 @@ interface IProps {
   connectionData: IConnectionDetails;
   submitCallback?: Function;
   submit?: (data: IConnectionDetails) => void;
+  connectionModel: IConnectionModelType['state'];
 }
 
 export interface ICreateConnectionFunction {
   getData: () => IConnectionDetails;
 }
 
-export default forwardRef(function CreateConnection(props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) {
-  const { className, closeCreateConnection, submitCallback, connectionData, submit } = props;
+const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) {
+  const { className, closeCreateConnection, submitCallback, connectionData, submit, connectionModel } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
   const [driveData, setDriveData] = useState<any>({});
@@ -53,23 +54,18 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     backfillDataLoading: false,
     sshTestLoading: false
   });
-  const [envList, setEnvList] = useState<{ value: string, label: string }[]>([]);
+  const { connectionEnvList } = connectionModel;
+  const [envList, setEnvList] = useState<{ value: number, label: string }[]>([]);
 
 
   useEffect(() => {
-    getEnvList();
-  }, []);
-
-  function getEnvList() {
-    connectionService.getEnvList().then((res) => {
-      setEnvList(res?.map(t => {
-        return {
-          value: t.id,
-          label: t.name
-        }
-      }));
-    });
-  }
+    setEnvList(connectionEnvList?.map(t => {
+      return {
+        value: t.id,
+        label: t.name
+      }
+    }));
+  }, [connectionEnvList]);
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
     const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
@@ -308,6 +304,12 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     </div>
   );
 })
+
+export default connect(
+  ({ connection }: { connection: IConnectionModelType;}) => ({
+    connectionModel: connection,
+  }),
+)(CreateConnection);
 
 interface IRenderFormProps {
   tab: ITabsType;
