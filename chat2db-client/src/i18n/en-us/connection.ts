@@ -25,5 +25,7 @@ export default {
   'connection.text.downloadSuccess': 'Download Success',
   'connection.text.tryAgainDownload': 'Try again download',
   'connection.text.downloading': 'Downloading...',
+  'connection.label.private': 'Private',
+  'connection.label.shared': 'Shared',
 
 };

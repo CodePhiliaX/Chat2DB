@@ -61,7 +61,11 @@ const ConnectionModel: IConnectionModelType = {
   effects: {
     *fetchConnectionList({ callback, payload }, { call, put }) {
       try {
-        const res = (yield connectionService.getList({ pageNo: 1, pageSize: 999, refresh: payload?.refresh })) as IPageResponse<IConnectionDetails>;
+        const res = (yield connectionService.getList({ 
+          pageNo: 1, 
+          pageSize: 999, 
+          refresh: payload?.refresh,
+        })) as IPageResponse<IConnectionDetails>;
         yield put({
           type: 'setConnectionList',
           payload: res.data,
