@@ -15,6 +15,7 @@ export interface IConnectionDetails {
   ConsoleOpenedStatus: 'y' | 'n';
   EnvType: ConnectionEnv;
   extendInfo: IConnectionExtendInfoItem[];
+  environmentId: number;
   ssh: any;
   driverConfig: {
     jdbcDriver: string;
@@ -24,3 +25,11 @@ export interface IConnectionDetails {
 }
 
 export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>
+
+// Connected environment
+export interface IConnectionEnv {
+  id: number;
+  name: string;
+  shortName: string;
+  style: string;
+}

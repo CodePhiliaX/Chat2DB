@@ -1,4 +1,4 @@
-import { IPageResponse, IConnectionDetails } from '@/typings';
+import { IPageResponse, IConnectionDetails, IConnectionEnv } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import createRequest from './base';
 
@@ -76,14 +76,7 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
 
 const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
 
-export interface IEnv {
-  id: string;
-  name: string;
-  shortName: string;
-  style: string;
-}
-
-const getEnvList = createRequest<void, IEnv[]>('/api/common/environment/list_all', { errorLevel: false});
+const getEnvList = createRequest<void, IConnectionEnv[]>('/api/common/environment/list_all', { errorLevel: false});
 
 export default {
   getEnvList,
