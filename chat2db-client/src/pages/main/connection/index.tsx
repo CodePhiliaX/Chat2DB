@@ -41,7 +41,7 @@ function Connections(props: IProps) {
   }
 
   const carryEnvConnectionList: ICarryEnvConnectionList[] = useMemo(() => {
-    const newConnectionEnvList: ICarryEnvConnectionList[] = deepClone(connectionEnvList);
+    const newConnectionEnvList: ICarryEnvConnectionList[] = [];
     connectionList.forEach((t) => {
       const index = connectionEnvList.findIndex((env) => {
         return env.id === t.environmentId;
@@ -55,10 +55,13 @@ function Connections(props: IProps) {
         label: t.alias,
         meta: t,
       };
-      if (newConnectionEnvList[index].connectionList) {
+      if (newConnectionEnvList[index]) {
         newConnectionEnvList[index].connectionList?.push(menu);
       } else {
-        newConnectionEnvList[index].connectionList = [menu];
+        newConnectionEnvList[index] = {
+          ...connectionEnvList[index],
+          connectionList: [menu],
+        }
       }
     });
     return newConnectionEnvList;
