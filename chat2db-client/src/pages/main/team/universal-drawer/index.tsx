@@ -1,8 +1,36 @@
 import { Button, Drawer, Input, message, Popconfirm, Table, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import { AffiliationType, IDataSourceAccessVO, IDataSourceVO, ITeamVO, ITeamWithDataSourceVO, ITeamWithUserVO, IUserVO, IUserWithDataSourceVO, IUserWithTeamVO, ManagementType, SearchType, } from '@/typings/team';
-import { deleteDataSourceFromTeam, deleteDataSourceFromUser, deleteTeamListFromUser, deleteUserFromTeam, deleteUserOrTeamFromDataSource, getDataSourceListFromTeam, getDataSourceListFromUser, getTeamListFromUser, getUserAndTeamListFromDataSource, getUserListFromTeam, updateDataSourceListFromTeam, updateDataSourceListFromUser, updateTeamListFromUser, updateUserAndTeamListFromDataSource, updateUserListFromTeam } from '@/service/team';
+import {
+  AffiliationType,
+  IDataSourceAccessVO,
+  IDataSourceVO,
+  ITeamVO,
+  ITeamWithDataSourceVO,
+  ITeamWithUserVO,
+  IUserVO,
+  IUserWithDataSourceVO,
+  IUserWithTeamVO,
+  ManagementType,
+  SearchType,
+} from '@/typings/team';
+import {
+  deleteDataSourceFromTeam,
+  deleteDataSourceFromUser,
+  deleteTeamListFromUser,
+  deleteUserFromTeam,
+  deleteUserOrTeamFromDataSource,
+  getDataSourceListFromTeam,
+  getDataSourceListFromUser,
+  getTeamListFromUser,
+  getUserAndTeamListFromDataSource,
+  getUserListFromTeam,
+  updateDataSourceListFromTeam,
+  updateDataSourceListFromUser,
+  updateTeamListFromUser,
+  updateUserAndTeamListFromDataSource,
+  updateUserListFromTeam,
+} from '@/service/team';
 
 import UniversalAddModal from '../universal-add-modal';
 import styles from './index.less';
@@ -31,11 +59,10 @@ interface IAffiliationDetail {
 function UniversalDrawer(props: IProps) {
   const { type, open } = props;
   const [dataSource, setDataSource] = useState<Array<IUserVO | ITeamVO | IDataSourceVO>>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalInfo, setModalInfo] = useState<{ open: boolean; type?: SearchType }>({
     open: false,
   });
-  const [searchInput, setSearchInput] = useState('')
+  const [searchInput, setSearchInput] = useState('');
 
   const [pagination, setPagination] = useState({
     searchKey: '',
@@ -51,24 +78,24 @@ function UniversalDrawer(props: IProps) {
       [AffiliationType.USER_TEAM]: {
         type: AffiliationType.USER_TEAM,
         searchType: SearchType.TEAM,
-        title: '团队',
+        title: i18n('team.team.name'),
         byIdKey: 'userId',
         queryListApi: getTeamListFromUser,
         updateListApi: updateTeamListFromUser,
         deleteApi: deleteTeamListFromUser,
         columns: [
           {
-            title: '团队编码',
+            title: i18n('team.team.addForm.code'),
             dataIndex: ['team', 'code'],
-            key: 'team.code'
+            key: 'team.code',
           },
           {
-            title: '团队名称',
+            title: i18n('team.team.addForm.name'),
             dataIndex: ['team', 'name'],
-            key: 'team.name'
+            key: 'team.name',
           },
           {
-            title: '操作',
+            title: i18n('common.text.action'),
             key: 'action',
             width: 100,
             render: (_: any, record: IUserWithTeamVO) => (
@@ -79,39 +106,40 @@ function UniversalDrawer(props: IProps) {
                 onConfirm={async () => {
                   if (record.id !== undefined) {
                     await deleteTeamListFromUser({ id: record.id });
-                    message.success(i18n('common.text.successfullyDelete'))
+                    message.success(i18n('common.text.successfullyDelete'));
                     queryTableList();
                   }
-                }}>
-                <a href='#' onClick={(e) => e.preventDefault()}>
+                }}
+              >
+                <a href="#" onClick={(e) => e.preventDefault()}>
                   {i18n('common.button.delete')}
                 </a>
               </Popconfirm>
-            )
-          }
-        ]
+            ),
+          },
+        ],
       },
       [AffiliationType.USER_DATASOURCE]: {
         type: AffiliationType.USER_DATASOURCE,
         searchType: SearchType.DATASOURCE,
-        title: '归属链接',
+        title: i18n('team.datasource.rightManagement'),
         byIdKey: 'userId',
         queryListApi: getDataSourceListFromUser,
         updateListApi: updateDataSourceListFromUser,
         deleteApi: deleteDataSourceFromUser,
         columns: [
           {
-            title: '链接名称',
+            title: i18n('team.datasource.alias'),
             dataIndex: ['dataSource', 'alias'],
-            key: 'dataSource.alias'
+            key: 'dataSource.alias',
           },
           {
-            title: '链接地址',
+            title: i18n('team.datasource.url'),
             dataIndex: ['dataSource', 'url'],
-            key: 'dataSource.url'
+            key: 'dataSource.url',
           },
           {
-            title: '操作',
+            title: i18n('common.text.action'),
             key: 'action',
             width: 100,
             render: (_: any, record: IUserWithDataSourceVO) => (
@@ -122,39 +150,40 @@ function UniversalDrawer(props: IProps) {
                 onConfirm={async () => {
                   if (record.id !== undefined) {
                     await deleteDataSourceFromUser({ id: record.id });
-                    message.success(i18n('common.text.successfullyDelete'))
+                    message.success(i18n('common.text.successfullyDelete'));
                     queryTableList();
                   }
-                }}>
-                <a href='#' onClick={(e) => e.preventDefault()}>
+                }}
+              >
+                <a href="#" onClick={(e) => e.preventDefault()}>
                   {i18n('common.button.delete')}
                 </a>
               </Popconfirm>
-            )
-          }
-        ]
+            ),
+          },
+        ],
       },
       [AffiliationType.TEAM_USER]: {
         type: AffiliationType.TEAM_USER,
         searchType: SearchType.USER,
-        title: '用户',
+        title: i18n('team.user.name'),
         byIdKey: 'teamId',
         queryListApi: getUserListFromTeam,
         updateListApi: updateUserListFromTeam,
         deleteApi: deleteUserFromTeam,
         columns: [
           {
-            title: '用户名',
+            title: i18n('team.user.addForm.userName'),
             dataIndex: ['user', 'userName'],
-            key: 'user.userName'
+            key: 'user.userName',
           },
           {
-            title: '昵称',
+            title: i18n('team.user.addForm.nickName'),
             dataIndex: ['user', 'nickName'],
-            key: 'user.nickName'
+            key: 'user.nickName',
           },
           {
-            title: '操作',
+            title: i18n('common.text.action'),
             key: 'action',
             width: 100,
             render: (_: any, record: ITeamWithUserVO) => (
@@ -165,39 +194,40 @@ function UniversalDrawer(props: IProps) {
                 onConfirm={async () => {
                   if (record.id !== undefined) {
                     await deleteUserFromTeam({ id: record.id });
-                    message.success(i18n('common.text.successfullyDelete'))
+                    message.success(i18n('common.text.successfullyDelete'));
                     queryTableList();
                   }
-                }}>
-                <a href='#' onClick={(e) => e.preventDefault()}>
+                }}
+              >
+                <a href="#" onClick={(e) => e.preventDefault()}>
                   {i18n('common.button.delete')}
                 </a>
               </Popconfirm>
-            )
-          }
-        ]
+            ),
+          },
+        ],
       },
       [AffiliationType.TEAM_DATASOURCE]: {
         type: AffiliationType.TEAM_DATASOURCE,
         searchType: SearchType.DATASOURCE,
-        title: '归属链接',
+        title: i18n('team.action.affiliation.datasource'),
         byIdKey: 'teamId',
         queryListApi: getDataSourceListFromTeam,
         updateListApi: updateDataSourceListFromTeam,
         deleteApi: deleteDataSourceFromTeam,
         columns: [
           {
-            title: '链接名称',
+            title: i18n('team.datasource.alias'),
             dataIndex: ['dataSource', 'alias'],
-            key: 'dataSource.alias'
+            key: 'dataSource.alias',
           },
           {
-            title: '链接地址',
+            title: i18n('team.datasource.url'),
             dataIndex: ['dataSource', 'url'],
-            key: 'dataSource.url'
+            key: 'dataSource.url',
           },
           {
-            title: '操作',
+            title: i18n('common.text.action'),
             key: 'action',
             width: 100,
             render: (_: any, record: ITeamWithDataSourceVO) => (
@@ -208,45 +238,48 @@ function UniversalDrawer(props: IProps) {
                 onConfirm={async () => {
                   if (record.id !== undefined) {
                     await deleteDataSourceFromUser({ id: record.id });
-                    message.success(i18n('common.text.successfullyDelete'))
+                    message.success(i18n('common.text.successfullyDelete'));
                     queryTableList();
                   }
-                }}>
-                <a href='#' onClick={(e) => e.preventDefault()}>
+                }}
+              >
+                <a href="#" onClick={(e) => e.preventDefault()}>
                   {i18n('common.button.delete')}
                 </a>
               </Popconfirm>
-            )
-          }
-        ]
+            ),
+          },
+        ],
       },
       [AffiliationType['DATASOURCE_USER/TEAM']]: {
         type: AffiliationType['DATASOURCE_USER/TEAM'],
         searchType: SearchType['USER/TEAM'],
-        title: '链接权限管理',
+        title: i18n('team.datasource.rightManagement'),
         byIdKey: 'dataSourceId',
         queryListApi: getUserAndTeamListFromDataSource,
         updateListApi: updateUserAndTeamListFromDataSource,
         deleteApi: deleteUserOrTeamFromDataSource,
         columns: [
           {
-            title: '编码',
+            title: i18n('team.datasource.code'),
             dataIndex: ['accessObject', 'code'],
-            key: 'accessObject.code'
+            key: 'accessObject.code',
           },
           {
-            title: '名称',
+            title: i18n('team.datasource.name'),
             dataIndex: ['accessObject', 'name'],
-            key: 'accessObject.name'
+            key: 'accessObject.name',
           },
           {
-            title: '类型',
+            title: i18n('team.datasource.status'),
             dataIndex: ['accessObject', 'type'],
             key: 'accessObject.type',
-            render: (status: ManagementType) => <Tag color={status === ManagementType.TEAM ? 'blue' : 'lime'}>{status}</Tag>
+            render: (status: ManagementType) => (
+              <Tag color={status === ManagementType.TEAM ? 'blue' : 'lime'}>{status}</Tag>
+            ),
           },
           {
-            title: '操作',
+            title: i18n('common.text.action'),
             key: 'action',
             width: 100,
             render: (_: any, record: IDataSourceAccessVO) => (
@@ -257,25 +290,29 @@ function UniversalDrawer(props: IProps) {
                 onConfirm={async () => {
                   if (record.id !== undefined) {
                     await deleteUserOrTeamFromDataSource({ id: record.id });
-                    message.success(i18n('common.text.successfullyDelete'))
+                    message.success(i18n('common.text.successfullyDelete'));
                     queryTableList();
                   }
-                }}>
-                <a href='#' onClick={(e) => e.preventDefault()}>
+                }}
+              >
+                <a href="#" onClick={(e) => e.preventDefault()}>
                   {i18n('common.button.delete')}
                 </a>
               </Popconfirm>
-            )
-          }
-        ]
-      }
+            ),
+          },
+        ],
+      },
     }),
     [props.byId, type],
   );
 
-  const managementDataByType = type ? managementMap[type] : null
+  const managementDataByType = type ? managementMap[type] : null;
 
   useEffect(() => {
+    if (!open) {
+      return;
+    }
     setSearchInput('');
     setPagination({
       searchKey: '',
@@ -289,19 +326,24 @@ function UniversalDrawer(props: IProps) {
       open: false,
       type: managementDataByType?.searchType,
     });
-  }, [props.byId]);
+  }, [props.byId, type, open]);
 
   useEffect(() => {
     queryTableList();
-  }, [pagination.current, pagination.pageSize, pagination.searchKey, props.byId, type]);
+  }, [pagination]);
 
-  const queryTableList = async () => {
-    const { searchKey, current: pageNo, pageSize } = pagination;
+  const queryTableList = async (searchKey?: string) => {
+    const { current: pageNo, pageSize } = pagination;
     const requestApi = managementDataByType?.queryListApi;
     if (!requestApi || !isNumber(props.byId)) {
       return;
     }
-    let res = await requestApi({ searchKey, pageNo, pageSize, [managementDataByType?.byIdKey]: props.byId });
+    let res = await requestApi({
+      searchKey: searchKey || pagination.searchKey,
+      pageNo,
+      pageSize,
+      [managementDataByType?.byIdKey]: props.byId,
+    });
     if (res) {
       setDataSource(res?.data ?? []);
     }
@@ -310,8 +352,8 @@ function UniversalDrawer(props: IProps) {
   const handleSearch = (searchKey: string) => {
     setPagination({
       ...pagination,
-      searchKey
-    })
+      searchKey,
+    });
   };
 
   if (!managementDataByType) {
@@ -323,7 +365,7 @@ function UniversalDrawer(props: IProps) {
       <div className={styles.tableTop}>
         <Input.Search
           style={{ width: '200px' }}
-          placeholder="输入关键字进行搜索"
+          placeholder={i18n('team.input.search.placeholder')}
           value={searchInput}
           onChange={(v) => setSearchInput(v.target.value)}
           onSearch={handleSearch}
@@ -336,11 +378,11 @@ function UniversalDrawer(props: IProps) {
             setModalInfo({
               ...modalInfo,
               open: true,
-              type: managementDataByType.searchType
+              type: managementDataByType.searchType,
             });
           }}
         >
-          添加
+          {i18n('common.button.add')}
         </Button>
       </div>
       <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} />
@@ -348,10 +390,10 @@ function UniversalDrawer(props: IProps) {
       <UniversalAddModal
         {...modalInfo}
         onConfirm={(values) => {
-          managementDataByType.updateListApi({ [managementDataByType.byIdKey]: props.byId, ...values }).then(res => {
-            message.success('更新成功')
-            queryTableList()
-          })
+          managementDataByType.updateListApi({ [managementDataByType.byIdKey]: props.byId, ...values }).then((res) => {
+            message.success(i18n('common.tips.updateSuccess'));
+            queryTableList();
+          });
         }}
         onClose={() => {
           setModalInfo({

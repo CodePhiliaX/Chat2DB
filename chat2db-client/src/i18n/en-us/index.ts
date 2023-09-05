@@ -6,6 +6,7 @@ import workspace from './workspace';
 import dashboard from './dashboard';
 import chat from './chat';
 import team from './team'
+import login from './login';
 
 export default {
   lang: 'en',
@@ -16,5 +17,6 @@ export default {
   ...menu,
   ...dashboard,
   ...chat,
-  ...team
+  ...team,
+  ...login
 };

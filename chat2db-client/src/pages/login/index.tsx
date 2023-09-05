@@ -6,6 +6,7 @@ import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
+import i18n from '@/i18n';
 
 interface IFormData {
   userName: string;
@@ -27,32 +28,32 @@ const App: React.FC = () => {
         <div className={styles.logoText}>Chat2DB</div>
       </div>
       <div className={styles.loginPlane}>
-        <div className={styles.loginWelcome}>欢迎使用 Chat2DB</div>
+        <div className={styles.loginWelcome}>{i18n('login.text.welcome')}</div>
         <Tooltip
           placement="right"
           color={window._AppThemePack.colorBgBase}
           title={
             <div style={{ color: window._AppThemePack.colorText, opacity: 0.8, padding: '8px 4px' }}>
-              Chat2DB 账号仅用于团队协作管理
+              {i18n('login.text.tips')}
             </div>
           }
         >
-          <div className={styles.whyLogin}>为什么需要登录？</div>
+          <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div>
         </Tooltip>
 
         <Form className={styles.loginForm} size="large" onFinish={handleLogin}>
           <Form.Item
             className={styles.loginFormItem}
             name="userName"
-            rules={[{ required: true, message: '请输入用户名' }]}
+            rules={[{ required: true, message: i18n('login.form.user.placeholder') }]}
           >
-            <Input autoComplete="off" placeholder="用户名" />
+            <Input autoComplete="off" placeholder={i18n('login.form.user')} />
           </Form.Item>
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码' }]}>
-            <Input.Password placeholder="密码" />
+          <Form.Item name="password" rules={[{ required: true, message: i18n('login.form.password.placeholder') }]}>
+            <Input.Password placeholder={i18n('login.form.password')} />
           </Form.Item>
           <Button type="primary" htmlType="submit" className={styles.loginFormSubmit}>
-            登 录
+            {i18n('login.button.login')}
           </Button>
         </Form>
       </div>
@@ -65,7 +66,7 @@ const App: React.FC = () => {
             icon={<Iconfont style={{ fontSize: '14px' }} code="&#xe630;" />}
             className={styles.settingBtn}
           >
-            设 置
+            {i18n('login.text.setting')}
           </Button>
         }
       />

@@ -165,7 +165,7 @@ function TeamManagement() {
           enterButton={<SearchOutlined />}
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalVisible(true)}>
-          {i18n('team.action.addUser')}
+          {i18n('team.action.addTeam')}
         </Button>
       </div>
       <Table

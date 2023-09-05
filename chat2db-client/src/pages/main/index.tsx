@@ -18,6 +18,7 @@ import { getUser, userLogout } from '@/service/user';
 import { ILoginUser } from '@/typings/user';
 import { Dropdown } from 'antd';
 import Team from './team';
+import i18n from '@/i18n';
 
 let navConfig: INavItem[] = [
   {
@@ -75,8 +76,8 @@ function MainPage(props: IProps) {
         if (res.admin) {
           navConfig.splice(3, 0, {
             key: 'team',
-            icon: '\ue66d',
-            iconFontSize: 20,
+            icon: '\ue64b',
+            iconFontSize: 24,
             isLoad: false,
             component: <Team />,
           });
@@ -139,14 +140,14 @@ function MainPage(props: IProps) {
           items: [
             {
               key: '1',
-              label: <div onClick={handleLogout}>退出登录</div>,
+              label: <div onClick={handleLogout}>{i18n('login.text.logout')}</div>,
             },
           ],
         }}
         placement="bottomRight"
         arrow={{ pointAtCenter: true }}
       >
-        <Iconfont code="&#xe666;" className={styles.questionIcon} />
+        <Iconfont code="&#xe64c;" className={styles.questionIcon} />
       </Dropdown>
     );
   };

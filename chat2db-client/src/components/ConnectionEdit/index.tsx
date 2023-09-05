@@ -53,7 +53,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
     backfillDataLoading: false,
     sshTestLoading: false
   });
-  const [envList, setEnvList] = useState<{value:string,label:string}[]>([]);
+  const [envList, setEnvList] = useState<{ value: string, label: string }[]>([]);
 
 
   useEffect(() => {
@@ -200,7 +200,7 @@ export default forwardRef(function CreateConnection(props: IProps, ref: Forwarde
       p.id = backfillData.id;
     }
 
-    if (type === submitType.SAVE || type === submitType.UPDATE) {
+    if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
       submit?.(p);
       return
     }

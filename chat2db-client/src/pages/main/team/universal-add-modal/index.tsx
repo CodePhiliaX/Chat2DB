@@ -1,9 +1,15 @@
-import { getCommonDataSourceList, getCommonTeamList, getCommonUserAndTeamList, getCommonUserList } from '@/service/team';
+import {
+  getCommonDataSourceList,
+  getCommonTeamList,
+  getCommonUserAndTeamList,
+  getCommonUserList,
+} from '@/service/team';
 import { IDataSourceVO, ITeamAndUserVO, ITeamVO, IUserVO, ManagementType, SearchType } from '@/typings/team';
 import { Modal, Select, Spin } from 'antd';
 import debounce from 'lodash/debounce';
 import React, { useMemo, useState } from 'react';
 import styles from './index.less';
+import i18n from '@/i18n';
 
 interface IProps {
   open: boolean;
@@ -21,51 +27,51 @@ interface ValueType {
 
 const addAuthMap = {
   [SearchType['USER/TEAM']]: {
-    title: '添加人员/团队',
+    title: i18n('team.action.addUserAndTeam'),
     loadRequest: getCommonUserAndTeamList,
     searchLabel: (data: ITeamAndUserVO) => data.name,
     searchValue: (data: ITeamAndUserVO) => JSON.stringify({ id: data.id, type: data.type }),
     searchListKey: 'accessObjectList',
-    placeholder: '搜索人员/团队',
+    placeholder: i18n('team.action.addUserAndTeam.placeholder'),
   },
   [SearchType.TEAM]: {
-    title: '添加团队',
+    title: i18n('team.action.addTeam'),
     loadRequest: getCommonTeamList,
     searchLabel: (data: ITeamVO) => data.name,
     searchValue: (data: ITeamVO) => data.id,
     searchListKey: 'teamIdList',
-    placeholder: '搜索团队',
+    placeholder: i18n('team.action.addTeam.placeholder'),
   },
   [SearchType.USER]: {
-    title: '添加人员',
+    title: i18n('team.action.addUser'),
     loadRequest: getCommonUserList,
     searchLabel: (data: IUserVO) => data.userName,
     searchValue: (data: IUserVO) => data.id,
     searchListKey: 'userIdList',
-    placeholder: '搜索人员',
+    placeholder: i18n('team.action.addUser.placeholder'),
   },
   [SearchType.DATASOURCE]: {
-    title: '添加链接',
+    title: i18n('team.action.addDatasource'),
     loadRequest: getCommonDataSourceList,
     searchLabel: (data: IDataSourceVO) => data.alias,
     searchValue: (data: IDataSourceVO) => data.id,
     searchListKey: 'dataSourceIdList',
-    placeholder: '搜索链接',
+    placeholder: i18n('team.action.addDatasource.placeholder'),
   },
-}
+};
 
 function UniversalAddModal(props: IProps) {
   const { open, type } = props;
 
   const [fetching, setFetching] = useState(false);
   const [options, setOptions] = useState<ValueType[]>([]);
-  const [selectedValues, setSelectedValues] = useState([])
+  const [selectedValues, setSelectedValues] = useState([]);
 
   const authData = useMemo(() => {
     if (type) {
-      return addAuthMap[type]
+      return addAuthMap[type];
     }
-  }, [type])
+  }, [type]);
 
   const loadOptions = (value: string) => {
     setOptions([]);
@@ -91,14 +97,15 @@ function UniversalAddModal(props: IProps) {
     }
 
     const realValue = {
-      [authData.searchListKey]: type !== SearchType['USER/TEAM'] ? selectedValues : selectedValues.map(i => JSON.parse(i))
-    }
+      [authData.searchListKey]:
+        type !== SearchType['USER/TEAM'] ? selectedValues : selectedValues.map((i) => JSON.parse(i)),
+    };
 
-    props.onConfirm(realValue)
+    props.onConfirm(realValue);
     props.onClose && props.onClose();
     setSelectedValues([]);
     setOptions([]);
-  }
+  };
 
   return (
     <Modal
@@ -120,7 +127,7 @@ function UniversalAddModal(props: IProps) {
         options={options}
         value={selectedValues}
         onChange={(values) => {
-          setSelectedValues(values)
+          setSelectedValues(values);
         }}
       />
     </Modal>
