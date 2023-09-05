@@ -91,6 +91,9 @@ function MainPage(props: IProps) {
     dispatch({
       type: 'connection/fetchConnectionList',
     });
+    dispatch({
+      type: 'connection/fetchConnectionEnvList',
+    });
   }, []);
 
   useEffect(() => {

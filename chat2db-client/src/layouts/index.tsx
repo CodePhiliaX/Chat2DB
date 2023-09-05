@@ -66,7 +66,6 @@ export default function Layout() {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <AppContainer></AppContainer>
-      {/* <Sub /> */}
     </ConfigProvider>
   );
 }
