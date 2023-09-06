@@ -21,9 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 
-
 /**
  * Dbhub 统一数据库连接管理
+ *
  * @author jipengfei
  */
 @Slf4j
@@ -40,7 +40,6 @@ public class SQLExecutor {
         return INSTANCE;
     }
 
-
     public void close() {
     }
 
@@ -53,7 +52,7 @@ public class SQLExecutor {
      * @return
      */
 
-    public  <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
+    public <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
         if (StringUtils.isBlank(sql)) {
             return null;
         }
@@ -92,12 +91,12 @@ public class SQLExecutor {
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-                           Consumer<List<String>> rowConsumer) {
+        Consumer<List<String>> rowConsumer) {
         executeSql(connection, sql, headerConsumer, rowConsumer, true);
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-                           Consumer<List<String>> rowConsumer, boolean limitSize) {
+        Consumer<List<String>> rowConsumer, boolean limitSize) {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement();) {
@@ -115,10 +114,10 @@ public class SQLExecutor {
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
-                                .build());
+                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                            .build());
                     }
                     headerConsumer.accept(headerList);
 
@@ -146,17 +145,23 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection) throws SQLException {
-        return execute(sql, connection, true);
+        return execute(sql, connection, true, null, null);
     }
 
     /**
      * 执行sql
      *
      * @param sql
+     * @param connection
+     * @param limitRowSize
+     * @param offset
+     * @param count
      * @return
      * @throws SQLException
      */
-    public ExecuteResult execute(final String sql, Connection connection, boolean limitSize) throws SQLException {
+    public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset,
+        Integer count)
+        throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
 
@@ -180,23 +185,32 @@ public class SQLExecutor {
                     executeResult.setHeaderList(headerList);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
-                                .build());
+                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                            .build());
                     }
 
                     // 获取数据信息
                     List<List<String>> dataList = Lists.newArrayList();
                     executeResult.setDataList(dataList);
 
-                    int n = 0;
-                    while (rs.next() && n < EasyToolsConstant.MAX_PAGE_SIZE) {
-                        n++;
+                    if (offset == null || offset < 0) {
+                        offset = 0;
+                    }
+                    int rowNumber = 0;
+                    int rowCount = 1;
+                    while (rs.next()) {
+                        if (rowNumber++ < offset) {
+                            continue;
+                        }
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitSize));
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitRowSize));
+                        }
+                        if (count != null && count > 0 && rowCount++ >= count) {
+                            break;
                         }
                     }
                     executeResult.setDuration(timeInterval.interval());
@@ -221,7 +235,7 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(Connection connection, String sql) throws SQLException {
-        return execute(sql, connection, true);
+        return execute(sql, connection, true, null, null);
     }
 
     /**
@@ -232,7 +246,7 @@ public class SQLExecutor {
      */
     public List<Database> databases(Connection connection) {
         try (ResultSet resultSet = connection.getMetaData().getCatalogs();) {
-           return ResultSetUtils.toObjectList(resultSet, Database.class);
+            return ResultSetUtils.toObjectList(resultSet, Database.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -244,7 +258,10 @@ public class SQLExecutor {
      * TABLE_SCHEM String => schema name
      * TABLE_CATALOG String => catalog name (may be null)
      * Params:
-     * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without a catalog; null means catalog name should not be used to narrow down the search. schemaPattern – a schema name; must match the schema name as it is stored in the database; null means schema name should not be used to narrow down the search.
+     * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without
+     * a catalog; null means catalog name should not be used to narrow down the search. schemaPattern – a schema name;
+     * must match the schema name as it is stored in the database; null means schema name should not be used to narrow
+     * down the search.
      * Returns:
      * a ResultSet object in which each row is a schema description
      * Throws:
@@ -280,9 +297,9 @@ public class SQLExecutor {
      * @return
      */
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName,
-                              String types[]) {
+        String types[]) {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, tableName,
-                types)) {
+            types)) {
             return ResultSetUtils.toObjectList(resultSet, Table.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -300,9 +317,9 @@ public class SQLExecutor {
      * @return
      */
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName,
-                                     String columnName) {
+        String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
-                columnName)) {
+            columnName)) {
             return ResultSetUtils.toObjectList(resultSet, TableColumn.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -312,48 +329,47 @@ public class SQLExecutor {
     /**
      * get all table index info
      *
-     * @param connection connection
+     * @param connection   connection
      * @param databaseName databaseName of the index
-     * @param schemaName schemaName of the index
-     * @param tableName tableName of the index
+     * @param schemaName   schemaName of the index
+     * @param tableName    tableName of the index
      * @return List<TableIndex> table index list
      */
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
-                false,
-                false)) {
+            false,
+            false)) {
             List<TableIndexColumn> tableIndexColumns = ResultSetUtils.toObjectList(resultSet, TableIndexColumn.class);
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
-                            Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
-                    .stream().forEach(entry -> {
-                        TableIndex tableIndex = new TableIndex();
-                        TableIndexColumn column = entry.getValue().get(0);
-                        tableIndex.setName(entry.getKey());
-                        tableIndex.setTableName(column.getTableName());
-                        tableIndex.setSchemaName(column.getSchemaName());
-                        tableIndex.setDatabaseName(column.getDatabaseName());
-                        tableIndex.setUnique(!column.getNonUnique());
-                        tableIndex.setColumnList(entry.getValue());
-                        tableIndices.add(tableIndex);
-                    });
+                    Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
+                .stream().forEach(entry -> {
+                    TableIndex tableIndex = new TableIndex();
+                    TableIndexColumn column = entry.getValue().get(0);
+                    tableIndex.setName(entry.getKey());
+                    tableIndex.setTableName(column.getTableName());
+                    tableIndex.setSchemaName(column.getSchemaName());
+                    tableIndex.setDatabaseName(column.getDatabaseName());
+                    tableIndex.setUnique(!column.getNonUnique());
+                    tableIndex.setColumnList(entry.getValue());
+                    tableIndices.add(tableIndex);
+                });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return tableIndices;
     }
 
-
     /**
      * Get all functions available in a catalog.
      *
-     * @param connection connection
+     * @param connection   connection
      * @param databaseName databaseName of the function
-     * @param schemaName schemaName of the function
+     * @param schemaName   schemaName of the function
      * @return List<Function>
      */
     public List<ai.chat2db.spi.model.Function> functions(Connection connection, String databaseName,
-                                                         String schemaName) {
+        String schemaName) {
         try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, schemaName, null);) {
             return ResultSetUtils.toObjectList(resultSet, ai.chat2db.spi.model.Function.class);
         } catch (Exception e) {
@@ -362,11 +378,11 @@ public class SQLExecutor {
     }
 
     /**
-     *  procedure list
+     * procedure list
      *
-     * @param connection connection
+     * @param connection   connection
      * @param databaseName databaseName
-     * @param schemaName schemaName
+     * @param schemaName   schemaName
      * @return List<Procedure>
      */
     public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
