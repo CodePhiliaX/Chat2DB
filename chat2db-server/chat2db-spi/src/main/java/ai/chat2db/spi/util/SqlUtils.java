@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.tools.common.util.EasyIntegerUtils;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
@@ -85,7 +86,7 @@ public class SqlUtils {
                     mySqlCreateTableStatement.addColumn(sqlColumnDefinition);
                     sqlColumnDefinition.setName(tableColumn.getName());
                     sqlColumnDefinition.setDataType(new SQLDataTypeImpl(tableColumn.getColumnType()));
-                    if (BooleanUtils.isNotFalse(tableColumn.getNullable())) {
+                    if (tableColumn.getNullable()==1) {
                         sqlColumnDefinition.addConstraint(new SQLNullConstraint());
                     } else {
                         sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
@@ -221,7 +222,7 @@ public class SqlUtils {
                 sqlAlterTableAddColumn.addColumn(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable()!=1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {
@@ -236,7 +237,7 @@ public class SqlUtils {
             // 代表可能修改字段 或者没变
             boolean hasChange = !StringUtils.equals(oldTableColumn.getName(), newTableColumn.getName())
                 || !StringUtils.equals(oldTableColumn.getColumnType(), newTableColumn.getColumnType())
-                || !EasyBooleanUtils.equals(oldTableColumn.getNullable(), newTableColumn.getNullable(), Boolean.TRUE)
+                || !EasyIntegerUtils.equals(oldTableColumn.getNullable(), newTableColumn.getNullable(), 1)
                 || !StringUtils.equals(oldTableColumn.getDefaultValue(), newTableColumn.getDefaultValue())
                 || !EasyBooleanUtils.equals(oldTableColumn.getAutoIncrement(), newTableColumn.getAutoIncrement(),
                 Boolean.FALSE)
@@ -256,7 +257,7 @@ public class SqlUtils {
                 mySqlAlterTableChangeColumn.setNewColumnDefinition(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable()!=1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {
@@ -274,7 +275,7 @@ public class SqlUtils {
                 mySqlAlterTableModifyColumn.setNewColumnDefinition(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable()!=1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {

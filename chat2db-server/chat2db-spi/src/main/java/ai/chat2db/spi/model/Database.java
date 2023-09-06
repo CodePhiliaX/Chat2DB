@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,7 @@ public class Database implements Serializable {
     /**
      * 数据库名字
      */
+    @JsonAlias({"TABLE_CAT"})
     private String name;
 
     /**

@@ -54,7 +54,7 @@ public class RestAIEventSourceListener extends EventSourceListener {
         }
         Message message = new Message();
         if (StringUtils.isNotBlank(data)) {
-            message.setContent(data);
+            message.setContent(data.replace("\"", ""));
             sseEmitter.send(SseEmitter.event()
                 .id(id)
                 .data(message)

@@ -34,7 +34,6 @@ import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +66,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         ListResult<ExecuteResult> listResult = ListResult.of(result);
         // 执行sql
         for (String originalSql : sqlList) {
-            ExecuteResult executeResult = executeSQL(originalSql,dbType,param);
+            ExecuteResult executeResult = executeSQL(originalSql, dbType, param);
             result.add(executeResult);
             if (!executeResult.getSuccess()) {
                 listResult.setSuccess(false);
@@ -78,53 +77,44 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return listResult;
     }
 
-    private ExecuteResult executeSQL(String originalSql,DbType dbType,DlExecuteParam param) {
-        String sql = originalSql;
-        int pageNo = 0;
+    private ExecuteResult executeSQL(String originalSql, DbType dbType, DlExecuteParam param) {
+        int pageNo = 1;
         int pageSize = 0;
+        Integer offset = null;
+        Integer count = null;
         String sqlType = SqlTypeEnum.UNKNOWN.getCode();
 
         // 解析sql分页
         SQLStatement sqlStatement;
-        boolean autoLimit = false;
         try {
-            sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+            sqlStatement = SQLUtils.parseSingleStatement(originalSql, dbType);
             // 是否需要代码帮忙分页
             if (sqlStatement instanceof SQLSelectStatement) {
-                //  不是查询全部数据 而且 用户自己没有传分页
-                autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement,
-                    dbType)
-                    == null;
-                if (autoLimit) {
-                    pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
-                    pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
-                    int offset = (pageNo - 1) * pageSize;
-                    try {
-                        sql = PagerUtils.limit(sql, dbType, offset, pageSize);
-                    } catch (Exception e) {
-                        autoLimit = false;
-                    }
-                }
+                pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
+                pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
+                offset = (pageNo - 1) * pageSize;
+                count = pageSize;
                 sqlType = SqlTypeEnum.SELECT.getCode();
             }
         } catch (ParserException e) {
-            log.warn("解析sql失败:{}", sql, e);
+            log.warn("解析sql失败:{}", originalSql, e);
         }
 
-        ExecuteResult executeResult = execute(sql);
+        ExecuteResult executeResult = execute(originalSql, offset, count);
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
-        // 自动分页
-        if (autoLimit) {
+
+        if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
             executeResult.setPageSize(pageSize);
             executeResult.setHasNextPage(
                 CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
         } else {
-            executeResult.setPageNo(1);
+            executeResult.setPageNo(pageNo);
             executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
             executeResult.setHasNextPage(Boolean.FALSE);
         }
+
         // Splice row numbers
         List<Header> newHeaderList = new ArrayList<>();
         newHeaderList.add(Header.builder()
@@ -149,9 +139,6 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         executeResult.setFuzzyTotal(calculateFuzzyTotal(pageNo, pageSize, executeResult));
         return executeResult;
     }
-
-
-
 
     private String calculateFuzzyTotal(int pageNo, int pageSize, ExecuteResult executeResult) {
         int dataSize = CollectionUtils.size(executeResult.getDataList());
@@ -179,7 +166,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
         sql = PagerUtils.count(sql, dbType);
-        ExecuteResult executeResult = execute(sql);
+        ExecuteResult executeResult = execute(sql, null, null);
 
         List<List<String>> dataList = executeResult.getDataList();
         if (CollectionUtils.isEmpty(dataList)) {
@@ -194,10 +181,10 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return DataResult.of(Long.valueOf(count));
     }
 
-    private ExecuteResult execute(String sql) {
+    private ExecuteResult execute(String sql, Integer offset, Integer count) {
         ExecuteResult executeResult;
         try {
-            executeResult = SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(), sql);
+            executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count);
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()

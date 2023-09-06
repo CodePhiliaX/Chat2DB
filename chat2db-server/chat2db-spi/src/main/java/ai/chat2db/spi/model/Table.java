@@ -3,6 +3,7 @@ package ai.chat2db.spi.model;
 import java.util.List;
 
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,16 +23,21 @@ public class Table {
     /**
      * 表名
      */
+    @JsonAlias({"TABLE_NAME"})
     private String name;
 
     /**
      * 描述
      */
+    @JsonAlias({"REMARKS"})
+
     private String comment;
 
     /**
      * DB 名
      */
+    @JsonAlias({"TABLE_SCHEM"})
+
     private String schemaName;
 
     /**
@@ -52,11 +58,13 @@ public class Table {
     /**
      * 数据库名
      */
+    @JsonAlias("TABLE_CAT")
     private String databaseName;
 
     /**
      * 表类型
      */
+    @JsonAlias("TABLE_TYPE")
     private String type;
 
     /**
