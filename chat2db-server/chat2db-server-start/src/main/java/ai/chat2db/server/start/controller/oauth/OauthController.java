@@ -1,5 +1,6 @@
 package ai.chat2db.server.start.controller.oauth;
 
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.model.User;
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jiaju Zhuang
  */
 @RestController
-@RequestMapping("/oauth")
+@RequestMapping("/api/oauth")
 @Slf4j
 public class OauthController {
 
@@ -47,14 +48,26 @@ public class OauthController {
         //   查询用户
         User user = userService.query(request.getUserName()).getData();
         if (user == null) {
-            throw new BusinessException("当前用户不存在。");
+            throw new BusinessException("oauth.userNameNotExits");
         }
+        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
+            throw new BusinessException("oauth.IllegalUserName");
+        }
+        // Successfully logged in without modifying the administrator password
+        if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId()) && RoleCodeEnum.ADMIN.getPassword().equals(
+            user.getPassword())) {
+            return DataResult.of(doLogin(user));
+        }
+
         if (!DigestUtil.bcryptCheck(request.getPassword(), user.getPassword())) {
-            throw new BusinessException("您输入的密码有误。");
+            throw new BusinessException("oauth.passwordIncorrect");
         }
+        return DataResult.of(doLogin(user));
+    }
+
+    private Object doLogin(User user) {
         StpUtil.login(user.getId());
-        Object token = SaHolder.getStorage().get(SaTokenConsts.JUST_CREATED_NOT_PREFIX);
-        return DataResult.of(token);
+        return SaHolder.getStorage().get(SaTokenConsts.JUST_CREATED_NOT_PREFIX);
     }
 
     /**

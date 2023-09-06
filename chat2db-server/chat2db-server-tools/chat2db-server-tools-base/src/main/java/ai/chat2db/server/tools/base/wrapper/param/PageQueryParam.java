@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.OrderByDirectionEnum;
 
@@ -66,6 +65,14 @@ public class PageQueryParam implements Serializable {
     public void queryAll() {
         this.pageNo = 1;
         this.pageSize = Integer.MAX_VALUE;
+    }
+
+    /**
+     * 查询1条加速
+     */
+    public void queryOne() {
+        this.pageNo = 1;
+        this.pageSize = 1;
     }
 
     /**

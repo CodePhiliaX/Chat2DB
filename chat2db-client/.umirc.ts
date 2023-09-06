@@ -1,5 +1,5 @@
-import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
+import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
@@ -27,9 +27,11 @@ export default defineConfig({
     { path: '/connections', component: 'main' },
     { path: '/workspace', component: 'main' },
     { path: '/dashboard', component: 'main' },
+    { path: '/login', component: '@/pages/login' },
     { path: '/test', component: '@/pages/test' },
     { path: '/', component: 'main' },
   ],
+
   npmClient: 'yarn',
   dva: {},
   plugins: ['@umijs/plugins/dist/dva'],
@@ -53,7 +55,10 @@ export default defineConfig({
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
-    { src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61', async: true },
+    {
+      src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61',
+      async: true,
+    },
     // `window.dataLayer = window.dataLayer || [];
     // function gtag() {
     //   window.dataLayer.push(arguments);

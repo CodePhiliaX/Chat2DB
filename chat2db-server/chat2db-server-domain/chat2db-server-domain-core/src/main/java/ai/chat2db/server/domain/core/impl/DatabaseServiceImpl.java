@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import ai.chat2db.server.domain.api.param.DatabaseOperationParam;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
 import ai.chat2db.server.domain.api.param.SchemaQueryParam;

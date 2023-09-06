@@ -35,7 +35,7 @@ const codeMessage: { [errorCode: number]: string } = {
 
 enum ErrorCode {
   /** 需要登录 */
-  NEED_LOGGED_IN = 'NEED_LOGGED_IN',
+  NEED_LOGGED_IN = 'common.needLoggedIn',
 }
 
 const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
@@ -118,9 +118,8 @@ request.interceptors.response.use(async (response, options) => {
   }
   const { errorCode, codeMessage } = res;
   if (errorCode === ErrorCode.NEED_LOGGED_IN) {
-    // window.location.href = '#/login?callback=' + window.location.hash.substr(1);
     const callback = window.location.hash.substr(1).split('?')[0];
-    window.location.href = '#/login?' + (callback === '/login' ? '' : `callback=${callback}`);
+    window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
   }
 
   return response;
@@ -180,7 +179,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
                 errorMessage,
                 errorDetail,
                 solutionLink,
-              })
+              });
               // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);

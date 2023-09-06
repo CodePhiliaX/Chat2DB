@@ -1,7 +1,7 @@
 package ai.chat2db.server.test.domain.data.service;
 
-import ai.chat2db.server.domain.api.param.DataSourceCreateParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
@@ -89,7 +89,7 @@ public class SQLExecutorOperationsTest extends BaseTest {
             dataSourceCreateParam.setUrl(dialectProperties.getUrl());
             dataSourceCreateParam.setUserName(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
-            DataResult<Long> dataSourceConnect = dataSourceService.create(dataSourceCreateParam);
+            DataResult<Long> dataSourceConnect = dataSourceService.createWithPermission(dataSourceCreateParam);
             Assertions.assertTrue(dataSourceConnect.getSuccess(), "创建数据库连接池失败");
             // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "创建数据库连接池失败");
         }

@@ -1,17 +1,18 @@
 import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
-import CreateConnection from '@/components/CreateConnection';
+import ConnectionEdit from '@/components/ConnectionEdit';
 import Iconfont from '@/components/Iconfont';
 import connectionService from '@/service/connection';
 import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
-import { IDatabase, IConnectionDetails } from '@/typings';
+import { IDatabase, IConnectionDetails, IEnvironmentVO } from '@/typings';
 import { Button, Dropdown, Modal } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import styles from './index.less';
 import { connect, history, Dispatch } from 'umi';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
+
 
 interface IMenu {
   key: number;
@@ -20,16 +21,19 @@ interface IMenu {
   meta: IConnectionDetails;
 }
 
+// interface IConnectionList {
+//   environment: 'dev' | 'test' | 'prod';
+//   connectionList: IMenu[];
+// }
+
 interface IProps {
   connectionModel: IConnectionModelType['state'];
-  workspaceModel: IWorkspaceModelType['state'];
   dispatch: any;
 }
 
 function Connections(props: IProps) {
-  const { connectionModel, workspaceModel, dispatch } = props;
+  const { connectionModel, dispatch } = props;
   const { connectionList } = connectionModel;
-  const { curWorkspaceParams } = workspaceModel;
   const volatileRef = useRef<any>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
 
@@ -163,7 +167,7 @@ function Connections(props: IProps) {
             })}
           >
             {
-              <CreateConnection
+              <ConnectionEdit
                 connectionData={curConnection as any}
                 closeCreateConnection={() => {
                   setCurConnection({});
