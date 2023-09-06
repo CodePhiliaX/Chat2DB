@@ -1,59 +1,68 @@
+# 2.0.14
+
+## 🐞 Bug Fixes
+
+- Fix the issue of 'Oracle' query 'Blob' reporting errors
+- Modify the paging logic and fix some SQL queries that cannot be queried
+
+## 🐞 问题修复
+
+- 修复 `Oracle` 查询 `Blob` 报错的问题
+- 修改分页逻辑，修复部分 SQL 无法查询
+
 # 2.0.13
 
 ## ⭐ New Features
 
 ## 🐞 Bug Fixes
-- Fixed a bug where sql formatting was not selected 
-- Fixed open view lag issue 
+
+- Fixed a bug where sql formatting was not selected
+- Fixed open view lag issue
 - Solve the white screen problem of connected non-relational databases (non-relational databases are not supported)
 
 ## ⭐ 新特性
 
-
-
 ## 🐞 问题修复
-- 修复不选中sql格式化的bug
+
+- 修复不选中 sql 格式化的 bug
 - 修复打开视图卡顿问题
 - 解决已连接的非关系型数据库打开白屏问题（暂不支持非关系性数据库）
-
 
 # 2.0.12
 
 ## ⭐ New Features
 
-- 🔥Supports viewing views, functions, triggers, and procedures 
-- Support selected sql formatting 
+- 🔥Supports viewing views, functions, triggers, and procedures
+- Support selected sql formatting
 - Added new dark themes
 
 ## 🐞 Bug Fixes
 
 - Fixed sql formatting failure issue
-- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing page crashes
+- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing
+  page crashes
 - Logs desensitize sensitive data
-- Fix the issue of 'CLOB' not displaying specific content  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- Fix the issue of 'CLOB' not displaying specific content [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
 - Fix the problem that non-Select does not display query results
 - Fix the problem that Oracle cannot query without schema
 - Fix the problem of special type of SQL execution error reporting
 - Fix the problem that the test link is successful, but the error is reported when saving the link
 
-
-
-
 ## ⭐ 新特性
 
-- 🔥支持查看视图、函数、触发器、存储过程
-- 支持选中sql格式化
+- 🔥 支持查看视图、函数、触发器、存储过程
+- 支持选中 sql 格式化
 - 增加新的暗色主题
 
 ## 🐞 问题修复
 
-- 修复sql格式化会失败问题
+- 修复 sql 格式化会失败问题
 - 修复本地存储的主题色、背景色与新版本不兼容时会导致页面崩溃问题
 - 日志对敏感数据进行脱敏
-- 修复 `CLOB` 不展示具体内容的问题  [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
-- 修复非Select不展示查询结果的问题
-- 修复Oracle不带schema无法查询的问题
-- 修复特殊类型的SQL执行报错的问题
+- 修复 `CLOB` 不展示具体内容的问题 [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- 修复非 Select 不展示查询结果的问题
+- 修复 Oracle 不带 schema 无法查询的问题
+- 修复特殊类型的 SQL 执行报错的问题
 - 修复测试链接成功，但保存链接报错的问题
 
 # 2.0.11
@@ -81,11 +90,11 @@
 
 ## 🐞 问题修复
 
-- 新建、开打console时激活最新操作的console、记录最后一次使用的console
-- edge等浏览器复制功能无法正常使用
-- table搜索后导出ddl报错
+- 新建、开打 console 时激活最新操作的 console、记录最后一次使用的 console
+- edge 等浏览器复制功能无法正常使用
+- table 搜索后导出 ddl 报错
 - 增加表注释以及列字段类型和注释
-- 当数据源添加了database默认选择第一个database
+- 当数据源添加了 database 默认选择第一个 database
 
 # 2.0.9
 
@@ -95,18 +104,18 @@
 
 ## 🐞 问题修复
 
-- 修复windows闪退的问题
+- 修复 windows 闪退的问题
 
 # 2.0.8
 
 ## 🐞 Bug Fixes
 
-- Repair the Scientific notation in some databases  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- Repair the Scientific notation in some databases [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
 - Fix some cases where data is not displayed
 
 ## 🐞 问题修复
 
-- 修复部分数据库出现科学计数法的情况  [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- 修复部分数据库出现科学计数法的情况 [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
 - 修复部分情况数据不展示
 
 # 2.0.7
@@ -125,18 +134,18 @@
 
 ## 🐞 问题修复
 
-- 修复ai配置 [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
+- 修复 ai 配置 [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
 
 # 2.0.6
 
 ## 🐞 Bug Fixes
 
 - Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom
-  disappears  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+  disappears [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
 
 ## 🐞 问题修复
 
-- Fixed: 当选择的库下面表过多时最下面的“新建控制台”按钮消失  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+- Fixed: 当选择的库下面表过多时最下面的“新建控制台”按钮消失 [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
 
 # 2.0.5
 

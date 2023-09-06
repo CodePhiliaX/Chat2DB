@@ -1,6 +1,7 @@
 package ai.chat2db.spi.util;
 
 import java.math.BigDecimal;
+import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -144,24 +145,51 @@ public class JdbcUtils {
         if (obj == null) {
             return null;
         }
-        if (obj instanceof BigDecimal bigDecimal) {
-            return bigDecimal.toPlainString();
-        } else if (obj instanceof Double d) {
-            return BigDecimal.valueOf(d).toPlainString();
-        } else if (obj instanceof Float f) {
-            return BigDecimal.valueOf(f).toPlainString();
-        } else if (obj instanceof Clob) {
-            return largeString(rs, index, limitSize);
-        } else if (obj instanceof byte[]) {
-            return largeString(rs, index, limitSize);
+        try {
+            if (obj instanceof BigDecimal bigDecimal) {
+                return bigDecimal.toPlainString();
+            } else if (obj instanceof Double d) {
+                return BigDecimal.valueOf(d).toPlainString();
+            } else if (obj instanceof Float f) {
+                return BigDecimal.valueOf(f).toPlainString();
+            } else if (obj instanceof Clob) {
+                return largeString(rs, index, limitSize);
+            } else if (obj instanceof byte[]) {
+                return largeString(rs, index, limitSize);
+            } else if (obj instanceof Blob blob) {
+                return largeStringBlob(blob, limitSize);
+            }
+            return rs.getString(index);
+        } catch (Exception e) {
+            log.warn("解析数失败:{},{}", index, obj, e);
+            return obj.toString();
         }
-        return rs.getString(index);
+    }
+
+    private static String largeStringBlob(Blob blob, boolean limitSize) throws SQLException {
+        if (blob == null) {
+            return null;
+        }
+        int length = Math.toIntExact(blob.length());
+        if (limitSize && length > MAX_RESULT_SIZE) {
+            length = Math.toIntExact(MAX_RESULT_SIZE);
+        }
+        byte[] data = blob.getBytes(1, length);
+        String result = new String(data);
+
+        if (length > MAX_RESULT_SIZE) {
+            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(length)
+                + " ,"
+                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result;
+        }
+        return result;
     }
 
     private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {
         String result = rs.getString(index);
         if (result == null) {
             return null;
+
         }
         if (!limitSize) {
             return result;

@@ -78,13 +78,16 @@ public class IDriverManager {
         if (url == null) {
             throw new SQLException("The url cannot be null", "08001");
         }
-        SQLException reason = null;
         DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
         if (driverEntry == null) {
             driverEntry = getJDBCDriver(driver);
         }
         try {
-            return driverEntry.getDriver().connect(url, info);
+            Connection connection = driverEntry.getDriver().connect(url, info);
+            if(connection == null){
+                throw new SQLException("driver.connect return null , No suitable driver found for url " +url ,"08001");
+            }
+            return connection;
         } catch (SQLException var7) {
             Connection con = tryConnectionAgain(driverEntry, url, info);
             if (con != null) {
