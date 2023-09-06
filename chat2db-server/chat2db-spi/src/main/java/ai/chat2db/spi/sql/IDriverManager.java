@@ -85,7 +85,7 @@ public class IDriverManager {
         try {
             Connection connection = driverEntry.getDriver().connect(url, info);
             if(connection == null){
-                throw new ConnectionException("driverEntry.getDriver().connect return null",null);
+                throw new SQLException("driver.connect return null , No suitable driver found for url " +url ,"08001");
             }
             return connection;
         } catch (SQLException var7) {
