@@ -4,6 +4,10 @@ import org.springframework.util.StringUtils;
 
 public class CacheKey {
 
+    public static String getLoginUserKey(Long userId) {
+        return "login_user_" + userId;
+    }
+
     public static String getDataSourceKey(Long dataSourceId) {
         return "schemas_datasourceId_" + dataSourceId;
     }

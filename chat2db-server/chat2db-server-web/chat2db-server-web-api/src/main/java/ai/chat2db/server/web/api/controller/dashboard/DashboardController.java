@@ -3,14 +3,16 @@ package ai.chat2db.server.web.api.controller.dashboard;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Dashboard;
-import ai.chat2db.server.domain.api.param.DashboardCreateParam;
-import ai.chat2db.server.domain.api.param.DashboardPageQueryParam;
-import ai.chat2db.server.domain.api.param.DashboardUpdateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardCreateParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardPageQueryParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardQueryParam;
+import ai.chat2db.server.domain.api.param.dashboard.DashboardUpdateParam;
 import ai.chat2db.server.domain.api.service.DashboardService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.dashboard.converter.DashboardWebConverter;
 import ai.chat2db.server.web.api.controller.dashboard.request.DashboardCreateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.DashboardUpdateRequest;
@@ -51,6 +53,7 @@ public class DashboardController {
      */
     @GetMapping("/list")
     public WebPageResult<DashboardVO> list(DashboardPageQueryParam request) {
+        request.setUserId(ContextUtils.getUserId());
         PageResult<Dashboard> result = dashboardService.queryPage(request);
         List<DashboardVO> dashboardVOS = dashboardWebConverter.model2vo(result.getData());
         return WebPageResult.of(dashboardVOS, result.getTotal(), result.getPageNo(), result.getPageSize());
@@ -64,9 +67,11 @@ public class DashboardController {
      */
     @GetMapping("/{id}")
     public DataResult<DashboardVO> get(@PathVariable("id") Long id) {
-        Dashboard dashboard = dashboardService.find(id).getData();
-        DashboardVO dashboardVO = dashboardWebConverter.model2vo(dashboard);
-        return DataResult.of(dashboardVO);
+        DashboardQueryParam param = new DashboardQueryParam();
+        param.setId(id);
+        param.setUserId(ContextUtils.getUserId());
+        return dashboardService.queryExistent(param)
+            .map(dashboardWebConverter::model2vo);
     }
 
     /**
@@ -78,7 +83,7 @@ public class DashboardController {
     @PostMapping("/create")
     public DataResult<Long> create(@RequestBody DashboardCreateRequest request) {
         DashboardCreateParam param = dashboardWebConverter.req2param(request);
-        return dashboardService.create(param);
+        return dashboardService.createWithPermission(param);
     }
 
     /**
@@ -90,7 +95,7 @@ public class DashboardController {
     @RequestMapping(value = "/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody DashboardUpdateRequest request) {
         DashboardUpdateParam param = dashboardWebConverter.req2updateParam(request);
-        return dashboardService.update(param);
+        return dashboardService.updateWithPermission(param);
     }
 
     /**
@@ -101,6 +106,6 @@ public class DashboardController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable("id") Long id) {
-        return dashboardService.delete(id);
+        return dashboardService.deleteWithPermission(id);
     }
 }

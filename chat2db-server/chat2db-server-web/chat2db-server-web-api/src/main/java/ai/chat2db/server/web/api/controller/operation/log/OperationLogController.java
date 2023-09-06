@@ -3,8 +3,8 @@ package ai.chat2db.server.web.api.controller.operation.log;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.OperationLog;
-import ai.chat2db.server.domain.api.param.OperationLogCreateParam;
-import ai.chat2db.server.domain.api.param.OperationLogPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;

@@ -14,8 +14,13 @@ import Workspace from './workspace';
 import Dashboard from './dashboard';
 
 import styles from './index.less';
+import { getUser, userLogout } from '@/service/user';
+import { ILoginUser } from '@/typings/user';
+import { Dropdown } from 'antd';
+import Team from './team';
+import i18n from '@/i18n';
 
-const navConfig: INavItem[] = [
+let navConfig: INavItem[] = [
   {
     key: 'workspace',
     icon: '\ue616',
@@ -58,9 +63,29 @@ interface IProps {
 }
 
 function MainPage(props: IProps) {
-  const { mainModel, workspaceModel, connectionModel, dispatch } = props;
+  const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
+  // const [activeNav, setActiveNav] = useState<INavItem>(navConfig[4]);
+  const [userInfo, setUserInfo] = useState<ILoginUser>();
+
+  useEffect(() => {
+    getUser().then((res) => {
+      if (res) {
+        setUserInfo(res);
+        if (res.admin) {
+          navConfig.splice(3, 0, {
+            key: 'team',
+            icon: '\ue64b',
+            iconFontSize: 24,
+            isLoad: false,
+            component: <Team />,
+          });
+          setActiveNav(navConfig[3]);
+        }
+      }
+    });
+  }, []);
 
   useEffect(() => {
     dispatch({
@@ -101,10 +126,36 @@ function MainPage(props: IProps) {
     }
   }
 
+  const handleLogout = () => {
+    userLogout().then((res) => {
+      setUserInfo(undefined);
+      window.location.href = '/#/login';
+    });
+  };
+
+  const renderUser = () => {
+    return (
+      <Dropdown
+        menu={{
+          items: [
+            {
+              key: '1',
+              label: <div onClick={handleLogout}>{i18n('login.text.logout')}</div>,
+            },
+          ],
+        }}
+        placement="bottomRight"
+        arrow={{ pointAtCenter: true }}
+      >
+        <Iconfont code="&#xe64c;" className={styles.questionIcon} />
+      </Dropdown>
+    );
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => { }} className={styles.brandLogo} />
+        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
         <ul className={styles.navList}>
           {navConfig.map((item, index) => {
             return (
@@ -129,7 +180,8 @@ function MainPage(props: IProps) {
               window.open('https://github.com/chat2db/chat2db/wiki');
             }}
           /> */}
-          <Setting className={styles.setIcon}></Setting>
+          {userInfo ? renderUser() : null}
+          <Setting className={styles.setIcon} />
         </div>
       </div>
       <div className={styles.layoutRight}>

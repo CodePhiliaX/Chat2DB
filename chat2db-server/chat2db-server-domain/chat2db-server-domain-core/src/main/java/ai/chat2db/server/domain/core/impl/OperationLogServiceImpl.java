@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.model.OperationLog;
-import ai.chat2db.server.domain.api.param.OperationLogCreateParam;
-import ai.chat2db.server.domain.api.param.OperationLogPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.domain.core.converter.OperationLogConverter;

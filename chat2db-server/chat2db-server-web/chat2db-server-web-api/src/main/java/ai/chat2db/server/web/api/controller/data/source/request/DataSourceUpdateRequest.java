@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
-import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 
 import lombok.Data;
 
