@@ -192,6 +192,8 @@ Follow our WeChat public account.
 
 <a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="40%"/></a>
 
+ Click and join <a href="https://discord.gg/dqae8nsC">discord server</a>
+
 ## ❤️ Acknowledgements
 
 Thanks to all the students who contributed to Chat2DB~
