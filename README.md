@@ -116,10 +116,7 @@ To facilitate users' quick use of AI capabilities, you can scan the QR code belo
 
 ### CONFIGURE CUSTOM AI
 
-- Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
-- DEMO for configuring customized stream output interface.
-- DEMO for configuring customized non-stream output interface.
-<img width="1722" alt="5" src="https://github.com/chat2db/Chat2DB/assets/22975773/aff8497e-3edb-449d-a7d4-bb0429abc67c">
+* [Refer here to deploy your ChatGLM-6B model](https://github.com/chat2db/chat2db-chatglm-6b-deploy)
 
 
 ## 📦 Docker installation
