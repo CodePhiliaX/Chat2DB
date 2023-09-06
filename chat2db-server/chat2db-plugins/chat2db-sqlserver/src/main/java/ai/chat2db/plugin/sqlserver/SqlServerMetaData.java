@@ -68,6 +68,10 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         = "SELECT type_desc, OBJECT_NAME(object_id) AS FunctionName, OBJECT_DEFINITION(object_id) AS "
         + "definition FROM sys.objects WHERE type_desc IN(%s) and name = '%s' ;";
 
+
+    private static String OBJECT_SQL
+            = "SELECT name FROM sys.objects WHERE type = '%s' and SCHEMA_ID = SCHEMA_ID('%s');";
+
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
         String functionName) {
@@ -87,8 +91,22 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<Function> functions(Connection connection, String databaseName, String schemaName) {
-        List<Function> functions = SQLExecutor.getInstance().functions(connection, databaseName, schemaName);
-        return functions.stream().map(function -> removeVersion(function)).collect(Collectors.toList());
+        List<Function> functions = new ArrayList<>();
+//        List<Function> functions = SQLExecutor.getInstance().functions(connection, databaseName, schemaName);
+//        return functions.stream().map(function -> removeVersion(function)).collect(Collectors.toList());
+        String sql = String.format(OBJECT_SQL,"FN", schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Function function = new Function();
+                function.setDatabaseName(databaseName);
+                function.setSchemaName(schemaName);
+                if (resultSet.next()) {
+                    function.setFunctionName(resultSet.getString("name"));
+                }
+                functions.add(function);
+            }
+            return functions;
+        });
     }
 
     private Function removeVersion(Function function) {
@@ -103,8 +121,20 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
-        List<Procedure> procedures = SQLExecutor.getInstance().procedures(connection, databaseName, schemaName);
-        return procedures.stream().map(procedure -> removeVersion(procedure)).collect(Collectors.toList());
+        List<Procedure> procedures = new ArrayList<>();
+        String sql = String.format(OBJECT_SQL,"P", schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Procedure procedure = new Procedure();
+                procedure.setDatabaseName(databaseName);
+                procedure.setSchemaName(schemaName);
+                if (resultSet.next()) {
+                    procedure.setProcedureName(resultSet.getString("name"));
+                }
+                procedures.add(procedure);
+            }
+            return procedures;
+        });
     }
 
     private Procedure removeVersion(Procedure procedure) {
