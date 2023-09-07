@@ -117,7 +117,7 @@ To facilitate users' quick use of AI capabilities, you can scan the QR code belo
 ### CONFIGURE CUSTOM AI
 
 * [Refer here to deploy your ChatGLM-6B model](https://github.com/chat2db/chat2db-chatglm-6b-deploy)
-
+* [Refer here to deploy your sqlcoder model](https://github.com/chat2db/chat2db-sqlcoder-deploy)
 
 ## 📦 Docker installation
 
