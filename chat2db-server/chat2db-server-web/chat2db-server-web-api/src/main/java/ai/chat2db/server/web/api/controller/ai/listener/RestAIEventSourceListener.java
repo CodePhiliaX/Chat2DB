@@ -102,7 +102,7 @@ public class RestAIEventSourceListener extends EventSourceListener {
                 eventSource.cancel();
             }
             Message message = new Message();
-            message.setContent("出现异常,请在帮助中查看详细日志：" + bodyString);
+            message.setContent("Rest AI Error:" + bodyString);
             sseEmitter.send(SseEmitter.event()
                 .id("[ERROR]")
                 .data(message));
