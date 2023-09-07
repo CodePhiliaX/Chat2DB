@@ -2,11 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.api.param.DropParam;
-import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
-import ai.chat2db.server.domain.api.param.TablePageQueryParam;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.server.domain.api.param.TableSelector;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
@@ -17,13 +13,7 @@ import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableCreateDdlQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableDeleteRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableDetailQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableModifySqlRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableUpdateDdlQueryRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
@@ -31,6 +21,7 @@ import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.Type;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +64,7 @@ public class TableController {
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-            request.getPageSize());
+                request.getPageSize());
     }
 
 
@@ -178,9 +169,23 @@ public class TableController {
     @GetMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid TableModifySqlRequest request) {
         return tableService.buildSql(
-                rdbWebConverter.tableRequest2param(request.getOldTable()),
-                rdbWebConverter.tableRequest2param(request.getNewTable()))
-            .map(rdbWebConverter::dto2vo);
+                        rdbWebConverter.tableRequest2param(request.getOldTable()),
+                        rdbWebConverter.tableRequest2param(request.getNewTable()))
+                .map(rdbWebConverter::dto2vo);
+    }
+
+
+    /**
+     * 获取修改表的sql语句
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/type_list")
+    public ListResult<Type> types(@Valid TypeQueryRequest request) {
+        TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        List<Type> types = tableService.queryTypes(typeQueryParam);
+        return ListResult.of(types);
     }
 
     /**
