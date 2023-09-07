@@ -172,4 +172,12 @@ public interface MetaData {
      * @return
      */
     Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,String procedureName);
+
+
+    /**
+     *
+     * @param connection
+     * @return
+     */
+    List<Type> types(Connection connection);
 }

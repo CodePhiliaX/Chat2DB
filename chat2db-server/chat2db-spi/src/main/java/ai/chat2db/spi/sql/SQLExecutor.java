@@ -91,12 +91,12 @@ public class SQLExecutor {
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-        Consumer<List<String>> rowConsumer) {
+                           Consumer<List<String>> rowConsumer) {
         executeSql(connection, sql, headerConsumer, rowConsumer, true);
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-        Consumer<List<String>> rowConsumer, boolean limitSize) {
+                           Consumer<List<String>> rowConsumer, boolean limitSize) {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement();) {
@@ -114,10 +114,10 @@ public class SQLExecutor {
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
-                            .build());
+                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                                .build());
                     }
                     headerConsumer.accept(headerList);
 
@@ -160,8 +160,8 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset,
-        Integer count)
-        throws SQLException {
+                                 Integer count)
+            throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
 
@@ -185,10 +185,10 @@ public class SQLExecutor {
                     executeResult.setHeaderList(headerList);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                            .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
-                            .build());
+                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                                .build());
                     }
 
                     // 获取数据信息
@@ -297,9 +297,9 @@ public class SQLExecutor {
      * @return
      */
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName,
-        String types[]) {
+                              String types[]) {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, tableName,
-            types)) {
+                types)) {
             return ResultSetUtils.toObjectList(resultSet, Table.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -317,9 +317,9 @@ public class SQLExecutor {
      * @return
      */
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName,
-        String columnName) {
+                                     String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
-            columnName)) {
+                columnName)) {
             return ResultSetUtils.toObjectList(resultSet, TableColumn.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -338,22 +338,22 @@ public class SQLExecutor {
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
-            false,
-            false)) {
+                false,
+                false)) {
             List<TableIndexColumn> tableIndexColumns = ResultSetUtils.toObjectList(resultSet, TableIndexColumn.class);
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
-                    Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
-                .stream().forEach(entry -> {
-                    TableIndex tableIndex = new TableIndex();
-                    TableIndexColumn column = entry.getValue().get(0);
-                    tableIndex.setName(entry.getKey());
-                    tableIndex.setTableName(column.getTableName());
-                    tableIndex.setSchemaName(column.getSchemaName());
-                    tableIndex.setDatabaseName(column.getDatabaseName());
-                    tableIndex.setUnique(!column.getNonUnique());
-                    tableIndex.setColumnList(entry.getValue());
-                    tableIndices.add(tableIndex);
-                });
+                            Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
+                    .stream().forEach(entry -> {
+                        TableIndex tableIndex = new TableIndex();
+                        TableIndexColumn column = entry.getValue().get(0);
+                        tableIndex.setName(entry.getKey());
+                        tableIndex.setTableName(column.getTableName());
+                        tableIndex.setSchemaName(column.getSchemaName());
+                        tableIndex.setDatabaseName(column.getDatabaseName());
+                        tableIndex.setUnique(!column.getNonUnique());
+                        tableIndex.setColumnList(entry.getValue());
+                        tableIndices.add(tableIndex);
+                    });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -369,9 +369,26 @@ public class SQLExecutor {
      * @return List<Function>
      */
     public List<ai.chat2db.spi.model.Function> functions(Connection connection, String databaseName,
-        String schemaName) {
+                                                         String schemaName) {
         try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, schemaName, null);) {
             return ResultSetUtils.toObjectList(resultSet, ai.chat2db.spi.model.Function.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Retrieves a description of all the data types supported by this database. They are ordered by DATA_TYPE and then by how closely the data type maps to the corresponding JDBC SQL type.
+     * If the database supports SQL distinct types, then getTypeInfo() will return a single row with a TYPE_NAME of DISTINCT and a DATA_TYPE of Types.DISTINCT. If the database supports SQL structured types, then getTypeInfo() will return a single row with a TYPE_NAME of STRUCT and a DATA_TYPE of Types.STRUCT.
+     * If SQL distinct or structured types are supported, then information on the individual types may be obtained from the getUDTs() method.
+     *
+     * @param connection connection
+     * @return List<Function>
+     */
+    public List<Type> types(Connection connection) {
+        try (ResultSet resultSet = connection.getMetaData().getTypeInfo();) {
+            return ResultSetUtils.toObjectList(resultSet, ai.chat2db.spi.model.Type.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

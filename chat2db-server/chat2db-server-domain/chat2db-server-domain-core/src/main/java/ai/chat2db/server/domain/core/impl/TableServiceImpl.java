@@ -6,12 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import ai.chat2db.server.domain.api.param.DropParam;
-import ai.chat2db.server.domain.api.param.PinTableParam;
-import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
-import ai.chat2db.server.domain.api.param.TablePageQueryParam;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.server.domain.api.param.TableSelector;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.PinService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.core.cache.CacheManage;
@@ -23,10 +18,7 @@ import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.Sql;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
@@ -152,5 +144,11 @@ public class TableServiceImpl implements TableService {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         return metaSchema.indexes(Chat2DBContext.getConnection(),param.getDatabaseName(), param.getSchemaName(), param.getTableName());
 
+    }
+
+    @Override
+    public List<Type> queryTypes(TypeQueryParam param) {
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        return metaSchema.types(Chat2DBContext.getConnection());
     }
 }
