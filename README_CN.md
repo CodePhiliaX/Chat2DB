@@ -113,6 +113,7 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 
 ### 使用自定义大模型
 - [参考这里部署本地ChatGLM-6B模型](https://github.com/chat2db/chat2db-chatglm-6b-deploy/blob/main/README_CN.md)
+- [参考这里部署本地sqlcoder模型](https://github.com/chat2db/chat2db-sqlcoder-deploy/blob/main/README_CN.md)
 
 ## 📦 Docker 部署
 
