@@ -9,7 +9,7 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
 import Tree from '../Tree';
-import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus, OperationType } from '@/constants';
+import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus, TabType } from '@/constants';
 import { IConsole, ITreeNode, ICreateConsole } from '@/typings';
 import styles from './index.less';
 import { approximateTreeNode, approximateList } from '@/utils';
@@ -70,7 +70,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      operationType: OperationType.CONSOLE
+      operationType: TabType.CONSOLE
     }
     historyService.saveConsole(params || p).then(res => {
       dispatch({
