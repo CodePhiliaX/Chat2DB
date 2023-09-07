@@ -2,21 +2,20 @@ import React, { memo, useRef, useEffect, useState } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType, operationTypeConfig, OperationType } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType, tabTypeConfig, TabType } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import Tabs, { IOption } from '@/components/Tabs';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
-import WorkspaceRightItem from '../WorkspaceRightItem';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
+import SQLExecute from '@/blocks/SQLExecute';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
 import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
-import Tree from 'antd/es/tree/Tree';
-import Iconfont from '@/components/Iconfont';
+import { v4 as uuidV4 } from 'uuid';
 
 interface IProps {
   className?: string;
@@ -25,12 +24,52 @@ interface IProps {
   dispatch: any;
 }
 
+export interface ITab {
+  id: number;
+  tabType: TabType;
+  icon: string;
+  [key: string]: any;
+}
+
 const WorkspaceRight = memo<IProps>(function (props) {
   const [activeConsoleId, setActiveConsoleId] = useState<number>();
   const { className, aiModel, workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, doubleClickTreeNodeData, openConsoleList, curConsoleId } = workspaceModel;
+  const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, curConsoleId } = workspaceModel;
   const openConsoleListRef = useRef(openConsoleList);
+  const [tabList, setTabList] = useState<ITab[]>([]);
 
+  useEffect(() => {
+    const newTabList = openConsoleList?.map(t => {
+      return {
+        ...t,
+        tabType: TabType.CONSOLE,
+        icon: tabTypeConfig[t.operationType]?.icon || tabTypeConfig.console.icon,
+      }
+    })
+    setTabList(newTabList || [])
+  }, [openConsoleList])
+
+  // 监听编辑表事件
+  useEffect(() => {
+    if (createTabIntro) {
+      const id: any = uuidV4();
+      setTabList([...tabList, {
+        id,
+        tabType: createTabIntro.tabType,
+        icon: tabTypeConfig[createTabIntro.tabType as TabType]?.icon,
+        name: `edit-${createTabIntro.treeNodeData.name}`,
+      }])
+      setActiveConsoleId(id);
+
+      // 用完之后就清掉createTabIntro
+      dispatch({
+        type: 'workspace/setCreateTabIntro',
+        payload: null,
+      })
+    }
+  }, [createTabIntro])
+
+  // 监听双击树节点事件 生成console
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
       return;
@@ -239,7 +278,6 @@ const WorkspaceRight = memo<IProps>(function (props) {
     }
   }, [openConsoleList]);
 
-
   function createConsole(params: {
     doubleClickTreeNodeData: any,
     name: string,
@@ -288,8 +326,8 @@ const WorkspaceRight = memo<IProps>(function (props) {
     });
   }
 
-  function onChange(key: number | string) {
-    setActiveConsoleId(+key);
+  function onChange(key: any) {
+    setActiveConsoleId(key);
   }
 
   const onEdit = (action: 'add' | 'remove', key?: number) => {
@@ -315,7 +353,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      operationType: OperationType.CONSOLE,
+      operationType: TabType.CONSOLE,
     };
     historyService.saveConsole(params?.newConsole || p).then((res) => {
       params?.callback?.(res);
@@ -403,7 +441,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
   return (
     <div className={classnames(styles.box, className)}>
-      <LoadingContent data={openConsoleList} handleEmpty empty={renderEmpty()}>
+      <LoadingContent data={tabList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
           <Tabs
             className={styles.tabs}
@@ -412,37 +450,41 @@ const WorkspaceRight = memo<IProps>(function (props) {
             editableName={true}
             editableNameOnBlur={editableNameOnBlur}
             activeTab={activeConsoleId}
-            tabs={(openConsoleList || [])?.map((t, i) => {
+            tabs={(tabList || [])?.map((t, i) => {
               return {
-                prefixIcon: operationTypeConfig[t.operationType]?.icon || operationTypeConfig.console.icon,
+                prefixIcon: t.icon,
                 label: t.name,
                 value: t.id,
               };
             })}
           />
         </div>
-        {openConsoleList?.map((t, index) => {
+        {tabList?.map((t, index) => {
           return (
             <div
               key={t.id}
               className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}
             >
-              <DatabaseTableEditor />
-              {/* <WorkspaceRightItem
-                isActive={activeConsoleId === t.id}
-                data={{
-                  initDDL: t.ddl,
-                  databaseName: curWorkspaceParams.databaseName!,
-                  dataSourceId: curWorkspaceParams.dataSourceId!,
-                  type: curWorkspaceParams.databaseType!,
-                  schemaName: curWorkspaceParams?.schemaName!,
-                  consoleId: t.id,
-                  consoleName: t.name,
-                }}
-                workspaceModel={workspaceModel}
-                aiModel={aiModel}
-                dispatch={dispatch}
-              /> */}
+              {
+                [TabType.CONSOLE, TabType.FUNCTION, TabType.PROCEDURE, TabType.TRIGGER, TabType.VIEW].includes(t.tabType) && <SQLExecute
+                  isActive={activeConsoleId === t.id}
+                  data={{
+                    initDDL: t.ddl,
+                    databaseName: curWorkspaceParams.databaseName!,
+                    dataSourceId: curWorkspaceParams.dataSourceId!,
+                    type: curWorkspaceParams.databaseType!,
+                    schemaName: curWorkspaceParams?.schemaName!,
+                    consoleId: t.id,
+                    consoleName: t.name,
+                  }}
+                  workspaceModel={workspaceModel}
+                  aiModel={aiModel}
+                  dispatch={dispatch}
+                />
+              }
+              {
+                t.tabType === TabType.EditTable && <DatabaseTableEditor />
+              }
             </div>
           );
         })}

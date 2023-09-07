@@ -33,33 +33,41 @@ export enum OSType {
   RESTS = 'rests',
 }
 
-export enum OperationType {
+export enum TabType {
   CONSOLE = 'console',
   FUNCTION = 'function',
   PROCEDURE = 'procedure',
   VIEW = 'view',
   TRIGGER = 'trigger',
+  EditTable = 'editTable',
+  OpenTable = 'openTable',
 }
 
-export const operationTypeConfig: {
-  [key in OperationType]: {
+export const tabTypeConfig: {
+  [key in TabType]: {
     icon: string
   };
 } = {
-  [OperationType.CONSOLE]: {
+  [TabType.CONSOLE]: {
     icon: '\uec83'
   },
-  [OperationType.VIEW]: {
+  [TabType.VIEW]: {
     icon: '\ue70c'
   },
-  [OperationType.FUNCTION]: {
+  [TabType.FUNCTION]: {
     icon: '\ue76a'
   },
-  [OperationType.PROCEDURE]: {
+  [TabType.PROCEDURE]: {
     icon: '\ue73c'
   },
-
-  [OperationType.TRIGGER]: {
+  [TabType.TRIGGER]: {
     icon: '\ue64a'
+  },
+  [TabType.EditTable]: {
+    icon: '\ue6b6'
+  },
+  [TabType.OpenTable]: {
+    icon: '\ue618'
   }
 }
+
