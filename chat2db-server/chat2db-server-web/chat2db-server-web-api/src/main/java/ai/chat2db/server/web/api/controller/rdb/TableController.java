@@ -176,7 +176,7 @@ public class TableController {
 
 
     /**
-     * 获取修改表的sql语句
+     * 数据库支持的数据类型
      *
      * @param request
      * @return
