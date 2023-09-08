@@ -39,7 +39,7 @@ public class OpenAIClient {
      */
     public static final String PROXY_PORT = "chatgpt.proxy.port";
 
-    private static OpenAiStreamClient OPEN_AI_STREAM_CLIENT;
+    private static volatile OpenAiStreamClient OPEN_AI_STREAM_CLIENT;
     private static String apiKey;
 
     public static OpenAiStreamClient getInstance() {
