@@ -1,9 +1,21 @@
-# 2.0.14
+# 2.1.0
+
+## ⭐ New Features
+
+- 🔥The team function is newly launched, supporting team collaboration. R&D does not require knowing the online database
+  password, solving the security issue of enterprise database accounts. It is recommended to directly deploy the team
+  function using 'docker'
+- Added support for environment selection, better distinguishing between online and daily
 
 ## 🐞 Bug Fixes
 
 - Fix the issue of 'Oracle' query 'Blob' reporting errors
 - Modify the paging logic and fix some SQL queries that cannot be queried
+
+## ⭐ 新特性
+
+- 🔥团队功能全新上线，支持团队协作，研发无需知道线上数据库密码，解决企业数据库账号安全问题,团队功能建议直接使用 `docker` 部署
+- 新增支持环境选择，更好的区分线上、日常环境
 
 ## 🐞 问题修复
 
@@ -12,22 +24,17 @@
 
 # 2.0.13
 
-## ⭐ New Features
-
 ## 🐞 Bug Fixes
-- Fixed a bug where sql formatting was not selected 
-- Fixed open view lag issue 
+
+- Fixed a bug where sql formatting was not selected
+- Fixed open view lag issue
 - Solve the white screen problem of connected non-relational databases (non-relational databases are not supported)
 
-## ⭐ 新特性
-
-
-
 ## 🐞 问题修复
+
 - 修复不选中sql格式化的bug
 - 修复打开视图卡顿问题
 - 解决已连接的非关系型数据库打开白屏问题（暂不支持非关系性数据库）
-
 
 # 2.0.12
 
