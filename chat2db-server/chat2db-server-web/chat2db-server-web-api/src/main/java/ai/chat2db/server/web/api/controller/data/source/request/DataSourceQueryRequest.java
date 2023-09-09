@@ -1,7 +1,6 @@
 package ai.chat2db.server.web.api.controller.data.source.request;
 
 import ai.chat2db.server.tools.base.wrapper.request.PageQueryRequest;
-
 import lombok.Data;
 
 /**
