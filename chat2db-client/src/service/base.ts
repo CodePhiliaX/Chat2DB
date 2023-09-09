@@ -101,8 +101,8 @@ request.interceptors.request.use((url, options) => {
       ...options.headers,
     },
   };
-  if (localStorage.getItem('DBHUB')) {
-    myOptions.headers.DBHUB = localStorage.getItem('DBHUB');
+  if (localStorage.getItem('Chat2db')) {
+    myOptions.headers.Chat2db = localStorage.getItem('Chat2db');
   }
   return {
     options: myOptions,
@@ -112,9 +112,9 @@ request.interceptors.request.use((url, options) => {
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
   if (__ENV__ === 'desktop') {
-    const DBHUB = response.headers.get('DBHUB') || '';
-    if (DBHUB) {
-      localStorage.setItem('DBHUB', DBHUB);
+    const Chat2db = response.headers.get('Chat2db') || '';
+    if (Chat2db) {
+      localStorage.setItem('Chat2db', Chat2db);
     }
   }
   const { errorCode, codeMessage } = res;
