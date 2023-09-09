@@ -3,6 +3,7 @@ package ai.chat2db.server.domain.core.impl;
 import java.util.List;
 import java.util.Objects;
 
+import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.param.user.UserCreateParam;
@@ -11,8 +12,12 @@ import ai.chat2db.server.domain.api.param.user.UserSelector;
 import ai.chat2db.server.domain.api.param.user.UserUpdateParam;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.UserConverter;
+import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.DbhubUserDO;
+import ai.chat2db.server.domain.repository.entity.TeamUserDO;
+import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.domain.repository.mapper.DbhubUserMapper;
+import ai.chat2db.server.domain.repository.mapper.TeamUserMapper;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -45,6 +50,10 @@ public class UserServiceImpl implements UserService {
     private DbhubUserMapper dbhubUserMapper;
     @Resource
     private UserConverter userConverter;
+    @Resource
+    private TeamUserMapper teamUserMapper;
+    @Resource
+    private DataSourceAccessMapper dataSourceAccessMapper;
 
     @Override
     public DataResult<User> query(Long id) {
@@ -126,6 +135,16 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException("user.canNotOperateSystemAccount");
         }
         dbhubUserMapper.deleteById(id);
+
+        LambdaQueryWrapper<TeamUserDO> teamUserQueryWrapper = new LambdaQueryWrapper<>();
+        teamUserQueryWrapper.eq(TeamUserDO::getUserId, id);
+        teamUserMapper.delete(teamUserQueryWrapper);
+
+        LambdaQueryWrapper<DataSourceAccessDO>  dataSourceAccessQueryWrapper = new LambdaQueryWrapper<>();
+        dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getAccessObjectId, id)
+            .eq(DataSourceAccessDO::getAccessObjectType, AccessObjectTypeEnum.USER.getCode())
+        ;
+        dataSourceAccessMapper.delete(dataSourceAccessQueryWrapper);
         return ActionResult.isSuccess();
     }
 

@@ -18,7 +18,9 @@ import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.core.converter.EnvironmentConverter;
 import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -75,6 +77,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceCustomMapper dataSourceCustomMapper;
     @Resource
     private EnvironmentConverter environmentConverter;
+    @Resource
+    private DataSourceAccessMapper dataSourceAccessMapper;
 
     @Override
     public DataResult<Long> createWithPermission(DataSourceCreateParam param) {
@@ -134,6 +138,11 @@ public class DataSourceServiceImpl implements DataSourceService {
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         dataSourceMapper.deleteById(id);
+
+        LambdaQueryWrapper<DataSourceAccessDO> dataSourceAccessQueryWrapper = new LambdaQueryWrapper<>();
+        dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getDataSourceId, id)
+        ;
+        dataSourceAccessMapper.delete(dataSourceAccessQueryWrapper);
         return ActionResult.isSuccess();
     }
 

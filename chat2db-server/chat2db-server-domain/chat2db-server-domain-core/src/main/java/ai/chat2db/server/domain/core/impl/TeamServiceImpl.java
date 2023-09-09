@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.core.impl;
 
 import java.util.List;
 
+import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.Team;
 import ai.chat2db.server.domain.api.param.team.TeamCreateParam;
@@ -11,8 +12,12 @@ import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.core.converter.TeamConverter;
 import ai.chat2db.server.domain.core.converter.UserConverter;
+import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.TeamDO;
+import ai.chat2db.server.domain.repository.entity.TeamUserDO;
+import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.domain.repository.mapper.TeamMapper;
+import ai.chat2db.server.domain.repository.mapper.TeamUserMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -43,6 +48,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Resource
     private TeamMapper teamMapper;
+    @Resource
+    private TeamUserMapper teamUserMapper;
+    @Resource
+    private DataSourceAccessMapper dataSourceAccessMapper;
     @Resource
     private TeamConverter teamConverter;
     @Resource
@@ -108,6 +117,16 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public ActionResult delete(Long id) {
         teamMapper.deleteById(id);
+
+        LambdaQueryWrapper<TeamUserDO> teamUserQueryWrapper = new LambdaQueryWrapper<>();
+        teamUserQueryWrapper.eq(TeamUserDO::getTeamId, id);
+        teamUserMapper.delete(teamUserQueryWrapper);
+
+        LambdaQueryWrapper<DataSourceAccessDO>  dataSourceAccessQueryWrapper = new LambdaQueryWrapper<>();
+        dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getAccessObjectId, id)
+            .eq(DataSourceAccessDO::getAccessObjectType, AccessObjectTypeEnum.TEAM.getCode())
+        ;
+        dataSourceAccessMapper.delete(dataSourceAccessQueryWrapper);
         return ActionResult.isSuccess();
     }
 
