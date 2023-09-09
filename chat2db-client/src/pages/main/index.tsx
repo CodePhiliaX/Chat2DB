@@ -19,6 +19,7 @@ import { ILoginUser } from '@/typings/user';
 import { Dropdown } from 'antd';
 import Team from './team';
 import i18n from '@/i18n';
+import { useNavigate } from 'react-router-dom';
 
 let navConfig: INavItem[] = [
   {
@@ -63,6 +64,7 @@ interface IProps {
 }
 
 function MainPage(props: IProps) {
+  const navigate = useNavigate();
   const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
@@ -73,7 +75,8 @@ function MainPage(props: IProps) {
     getUser().then((res) => {
       if (res) {
         setUserInfo(res);
-        if (res.admin) {
+        const hasTeamIcon = navConfig.find((i) => i.key === 'team')
+        if (res.admin && !hasTeamIcon) {
           navConfig.splice(3, 0, {
             key: 'team',
             icon: '\ue64b',
@@ -83,6 +86,12 @@ function MainPage(props: IProps) {
           });
           if (localStorage.getItem('curPage') === 'team') {
             setActiveNav(navConfig[3]);
+          }
+        }
+        if(!res.admin && hasTeamIcon){
+          navConfig.splice(3, 1);
+          if (localStorage.getItem('curPage') === 'team') {
+            setActiveNav(navConfig[2]);
           }
         }
       }
@@ -134,7 +143,7 @@ function MainPage(props: IProps) {
   const handleLogout = () => {
     userLogout().then((res) => {
       setUserInfo(undefined);
-      window.location.href = '/#/login';
+      navigate('/login');
     });
   };
 
