@@ -37,6 +37,13 @@ public class Application {
     public static void main(String[] args) {
         String currentVersion = ConfigUtils.getLocalVersion();
         ConfigJson configJson = ConfigUtils.getConfig();
+
+        // The unique ID of the entire system will not change after multiple starts
+        if (StringUtils.isBlank(configJson.getSystemUuid())) {
+            configJson.setSystemUuid(UUID.fastUUID().toString(true));
+            ConfigUtils.setConfig(configJson);
+        }
+
         // Represents that the current version has been successfully launched
         if (StringUtils.isNotBlank(currentVersion) && StringUtils.equals(currentVersion,
             configJson.getLatestStartupSuccessVersion())) {

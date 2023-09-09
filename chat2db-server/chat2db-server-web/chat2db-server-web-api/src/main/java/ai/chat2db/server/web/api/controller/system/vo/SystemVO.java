@@ -1,4 +1,4 @@
-package ai.chat2db.server.tools.common.model;
+package ai.chat2db.server.web.api.controller.system.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Configuration information for chat2db
+ * system
  *
  * @author Jiaju Zhuang
  */
@@ -14,18 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConfigJson {
-
-    /**
-     * Last successfully launched version
-     */
-    private String latestStartupSuccessVersion;
-
-    /**
-     * jwt
-     */
-    private String jwtSecretKey;
-
+public class SystemVO {
     /**
      * The unique ID of the  system
      */
