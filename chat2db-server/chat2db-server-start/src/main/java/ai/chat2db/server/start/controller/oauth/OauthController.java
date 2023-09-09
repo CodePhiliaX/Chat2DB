@@ -1,6 +1,7 @@
 package ai.chat2db.server.start.controller.oauth;
 
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
+import ai.chat2db.server.domain.api.enums.ValidStatusEnum;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.model.User;
@@ -49,6 +50,9 @@ public class OauthController {
         User user = userService.query(request.getUserName()).getData();
         if (user == null) {
             throw new BusinessException("oauth.userNameNotExits");
+        }
+        if (!ValidStatusEnum.VALID.getCode().equals(user.getStatus())) {
+            throw new BusinessException("oauth.invalidUserName");
         }
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
             throw new BusinessException("oauth.IllegalUserName");
