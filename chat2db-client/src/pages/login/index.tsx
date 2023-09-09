@@ -7,6 +7,7 @@ import styles from './index.less';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import i18n from '@/i18n';
+import { useNavigate } from 'react-router-dom';
 
 interface IFormData {
   userName: string;
@@ -14,10 +15,11 @@ interface IFormData {
 }
 
 const App: React.FC = () => {
+  const navigate = useNavigate();
   const handleLogin = async (formData: { userName: string; password: string }) => {
     let res = await userLogin(formData);
     if (res) {
-      window.location.href = location.origin;
+      navigate('/');
     }
   };
 

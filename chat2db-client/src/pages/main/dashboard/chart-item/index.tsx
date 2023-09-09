@@ -19,7 +19,7 @@ import i18n from '@/i18n';
 import { useTheme } from '@/hooks';
 import { EditorThemeType, ThemeType } from '@/constants';
 import { IRemainingUse } from '@/typings/ai';
-import _ from 'lodash';
+import { isValid } from '@/utils/check';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -136,7 +136,7 @@ function ChartItem(props: IChartItemProps) {
 
   const handleExecuteSQL = async (sql: string, chartData: IChartItem) => {
     const { dataSourceId, databaseName } = chartData;
-    if (_.isEmpty(dataSourceId)) {
+    if (!isValid(dataSourceId)) {
       message.success(i18n('dashboard.editor.execute.noDataSource'));
       return;
     }
