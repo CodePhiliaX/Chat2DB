@@ -1,7 +1,8 @@
 package ai.chat2db.server.domain.core.impl;
 
 import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
-import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
+import ai.chat2db.server.domain.api.enums.DataSourceKindEnum;
+import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.service.DataSourceAccessBusinessService;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
@@ -11,6 +12,7 @@ import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessExceptio
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +31,11 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
     private DataSourceAccessCustomMapper dataSourceAccessCustomMapper;
 
     @Override
-    public ActionResult checkPermission(Long dataSourceId) {
+    public ActionResult checkPermission(@NotNull DataSource dataSource) {
         LoginUser loginUser = ContextUtils.getLoginUser();
-        // Representative is desktop mode
-        if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(loginUser.getId())) {
-            if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(dataSourceId)) {
+        // private
+        if (DataSourceKindEnum.PRIVATE.getCode().equals(dataSource.getKind())) {
+            if (loginUser.getId().equals(dataSource.getUserId())) {
                 return ActionResult.isSuccess();
             } else {
                 throw new PermissionDeniedBusinessException();
@@ -47,7 +49,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
 
         // Verify if user have permission
         DataSourceAccessPageQueryParam dataSourceAccessPageQueryParam = new DataSourceAccessPageQueryParam();
-        dataSourceAccessPageQueryParam.setDataSourceId(dataSourceId);
+        dataSourceAccessPageQueryParam.setDataSourceId(dataSource.getId());
         dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.USER.getCode());
         dataSourceAccessPageQueryParam.setAccessObjectId(loginUser.getId());
         dataSourceAccessPageQueryParam.queryOne();
@@ -56,7 +58,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         }
 
         // Verify if the team has permission
-        if (dataSourceAccessCustomMapper.checkTeamPermission(dataSourceId, loginUser.getId()) != null) {
+        if (dataSourceAccessCustomMapper.checkTeamPermission(dataSource.getId(), loginUser.getId()) != null) {
             return ActionResult.isSuccess();
 
         }
