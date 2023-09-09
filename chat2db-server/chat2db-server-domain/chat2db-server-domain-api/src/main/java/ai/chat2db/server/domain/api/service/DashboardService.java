@@ -45,6 +45,7 @@ public interface DashboardService {
      * 查询一条数据
      *
      * @param param
+     * @param selector
      * @return
      */
     DataResult<Dashboard> queryExistent(@NotNull DashboardQueryParam param);

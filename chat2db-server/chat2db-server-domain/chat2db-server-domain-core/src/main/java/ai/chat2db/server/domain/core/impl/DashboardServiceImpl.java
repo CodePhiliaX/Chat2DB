@@ -102,7 +102,14 @@ public class DashboardServiceImpl implements DashboardService {
         if (CollectionUtils.isEmpty(page.getRecords())) {
             throw new DataNotFoundException();
         }
-        return DataResult.of(dashboardConverter.do2model(page.getRecords().get(0)));
+        Dashboard data = dashboardConverter.do2model(page.getRecords().get(0));
+        LambdaQueryWrapper<DashboardChartRelationDO> dashboardChartRelationQueryWrapper = new LambdaQueryWrapper<>();
+        dashboardChartRelationQueryWrapper.eq(DashboardChartRelationDO::getDashboardId, param.getId());
+        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(
+            dashboardChartRelationQueryWrapper);
+        List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
+        data.setChartIds(chartIds);
+        return DataResult.of(data);
     }
 
     @Override
