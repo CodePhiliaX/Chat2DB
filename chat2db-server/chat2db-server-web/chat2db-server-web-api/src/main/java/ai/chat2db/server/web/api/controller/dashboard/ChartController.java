@@ -14,6 +14,7 @@ import ai.chat2db.server.web.api.controller.dashboard.request.ChartCreateRequest
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartQueryRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartUpdateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.vo.ChartVO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,7 +79,7 @@ public class ChartController {
      * @return
      */
     @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody ChartCreateRequest request) {
+    public DataResult<Long> create(@Valid @RequestBody ChartCreateRequest request) {
         ChartCreateParam chartCreateParam = chartWebConverter.req2param(request);
         return chartService.createWithPermission(chartCreateParam);
     }

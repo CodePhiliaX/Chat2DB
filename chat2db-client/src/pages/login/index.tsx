@@ -17,7 +17,7 @@ const App: React.FC = () => {
   const handleLogin = async (formData: { userName: string; password: string }) => {
     let res = await userLogin(formData);
     if (res) {
-      window.location.href = '/';
+      window.location.href = location.origin;
     }
   };
 

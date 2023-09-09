@@ -92,6 +92,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                             return null;
                         }
                         if (!ValidStatusEnum.VALID.getCode().equals(user.getStatus())) {
+                            StpUtil.logout();
                             throw new BusinessException("oauth.invalidUserName");
                         }
                         boolean admin = RoleCodeEnum.ADMIN.getCode().equals(user.getRoleCode());

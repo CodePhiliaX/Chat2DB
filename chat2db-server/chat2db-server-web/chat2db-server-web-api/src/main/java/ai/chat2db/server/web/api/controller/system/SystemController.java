@@ -2,18 +2,19 @@
  * Alipay.com Inc.
  * Copyright (c) 2004-2022 All Rights Reserved.
  */
-package ai.chat2db.server.web.api.controller;
+package ai.chat2db.server.web.api.controller.system;
 
 import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
-import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.server.tools.common.model.ConfigJson;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
+import ai.chat2db.server.web.api.controller.system.vo.SystemVO;
 import ai.chat2db.spi.ssh.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,8 +40,11 @@ public class SystemController {
      * @return
      */
     @GetMapping
-    public DataResult<String> get() {
-        return DataResult.of("success");
+    public DataResult<SystemVO> get() {
+        ConfigJson configJson = ConfigUtils.getConfig();
+        return DataResult.of(SystemVO.builder()
+            .systemUuid(configJson.getSystemUuid())
+            .build());
     }
 
     /**
