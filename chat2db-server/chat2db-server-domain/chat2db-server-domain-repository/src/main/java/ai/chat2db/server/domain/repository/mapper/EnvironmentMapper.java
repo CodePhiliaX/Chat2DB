@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author chat2db
- * @since 2023-08-26
+ * @since 2023-09-09
  */
 public interface EnvironmentMapper extends BaseMapper<EnvironmentDO> {
 

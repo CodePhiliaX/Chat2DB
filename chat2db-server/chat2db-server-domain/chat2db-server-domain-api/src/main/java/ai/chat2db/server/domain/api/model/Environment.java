@@ -3,7 +3,6 @@ package ai.chat2db.server.domain.api.model;
 import java.io.Serial;
 import java.io.Serializable;
 
-import ai.chat2db.server.domain.api.enums.EnvironmentStyleEnum;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,9 +39,7 @@ public class Environment implements Serializable {
     private String shortName;
 
     /**
-     * 样式类型
-     *
-     * @see EnvironmentStyleEnum
+     * 颜色
      */
-    private String style;
+    private String color;
 }

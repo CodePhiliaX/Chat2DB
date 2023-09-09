@@ -7,18 +7,18 @@ CREATE TABLE IF NOT EXISTS `environment`
     `modified_user_id` bigint(20) unsigned NOT NULL COMMENT '修改人用户id',
     `name`             varchar(128)                 DEFAULT NOT NULL COMMENT '环境名称',
     `short_name`       varchar(128)                 DEFAULT NULL COMMENT '环境缩写',
-    `style`            varchar(32)                  DEFAULT NULL COMMENT '样式类型',
+    `color`            varchar(32)                  DEFAULT NULL COMMENT '颜色',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='数据库连接环境'
 ;
 
 INSERT INTO `environment`
-(`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `style`)
-VALUES (1, 1, 1, 'Release Environment', 'RELEASE', 'RELEASE');
+(`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `color`)
+VALUES (1, 1, 1, 'Release Environment', 'RELEASE', 'RED');
 INSERT INTO `environment`
-(`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `style`)
-VALUES (2, 1, 1, 'Test Environment', 'TEST', 'TEST');
+(`id`, `create_user_id`, `modified_user_id`, `name`, `short_name`, `color`)
+VALUES (2, 1, 1, 'Test Environment', 'TEST', 'GREEN');
 
 ALTER TABLE `data_source`
     ADD COLUMN `environment_id` bigint(20) unsigned NOT NULL DEFAULT 2 COMMENT '环境id';

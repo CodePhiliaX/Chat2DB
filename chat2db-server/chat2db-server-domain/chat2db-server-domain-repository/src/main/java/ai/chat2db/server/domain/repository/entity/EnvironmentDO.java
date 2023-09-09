@@ -14,7 +14,7 @@ import lombok.Setter;
  * </p>
  *
  * @author chat2db
- * @since 2023-08-26
+ * @since 2023-09-09
  */
 @Getter
 @Setter
@@ -60,7 +60,7 @@ public class EnvironmentDO implements Serializable {
     private String shortName;
 
     /**
-     * 样式类型
+     * 颜色
      */
-    private String style;
+    private String color;
 }
