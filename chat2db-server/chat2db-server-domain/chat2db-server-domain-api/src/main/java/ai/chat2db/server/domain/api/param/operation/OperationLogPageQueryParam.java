@@ -13,6 +13,11 @@ import lombok.Data;
 public class OperationLogPageQueryParam extends PageQueryParam {
 
     /**
+     * 用户id
+     */
+    private Long userId;
+
+    /**
      * 搜索关键词
      */
     private String searchKey;
