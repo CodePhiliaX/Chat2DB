@@ -70,8 +70,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
       getDatabaseList(isRefresh);
       setIsRefresh(false);
     }
-     // connectionList转换成可用的ConnectionOptions
-     setConnectionOptions(connectionList?.map(t => {
+    // connectionList转换成可用的ConnectionOptions
+    setConnectionOptions(connectionList?.map(t => {
       return {
         value: t.id,
         label: t.alias,
@@ -232,7 +232,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           >
             <div className={styles.crumbsItem}>
               <div className={styles.connectionTag}>
-                {curConnection?.id && <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>{curConnection?.environment?.shortName}</Tag>}
+                {(curConnection?.id && curConnection?.environment?.shortName) && <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>{curConnection?.environment?.shortName}</Tag>}
               </div>
               <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
             </div>
