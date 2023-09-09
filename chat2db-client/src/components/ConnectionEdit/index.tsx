@@ -61,7 +61,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
     setEnvList(connectionEnvList?.map(t => {
       return {
         value: t.id,
-        label: t.name
+        label: t.shortName
       }
     }));
   }, [connectionEnvList]);
@@ -193,6 +193,11 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
 
     if (type !== submitType.SAVE) {
       p.id = backfillData.id;
+    }
+
+    // TODO: 如果用户没选环境,默认选第一个。这里应该直接默认给用户选上的，但是动态表单现在有点问题，后续解决
+    if(!p.environmentId){
+      p.environmentId = envList[0].value
     }
 
     if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
