@@ -81,7 +81,9 @@ function MainPage(props: IProps) {
             isLoad: false,
             component: <Team />,
           });
-          setActiveNav(navConfig[3]);
+          if (localStorage.getItem('curPage') === 'team') {
+            setActiveNav(navConfig[3]);
+          }
         }
       }
     });
