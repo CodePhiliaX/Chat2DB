@@ -163,7 +163,7 @@ function AppContainer() {
           {startSchedule === 1 && (
             <>
               <div className={styles.loadingBox}>
-                <Spin spinning={!serviceFail} />
+                <Spin spinning={!serviceFail} size='large' />
                 {/* <div className={styles.hint}>
                     <Setting />
                   </div> */}

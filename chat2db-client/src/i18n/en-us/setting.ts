@@ -33,4 +33,5 @@ export default {
   'setting.placeholder.azureEndpoint': 'Get Azure OpenAI endpoint from the Azure Portal',
   'setting.placeholder.azureDeployment': 'Deployment id of the deployed model',
   'setting.ai.tips': 'Please log in and select AI configuration',
+  'setting.ai.user.hidden': 'Please contact the administrator to set ApiKey in "Settings ->Custom Ai"',
 };
