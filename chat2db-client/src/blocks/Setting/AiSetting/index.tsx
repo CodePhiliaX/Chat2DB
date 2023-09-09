@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import configService from '@/service/config';
 import { AiSqlSourceType } from '@/typings/ai';
-import { Button, Input, Radio } from 'antd';
+import { Alert, Button, Input, Radio, RadioChangeEvent } from 'antd';
 import i18n from '@/i18n';
 import classnames from 'classnames';
 import { IAiConfig } from '@/typings/setting';
 import styles from './index.less';
-import Popularize from '@/components/Popularize';
+
 interface IProps {
   handleApplyAiConfig: (aiConfig: IAiConfig) => void;
   aiConfig: IAiConfig;
@@ -17,14 +17,14 @@ export default function SettingAI(props: IProps) {
   const [aiConfig, setAiConfig] = useState<IAiConfig>(props?.aiConfig);
 
   if (!aiConfig) {
-    return null;
+    return <Alert description={i18n('setting.ai.tips')} type="warning" showIcon />;
   }
 
   useEffect(() => {
     setAiConfig(props.aiConfig);
   }, [props.aiConfig]);
 
-  const handleAiTypeChange = async (e) => {
+  const handleAiTypeChange = async (e: RadioChangeEvent) => {
     const aiSqlSource = e.target.value;
 
     // 查询对应ai类型的配置
