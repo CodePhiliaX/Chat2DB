@@ -1,6 +1,5 @@
 package ai.chat2db.server.web.api.controller.dashboard.request;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
@@ -25,13 +24,11 @@ public class ChartCreateRequest {
     /**
      * 图表信息
      */
-    @NotNull
     private String schema;
 
     /**
      * 数据源连接ID
      */
-    @NotNull
     private Long dataSourceId;
 
     /**
