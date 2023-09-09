@@ -7,7 +7,7 @@ import RefreshLoadingButton from '@/components/RefreshLoadingButton';
 import connectionService from '@/service/connection';
 import { DatabaseTypeCode, databaseMap, databaseTypeList, ConnectionKind } from '@/constants';
 import { IDatabase, IConnectionDetails, IConnectionEnv } from '@/typings';
-import { Button, Dropdown, Modal } from 'antd';
+import { Button, Dropdown, Modal, Tag } from 'antd';
 import styles from './index.less';
 import { connect, history, Dispatch } from 'umi';
 import { IConnectionModelType } from '@/models/connection';
@@ -162,7 +162,8 @@ function Connections(props: IProps) {
                     >
                       <div className={classnames(styles.menuItemsTitle)}>
                         {icon}
-                        <span style={{ marginLeft: '8px' }}>{label}</span>
+                        <Tag className={styles.envTag} color={t.env.color.toLocaleLowerCase()}>{t.env.shortName}</Tag>
+                        <span>{label}</span>
                       </div>
                       <Dropdown
                         menu={{

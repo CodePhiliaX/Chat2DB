@@ -61,7 +61,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
     setEnvList(connectionEnvList?.map(t => {
       return {
         value: t.id,
-        label: t.shortName
+        label: t.name
       }
     }));
   }, [connectionEnvList]);

@@ -6,6 +6,11 @@ const checkVersion = createRequest<void, IVersionResponse>('/api/client/version/
   outside: true,
 });
 
+const dynamicUrl = createRequest<string, void>('', {
+  dynamicUrl: true,
+});
+
 export default {
+  dynamicUrl,
   checkVersion,
 };
