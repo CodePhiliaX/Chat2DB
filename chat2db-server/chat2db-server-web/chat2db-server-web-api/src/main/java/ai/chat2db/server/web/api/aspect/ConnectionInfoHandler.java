@@ -72,7 +72,7 @@ public class ConnectionInfoHandler {
         }
 
         // Verify permissions
-        dataSourceAccessBusinessService.checkPermission(dataSourceId);
+        dataSourceAccessBusinessService.checkPermission(dataSource);
 
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setAlias(dataSource.getAlias());

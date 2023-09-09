@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.api.service;
 
+import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import jakarta.validation.constraints.NotNull;
 
@@ -12,8 +13,8 @@ public interface DataSourceAccessBusinessService {
     /**
      * delete
      *
-     * @param dataSourceId
+     * @param dataSource
      * @return
      */
-    ActionResult checkPermission(@NotNull Long dataSourceId);
+    ActionResult checkPermission(@NotNull DataSource dataSource);
 }
