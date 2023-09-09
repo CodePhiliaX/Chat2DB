@@ -1,15 +1,22 @@
 @import '../../../../../styles/var.less';
 
 .workspaceHeader{
-  flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding-left: 10px;
+  flex-shrink: 0;
   font-size: 14px;
   background-color: var(--color-bg-elevated);
   border-bottom: 1px solid var(--color-border-secondary);
   font-weight: bold;
+  height: 36px;
+}
 
+.changeBox{
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
 .refreshBox{
@@ -38,22 +45,25 @@
 .crumbsItem{
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 26px;
   cursor: pointer;
+  padding: 0px 6px;
+  border-radius: 6px;
 
   &:hover{
     color: var(--color-primary);
+    background-color: var(--color-hover-bg);
   }
 
   .typeIcon{
     margin-right: 6px;
   }
-  
-  .arrow{
-    font-size: 10px;
-    margin: 0px 10px;
-    transform: translateY(1px);
-  }
+}
+
+.arrow{
+  font-size: 10px;
+  margin: 0px 4px;
+  transform: translateY(1px);
 }
 
 .refreshIcon{
