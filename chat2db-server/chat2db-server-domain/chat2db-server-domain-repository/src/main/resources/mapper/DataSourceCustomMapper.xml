@@ -7,39 +7,32 @@
         from DATA_SOURCE ds
         <where>
             <choose>
-                <when test="admin == true">
-                    and ds.USER_ID != 1
+                <when test="kind == 'PRIVATE'">
+                    and ds.USER_ID = #{userId}
                 </when>
                 <otherwise>
-                    <choose>
-                        <when test="userId == 1">
-                            and ds.USER_ID = #{userId}
-                        </when>
-                        <otherwise>
-                            and (ds.USER_ID = #{userId}
-                            or exists(
-                            select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER'
-                            and dsa.ACCESS_OBJECT_ID = #{userId}
-                            and dsa.DATA_SOURCE_ID = ds.ID
-                            )
-                            or exists (
-                            select 1
-                            from DATA_SOURCE_ACCESS dsa
-                            LEFT JOIN TEAM_USER tu on tu.ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
-                            left join TEAM t on t.id = tu.TEAM_ID
-                            where tu.USER_ID = #{userId}
-                            and dsa.DATA_SOURCE_ID = ds.ID
-                            and t.STATUS = 'VALID'
-                            )
-                            )
-                        </otherwise>
-                    </choose>
+                    and (ds.USER_ID = #{userId}
+                    or exists(
+                    select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER'
+                    and dsa.ACCESS_OBJECT_ID = #{userId}
+                    and dsa.DATA_SOURCE_ID = ds.ID
+                    )
+                    or exists (
+                    select 1
+                    from DATA_SOURCE_ACCESS dsa
+                    LEFT JOIN TEAM_USER tu on tu.ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
+                    left join TEAM t on t.id = tu.TEAM_ID
+                    where tu.USER_ID = #{userId}
+                    and dsa.DATA_SOURCE_ID = ds.ID
+                    and t.STATUS = 'VALID'
+                    )
+                    )
                 </otherwise>
             </choose>
             <if test="searchKey != '' and searchKey != null ">
                 and (ds.alias like concat('%',#{searchKey},'%') or ds.url like concat('%',#{searchKey},'%'))
             </if>
-            <if test="kind != null ">
+            <if test="kind != null">
                 and ds.kind = #{kind}
             </if>
             <if test="orderBy != null ">
