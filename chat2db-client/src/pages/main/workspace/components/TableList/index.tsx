@@ -35,7 +35,6 @@ const dvaModel = connect(
   ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
     databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
@@ -59,7 +58,7 @@ const TableList = dvaModel(function (props: any) {
   useEffect(() => {
     setCurList([]);
     if (isReady) {
-      setCurType({...optionsList[0]});
+      setCurType({ ...optionsList[0] });
     }
   }, [curWorkspaceParams]);
 
@@ -88,6 +87,8 @@ const TableList = dvaModel(function (props: any) {
           payload: res,
         })
       }
+    }).catch(() => {
+      setTableLoading(false);
     })
   }
 
