@@ -1,10 +1,12 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { Table, InputNumber, Input, Form, Select, Checkbox, Button } from 'antd';
+import { v4 as uuidv4 } from 'uuid';
 import {
   arrayMove,
   SortableContext,
@@ -12,58 +14,16 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Table, InputNumber, Input, Form, Select, Checkbox, Button } from 'antd';
-import { v4 as uuidv4 } from 'uuid'
-
-interface IProps {
-  className?: string;
-}
-
-// 数据库字段类型 枚举
-enum DatabaseFieldType {
-  // 数字
-  Number = 'number',
-  // 字符串
-  String = 'string',
-  // 日期
-  Date = 'date',
-  // 布尔
-  Boolean = 'boolean',
-  // 二进制
-  Binary = 'binary',
-  // 对象
-  Object = 'object',
-}
-
-const databaseFieldTypeList = [DatabaseFieldType['Number'], DatabaseFieldType['String'], DatabaseFieldType['Date'], DatabaseFieldType['Boolean'], DatabaseFieldType['Binary'], DatabaseFieldType['Object']]
+import sqlService from '@/service/sql';
+import { Context } from '../index'
 
 interface Item {
   key: string;
   columnName: string;
   length: number | null;
-  fieldType: DatabaseFieldType;
+  fieldType: string | null;
+  nullable: boolean;
 }
-
-const mockData: Item[] = [
-  {
-    key: uuidv4(),
-    columnName: 'John Brown',
-    length: 32,
-    fieldType: DatabaseFieldType.Binary,
-  },
-  {
-    key: uuidv4(),
-    columnName: 'Jim Green',
-    length: 42,
-    fieldType: DatabaseFieldType.Number,
-  },
-  {
-    key: uuidv4(),
-    columnName: 'Joe Black',
-    length: 32,
-    fieldType: DatabaseFieldType.String,
-  },
-]
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
@@ -109,10 +69,12 @@ const Row = ({ children, ...props }: RowProps) => {
   );
 };
 
-const ColumnList: React.FC = () => {
-  const [dataSource, setDataSource] = useState<Item[]>(mockData);
+const ColumnList = memo(() => {
+  const { dataSourceId, databaseName, tableDetails } = useContext(Context);
+  const [dataSource, setDataSource] = useState<Item[]>([]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
+  const [databaseFieldTypeList, setDatabaseFieldTypeList] = useState<string[]>([])
 
   const isEditing = (record: Item) => record.key === editingKey;
 
@@ -120,6 +82,31 @@ const ColumnList: React.FC = () => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
+
+  useEffect(() => {
+    if (tableDetails) {
+      const list = tableDetails?.columnList?.map(t => {
+        return {
+          key: uuidv4(),
+          columnName: t.name,
+          length: t.dataType,
+          fieldType: t.columnType,
+          nullable: t.nullable === 0,
+          comment: t.comment,
+        }
+      }) || []
+      setDataSource(list)
+    }
+  }, [tableDetails])
+
+  useEffect(() => {
+    sqlService.getDatabaseFieldTypeList({
+      dataSourceId,
+      databaseName,
+    }).then(res => {
+      setDatabaseFieldTypeList(res.map(i => i.typeName))
+    })
+  }, [])
 
   const columns = [
     {
@@ -200,23 +187,24 @@ const ColumnList: React.FC = () => {
     {
       title: 'nullable',
       dataIndex: 'nullable',
-      render: (text: string, record: Item) => {
+      width: '100px',
+      render: (text: boolean, record: Item) => {
         return <Form.Item
-          name="fieldType"
+          name="nullable"
           style={{ margin: 0 }}
         >
-          <Checkbox />
+          <Checkbox checked={text} />
         </Form.Item>
       }
     },
     {
-      title: 'annotation',
-      dataIndex: 'annotation',
+      title: 'comment',
+      dataIndex: 'comment',
       render: (text: string, record: Item) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="annotation"
+            name="comment"
             style={{ margin: 0 }}
           >
             <Input />
@@ -261,7 +249,8 @@ const ColumnList: React.FC = () => {
       key: uuidv4(),
       columnName: '',
       length: null,
-      fieldType: DatabaseFieldType.String,
+      fieldType: null,
+      nullable: false,
     }
     setDataSource([...dataSource, newData])
     edit(newData)
@@ -296,35 +285,38 @@ const ColumnList: React.FC = () => {
   }
 
   return (
-    <div className='box'>
+    <div className={styles.box}>
       <div className={styles.columnListHeader}>
         <Button onClick={addData}>新增</Button>
         <Button onClick={deleteData}>删除</Button>
         <Button onClick={moveData.bind(null, 'up')}>上移</Button>
         <Button onClick={moveData.bind(null, 'down')}>下移</Button>
       </div>
-      <Form form={form} onChange={formChange}>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <SortableContext
-            items={dataSource.map((i) => i.key)}
-            strategy={verticalListSortingStrategy}
-          >
-            <Table
-              components={{
-                body: {
-                  row: Row,
-                },
-              }}
-              pagination={false}
-              rowKey="key"
-              columns={columns}
-              dataSource={dataSource}
-            />
-          </SortableContext>
-        </DndContext>
-      </Form>
+      <div className={styles.tableBox}>
+        <Form form={form} onChange={formChange}>
+          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+            <SortableContext
+              items={dataSource.map((i) => i.key)}
+              strategy={verticalListSortingStrategy}
+            >
+              <Table
+                components={{
+                  body: {
+                    row: Row,
+                  },
+                }}
+                pagination={false}
+                rowKey="key"
+                columns={columns as any}
+                dataSource={dataSource}
+              />
+            </SortableContext>
+          </DndContext>
+        </Form>
+      </div>
     </div>
   );
-};
+})
+
 
 export default ColumnList;

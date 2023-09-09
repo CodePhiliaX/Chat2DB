@@ -1,35 +1,40 @@
 @import '../../styles/var.less';
 
 .box {
-  height: 500px;
-  padding: 20px;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.tabList{
+.header {
   display: flex;
-  border-bottom: 0;
-  margin-right: 20px;
-  font-size: 14px;
-  margin-bottom: 20px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 10px 0px 10px;
+  box-sizing: border-box;
 }
 
-.tabItem{
+.tabList {
+  display: flex;
+  border-bottom: 0;
+  font-size: 14px;
+}
+
+.tabItem {
   position: relative;
-  height: 38px;
-  line-height: 38px;
-  padding:0px 18px;
+  height: 28px;
+  line-height: 28px;
+  padding: 0px 18px;
   border: 1px solid var(--color-border);
   margin-right: 1px;
   cursor: pointer;
 }
 
-.currentTab{
+.currentTab {
   font-weight: 500;
   color: var(--color-primary);
 
-  &::before{
+  &::before {
     content: '';
     position: absolute;
     left: 0;
@@ -40,15 +45,13 @@
   }
 }
 
-
-
-.main{
-  height: 500px;
-  overflow: hidden;
+.main {
+  flex: 1;
   position: relative;
+  overflow: hidden;
 }
 
-.tab{
+.tab {
   z-index: 2;
   position: absolute;
   left: 0px;
@@ -57,7 +60,7 @@
   height: 100%;
 }
 
-.hidden{
+.hidden {
   z-index: 1;
   opacity: 0;
 }

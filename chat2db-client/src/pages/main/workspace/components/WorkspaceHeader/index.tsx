@@ -6,7 +6,7 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Button } from 'antd';
+import { Cascader, Spin, Modal, Button, Tag } from 'antd';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'

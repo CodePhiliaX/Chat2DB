@@ -14,7 +14,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import IncludeCol from '../IncludeCol'
+import IncludeCol from '../IncludeCol';
 
 interface IProps {
   className?: string;
