@@ -1,14 +1,23 @@
 @import '../../../styles/var.less';
 
 .box {
-  height: 500px;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .columnListHeader {
-  margin: 0px -10px 20px;
+  margin: 0px -10px 10px;
   button {
     margin: 0px 10px;
   }
+}
+
+.tableBox {
+  flex: 1;
+  overflow: auto;
 }
 
 .editableCell {

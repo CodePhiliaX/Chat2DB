@@ -58,6 +58,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
         tabType: createTabIntro.tabType,
         icon: tabTypeConfig[createTabIntro.tabType as TabType]?.icon,
         name: `edit-${createTabIntro.treeNodeData.name}`,
+        tableName: createTabIntro.treeNodeData.name,
       }])
       setActiveConsoleId(id);
 
@@ -483,7 +484,12 @@ const WorkspaceRight = memo<IProps>(function (props) {
                 />
               }
               {
-                t.tabType === TabType.EditTable && <DatabaseTableEditor />
+                t.tabType === TabType.EditTable && <DatabaseTableEditor
+                  dataSourceId={curWorkspaceParams.dataSourceId}
+                  databaseName={curWorkspaceParams.databaseName!}
+                  schemaName={curWorkspaceParams?.schemaName}
+                  tableName={t.tableName}
+                />
               }
             </div>
           );
