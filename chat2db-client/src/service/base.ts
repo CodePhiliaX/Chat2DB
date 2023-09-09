@@ -12,6 +12,7 @@ export interface IOptions {
   delayTime?: number | true;
   outside?: boolean;
   isFullPath?: boolean;
+  dynamicUrl?: boolean; 
 }
 
 // TODO:
@@ -126,7 +127,7 @@ request.interceptors.response.use(async (response, options) => {
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath } = options || {};
+  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
 
   // 是否需要mock
   let _baseURL = (mock ? mockUrl : baseURL) || '';
@@ -165,6 +166,11 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
 
       let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
       eventualUrl = isFullPath ? url : eventualUrl;
+
+      // 动态的url
+      if(dynamicUrl){
+        eventualUrl = params as string;
+      }
 
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {

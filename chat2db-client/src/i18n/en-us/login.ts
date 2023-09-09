@@ -9,4 +9,5 @@ export default {
   'login.form.password': 'Password',
   'login.form.password.placeholder': 'Please enter your password',
   'login.button.login': 'Login',
+  'login.tips.defaultPassword': 'The default user name and password are: chat2db',
 };

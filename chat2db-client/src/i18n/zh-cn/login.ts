@@ -9,4 +9,5 @@ export default {
   'login.form.password': '密码',
   'login.form.password.placeholder': '请输入密码',
   'login.button.login': '登 录',
+  'login.tips.defaultPassword': '默认用户名密码为: chat2db',
 };
