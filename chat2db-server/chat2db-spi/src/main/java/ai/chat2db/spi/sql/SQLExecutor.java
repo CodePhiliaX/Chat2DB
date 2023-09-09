@@ -21,9 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 
-
 /**
  * Dbhub 统一数据库连接管理
+ *
  * @author jipengfei
  */
 @Slf4j
@@ -40,7 +40,6 @@ public class SQLExecutor {
         return INSTANCE;
     }
 
-
     public void close() {
     }
 
@@ -53,7 +52,7 @@ public class SQLExecutor {
      * @return
      */
 
-    public  <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
+    public <R> R executeSql(Connection connection, String sql, Function<ResultSet, R> function) {
         if (StringUtils.isBlank(sql)) {
             return null;
         }
@@ -146,17 +145,23 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection) throws SQLException {
-        return execute(sql, connection, true);
+        return execute(sql, connection, true, null, null);
     }
 
     /**
      * 执行sql
      *
      * @param sql
+     * @param connection
+     * @param limitRowSize
+     * @param offset
+     * @param count
      * @return
      * @throws SQLException
      */
-    public ExecuteResult execute(final String sql, Connection connection, boolean limitSize) throws SQLException {
+    public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset,
+                                 Integer count)
+            throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
 
@@ -190,13 +195,22 @@ public class SQLExecutor {
                     List<List<String>> dataList = Lists.newArrayList();
                     executeResult.setDataList(dataList);
 
-                    int n = 0;
-                    while (rs.next() && n < EasyToolsConstant.MAX_PAGE_SIZE) {
-                        n++;
+                    if (offset == null || offset < 0) {
+                        offset = 0;
+                    }
+                    int rowNumber = 0;
+                    int rowCount = 1;
+                    while (rs.next()) {
+                        if (rowNumber++ < offset) {
+                            continue;
+                        }
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitSize));
+                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitRowSize));
+                        }
+                        if (count != null && count > 0 && rowCount++ >= count) {
+                            break;
                         }
                     }
                     executeResult.setDuration(timeInterval.interval());
@@ -221,7 +235,7 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(Connection connection, String sql) throws SQLException {
-        return execute(sql, connection, true);
+        return execute(sql, connection, true, null, null);
     }
 
     /**
@@ -232,7 +246,7 @@ public class SQLExecutor {
      */
     public List<Database> databases(Connection connection) {
         try (ResultSet resultSet = connection.getMetaData().getCatalogs();) {
-           return ResultSetUtils.toObjectList(resultSet, Database.class);
+            return ResultSetUtils.toObjectList(resultSet, Database.class);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -244,7 +258,10 @@ public class SQLExecutor {
      * TABLE_SCHEM String => schema name
      * TABLE_CATALOG String => catalog name (may be null)
      * Params:
-     * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without a catalog; null means catalog name should not be used to narrow down the search. schemaPattern – a schema name; must match the schema name as it is stored in the database; null means schema name should not be used to narrow down the search.
+     * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without
+     * a catalog; null means catalog name should not be used to narrow down the search. schemaPattern – a schema name;
+     * must match the schema name as it is stored in the database; null means schema name should not be used to narrow
+     * down the search.
      * Returns:
      * a ResultSet object in which each row is a schema description
      * Throws:
@@ -312,10 +329,10 @@ public class SQLExecutor {
     /**
      * get all table index info
      *
-     * @param connection connection
+     * @param connection   connection
      * @param databaseName databaseName of the index
-     * @param schemaName schemaName of the index
-     * @param tableName tableName of the index
+     * @param schemaName   schemaName of the index
+     * @param tableName    tableName of the index
      * @return List<TableIndex> table index list
      */
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -343,13 +360,12 @@ public class SQLExecutor {
         return tableIndices;
     }
 
-
     /**
      * Get all functions available in a catalog.
      *
-     * @param connection connection
+     * @param connection   connection
      * @param databaseName databaseName of the function
-     * @param schemaName schemaName of the function
+     * @param schemaName   schemaName of the function
      * @return List<Function>
      */
     public List<ai.chat2db.spi.model.Function> functions(Connection connection, String databaseName,
@@ -361,12 +377,29 @@ public class SQLExecutor {
         }
     }
 
+
     /**
-     *  procedure list
+     * Retrieves a description of all the data types supported by this database. They are ordered by DATA_TYPE and then by how closely the data type maps to the corresponding JDBC SQL type.
+     * If the database supports SQL distinct types, then getTypeInfo() will return a single row with a TYPE_NAME of DISTINCT and a DATA_TYPE of Types.DISTINCT. If the database supports SQL structured types, then getTypeInfo() will return a single row with a TYPE_NAME of STRUCT and a DATA_TYPE of Types.STRUCT.
+     * If SQL distinct or structured types are supported, then information on the individual types may be obtained from the getUDTs() method.
      *
      * @param connection connection
+     * @return List<Function>
+     */
+    public List<Type> types(Connection connection) {
+        try (ResultSet resultSet = connection.getMetaData().getTypeInfo();) {
+            return ResultSetUtils.toObjectList(resultSet, ai.chat2db.spi.model.Type.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * procedure list
+     *
+     * @param connection   connection
      * @param databaseName databaseName
-     * @param schemaName schemaName
+     * @param schemaName   schemaName
      * @return List<Procedure>
      */
     public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {

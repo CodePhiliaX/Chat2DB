@@ -31,6 +31,7 @@ public class TableColumn {
     /**
      * 表名
      */
+    @JsonAlias({"TABLE_NAME"})
     private String tableName;
 
     /**
