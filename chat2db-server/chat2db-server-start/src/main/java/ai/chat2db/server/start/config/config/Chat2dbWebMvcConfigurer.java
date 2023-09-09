@@ -101,6 +101,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                             .id(user.getId())
                             .nickName(user.getNickName())
                             .admin(admin)
+                            .roleCode(user.getRoleCode())
                             .build();
                     });
 

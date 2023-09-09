@@ -37,4 +37,11 @@ public class LoginUser implements Serializable {
      * Is it an administrator
      */
     private Boolean admin;
+
+    /**
+     * 角色编码
+     *
+     * @see RoleCodeEnum
+     */
+    private String roleCode;
 }
