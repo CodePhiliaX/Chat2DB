@@ -1,4 +1,8 @@
-export type IRole = 'admin' | 'normal';
+export enum IRole {
+  'ADMIN' = 'ADMIN',
+  'USER' = 'USER',
+  'DESKTOP' = 'DESKTOP',
+}
 export interface IUser {
   id?: number;
   userName: string;
@@ -22,4 +26,5 @@ export interface ILoginUser {
    * 昵称
    */
   nickName?: string;
+  roleCode: IRole;
 }
