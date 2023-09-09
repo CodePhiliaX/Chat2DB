@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "37118827",
+      "name": "个人用户",
+      "font_class": "gerenyonghu",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "37118908",
+      "name": "后台管理",
+      "font_class": "houtaiguanli",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
       "icon_id": "6337464",
       "name": "字体代码",
       "font_class": "zitidaima",

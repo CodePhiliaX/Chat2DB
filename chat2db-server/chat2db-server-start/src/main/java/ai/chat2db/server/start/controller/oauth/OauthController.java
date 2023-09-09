@@ -92,7 +92,7 @@ public class OauthController {
      */
     @GetMapping("user")
     public DataResult<LoginUser> user() {
-        return DataResult.of(ContextUtils.getLoginUser());
+        return DataResult.of(getLoginUser());
     }
 
     /**
@@ -102,7 +102,18 @@ public class OauthController {
      */
     @GetMapping("user_a")
     public DataResult<LoginUser> usera() {
-        return DataResult.of(ContextUtils.queryLoginUser());
+        return DataResult.of(getLoginUser());
+    }
+
+    private LoginUser getLoginUser() {
+        LoginUser loginUser = ContextUtils.queryLoginUser();
+        if (loginUser == null) {
+            return null;
+        }
+        if (RoleCodeEnum.DESKTOP.getCode().equals(loginUser.getRoleCode())) {
+            return null;
+        }
+        return loginUser;
     }
 
 }
