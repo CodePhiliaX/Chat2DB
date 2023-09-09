@@ -32,5 +32,5 @@ export interface IConnectionEnv {
   id: number;
   name: string;
   shortName: string;
-  style: string;
+  color: string;
 }

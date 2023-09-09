@@ -130,6 +130,19 @@ export const sshConfig: IConnectionConfig['ssh'] = {
   ]
 }
 
+const  envItem = {
+  defaultValue: '',
+  inputType: InputType.SELECT,
+  labelNameCN: '环境',
+  labelNameEN: 'Env',
+  name: 'environmentId',
+  required: true,
+  selects: [],
+  styles: {
+    width: '50%',
+  }
+}
+
 export const dataSourceFormConfigs: IConnectionConfig[] = [
   // MYSQL
   {
@@ -143,18 +156,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           name: 'alias',
           required: true,
         },
-        {
-          defaultValue: '',
-          inputType: InputType.SELECT,
-          labelNameCN: '环境',
-          labelNameEN: 'Env',
-          name: 'environmentId',
-          required: true,
-          selects: [],
-          styles: {
-            width: '50%',
-          }
-        },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -263,8 +265,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -373,8 +375,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -514,8 +516,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -644,6 +646,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
 
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -764,6 +767,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
 
         },
+        envItem,
         {
           defaultValue: 'identifier.sqlite',
           inputType: InputType.INPUT,
@@ -802,6 +806,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
 
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -913,6 +918,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
 
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1024,6 +1030,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
 
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1139,6 +1146,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1260,6 +1268,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1381,6 +1390,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1502,6 +1512,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1623,6 +1634,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1744,6 +1756,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
@@ -1865,6 +1878,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '100%',
           }
         },
+        envItem,
         {
           defaultValue: 'localhost',
           inputType: InputType.INPUT,
