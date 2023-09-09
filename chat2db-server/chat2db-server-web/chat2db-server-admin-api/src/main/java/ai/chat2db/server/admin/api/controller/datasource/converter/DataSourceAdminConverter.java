@@ -29,6 +29,7 @@ public abstract class DataSourceAdminConverter {
      */
     @Mappings({
         @Mapping(target = "enableReturnCount", expression = "java(true)"),
+        @Mapping(target = "kind", expression = "java(DataSourceKindEnum.SHARED.getCode())"),
     })
     public abstract DataSourcePageQueryParam request2param(CommonPageQueryRequest request);
 
