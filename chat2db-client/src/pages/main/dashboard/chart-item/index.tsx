@@ -136,7 +136,7 @@ function ChartItem(props: IChartItemProps) {
 
   const handleExecuteSQL = async (sql: string, chartData: IChartItem) => {
     const { dataSourceId, databaseName } = chartData;
-    if (_.isEmpty(cascaderValue)) {
+    if (_.isEmpty(dataSourceId)) {
       message.success(i18n('dashboard.editor.execute.noDataSource'));
       return;
     }
