@@ -42,7 +42,7 @@ const App: React.FC = () => {
         >
           <div className={styles.whyLogin}>{i18n('login.text.tips.title')}</div>
         </Tooltip>
-        
+
         <Form className={styles.loginForm} size="large" onFinish={handleLogin}>
           <Form.Item
             className={styles.loginFormItem}
