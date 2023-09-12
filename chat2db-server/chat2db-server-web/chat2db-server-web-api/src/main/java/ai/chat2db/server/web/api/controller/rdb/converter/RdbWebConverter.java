@@ -9,6 +9,7 @@ import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
+import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlRequest;
@@ -100,6 +101,20 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract TablePageQueryParam tablePageRequest2param(TableBriefQueryRequest request);
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract TablePageQueryParam tablePageRequest2param(DataExportRequest request);
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract TableQueryParam tableRequest2param(DataExportRequest request);
 
     /**
      * 参数转换

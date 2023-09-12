@@ -2,18 +2,20 @@ import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'r
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Input, Cascader } from 'antd';
+import { Input, Cascader, Button, Space, Dropdown, MenuProps } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
 import { treeConfig } from '../Tree/treeConfig';
-import { ITreeNode } from '@/typings';
+import { IManageResultData, IResultConfig, ITreeNode } from '@/typings';
 import { TreeNodeType } from '@/constants';
 import styles from './index.less';
 import { approximateTreeNode } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import { DownOutlined } from '@ant-design/icons';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
 interface IOption {
   value: TreeNodeType;
@@ -40,8 +42,12 @@ const dvaModel = connect(
   }),
 );
 
-const TableList = dvaModel(function (props: any) {
-  const { workspaceModel, dispatch } = props;
+interface IDocProps {
+  onExport: (exportType: ExportTypeEnum) => void;
+}
+
+const TableList = dvaModel(function (props: IDocProps) {
+  const { workspaceModel, dispatch, onExport } = props;
   const { curWorkspaceParams, curTableList, curViewList } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
@@ -50,6 +56,57 @@ const TableList = dvaModel(function (props: any) {
   const [curType, setCurType] = useState<IOption>(optionsList[0]);
   const [curList, setCurList] = useState<ITreeNode[]>([]);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
+
+  // 导出表结构
+  const handleExport = (exportType: ExportTypeEnum) => {
+    props.onExport && props.onExport(exportType);
+  };
+
+  const items: MenuProps['items'] = useMemo(
+    () => [
+      {
+        label: i18n('common.button.exportWord'),
+        key: '1',
+        // icon: <UserOutlined />,
+        onClick: () => {
+          handleExport(ExportTypeEnum.WORD);
+        },
+      },
+      {
+        label: i18n('common.button.exportExcel'),
+        key: '2',
+        // icon: <UserOutlined />,
+        onClick: () => {
+          handleExport(ExportTypeEnum.EXCEL);
+        },
+      },
+      {
+        label: i18n('common.button.exportHtml'),
+        key: '3',
+        // icon: <UserOutlined />,
+        onClick: () => {
+          handleExport(ExportTypeEnum.HTML);
+        },
+      },
+      {
+        label: i18n('common.button.exportMarkdown'),
+        key: '4',
+        // icon: <UserOutlined />,
+        onClick: () => {
+          handleExport(ExportTypeEnum.MARKDOWN);
+        },
+      },
+      {
+        label: i18n('common.button.exportPdf'),
+        key: '5',
+        // icon: <UserOutlined />,
+        onClick: () => {
+          handleExport(ExportTypeEnum.PDF);
+        },
+      },
+    ],
+    [curWorkspaceParams]
+  );
 
   useUpdateEffect(() => {
     setCurList([]);
@@ -147,6 +204,14 @@ const TableList = dvaModel(function (props: any) {
                 </div>
               </Cascader>
               <div className={styles.iconBox} >
+                <Dropdown menu={{ items }}>
+                  <Button>
+                    <Space>
+                      {i18n('common.text.export')}
+                      <DownOutlined />
+                    </Space>
+                  </Button>
+                </Dropdown>
                 <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
                   <Iconfont code="&#xec08;" />
                 </div>
