@@ -4,6 +4,7 @@ import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
 import ai.chat2db.server.domain.api.model.IndexInfo;
 import ai.chat2db.server.domain.api.model.TableParameter;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.controller.rdb.doc.DatabaseExportService;
 import ai.chat2db.server.web.api.controller.rdb.doc.conf.ExportOptions;
 import ai.chat2db.server.web.api.controller.rdb.doc.constant.PatternConstant;
@@ -41,7 +42,7 @@ public class ExportMarkdownService extends DatabaseExportService {
             for (Map.Entry<String, List<Map.Entry<String, List<TableParameter>>>> myMap : allMap.entrySet()) {
                 //数据库名
                 String database = myMap.getKey();
-                String title = String.format(PatternConstant.TITLE, "数据库：" + database);
+                String title = String.format(PatternConstant.TITLE, I18nUtils.getMessage("main.databaseText") + database);
                 fileWriter.write(title);
                 writeLineSeparator(fileWriter, 2);
                 for (Map.Entry<String, List<TableParameter>> parameterMap : myMap.getValue()) {
