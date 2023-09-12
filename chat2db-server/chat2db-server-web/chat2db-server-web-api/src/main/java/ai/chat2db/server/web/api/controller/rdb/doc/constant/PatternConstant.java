@@ -44,8 +44,20 @@ public final class PatternConstant {
     public static final String HTML_TITLE = "<h1 id=\"{0}\">{0}</h1>";
     public static final String HTML_CATALOG = "<h2 id=\"{0}\">{1}</h2>";
     public static final String HTML_INDEX_ITEM = "<a href=\"#{0}\" title=\"{0}\">{1}</a>";
-    public static String HTML_TABLE_HEADER = "<tr><th>序号</th><th>字段名</th><th>类型</th><th>长度</th><th>是否为空</th><th>默认值</th><th>小数位</th><th>注释</th></tr>";
+    public static String HTML_TABLE_HEADER = "<tr><th>" + I18nUtils.getMessage("main.fieldNo")
+            + "</th><th>" + I18nUtils.getMessage("main.fieldName")
+            + "</th><th>"+ I18nUtils.getMessage("main.fieldType")
+            + "</th><th>" + I18nUtils.getMessage("main.fieldLength")
+            + "</th><th>" + I18nUtils.getMessage("main.fieldIfEmpty")
+            +  "</th><th>" + I18nUtils.getMessage("main.fieldDefault")
+            + "</th><th>" + I18nUtils.getMessage("main.fieldDecimalPlaces")
+            + "</th><th>" + I18nUtils.getMessage("main.fieldNote")
+            + "</th></tr>";
     public static String HTML_TABLE_BODY = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>";
-    public static String HTML_INDEX_TABLE_HEADER = "<tr><th>名称</th><th>字段</th><th>DDL</th><th>注释</th></tr>";
+    public static String HTML_INDEX_TABLE_HEADER = "<tr><th>" + I18nUtils.getMessage("main.indexName")
+            + "</th><th>" + I18nUtils.getMessage("main.indexFieldName")
+            + "</th><th>" + I18nUtils.getMessage("main.indexType")
+            + "</th><th>" + I18nUtils.getMessage("main.indexMethod")
+            + "</th><th>" + I18nUtils.getMessage("main.indexNote") + "</th></tr>";
     public static String HTML_INDEX_TABLE_BODY = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>";
 }

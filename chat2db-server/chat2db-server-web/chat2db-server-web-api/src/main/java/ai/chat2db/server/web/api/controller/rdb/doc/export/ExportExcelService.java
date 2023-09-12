@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.doc.export;
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
 import ai.chat2db.server.domain.api.model.TableParameter;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.controller.rdb.doc.DatabaseExportService;
 import ai.chat2db.server.web.api.controller.rdb.doc.adaptive.CustomCellWriteHeightConfig;
 import ai.chat2db.server.web.api.controller.rdb.doc.adaptive.CustomCellWriteWidthConfig;
@@ -47,7 +48,7 @@ public class ExportExcelService extends DatabaseExportService {
                 .registerWriteHandler(new CustomCellWriteHeightConfig())
                 .registerWriteHandler(new CustomCellWriteWidthConfig())
                 .registerWriteHandler(new MyMergeExcel())
-                .sheet("表结构")
+                .sheet(I18nUtils.getMessage("main.sheetName"))
                 .doWrite(export);
     }
 
