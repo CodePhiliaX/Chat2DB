@@ -3,6 +3,8 @@ import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input } from 'antd';
 import { Context } from '../index';
+import { IBaseInfo } from '@/typings';
+
 
 export interface IBaseInfoRef {
   getBaseInfo: () => IBaseInfo;
@@ -10,11 +12,6 @@ export interface IBaseInfoRef {
 
 interface IProps {
   className?: string;
-}
-
-export interface IBaseInfo {
-  name: string;
-  comment: string;
 }
 
 const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => {

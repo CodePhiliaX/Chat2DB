@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, forwardRef, ForwardedRef, useImperativeHandle, useContext, useRef, useMemo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
@@ -14,39 +14,29 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import IncludeCol from '../IncludeCol';
-
-interface IProps {
-  className?: string;
-}
-
-//索引类型
-enum IndexesType {
-  // 普通索引
-  Normal = 'normal',
-  // 唯一索引
-  Unique = 'unique',
-  // 全文索引
-  Fulltext = 'fulltext',
-  // 空间索引
-  Spatial = 'spatial',
-}
+import IncludeCol, { IIncludeColRef } from '../IncludeCol';
+import { IColumnItem, IIndexItem } from '@/typings'
+import { IndexesType } from '@/constants'
+import { Context } from '../index';
 
 const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']]
 
-interface Item {
-  key: string;
-  columnInformation: string[];
-  indexName: string;
-  indexesType: IndexesType | null;
+interface IProps {
+
 }
 
-const initialData: Item[] = [
+export type IIndexListInfo = IIndexItem[];
+
+export interface IIndexListRef {
+  getIndexListInfo: () => IIndexListInfo;
+}
+
+const initialData: IIndexItem[] = [
   {
     key: uuidv4(),
-    columnInformation: [],
-    indexName: '',
-    indexesType: null,
+    columnList: [],
+    name: '',
+    type: null,
   },
 ]
 
@@ -54,16 +44,17 @@ interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
 
-export default memo<IProps>(function IndexList(props) {
-  const { className } = props;
-  const [dataSource, setDataSource] = useState<Item[]>(initialData);
+const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
+  const { columnListRef } = useContext(Context);
+  const [dataSource, setDataSource] = useState<IIndexItem[]>(initialData);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState(dataSource[0]?.key);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
+  const includeColRef = useRef<IIncludeColRef>(null);
 
-  const isEditing = (record: Item) => record.key === editingKey;
+  const isEditing = (record: IIndexItem) => record.key === editingKey;
 
-  const edit = (record: Partial<Item> & { key: React.Key }) => {
+  const edit = (record: Partial<IIndexItem> & { key: React.Key }) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
@@ -71,9 +62,9 @@ export default memo<IProps>(function IndexList(props) {
   const addData = () => {
     const newData = {
       key: uuidv4(),
-      columnInformation: [],
-      indexName: '',
-      indexesType: null,
+      columnList: [],
+      name: '',
+      type: null,
     }
     setDataSource([...dataSource, newData])
     edit(newData)
@@ -170,6 +161,14 @@ export default memo<IProps>(function IndexList(props) {
     );
   };
 
+  function getIndexListInfo(): IIndexListInfo {
+    return dataSource
+  }
+
+  useImperativeHandle(ref, () => ({
+    getIndexListInfo,
+  }));
+
   const columns = [
     {
       key: 'sort',
@@ -178,19 +177,19 @@ export default memo<IProps>(function IndexList(props) {
     {
       title: 'index',
       width: '70px',
-      render: (text: string, record: Item) => {
+      render: (text: string, record: IIndexItem) => {
         return dataSource.findIndex(i => i.key === record.key) + 1
       }
     },
     {
       title: '索引名称',
-      dataIndex: 'indexName',
-      width: '30%',
-      render: (text: string, record: Item) => {
+      dataIndex: 'name',
+      width: '130px',
+      render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="indexName"
+            name="name"
             style={{ margin: 0 }}
           >
             <Input />
@@ -205,13 +204,13 @@ export default memo<IProps>(function IndexList(props) {
     },
     {
       title: '索引类型',
-      dataIndex: 'indexesType',
-      width: '30%',
-      render: (text: string, record: Item) => {
+      dataIndex: 'type',
+      width: '130px',
+      render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="indexesType"
+            name="type"
             style={{ margin: 0 }}
           >
             <Select style={{ width: '100%' }}>
@@ -228,20 +227,23 @@ export default memo<IProps>(function IndexList(props) {
     },
     {
       title: '包含列',
-      dataIndex: 'columnInformation',
-      render: (text: string[], record: Item) => {
+      dataIndex: 'columnList',
+      render: (columnItemList: IColumnItem[], record: IIndexItem) => {
         const editable = isEditing(record);
+        const text = columnItemList.map(t => {
+          return `${t.name}(${t.prefixLength})`
+        }).join(',')
         return editable ? (
-          <div className={styles.columnInformation}>
+          <div className={styles.columnListCell}>
             <span onClick={() => { setIncludeColModalOpen(true) }}>编辑</span>
-            {text.join(',')}
-          </div>
+            {text}
+          </div >
         ) : (
           <div
             className={styles.editableCell}
             onClick={() => edit(record)}
           >
-            {text.join(',')}
+            {text}
           </div>
         );
       }
@@ -249,7 +251,28 @@ export default memo<IProps>(function IndexList(props) {
 
   ];
 
-  return <div className={classnames(styles.box, className)}>
+  const getIncludeColInfo = () => {
+    setDataSource(
+      dataSource.map(i => {
+        if (i.key === editingKey) {
+          i.columnList = includeColRef.current?.getIncludeColInfo()!
+        }
+        return i
+      })
+    )
+  }
+
+  const includedColumnList: IColumnItem[] = useMemo(() => {
+    let data: IColumnItem[] = [];
+    dataSource.forEach(i => {
+      if (i.key === editingKey) {
+        data = i.columnList
+      }
+    })
+    return data
+  }, [editingKey])
+
+  return <div className={classnames(styles.box)}>
     <div className={styles.indexListHeader}>
       <Button onClick={addData}>新增</Button>
       <Button onClick={deleteData}>删除</Button>
@@ -280,10 +303,15 @@ export default memo<IProps>(function IndexList(props) {
       open={includeColModalOpen}
       width={800}
       title="包含列"
+      onOk={getIncludeColInfo}
       onCancel={() => { setIncludeColModalOpen(false) }}
       maskClosable={false}
+      destroyOnClose={true}
     >
-      <IncludeCol></IncludeCol>
+      <IncludeCol includedColumnList={includedColumnList} ref={includeColRef} />
     </Modal>
   </div >
 })
+
+export default IndexList
+

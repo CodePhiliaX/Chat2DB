@@ -39,34 +39,3 @@ export interface IResultConfig {
 export interface IDatabaseFieldType {
   typeName: string;
 }
-
-export interface IColumn {
-  name: string;
-  dataType: string;
-  columnType: string;
-  nullable: 0 | 1;
-  primaryKey: boolean;
-  defaultValue: string;
-  autoIncrement: boolean;
-  numericPrecision: number;
-  numericScale: number;
-  characterMaximumLength: number;
-  comment: string;
-}
-export interface IIndex {
-  columns: string;
-  name: string;
-  type: string;
-  comment: string;
-  columnList: IColumn[];
-}
-
-/** 数据库表的详情*/
-export interface IDatabaseTableDetail {
-  name: string;
-  comment: string;
-  pinned: false;
-  ddl: string;
-  columnList: IColumn[];
-  indexList: IIndex[];
-}

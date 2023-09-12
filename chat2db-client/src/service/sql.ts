@@ -1,5 +1,5 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseFieldType, IDatabaseTableDetail } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseFieldType, IEditTableInfo } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
@@ -192,9 +192,13 @@ const getTableDetails = createRequest<{
   schemaName?: string;
   tableName: string;
   refresh: boolean;
-}, IDatabaseTableDetail>('/api/rdb/table/query', { method: 'get' });
+}, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
+
+/** 数据库支持的数据类型 */ 
+const getModifyTableSql = createRequest<IEditTableInfo, string>('/api/rdb/table/modify/sql', { method: 'get' });
 
 export default {
+  getModifyTableSql,
   getTableDetails,
   getDatabaseFieldTypeList,
   sqlFormat,
