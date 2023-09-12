@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
@@ -15,18 +15,21 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import sqlService from '@/service/sql';
-import { Context } from '../index'
-
-interface Item {
-  key: string;
-  columnName: string;
-  length: number | null;
-  fieldType: string | null;
-  nullable: boolean;
-}
+import { Context } from '../index';
+import { IColumnItem } from '@/typings'
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
+}
+
+interface IProps {
+
+}
+
+export type IColumnListInfo = IColumnItem[];
+
+export interface IColumnListRef {
+  getColumnListInfo: () => IColumnListInfo;
 }
 
 const Row = ({ children, ...props }: RowProps) => {
@@ -69,16 +72,16 @@ const Row = ({ children, ...props }: RowProps) => {
   );
 };
 
-const ColumnList = memo(() => {
+const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>) => {
   const { dataSourceId, databaseName, tableDetails } = useContext(Context);
-  const [dataSource, setDataSource] = useState<Item[]>([]);
+  const [dataSource, setDataSource] = useState<IColumnListInfo>([]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
   const [databaseFieldTypeList, setDatabaseFieldTypeList] = useState<string[]>([])
 
-  const isEditing = (record: Item) => record.key === editingKey;
+  const isEditing = (record: IColumnItem) => record.key === editingKey;
 
-  const edit = (record: Partial<Item> & { key: React.Key }) => {
+  const edit = (record: Partial<IColumnItem> & { key: React.Key }) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
@@ -88,14 +91,14 @@ const ColumnList = memo(() => {
       const list = tableDetails?.columnList?.map(t => {
         return {
           key: uuidv4(),
-          columnName: t.name,
+          name: t.name,
           length: t.dataType,
-          fieldType: t.columnType,
+          columnType: t.columnType,
           nullable: t.nullable === 0,
           comment: t.comment,
         }
       }) || []
-      setDataSource(list)
+      setDataSource(list as any)
     }
   }, [tableDetails])
 
@@ -115,13 +118,13 @@ const ColumnList = memo(() => {
       align: 'center'
     },
     {
-      title: 'columnName',
-      dataIndex: 'columnName',
-      render: (text: string, record: Item) => {
+      title: 'name',
+      dataIndex: 'name',
+      render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="columnName"
+            name="name"
             style={{ margin: 0 }}
           >
             <Input />
@@ -140,7 +143,7 @@ const ColumnList = memo(() => {
       title: 'length',
       dataIndex: 'length',
       editable: true,
-      render: (text: string, record: Item) => {
+      render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
@@ -160,17 +163,17 @@ const ColumnList = memo(() => {
       }
     },
     {
-      title: 'fieldType',
-      dataIndex: 'fieldType',
-      render: (text: string, record: Item) => {
+      title: 'columnType',
+      dataIndex: 'columnType',
+      width: '140px',
+      render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="fieldType"
+            name="columnType"
             style={{ margin: 0 }}
           >
             <Select
-              style={{ width: 120 }}
               options={databaseFieldTypeList.map((i) => ({ label: i, value: i }))}
             />
           </Form.Item>
@@ -188,7 +191,7 @@ const ColumnList = memo(() => {
       title: 'nullable',
       dataIndex: 'nullable',
       width: '100px',
-      render: (text: boolean, record: Item) => {
+      render: (text: boolean, record: IColumnItem) => {
         return <Form.Item
           name="nullable"
           style={{ margin: 0 }}
@@ -200,7 +203,7 @@ const ColumnList = memo(() => {
     {
       title: 'comment',
       dataIndex: 'comment',
-      render: (text: string, record: Item) => {
+      render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
@@ -233,6 +236,7 @@ const ColumnList = memo(() => {
 
   const formChange = (value: any) => {
     const newData = form.getFieldsValue();
+    console.log(value)
     setDataSource(dataSource.map(i => {
       if (i.key === editingKey) {
         return {
@@ -247,9 +251,9 @@ const ColumnList = memo(() => {
   const addData = () => {
     const newData = {
       key: uuidv4(),
-      columnName: '',
+      name: '',
       length: null,
-      fieldType: null,
+      columnType: null,
       nullable: false,
     }
     setDataSource([...dataSource, newData])
@@ -284,6 +288,14 @@ const ColumnList = memo(() => {
     }
   }
 
+  function getColumnListInfo(): IColumnListInfo {
+    return dataSource
+  }
+
+  useImperativeHandle(ref, () => ({
+    getColumnListInfo,
+  }));
+
   return (
     <div className={styles.box}>
       <div className={styles.columnListHeader}>
@@ -317,6 +329,5 @@ const ColumnList = memo(() => {
     </div>
   );
 })
-
 
 export default ColumnList;

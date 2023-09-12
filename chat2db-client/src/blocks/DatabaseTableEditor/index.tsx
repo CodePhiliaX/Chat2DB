@@ -2,11 +2,11 @@ import React, { memo, useRef, useState, createContext, useEffect, forwardRef, us
 import { Button, Form } from 'antd';
 import styles from './index.less';
 import classnames from 'classnames';
-import IndexList from './IndexList';
-import ColumnList from './ColumnList';
+import IndexList, { IIndexListRef } from './IndexList';
+import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService from '@/service/sql';
-import { IDatabaseTableDetail } from '@/typings';
+import { IEditTableInfo } from '@/typings';
 
 interface IProps {
   dataSourceId: number,
@@ -22,15 +22,20 @@ interface ITabItem {
 }
 
 interface IContext extends IProps {
-  tableDetails: IDatabaseTableDetail
+  tableDetails: IEditTableInfo;
+  baseInfoRef: React.RefObject<IBaseInfoRef>;
+  columnListRef: React.RefObject<IColumnListRef>;
+  indexListRef: React.RefObject<IIndexListRef>;
 }
 
 export const Context = createContext<IContext>({} as any);
 
 export default memo<IProps>(function DatabaseTableEditor(props) {
   const { databaseName, dataSourceId, tableName, schemaName } = props;
-  const [tableDetails, setTableDetails] = useState<IDatabaseTableDetail>({} as any);
+  const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
+  const columnListRef = useRef<IColumnListRef>(null);
+  const indexListRef = useRef<IIndexListRef>(null);
   const tabList = useMemo(() => {
     return [
       {
@@ -41,17 +46,16 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
       {
         title: '列信息',
         key: 'column',
-        component: <ColumnList />
+        component: <ColumnList ref={columnListRef} />
       },
       {
         title: '索引信息',
         key: 'index',
-        component: <IndexList />
+        component: <IndexList ref={indexListRef} />
       },
     ]
   }, [])
-  const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
-
+  const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[1]);
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item)
@@ -71,12 +75,23 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
   }, [])
 
   function submit() {
-    console.log(baseInfoRef.current?.getBaseInfo())
+    if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
+      sqlService.getModifyTableSql({
+        ...baseInfoRef.current.getBaseInfo(),
+        columnList: columnListRef.current.getColumnListInfo()!,
+        indexList: indexListRef.current.getIndexListInfo()!
+      }).then(res => {
+        console.log(res)
+      })
+    }
   }
 
   return <Context.Provider value={{
     ...props,
-    tableDetails
+    tableDetails,
+    baseInfoRef,
+    columnListRef,
+    indexListRef
   }}>
     <div className={classnames(styles.box)}>
       <div className={styles.header}>
