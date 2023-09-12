@@ -16,6 +16,9 @@ import { approximateTreeNode, approximateList } from '@/utils';
 import historyService from '@/service/history';
 import TableList from '../TableList';
 import SaveList from '../SaveList';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
+import { IExportParams } from '@/service/sql';
+import { downloadFile } from '@/utils/common';
 
 interface IProps {
   className?: string;
@@ -85,6 +88,13 @@ const WorkspaceLeft = memo<IProps>(function (props) {
     addConsole();
   }
 
+  const handleExportTableStructure = async (
+    exportType: ExportTypeEnum,
+  ) => {
+    const params: IExportParams = { ...curWorkspaceParams, originalSql: '', exportType, exportSize: ExportSizeEnum.ALL };
+    downloadFile(window._BaseURL + '/api/rdb/doc/export', params);
+  };
+
   useEffect(() => {
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 't') {
@@ -98,7 +108,9 @@ const WorkspaceLeft = memo<IProps>(function (props) {
     <div className={classnames(styles.box, className)}>
       <SaveList />
       <Divider className={styles.divider} />
-      <TableList />
+      <TableList
+        onExport={handleExportTableStructure}
+      />
       <div className={styles.createButtonBox}>
         <Button className={styles.createButton} type="primary" onClick={createConsole}>
           <Iconfont code="&#xe63a;" />
