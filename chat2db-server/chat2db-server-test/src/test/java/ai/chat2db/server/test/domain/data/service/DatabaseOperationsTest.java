@@ -5,10 +5,10 @@ import java.util.List;
 import ai.chat2db.spi.model.Database;
 import jakarta.annotation.Resource;
 
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.DatabaseService;
-import ai.chat2db.server.domain.api.param.DatabaseQueryAllParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.test.common.BaseTest;
 import ai.chat2db.server.test.domain.data.service.dialect.DialectProperties;
 import ai.chat2db.server.test.domain.data.utils.TestUtils;

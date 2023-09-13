@@ -6,7 +6,7 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Button } from 'antd';
+import { Cascader, Spin, Modal, Button, Tag } from 'antd';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
@@ -70,16 +70,16 @@ const WorkspaceHeader = memo<IProps>((props) => {
       getDatabaseList(isRefresh);
       setIsRefresh(false);
     }
-  }, [connectionList, curConnection, curPage])
-
-  useUpdateEffect(() => {
     // connectionList转换成可用的ConnectionOptions
     setConnectionOptions(connectionList?.map(t => {
       return {
         value: t.id,
-        label: t.alias
+        label: t.alias,
       }
     }));
+  }, [connectionList, curConnection, curPage])
+
+  useUpdateEffect(() => {
     if (!connectionList.length) {
       dispatch({
         type: 'workspace/setCurWorkspaceParams',
@@ -222,52 +222,56 @@ const WorkspaceHeader = memo<IProps>((props) => {
     {
       !!connectionList.length &&
       <div className={styles.workspaceHeader}>
-        <Cascader
-          popupClassName={styles.cascaderPopup}
-          options={connectionOptions}
-          onChange={connectionChange}
-          bordered={false}
-          defaultValue={[curConnection?.id || '']}
-        >
-          <div className={styles.crumbsItem}>
-            <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
-            <Iconfont className={styles.arrow} code="&#xe641;" />
+        <div className={styles.changeBox}>
+          <Cascader
+            popupClassName={styles.cascaderPopup}
+            options={connectionOptions}
+            onChange={connectionChange}
+            bordered={false}
+            defaultValue={[curConnection?.id || '']}
+          >
+            <div className={styles.crumbsItem}>
+              <div className={styles.connectionTag}>
+                {(curConnection?.id && curConnection?.environment?.shortName) && <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>{curConnection?.environment?.shortName}</Tag>}
+              </div>
+              <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
+            </div>
+          </Cascader>
+          <Iconfont className={styles.arrow} code="&#xe641;" />
+          {
+            !!curDBOptions?.length &&
+            <Cascader
+              popupClassName={styles.cascaderPopup}
+              options={curDBOptions}
+              onChange={databaseChange}
+              bordered={false}
+              defaultValue={[curWorkspaceParams?.databaseName || '']}
+            >
+              <div className={styles.crumbsItem}>
+                <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+              </div>
+            </Cascader>
+          }
+          {
+            !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
+          }
+          {
+            !!curSchemaOptions.length &&
+            <Cascader
+              popupClassName={styles.cascaderPopup}
+              options={curSchemaOptions}
+              onChange={schemaChange}
+              bordered={false}
+              defaultValue={[curWorkspaceParams?.schemaName || '']}
+            >
+              <div className={styles.crumbsItem}>
+                <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
+              </div>
+            </Cascader>
+          }
+          <div className={styles.refreshBox} onClick={handelRefresh}>
+            {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code='&#xec08;' />}
           </div>
-        </Cascader>
-
-        {
-          !!curDBOptions?.length &&
-          <Cascader
-            popupClassName={styles.cascaderPopup}
-            options={curDBOptions}
-            onChange={databaseChange}
-            bordered={false}
-            defaultValue={[curWorkspaceParams?.databaseName || '']}
-          >
-            <div className={styles.crumbsItem}>
-              <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-              {
-                !!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe608;" />
-              }
-            </div>
-          </Cascader>
-        }
-        {
-          !!curSchemaOptions.length &&
-          <Cascader
-            popupClassName={styles.cascaderPopup}
-            options={curSchemaOptions}
-            onChange={schemaChange}
-            bordered={false}
-            defaultValue={[curWorkspaceParams?.schemaName || '']}
-          >
-            <div className={styles.crumbsItem}>
-              <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
-            </div>
-          </Cascader>
-        }
-        <div className={styles.refreshBox} onClick={handelRefresh}>
-          {cascaderLoading ? <Spin className={styles.spin} /> : <Iconfont className={styles.typeIcon} code='&#xec08;' />}
         </div>
       </div >
     }

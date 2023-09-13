@@ -43,4 +43,9 @@ public class OperationUpdateRequest {
      * operation type
      */
     private String operationType;
+
+    /**
+     * 用户id
+     */
+    private Long userId;
 }

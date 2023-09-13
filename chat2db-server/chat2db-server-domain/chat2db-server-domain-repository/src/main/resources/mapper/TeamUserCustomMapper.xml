@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.TeamUserCustomMapper">
+    <select id="comprehensivePageQuery" resultType="ai.chat2db.server.domain.repository.entity.TeamUserDO">
+        select tu.*
+        from TEAM_USER tu
+        <if test="teamSearchKey != null">
+            left join TEAM t on t.id = tu.TEAM_ID
+        </if>
+        <if test="userSearchKey != null">
+            left join DBHUB_USER du on du.id = tu.USER_ID
+        </if>
+        <where>
+            <if test="teamId != null ">
+                and tu.TEAM_ID = #{teamId}
+            </if>
+            <if test="userId != null ">
+                and tu.USER_ID = #{userId}
+            </if>
+
+            <if test="teamSearchKey != null ">
+                and (t.CODE like concat('%',#{teamSearchKey},'%') or t.NAME like concat('%',#{teamSearchKey},'%'))
+                and t.STATUS = 'VALID'
+            </if>
+            <if test="userSearchKey != null ">
+                and ( du.USER_NAME like concat('%',#{userSearchKey},'%') or du.NICK_NAME like
+                concat('%',#{userSearchKey},'%') or
+                du.EMAIL like concat('%',#{userSearchKey},'%'))
+            </if>
+        </where>
+    </select>
+
+</mapper>

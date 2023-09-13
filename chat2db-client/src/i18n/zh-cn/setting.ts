@@ -32,5 +32,6 @@ export default {
   'setting.placeholder.azureOpenAIKey': '从Azure门户获取Azure OpenAI密钥凭证',
   'setting.placeholder.azureEndpoint': '从Azure门户获取Azure OpenA端口',
   'setting.placeholder.azureDeployment': '部署模型的部署id',
-
-}
+  'setting.ai.tips': '请登录后选择AI配置',
+  'setting.ai.user.hidden': '请联系管理员在"设置->自定义AI"中设置ApiKey',
+};

@@ -2,6 +2,7 @@
 package ai.chat2db.server.web.api.aspect;
 
 import ai.chat2db.server.domain.api.model.DataSource;
+import ai.chat2db.server.domain.api.service.DataSourceAccessBusinessService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
@@ -11,6 +12,7 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsol
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -29,6 +31,8 @@ public class ConnectionInfoHandler {
 
     @Autowired
     private DataSourceService dataSourceService;
+    @Resource
+    private DataSourceAccessBusinessService dataSourceAccessBusinessService;
 
     @Around("within(@ai.chat2db.server.web.api.aspect.ConnectionInfoAspect *)")
     public Object connectionInfoHandler(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
@@ -37,16 +41,16 @@ public class ConnectionInfoHandler {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
-                    if(param instanceof DataSourceBaseRequest){
+                    if (param instanceof DataSourceBaseRequest) {
                         Long dataSourceId = ((DataSourceBaseRequest)param).getDataSourceId();
                         String schemaName = ((DataSourceBaseRequest)param).getSchemaName();
                         String database = ((DataSourceBaseRequest)param).getDatabaseName();
-                        Chat2DBContext.putContext(toInfo(dataSourceId, database, null,schemaName));
-                    }else if (param instanceof DataSourceConsoleRequestInfo) {
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database, null, schemaName));
+                    } else if (param instanceof DataSourceConsoleRequestInfo) {
                         Long dataSourceId = ((DataSourceConsoleRequestInfo)param).getDataSourceId();
                         Long consoleId = ((DataSourceConsoleRequestInfo)param).getConsoleId();
                         String database = ((DataSourceConsoleRequestInfo)param).getDatabaseName();
-                        Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId,null));
+                        Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId, null));
                     } else if (param instanceof DataSourceBaseRequestInfo) {
                         Long dataSourceId = ((DataSourceBaseRequestInfo)param).getDataSourceId();
                         String database = ((DataSourceBaseRequestInfo)param).getDatabaseName();
@@ -60,12 +64,16 @@ public class ConnectionInfoHandler {
         }
     }
 
-    public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId,String schemaName) {
+    public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId, String schemaName) {
         DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
         DataSource dataSource = result.getData();
         if (!result.success() || dataSource == null) {
             throw new ParamBusinessException("dataSourceId");
         }
+
+        // Verify permissions
+        dataSourceAccessBusinessService.checkPermission(dataSource);
+
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setAlias(dataSource.getAlias());
         connectInfo.setUser(dataSource.getUserName());
@@ -93,6 +101,7 @@ public class ConnectionInfoHandler {
     }
 
     public ConnectInfo toInfo(Long dataSourceId, String database) {
-        return toInfo(dataSourceId, database, null,null);
+        return toInfo(dataSourceId, database, null, null);
     }
+
 }

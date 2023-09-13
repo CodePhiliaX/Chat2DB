@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('myAPI', {
       '-Xmx1024M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
+      '-Dchat2db.mode=DESKTOP',
       `-Dproject.path=${javaPath}`,
       `-Dloader.path=${libPath}`,
       javaPath,

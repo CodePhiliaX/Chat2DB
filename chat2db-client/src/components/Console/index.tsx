@@ -405,7 +405,7 @@ function Console(props: IProps) {
   /**
    * 格式化sql
    */
-  const handelSQLFormat = () => {
+  const handleSQLFormat = () => {
     let setValueType = 'select';
     let sql = editorRef?.current?.getCurrentSelectContent();
     if (!sql) {
@@ -482,7 +482,7 @@ function Console(props: IProps) {
             </Button>
           )}
         </div>
-        <Button type="text" onClick={handelSQLFormat}>
+        <Button type="text" onClick={handleSQLFormat}>
           {i18n('common.button.format')}
         </Button>
       </div>
