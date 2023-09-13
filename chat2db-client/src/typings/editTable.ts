@@ -8,20 +8,21 @@ export interface IBaseInfo {
 
 // 编辑表时列的数据结构
 export interface IColumnItem {
-  key?: string;
+  key: string;
   name: string;
-  length: number | null;
   columnType: string | null;
-  nullable: boolean;
+  columnSize: number;
+  // length: number | null;
+  nullable: number;
   prefixLength?: number | null;
   comment?: string;
   primaryKey?: boolean;
   defaultValue?: string;
-  dataType: string;
-  autoIncrement: boolean;
-  numericPrecision: number;
-  numericScale: number;
-  characterMaximumLength: number;
+  // dataType: string;
+  // autoIncrement: boolean;
+  // numericPrecision: number;
+  // numericScale: number;
+  // characterMaximumLength: number;
 }
 
 
