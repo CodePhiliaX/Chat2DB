@@ -5,21 +5,19 @@ import java.util.Objects;
 
 import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.AIConfig;
-import ai.chat2db.server.domain.api.model.ChatGptConfig;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
+import ai.chat2db.server.domain.core.util.PermissionUtils;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest;
-import ai.chat2db.server.web.api.controller.config.request.AISystemConfigRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.util.OpenAIClient;
-import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -53,7 +50,6 @@ public class ConfigController {
         return ActionResult.isSuccess();
     }
 
-
     /**
      * 保存ChatGPT相关配置
      *
@@ -62,6 +58,8 @@ public class ConfigController {
      */
     @PostMapping("/system_config/ai")
     public ActionResult addChatGptSystemConfig(@RequestBody AIConfigCreateRequest request) {
+        PermissionUtils.checkDeskTopOrAdmin();
+
         String sqlSource = request.getAiSqlSource();
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
         if (Objects.isNull(aiSqlSourceEnum)) {
@@ -73,16 +71,16 @@ public class ConfigController {
         configService.createOrUpdate(param);
 
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
-            case OPENAI :
+            case OPENAI:
                 saveOpenAIConfig(request);
                 break;
             case CHAT2DBAI:
                 saveChat2dbAIConfig(request);
                 break;
-            case RESTAI :
+            case RESTAI:
                 saveRestAIConfig(request);
                 break;
-            case AZUREAI :
+            case AZUREAI:
                 saveAzureAIConfig(request);
                 break;
         }
@@ -132,7 +130,7 @@ public class ConfigController {
      */
     private void saveRestAIConfig(AIConfigCreateRequest request) {
         SystemConfigParam restParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_URL).content(
-                request.getApiHost()).build();
+            request.getApiHost()).build();
         configService.createOrUpdate(restParam);
         SystemConfigParam methodParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_STREAM_OUT).content(
             request.getStream().toString()).build();
@@ -146,14 +144,17 @@ public class ConfigController {
      * @param request
      */
     private void saveAzureAIConfig(AIConfigCreateRequest request) {
-        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY).content(
-            request.getApiKey()).build();
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY)
+            .content(
+                request.getApiKey()).build();
         configService.createOrUpdate(apikeyParam);
-        SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT).content(
-            request.getApiHost()).build();
+        SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT)
+            .content(
+                request.getApiHost()).build();
         configService.createOrUpdate(endpointParam);
-        SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID).content(
-            request.getModel()).build();
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID)
+            .content(
+                request.getModel()).build();
         configService.createOrUpdate(modelParam);
         AzureOpenAIClient.refresh();
     }
@@ -186,21 +187,24 @@ public class ConfigController {
         }
         config.setAiSqlSource(aiSqlSource);
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
-            case OPENAI :
+            case OPENAI:
                 DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
                 DataResult<Config> apiHost = configService.find(OpenAIClient.OPENAI_HOST);
                 DataResult<Config> httpProxyHost = configService.find(OpenAIClient.PROXY_HOST);
                 DataResult<Config> httpProxyPort = configService.find(OpenAIClient.PROXY_PORT);
                 config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : "");
-                config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : "");
-                config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : "");
+                config.setHttpProxyHost(
+                    Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : "");
+                config.setHttpProxyPort(
+                    Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : "");
                 break;
             case CHAT2DBAI:
                 DataResult<Config> chat2dbApiKey = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
                 DataResult<Config> chat2dbApiHost = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_HOST);
                 config.setApiKey(Objects.nonNull(chat2dbApiKey.getData()) ? chat2dbApiKey.getData().getContent() : "");
-                config.setApiHost(Objects.nonNull(chat2dbApiHost.getData()) ? chat2dbApiHost.getData().getContent() : "");
+                config.setApiHost(
+                    Objects.nonNull(chat2dbApiHost.getData()) ? chat2dbApiHost.getData().getContent() : "");
                 break;
             case AZUREAI:
                 DataResult<Config> azureApiKey = configService.find(AzureOpenAIClient.AZURE_CHATGPT_API_KEY);
@@ -303,13 +307,16 @@ public class ConfigController {
     // * @param request
     // */
     //private void saveAzureAIConfig(AISystemConfigRequest request) {
-    //    SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY).content(
+    //    SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY)
+    //    .content(
     //        request.getAzureApiKey()).build();
     //    configService.createOrUpdate(apikeyParam);
-    //    SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT).content(
+    //    SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient
+    //    .AZURE_CHATGPT_ENDPOINT).content(
     //        request.getAzureEndpoint()).build();
     //    configService.createOrUpdate(endpointParam);
-    //    SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID).content(
+    //    SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient
+    //    .AZURE_CHATGPT_DEPLOYMENT_ID).content(
     //        request.getAzureDeploymentId()).build();
     //    configService.createOrUpdate(modelParam);
     //    AzureOpenAIClient.refresh();
@@ -334,7 +341,8 @@ public class ConfigController {
     //    DataResult<Config> azureDeployId = configService.find(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID);
     //    ChatGptConfig config = new ChatGptConfig();
     //
-    //    String sqlSource = Objects.nonNull(aiSqlSource.getData()) ? aiSqlSource.getData().getContent() : AiSqlSourceEnum.CHAT2DBAI.getCode();
+    //    String sqlSource = Objects.nonNull(aiSqlSource.getData()) ? aiSqlSource.getData().getContent() :
+    //    AiSqlSourceEnum.CHAT2DBAI.getCode();
     //    AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(sqlSource);
     //    if (Objects.isNull(aiSqlSourceEnum)) {
     //        aiSqlSourceEnum = AiSqlSourceEnum.CHAT2DBAI;
@@ -358,11 +366,15 @@ public class ConfigController {
     //    config.setRestAiUrl(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : null);
     //    config.setRestAiStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
     //        restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
-    //    config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : null);
-    //    config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : null);
+    //    config.setHttpProxyHost(Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() :
+    //    null);
+    //    config.setHttpProxyPort(Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() :
+    //    null);
     //    config.setAzureApiKey(Objects.nonNull(azureApiKey.getData()) ? azureApiKey.getData().getContent() : null);
-    //    config.setAzureEndpoint(Objects.nonNull(azureEndpoint.getData()) ? azureEndpoint.getData().getContent() : null);
-    //    config.setAzureDeploymentId(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : null);
+    //    config.setAzureEndpoint(Objects.nonNull(azureEndpoint.getData()) ? azureEndpoint.getData().getContent() :
+    //    null);
+    //    config.setAzureDeploymentId(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent()
+    //    : null);
     //    return DataResult.of(config);
     //}
 }

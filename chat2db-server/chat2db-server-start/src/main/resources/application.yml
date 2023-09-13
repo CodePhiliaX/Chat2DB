@@ -2,6 +2,8 @@ spring:
   # 默认开发环境
   profiles:
     active: dev
+  main:
+    allow-bean-definition-overriding: true
   jpa:
     # 展示sql
     show-sql: true
@@ -32,7 +34,10 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
-      
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
 chat2db:
   version: 1.0.0
 
@@ -41,10 +46,16 @@ logging:
   level:
     org:
       flywaydb: debug
+    ai:
+      chat2db:
+        server:
+          domain:
+            repository:
+              mapper: debug
 # 登录功能
 sa-token:
   # token名称 (同时也是cookie名称)
-  token-name: DBHUB
+  token-name: CHAT2DB
   timeout: 2592000
   # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
   is-concurrent: true
@@ -54,8 +65,6 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
-  # jwt秘钥 部署的时候需要改掉，不然可以随便破解登录
-  jwt-secret-key: jwt_dbhub
   is-write-header: true
 
 chatgpt:

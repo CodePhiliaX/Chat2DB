@@ -58,6 +58,10 @@
       .f-single-line();
     }
 
+    .envTag{
+      margin: 0px 4px;
+    }
+
     .moreButton {
       flex-shrink: 0;
       display: none;
@@ -100,7 +104,6 @@
   justify-content: center;
   align-items: center;
   position: relative;
-
 }
 
 .dataBaseList {
@@ -196,4 +199,19 @@
   z-index: 1;
   transform: scale(1);
   transition: transform 0.3s ease-in-out;
+}
+
+.envLabel {
+  display: flex;
+  justify-content: space-between;
+  line-height: 30px;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.envRefreshBox {
+  &:hover {
+    cursor: pointer;
+    color: var(--color-primary);
+  }
 }

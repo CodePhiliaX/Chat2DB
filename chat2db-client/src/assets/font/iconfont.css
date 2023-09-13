@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1691924685106') format('woff2'),
-       url('iconfont.woff?t=1691924685106') format('woff'),
-       url('iconfont.ttf?t=1691924685106') format('truetype');
+  src: url('iconfont.woff2?t=1694247177080') format('woff2'),
+       url('iconfont.woff?t=1694247177080') format('woff'),
+       url('iconfont.ttf?t=1694247177080') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-gerenyonghu:before {
+  content: "\e64c";
+}
+
+.icon-houtaiguanli:before {
+  content: "\e64b";
+}
+
+.icon-zitidaima:before {
+  content: "\ec83";
 }
 
 .icon-banben:before {

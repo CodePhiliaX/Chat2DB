@@ -14,6 +14,7 @@ public class BusinessExceptionConvertor implements ExceptionConvertor<BusinessEx
 
     @Override
     public ActionResult convert(BusinessException exception) {
-        return ActionResult.fail(exception.getCode(), I18nUtils.getMessage(exception.getCode()), ExceptionUtils.getErrorInfoFromException(exception));
+        return ActionResult.fail(exception.getCode(), I18nUtils.getMessage(exception.getCode(), exception.getArgs()),
+            ExceptionUtils.getErrorInfoFromException(exception));
     }
 }

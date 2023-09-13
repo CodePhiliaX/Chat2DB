@@ -63,3 +63,8 @@ export const operationTypeConfig: {
     icon: '\ue64a'
   }
 }
+
+export enum ConnectionKind {
+  Private = 'PRIVATE',
+  Shared = 'SHARED'
+}

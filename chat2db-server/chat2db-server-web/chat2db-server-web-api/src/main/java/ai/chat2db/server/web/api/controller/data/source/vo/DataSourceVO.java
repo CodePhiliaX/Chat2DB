@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.data.source.vo;
 
 import java.util.List;
 
+import ai.chat2db.server.common.api.controller.vo.SimpleEnvironmentVO;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
@@ -99,4 +100,21 @@ public class DataSourceVO {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 环境id
+     */
+    private Long environmentId;
+
+    /**
+     * 环境
+     */
+    private SimpleEnvironmentVO environment;
+
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
 }

@@ -3,7 +3,7 @@ package ai.chat2db.server.domain.core.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.OperationLog;
-import ai.chat2db.server.domain.api.param.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.repository.entity.OperationLogDO;
 
 import org.mapstruct.Mapper;

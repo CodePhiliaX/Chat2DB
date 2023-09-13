@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import { Modal } from 'antd';
@@ -17,12 +17,13 @@ import styles from './index.less';
 interface IProps {
   aiConfig: IAiConfig;
   className?: string;
-  text?: string;
+  render?: ReactNode;
+  // text?: string;
   dispatch: Function;
 }
 
 function Setting(props: IProps) {
-  const { className, text, dispatch } = props;
+  const { className, dispatch } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [currentMenu, setCurrentMenu] = useState(0);
@@ -93,11 +94,12 @@ function Setting(props: IProps) {
   return (
     <>
       <div className={classnames(className, styles.box)} onClick={showModal}>
-        {text ? (
+        {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
+        {/* {text ? (
           <span className={styles.setText}>{text}</span>
         ) : (
           <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )}
+        )} */}
       </div>
       <TestVersion />
       <Modal

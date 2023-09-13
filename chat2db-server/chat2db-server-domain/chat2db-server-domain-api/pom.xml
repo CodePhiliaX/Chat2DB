@@ -17,10 +17,6 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-tools-base</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>ai.chat2db</groupId>-->
-<!--            <artifactId>chat2db-server-domain-support</artifactId>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
