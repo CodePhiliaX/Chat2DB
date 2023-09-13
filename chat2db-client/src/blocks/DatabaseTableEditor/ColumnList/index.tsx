@@ -92,13 +92,13 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         return {
           key: uuidv4(),
           name: t.name,
-          length: t.dataType,
+          columnSize: t.columnSize,
           columnType: t.columnType,
-          nullable: t.nullable === 0,
+          nullable: t.nullable ? 1 : 0,
           comment: t.comment,
         }
       }) || []
-      setDataSource(list as any)
+      setDataSource(list)
     }
   }, [tableDetails])
 
@@ -140,14 +140,14 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
     },
     {
-      title: 'length',
-      dataIndex: 'length',
+      title: 'columnSize',
+      dataIndex: 'columnSize',
       editable: true,
       render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
           <Form.Item
-            name="length"
+            name="columnSize"
             style={{ margin: 0 }}
           >
             <InputNumber />
@@ -252,9 +252,9 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     const newData = {
       key: uuidv4(),
       name: '',
-      length: null,
+      columnSize: 0,
       columnType: null,
-      nullable: false,
+      nullable: 0,
     }
     setDataSource([...dataSource, newData])
     edit(newData)
