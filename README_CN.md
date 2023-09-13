@@ -68,7 +68,7 @@ Chat2DB 支持的数据库连接有:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
 - ClickHouseare
 - DM
