@@ -25,7 +25,6 @@ export interface IWorkspaceModelState {
   curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
-  curViewList: ITreeNode[];
   // 触发tab编辑表或打开表
   createTabIntro: ICreateTabIntro | undefined;
 }
@@ -42,7 +41,6 @@ export interface IWorkspaceModelType {
     setOpenConsoleList: Reducer<IWorkspaceModelState>;
     setCurConsoleId: Reducer<IWorkspaceModelState>;
     setCurTableList: Reducer<IWorkspaceModelState>;
-    setCurViewList: Reducer<IWorkspaceModelState>;
     setCreateTabIntro: Reducer<IWorkspaceModelState>;
   };
   effects: {
@@ -64,7 +62,6 @@ const WorkspaceModel: IWorkspaceModelType = {
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
-    curViewList: [],
     curConsoleId: null,
     createTabIntro: undefined,
   },
@@ -119,14 +116,6 @@ const WorkspaceModel: IWorkspaceModelType = {
       return {
         ...state,
         curTableList: payload,
-      };
-    },
-
-    // 视图列表
-    setCurViewList(state, { payload }) {
-      return {
-        ...state,
-        curViewList: payload,
       };
     },
     // 创建tab的引子

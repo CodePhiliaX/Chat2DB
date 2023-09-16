@@ -33,7 +33,7 @@ export enum OSType {
   RESTS = 'rests',
 }
 
-export enum TabType {
+export enum WorkspaceTabType {
   CONSOLE = 'console',
   FUNCTION = 'function',
   PROCEDURE = 'procedure',
@@ -44,29 +44,29 @@ export enum TabType {
 }
 
 export const tabTypeConfig: {
-  [key in TabType]: {
+  [key in WorkspaceTabType]: {
     icon: string
   };
 } = {
-  [TabType.CONSOLE]: {
+  [WorkspaceTabType.CONSOLE]: {
     icon: '\uec83'
   },
-  [TabType.VIEW]: {
+  [WorkspaceTabType.VIEW]: {
     icon: '\ue70c'
   },
-  [TabType.FUNCTION]: {
+  [WorkspaceTabType.FUNCTION]: {
     icon: '\ue76a'
   },
-  [TabType.PROCEDURE]: {
+  [WorkspaceTabType.PROCEDURE]: {
     icon: '\ue73c'
   },
-  [TabType.TRIGGER]: {
+  [WorkspaceTabType.TRIGGER]: {
     icon: '\ue64a'
   },
-  [TabType.EditTable]: {
+  [WorkspaceTabType.EditTable]: {
     icon: '\ue6b6'
   },
-  [TabType.OpenTable]: {
+  [WorkspaceTabType.OpenTable]: {
     icon: '\ue618'
   }
 }

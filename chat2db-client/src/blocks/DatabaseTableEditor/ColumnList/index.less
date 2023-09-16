@@ -9,9 +9,9 @@
 }
 
 .columnListHeader {
-  margin: 0px -10px 10px;
+  margin: 0px -5px 10px;
   button {
-    margin: 0px 10px;
+    margin: 0px 5px;
   }
 }
 
@@ -22,5 +22,15 @@
 
 .editableCell {
   height: 28px;
-  line-height: 28px;
+  line-height: 26px;
+  padding: 0px 7px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  .f-single-line();
+  width: 100%;
+  cursor: pointer;
+  &:hover {
+    border: 1px solid var(--color-border);
+  }
 }

@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
 import { MenuProps, message, Modal, Input, Dropdown, notification } from 'antd';
-import { TreeNodeType, CreateTabIntroType, TabType } from '@/constants';
+import { TreeNodeType, CreateTabIntroType, WorkspaceTabType } from '@/constants';
 import { ITreeConfigItem, ITreeConfig, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
 import connectionServer from '@/service/connection';
@@ -120,7 +120,7 @@ function TreeNodeRightClick(props: IProps) {
             type: 'workspace/setCreateTabIntro',
             payload: {
               type: CreateTabIntroType.EditorTable,
-              tabType: TabType.EditTable,
+              workspaceTabType: WorkspaceTabType.EditTable,
               treeNodeData: data,
             },
           })
@@ -159,6 +159,7 @@ function TreeNodeRightClick(props: IProps) {
         payload: {
           ...curWorkspaceParams,
           extraParams: curWorkspaceParams,
+          refresh: true,
         },
         callback: () => {
           message.success(i18n('common.text.submittedSuccessfully'))

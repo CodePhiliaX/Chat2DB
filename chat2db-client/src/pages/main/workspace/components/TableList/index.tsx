@@ -35,14 +35,12 @@ const dvaModel = connect(
   ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
-    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
 
 const TableList = dvaModel(function (props: any) {
   const { workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, curTableList, curViewList } = workspaceModel;
+  const { curWorkspaceParams } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedTableList, setSearchedTableList] = useState<ITreeNode[] | undefined>();
@@ -59,11 +57,9 @@ const TableList = dvaModel(function (props: any) {
   useEffect(() => {
     setCurList([]);
     if (isReady) {
-      setCurType({...optionsList[0]});
+      setCurType({ ...optionsList[0] });
     }
   }, [curWorkspaceParams]);
-
-
 
   useEffect(() => {
     if (searching) {

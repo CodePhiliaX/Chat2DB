@@ -3,7 +3,7 @@ import { connect } from 'umi';
 import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
-import WorkspaceRight from './components/WorkspaceRight';
+import WorkspaceRightNew from './components/WorkspaceRightNew';
 import WorkspaceHeader from './components/WorkspaceHeader';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
@@ -27,20 +27,13 @@ const dvaModel = connect(
   }),
 );
 
-interface Option {
-  value: string;
-  label: string;
-  children?: Option[];
-}
-
-const workspace = memo<IProps>((props) => {
+const workspacePage = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
   const [loading, setLoading] = useState(true);
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
-
   useEffect(() => {
     if (pageLoading === true) {
       setLoading(true);
@@ -107,7 +100,7 @@ const workspace = memo<IProps>((props) => {
             <WorkspaceLeft />
           </div>
           <div className={styles.boxRight}>
-            <WorkspaceRight />
+            <WorkspaceRightNew />
           </div>
         </DraggableContainer>
       </LoadingContent >
@@ -115,4 +108,4 @@ const workspace = memo<IProps>((props) => {
   );
 });
 
-export default dvaModel(workspace)
+export default dvaModel(workspacePage)

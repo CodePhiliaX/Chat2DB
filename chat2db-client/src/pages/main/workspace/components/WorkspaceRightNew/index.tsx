@@ -1,12 +1,13 @@
-import React, { memo, useRef, useEffect, useState } from 'react';
+import React, { memo, useRef, useEffect, useState, useMemo } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType, tabTypeConfig, TabType } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, TreeNodeType } from '@/constants';
 import { IConsole, ICreateConsole } from '@/typings';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import Tabs, { IOption } from '@/components/Tabs';
+import TabsNew, { ITabItem } from '@/components/TabsNew';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
@@ -16,6 +17,8 @@ import { IAIState } from '@/models/ai';
 import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
+import { IWorkspaceTab } from '@/typings'
+import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
 
 interface IProps {
   className?: string;
@@ -24,42 +27,42 @@ interface IProps {
   dispatch: any;
 }
 
-export interface ITab {
-  id: number;
-  tabType: TabType;
-  icon: string;
-  [key: string]: any;
-}
-
 const WorkspaceRight = memo<IProps>(function (props) {
-  const [activeConsoleId, setActiveConsoleId] = useState<number>();
   const { className, aiModel, workspaceModel, dispatch } = props;
+  // 活跃的TabID
+  const [activeConsoleId, setActiveConsoleId] = useState<number | string>();
+  // 工作台tab列表
+  const [workspaceTabList, setWorkspaceTabList] = useState<IWorkspaceTab[]>([]);
+
   const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, curConsoleId } = workspaceModel;
   const openConsoleListRef = useRef(openConsoleList);
-  const [tabList, setTabList] = useState<ITab[]>([]);
 
+  // 根据保存的console列表生成tab列表
   useEffect(() => {
     const newTabList = openConsoleList?.map(t => {
       return {
-        ...t,
-        tabType: TabType.CONSOLE,
-        icon: tabTypeConfig[t.operationType]?.icon || tabTypeConfig.console.icon,
+        id: t.id,
+        title: t.name,
+        type: WorkspaceTabType.CONSOLE,
+        uniqueData: t
       }
     })
-    setTabList(newTabList || [])
+    setWorkspaceTabList(newTabList || [])
   }, [openConsoleList])
 
   // 监听编辑表事件
   useEffect(() => {
     if (createTabIntro) {
-      const id: any = uuidV4();
-      setTabList([...tabList, {
+      const id = uuidV4();
+      const newData = {
         id,
-        tabType: createTabIntro.tabType,
-        icon: tabTypeConfig[createTabIntro.tabType as TabType]?.icon,
-        name: `edit-${createTabIntro.treeNodeData.name}`,
-        tableName: createTabIntro.treeNodeData.name,
-      }])
+        type: createTabIntro.workspaceTabType,
+        title: `edit-${createTabIntro.treeNodeData.name}`,
+        uniqueData: {
+          tableName: createTabIntro.treeNodeData.name,
+        }
+      }
+      setWorkspaceTabList([...workspaceTabList, newData])
       setActiveConsoleId(id);
 
       // 用完之后就清掉createTabIntro
@@ -75,11 +78,6 @@ const WorkspaceRight = memo<IProps>(function (props) {
     if (!doubleClickTreeNodeData) {
       return;
     }
-
-    dispatch({
-      type: 'workspace/setConsoleList',
-      payload: [],
-    })
 
     // 打开视图
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.VIEW) {
@@ -119,7 +117,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
 
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TRIGGER) {
       const { extraParams } = doubleClickTreeNodeData;
-      const { databaseName, schemaName, triggerName, dataSourceId, } = extraParams || {};
+      const { databaseName, schemaName, triggerName, dataSourceId } = extraParams || {};
       const name = doubleClickTreeNodeData.name
       const callback = (consoleId: number) => {
         sqlService.getTriggerDetail({
@@ -288,7 +286,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
     const { doubleClickTreeNodeData, name, callback, ddl } = params;
     const { extraParams } = doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType } = extraParams || {};
-    let p: any = {
+    let newConsole: any = {
       name,
       type: databaseType!,
       dataSourceId: dataSourceId!,
@@ -300,9 +298,16 @@ const WorkspaceRight = memo<IProps>(function (props) {
       ddl: ddl || '',
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
     };
-    addConsole({
-      newConsole: p,
-      callback,
+    historyService.saveConsole(newConsole).then(res => {
+
+      setWorkspaceTabList([...workspaceTabList, {
+        id: res,
+        title: newConsole.name,
+        type: WorkspaceTabType.CONSOLE,
+        uniqueData: newConsole
+      }])
+      callback?.(res);
+      setActiveConsoleId(res);
     });
   }
 
@@ -327,26 +332,28 @@ const WorkspaceRight = memo<IProps>(function (props) {
     });
   }
 
-  function onChange(key: any) {
+  // 切换tab
+  function onTabChange(key: string | number) {
     setActiveConsoleId(key);
   }
 
-  const onEdit = (action: 'add' | 'remove', key?: number) => {
+  // 删除 新增tab
+  const onEdit = (action: 'add' | 'remove', data: ITabItem) => {
     if (action === 'remove') {
-      closeWindowTab(key!);
+      const editData = workspaceTabList?.find(t => t.id === data.key);
+      if (editData?.type !== WorkspaceTabType.EditTable) {
+        closeWindowTab(data.key as number);
+      }
     }
     if (action === 'add') {
       addConsole();
     }
   };
 
-  const addConsole = (params?: {
-    newConsole?: ICreateConsole;
-    callback?: Function;
-  }) => {
+  const addConsole = () => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
-    let p = {
-      name: `new console${openConsoleList?.length}`,
+    let params = {
+      name: `new console`,
       ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
@@ -354,68 +361,42 @@ const WorkspaceRight = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      operationType: TabType.CONSOLE,
+      operationType: WorkspaceTabType.CONSOLE,
     };
-    historyService.saveConsole(params?.newConsole || p).then((res) => {
-      params?.callback?.(res);
-      const callback = () => {
-        dispatch({
-          type: 'workspace/setCurConsoleId',
-          payload: res,
-        });
-      }
-      getConsoleList(callback);
+    historyService.saveConsole(params).then((res) => {
+      // const callback = () => {
+      //   setActiveConsoleId(res);
+      //   // dispatch({
+      //   //   type: 'workspace/setCurConsoleId',
+      //   //   payload: res,
+      //   // });
+      // }
+      // getConsoleList(callback);
     });
   };
 
   const closeWindowTab = (key: number) => {
-    let newActiveKey = activeConsoleId;
-    let lastIndex = -1;
-    openConsoleList?.forEach((item, i) => {
-      if (item.id === key) {
-        lastIndex = i - 1;
-      }
-    });
-
-    const newPanes = openConsoleList?.filter((item) => item.id !== key) || [];
-    if (newPanes.length && newActiveKey === key) {
-      if (lastIndex >= 0) {
-        newActiveKey = newPanes[lastIndex].id;
-      } else {
-        newActiveKey = newPanes[0].id;
-      }
-    }
-    dispatch({
-      type: 'workspace/setOpenConsoleList',
-      payload: newPanes,
-    });
-    setActiveConsoleId(newActiveKey);
-
     let p: any = {
       id: key,
       tabOpened: 'n',
     };
-
-    const window = openConsoleList?.find((t) => t.id === key);
-    if (!window?.status) {
-      return;
-    }
-    // if (window!.status === 'DRAFT') {
-    //   historyService.deleteSavedConsole({ id: window!.id });
-    // } else {
+    // 这行干嘛的？TODO:
+    // const window = openConsoleList?.find((t) => t.id === key);
+    // if (!window?.status) {
+    //   return;
+    // }
     historyService.updateSavedConsole(p).then(() => {
       handleLocalStorageSavedConsole(p.id, 'delete');
     });
-    // }
   };
 
   function renderEmpty() {
     return <div className={styles.ears}><ShortcutKey /></div>;
   }
 
-  function editableNameOnBlur(t: IOption) {
+  function editableNameOnBlur(t: ITabItem) {
     let p: any = {
-      id: t.value,
+      id: t.key,
       name: t.label
     }
     historyService.updateSavedConsole(p).then(() => {
@@ -440,60 +421,56 @@ const WorkspaceRight = memo<IProps>(function (props) {
     });
   }
 
+  const tabsList = useMemo(() => {
+    return workspaceTabList.map(t => {
+      const { uniqueData } = t;
+      return {
+        prefixIcon: workspaceTabConfig[t.type]?.icon,
+        label: t.title,
+        key: t.id,
+        // 这里还缺一个参数 是否可编辑tab名称, 编辑表不可编辑名称 TODO:
+        children: <>
+          {
+            [WorkspaceTabType.CONSOLE, WorkspaceTabType.FUNCTION, WorkspaceTabType.PROCEDURE, WorkspaceTabType.TRIGGER, WorkspaceTabType.VIEW].includes(t.type) && <SQLExecute
+              isActive={activeConsoleId === t.id}
+              data={{
+                initDDL: uniqueData?.ddl,
+                databaseName: curWorkspaceParams.databaseName!,
+                dataSourceId: curWorkspaceParams.dataSourceId!,
+                type: curWorkspaceParams.databaseType!,
+                schemaName: curWorkspaceParams?.schemaName!,
+                consoleId: t.id as number,
+                consoleName: uniqueData.name,
+              }}
+            />
+          }
+          {
+            t.type === WorkspaceTabType.EditTable && <DatabaseTableEditor
+              dataSourceId={curWorkspaceParams.dataSourceId}
+              databaseName={curWorkspaceParams.databaseName!}
+              schemaName={curWorkspaceParams?.schemaName!}
+              tableName={uniqueData.tableName}
+            />
+          }
+        </>
+      };
+    })
+  }, [workspaceTabList, workspaceModel, activeConsoleId, curWorkspaceParams, aiModel, dispatch])
+
   return (
-    <div className={classnames(styles.box, className)}>
-      <LoadingContent data={tabList} handleEmpty empty={renderEmpty()}>
+    <div className={classnames(styles.workspaceRight, className)}>
+      <LoadingContent data={workspaceTabList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
-          <Tabs
+          <TabsNew
             className={styles.tabs}
-            onChange={onChange}
+            onChange={onTabChange}
             onEdit={onEdit as any}
             editableName={true}
+            activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
-            activeTab={activeConsoleId}
-            tabs={(tabList || [])?.map((t, i) => {
-              return {
-                prefixIcon: t.icon,
-                label: t.name,
-                value: t.id,
-              };
-            })}
+            items={tabsList}
           />
         </div>
-        {tabList?.map((t, index) => {
-          return (
-            <div
-              key={t.id}
-              className={classnames(styles.consoleBox, { [styles.activeConsoleBox]: activeConsoleId === t.id })}
-            >
-              {
-                [TabType.CONSOLE, TabType.FUNCTION, TabType.PROCEDURE, TabType.TRIGGER, TabType.VIEW].includes(t.tabType) && <SQLExecute
-                  isActive={activeConsoleId === t.id}
-                  data={{
-                    initDDL: t.ddl,
-                    databaseName: curWorkspaceParams.databaseName!,
-                    dataSourceId: curWorkspaceParams.dataSourceId!,
-                    type: curWorkspaceParams.databaseType!,
-                    schemaName: curWorkspaceParams?.schemaName!,
-                    consoleId: t.id,
-                    consoleName: t.name,
-                  }}
-                  workspaceModel={workspaceModel}
-                  aiModel={aiModel}
-                  dispatch={dispatch}
-                />
-              }
-              {
-                t.tabType === TabType.EditTable && <DatabaseTableEditor
-                  dataSourceId={curWorkspaceParams.dataSourceId}
-                  databaseName={curWorkspaceParams.databaseName!}
-                  schemaName={curWorkspaceParams?.schemaName}
-                  tableName={t.tableName}
-                />
-              }
-            </div>
-          );
-        })}
       </LoadingContent>
     </div >
   );
