@@ -26,10 +26,8 @@ interface IProps {
 
 }
 
-export type IColumnListInfo = IColumnItem[];
-
 export interface IColumnListRef {
-  getColumnListInfo: () => IColumnListInfo;
+  getColumnListInfo: () => IColumnItem[];
 }
 
 const Row = ({ children, ...props }: RowProps) => {
@@ -72,9 +70,27 @@ const Row = ({ children, ...props }: RowProps) => {
   );
 };
 
+const createInitialData = () => {
+  return {
+    key: uuidv4(),
+    name: null,
+    columnSize: null,
+    columnType: null,
+    nullable: null,
+    comment: null,
+    primaryKey: null,
+    defaultValue: null,
+    dataType: null,
+    autoIncrement: null,
+    numericPrecision: null,
+    numericScale: null,
+    characterMaximumLength: null,
+  };
+}
+
 const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>) => {
   const { dataSourceId, databaseName, tableDetails } = useContext(Context);
-  const [dataSource, setDataSource] = useState<IColumnListInfo>([]);
+  const [dataSource, setDataSource] = useState<IColumnItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState('');
   const [databaseFieldTypeList, setDatabaseFieldTypeList] = useState<string[]>([])
@@ -90,12 +106,8 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     if (tableDetails) {
       const list = tableDetails?.columnList?.map(t => {
         return {
+          ...t,
           key: uuidv4(),
-          name: t.name,
-          columnSize: t.columnSize,
-          columnType: t.columnType,
-          nullable: t.nullable ? 1 : 0,
-          comment: t.comment,
         }
       }) || []
       setDataSource(list)
@@ -103,6 +115,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   }, [tableDetails])
 
   useEffect(() => {
+    // 获取数据库字段类型列表
     sqlService.getDatabaseFieldTypeList({
       dataSourceId,
       databaseName,
@@ -120,6 +133,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     {
       title: 'name',
       dataIndex: 'name',
+      width: '160px',
       render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
@@ -142,7 +156,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     {
       title: 'columnSize',
       dataIndex: 'columnSize',
-      editable: true,
+      width: '120px',
       render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
@@ -165,39 +179,54 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     {
       title: 'columnType',
       dataIndex: 'columnType',
-      width: '140px',
+      width: '200px',
       render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
-        return editable ? (
-          <Form.Item
-            name="columnType"
-            style={{ margin: 0 }}
-          >
-            <Select
-              options={databaseFieldTypeList.map((i) => ({ label: i, value: i }))}
-            />
-          </Form.Item>
-        ) : (
-          <div
-            className={styles.editableCell}
-            onClick={() => edit(record)}
-          >
-            {text}
-          </div>
-        );
+        return <div>
+          {
+            editable ? (
+              <Form.Item
+                name="columnType"
+                style={{ margin: 0, maxWidth: '184px' }}
+              >
+                <Select
+                  options={databaseFieldTypeList.map((i) => ({ label: i, value: i }))}
+                />
+              </Form.Item>
+            ) : (
+              <div
+                style={{ maxWidth: '184px' }}
+                className={styles.editableCell}
+                onClick={() => edit(record)}
+              >
+                {text}
+              </div>
+            )
+          }
+        </div>
       }
     },
     {
       title: 'nullable',
       dataIndex: 'nullable',
       width: '100px',
-      render: (text: boolean, record: IColumnItem) => {
-        return <Form.Item
-          name="nullable"
-          style={{ margin: 0 }}
-        >
-          <Checkbox checked={text} />
-        </Form.Item>
+      render: (nullable: number, record: IColumnItem) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <Form.Item
+            name='nullable'
+            style={{ margin: 0 }}
+            valuePropName='checked'
+          >
+            <Checkbox checked={nullable === 1} />
+          </Form.Item>
+        ) : (
+          <div
+            onClick={() => edit(record)}
+          >
+            <Checkbox checked={nullable === 1} />
+          </div>
+        );
       }
     },
     {
@@ -234,28 +263,26 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     }
   };
 
-  const formChange = (value: any) => {
-    const newData = form.getFieldsValue();
-    console.log(value)
-    setDataSource(dataSource.map(i => {
-      if (i.key === editingKey) {
+  const handelFieldsChange = (field: any) => {
+    let { name: nameList, value } = field[0];
+    const name = nameList[0];
+    if (name === 'nullable') {
+      value = value ? 1 : 0
+    }
+    const newData = dataSource.map((item) => {
+      if (item.key === editingKey) {
         return {
-          ...i,
-          ...newData
-        }
+          ...item,
+          [name]: value,
+        };
       }
-      return i
-    }))
+      return item;
+    });
+    setDataSource(newData);
   }
 
   const addData = () => {
-    const newData = {
-      key: uuidv4(),
-      name: '',
-      columnSize: 0,
-      columnType: null,
-      nullable: 0,
-    }
+    const newData = createInitialData()
     setDataSource([...dataSource, newData])
     edit(newData)
   }
@@ -288,7 +315,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     }
   }
 
-  function getColumnListInfo(): IColumnListInfo {
+  function getColumnListInfo(): IColumnItem[] {
     return dataSource
   }
 
@@ -305,7 +332,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         <Button onClick={moveData.bind(null, 'down')}>下移</Button>
       </div>
       <div className={styles.tableBox}>
-        <Form form={form} onChange={formChange}>
+        <Form form={form} onFieldsChange={handelFieldsChange}>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext
               items={dataSource.map((i) => i.key)}

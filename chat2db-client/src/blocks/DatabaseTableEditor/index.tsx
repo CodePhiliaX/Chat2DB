@@ -33,6 +33,7 @@ export const Context = createContext<IContext>({} as any);
 export default memo<IProps>(function DatabaseTableEditor(props) {
   const { databaseName, dataSourceId, tableName, schemaName } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
+  const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
@@ -70,17 +71,29 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
       refresh: true
     }
     sqlService.getTableDetails(params).then(res => {
-      setTableDetails(res)
+      setTableDetails(res || {})
+      setOldTableDetails(res)
     })
   }, [])
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
-      sqlService.getModifyTableSql({
+      const newTable = {
         ...baseInfoRef.current.getBaseInfo(),
         columnList: columnListRef.current.getColumnListInfo()!,
         indexList: indexListRef.current.getIndexListInfo()!
-      }).then(res => {
+      }
+      let params = {
+        databaseName,
+        dataSourceId,
+        tableName,
+        schemaName,
+        refresh: true,
+        newTable: JSON.stringify(newTable),
+        oldTable: JSON.stringify(oldTableDetails)
+      }
+      console.log(newTable);
+      sqlService.getModifyTableSql(params).then(res => {
         console.log(res)
       })
     }

@@ -1,4 +1,4 @@
-import React, { memo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle, } from 'react';
+import React, { memo, useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
@@ -6,71 +6,77 @@ import { CSS } from '@dnd-kit/utilities';
 import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
-import { IColumnItem } from '@/typings'
+import { IColumnItem, IIndexIncludeColumnItem } from '@/typings';
+import { use } from 'echarts';
 
 interface IProps {
-  includedColumnList: IColumnItem[];
-}
-
-interface IIncludeColItem {
-  key: string;
-  columnName: string;
-  prefixLength: number | null;
+  includedColumnList: IIndexIncludeColumnItem[];
 }
 
 const createInitialData = () => {
   return {
     key: uuidv4(),
-    columnName: '',
-    prefixLength: null,
-  }
-}
+    indexName: null,
+    tableName: null,
+    type: null,
+    columnName: null,
+    comment: null,
+    ordinalPosition: null,
+    collation: null,
+    schemaName: null,
+    databaseName: '',
+    nonUnique: true,
+    indexQualifier: null,
+    ascOrDesc: null,
+    cardinality: null,
+    pages: null,
+    filterCondition: null,
+    prefixLength: null
+  };
+};
 
 export interface IIncludeColRef {
-  getIncludeColInfo: () => IColumnItem[];
+  getIncludeColInfo: () => IIndexIncludeColumnItem[];
 }
 
-const InitialDataSource = [createInitialData()]
+const InitialDataSource = [createInitialData()];
 
 const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>) => {
   const { includedColumnList } = props;
   const { columnListRef } = useContext(Context);
-  const [dataSource, setDataSource] = useState<IIncludeColItem[]>(InitialDataSource);
+  const [dataSource, setDataSource] = useState<IIndexIncludeColumnItem[]>(InitialDataSource);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState(dataSource[0]?.key);
-  const [columnList, setColumnList] = useState<IColumnItem[]>([]);
-  const isEditing = (record: IIncludeColItem) => record.key === editingKey;
+  const isEditing = (record: IIndexIncludeColumnItem) => record.key === editingKey;
 
   useEffect(() => {
-    setDataSource(
-      includedColumnList.map(t => {
-        return {
-          columnName: t.name,
-          prefixLength: t.prefixLength || null,
-          key: uuidv4(),
-        }
-      })
-    )
-  }, [includedColumnList])
-
-  useEffect(() => {
-    const columnListInfo = columnListRef.current?.getColumnListInfo();
-    if (columnListInfo) {
-      setColumnList(columnListInfo)
+    if (includedColumnList.length) {
+      setDataSource(
+        includedColumnList.map(t => {
+          return {
+            ...t,
+            key: uuidv4(),
+          };
+        }),
+      );
     }
-    console.log(columnListInfo)
-  }, [])
+  }, [includedColumnList]);
 
-  const edit = (record: Partial<IIncludeColItem> & { key: React.Key }) => {
+  const columnList: IColumnItem[] = useMemo(() => {
+    const columnListInfo = columnListRef.current?.getColumnListInfo()?.filter(i => i.name);
+    return columnListInfo || [];
+  }, []);
+
+  const edit = (record: Partial<IIndexIncludeColumnItem> & { key: React.Key }) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
 
   const addData = () => {
-    const newData = createInitialData()
-    setDataSource([...dataSource, newData])
-    edit(newData)
-  }
+    const newData = createInitialData();
+    setDataSource([...dataSource, newData]);
+    edit(newData);
+  };
 
   const deleteData = () => {
     // if (dataSource.length === 1) {
@@ -78,116 +84,98 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     //   return
     // }
 
-    setDataSource(dataSource.filter(i => i.key !== editingKey))
-  }
+    setDataSource(dataSource.filter((i) => i.key !== editingKey));
+  };
 
   const columns = [
     {
       title: 'index',
       dataIndex: 'index',
       width: '10%',
-      render: (text: string, record: IIncludeColItem) => {
-        return dataSource.findIndex(i => i.key === record.key) + 1;
-      }
-
+      render: (text: string, record: IIndexIncludeColumnItem) => {
+        return dataSource.findIndex((i) => i.key === record.key) + 1;
+      },
     },
     {
       title: 'columnName',
       dataIndex: 'columnName',
       width: '45%',
-      render: (text: string, record: IIncludeColItem) => {
+      render: (text: string, record: IIndexIncludeColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
-          <Form.Item
-            name="columnName"
-            style={{ margin: 0 }}
-          >
-            <Select
-              options={columnList.map((i) => ({ label: i.name, value: i.name }))}
-            />
+          <Form.Item name="columnName" style={{ margin: 0 }}>
+            <Select options={columnList.map((i) => ({ label: i.name, value: i.name }))} />
           </Form.Item>
         ) : (
-          <div
-            className={styles.editableCell}
-            onClick={() => edit(record)}
-          >
+          <div className={styles.editableCell} onClick={() => edit(record)}>
             {text}
           </div>
         );
-      }
+      },
     },
     {
       title: 'prefixLength',
       dataIndex: 'prefixLength',
       width: '45%',
-      render: (text: string, record: IIncludeColItem) => {
+      render: (text: string, record: IIndexIncludeColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
-          <Form.Item
-            name="prefixLength"
-            style={{ margin: 0 }}
-          >
+          <Form.Item name="prefixLength" style={{ margin: 0 }}>
             <InputNumber style={{ width: '100%' }} />
           </Form.Item>
         ) : (
-          <div
-            className={styles.editableCell}
-            onClick={() => edit(record)}
-          >
+          <div className={styles.editableCell} onClick={() => edit(record)}>
             {text}
           </div>
         );
-      }
+      },
     },
   ];
 
   const onValuesChange = (changedValues: any, allValues: any) => {
-    const newDataSource = dataSource?.map(i => {
+    const newDataSource = dataSource?.map((i) => {
       if (i.key === editingKey) {
         return {
           ...i,
           ...allValues,
-        }
+        };
       }
-      return i
-    })
-    setDataSource(newDataSource)
-  }
+      return i;
+    });
+    setDataSource(newDataSource);
+  };
 
   const getIncludeColInfo = () => {
-    const IncludeColInfo: IColumnItem[] = []
+    const includeColInfo: IIndexIncludeColumnItem[] = [];
     dataSource.forEach(t => {
       columnList.forEach(columnItem => {
         if (t.columnName === columnItem.name) {
-          IncludeColInfo.push({
+          includeColInfo.push({
+            ...createInitialData(),
             ...columnItem,
-            prefixLength: t.prefixLength,
-          })
+            columnName: t.columnName,
+          });
         }
-      })
-    })
-    return IncludeColInfo
-  }
+      });
+    });
+    return includeColInfo;
+  };
 
   useImperativeHandle(ref, () => ({
     getIncludeColInfo,
   }));
 
-  return <div className={classnames(styles.box)}>
-    <div className={styles.indexListHeader}>
-      <Button onClick={addData}>新增</Button>
-      <Button onClick={deleteData}>删除</Button>
+  return (
+    <div className={classnames(styles.box)}>
+      <div className={styles.indexListHeader}>
+        <Button onClick={addData}>新增</Button>
+        <Button onClick={deleteData}>删除</Button>
+      </div>
+      <Form form={form} onValuesChange={onValuesChange}>
+        <Table pagination={false} rowKey="key" columns={columns} dataSource={dataSource} />
+      </Form>
     </div>
-    <Form form={form} onValuesChange={onValuesChange}>
-      <Table
-        pagination={false}
-        rowKey="key"
-        columns={columns}
-        dataSource={dataSource}
-      />
-    </Form>
-  </div>
-})
+  );
+});
 
-
-export default IncludeCol
+export default IncludeCol;

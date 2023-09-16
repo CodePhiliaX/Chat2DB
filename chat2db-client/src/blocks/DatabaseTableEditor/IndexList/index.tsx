@@ -1,4 +1,4 @@
-import React, { memo, useState, forwardRef, ForwardedRef, useImperativeHandle, useContext, useRef, useMemo } from 'react';
+import React, { memo, useState, forwardRef, ForwardedRef, useImperativeHandle, useContext, useRef, useMemo, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
@@ -15,8 +15,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
-import { IColumnItem, IIndexItem } from '@/typings'
-import { IndexesType } from '@/constants'
+import { IColumnItem, IIndexItem, IIndexIncludeColumnItem } from '@/typings';
+import { IndexesType } from '@/constants';
 import { Context } from '../index';
 
 const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']]
@@ -31,22 +31,24 @@ export interface IIndexListRef {
   getIndexListInfo: () => IIndexListInfo;
 }
 
-const initialData: IIndexItem[] = [
-  {
+const createInitialData = (): IIndexItem => {
+  return {
     key: uuidv4(),
     columnList: [],
     name: '',
     type: null,
-  },
-]
+    columns: null,
+    comment: null,
+  }
+}
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
 
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
-  const { columnListRef } = useContext(Context);
-  const [dataSource, setDataSource] = useState<IIndexItem[]>(initialData);
+  const { tableDetails, columnListRef } = useContext(Context);
+  const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState(dataSource[0]?.key);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
@@ -54,10 +56,20 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
 
   const isEditing = (record: IIndexItem) => record.key === editingKey;
 
-  const edit = (record: Partial<IIndexItem> & { key: React.Key }) => {
+  const edit = (record: Partial<IIndexItem> & { key?: React.Key }) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
+
+  useEffect(() => {
+    const data = tableDetails.indexList?.map(i => {
+      return {
+        ...i,
+        key: uuidv4(),
+      }
+    })
+    setDataSource(data || [])
+  }, [tableDetails])
 
   const addData = () => {
     const newData = {
@@ -65,6 +77,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       columnList: [],
       name: '',
       type: null,
+      columns: null,
     }
     setDataSource([...dataSource, newData])
     edit(newData)
@@ -98,17 +111,22 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     }
   }
 
-  const formChange = (value: any) => {
-    const newData = form.getFieldsValue();
-    setDataSource(dataSource.map(i => {
-      if (i.key === editingKey) {
+  const handelFieldsChange = (field: any) => {
+    let { name: nameList, value } = field[0];
+    const name = nameList[0];
+    if (name === 'nullable') {
+      value = value ? 1 : 0
+    }
+    const newData = dataSource.map((item) => {
+      if (item.key === editingKey) {
         return {
-          ...i,
-          ...newData
-        }
+          ...item,
+          [name]: value,
+        };
       }
-      return i
-    }))
+      return item;
+    });
+    setDataSource(newData);
   }
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
@@ -184,7 +202,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     {
       title: '索引名称',
       dataIndex: 'name',
-      width: '130px',
+      width: '180px',
       render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
@@ -205,7 +223,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     {
       title: '索引类型',
       dataIndex: 'type',
-      width: '130px',
+      width: '180px',
       render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
@@ -228,11 +246,12 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     {
       title: '包含列',
       dataIndex: 'columnList',
-      render: (columnItemList: IColumnItem[], record: IIndexItem) => {
+      render: (columnList: IIndexIncludeColumnItem[], record: IIndexItem) => {
         const editable = isEditing(record);
-        const text = columnItemList.map(t => {
-          return `${t.name}(${t.prefixLength})`
+        const text = columnList?.map(t => {
+          return `${t.columnName}`
         }).join(',')
+        console.log(text)
         return editable ? (
           <div className={styles.columnListCell}>
             <span onClick={() => { setIncludeColModalOpen(true) }}>编辑</span>
@@ -260,10 +279,11 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         return i
       })
     )
+    setIncludeColModalOpen(false)
   }
 
-  const includedColumnList: IColumnItem[] = useMemo(() => {
-    let data: IColumnItem[] = [];
+  const indexIncludedColumnList: IIndexIncludeColumnItem[] = useMemo(() => {
+    let data: IIndexIncludeColumnItem[] | null = [];
     dataSource.forEach(i => {
       if (i.key === editingKey) {
         data = i.columnList
@@ -276,10 +296,10 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     <div className={styles.indexListHeader}>
       <Button onClick={addData}>新增</Button>
       <Button onClick={deleteData}>删除</Button>
-      <Button onClick={moveData.bind(null, 'up')}>上移</Button>
-      <Button onClick={moveData.bind(null, 'down')}>下移</Button>
+      {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
+      <Button onClick={moveData.bind(null, 'down')}>下移</Button> */}
     </div>
-    <Form form={form} onChange={formChange}>
+    <Form form={form} onFieldsChange={handelFieldsChange}>
       <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
         <SortableContext
           items={dataSource.map((i) => i.key)}
@@ -308,7 +328,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       maskClosable={false}
       destroyOnClose={true}
     >
-      <IncludeCol includedColumnList={includedColumnList} ref={includeColRef} />
+      <IncludeCol includedColumnList={indexIncludedColumnList} ref={includeColRef} />
     </Modal>
   </div >
 })

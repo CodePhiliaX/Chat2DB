@@ -195,7 +195,15 @@ const getTableDetails = createRequest<{
 }, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
 
 /** 数据库支持的数据类型 */ 
-const getModifyTableSql = createRequest<IEditTableInfo, string>('/api/rdb/table/modify/sql', { method: 'post' });
+const getModifyTableSql = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  tableName: string;
+  oldTable: string;
+  newTable: string;
+  refresh: boolean;
+}, string>('/api/rdb/table/modify/sql', { method: 'post' });
 
 export default {
   getModifyTableSql,
