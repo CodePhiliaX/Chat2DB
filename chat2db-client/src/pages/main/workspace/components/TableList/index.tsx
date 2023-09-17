@@ -10,10 +10,11 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
 import { treeConfig } from '../Tree/treeConfig';
 import { ITreeNode } from '@/typings';
-import { TreeNodeType } from '@/constants';
+import { TreeNodeType, CreateTabIntroType, WorkspaceTabType } from '@/constants';
 import styles from './index.less';
 import { approximateTreeNode } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import { v4 as uuidV4 } from 'uuid';
 
 interface IOption {
   value: TreeNodeType;
@@ -32,16 +33,21 @@ const optionsList: IOption[] = [
 ]
 
 const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
 
+interface Option {
+  value: string;
+  label: string;
+  children?: Option[];
+}
+
 const TableList = dvaModel(function (props: any) {
   const { workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, curTableList, curViewList } = workspaceModel;
+  const { curWorkspaceParams } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedTableList, setSearchedTableList] = useState<ITreeNode[] | undefined>();
@@ -61,8 +67,6 @@ const TableList = dvaModel(function (props: any) {
       setCurType({ ...optionsList[0] });
     }
   }, [curWorkspaceParams]);
-
-
 
   useEffect(() => {
     if (searching) {
@@ -118,6 +122,27 @@ const TableList = dvaModel(function (props: any) {
     setCurType(selectedOptions[0]);
   }
 
+  const cascaderOnChange: any = (_: string[], selectedOptions: Option[]) => {
+    dispatch({
+      type: 'workspace/setCreateConsoleIntro',
+      payload: {
+        id: uuidV4(),
+        type: WorkspaceTabType.EditTable,
+        title: 'create-table',
+        uniqueData: {
+
+        }
+      },
+    })
+  };
+
+  const options = [
+    {
+      value: 'createTable',
+      label: i18n('editTable.button.createTable'),
+    }
+  ]
+
   return (
     <div className={styles.tableModule}>
       <div className={styles.leftModuleTitle}>
@@ -148,12 +173,20 @@ const TableList = dvaModel(function (props: any) {
                 </div>
               </Cascader>
               <div className={styles.iconBox} >
-                <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+                <div className={classnames(styles.refreshIcon, styles.itemIcon)} onClick={() => refreshTableList()}>
                   <Iconfont code="&#xec08;" />
                 </div>
-                <div className={styles.searchIcon} onClick={() => openSearch()}>
+                <div className={classnames(styles.searchIcon, styles.itemIcon)} onClick={() => openSearch()}>
                   <Iconfont code="&#xe600;" />
                 </div>
+                {
+                  curType.value === TreeNodeType.TABLES &&
+                  <Cascader options={options} onChange={cascaderOnChange}>
+                    <div className={classnames(styles.moreIcon, styles.itemIcon)}>
+                      <Iconfont code="&#xe601;" />
+                    </div>
+                  </Cascader>
+                }
               </div>
             </div>
         }
@@ -161,7 +194,7 @@ const TableList = dvaModel(function (props: any) {
       <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
         <Tree className={styles.tree} initialData={searchedTableList || curList}></Tree>
       </LoadingContent>
-    </div>
+    </div >
   );
 });
 

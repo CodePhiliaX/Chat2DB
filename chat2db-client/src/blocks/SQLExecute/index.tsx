@@ -7,7 +7,7 @@ import Console, { IAppendValue } from '@/components/Console';
 import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
-import { IWorkspaceModelState } from '@/models/workspace';
+import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams, IExportParams } from '@/service/sql';
@@ -41,7 +41,7 @@ const defaultResultConfig: IResultConfig = {
   hasNextPage: true,
 };
 
-const WorkspaceRightItem = memo<IProps>(function (props) {
+const SQLExecute = memo<IProps>(function (props) {
   const { data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>();
@@ -218,4 +218,9 @@ const WorkspaceRightItem = memo<IProps>(function (props) {
   );
 });
 
-export default WorkspaceRightItem;
+const dvaModel = connect(({ workspace, ai }: { workspace: IWorkspaceModelType; ai: IAIState }) => ({
+  workspaceModel: workspace,
+  aiModel: ai,
+}));
+
+export default dvaModel(SQLExecute);

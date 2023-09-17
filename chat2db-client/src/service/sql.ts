@@ -1,5 +1,5 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseFieldType, IEditTableInfo } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
@@ -174,12 +174,43 @@ const getProcedureDetail = createRequest<{
 }, { procedureBody: string }>('/api/rdb/procedure/detail', { method: 'get' });
 
 /** 格式化sql */
-const sqlFormat  = createRequest<{
+const sqlFormat = createRequest<{
   sql: string;
   dbType: DatabaseTypeCode;
 }, string>('/api/sql/format', { method: 'get' });
 
+/** 数据库支持的数据类型 */ 
+const getDatabaseFieldTypeList = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+}, IDatabaseFieldType[]>('/api/rdb/table/type_list', { method: 'get' });
+
+/** 数据库支持的数据类型 */ 
+const getTableDetails = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  tableName: string;
+  refresh: boolean;
+}, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
+
+export interface IModifyTableSqlParams { 
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+  tableName?: string;
+  oldTable?: string;
+  newTable: string;
+  refresh: boolean;
+}
+
+/** 数据库支持的数据类型 */ 
+const getModifyTableSql = createRequest<IModifyTableSqlParams, string>('/api/rdb/table/modify/sql', { method: 'post' });
+
 export default {
+  getModifyTableSql,
+  getTableDetails,
+  getDatabaseFieldTypeList,
   sqlFormat,
   getTriggerDetail,
   getProcedureDetail,
@@ -208,3 +239,5 @@ export default {
   getDMLCount,
   // exportResultTable
 };
+
+

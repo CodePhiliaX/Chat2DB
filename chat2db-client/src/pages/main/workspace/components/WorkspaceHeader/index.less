@@ -1,25 +1,47 @@
 @import '../../../../../styles/var.less';
 
-.workspaceHeader{
+.workspaceHeader {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-left: 10px;
   flex-shrink: 0;
   font-size: 14px;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   border-bottom: 1px solid var(--color-border-secondary);
   font-weight: bold;
   height: 36px;
 }
 
-.changeBox{
+.workspaceHeaderRight{
+  width: 0px;
+  flex: 1;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.workspaceHeaderLeft{
   display: flex;
   align-items: center;
   flex: 1;
 }
 
-.refreshBox{
+.workspaceHeaderCenter{
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 0px 40px;
+}
+
+.databaseTypeIcon{
+  margin-right: 10px;
+  font-weight: 400;
+  color: var(--color-primary);
+}
+
+.refreshBox {
+  flex-shrink: 0;
   margin-left: 10px;
   overflow: hidden;
   height: 18px;
@@ -30,52 +52,53 @@
   font-weight: normal;
   cursor: pointer;
   color: var(--color-text-secondary);
-  &:hover{
+  &:hover {
     color: var(--color-primary);
   }
-  i{
+  i {
     font-size: 14px;
   }
 
-  .spin{
+  .spin {
     transform: scale(0.6);
   }
 }
 
-.crumbsItem{
+.crumbsItem {
   display: flex;
   align-items: center;
   height: 26px;
   cursor: pointer;
   padding: 0px 6px;
   border-radius: 6px;
+  .f-single-line();
 
-  &:hover{
+  &:hover {
     color: var(--color-primary);
     background-color: var(--color-hover-bg);
   }
 
-  .typeIcon{
+  .typeIcon {
     margin-right: 6px;
   }
 }
 
 .arrow{
+  flex-shrink: 0;
   font-size: 10px;
   margin: 0px 4px;
   transform: translateY(1px);
 }
 
-.refreshIcon{
+.refreshIcon {
   margin-left: 20px;
   cursor: pointer;
 }
 
-.noConnectionModal{
+.noConnectionModal {
   display: flex;
   justify-content: space-between;
 
-  .mainText{
-
+  .mainText {
   }
 }

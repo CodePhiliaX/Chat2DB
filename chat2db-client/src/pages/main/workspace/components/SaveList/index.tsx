@@ -1,14 +1,14 @@
-import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
+import { Input, Dropdown } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
-import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
+import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
@@ -17,16 +17,11 @@ interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelType['state'],
   dispatch: any;
-  tableLoading: boolean;
-  databaseLoading: boolean;
 }
 
 const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
-    connectionModel: connection,
+  ({ workspace }: { workspace: IWorkspaceModelType }) => ({
     workspaceModel: workspace,
-    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
-    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
 
@@ -59,7 +54,6 @@ const SaveList = dvaModel(function (props: any) {
     });
   }, [curWorkspaceParams]);
 
-
   useEffect(() => {
     if (searching) {
       inputRef.current!.focus({
@@ -85,31 +79,19 @@ const SaveList = dvaModel(function (props: any) {
   }
 
   function openConsole(data: IConsole) {
-
     let p: any = {
       id: data.id,
       tabOpened: ConsoleOpenedStatus.IS_OPEN
     };
     historyServer.updateSavedConsole(p).then((res) => {
-
       dispatch({
-        type: 'workspace/setCurConsoleId',
-        payload: data.id,
-      });
-
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
+        type: 'workspace/setCreateConsoleIntro',
         payload: {
-          orderByDesc: false,
-          tabOpened: ConsoleOpenedStatus.IS_OPEN,
-          ...curWorkspaceParams
+          id: data.id,
+          type: WorkspaceTabType.CONSOLE,
+          title: data.name,
+          uniqueData: data,
         },
-        callback: (res: any) => {
-          dispatch({
-            type: 'workspace/setOpenConsoleList',
-            payload: res.data,
-          })
-        }
       })
     });
   }
@@ -119,20 +101,20 @@ const SaveList = dvaModel(function (props: any) {
       id: data.id,
     };
     historyServer.deleteSavedConsole(p).then((res) => {
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
-        payload: {
-          orderByDesc: true,
-          tabOpened: ConsoleOpenedStatus.IS_OPEN,
-          ...curWorkspaceParams
-        },
-        callback: (res: any) => {
-          dispatch({
-            type: 'workspace/setOpenConsoleList',
-            payload: res.data,
-          })
-        }
-      })
+      // dispatch({
+      //   type: 'workspace/fetchGetSavedConsole',
+      //   payload: {
+      //     orderByDesc: true,
+      //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      //     ...curWorkspaceParams
+      //   },
+      //   callback: (res: any) => {
+      //     dispatch({
+      //       type: 'workspace/setOpenConsoleList',
+      //       payload: res.data,
+      //     })
+      //   }
+      // })
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {

@@ -4,21 +4,16 @@ import classnames from 'classnames';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
 import { MenuProps, message, Modal, Input, Dropdown, notification } from 'antd';
-import { TreeNodeType, DatabaseTypeCode } from '@/constants';
+import { TreeNodeType, CreateTabIntroType, WorkspaceTabType } from '@/constants';
 import { ITreeConfigItem, ITreeConfig, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
 import connectionServer from '@/service/connection';
-import historyService from '@/service/history';
 import mysqlServer from '@/service/sql';
 import { OperationColumn } from '../treeConfig';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
 import { IWorkspaceModelType } from '@/models/workspace';
-import EditDialog from '@/components/EditDialog';
-import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
-import MonacoEditor, { IExportRefFunction, IRangeType } from '@/components/Console/MonacoEditor';
-
-type MenuItem = Required<MenuProps>['items'][number];
+import MonacoEditor from '@/components/Console/MonacoEditor';
 
 export type IProps = {
   className?: string;
@@ -116,6 +111,22 @@ function TreeNodeRightClick(props: IProps) {
         }
       }
     },
+    [OperationColumn.EditTable]: (data) => {
+      return {
+        text: i18n('workspace.menu.editTable'),
+        icon: '\ue602',
+        handle: () => {
+          dispatch({
+            type: 'workspace/setCreateTabIntro',
+            payload: {
+              type: CreateTabIntroType.EditorTable,
+              workspaceTabType: WorkspaceTabType.EditTable,
+              treeNodeData: data,
+            },
+          })
+        }
+      }
+    },
     [OperationColumn.EditSource]: (data) => {
       return {
         text: '编辑数据源',
@@ -148,6 +159,7 @@ function TreeNodeRightClick(props: IProps) {
         payload: {
           ...curWorkspaceParams,
           extraParams: curWorkspaceParams,
+          refresh: true,
         },
         callback: () => {
           message.success(i18n('common.text.submittedSuccessfully'))

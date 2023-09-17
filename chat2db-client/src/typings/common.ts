@@ -1,4 +1,4 @@
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, OperationType } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 
 export interface IPageResponse<T> {
   data: T[];
@@ -27,7 +27,7 @@ export interface IConsole {
   status: ConsoleStatus; // 控制台状态
   connectable: boolean; // 是否可连接
   tabOpened?: ConsoleOpenedStatus; // 控制台tab是否打开
-  operationType: OperationType; // 操作类型
+  operationType: WorkspaceTabType; // 操作类型
 }
 
 export interface Option {

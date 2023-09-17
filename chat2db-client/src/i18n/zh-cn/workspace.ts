@@ -4,6 +4,7 @@ export default {
   'workspace.title.saved': '保存记录',
   'workspace.menu.exportDDL': '导出DDL',
   'workspace.menu.deleteTable': '删除表',
+  'workspace.menu.editTable': '编辑表',
   'workspace.menu.pin': '置顶',
   'workspace.menu.unPin': '取消置顶',
   'workspace.menu.deleteTablePlaceHolder': '请输入你要删除的表名',
@@ -18,5 +19,4 @@ export default {
   'workspace.tree.trigger': '触发器',
   'workspace.tree.function': '函数',
   'workspace.tree.procedure': '存储过程',
-
 };
