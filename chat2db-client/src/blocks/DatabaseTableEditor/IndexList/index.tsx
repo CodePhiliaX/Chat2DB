@@ -323,7 +323,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     <Modal
       open={includeColModalOpen}
       width={800}
-      title="包含列"
+      title={i18n('editTable.label.includeColumn')}
       onOk={getIncludeColInfo}
       onCancel={() => { setIncludeColModalOpen(false) }}
       maskClosable={false}
