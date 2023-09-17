@@ -8,6 +8,7 @@ import dashboard from './dashboard';
 import chat from './chat';
 import team from './team'
 import login from './login';
+import editTable from './editTable';
 
 export default {
   lang: LangType.ZH_CN,
@@ -20,5 +21,6 @@ export default {
   ...dashboard,
   ...chat,
   ...team,
-  ...login
+  ...login,
+  ...editTable
 };

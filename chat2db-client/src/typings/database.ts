@@ -34,3 +34,8 @@ export interface IResultConfig {
   total: number | string;
   hasNextPage: boolean;
 }
+
+/** 不同数据库支持的列字段类型*/
+export interface IDatabaseFieldType {
+  typeName: string;
+}

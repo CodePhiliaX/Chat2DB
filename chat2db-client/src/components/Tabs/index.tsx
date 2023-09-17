@@ -17,7 +17,7 @@ export interface IOnchangeProps {
 
 interface IProps {
   className?: string;
-  tabs: IOption[] | undefined;
+  items: IOption[] | undefined;
   activeTab?: number | string;
   onChange: (key: IOption['value']) => void;
   onEdit?: (action: 'add' | 'remove', key?: IOption['value']) => void;
@@ -28,8 +28,8 @@ interface IProps {
 }
 
 export default memo<IProps>(function Tab(props) {
-  const { className, tabs, onChange, onEdit, activeTab, hideAdd, type, editableName, editableNameOnBlur } = props;
-  const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(tabs || []));
+  const { className, items, onChange, onEdit, activeTab, hideAdd, type, editableName, editableNameOnBlur } = props;
+  const [internalTabs, setInternalTabs] = useState<IOption[]>(lodash.cloneDeep(items || []));
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>(internalTabs[0]?.value);
   const [editingTab, setEditingTab] = useState<IOption['value'] | undefined>();
 
@@ -38,8 +38,8 @@ export default memo<IProps>(function Tab(props) {
   }, [activeTab])
 
   useEffect(() => {
-    setInternalTabs(lodash.cloneDeep(tabs || []));
-  }, [tabs])
+    setInternalTabs(lodash.cloneDeep(items || []));
+  }, [items])
 
   function deleteTab(data: IOption) {
     const newTabs = internalTabs?.filter(t => t.value !== data.value);

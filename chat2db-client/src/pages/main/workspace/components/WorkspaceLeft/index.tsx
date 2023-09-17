@@ -1,18 +1,13 @@
-import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
+import React, { memo } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
+import { Divider, Button } from 'antd';
 import Iconfont from '@/components/Iconfont';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
-import historyServer from '@/service/history';
-import Tree from '../Tree';
-import { TreeNodeType, ConsoleStatus, ConsoleOpenedStatus, OperationType } from '@/constants';
-import { IConsole, ITreeNode, ICreateConsole } from '@/typings';
+import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType } from '@/constants';
 import styles from './index.less';
-import { approximateTreeNode, approximateList } from '@/utils';
 import historyService from '@/service/history';
 import TableList from '../TableList';
 import SaveList from '../SaveList';
@@ -21,16 +16,12 @@ interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelType['state'],
   dispatch: any;
-  tableLoading: boolean;
-  databaseLoading: boolean;
 }
 
 const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
-    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
   }),
 );
 
@@ -38,31 +29,10 @@ const WorkspaceLeft = memo<IProps>(function (props) {
   const { className, workspaceModel, dispatch } = props;
   const { curWorkspaceParams, openConsoleList } = workspaceModel;
 
-  function getConsoleList() {
-    let p: any = {
-      pageNo: 1,
-      pageSize: 999,
-      orderByDesc: false,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      ...curWorkspaceParams,
-    };
-
-    dispatch({
-      type: 'workspace/fetchGetSavedConsole',
-      payload: p,
-      callback: (res: any) => {
-        dispatch({
-          type: 'workspace/setOpenConsoleList',
-          payload: res.data,
-        })
-      }
-    })
-  }
-
-  const addConsole = (params?: ICreateConsole) => {
+  const addConsole = () => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
-    let p = {
-      name: `new console${openConsoleList?.length || ''}`,
+    let params = {
+      name: `new console`,
       ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
@@ -70,29 +40,31 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       type: databaseType,
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      operationType: OperationType.CONSOLE
+      operationType: WorkspaceTabType.CONSOLE,
+      tabType: WorkspaceTabType.CONSOLE,
     }
-    historyService.saveConsole(params || p).then(res => {
+
+    historyService.saveConsole(params).then(res => {
       dispatch({
-        type: 'workspace/setCurConsoleId',
-        payload: res,
-      });
-      getConsoleList();
+        type: 'workspace/setCreateConsoleIntro',
+        payload: {
+          id: res,
+          type: WorkspaceTabType.CONSOLE,
+          title: params.name,
+          uniqueData: params,
+        },
+      })
     })
   }
 
-  function createConsole() {
-    addConsole();
-  }
-
-  useEffect(() => {
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 't') {
-        e.preventDefault();
-        addConsole();
-      }
-    }, false)
-  }, [])
+  // useEffect(() => {
+  //   document.addEventListener('keydown', (e) => {
+  //     if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+  //       e.preventDefault();
+  //       addConsole();
+  //     }
+  //   }, false)
+  // }, [])
 
   return (
     <div className={classnames(styles.box, className)}>
@@ -100,7 +72,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       <Divider className={styles.divider} />
       <TableList />
       <div className={styles.createButtonBox}>
-        <Button className={styles.createButton} type="primary" onClick={createConsole}>
+        <Button className={styles.createButton} type="primary" onClick={addConsole}>
           <Iconfont code="&#xe63a;" />
           {i18n('common.button.createConsole')}
         </Button>

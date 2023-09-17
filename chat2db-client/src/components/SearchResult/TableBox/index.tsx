@@ -36,7 +36,7 @@ interface IViewTableCellData {
 const SupportBaseTable: any = styled(BaseTable)`
   &.supportBaseTable {
     --bgcolor: var(--color-bg-base);
-    --header-bgcolor: var(--color-bg-elevated);
+    --header-bgcolor: var(--color-bg-subtle);
     --hover-bgcolor: var(--color-hover-bg);
     --header-hover-bgcolor: var(--color-hover-bg);
     --highlight-bgcolor: var(--color-hover-bg);
