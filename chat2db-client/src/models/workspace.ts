@@ -47,8 +47,6 @@ export interface IWorkspaceModelType {
     setCreateConsoleIntro: Reducer<IWorkspaceModelState>;
   };
   effects: {
-    fetchDatabaseAndSchema: Effect;
-    fetchDatabaseAndSchemaLoading: Effect;
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
@@ -140,35 +138,6 @@ const WorkspaceModel: IWorkspaceModelType = {
   },
 
   effects: {
-    // 获取当前连接下的及联databaseAndSchema数据
-    *fetchDatabaseAndSchema({ payload, callback }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-        if (callback && typeof callback === 'function') {
-          callback(res);
-        }
-      }
-      catch {
-
-      }
-    },
-    // 获取当前连接下的及联databaseAndSchema数据Loading
-    *fetchDatabaseAndSchemaLoading({ payload }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-      }
-      catch {
-
-      }
-    },
     // 获取保存的控制台列表
     *fetchGetSavedConsole({ payload, callback }, { put }) {
       try {

@@ -55,11 +55,21 @@
     .menuItemsTitle {
       flex: 1;
       width: 0;
-      .f-single-line();
-    }
-
-    .envTag{
-      margin: 0px 4px;
+      display: flex;
+      align-items: center;
+      .name {
+        .f-single-line();
+      }
+      .envTag {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        margin-right: 8px;
+      }
+      .databaseTypeIcon {
+        margin-right: 6px;
+      }
     }
 
     .moreButton {
