@@ -161,9 +161,14 @@ function Connections(props: IProps) {
                       }}
                     >
                       <div className={classnames(styles.menuItemsTitle)}>
-                        {icon}
-                        <Tag className={styles.envTag} color={t.env.color.toLocaleLowerCase()}>{t.env.shortName}</Tag>
-                        <span>{label}</span>
+                        <span className={styles.envTag} style={{background:t.env.color.toLocaleLowerCase()}}></span>
+                        <span className={styles.databaseTypeIcon}>
+                          {icon}
+                        </span>
+                        {/* <Tag className={styles.envTag} color={t.env.color.toLocaleLowerCase()}>
+                          {t.env.shortName?.[0]}
+                        </Tag> */}
+                        <span className={styles.name}>{label}</span>
                       </div>
                       <Dropdown
                         menu={{

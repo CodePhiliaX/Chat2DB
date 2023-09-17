@@ -20,27 +20,18 @@ interface IProps {
 }
 
 const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    pageLoading: loading.effects['workspace/fetchDatabaseAndSchemaLoading'] || loading.effects['workspace/fetchGetSavedConsoleLoading'],
   }),
 );
 
 const workspacePage = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
-  const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
+  const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
-  const [loading, setLoading] = useState(true);
   const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
-  useEffect(() => {
-    if (pageLoading === true) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
-  }, [pageLoading])
 
   useEffect(() => {
     clearData();
@@ -94,7 +85,7 @@ const workspacePage = memo<IProps>((props) => {
   return (
     <div className={styles.workspace}>
       <WorkspaceHeader></WorkspaceHeader>
-      <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={loading}>
+      <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={false}>
         <DraggableContainer className={styles.workspaceMain}>
           <div ref={draggableRef} className={styles.boxLeft}>
             <WorkspaceLeft />
