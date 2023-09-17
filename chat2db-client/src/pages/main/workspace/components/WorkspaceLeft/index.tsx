@@ -47,12 +47,13 @@ const WorkspaceLeft = memo<IProps>(function (props) {
 
     historyService.saveConsole(params).then(res => {
       dispatch({
-        type: 'workspace/setCurConsoleId',
-        payload: res,
-      });
-      dispatch({
-        type: 'workspace/setOpenConsoleList',
-        payload: [...openConsoleList, { ...params, id: res }],
+        type: 'workspace/setCreateConsoleIntro',
+        payload: {
+          id: res,
+          type: WorkspaceTabType.CONSOLE,
+          title: params.name,
+          uniqueData: params,
+        },
       })
     })
   }
