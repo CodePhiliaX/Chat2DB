@@ -19,7 +19,7 @@ interface IProps {
   className?: string;
   items: ITabItem[] | undefined;
   activeKey?: number | string;
-  onChange?: (key: ITabItem['key']) => void;
+  onChange?: (key: string | number | undefined) => void;
   onEdit?: (action: 'add' | 'remove', data?: ITabItem) => void;
   hideAdd?: boolean;
   type?: 'line';
@@ -34,8 +34,7 @@ export default memo<IProps>(function Tabs(props) {
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
 
   useEffect(() => {
-    // 这里如果id为0就会有问题等待改造
-    if (activeKey) {
+    if (activeKey !== null && activeKey !== undefined) {
       setInternalActiveTab(activeKey);
     }
   }, [activeKey])
@@ -59,14 +58,14 @@ export default memo<IProps>(function Tabs(props) {
         activeKey = internalTabs[index - 1]?.key
       }
     }
-    setInternalActiveTab(activeKey);
+    changeTab(activeKey);
     setInternalTabs(newInternalTabs);
     onEdit?.('remove', data)
   }
 
-  function changeTab(data: ITabItem) {
-    setInternalActiveTab(data.key);
-    onChange?.(data.key);
+  function changeTab(key: string | number | undefined) {
+    setInternalActiveTab(key);
+    onChange?.(key);
   }
 
   function handelAdd() {
@@ -106,7 +105,7 @@ export default memo<IProps>(function Tabs(props) {
         t.key === editingTab ?
           <input value={t.label as string} onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
           :
-          <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t)}>
+          <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
             {t.prefixIcon && <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />}
             <div className={styles.text}>
               {t.label}
