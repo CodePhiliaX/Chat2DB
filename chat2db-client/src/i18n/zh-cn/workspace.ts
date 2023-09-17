@@ -19,5 +19,4 @@ export default {
   'workspace.tree.trigger': '触发器',
   'workspace.tree.function': '函数',
   'workspace.tree.procedure': '存储过程',
-
 };

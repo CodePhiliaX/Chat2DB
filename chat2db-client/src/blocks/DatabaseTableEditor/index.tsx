@@ -7,6 +7,7 @@ import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import { IEditTableInfo } from '@/typings';
+import i18n from '@/i18n';
 
 interface IProps {
   dataSourceId: number,
@@ -40,17 +41,17 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
   const tabList = useMemo(() => {
     return [
       {
-        title: '基本信息',
+        title: i18n('editTable.tab.basicInfo'),
         key: 'basic',
         component: <BaseInfo ref={baseInfoRef} />
       },
       {
-        title: '列信息',
+        title: i18n('editTable.tab.columnInfo'),
         key: 'column',
         component: <ColumnList ref={columnListRef} />
       },
       {
-        title: '索引信息',
+        title: i18n('editTable.tab.indexInfo'),
         key: 'index',
         component: <IndexList ref={indexListRef} />
       },
@@ -128,7 +129,7 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
           }
         </div>
         <div className={styles.saveButton}>
-          <Button type="primary" onClick={submit}>保存</Button>
+          <Button type="primary" onClick={submit}>{i18n('common.button.save')}</Button>
         </div>
       </div>
       <div className={styles.main}>

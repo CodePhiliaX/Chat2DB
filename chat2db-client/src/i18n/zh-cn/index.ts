@@ -6,6 +6,7 @@ import setting from './setting';
 import workspace from './workspace';
 import dashboard from './dashboard';
 import chat from './chat';
+import editTable from './editTable';
 
 export default {
   lang: LangType.ZH_CN,
@@ -16,5 +17,6 @@ export default {
   ...menu,
   ...connection,
   ...dashboard,
-  ...chat
+  ...chat,
+  ...editTable
 };
