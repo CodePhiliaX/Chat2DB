@@ -5,14 +5,14 @@ import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
 import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
-import sqlService from '@/service/sql';
+import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import { IEditTableInfo } from '@/typings';
 
 interface IProps {
   dataSourceId: number,
   databaseName: string,
   schemaName: string | undefined,
-  tableName: string
+  tableName?: string
 }
 
 interface ITabItem {
@@ -56,24 +56,26 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
       },
     ]
   }, [])
-  const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[1]);
+  const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item)
   }
 
   useEffect(() => {
-    let params = {
-      databaseName,
-      dataSourceId,
-      tableName,
-      schemaName,
-      refresh: true
+    if (tableName) {
+      let params = {
+        databaseName,
+        dataSourceId,
+        tableName,
+        schemaName,
+        refresh: true
+      }
+      sqlService.getTableDetails(params).then(res => {
+        setTableDetails(res || {})
+        setOldTableDetails(res)
+      })
     }
-    sqlService.getTableDetails(params).then(res => {
-      setTableDetails(res || {})
-      setOldTableDetails(res)
-    })
   }, [])
 
   function submit() {
@@ -83,14 +85,18 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
         columnList: columnListRef.current.getColumnListInfo()!,
         indexList: indexListRef.current.getIndexListInfo()!
       }
-      let params = {
+
+      let params: IModifyTableSqlParams = {
         databaseName,
         dataSourceId,
-        tableName,
         schemaName,
         refresh: true,
         newTable: JSON.stringify(newTable),
-        oldTable: JSON.stringify(oldTableDetails)
+      }
+
+      if (tableName) {
+        params.tableName = tableName;
+        params.oldTable = JSON.stringify(oldTableDetails);
       }
       console.log(newTable);
       sqlService.getModifyTableSql(params).then(res => {

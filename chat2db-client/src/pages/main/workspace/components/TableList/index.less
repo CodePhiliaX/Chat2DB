@@ -25,9 +25,15 @@
     .iconBox {
       display: flex;
       align-items: center;
+      margin: 0px -5px;
+    }
+    .itemIcon {
+      margin: 0px 5px;
     }
     .refreshIcon {
-      margin-right: 10px;
+    }
+    .moreIcon {
+      transform: rotate(90deg);
     }
     .refreshIcon,
     .searchIcon {
@@ -49,16 +55,16 @@
   margin: 0px -10px;
 }
 
-.refreshIconBox{
+.refreshIconBox {
   cursor: pointer;
-  &:hover{
-    color: var(--color-primary)
+  &:hover {
+    color: var(--color-primary);
   }
 }
 
-.cascaderPopup{
-  :global{
-    .ant-cascader-menu{
+.cascaderPopup {
+  :global {
+    .ant-cascader-menu {
       height: auto;
     }
   }

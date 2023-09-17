@@ -33,7 +33,7 @@ const WorkspaceLeft = memo<IProps>(function (props) {
   const addConsole = () => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
     let params = {
-      name: `new console${openConsoleList?.length || ''}`,
+      name: `new console`,
       ddl: '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,

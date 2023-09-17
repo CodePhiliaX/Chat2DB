@@ -63,6 +63,13 @@ const WorkspaceRight = memo<IProps>(function (props) {
   // 监听编辑表事件
   useEffect(() => {
     if (createTabIntro) {
+      // 如果已经打开了这个表的编辑页面，那么就切换到这个页面
+      const flag = workspaceTabList?.find(t => t.uniqueData?.tableName === createTabIntro.treeNodeData.name);
+      if (flag) {
+        setActiveConsoleId(flag.id);
+        return
+      }
+
       const id = uuidV4();
       const newData = {
         id,
@@ -231,7 +238,12 @@ const WorkspaceRight = memo<IProps>(function (props) {
       });
     }
 
-    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE && !workspaceTabList?.length) {
+    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
+      // 如果workspaceTabList没有可以添加select * from table的地方那么才需要创建
+      const flag = workspaceTabList.some(t => [WorkspaceTabType.CONSOLE, WorkspaceTabType.FUNCTION, WorkspaceTabType.PROCEDURE, WorkspaceTabType.TRIGGER, WorkspaceTabType.VIEW].includes(t.type))
+      if (flag) {
+        return
+      }
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, tableName, } = extraParams || {};
       const ddl = `SELECT * FROM ${tableName};\n`;
@@ -349,7 +361,7 @@ const WorkspaceRight = memo<IProps>(function (props) {
   }
 
   // 切换tab
-  function onTabChange(key: string | number) {
+  function onTabChange(key: string | number | undefined) {
     setActiveConsoleId(key);
   }
 
