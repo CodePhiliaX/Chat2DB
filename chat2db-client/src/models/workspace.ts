@@ -3,7 +3,7 @@ import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro } from '@/typings';
+import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro, IWorkspaceTab } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
@@ -27,6 +27,8 @@ export interface IWorkspaceModelState {
   curTableList: ITreeNode[];
   // 触发tab编辑表或打开表
   createTabIntro: ICreateTabIntro | undefined;
+  // 触发新增console
+  createConsoleIntro: IWorkspaceTab | undefined;   
 }
 
 export interface IWorkspaceModelType {
@@ -42,6 +44,7 @@ export interface IWorkspaceModelType {
     setCurConsoleId: Reducer<IWorkspaceModelState>;
     setCurTableList: Reducer<IWorkspaceModelState>;
     setCreateTabIntro: Reducer<IWorkspaceModelState>;
+    setCreateConsoleIntro: Reducer<IWorkspaceModelState>;
   };
   effects: {
     fetchDatabaseAndSchema: Effect;
@@ -64,6 +67,7 @@ const WorkspaceModel: IWorkspaceModelType = {
     curTableList: [],
     curConsoleId: null,
     createTabIntro: undefined,
+    createConsoleIntro: undefined,
   },
 
   reducers: {
@@ -125,6 +129,13 @@ const WorkspaceModel: IWorkspaceModelType = {
         createTabIntro: payload,
       };
     },
+    // 创建console的引子
+    setCreateConsoleIntro(state, { payload }) { 
+      return {
+        ...state,
+        createConsoleIntro: payload,
+      };
+    }
     
   },
 
