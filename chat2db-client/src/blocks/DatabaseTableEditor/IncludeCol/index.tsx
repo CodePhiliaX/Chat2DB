@@ -1,13 +1,11 @@
 import React, { memo, useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { MenuOutlined } from '@ant-design/icons';
-import { CSS } from '@dnd-kit/utilities';
 import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
 import { IColumnItem, IIndexIncludeColumnItem } from '@/typings';
-import { use } from 'echarts';
+import i18n from '@/i18n';
 
 interface IProps {
   includedColumnList: IIndexIncludeColumnItem[];
@@ -89,7 +87,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
 
   const columns = [
     {
-      title: 'index',
+      title: i18n('editTable.label.index'),
       dataIndex: 'index',
       width: '10%',
       render: (text: string, record: IIndexIncludeColumnItem) => {
@@ -97,7 +95,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       },
     },
     {
-      title: 'columnName',
+      title: i18n('editTable.label.columnName'),
       dataIndex: 'columnName',
       width: '45%',
       render: (text: string, record: IIndexIncludeColumnItem) => {
@@ -114,7 +112,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       },
     },
     {
-      title: 'prefixLength',
+      title: i18n('editTable.label.prefixLength'),
       dataIndex: 'prefixLength',
       width: '45%',
       render: (text: string, record: IIndexIncludeColumnItem) => {
@@ -168,8 +166,8 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   return (
     <div className={classnames(styles.box)}>
       <div className={styles.indexListHeader}>
-        <Button onClick={addData}>新增</Button>
-        <Button onClick={deleteData}>删除</Button>
+        <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
+        <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
       </div>
       <Form form={form} onValuesChange={onValuesChange}>
         <Table pagination={false} rowKey="key" columns={columns} dataSource={dataSource} />

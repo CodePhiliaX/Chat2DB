@@ -17,6 +17,7 @@ import { CSS } from '@dnd-kit/utilities';
 import sqlService from '@/service/sql';
 import { Context } from '../index';
 import { IColumnItem } from '@/typings'
+import i18n from '@/i18n';
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
@@ -131,7 +132,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       align: 'center'
     },
     {
-      title: 'name',
+      title: i18n('editTable.label.columnName'),
       dataIndex: 'name',
       width: '160px',
       render: (text: string, record: IColumnItem) => {
@@ -154,7 +155,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
     },
     {
-      title: 'columnSize',
+      title: i18n('editTable.label.columnSize'),
       dataIndex: 'columnSize',
       width: '120px',
       render: (text: string, record: IColumnItem) => {
@@ -177,7 +178,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
     },
     {
-      title: 'columnType',
+      title: i18n('editTable.label.columnType'),
       dataIndex: 'columnType',
       width: '200px',
       render: (text: string, record: IColumnItem) => {
@@ -207,7 +208,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
     },
     {
-      title: 'nullable',
+      title: i18n('editTable.label.nullable'),
       dataIndex: 'nullable',
       width: '100px',
       render: (nullable: number, record: IColumnItem) => {
@@ -230,7 +231,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
     },
     {
-      title: 'comment',
+      title: i18n('editTable.label.comment'),
       dataIndex: 'comment',
       render: (text: string, record: IColumnItem) => {
         const editable = isEditing(record);
@@ -326,10 +327,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   return (
     <div className={styles.box}>
       <div className={styles.columnListHeader}>
-        <Button onClick={addData}>新增</Button>
-        <Button onClick={deleteData}>删除</Button>
-        <Button onClick={moveData.bind(null, 'up')}>上移</Button>
-        <Button onClick={moveData.bind(null, 'down')}>下移</Button>
+        <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
+        <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
+        <Button onClick={moveData.bind(null, 'up')}>{i18n('editTable.button.up')}</Button>
+        <Button onClick={moveData.bind(null, 'down')}>{i18n('editTable.button.down')}</Button>
       </div>
       <div className={styles.tableBox}>
         <Form form={form} onFieldsChange={handelFieldsChange}>

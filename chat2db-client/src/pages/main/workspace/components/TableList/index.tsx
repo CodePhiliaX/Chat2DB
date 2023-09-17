@@ -137,7 +137,7 @@ const TableList = dvaModel(function (props: any) {
   const options = [
     {
       value: 'createTable',
-      label: '新建表',
+      label: i18n('editTable.button.createTable'),
     }
   ]
 

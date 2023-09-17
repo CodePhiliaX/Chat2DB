@@ -18,6 +18,7 @@ import IncludeCol, { IIncludeColRef } from '../IncludeCol';
 import { IColumnItem, IIndexItem, IIndexIncludeColumnItem } from '@/typings';
 import { IndexesType } from '@/constants';
 import { Context } from '../index';
+import i18n from '@/i18n';
 
 const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']]
 
@@ -193,14 +194,14 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       width: '60px',
     },
     {
-      title: 'index',
+      title: i18n('editTable.label.index'),
       width: '70px',
       render: (text: string, record: IIndexItem) => {
         return dataSource.findIndex(i => i.key === record.key) + 1
       }
     },
     {
-      title: '索引名称',
+      title: i18n('editTable.label.indexName'),
       dataIndex: 'name',
       width: '180px',
       render: (text: string, record: IIndexItem) => {
@@ -221,7 +222,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       }
     },
     {
-      title: '索引类型',
+      title: i18n('editTable.label.indexType'),
       dataIndex: 'type',
       width: '180px',
       render: (text: string, record: IIndexItem) => {
@@ -244,7 +245,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       }
     },
     {
-      title: '包含列',
+      title: i18n('editTable.label.includeColumn'),
       dataIndex: 'columnList',
       render: (columnList: IIndexIncludeColumnItem[], record: IIndexItem) => {
         const editable = isEditing(record);
@@ -254,7 +255,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         console.log(text)
         return editable ? (
           <div className={styles.columnListCell}>
-            <span onClick={() => { setIncludeColModalOpen(true) }}>编辑</span>
+            <span onClick={() => { setIncludeColModalOpen(true) }}>{i18n('common.button.edit')}</span>
             {text}
           </div >
         ) : (
@@ -294,8 +295,8 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
 
   return <div className={classnames(styles.box)}>
     <div className={styles.indexListHeader}>
-      <Button onClick={addData}>新增</Button>
-      <Button onClick={deleteData}>删除</Button>
+      <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
+      <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
       {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
       <Button onClick={moveData.bind(null, 'down')}>下移</Button> */}
     </div>

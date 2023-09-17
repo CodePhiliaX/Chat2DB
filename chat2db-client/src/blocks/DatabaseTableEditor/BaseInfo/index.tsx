@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { Form, Input } from 'antd';
 import { Context } from '../index';
 import { IBaseInfo } from '@/typings';
+import i18n from '@/i18n';
 
 
 export interface IBaseInfoRef {
@@ -38,10 +39,10 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
     <div className={classnames(className, styles.box)}>
       <div className={styles.formBox}>
         <Form form={form} initialValues={{ remember: true }} autoComplete="off" className={styles.form}>
-          <Form.Item label="表名" name="name">
+          <Form.Item label={i18n('editTable.label.tableName')} name="name">
             <Input />
           </Form.Item>
-          <Form.Item label="注释" name="comment">
+          <Form.Item label={i18n('editTable.label.comment')} name="comment">
             <Input />
           </Form.Item>
         </Form>
