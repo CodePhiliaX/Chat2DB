@@ -1,8 +1,5 @@
 package ai.chat2db.server.web.api.controller.rdb.vo;
 
-import ai.chat2db.spi.enums.ColumnTypeEnum;
-
-import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
