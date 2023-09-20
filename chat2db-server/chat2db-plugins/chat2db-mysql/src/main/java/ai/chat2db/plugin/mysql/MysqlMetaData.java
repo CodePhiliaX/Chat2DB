@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
@@ -132,5 +134,9 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
             }
             return table;
         });
+    }
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new MysqlSqlBuilder();
     }
 }

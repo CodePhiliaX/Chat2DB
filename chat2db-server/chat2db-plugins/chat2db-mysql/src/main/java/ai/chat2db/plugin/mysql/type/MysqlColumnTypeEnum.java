@@ -1,13 +1,13 @@
 package ai.chat2db.plugin.mysql.type;
 
 import ai.chat2db.spi.ColumnBuilder;
+import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.model.ColumnType;
 import ai.chat2db.spi.model.TableColumn;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public enum MysqlColumnTypeEnum implements ColumnBuilder {
@@ -114,6 +114,10 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     private ColumnType columnType;
 
+    public static MysqlColumnTypeEnum getByType(String dataType) {
+        return COLUMN_TYPE_MAP.get(dataType.toUpperCase());
+    }
+
     public ColumnType getColumnType() {
         return columnType;
     }
@@ -133,17 +137,104 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
 
     @Override
-    public String generateColumnSql(TableColumn column) {
+    public String buildCreateColumnSql(TableColumn column) {
         MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
         if (type == null) {
             return "";
         }
         StringBuilder script = new StringBuilder();
+
         script.append("`").append(column.getName()).append("`").append(" ");
+
         script.append(buildDataType(column, type)).append(" ");
 
+        script.append(buildNullable(column,type)).append(" ");
 
-        return null;
+        script.append(buildDefaultValue(column,type)).append(" ");
+
+        script.append(buildExt(column,type)).append(" ");
+
+        script.append(buildAutoIncrement(column,type)).append(" ");
+
+        script.append(buildComment(column,type)).append(" ");
+
+        return script.toString();
+    }
+
+    @Override
+    public String buildModifyColumn(TableColumn tableColumn) {
+
+        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
+            return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");
+        }
+        if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
+            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
+        }
+        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
+            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
+                return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
+            } else {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+            }
+        }
+        return "";
+    }
+
+    private String buildAutoIncrement(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportAutoIncrement()){
+            return "";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()) {
+            return "AUTO_INCREMENT";
+        }
+        return "";
+    }
+
+    private String buildComment(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.columnType.isSupportComments() || StringUtils.isEmpty(column.getComment())){
+            return "";
+        }
+        return StringUtils.join("COMMENT '",column.getComment(),"'");
+    }
+
+    private String buildExt(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.columnType.isSupportExtent() || StringUtils.isEmpty(column.getExtent())){
+            return "";
+        }
+        return column.getComment();
+    }
+
+    private String buildDefaultValue(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportDefaultValue() || StringUtils.isEmpty(column.getDefaultValue())){
+            return "";
+        }
+        if(Arrays.asList(CHAR,VARCHAR,BINARY,VARBINARY, SET,ENUM).contains(type)){
+            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        if(Arrays.asList(DATE,TIME,YEAR).contains(type)){
+            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        if(Arrays.asList(DATETIME,TIMESTAMP).contains(type)){
+            if("CURRENT_TIMESTAMP".equalsIgnoreCase(column.getDefaultValue())){
+                return StringUtils.join("DEFAULT ",column.getDefaultValue());
+            }
+            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        return StringUtils.join("DEFAULT ",column.getDefaultValue());
+    }
+
+    private String buildNullable(TableColumn column,MysqlColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportNullable()){
+            return "";
+        }
+        if (1==column.getNullable()) {
+            return "NULL";
+        } else {
+            return "NOT NULL";
+        }
     }
 
     private String buildDataType(TableColumn column, MysqlColumnTypeEnum type) {
@@ -190,6 +281,9 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
         if(Arrays.asList(SET,ENUM).contains(type)){
+            if(!StringUtils.isEmpty( column.getDefaultValue())){
+                return StringUtils.join(columnType,"(",column.getDefaultValue(),")");
+            }
             //List<String> enumList = column.
         }
 

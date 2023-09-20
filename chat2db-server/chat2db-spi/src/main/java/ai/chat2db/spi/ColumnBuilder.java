@@ -9,7 +9,13 @@ public interface ColumnBuilder {
      * @param column
      * @return
      */
-    String generateColumnSql(TableColumn column);
+    String buildCreateColumnSql(TableColumn column);
 
 
+    /**
+     * Build modify column sql
+     * @param tableColumn
+     * @return
+     */
+    String buildModifyColumn(TableColumn tableColumn);
 }

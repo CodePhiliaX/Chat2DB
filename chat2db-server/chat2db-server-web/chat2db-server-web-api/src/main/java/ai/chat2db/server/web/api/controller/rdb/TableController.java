@@ -167,7 +167,7 @@ public class TableController {
      * @return
      */
     @PostMapping("/modify/sql")
-    public ListResult<SqlVO> modifySql(@Valid TableModifySqlRequest request) {
+    public ListResult<SqlVO> modifySql(@Valid  @RequestBody TableModifySqlRequest request) {
         return tableService.buildSql(
                         rdbWebConverter.tableRequest2param(request.getOldTable()),
                         rdbWebConverter.tableRequest2param(request.getNewTable()))
