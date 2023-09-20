@@ -1,11 +1,10 @@
-import React, { memo, useState, useContext, useEffect, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
+import React, { useContext, useEffect, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input } from 'antd';
 import { Context } from '../index';
 import { IBaseInfo } from '@/typings';
 import i18n from '@/i18n';
-
 
 export interface IBaseInfoRef {
   getBaseInfo: () => IBaseInfo;
@@ -51,4 +50,4 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
   );
 });
 
-export default BaseInfo
+export default BaseInfo;

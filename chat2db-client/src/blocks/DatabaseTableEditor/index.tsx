@@ -1,5 +1,5 @@
-import React, { memo, useRef, useState, createContext, useEffect, forwardRef, useMemo } from 'react';
-import { Button, Form } from 'antd';
+import React, { memo, useRef, useState, createContext, useEffect, useMemo } from 'react';
+import { Button } from 'antd';
 import styles from './index.less';
 import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
@@ -10,10 +10,10 @@ import { IEditTableInfo } from '@/typings';
 import i18n from '@/i18n';
 
 interface IProps {
-  dataSourceId: number,
-  databaseName: string,
-  schemaName: string | undefined,
-  tableName?: string
+  dataSourceId: number;
+  databaseName: string;
+  schemaName: string | undefined;
+  tableName?: string;
 }
 
 interface ITabItem {
@@ -31,7 +31,7 @@ interface IContext extends IProps {
 
 export const Context = createContext<IContext>({} as any);
 
-export default memo<IProps>(function DatabaseTableEditor(props) {
+export default memo((props: IProps) => {
   const { databaseName, dataSourceId, tableName, schemaName } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
@@ -43,105 +43,110 @@ export default memo<IProps>(function DatabaseTableEditor(props) {
       {
         title: i18n('editTable.tab.basicInfo'),
         key: 'basic',
-        component: <BaseInfo ref={baseInfoRef} />
+        component: <BaseInfo ref={baseInfoRef} />,
       },
       {
         title: i18n('editTable.tab.columnInfo'),
         key: 'column',
-        component: <ColumnList ref={columnListRef} />
+        component: <ColumnList ref={columnListRef} />,
       },
       {
         title: i18n('editTable.tab.indexInfo'),
         key: 'index',
-        component: <IndexList ref={indexListRef} />
+        component: <IndexList ref={indexListRef} />,
       },
-    ]
-  }, [])
+    ];
+  }, []);
   const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
 
   function changeTab(item: ITabItem) {
-    setCurrentTab(item)
+    setCurrentTab(item);
   }
 
   useEffect(() => {
     if (tableName) {
-      let params = {
+      const params = {
         databaseName,
         dataSourceId,
         tableName,
         schemaName,
-        refresh: true
-      }
-      sqlService.getTableDetails(params).then(res => {
-        setTableDetails(res || {})
-        setOldTableDetails(res)
-      })
+        refresh: true,
+      };
+      sqlService.getTableDetails(params).then((res) => {
+        setTableDetails(res || {});
+        setOldTableDetails(res);
+      });
     }
-  }, [])
+  }, []);
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
       const newTable = {
         ...baseInfoRef.current.getBaseInfo(),
         columnList: columnListRef.current.getColumnListInfo()!,
-        indexList: indexListRef.current.getIndexListInfo()!
-      }
+        indexList: indexListRef.current.getIndexListInfo()!,
+      };
 
-      let params: IModifyTableSqlParams = {
+      const params: IModifyTableSqlParams = {
         databaseName,
         dataSourceId,
         schemaName,
         refresh: true,
-        newTable: JSON.stringify(newTable),
-      }
+        newTable,
+      };
 
       if (tableName) {
         params.tableName = tableName;
-        params.oldTable = JSON.stringify(oldTableDetails);
+        params.oldTable = oldTableDetails;
       }
       console.log(newTable);
-      sqlService.getModifyTableSql(params).then(res => {
-        console.log(res)
-      })
+      sqlService.getModifyTableSql(params).then((res) => {
+        console.log(res);
+      });
     }
   }
 
-  return <Context.Provider value={{
-    ...props,
-    tableDetails,
-    baseInfoRef,
-    columnListRef,
-    indexListRef
-  }}>
-    <div className={classnames(styles.box)}>
-      <div className={styles.header}>
-        <div className={styles.tabList}>
-          {
-            tabList.map((item, index) => {
-              return <div
-                key={item.key}
-                onClick={changeTab.bind(null, item)}
-                className={classnames(styles.tabItem, currentTab.key == item.key ? styles.currentTab : '')}
-              >
-                {item.title}
+  return (
+    <Context.Provider
+      value={{
+        ...props,
+        tableDetails,
+        baseInfoRef,
+        columnListRef,
+        indexListRef,
+      }}
+    >
+      <div className={classnames(styles.box)}>
+        <div className={styles.header}>
+          <div className={styles.tabList}>
+            {tabList.map((item) => {
+              return (
+                <div
+                  key={item.key}
+                  onClick={changeTab.bind(null, item)}
+                  className={classnames(styles.tabItem, currentTab.key == item.key ? styles.currentTab : '')}
+                >
+                  {item.title}
+                </div>
+              );
+            })}
+          </div>
+          <div className={styles.saveButton}>
+            <Button type="primary" onClick={submit}>
+              {i18n('common.button.save')}
+            </Button>
+          </div>
+        </div>
+        <div className={styles.main}>
+          {tabList.map((t) => {
+            return (
+              <div key={t.key} className={classnames(styles.tab, { [styles.hidden]: currentTab.key !== t.key })}>
+                {t.component}
               </div>
-            })
-          }
-        </div>
-        <div className={styles.saveButton}>
-          <Button type="primary" onClick={submit}>{i18n('common.button.save')}</Button>
+            );
+          })}
         </div>
       </div>
-      <div className={styles.main}>
-        {
-          tabList.map(t => {
-            return <div key={t.key} className={classnames(styles.tab, { [styles.hidden]: currentTab.key !== t.key })}>
-              {t.component}
-            </div>
-          })
-        }
-      </div>
-    </div>
-  </Context.Provider>
-
-})
+    </Context.Provider>
+  );
+});

@@ -1,30 +1,32 @@
-import React, { memo, useState, forwardRef, ForwardedRef, useImperativeHandle, useContext, useRef, useMemo, useEffect } from 'react';
+import React, {
+  useState,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+  useContext,
+  useRef,
+  useMemo,
+  useEffect,
+} from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal } from 'antd';
+import { Table, Input, Form, Select, Button, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
-import { IColumnItem, IIndexItem, IIndexIncludeColumnItem } from '@/typings';
+import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
 import { IndexesType } from '@/constants';
 import { Context } from '../index';
 import i18n from '@/i18n';
 
-const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']]
+const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']];
 
-interface IProps {
-
-}
+interface IProps {}
 
 export type IIndexListInfo = IIndexItem[];
 
@@ -40,15 +42,15 @@ const createInitialData = (): IIndexItem => {
     type: null,
     columns: null,
     comment: null,
-  }
-}
+  };
+};
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
 
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
-  const { tableDetails, columnListRef } = useContext(Context);
+  const { tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState(dataSource[0]?.key);
@@ -63,14 +65,14 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   useEffect(() => {
-    const data = tableDetails.indexList?.map(i => {
+    const data = tableDetails.indexList?.map((i) => {
       return {
         ...i,
         key: uuidv4(),
-      }
-    })
-    setDataSource(data || [])
-  }, [tableDetails])
+      };
+    });
+    setDataSource(data || []);
+  }, [tableDetails]);
 
   const addData = () => {
     const newData = {
@@ -79,44 +81,21 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       name: '',
       type: null,
       columns: null,
-    }
-    setDataSource([...dataSource, newData])
-    edit(newData)
-  }
+    };
+    setDataSource([...dataSource, newData]);
+    edit(newData);
+  };
 
   const deleteData = () => {
-    setDataSource(dataSource.filter(i => i.key !== editingKey))
-  }
-
-  const moveData = (action: 'up' | 'down') => {
-    const index = dataSource.findIndex(i => i.key === editingKey)
-    if (index === -1) {
-      return
-    }
-    if (action === 'up') {
-      if (index === 0) {
-        return
-      }
-      const newData = [...dataSource]
-      newData[index] = dataSource[index - 1]
-      newData[index - 1] = dataSource[index]
-      setDataSource(newData)
-    } else {
-      if (index === dataSource.length - 1) {
-        return
-      }
-      const newData = [...dataSource]
-      newData[index] = dataSource[index + 1]
-      newData[index + 1] = dataSource[index]
-      setDataSource(newData)
-    }
-  }
+    setDataSource(dataSource.filter((i) => i.key !== editingKey));
+  };
 
   const handelFieldsChange = (field: any) => {
-    let { name: nameList, value } = field[0];
+    let { value } = field[0];
+    const { name: nameList } = field[0];
     const name = nameList[0];
     if (name === 'nullable') {
-      value = value ? 1 : 0
+      value = value ? 1 : 0;
     }
     const newData = dataSource.map((item) => {
       if (item.key === editingKey) {
@@ -128,7 +107,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       return item;
     });
     setDataSource(newData);
-  }
+  };
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (active.id !== over?.id) {
@@ -140,21 +119,13 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     }
   };
 
-  const Row = ({ children, ...props }: RowProps) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      setActivatorNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({
-      id: props['data-row-key'],
+  const Row = ({ children, ...rowProps }: RowProps) => {
+    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+      id: rowProps['data-row-key'],
     });
 
     const style: React.CSSProperties = {
-      ...props.style,
+      ...rowProps.style,
       transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
       transition,
       ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
@@ -181,7 +152,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   function getIndexListInfo(): IIndexListInfo {
-    return dataSource
+    return dataSource;
   }
 
   useImperativeHandle(ref, () => ({
@@ -197,8 +168,8 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       title: i18n('editTable.label.index'),
       width: '70px',
       render: (text: string, record: IIndexItem) => {
-        return dataSource.findIndex(i => i.key === record.key) + 1
-      }
+        return dataSource.findIndex((i) => i.key === record.key) + 1;
+      },
     },
     {
       title: i18n('editTable.label.indexName'),
@@ -207,19 +178,15 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
-          <Form.Item
-            name="name"
-            style={{ margin: 0 }}
-          >
+          <Form.Item name="name" style={{ margin: 0 }}>
             <Input />
           </Form.Item>
-        ) : <div
-          className={styles.editableCell}
-          onClick={() => edit(record)}
-        >
-          {text}
-        </div>
-      }
+        ) : (
+          <div className={styles.editableCell} onClick={() => edit(record)}>
+            {text}
+          </div>
+        );
+      },
     },
     {
       title: i18n('editTable.label.indexType'),
@@ -228,110 +195,115 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       render: (text: string, record: IIndexItem) => {
         const editable = isEditing(record);
         return editable ? (
-          <Form.Item
-            name="type"
-            style={{ margin: 0 }}
-          >
+          <Form.Item name="type" style={{ margin: 0 }}>
             <Select style={{ width: '100%' }}>
-              {indexesTypeList.map(i => <Select.Option key={i} value={i}>{i}</Select.Option>)}
+              {indexesTypeList.map((i) => (
+                <Select.Option key={i} value={i}>
+                  {i}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
-        ) : <div
-          className={styles.editableCell}
-          onClick={() => edit(record)}
-        >
-          {text}
-        </div>
-      }
+        ) : (
+          <div className={styles.editableCell} onClick={() => edit(record)}>
+            {text}
+          </div>
+        );
+      },
     },
     {
       title: i18n('editTable.label.includeColumn'),
       dataIndex: 'columnList',
       render: (columnList: IIndexIncludeColumnItem[], record: IIndexItem) => {
         const editable = isEditing(record);
-        const text = columnList?.map(t => {
-          return `${t.columnName}`
-        }).join(',')
+        const text = columnList
+          ?.map((t) => {
+            return `${t.columnName}`;
+          })
+          .join(',');
         return editable ? (
           <div className={styles.columnListCell}>
-            <span onClick={() => { setIncludeColModalOpen(true) }}>{i18n('common.button.edit')}</span>
+            <span
+              onClick={() => {
+                setIncludeColModalOpen(true);
+              }}
+            >
+              {i18n('common.button.edit')}
+            </span>
             {text}
-          </div >
+          </div>
         ) : (
-          <div
-            className={styles.editableCell}
-            onClick={() => edit(record)}
-          >
+          <div className={styles.editableCell} onClick={() => edit(record)}>
             {text}
           </div>
         );
-      }
+      },
     },
-
   ];
 
   const getIncludeColInfo = () => {
     setDataSource(
-      dataSource.map(i => {
-        if (i.key === editingKey) {
-          i.columnList = includeColRef.current?.getIncludeColInfo()!
+      dataSource.map((i) => {
+        const columnList = includeColRef.current?.getIncludeColInfo();
+        if (i.key === editingKey && columnList) {
+          i.columnList = columnList;
         }
-        return i
-      })
-    )
-    setIncludeColModalOpen(false)
-  }
+        return i;
+      }),
+    );
+    setIncludeColModalOpen(false);
+  };
 
   const indexIncludedColumnList: IIndexIncludeColumnItem[] = useMemo(() => {
     let data: IIndexIncludeColumnItem[] | null = [];
-    dataSource.forEach(i => {
+    dataSource.forEach((i) => {
       if (i.key === editingKey) {
-        data = i.columnList
+        data = i.columnList;
       }
-    })
-    return data
-  }, [editingKey])
+    });
+    return data;
+  }, [editingKey]);
 
-  return <div className={classnames(styles.box)}>
-    <div className={styles.indexListHeader}>
-      <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
-      <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
-      {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
+  return (
+    <div className={classnames(styles.box)}>
+      <div className={styles.indexListHeader}>
+        <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
+        <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
+        {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
       <Button onClick={moveData.bind(null, 'down')}>下移</Button> */}
+      </div>
+      <Form form={form} onFieldsChange={handelFieldsChange}>
+        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+          <SortableContext items={dataSource.map((i) => i.key)} strategy={verticalListSortingStrategy}>
+            <Table
+              components={{
+                body: {
+                  row: Row,
+                },
+              }}
+              pagination={false}
+              rowKey="key"
+              columns={columns}
+              dataSource={dataSource}
+            />
+          </SortableContext>
+        </DndContext>
+      </Form>
+      <Modal
+        open={includeColModalOpen}
+        width={800}
+        title={i18n('editTable.label.includeColumn')}
+        onOk={getIncludeColInfo}
+        onCancel={() => {
+          setIncludeColModalOpen(false);
+        }}
+        maskClosable={false}
+        destroyOnClose={true}
+      >
+        <IncludeCol includedColumnList={indexIncludedColumnList} ref={includeColRef} />
+      </Modal>
     </div>
-    <Form form={form} onFieldsChange={handelFieldsChange}>
-      <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-        <SortableContext
-          items={dataSource.map((i) => i.key)}
-          strategy={verticalListSortingStrategy}
-        >
-          <Table
-            components={{
-              body: {
-                row: Row,
-              },
-            }}
-            pagination={false}
-            rowKey="key"
-            columns={columns}
-            dataSource={dataSource}
-          />
-        </SortableContext>
-      </DndContext>
-    </Form>
-    <Modal
-      open={includeColModalOpen}
-      width={800}
-      title={i18n('editTable.label.includeColumn')}
-      onOk={getIncludeColInfo}
-      onCancel={() => { setIncludeColModalOpen(false) }}
-      maskClosable={false}
-      destroyOnClose={true}
-    >
-      <IncludeCol includedColumnList={indexIncludedColumnList} ref={includeColRef} />
-    </Modal>
-  </div >
-})
+  );
+});
 
-export default IndexList
-
+export default IndexList;
