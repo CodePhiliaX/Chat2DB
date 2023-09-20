@@ -60,4 +60,7 @@ public class TableIndex {
      * 索引包含的列
      */
     private List<TableIndexColumn> columnList;
+
+
+    private String editStatus;
 }

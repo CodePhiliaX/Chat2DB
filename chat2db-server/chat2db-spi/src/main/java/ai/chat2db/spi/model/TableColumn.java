@@ -164,4 +164,8 @@ public class TableColumn {
     private Boolean generatedColumn;
 
 
+    private String extent;
+
+
+    private String editStatus;
 }

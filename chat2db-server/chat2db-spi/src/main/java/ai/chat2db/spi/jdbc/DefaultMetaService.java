@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 
@@ -92,5 +93,10 @@ public class DefaultMetaService implements MetaData {
     @Override
     public List<Type> types(Connection connection) {
         return SQLExecutor.getInstance().types(connection);
+    }
+
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new DefaultSqlBuilder();
     }
 }

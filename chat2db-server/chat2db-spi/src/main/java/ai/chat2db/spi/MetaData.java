@@ -180,4 +180,11 @@ public interface MetaData {
      * @return
      */
     List<Type> types(Connection connection);
+
+
+    /**
+     * Get sql builder.
+     * @return
+     */
+    SqlBuilder getSqlBuilder();
 }
