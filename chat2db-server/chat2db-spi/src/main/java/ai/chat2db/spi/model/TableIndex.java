@@ -19,6 +19,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TableIndex {
 
+    private String oldName;
+
     /**
      * 索引名称
      */
