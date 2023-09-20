@@ -150,4 +150,9 @@ public class ColumnVO {
     private Boolean generatedColumn;
 
 
+    private String extent;
+
+
+    private String editStatus;
+
 }

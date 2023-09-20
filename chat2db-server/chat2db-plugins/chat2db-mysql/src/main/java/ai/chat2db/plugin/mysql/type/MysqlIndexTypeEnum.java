@@ -104,6 +104,6 @@ public enum MysqlIndexTypeEnum {
         if (MysqlIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
             return StringUtils.join("DROP PRIMARY KEY");
         }
-        return StringUtils.join("DROP KEY `", tableIndex.getName());
+        return StringUtils.join("DROP KEY `", tableIndex.getOldName());
     }
 }
