@@ -150,14 +150,14 @@ public class TableController {
      * @return
      */
     @GetMapping("/query")
-    public DataResult<TableVO> query(@Valid TableDetailQueryRequest request) {
+    public DataResult<Table> query(@Valid TableDetailQueryRequest request) {
         TableQueryParam queryParam = rdbWebConverter.tableRequest2param(request);
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(true);
-        DataResult<Table> tableDTODataResult = tableService.query(queryParam, tableSelector);
-        TableVO tableVO = rdbWebConverter.tableDto2vo(tableDTODataResult.getData());
-        return DataResult.of(tableVO);
+        return tableService.query(queryParam, tableSelector);
+        //TableVO tableVO = rdbWebConverter.tableDto2vo(tableDTODataResult.getData());
+        //return DataResult.of(tableVO);
     }
 
     /**
