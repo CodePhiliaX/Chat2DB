@@ -9,3 +9,12 @@ export enum IndexesType {
   // 空间索引
   Spatial = 'spatial',
 }
+
+export enum EditColumnOperationType { 
+  // 新增
+  Add = 'add',
+  // 修改
+  Modify = 'modify',
+  // 删除
+  Delete = 'delete',
+}

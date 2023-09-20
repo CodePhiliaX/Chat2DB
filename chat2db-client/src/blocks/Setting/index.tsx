@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import { Modal } from 'antd';
@@ -19,7 +19,7 @@ interface IProps {
   className?: string;
   render?: ReactNode;
   // text?: string;
-  dispatch: Function;
+  dispatch: (params: any) => void;
 }
 
 function Setting(props: IProps) {

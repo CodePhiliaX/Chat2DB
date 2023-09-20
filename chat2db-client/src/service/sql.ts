@@ -199,8 +199,8 @@ export interface IModifyTableSqlParams {
   databaseName: string;
   schemaName?: string;
   tableName?: string;
-  oldTable?: string;
-  newTable: string;
+  oldTable?: IEditTableInfo;
+  newTable: IEditTableInfo;
   refresh: boolean;
 }
 

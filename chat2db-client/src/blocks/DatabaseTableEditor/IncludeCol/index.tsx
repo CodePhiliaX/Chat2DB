@@ -1,10 +1,10 @@
-import React, { memo, useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, { useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Table, InputNumber, Input, Form, Select, Checkbox, Button, Modal, message } from 'antd';
+import { Table, InputNumber, Form, Select, Button } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
-import { IColumnItem, IIndexIncludeColumnItem } from '@/typings';
+import { IColumnItemNew, IIndexIncludeColumnItem } from '@/typings';
 import i18n from '@/i18n';
 
 interface IProps {
@@ -29,7 +29,7 @@ const createInitialData = () => {
     cardinality: null,
     pages: null,
     filterCondition: null,
-    prefixLength: null
+    prefixLength: null,
   };
 };
 
@@ -50,7 +50,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   useEffect(() => {
     if (includedColumnList.length) {
       setDataSource(
-        includedColumnList.map(t => {
+        includedColumnList.map((t) => {
           return {
             ...t,
             key: uuidv4(),
@@ -60,8 +60,8 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     }
   }, [includedColumnList]);
 
-  const columnList: IColumnItem[] = useMemo(() => {
-    const columnListInfo = columnListRef.current?.getColumnListInfo()?.filter(i => i.name);
+  const columnList: IColumnItemNew[] = useMemo(() => {
+    const columnListInfo = columnListRef.current?.getColumnListInfo()?.filter((i) => i.name);
     return columnListInfo || [];
   }, []);
 
@@ -145,8 +145,8 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
 
   const getIncludeColInfo = () => {
     const includeColInfo: IIndexIncludeColumnItem[] = [];
-    dataSource.forEach(t => {
-      columnList.forEach(columnItem => {
+    dataSource.forEach((t) => {
+      columnList.forEach((columnItem) => {
         if (t.columnName === columnItem.name) {
           includeColInfo.push({
             ...createInitialData(),
