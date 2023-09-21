@@ -11,10 +11,13 @@ import styles from './index.less';
 import historyService from '@/service/history';
 import TableList from '../TableList';
 import SaveList from '../SaveList';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
+import { IExportParams } from '@/service/sql';
+import { downloadFile } from '@/utils/common';
 
 interface IProps {
   className?: string;
-  workspaceModel: IWorkspaceModelType['state'],
+  workspaceModel: IWorkspaceModelType['state'];
   dispatch: any;
 }
 
@@ -25,13 +28,13 @@ const dvaModel = connect(
   }),
 );
 
-const WorkspaceLeft = memo<IProps>(function (props) {
+const WorkspaceLeft = memo<IProps>((props) => {
   const { className, workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, openConsoleList } = workspaceModel;
+  const { curWorkspaceParams } = workspaceModel;
 
   const addConsole = () => {
-    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams
-    let params = {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    const params = {
       name: `new console`,
       ddl: '',
       dataSourceId: dataSourceId!,
@@ -42,9 +45,9 @@ const WorkspaceLeft = memo<IProps>(function (props) {
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       operationType: WorkspaceTabType.CONSOLE,
       tabType: WorkspaceTabType.CONSOLE,
-    }
+    };
 
-    historyService.saveConsole(params).then(res => {
+    historyService.saveConsole(params).then((res) => {
       dispatch({
         type: 'workspace/setCreateConsoleIntro',
         payload: {
@@ -53,24 +56,25 @@ const WorkspaceLeft = memo<IProps>(function (props) {
           title: params.name,
           uniqueData: params,
         },
-      })
-    })
-  }
+      });
+    });
+  };
 
-  // useEffect(() => {
-  //   document.addEventListener('keydown', (e) => {
-  //     if ((e.ctrlKey || e.metaKey) && e.key === 't') {
-  //       e.preventDefault();
-  //       addConsole();
-  //     }
-  //   }, false)
-  // }, [])
+  const handleExportTableStructure = async (exportType: ExportTypeEnum) => {
+    const params: IExportParams = {
+      ...curWorkspaceParams,
+      originalSql: '',
+      exportType,
+      exportSize: ExportSizeEnum.ALL,
+    };
+    downloadFile(window._BaseURL + '/api/rdb/doc/export', params);
+  };
 
   return (
     <div className={classnames(styles.box, className)}>
       <SaveList />
       <Divider className={styles.divider} />
-      <TableList />
+      <TableList onExport={handleExportTableStructure} />
       <div className={styles.createButtonBox}>
         <Button className={styles.createButton} type="primary" onClick={addConsole}>
           <Iconfont code="&#xe63a;" />
