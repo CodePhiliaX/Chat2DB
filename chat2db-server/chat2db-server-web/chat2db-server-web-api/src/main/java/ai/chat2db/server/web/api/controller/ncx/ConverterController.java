@@ -2,7 +2,6 @@ package ai.chat2db.server.web.api.controller.ncx;
 
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
-import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ncx.service.ConverterService;
 import ai.chat2db.server.web.api.controller.ncx.vo.UploadVO;
 import lombok.SneakyThrows;
@@ -13,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ai.chat2db.server.web.api.util.FileUtils;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * ConverterController
@@ -30,36 +31,52 @@ public class ConverterController {
     @Autowired
     private ConverterService converterService;
 
+    /**
+     * 导出教程
+     * @see <a href="https://blog.csdn.net/kkk123445/article/details/122514124?spm=1001.2014.3001.5502" />
+     *
+     * @param file file
+     * @return DataResult<UploadVO>
+     **/
     @SneakyThrows
     @PostMapping("/ncx/upload")
-    public DataResult<UploadVO> uploadFile(@RequestParam("file") MultipartFile file) {
+    public DataResult<UploadVO> ncxUploadFile(@RequestParam("file") MultipartFile file) {
         // 验证文件后缀
-        String fileExtension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-        if (!isAllowedExtension(fileExtension)) {
+        String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
+        if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.NCX.name())) {
             return DataResult.error("1", "上传的文件必须是ncx文件！");
         }
-        File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + "temp.tmp");
+        File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + UUID.randomUUID() + ".tmp");
         file.transferTo(temp);
         return DataResult.of(converterService.uploadFile(temp));
     }
 
-    private String getFileExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf(".");
-        if (dotIndex > 0) {
-            return fileName.substring(dotIndex + 1).toLowerCase();
-        } else {
-            return "";
+    @SneakyThrows
+    @PostMapping("/dbp/upload")
+    public DataResult<UploadVO> dbpUploadFile(@RequestParam("file") MultipartFile file) {
+        // 验证文件后缀
+        String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
+        if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.DBP.name())) {
+            return DataResult.error("1", "上传的文件必须是ncx文件！");
         }
+        File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + UUID.randomUUID() + ".tmp");
+        file.transferTo(temp);
+        return DataResult.of(converterService.dbpUploadFile(temp));
     }
 
-    private boolean isAllowedExtension(String extension) {
-        // 只允许上传的文件后缀
-        String[] allowedExtensions = {"ncx"};
-        for (String ext : allowedExtensions) {
-            if (ext.equalsIgnoreCase(extension)) {
-                return true;
-            }
-        }
-        return false;
+
+    /**
+     * 导入datagrip的连接信息，通过 ctrl/cmd + c（shift多选）复制连接，再导入进来
+     * 目前复制的连接信息里面是没有密码的
+     *
+     * @param text text
+     * @return DataResult<UploadVO>
+     **/
+    @SneakyThrows
+    @PostMapping("/datagrip/upload")
+    public DataResult<UploadVO> datagripUploadFile(@RequestParam("text") String text) {
+        return DataResult.of(converterService.datagripUploadFile(text));
     }
+
+
 }

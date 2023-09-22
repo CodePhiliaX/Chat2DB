@@ -13,4 +13,8 @@ import java.io.InputStream;
 public interface ConverterService {
 
     UploadVO uploadFile(File file);
+
+    UploadVO dbpUploadFile(File file);
+
+    UploadVO datagripUploadFile(String text);
 }

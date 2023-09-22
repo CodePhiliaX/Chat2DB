@@ -23,9 +23,14 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +48,20 @@ public class ConverterServiceImpl implements ConverterService {
     private static final double NAVICAT11 = 1.1D;
 
     private static CommonCipher cipher;
+
+    /**
+     * 连接信息头部
+     **/
+    private static final String DATASOURCE_SETTINGS = "#DataSourceSettings#";
+    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    /**
+     * xml连接信息开始标志位
+     **/
+    private static final String BEGIN = "#BEGIN#";
+    /**
+     * xml连接信息结束标志位
+     **/
+    private static final String END = "#END#";
 
     @Autowired
     private DataSourceMapper dataSourceMapper;
@@ -97,6 +116,54 @@ public class ConverterServiceImpl implements ConverterService {
             FileUtils.delete(file);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+        return vo;
+    }
+
+
+    @Override
+    public UploadVO dbpUploadFile(File file) {
+        return null;
+    }
+
+    @SneakyThrows
+    @Override
+    public UploadVO datagripUploadFile(String text) {
+        UploadVO vo = new UploadVO();
+        if (!text.startsWith(DATASOURCE_SETTINGS)) {
+            throw new RuntimeException("连接信息的头部不正确！");
+        }
+        String[] items = text.split("\n");
+        List<String> configs = new ArrayList<>();
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].equals(BEGIN)) {
+                configs.add(items[i + 1]);
+            }
+        }
+        for (String config : configs) {
+            //1、创建一个DocumentBuilderFactory的对象
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            //2、创建一个DocumentBuilder的对象
+            //创建DocumentBuilder对象
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            //3、通过DocumentBuilder对象的parser方法加载xml文件到当前项目下
+            try (InputStream inputStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8))) {
+                Document document = db.parse(inputStream);
+                //获取Connection节点的集合
+                NodeList connectList = document.getElementsByTagName("data-source");
+                //选中第一个节点
+                NamedNodeMap itemMap = connectList.item(0).getAttributes();
+                //创建datasource
+                DataSourceDO dataSourceDO = new DataSourceDO();
+                dataSourceDO.setAlias(itemMap.getNamedItem("name").getNodeValue());
+                for (int i = 0; i < connectList.getLength(); i++) {
+                    //通过 item(i)方法 获取一个Connection节点，nodeList的索引值从0开始
+                    Node connect = connectList.item(i);
+                    //获取Connection节点的所有属性集合
+                    NamedNodeMap attrs = connect.getAttributes();
+                }
+                dataSourceMapper.insert(dataSourceDO);
+            }
         }
         return vo;
     }
