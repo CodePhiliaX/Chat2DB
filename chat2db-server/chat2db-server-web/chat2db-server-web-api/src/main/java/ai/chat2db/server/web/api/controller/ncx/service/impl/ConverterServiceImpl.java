@@ -111,19 +111,26 @@ public class ConverterServiceImpl implements ConverterService {
         for (Map<String, Map<String, String>> map : list) {
             for (Map.Entry<String, Map<String, String>> valueMap : map.entrySet()) {
                 Map<String, String> resultMap = valueMap.getValue();
+                // mysql的版本还无法区分
+                DataBaseType dataBaseType = DataBaseType.matchType(resultMap.get("ConnType"));
+                DataSourceDO dataSourceDO;
+                if (null == dataBaseType) {
+                    //未匹配到数据库类型，如：navicat支持MongoDB等，但chat2DB暂不支持
+                    continue;
+                } else {
+                    dataSourceDO = new DataSourceDO();
+                    dataSourceDO.setHost(resultMap.get("Host"));
+                    dataSourceDO.setPort(resultMap.get("Port"));
+                    dataSourceDO.setUrl(String.format(dataBaseType.getUrlString(), dataSourceDO.getHost(), dataSourceDO.getPort()));
+                }
                 // 解密密码
                 String password = cipher.decryptString(resultMap.getOrDefault("Password", ""));
-                DataSourceDO dataSourceDO = new DataSourceDO();
                 LocalDateTime dateTime = LocalDateTime.now();
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(resultMap.get("ConnectionName"));
-                dataSourceDO.setHost(resultMap.get("Host"));
-                dataSourceDO.setPort(resultMap.get("Port"));
                 dataSourceDO.setUserName(resultMap.get("UserName"));
                 dataSourceDO.setType(resultMap.get("ConnType"));
-                // mysql的版本还无法区分
-                dataSourceDO.setUrl(String.format(Objects.requireNonNull(DataBaseType.matchType(dataSourceDO.getType())).getUrlString(), dataSourceDO.getHost(), dataSourceDO.getPort()));
                 //password 为解密出来的密文，再使用chat2db的加密
                 DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
                 String encryptStr = desUtil.encrypt(password, "CBC");
