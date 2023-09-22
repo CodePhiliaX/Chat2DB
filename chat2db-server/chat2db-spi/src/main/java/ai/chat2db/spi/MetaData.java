@@ -187,4 +187,14 @@ public interface MetaData {
      * @return
      */
     SqlBuilder getSqlBuilder();
+
+
+    /**
+     *
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @return
+     */
+    TableMeta getTableMeta( String databaseName, String schemaName, String tableName);
 }

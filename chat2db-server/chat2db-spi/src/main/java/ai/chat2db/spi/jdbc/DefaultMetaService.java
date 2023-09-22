@@ -99,4 +99,9 @@ public class DefaultMetaService implements MetaData {
     public SqlBuilder getSqlBuilder() {
         return new DefaultSqlBuilder();
     }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return null;
+    }
 }

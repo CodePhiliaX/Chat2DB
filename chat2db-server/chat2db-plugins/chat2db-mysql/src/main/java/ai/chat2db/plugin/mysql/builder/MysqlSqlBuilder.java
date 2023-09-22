@@ -25,7 +25,7 @@ public class MysqlSqlBuilder implements SqlBuilder {
         // append primary key and index
         for (TableIndex tableIndex : table.getIndexList()) {
             MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
-            script.append("\t").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            script.append("\t").append("ADD ").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
         }
 
         script = new StringBuilder(script.substring(0, script.length() - 2));

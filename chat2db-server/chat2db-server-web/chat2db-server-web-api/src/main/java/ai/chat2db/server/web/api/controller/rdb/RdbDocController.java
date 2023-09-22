@@ -75,8 +75,8 @@ public class RdbDocController {
         TableQueryParam param = rdbWebConverter.tableRequest2param(request);
         for (TableVO tableVO: tableVOS) {
             param.setTableName(tableVO.getName());
-            tableVO.setColumnList(rdbWebConverter.columnDto2vo(tableService.queryColumns(param)));
-            tableVO.setIndexList(rdbWebConverter.indexDto2vo(tableService.queryIndexes(param)));
+            tableVO.setColumnList(tableService.queryColumns(param));
+            tableVO.setIndexList(tableService.queryIndexes(param));
         }
         Class<?> targetClass = ExportServiceFactory.get(exportType.getCode());
         Constructor<?> constructor = targetClass.getDeclaredConstructor();

@@ -159,4 +159,10 @@ public class TableServiceImpl implements TableService {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         return metaSchema.types(Chat2DBContext.getConnection());
     }
+
+    @Override
+    public TableMeta queryTableMeta(TypeQueryParam param) {
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        return metaSchema.getTableMeta(null, null, null);
+    }
 }
