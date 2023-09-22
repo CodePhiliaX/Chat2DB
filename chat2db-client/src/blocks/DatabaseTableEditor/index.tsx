@@ -82,6 +82,7 @@ export default memo((props: IProps) => {
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
       const newTable = {
+        ...oldTableDetails,
         ...baseInfoRef.current.getBaseInfo(),
         columnList: columnListRef.current.getColumnListInfo()!,
         indexList: indexListRef.current.getIndexListInfo()!,
@@ -100,6 +101,7 @@ export default memo((props: IProps) => {
         params.oldTable = oldTableDetails;
       }
       console.log(newTable);
+      console.log(params.oldTable);
       sqlService.getModifyTableSql(params).then((res) => {
         console.log(res);
       });

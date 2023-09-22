@@ -18,4 +18,8 @@ export default {
   'editTable.label.columnType': '类型',
   'editTable.label.nullable': '可空',
   'editTable.label.prefixLength': '前缀长度',
+  'editTable.label.defaultValue': '默认值',
+  'editTable.label.characterSet': '字符集',
+  'editTable.label.collation': '排序规则',
+  'editTable.label.decimalPoint': '小数点',
 };
