@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public enum MysqlColumnTypeEnum implements ColumnBuilder {
@@ -131,7 +132,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     static {
         for (MysqlColumnTypeEnum value : MysqlColumnTypeEnum.values()) {
-            COLUMN_TYPE_MAP.put(value.getColumnType().getDataTypeName(), value);
+            COLUMN_TYPE_MAP.put(value.getColumnType().getTypeName(), value);
         }
     }
 
@@ -238,7 +239,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     }
 
     private String buildDataType(TableColumn column, MysqlColumnTypeEnum type) {
-        String columnType = type.columnType.getDataTypeName();
+        String columnType = type.columnType.getTypeName();
         if (Arrays.asList(BINARY, VARBINARY, VARCHAR, CHAR).contains(type)) {
             return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
@@ -296,6 +297,12 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             return StringUtils.join(split[0], middle, split[1]);
         }
         return StringUtils.join(dataTypeName, middle);
+    }
+
+    public static List<ColumnType> getTypes(){
+       return Arrays.stream(MysqlColumnTypeEnum.values()).map(columnTypeEnum ->
+                columnTypeEnum.getColumnType()
+        ).toList();
     }
 
 

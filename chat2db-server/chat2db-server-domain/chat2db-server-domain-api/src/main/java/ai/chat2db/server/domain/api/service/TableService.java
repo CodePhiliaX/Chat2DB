@@ -98,4 +98,11 @@ public interface TableService {
      * @return
      */
     List<Type> queryTypes(TypeQueryParam param);
+
+    /**
+     *
+     * @param param
+     * @return
+     */
+    TableMeta queryTableMeta(TypeQueryParam param);
 }
