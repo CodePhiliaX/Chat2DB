@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Table, InputNumber, Form, Select, Button } from 'antd';
+import { Table, Form, Select, Button } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
 import { IColumnItemNew, IIndexIncludeColumnItem } from '@/typings';
@@ -14,22 +14,29 @@ interface IProps {
 const createInitialData = () => {
   return {
     key: uuidv4(),
-    indexName: null,
+    oldName: null,
+    name: null,
     tableName: null,
-    type: null,
-    columnName: null,
+    columnType: null,
+    dataType: null,
+    defaultValue: null,
+    autoIncrement: null,
     comment: null,
-    ordinalPosition: null,
-    collation: null,
+    primaryKey: null,
     schemaName: null,
-    databaseName: '',
-    nonUnique: true,
-    indexQualifier: null,
-    ascOrDesc: null,
-    cardinality: null,
-    pages: null,
-    filterCondition: null,
-    prefixLength: null,
+    databaseName: null,
+    typeName: null,
+    columnSize: null,
+    bufferLength: null,
+    decimalDigits: null,
+    numPrecRadix: null,
+    nullableInt: null,
+    sqlDataType: null,
+    sqlDatetimeSub: null,
+    charOctetLength: null,
+    ordinalPosition: null,
+    nullable: null,
+    generatedColumn: null,
   };
 };
 
@@ -65,7 +72,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     return columnListInfo || [];
   }, []);
 
-  const edit = (record: Partial<IIndexIncludeColumnItem> & { key: React.Key }) => {
+  const edit = (record: IIndexIncludeColumnItem) => {
     form.setFieldsValue({ ...record });
     setEditingKey(record.key);
   };
@@ -97,7 +104,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     {
       title: i18n('editTable.label.columnName'),
       dataIndex: 'columnName',
-      width: '45%',
+      // width: '45%',
       render: (text: string, record: IIndexIncludeColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
@@ -111,23 +118,23 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
         );
       },
     },
-    {
-      title: i18n('editTable.label.prefixLength'),
-      dataIndex: 'prefixLength',
-      width: '45%',
-      render: (text: string, record: IIndexIncludeColumnItem) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="prefixLength" style={{ margin: 0 }}>
-            <InputNumber style={{ width: '100%' }} />
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: i18n('editTable.label.prefixLength'),
+    //   dataIndex: 'prefixLength',
+    //   width: '45%',
+    //   render: (text: string, record: IIndexIncludeColumnItem) => {
+    //     const editable = isEditing(record);
+    //     return editable ? (
+    //       <Form.Item name="prefixLength" style={{ margin: 0 }}>
+    //         <InputNumber style={{ width: '100%' }} />
+    //       </Form.Item>
+    //     ) : (
+    //       <div className={styles.editableCell} onClick={() => edit(record)}>
+    //         {text}
+    //       </div>
+    //     );
+    //   },
+    // },
   ];
 
   const onValuesChange = (changedValues: any, allValues: any) => {
@@ -147,11 +154,9 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     const includeColInfo: IIndexIncludeColumnItem[] = [];
     dataSource.forEach((t) => {
       columnList.forEach((columnItem) => {
-        if (t.columnName === columnItem.name) {
+        if (t.name === columnItem.name) {
           includeColInfo.push({
-            ...createInitialData(),
             ...columnItem,
-            columnName: t.columnName,
           });
         }
       });

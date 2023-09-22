@@ -37,11 +37,20 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
   return (
     <div className={classnames(className, styles.box)}>
       <div className={styles.formBox}>
-        <Form form={form} initialValues={{ remember: true }} autoComplete="off" className={styles.form}>
-          <Form.Item label={i18n('editTable.label.tableName')} name="name">
+        <Form
+          // labelCol={{
+          //   style: { width: 90 },
+          // }}
+          layout="vertical"
+          form={form}
+          initialValues={{ remember: true }}
+          autoComplete="off"
+          className={styles.form}
+        >
+          <Form.Item label={`${i18n('editTable.label.tableName')}:`} name="name">
             <Input />
           </Form.Item>
-          <Form.Item label={i18n('editTable.label.comment')} name="comment">
+          <Form.Item label={`${i18n('editTable.label.comment')}:`} name="comment">
             <Input />
           </Form.Item>
         </Form>
