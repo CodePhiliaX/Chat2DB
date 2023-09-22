@@ -91,11 +91,11 @@ public enum MysqlIndexTypeEnum {
         if (EditStatus.DELETE.name().equals(tableIndex.getEditStatus())) {
             return buildDropIndex(tableIndex);
         }
-        if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
+        if (EditStatus.MODIFY.name().equals(tableIndex.getEditStatus())) {
             return StringUtils.join(buildDropIndex(tableIndex),",\n", "ADD ", buildIndexScript(tableIndex));
         }
-        if (EditStatus.MODIFY.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join("MODIFY ", buildIndexScript(tableIndex));
+        if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
+            return StringUtils.join("ADD ", buildIndexScript(tableIndex));
         }
         return "";
     }

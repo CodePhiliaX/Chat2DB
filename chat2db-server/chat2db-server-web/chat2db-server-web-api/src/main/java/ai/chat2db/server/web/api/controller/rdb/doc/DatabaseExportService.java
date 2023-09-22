@@ -8,6 +8,9 @@ import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.server.web.api.util.StringUtils;
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.TableIndexColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
@@ -82,13 +85,13 @@ public class DatabaseExportService {
         val t = new TableParameter();
         t.setFieldName(item.getName() + "[" + StringUtils.isNull(item.getComment()) + "]");
         List<TableParameter> colForTable = new LinkedList<>();
-        for (ColumnVO info : item.getColumnList()) {
+        for (TableColumn info : item.getColumnList()) {
             val p = new TableParameter();
             p.setFieldName(info.getName()).setColumnDefault(info.getDefaultValue())
                     .setColumnComment(info.getComment())
                     .setColumnType(info.getColumnType())
-                    .setLength(String.valueOf(info.getCharacterMaximumLength())).setIsNullAble(String.valueOf(info.getNullable()))
-                    .setDecimalPlaces(String.valueOf(info.getNumericPrecision()));
+                    .setLength(String.valueOf(info.getColumnSize())).setIsNullAble(String.valueOf(info.getNullable()))
+                    .setDecimalPlaces(String.valueOf(info.getDecimalDigits()));
             colForTable.add(p);
         }
         String key = databaseName + JOINER + t.getFieldName();
@@ -108,11 +111,12 @@ public class DatabaseExportService {
         }
     }
 
-    private List<IndexInfo> vo2Info(List<IndexVO> indexList) {
+    private List<IndexInfo> vo2Info(List<TableIndex> indexList) {
         return indexList.stream().map(v -> {
             IndexInfo info = new IndexInfo();
             info.setName(v.getName());
-            info.setColumnName(v.getColumns());
+            List<TableIndexColumn> columnList = v.getColumnList();
+            info.setColumnName(columnList.stream().map(TableIndexColumn::getColumnName).collect(Collectors.joining(",")));
             info.setIndexType(v.getType());
             info.setComment(v.getComment());
             return info;

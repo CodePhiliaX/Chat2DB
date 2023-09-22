@@ -1,7 +1,5 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
-import java.util.List;
-
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
@@ -18,18 +16,13 @@ import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.model.Type;
+import ai.chat2db.spi.model.*;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/table")
@@ -66,7 +59,7 @@ public class TableController {
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
                 request.getPageSize());
     }
-    
+
 
     /**
      * 查询当前DB下的表columns
@@ -167,7 +160,7 @@ public class TableController {
      * @return
      */
     @PostMapping("/modify/sql")
-    public ListResult<SqlVO> modifySql(@Valid  @RequestBody TableModifySqlRequest request) {
+    public ListResult<SqlVO> modifySql(@Valid @RequestBody TableModifySqlRequest request) {
         return tableService.buildSql(
                         rdbWebConverter.tableRequest2param(request.getOldTable()),
                         rdbWebConverter.tableRequest2param(request.getNewTable()))
@@ -186,6 +179,14 @@ public class TableController {
         TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
         List<Type> types = tableService.queryTypes(typeQueryParam);
         return ListResult.of(types);
+    }
+
+
+    @GetMapping("/table_meta")
+    public DataResult<TableMeta> tableMeta(@Valid TypeQueryRequest request) {
+        TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        TableMeta tableMeta = tableService.queryTableMeta(typeQueryParam);
+        return DataResult.of(tableMeta);
     }
 
     /**

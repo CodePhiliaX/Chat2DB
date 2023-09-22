@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ColumnType {
 
-    private String dataTypeName;
+    private String typeName;
     private boolean supportLength;
     private boolean supportScale;
     private boolean supportNullable;
