@@ -5,16 +5,16 @@ import styles from './index.less';
 
 // 只有本地开发时使用cdn，发布线上时要下载iconfont到 /assets/font
 if (__ENV__ === 'local') {
-  let container = `
+  const container = `
   /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
   @font-face {
     font-family: 'iconfont';  /* Project id 3633546 */
-    src: url('//at.alicdn.com/t/c/font_3633546_73vqnzklicw.woff2?t=1693730048111') format('woff2'),
-         url('//at.alicdn.com/t/c/font_3633546_73vqnzklicw.woff?t=1693730048111') format('woff'),
-         url('//at.alicdn.com/t/c/font_3633546_73vqnzklicw.ttf?t=1693730048111') format('truetype');
+    src: url('//at.alicdn.com/t/c/font_3633546_xr1m2ndzj4j.woff2?t=1695475278282') format('woff2'),
+         url('//at.alicdn.com/t/c/font_3633546_xr1m2ndzj4j.woff?t=1695475278282') format('woff'),
+         url('//at.alicdn.com/t/c/font_3633546_xr1m2ndzj4j.ttf?t=1695475278282') format('truetype');
   }
   `;
-  let style = document.createElement('style');
+  const style = document.createElement('style');
   style.type = 'text/css';
   document.head.appendChild(style);
   style.appendChild(document.createTextNode(container));
