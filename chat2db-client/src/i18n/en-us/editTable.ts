@@ -12,6 +12,7 @@ export default {
   'editTable.label.indexType': 'Index type',
   'editTable.label.includeColumn': 'Include column',
   'editTable.button.createTable': 'Create table',
+  'editTable.button.importTable': 'Import table',
   'editTable.label.index': 'Index',
   'editTable.label.columnName': 'Name',
   'editTable.label.columnSize': 'Size',

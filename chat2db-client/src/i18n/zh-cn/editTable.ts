@@ -12,6 +12,7 @@ export default {
   'editTable.label.indexType': '索引类型',
   'editTable.label.includeColumn': '包含列',
   'editTable.button.createTable': '新建表',
+  'editTable.button.importTable': '导出表',
   'editTable.label.index': '序号',
   'editTable.label.columnName': '列名',
   'editTable.label.columnSize': '长度',
