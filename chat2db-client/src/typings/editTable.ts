@@ -36,9 +36,29 @@ export interface IColumnItemNew {
   generatedColumn: string | null; // 是否生成列
 }
 
+// 
 export interface IIndexIncludeColumnItem extends IColumnItemNew {
-
 }
+
+// 后端给的索引内列的数据结构
+export interface IAfterEndIndexIncludeColumnItem {
+  ascOrDesc: string | null; // 升序还是降序
+  cardinality: number | null; // 基数
+  collation: string | null; // 排序规则
+  columnName: string | null; // 列名
+  comment: string | null; // 注释
+  databaseName: string | null; // 数据库名
+  filterCondition: string | null; // 过滤条件
+  indexName: string | null; // 索引名
+  indexQualifier: string | null; // 索引限定符
+  nonUnique: boolean | null; // 是否唯一
+  ordinalPosition: number | null; // 位置
+  schemaName: string | null; // 模式名
+  tableName: string | null; // 表名
+  type: string | null; // 类型
+  pages: number | null; // 页数
+}
+
 
 // 编辑表时索引的数据结构
 export interface IIndexItem {

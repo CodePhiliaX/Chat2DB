@@ -387,12 +387,14 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   function getColumnListInfo(): IColumnItemNew[] {
     return dataSource.map((i) => {
-      return {
+      const data = {
         ...i,
         tableName: tableDetails?.name,
         databaseName,
         schemaName: schemaName || null,
       };
+      delete data.key;
+      return data;
     });
   }
 
