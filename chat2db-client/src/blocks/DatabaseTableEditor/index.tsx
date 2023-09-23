@@ -8,6 +8,7 @@ import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import { IEditTableInfo } from '@/typings';
 import i18n from '@/i18n';
+import lodash from 'lodash';
 
 interface IProps {
   dataSourceId: number;
@@ -73,7 +74,20 @@ export default memo((props: IProps) => {
         refresh: true,
       };
       sqlService.getTableDetails(params).then((res) => {
-        setTableDetails(res || {});
+        const newTableDetails = lodash.cloneDeep(res);
+        newTableDetails.indexList.forEach((i) => {
+          i.columnList = i.columnList.map((j: any) => {
+            let newColumn: any = {};
+            newTableDetails.columnList.forEach((k: any) => {
+              if (j.columnName === k.name) {
+                newColumn = k;
+              }
+            });
+            return newColumn;
+          });
+        });
+        console.log(newTableDetails);
+        setTableDetails(newTableDetails || {});
         setOldTableDetails(res);
       });
     }

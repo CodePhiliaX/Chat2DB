@@ -23,7 +23,7 @@ import { IndexesType, EditColumnOperationType } from '@/constants';
 import { Context } from '../index';
 import i18n from '@/i18n';
 
-const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']];
+const indexesTypeList = Object.values(IndexesType);
 
 interface IProps {}
 
@@ -165,7 +165,10 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   function getIndexListInfo(): IIndexListInfo {
-    return dataSource;
+    return dataSource.map((i) => {
+      delete i.key;
+      return i;
+    });
   }
 
   useImperativeHandle(ref, () => ({
@@ -254,29 +257,47 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         );
       },
     },
+    // {
+    //   title: i18n('editTable.label.comment'),
+    //   dataIndex: 'comment',
+    //   render: (text: string, record: IIndexItem) => {
+    //     const editable = isEditing(record);
+    //     return editable ? (
+    //       <Form.Item name="comment" style={{ margin: 0 }}>
+    //         <Input />
+    //       </Form.Item>
+    //     ) : (
+    //       <div className={styles.editableCell} onClick={() => edit(record)}>
+    //         {text}
+    //       </div>
+    //     );
+    //   },
+    // },
   ];
 
   const getIncludeColInfo = () => {
     setDataSource(
       dataSource.map((i) => {
         const columnList = includeColRef.current?.getIncludeColInfo();
+        console.log(columnList);
         if (i.key === editingKey && columnList) {
           i.columnList = columnList;
         }
         return i;
       }),
     );
+
     setIncludeColModalOpen(false);
   };
 
   const indexIncludedColumnList: IIndexIncludeColumnItem[] = useMemo(() => {
-    let data: IIndexIncludeColumnItem[] | null = [];
+    let list: IIndexIncludeColumnItem[] = [];
     dataSource.forEach((i) => {
       if (i.key === editingKey) {
-        data = i.columnList;
+        list = i.columnList || [];
       }
     });
-    return data;
+    return list;
   }, [editingKey]);
 
   return (
