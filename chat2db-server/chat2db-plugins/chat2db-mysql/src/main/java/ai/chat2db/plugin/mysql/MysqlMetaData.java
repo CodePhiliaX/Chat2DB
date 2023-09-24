@@ -157,20 +157,23 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         try {
             if (columnType.contains("(")) {
                 String size = columnType.substring(columnType.indexOf("(") + 1, columnType.indexOf(")"));
-                if (size.contains(",")) {
-                    String[] sizes = size.split(",");
-                    if (StringUtils.isNotBlank(sizes[0])) {
-                        column.setColumnSize(Integer.parseInt(sizes[0]));
+                if("SET".equalsIgnoreCase(column.getColumnType())|| "ENUM".equalsIgnoreCase(column.getColumnType())){
+                    column.setValue(size);
+                }else {
+                    if (size.contains(",")) {
+                        String[] sizes = size.split(",");
+                        if (StringUtils.isNotBlank(sizes[0])) {
+                            column.setColumnSize(Integer.parseInt(sizes[0]));
+                        }
+                        if (StringUtils.isNotBlank(sizes[1])) {
+                            column.setDecimalDigits(Integer.parseInt(sizes[1]));
+                        }
+                    } else {
+                        column.setColumnSize(Integer.parseInt(size));
                     }
-                    if (StringUtils.isNotBlank(sizes[1])) {
-                        column.setDecimalDigits(Integer.parseInt(sizes[1]));
-                    }
-                } else {
-                    column.setColumnSize(Integer.parseInt(size));
                 }
             }
         }catch (Exception e){
-
         }
     }
 
