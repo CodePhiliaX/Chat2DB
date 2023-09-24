@@ -4,6 +4,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.web.api.controller.ncx.service.ConverterService;
 import ai.chat2db.server.web.api.controller.ncx.vo.UploadVO;
+import ai.chat2db.server.web.api.util.FileUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import ai.chat2db.server.web.api.util.FileUtils;
 
 import java.io.File;
 import java.util.Objects;
@@ -33,10 +33,10 @@ public class ConverterController {
 
     /**
      * 导出教程
-     * @see <a href="https://blog.csdn.net/kkk123445/article/details/122514124?spm=1001.2014.3001.5502" />
      *
      * @param file file
      * @return DataResult<UploadVO>
+     * @see <a href="https://blog.csdn.net/kkk123445/article/details/122514124?spm=1001.2014.3001.5502" />
      **/
     @SneakyThrows
     @PostMapping("/ncx/upload")
@@ -67,7 +67,7 @@ public class ConverterController {
 
     /**
      * 导入datagrip的连接信息，通过 ctrl/cmd + c（shift多选）复制连接，再导入进来
-     * 目前复制的连接信息里面是没有密码的
+     * 目前复制的连接信息里面是没有密码的、ssh连接信息也没有
      *
      * @param text text
      * @return DataResult<UploadVO>

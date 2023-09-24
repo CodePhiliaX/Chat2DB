@@ -16,25 +16,21 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ConverterServiceImpl
@@ -58,13 +54,17 @@ public class ConverterServiceImpl implements ConverterService {
      * xml连接信息开始标志位
      **/
     private static final String BEGIN = "#BEGIN#";
-    /**
-     * xml连接信息结束标志位
-     **/
-    private static final String END = "#END#";
 
     @Autowired
     private DataSourceMapper dataSourceMapper;
+    /**
+     * jdbc通用匹配ip和端口
+     */
+    public static final Pattern IP_PORT = Pattern.compile("jdbc:(?<type>[a-z]+)://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)");
+    /**
+     * oracle匹配ip和端口
+     */
+    public static final Pattern ORACLE_IP_PORT = Pattern.compile("jdbc:(?<type>[a-z]+):(?<child>[a-z]+):@(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)");
 
     @Override
     public UploadVO uploadFile(File file) {
@@ -137,7 +137,7 @@ public class ConverterServiceImpl implements ConverterService {
         List<String> configs = new ArrayList<>();
         for (int i = 0; i < items.length; i++) {
             if (items[i].equals(BEGIN)) {
-                configs.add(items[i + 1]);
+                configs.add(XML_HEADER + items[i + 1]);
             }
         }
         for (String config : configs) {
@@ -149,19 +149,48 @@ public class ConverterServiceImpl implements ConverterService {
             //3、通过DocumentBuilder对象的parser方法加载xml文件到当前项目下
             try (InputStream inputStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8))) {
                 Document document = db.parse(inputStream);
-                //获取Connection节点的集合
-                NodeList connectList = document.getElementsByTagName("data-source");
-                //选中第一个节点
-                NamedNodeMap itemMap = connectList.item(0).getAttributes();
+                // 获取根元素
+                Element rootElement = document.getDocumentElement();
                 //创建datasource
                 DataSourceDO dataSourceDO = new DataSourceDO();
-                dataSourceDO.setAlias(itemMap.getNamedItem("name").getNodeValue());
-                for (int i = 0; i < connectList.getLength(); i++) {
-                    //通过 item(i)方法 获取一个Connection节点，nodeList的索引值从0开始
-                    Node connect = connectList.item(i);
-                    //获取Connection节点的所有属性集合
-                    NamedNodeMap attrs = connect.getAttributes();
+                LocalDateTime dateTime = LocalDateTime.now();
+                dataSourceDO.setGmtCreate(dateTime);
+                dataSourceDO.setGmtModified(dateTime);
+                dataSourceDO.setAlias(rootElement.getAttribute("name"));
+                // 获取子元素 database-info
+                Element databaseInfoElement = (Element) rootElement.getElementsByTagName("database-info").item(0);
+
+                // 获取连接相关信息
+                String type = databaseInfoElement.getAttribute("dbms");
+                String jdbcUrl = rootElement.getElementsByTagName("jdbc-url").item(0).getTextContent();
+                String username = rootElement.getElementsByTagName("user-name").item(0).getTextContent();
+                String driverName = rootElement.getElementsByTagName("jdbc-driver").item(0).getTextContent();
+                String host = "";
+                String port = "";
+                if (type.equals(DataBaseType.ORACLE.name())) {
+                    // 创建 Matcher 对象
+                    Matcher matcher = ORACLE_IP_PORT.matcher(jdbcUrl);
+                    // 查找匹配的 IP 地址和端口号
+                    if (matcher.find()) {
+                        host = matcher.group("host");
+                        port = matcher.group("port");
+                    }
+                } else {
+                    // 创建 Matcher 对象
+                    Matcher matcher = IP_PORT.matcher(jdbcUrl);
+                    // 查找匹配的 IP 地址和端口号
+                    if (matcher.find()) {
+                        host = matcher.group("host");
+                        port = matcher.group("port");
+
+                    }
                 }
+                dataSourceDO.setHost(host);
+                dataSourceDO.setPort(port);
+                dataSourceDO.setUrl(jdbcUrl);
+                dataSourceDO.setUserName(username);
+                dataSourceDO.setDriver(driverName);
+                dataSourceDO.setType(type);
                 dataSourceMapper.insert(dataSourceDO);
             }
         }
