@@ -22,7 +22,7 @@ interface IProps {
   onClickRemainBtn: Function;
 }
 
-function ChatInput(props: IProps) {
+const ChatInput = (props: IProps) => {
   const [value, setValue] = useState(props.value);
 
   const onPressEnter = (e: any) => {
