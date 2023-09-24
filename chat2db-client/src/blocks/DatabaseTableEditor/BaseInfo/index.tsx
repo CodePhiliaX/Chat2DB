@@ -38,7 +38,7 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
   }));
 
   return (
-    <div className={classnames(className, styles.box)}>
+    <div className={classnames(className, styles.baseInfo)}>
       <div className={styles.formBox}>
         <Form
           layout="vertical"
