@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
 import { IColumnItemNew, IIndexIncludeColumnItem } from '@/typings';
 import i18n from '@/i18n';
+import lodash from 'lodash';
 
 interface IProps {
   includedColumnList: IIndexIncludeColumnItem[];
@@ -135,12 +136,8 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     dataSource.forEach((t) => {
       columnList.forEach((columnItem) => {
         if (t.name === columnItem.name) {
-          const newColumnItem = {
-            ...columnItem,
-          };
-          delete newColumnItem.key;
           includeColInfo.push({
-            ...newColumnItem,
+            ...lodash.omit(columnItem, 'key'),
           });
         }
       });

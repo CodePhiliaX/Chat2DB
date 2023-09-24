@@ -22,6 +22,7 @@ import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
 import { IndexesType, EditColumnOperationType } from '@/constants';
 import { Context } from '../index';
 import i18n from '@/i18n';
+import lodash from 'lodash';
 
 const indexesTypeList = Object.values(IndexesType);
 
@@ -166,11 +167,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
 
   function getIndexListInfo(): IIndexListInfo {
     return dataSource.map((i) => {
-      const newData = {
-        ...i,
-      };
-      delete newData.key;
-      return newData;
+      return lodash.omit(i, 'key');
     });
   }
 
