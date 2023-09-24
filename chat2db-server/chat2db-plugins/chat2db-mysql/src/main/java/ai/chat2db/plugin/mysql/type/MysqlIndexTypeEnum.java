@@ -38,7 +38,7 @@ public enum MysqlIndexTypeEnum {
 
     public static MysqlIndexTypeEnum getByType(String type) {
         for (MysqlIndexTypeEnum value : MysqlIndexTypeEnum.values()) {
-            if (value.name.equals(type)) {
+            if (value.name.equalsIgnoreCase(type)) {
                 return value;
             }
         }
