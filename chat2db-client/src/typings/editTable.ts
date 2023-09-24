@@ -64,7 +64,6 @@ export interface IAfterEndIndexIncludeColumnItem {
 export interface IIndexItem {
   key?: string;
   name: string | null;
-  columns: string | null;
   comment?: string | null;
   type: IndexesType | null;
   columnList: IIndexIncludeColumnItem[];

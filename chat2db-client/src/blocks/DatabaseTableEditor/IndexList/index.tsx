@@ -39,7 +39,6 @@ const createInitialData = (): IIndexItem => {
     columnList: [],
     name: '',
     type: null,
-    columns: null,
     comment: null,
     editStatus: EditColumnOperationType.Add,
   };
