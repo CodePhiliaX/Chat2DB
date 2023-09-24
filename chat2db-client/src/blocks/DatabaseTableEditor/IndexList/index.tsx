@@ -7,6 +7,7 @@ import React, {
   useRef,
   useMemo,
   useEffect,
+  useCallback,
 } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -49,20 +50,49 @@ interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
 }
 
+const Row = ({ children, ...props }: RowProps) => {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: props['data-row-key'],
+  });
+
+  const style: React.CSSProperties = {
+    ...props.style,
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+  };
+
+  return (
+    <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+      {React.Children.map(children, (child) => {
+        if ((child as React.ReactElement).key === 'sort') {
+          return React.cloneElement(child as React.ReactElement, {
+            children: (
+              <MenuOutlined ref={setActivatorNodeRef} style={{ touchAction: 'none', cursor: 'move' }} {...listeners} />
+            ),
+          });
+        }
+        return child;
+      })}
+    </tr>
+  );
+};
+
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
   const { tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<IIndexItem | null>(null);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
   const includeColRef = useRef<IIncludeColRef>(null);
 
-  const isEditing = (record: IIndexItem) => record.key === editingKey;
+  const isEditing = (record: IIndexItem) => record.key === editingData?.key;
 
   const edit = (record: IIndexItem) => {
-    console.log(record);
     form.setFieldsValue({ ...record });
-    setEditingKey(record.key || null);
+    if (record.key !== editingData?.key) {
+      setEditingData(record || null);
+    }
   };
 
   useEffect(() => {
@@ -83,11 +113,11 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   const deleteData = () => {
-    setDataSource(dataSource.filter((i) => i.key !== editingKey));
+    setDataSource(dataSource.filter((i) => i.key !== editingData?.key));
     setDataSource(
       dataSource.map((i) => {
-        if (i.key === editingKey) {
-          setEditingKey(null);
+        if (i.key === editingData?.key) {
+          setEditingData(null);
           // setEditingConfig(null);
           return {
             ...i,
@@ -107,7 +137,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       value = value ? 1 : 0;
     }
     const newData = dataSource.map((item) => {
-      if (item.key === editingKey) {
+      if (item.key === editingData?.key) {
         let editStatus = item.editStatus;
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
@@ -133,38 +163,6 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     }
   };
 
-  const Row = ({ children, ...rowProps }: RowProps) => {
-    const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
-      id: rowProps['data-row-key'],
-    });
-
-    const style: React.CSSProperties = {
-      ...rowProps.style,
-      transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
-      transition,
-      ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
-    };
-
-    return (
-      <tr {...props} ref={setNodeRef} style={style} {...attributes}>
-        {React.Children.map(children, (child) => {
-          if ((child as React.ReactElement).key === 'sort') {
-            return React.cloneElement(child as React.ReactElement, {
-              children: (
-                <MenuOutlined
-                  ref={setActivatorNodeRef}
-                  style={{ touchAction: 'none', cursor: 'move' }}
-                  {...listeners}
-                />
-              ),
-            });
-          }
-          return child;
-        })}
-      </tr>
-    );
-  };
-
   function getIndexListInfo(): IIndexListInfo {
     return dataSource.map((i) => {
       return lodash.omit(i, 'key');
@@ -181,14 +179,14 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       width: '40px',
       align: 'center',
     },
-    {
-      title: i18n('editTable.label.index'),
-      width: '70px',
-      align: 'center',
-      render: (text: string, record: IIndexItem) => {
-        return dataSource.findIndex((i) => i.key === record.key) + 1;
-      },
-    },
+    // {
+    //   title: i18n('editTable.label.index'),
+    //   width: '70px',
+    //   align: 'center',
+    //   render: (text: string, record: IIndexItem) => {
+    //     return dataSource.findIndex((i) => i.key === record.key) + 1;
+    //   },
+    // },
     {
       title: i18n('editTable.label.indexName'),
       dataIndex: 'name',
@@ -200,9 +198,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
             <Input />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -223,9 +219,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
             </Select>
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -251,9 +245,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
             {text}
           </div>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -279,8 +271,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     setDataSource(
       dataSource.map((i) => {
         const columnList = includeColRef.current?.getIncludeColInfo();
-        console.log(columnList);
-        if (i.key === editingKey && columnList) {
+        if (i.key === editingData?.key && columnList) {
           i.columnList = columnList;
         }
         return i;
@@ -290,15 +281,25 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     setIncludeColModalOpen(false);
   };
 
+  const onRow = (record: any) => {
+    return {
+      onClick: () => {
+        if (editingData?.key !== record.key) {
+          edit(record);
+        }
+      },
+    };
+  };
+
   const indexIncludedColumnList: IIndexIncludeColumnItem[] = useMemo(() => {
     let list: IIndexIncludeColumnItem[] = [];
     dataSource.forEach((i) => {
-      if (i.key === editingKey) {
+      if (i.key === editingData?.key) {
         list = i.columnList || [];
       }
     });
     return list;
-  }, [editingKey]);
+  }, [editingData?.key]);
 
   return (
     <div className={classnames(styles.indexList)}>
@@ -318,6 +319,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
                     row: Row,
                   },
                 }}
+                onRow={onRow}
                 pagination={false}
                 rowKey="key"
                 columns={columns as any}

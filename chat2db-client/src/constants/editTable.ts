@@ -1,12 +1,11 @@
 // 索引类型
 export enum IndexesType {
-  NormPRIMARY_KEYal = 'PRIMARY_KEY',
-  NORMAL = 'NORMAL',
-  UNIQUE = 'UNIQUE',
-  FULLTEXT = 'FULLTEXT',
-  SPATIAL = 'SPATIAL',
+  Primary = 'Primary',
+  Normal = 'Normal',
+  Unique = 'Unique',
+  Fulltext = 'Fulltext',
+  Spatial = 'Spatial',
 }
-
 export enum EditColumnOperationType { 
   // 新增
   Add = 'ADD',

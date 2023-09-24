@@ -1,4 +1,12 @@
-import React, { useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+} from 'react';
 import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
@@ -104,7 +112,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   const { dataSourceId, databaseName, schemaName, tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IColumnItemNew[]>([createInitialData()]);
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<IColumnItemNew | null>(null);
   const [editingConfig, setEditingConfig] = useState<IEditingConfig | null>(null);
   const [databaseSupportField, setDatabaseSupportField] = useState<{
     columnTypes: IColumnTypesOption[];
@@ -116,17 +124,21 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     collations: [],
   });
 
-  const isEditing = (record: IColumnItemNew) => record.key === editingKey;
+  const isEditing = (record: IColumnItemNew) => record.key === editingData?.key;
 
   const edit = (record: IColumnItemNew) => {
     if (record.key) {
       form.setFieldsValue({ ...record });
-      setEditingKey(record.key);
-
+      setEditingData(record);
       // 根据当前字段类型，设置编辑配置
+      console.log(databaseSupportField.columnTypes, record.columnType);
       databaseSupportField.columnTypes.forEach((i) => {
         if (i.typeName === record.columnType) {
           setEditingConfig({
+            ...i,
+            editKey: record.key!,
+          });
+          console.log({
             ...i,
             editKey: record.key!,
           });
@@ -197,19 +209,19 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       width: '40px',
       align: 'center',
     },
-    {
-      title: 'O T',
-      dataIndex: 'editStatus',
-      width: '60px',
-      align: 'center',
-      render: (text: EditColumnOperationType) => {
-        return text === EditColumnOperationType.Add ? (
-          <span style={{ color: '#52c41a' }}>新</span>
-        ) : (
-          <span style={{ color: '#f5222d' }}>原</span>
-        );
-      },
-    },
+    // {
+    //   title: 'O T',
+    //   dataIndex: 'editStatus',
+    //   width: '60px',
+    //   align: 'center',
+    //   render: (text: EditColumnOperationType) => {
+    //     return text === EditColumnOperationType.Add ? (
+    //       <span style={{ color: '#52c41a' }}>新</span>
+    //     ) : (
+    //       <span style={{ color: '#f5222d' }}>原</span>
+    //     );
+    //   },
+    // },
     {
       title: i18n('editTable.label.columnName'),
       dataIndex: 'name',
@@ -221,9 +233,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <Input />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -240,7 +250,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                 <Select showSearch options={databaseSupportField.columnTypes} />
               </Form.Item>
             ) : (
-              <div style={{ maxWidth: '184px' }} className={styles.editableCell} onClick={() => edit(record)}>
+              <div style={{ maxWidth: '184px' }} className={styles.editableCell}>
                 {text}
               </div>
             )}
@@ -259,9 +269,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <InputNumber disabled={!editingConfig?.supportLength} />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -276,7 +284,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <Checkbox checked={nullable === 1} disabled={!editingConfig?.supportNullable} />
           </Form.Item>
         ) : (
-          <div onClick={() => edit(record)}>
+          <div>
             <Checkbox checked={nullable === 1} />
           </div>
         );
@@ -292,9 +300,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <Input disabled={!editingConfig?.supportComments} />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -319,7 +325,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     }
 
     const newData = dataSource.map((item) => {
-      if (item.key === editingKey) {
+      if (item.key === editingData?.key) {
         // 判断当前数据是新增的数据还是编辑后的数据
         let editStatus = item.editStatus;
         if (editStatus !== EditColumnOperationType.Add) {
@@ -345,7 +351,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       return item;
     });
     setDataSource(newData);
-    console.log(field);
   };
 
   const addData = () => {
@@ -357,10 +362,13 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   };
 
   const deleteData = () => {
-    setDataSource(
-      dataSource.map((i) => {
-        if (i.key === editingKey) {
-          setEditingKey(null);
+    let list: any = [];
+    if (editingData?.editStatus === EditColumnOperationType.Add) {
+      list = dataSource.filter((i) => i.key !== editingData?.key);
+    } else {
+      list = dataSource.map((i) => {
+        if (i.key === editingData?.key) {
+          setEditingData(null);
           setEditingConfig(null);
           return {
             ...i,
@@ -368,12 +376,13 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           };
         }
         return i;
-      }),
-    );
+      });
+    }
+    setDataSource(list);
   };
 
   const moveData = (action: 'up' | 'down') => {
-    const index = dataSource.findIndex((i) => i.key === editingKey);
+    const index = dataSource.findIndex((i) => i.key === editingData?.key);
     if (index === -1) {
       return;
     }
@@ -425,8 +434,8 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <CustomSelect
               options={[
                 {
-                  label: 'EMPTY STRING',
-                  value: 'EMPTY STRING',
+                  label: 'EMPTY_STRING',
+                  value: 'EMPTY_STRING',
                 },
                 {
                   label: 'NULL',
@@ -455,6 +464,16 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     );
   };
 
+  const onRow = (record: any) => {
+    return {
+      onClick: () => {
+        if (editingData?.key !== record.key) {
+          edit(record);
+        }
+      },
+    };
+  };
+
   return (
     <div className={styles.columnList}>
       <div className={styles.columnListHeader}>
@@ -473,6 +492,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                     row: Row,
                   },
                 }}
+                onRow={onRow}
                 pagination={false}
                 rowKey="key"
                 columns={columns as any}
