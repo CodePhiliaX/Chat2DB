@@ -86,7 +86,7 @@ public class TableServiceImpl implements TableService {
 
     @Override
     public ListResult<Sql> buildSql(Table oldTable, Table newTable) {
-        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder(oldTable.getDbType());
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         List<Sql> sqls = new ArrayList<>();
         if (oldTable == null) {
             sqls.add(Sql.builder().sql(sqlBuilder.buildCreateTableSql(newTable)).build());
