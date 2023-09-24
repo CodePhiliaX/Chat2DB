@@ -56,9 +56,9 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true),
     TIME("TIME", true, false, true, false, false, false, true, true, false),
     YEAR("YEAR", false, false, true, false, false, false, true, true, false),
-    CHAR("CHAR", true, false, true, false, false, true, true, true, false),
+    CHAR("CHAR", true, false, true, false, true, true, true, true, false),
 
-    VARCHAR("VARCHAR", true, false, true, false, false, true, true, true, false),
+    VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false),
 
     BINARY("BINARY", true, false, true, false, false, false, true, true, false),
 
