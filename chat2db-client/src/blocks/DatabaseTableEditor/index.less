@@ -7,11 +7,18 @@
 }
 
 .header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 10px 10px 0px 10px;
   box-sizing: border-box;
+}
+
+.saveButton {
+  position: absolute;
+  // left: 0px;
+  right: 20px;
 }
 
 .tabList {
@@ -29,11 +36,14 @@
   padding: 0px 30px;
   border-radius: 6px;
   cursor: pointer;
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
 .currentTab {
   color: var(--color-primary);
-  background-color: var(--color-hover-bg);
+  background-color: var(--color-primary-bg);
 }
 
 .main {

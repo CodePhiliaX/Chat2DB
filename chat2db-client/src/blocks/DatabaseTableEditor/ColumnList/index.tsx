@@ -1,12 +1,4 @@
-import React, {
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  forwardRef,
-  ForwardedRef,
-  useImperativeHandle,
-} from 'react';
+import React, { useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
@@ -510,6 +502,11 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                     row: Row,
                   },
                 }}
+                style={{
+                  height: '100%',
+                  overflow: 'auto',
+                }}
+                sticky
                 onRow={onRow}
                 pagination={false}
                 rowKey="key"
