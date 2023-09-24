@@ -161,4 +161,8 @@ public class TableColumn {
 
 
     private String editStatus;
+
+    private String charSetName;
+
+    private String collationName;
 }

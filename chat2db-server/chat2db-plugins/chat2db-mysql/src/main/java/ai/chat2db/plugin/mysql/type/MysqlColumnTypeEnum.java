@@ -231,7 +231,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         if(!type.getColumnType().isSupportNullable()){
             return "";
         }
-        if (1==column.getNullable()) {
+        if (column.getNullable()!=null && 1==column.getNullable()) {
             return "NULL";
         } else {
             return "NOT NULL";
