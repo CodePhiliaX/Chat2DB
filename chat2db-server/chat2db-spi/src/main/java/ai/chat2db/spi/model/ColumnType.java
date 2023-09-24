@@ -17,4 +17,6 @@ public class ColumnType {
     private boolean supportComments;
     private boolean supportDefaultValue;
     private boolean supportExtent;
+
+    private boolean supportValue;
 }
