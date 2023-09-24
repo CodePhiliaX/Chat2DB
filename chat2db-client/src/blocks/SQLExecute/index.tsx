@@ -8,11 +8,10 @@ import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
-import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/history';
+import historyServer, { ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams, IExportParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
-import sql from '@/service/sql';
 import { isNumber } from 'lodash';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { downloadFile } from '@/utils/common';
@@ -80,7 +79,7 @@ const SQLExecute = memo<IProps>((props) => {
   const handleExecuteSQL = async (sql: string) => {
     setTableLoading(true);
 
-    let executeSQLParams: IExecuteSqlParams = {
+    const executeSQLParams: IExecuteSqlParams = {
       sql,
       ...defaultResultConfig,
       ...data,
@@ -108,7 +107,7 @@ const SQLExecute = memo<IProps>((props) => {
     setResultData(sqlResult);
     setTableLoading(false);
 
-    let createHistoryParams: ISaveBasicInfo = {
+    const createHistoryParams: ISaveBasicInfo = {
       ...data,
       ddl: sql,
       name: `${new Date()}-${sql}`,
@@ -123,7 +122,7 @@ const SQLExecute = memo<IProps>((props) => {
   const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
     setTableLoading(true);
     const param = { ...data, ...config, sql };
-    let sqlResult = await sqlServer.executeSql(param);
+    const sqlResult = await sqlServer.executeSql(param);
     resultData[index] = { ...resultData[index], ...sqlResult[0] };
     setResultData([...resultData]);
 
@@ -138,7 +137,7 @@ const SQLExecute = memo<IProps>((props) => {
 
   const handleSearchTotal = async (index: number) => {
     const { originalSql } = resultData[index];
-    let total = await sqlServer.getDMLCount({ ...data, sql: originalSql });
+    const total = await sqlServer.getDMLCount({ ...data, sql: originalSql });
     resultConfig[index] = {
       ...resultConfig[index],
       total,

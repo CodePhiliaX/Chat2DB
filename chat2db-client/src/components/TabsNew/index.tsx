@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, Fragment } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import styles from './index.less';
@@ -27,7 +27,7 @@ interface IProps {
   editableNameOnBlur?: (option: ITabItem) => void;
 }
 
-export default memo<IProps>(function Tabs(props) {
+export default memo<IProps>((props) => {
   const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableName, editableNameOnBlur } = props;
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
@@ -37,54 +37,54 @@ export default memo<IProps>(function Tabs(props) {
     if (activeKey !== null && activeKey !== undefined) {
       setInternalActiveTab(activeKey);
     }
-  }, [activeKey])
+  }, [activeKey]);
 
   useEffect(() => {
     setInternalTabs(items || []);
     if (items?.length && internalActiveTab === undefined) {
       setInternalActiveTab(items[0].key);
     }
-  }, [items])
+  }, [items]);
 
   useEffect(() => {
     onChange?.(internalActiveTab);
-  }, [internalActiveTab])
+  }, [internalActiveTab]);
 
   function deleteTab(data: ITabItem) {
-    const newInternalTabs = internalTabs?.filter(t => t.key !== data.key);
-    let activeKey = internalActiveTab;
+    const newInternalTabs = internalTabs?.filter((t) => t.key !== data.key);
+    let activeKeyTemp = internalActiveTab;
     // 删掉的是当前激活的tab，那么就切换到前一个,如果前一个没有就切换到后一个
     if (data.key === internalActiveTab) {
-      const index = internalTabs.findIndex(t => t.key === data.key);
+      const index = internalTabs.findIndex((t) => t.key === data.key);
       if (index === 0) {
-        activeKey = internalTabs[1]?.key
+        activeKeyTemp = internalTabs[1]?.key;
       } else {
-        activeKey = internalTabs[index - 1]?.key
+        activeKeyTemp = internalTabs[index - 1]?.key;
       }
     }
-    changeTab(activeKey);
+    changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
-    onEdit?.('remove', data)
+    onEdit?.('remove', data);
   }
 
   function changeTab(key: string | number | undefined) {
     setInternalActiveTab(key);
   }
 
-  function handelAdd() {
-    onEdit?.('add')
+  function handleAdd() {
+    onEdit?.('add');
   }
 
   function onDoubleClick(t: ITabItem) {
     if (editableName) {
-      setEditingTab(t.key)
+      setEditingTab(t.key);
     }
   }
 
   function renderTabItem(t: ITabItem, index: number) {
     function inputOnChange(value: string) {
-      internalTabs[index].label = value
-      setInternalTabs([...internalTabs])
+      internalTabs[index].label = value;
+      setInternalTabs([...internalTabs]);
     }
 
     function onBlur() {
@@ -92,63 +92,75 @@ export default memo<IProps>(function Tabs(props) {
       setEditingTab(undefined);
     }
 
-    return <div
-      onDoubleClick={() => { onDoubleClick(t) }}
-      key={t.key}
-      className={
-        classnames(
+    return (
+      <div
+        onDoubleClick={() => {
+          onDoubleClick(t);
+        }}
+        key={t.key}
+        className={classnames(
           { [styles.tabItem]: type !== 'line' },
           { [styles.tabItemLine]: type === 'line' },
           { [styles.activeTabLine]: t.key === internalActiveTab && type === 'line' },
           { [styles.activeTab]: t.key === internalActiveTab && type !== 'line' },
-        )
-      }
-    >
-      {
-        t.key === editingTab ?
-          <input value={t.label as string} onChange={(e) => { inputOnChange(e.target.value) }} className={styles.input} autoFocus onBlur={onBlur} type="text" />
-          :
+        )}
+      >
+        {t.key === editingTab ? (
+          <input
+            value={t.label as string}
+            onChange={(e) => {
+              inputOnChange(e.target.value);
+            }}
+            className={styles.input}
+            autoFocus
+            onBlur={onBlur}
+            type="text"
+          />
+        ) : (
           <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
             {t.prefixIcon && <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />}
-            <div className={styles.text}>
-              {t.label}
-            </div>
+            <div className={styles.text}>{t.label}</div>
           </div>
-      }
-      <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
-        <Iconfont code='&#xe634;' />
+        )}
+        <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
+          <Iconfont code="&#xe634;" />
+        </div>
       </div>
-    </div>
+    );
   }
 
-  return <div className={classnames(styles.tabBox, className)}>
-    <div className={styles.tabsNav}>
-      {
-        !!internalTabs?.length &&
-        <div className={styles.tabList}>
-          {
-            internalTabs.map((t, index) => {
-              return renderTabItem(t, index)
-            })
-          }
-        </div>
-      }
-      {
-        !hideAdd && <div className={styles.rightBox}>
-          <div className={styles.addIcon} onClick={handelAdd}>
-            <Iconfont code='&#xe631;'></Iconfont>
+  return (
+    <div className={classnames(styles.tabBox, className)}>
+      <div className={styles.tabsNav}>
+        {!!internalTabs?.length && (
+          <div className={styles.tabList}>
+            {internalTabs.map((t, index) => {
+              return renderTabItem(t, index);
+            })}
           </div>
-        </div>
-      }
-    </div>
-    <div className={styles.tabsContent}>
-      {
-        internalTabs?.map(t => {
-          return <div key={t.key} className={classnames(styles.tabsContentItem, { [styles.tabsContentItemActive]: t.key === internalActiveTab })}>
-            {t.children}
+        )}
+        {!hideAdd && (
+          <div className={styles.rightBox}>
+            <div className={styles.addIcon} onClick={handleAdd}>
+              <Iconfont code="&#xe631;" />
+            </div>
           </div>
-        })
-      }
+        )}
+      </div>
+      <div className={styles.tabsContent}>
+        {internalTabs?.map((t) => {
+          return (
+            <div
+              key={t.key}
+              className={classnames(styles.tabsContentItem, {
+                [styles.tabsContentItemActive]: t.key === internalActiveTab,
+              })}
+            >
+              {t.children}
+            </div>
+          );
+        })}
+      </div>
     </div>
-  </div >
-})
+  );
+});
