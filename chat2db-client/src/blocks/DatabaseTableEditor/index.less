@@ -9,7 +9,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin: 10px 10px 0px 10px;
   box-sizing: border-box;
 }
@@ -18,30 +18,22 @@
   display: flex;
   border-bottom: 0;
   font-size: 14px;
+  border-radius: 6px;
+  background-color: var(--color-bg-subtle);
 }
 
 .tabItem {
   position: relative;
   height: 28px;
   line-height: 28px;
-  padding: 0px 18px;
-  border: 1px solid var(--color-border);
-  margin-right: 1px;
+  padding: 0px 30px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 .currentTab {
   color: var(--color-primary);
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    right: 0px;
-    height: 2px;
-    background-color: var(--color-primary);
-  }
+  background-color: var(--color-hover-bg);
 }
 
 .main {
