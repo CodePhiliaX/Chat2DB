@@ -72,16 +72,16 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     LONGBLOB("LONGBLOB", false, false, true, false, false, false, true, false, false, false),
 
-    TINYTEXT("TINYTEXT", false, false, true, false, false, true, true, false, false, false),
+    TINYTEXT("TINYTEXT", false, false, true, false, true, true, true, false, false, false),
 
-    TEXT("TEXT", false, false, true, false, false, true, true, false, false, false),
+    TEXT("TEXT", false, false, true, false, true, true, true, false, false, false),
 
-    MEDIUMTEXT("MEDIUMTEXT", false, false, true, false, false, true, true, false, false, false),
+    MEDIUMTEXT("MEDIUMTEXT", false, false, true, false, true, true, true, false, false, false),
 
-    LONGTEXT("LONGTEXT", false, false, true, false, false, true, true, false, false, false),
+    LONGTEXT("LONGTEXT", false, false, true, false, true, true, true, false, false, false),
 
 
-    ENUM("ENUM", false, false, true, false, false, true, true, true, true, true),
+    ENUM("ENUM", false, false, true, false, true, true, true, true, true, true),
 
 
     BOOL("BOOL", false, false, true, true, false, false, true, true, false, false),
@@ -92,7 +92,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     REAL("REAL", true, true, true, false, false, false, true, true, false, false),
 
-    SET("SET", false, false, true, false, false, true, true, true, true, true),
+    SET("SET", false, false, true, false, true, true, true, true, true, true),
 
 
     GEOMETRY("GEOMETRY", false, false, true, false, false, false, true, false, false, false),

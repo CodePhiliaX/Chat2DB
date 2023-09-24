@@ -25,10 +25,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,7 +150,7 @@ public class ConverterServiceImpl implements ConverterService {
                 Element rootElement = document.getDocumentElement();
                 //创建datasource
                 DataSourceDO dataSourceDO = new DataSourceDO();
-                LocalDateTime dateTime = LocalDateTime.now();
+                Date dateTime = new Date();
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(rootElement.getAttribute("name"));
@@ -221,7 +218,7 @@ public class ConverterServiceImpl implements ConverterService {
                 }
                 // 解密密码
                 String password = cipher.decryptString(resultMap.getOrDefault("Password", ""));
-                LocalDateTime dateTime = LocalDateTime.now();
+                Date dateTime =new Date();
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(resultMap.get("ConnectionName"));
