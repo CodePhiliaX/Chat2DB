@@ -149,11 +149,11 @@ export default memo((props: IProps) => {
               );
             })}
           </div>
-          {/* <div className={styles.saveButton}>
+          <div className={styles.saveButton}>
             <Button type="primary" onClick={submit}>
               {i18n('common.button.save')}
             </Button>
-          </div> */}
+          </div>
         </div>
         <div className={styles.main}>
           {tabList.map((t) => {

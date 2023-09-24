@@ -318,6 +318,11 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
                     row: Row,
                   },
                 }}
+                style={{
+                  height: '100%',
+                  overflow: 'auto',
+                }}
+                sticky
                 onRow={onRow}
                 pagination={false}
                 rowKey="key"
