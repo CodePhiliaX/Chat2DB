@@ -65,4 +65,5 @@ export interface IColumnTypes {
   supportLength: boolean; // 是否支持长度
   supportNullable: boolean; // 是否支持为空
   supportScale: boolean; // 是否支持小数位
+  supportValue: boolean; // 是否支持值
 }

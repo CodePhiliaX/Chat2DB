@@ -104,6 +104,9 @@ const createInitialData = () => {
     ordinalPosition: null,
     nullable: null,
     generatedColumn: null,
+    charSetName: null,
+    collationName: null,
+    value: null,
     editStatus: EditColumnOperationType.Add,
   };
 };
@@ -230,7 +233,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="name" style={{ margin: 0 }}>
-            <Input />
+            <Input autoComplete="off" />
           </Form.Item>
         ) : (
           <div className={styles.editableCell}>{text}</div>
@@ -297,7 +300,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="comment" style={{ margin: 0 }}>
-            <Input disabled={!editingConfig?.supportComments} />
+            <Input autoComplete="off" disabled={!editingConfig?.supportComments} />
           </Form.Item>
         ) : (
           <div className={styles.editableCell}>{text}</div>
@@ -429,6 +432,16 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
     return (
       <>
+        {editingConfig?.supportAutoIncrement && (
+          <Form.Item
+            labelCol={labelCol}
+            label={i18n('editTable.label.autoIncrement')}
+            name="autoIncrement"
+            valuePropName="checked"
+          >
+            <Checkbox />
+          </Form.Item>
+        )}
         {editingConfig?.supportDefaultValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.defaultValue')} name="defaultValue">
             <CustomSelect
@@ -446,18 +459,23 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           </Form.Item>
         )}
         {editingConfig?.supportCharset && (
-          <Form.Item labelCol={labelCol} label={i18n('editTable.label.characterSet')} name="characterSet">
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.characterSet')} name="charSetName">
             <CustomSelect options={databaseSupportField.charsets} />
           </Form.Item>
         )}
         {editingConfig?.supportCollation && (
-          <Form.Item labelCol={labelCol} label={i18n('editTable.label.collation')} name="collation">
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.collation')} name="collationName">
             <CustomSelect options={databaseSupportField.collations} />
           </Form.Item>
         )}
         {editingConfig?.supportScale && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.decimalPoint')} name="decimalPoint">
-            <Input />
+            <Input autoComplete="off" />
+          </Form.Item>
+        )}
+        {editingConfig?.supportValue && (
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.value')} name="value">
+            <Input autoComplete="off" />
           </Form.Item>
         )}
       </>

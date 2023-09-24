@@ -77,18 +77,6 @@ export default memo((props: IProps) => {
       };
       sqlService.getTableDetails(params).then((res) => {
         const newTableDetails = lodash.cloneDeep(res);
-        newTableDetails.indexList.forEach((i) => {
-          i.columnList = i.columnList.map((j: any) => {
-            let newColumn: any = {};
-            newTableDetails.columnList.forEach((k: any) => {
-              if (j.columnName === k.name) {
-                newColumn = k;
-              }
-            });
-            return newColumn;
-          });
-        });
-        console.log(newTableDetails);
         setTableDetails(newTableDetails || {});
         setOldTableDetails(res);
       });
@@ -130,9 +118,8 @@ export default memo((props: IProps) => {
       schemaName,
     };
 
-    // 获取当前SQL的查询结果
-    sqlService.executeSql(executeSQLParams).then((res) => {
-      message.success('修改成功');
+    sqlService.executeSql(executeSQLParams).then(() => {
+      message.success(i18n('common.text.successfulExecution'));
       setViewSqlModal(false);
     });
   };
@@ -179,7 +166,7 @@ export default memo((props: IProps) => {
         </div>
       </div>
       <Modal
-        title="sql预览"
+        title={i18n('editTable.title.sqlPreview')}
         open={!!viewSqlModal}
         onCancel={() => {
           setViewSqlModal(false);

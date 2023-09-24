@@ -22,4 +22,9 @@ export default {
   'editTable.label.defaultValue': 'Default value',
   'editTable.label.characterSet': 'Character set',
   'editTable.label.collation': 'Collation',
+  'editTable.label.value': 'Value',
+  'editTable.label.autoIncrement': 'Auto increment',
+  'editTable.label.engine': 'Engine',
+  'editTable.label.incrementValue': 'Increment value',
+  'editTable.title.sqlPreview': 'SQL preview',
 };
