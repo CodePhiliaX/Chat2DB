@@ -1,3 +1,6 @@
+/**
+ * 这个组件只负责拿到用户选择的表名
+ *  */
 import React, { useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -6,7 +9,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { Context } from '../index';
 import { IColumnItemNew, IIndexIncludeColumnItem } from '@/typings';
 import i18n from '@/i18n';
-import { string } from 'sql-formatter/lib/src/lexer/regexFactory';
 
 interface IProps {
   includedColumnList: IIndexIncludeColumnItem[];
@@ -133,9 +135,12 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     dataSource.forEach((t) => {
       columnList.forEach((columnItem) => {
         if (t.name === columnItem.name) {
-          delete columnItem.key;
-          includeColInfo.push({
+          const newColumnItem = {
             ...columnItem,
+          };
+          delete newColumnItem.key;
+          includeColInfo.push({
+            ...newColumnItem,
           });
         }
       });
