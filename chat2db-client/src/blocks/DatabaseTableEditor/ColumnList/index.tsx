@@ -256,7 +256,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="columnSize" style={{ margin: 0 }}>
-            <InputNumber />
+            <InputNumber disabled={!editingConfig?.supportLength} />
           </Form.Item>
         ) : (
           <div className={styles.editableCell} onClick={() => edit(record)}>
@@ -273,7 +273,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="nullable" style={{ margin: 0 }} valuePropName="checked">
-            <Checkbox checked={nullable === 1} />
+            <Checkbox checked={nullable === 1} disabled={!editingConfig?.supportNullable} />
           </Form.Item>
         ) : (
           <div onClick={() => edit(record)}>
@@ -289,7 +289,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="comment" style={{ margin: 0 }}>
-            <Input />
+            <Input disabled={!editingConfig?.supportComments} />
           </Form.Item>
         ) : (
           <div className={styles.editableCell} onClick={() => edit(record)}>
