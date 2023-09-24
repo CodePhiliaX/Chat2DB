@@ -17,6 +17,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 public class MysqlMetaData extends DefaultMetaService implements MetaData {
     @Override
@@ -120,6 +121,61 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
+    private static String SELECT_TABLE_COLUMNS = "SELECT * FROM information_schema.COLUMNS  WHERE TABLE_SCHEMA =  '%s'  AND TABLE_NAME =  '%s'  order by ORDINAL_POSITION";
+
+    @Override
+    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = String.format(SELECT_TABLE_COLUMNS,  databaseName,  tableName);
+        List<TableColumn> tableColumns = new ArrayList<>();
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                TableColumn column = new TableColumn();
+                column.setDatabaseName(databaseName);
+                column.setTableName(tableName);
+                column.setOldName(resultSet.getString("COLUMN_NAME"));
+                column.setName(resultSet.getString("COLUMN_NAME"));
+                //column.setColumnType(resultSet.getString("COLUMN_TYPE"));
+                column.setColumnType(resultSet.getString("DATA_TYPE").toUpperCase());
+                //column.setDataType(resultSet.getInt("DATA_TYPE"));
+                column.setDefaultValue(resultSet.getString("COLUMN_DEFAULT"));
+                column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
+                column.setComment(resultSet.getString("COLUMN_COMMENT"));
+                column.setPrimaryKey("PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY")));
+                column.setNullable("YES".equalsIgnoreCase(resultSet.getString("IS_NULLABLE")) ? 1 : 0);
+                column.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
+                column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
+                column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
+                column.setCollationName(resultSet.getString("COLLATION_NAME"));
+                setColumnSize(column,resultSet.getString("COLUMN_TYPE"));
+                tableColumns.add(column);
+            }
+            return tableColumns;
+        });
+    }
+
+    private void setColumnSize(TableColumn column,String columnType){
+        try {
+            if (columnType.contains("(")) {
+                String size = columnType.substring(columnType.indexOf("(") + 1, columnType.indexOf(")"));
+                if (size.contains(",")) {
+                    String[] sizes = size.split(",");
+                    if (StringUtils.isNotBlank(sizes[0])) {
+                        column.setColumnSize(Integer.parseInt(sizes[0]));
+                    }
+                    if (StringUtils.isNotBlank(sizes[1])) {
+                        column.setDecimalDigits(Integer.parseInt(sizes[1]));
+                    }
+                } else {
+                    column.setColumnSize(Integer.parseInt(size));
+                }
+            }
+        }catch (Exception e){
+
+        }
+    }
+
+
+
     private static String VIEW_SQL
             = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, "
             + "IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
@@ -138,6 +194,7 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
             return table;
         });
     }
+
 
     @Override
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -174,9 +231,9 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                         index.setType(MysqlIndexTypeEnum.UNIQUE.getName());
                     } else if ("SPATIAL".equalsIgnoreCase(index.getType())) {
                         index.setType(MysqlIndexTypeEnum.SPATIAL.getName());
-                    }else if("FULLTEXT".equalsIgnoreCase(index.getType())){
+                    } else if ("FULLTEXT".equalsIgnoreCase(index.getType())) {
                         index.setType(MysqlIndexTypeEnum.FULLTEXT.getName());
-                    }else {
+                    } else {
                         index.setType(MysqlIndexTypeEnum.NORMAL.getName());
                     }
                     map.put(keyName, index);
