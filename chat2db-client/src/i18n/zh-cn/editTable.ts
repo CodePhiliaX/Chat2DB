@@ -23,4 +23,9 @@ export default {
   'editTable.label.characterSet': '字符集',
   'editTable.label.collation': '排序规则',
   'editTable.label.decimalPoint': '小数点',
+  'editTable.label.value': '值',
+  'editTable.label.autoIncrement': '是否自增',
+  'editTable.label.engine': '引擎',
+  'editTable.label.incrementValue': '自增值',
+  'editTable.title.sqlPreview': 'sql预览',
 };

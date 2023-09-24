@@ -23,6 +23,9 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
     form.setFieldsValue({
       name: tableDetails.name,
       comment: tableDetails.comment,
+      charset: tableDetails.charset,
+      engine: tableDetails.engine,
+      incrementValue: tableDetails.incrementValue,
     });
   }, [tableDetails]);
 
@@ -38,9 +41,6 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
     <div className={classnames(className, styles.box)}>
       <div className={styles.formBox}>
         <Form
-          // labelCol={{
-          //   style: { width: 90 },
-          // }}
           layout="vertical"
           form={form}
           initialValues={{ remember: true }}
@@ -48,10 +48,19 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
           className={styles.form}
         >
           <Form.Item label={`${i18n('editTable.label.tableName')}:`} name="name">
-            <Input />
+            <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={`${i18n('editTable.label.comment')}:`} name="comment">
-            <Input />
+            <Input autoComplete="off" />
+          </Form.Item>
+          <Form.Item label={`${i18n('editTable.label.characterSet')}:`} name="charset">
+            <Input autoComplete="off" />
+          </Form.Item>
+          <Form.Item label={`${i18n('editTable.label.engine')}:`} name="engine">
+            <Input autoComplete="off" />
+          </Form.Item>
+          <Form.Item label={`${i18n('editTable.label.incrementValue')}:`} name="incrementValue">
+            <Input autoComplete="off" />
           </Form.Item>
         </Form>
       </div>

@@ -18,7 +18,22 @@ interface IProps {
 const createInitialData = () => {
   return {
     key: uuidv4(),
-    name: null,
+    ascOrDesc: null, // 升序还是降序
+    cardinality: null, // 基数
+    collation: null, // 排序规则
+    columnName: null, // 列名
+    comment: null, // 注释
+    filterCondition: null, // 过滤条件
+    indexName: null, // 索引名
+    indexQualifier: null, // 索引限定符
+    nonUnique: null, // 是否唯一
+    ordinalPosition: null, // 位置
+    schemaName: null, // 模式名
+    type: null, // 类型
+    pages: null, // 页数
+
+    databaseName: null, // 数据库名
+    tableName: null, // 表名
   };
 };
 
@@ -26,12 +41,10 @@ export interface IIncludeColRef {
   getIncludeColInfo: () => IIndexIncludeColumnItem[];
 }
 
-const InitialDataSource = [createInitialData()];
-
 const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>) => {
   const { includedColumnList } = props;
   const { columnListRef } = useContext(Context);
-  const [dataSource, setDataSource] = useState<any[]>(InitialDataSource);
+  const [dataSource, setDataSource] = useState<IIndexIncludeColumnItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const isEditing = (record: IIndexIncludeColumnItem) => record.key === editingKey;
@@ -41,8 +54,8 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       setDataSource(
         includedColumnList.map((t) => {
           return {
+            ...t,
             key: uuidv4(),
-            name: t.name,
           };
         }),
       );
@@ -81,12 +94,12 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     },
     {
       title: i18n('editTable.label.columnName'),
-      dataIndex: 'name',
+      dataIndex: 'columnName',
       // width: '45%',
       render: (text: string, record: IIndexIncludeColumnItem) => {
         const editable = isEditing(record);
         return editable ? (
-          <Form.Item name="name" style={{ margin: 0 }}>
+          <Form.Item name="columnName" style={{ margin: 0 }}>
             <Select options={columnList.map((i) => ({ label: i.name, value: i.name }))} />
           </Form.Item>
         ) : (
@@ -131,18 +144,10 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     setDataSource(newData);
   };
 
-  const getIncludeColInfo = () => {
-    const includeColInfo: IIndexIncludeColumnItem[] = [];
-    dataSource.forEach((t) => {
-      columnList.forEach((columnItem) => {
-        if (t.name === columnItem.name) {
-          includeColInfo.push({
-            ...lodash.omit(columnItem, 'key'),
-          });
-        }
-      });
+  const getIncludeColInfo = (): IIndexIncludeColumnItem[] => {
+    return dataSource.map((t) => {
+      return lodash.omit(t, 'key');
     });
-    return includeColInfo;
   };
 
   useImperativeHandle(ref, () => ({

@@ -7,7 +7,6 @@ import React, {
   useRef,
   useMemo,
   useEffect,
-  useCallback,
 } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -195,7 +194,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="name" style={{ margin: 0 }}>
-            <Input />
+            <Input autoComplete="off" />
           </Form.Item>
         ) : (
           <div className={styles.editableCell}>{text}</div>
@@ -230,7 +229,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         const editable = isEditing(record);
         const text = columnList
           ?.map((t) => {
-            return `${t.name}`;
+            return `${t.columnName}`;
           })
           .join(',');
         return editable ? (
