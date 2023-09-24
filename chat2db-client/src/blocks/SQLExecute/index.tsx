@@ -16,7 +16,7 @@ import sql from '@/service/sql';
 import { isNumber } from 'lodash';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { downloadFile } from '@/utils/common';
-import { useUpdateEffect } from '@/hooks/useUpdateEffect'
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -41,7 +41,7 @@ const defaultResultConfig: IResultConfig = {
   hasNextPage: true,
 };
 
-const SQLExecute = memo<IProps>(function (props) {
+const SQLExecute = memo<IProps>((props) => {
   const { data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>();
@@ -71,7 +71,7 @@ const SQLExecute = memo<IProps>(function (props) {
 
   useUpdateEffect(() => {
     setAppendValue({ text: data.initDDL });
-  }, [data.initDDL])
+  }, [data.initDDL]);
 
   /**
    * 执行SQL

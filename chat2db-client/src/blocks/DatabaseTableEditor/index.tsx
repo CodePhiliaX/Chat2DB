@@ -1,11 +1,12 @@
 import React, { memo, useRef, useState, createContext, useEffect, useMemo } from 'react';
-import { Button } from 'antd';
+import { Button, Modal, message } from 'antd';
 import styles from './index.less';
 import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
 import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
-import sqlService, { IModifyTableSqlParams } from '@/service/sql';
+import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
+import MonacoEditor from '@/components/Console/MonacoEditor';
 import { IEditTableInfo } from '@/typings';
 import i18n from '@/i18n';
 import lodash from 'lodash';
@@ -36,6 +37,7 @@ export default memo((props: IProps) => {
   const { databaseName, dataSourceId, tableName, schemaName } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
+  const [viewSqlModal, setViewSqlModal] = useState<string | false>(false);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
@@ -114,13 +116,26 @@ export default memo((props: IProps) => {
         params.tableName = tableName;
         params.oldTable = oldTableDetails;
       }
-      console.log(newTable);
-      console.log(params.oldTable);
       sqlService.getModifyTableSql(params).then((res) => {
-        console.log(res);
+        setViewSqlModal(res?.[0].sql);
       });
     }
   }
+
+  const executeSql = () => {
+    const executeSQLParams: IExecuteSqlParams = {
+      sql: viewSqlModal || '',
+      dataSourceId,
+      databaseName,
+      schemaName,
+    };
+
+    // 获取当前SQL的查询结果
+    sqlService.executeSql(executeSQLParams).then((res) => {
+      message.success('修改成功');
+      setViewSqlModal(false);
+    });
+  };
 
   return (
     <Context.Provider
@@ -163,6 +178,27 @@ export default memo((props: IProps) => {
           })}
         </div>
       </div>
+      <Modal
+        title="sql预览"
+        open={!!viewSqlModal}
+        onCancel={() => {
+          setViewSqlModal(false);
+        }}
+        okText="执行"
+        onOk={executeSql}
+        width="60vw"
+        maskClosable={false}
+      >
+        <div className={styles.monacoEditor}>
+          <MonacoEditor
+            id="view_sql"
+            appendValue={{
+              text: viewSqlModal,
+              range: 'reset',
+            }}
+          />
+        </div>
+      </Modal>
     </Context.Provider>
   );
 });

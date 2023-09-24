@@ -325,6 +325,17 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
         }
+        if (name === 'columnType') {
+          // 根据当前字段类型，设置编辑配置
+          databaseSupportField.columnTypes.forEach((i) => {
+            if (i.typeName === value) {
+              setEditingConfig({
+                ...editingConfig!,
+                ...i,
+              });
+            }
+          });
+        }
         return {
           ...item,
           [name]: value,

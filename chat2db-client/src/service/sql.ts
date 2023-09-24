@@ -205,7 +205,7 @@ export interface IModifyTableSqlParams {
 }
 
 /** 获取修改表的sql */ 
-const getModifyTableSql = createRequest<IModifyTableSqlParams, string>('/api/rdb/table/modify/sql', { method: 'post' });
+const getModifyTableSql = createRequest<IModifyTableSqlParams, {sql:string}[]>('/api/rdb/table/modify/sql', { method: 'post' });
 
 export default {
   getModifyTableSql,

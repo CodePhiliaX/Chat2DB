@@ -65,7 +65,7 @@ const TableList = dvaModel((props: any) => {
       {
         label: (
           <div className={styles.operationItem}>
-            <Iconfont className={styles.operationIcon} code="&#xe6b6;" />
+            <Iconfont className={styles.operationIcon} code="&#xe792;" />
             <div className={styles.operationTitle}>{i18n('editTable.button.createTable')}</div>
           </div>
         ),
@@ -93,7 +93,7 @@ const TableList = dvaModel((props: any) => {
         children: [
           {
             label: (
-              <div className={styles.operationItem}>
+              <div className={classnames(styles.operationItem, styles.importTableOperationItem)}>
                 <Iconfont className={styles.operationIcon} code="&#xe7ba;" />
                 <div className={styles.operationTitle}>{i18n('common.button.exportWord')}</div>
               </div>
@@ -105,7 +105,7 @@ const TableList = dvaModel((props: any) => {
           },
           {
             label: (
-              <div className={styles.operationItem}>
+              <div className={classnames(styles.operationItem, styles.importTableOperationItem)}>
                 <Iconfont className={styles.operationIcon} code="&#xe7b7;" />
                 <div className={styles.operationTitle}>{i18n('common.button.exportExcel')}</div>
               </div>
@@ -117,7 +117,7 @@ const TableList = dvaModel((props: any) => {
           },
           {
             label: (
-              <div className={styles.operationItem}>
+              <div className={classnames(styles.operationItem, styles.importTableOperationItem)}>
                 <Iconfont className={styles.operationIcon} code="&#xe87d;" />
                 <div className={styles.operationTitle}>{i18n('common.button.exportHtml')}</div>
               </div>
@@ -129,7 +129,7 @@ const TableList = dvaModel((props: any) => {
           },
           {
             label: (
-              <div className={styles.operationItem}>
+              <div className={classnames(styles.operationItem, styles.importTableOperationItem)}>
                 <Iconfont className={styles.operationIcon} code="&#xe7b8;" />
                 <div className={styles.operationTitle}>{i18n('common.button.exportMarkdown')}</div>
               </div>
@@ -141,7 +141,7 @@ const TableList = dvaModel((props: any) => {
           },
           {
             label: (
-              <div className={styles.operationItem}>
+              <div className={classnames(styles.operationItem, styles.importTableOperationItem)}>
                 <Iconfont className={styles.operationIcon} code="&#xe67a;" />
                 <div className={styles.operationTitle}>{i18n('common.button.exportPdf')}</div>
               </div>
