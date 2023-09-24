@@ -11,8 +11,7 @@ import React, {
 import styles from './index.less';
 import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { DndContext } from '@dnd-kit/core';
+import { type DragEndEvent, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -20,11 +19,11 @@ import { Table, Input, Form, Select, Button, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
 import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
-import { IndexesType } from '@/constants';
+import { IndexesType, EditColumnOperationType } from '@/constants';
 import { Context } from '../index';
 import i18n from '@/i18n';
 
-const indexesTypeList = [IndexesType['Normal'], IndexesType['Unique'], IndexesType['Fulltext'], IndexesType['Spatial']];
+const indexesTypeList = Object.values(IndexesType);
 
 interface IProps {}
 
@@ -42,6 +41,7 @@ const createInitialData = (): IIndexItem => {
     type: null,
     columns: null,
     comment: null,
+    editStatus: EditColumnOperationType.Add,
   };
 };
 
@@ -53,21 +53,22 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   const { tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState(dataSource[0]?.key);
+  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
   const includeColRef = useRef<IIncludeColRef>(null);
 
   const isEditing = (record: IIndexItem) => record.key === editingKey;
 
-  const edit = (record: Partial<IIndexItem> & { key?: React.Key }) => {
+  const edit = (record: IIndexItem) => {
     form.setFieldsValue({ ...record });
-    setEditingKey(record.key);
+    setEditingKey(record.key || null);
   };
 
   useEffect(() => {
     const data = tableDetails.indexList?.map((i) => {
       return {
         ...i,
+        oldName: i.name,
         key: uuidv4(),
       };
     });
@@ -75,19 +76,26 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   }, [tableDetails]);
 
   const addData = () => {
-    const newData = {
-      key: uuidv4(),
-      columnList: [],
-      name: '',
-      type: null,
-      columns: null,
-    };
+    const newData = createInitialData();
     setDataSource([...dataSource, newData]);
     edit(newData);
   };
 
   const deleteData = () => {
     setDataSource(dataSource.filter((i) => i.key !== editingKey));
+    setDataSource(
+      dataSource.map((i) => {
+        if (i.key === editingKey) {
+          setEditingKey(null);
+          // setEditingConfig(null);
+          return {
+            ...i,
+            editStatus: EditColumnOperationType.Delete,
+          };
+        }
+        return i;
+      }),
+    );
   };
 
   const handelFieldsChange = (field: any) => {
@@ -99,9 +107,14 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     }
     const newData = dataSource.map((item) => {
       if (item.key === editingKey) {
+        let editStatus = item.editStatus;
+        if (editStatus !== EditColumnOperationType.Add) {
+          editStatus = EditColumnOperationType.Modify;
+        }
         return {
           ...item,
           [name]: value,
+          editStatus,
         };
       }
       return item;
@@ -152,7 +165,10 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   function getIndexListInfo(): IIndexListInfo {
-    return dataSource;
+    return dataSource.map((i) => {
+      delete i.key;
+      return i;
+    });
   }
 
   useImperativeHandle(ref, () => ({
@@ -162,11 +178,13 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   const columns = [
     {
       key: 'sort',
-      width: '60px',
+      width: '40px',
+      align: 'center',
     },
     {
       title: i18n('editTable.label.index'),
       width: '70px',
+      align: 'center',
       render: (text: string, record: IIndexItem) => {
         return dataSource.findIndex((i) => i.key === record.key) + 1;
       },
@@ -218,7 +236,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         const editable = isEditing(record);
         const text = columnList
           ?.map((t) => {
-            return `${t.columnName}`;
+            return `${t.name}`;
           })
           .join(',');
         return editable ? (
@@ -239,55 +257,75 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         );
       },
     },
+    // {
+    //   title: i18n('editTable.label.comment'),
+    //   dataIndex: 'comment',
+    //   render: (text: string, record: IIndexItem) => {
+    //     const editable = isEditing(record);
+    //     return editable ? (
+    //       <Form.Item name="comment" style={{ margin: 0 }}>
+    //         <Input />
+    //       </Form.Item>
+    //     ) : (
+    //       <div className={styles.editableCell} onClick={() => edit(record)}>
+    //         {text}
+    //       </div>
+    //     );
+    //   },
+    // },
   ];
 
   const getIncludeColInfo = () => {
     setDataSource(
       dataSource.map((i) => {
         const columnList = includeColRef.current?.getIncludeColInfo();
+        console.log(columnList);
         if (i.key === editingKey && columnList) {
           i.columnList = columnList;
         }
         return i;
       }),
     );
+
     setIncludeColModalOpen(false);
   };
 
   const indexIncludedColumnList: IIndexIncludeColumnItem[] = useMemo(() => {
-    let data: IIndexIncludeColumnItem[] | null = [];
+    let list: IIndexIncludeColumnItem[] = [];
     dataSource.forEach((i) => {
       if (i.key === editingKey) {
-        data = i.columnList;
+        list = i.columnList || [];
       }
     });
-    return data;
+    return list;
   }, [editingKey]);
 
   return (
-    <div className={classnames(styles.box)}>
+    <div className={classnames(styles.indexList)}>
       <div className={styles.indexListHeader}>
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
         <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
         {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
       <Button onClick={moveData.bind(null, 'down')}>下移</Button> */}
       </div>
-      <Form form={form} onFieldsChange={handelFieldsChange}>
-        <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
-          <SortableContext items={dataSource.map((i) => i.key)} strategy={verticalListSortingStrategy}>
-            <Table
-              components={{
-                body: {
-                  row: Row,
-                },
-              }}
-              pagination={false}
-              rowKey="key"
-              columns={columns}
-              dataSource={dataSource}
-            />
-          </SortableContext>
-        </DndContext>
+      <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
+        <div className={styles.tableBox}>
+          <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+            <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
+              <Table
+                components={{
+                  body: {
+                    row: Row,
+                  },
+                }}
+                pagination={false}
+                rowKey="key"
+                columns={columns as any}
+                dataSource={dataSource.filter((i) => i.editStatus !== EditColumnOperationType.Delete)}
+              />
+            </SortableContext>
+          </DndContext>
+        </div>
       </Form>
       <Modal
         open={includeColModalOpen}

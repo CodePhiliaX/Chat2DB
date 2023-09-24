@@ -35,7 +35,34 @@ export interface IResultConfig {
   hasNextPage: boolean;
 }
 
-/** 不同数据库支持的列字段类型*/
-export interface IDatabaseFieldType {
+/** 不同数据库支持的列字段类型 以及字符集 排列规则列表*/
+export interface IDatabaseSupportField {
+  columnTypes: IColumnTypes[];
+  charsets: ICharset[];
+  collations: ICollation[];
+}
+
+/** 字段所对应的 字符集*/
+export interface ICharset {
+  charsetName: string; // 字符集名称
+  defaultCollationName: string; // 字符集默认的排序规则
+}
+
+/** 排列规则*/
+export interface ICollation {
+  collationName: string;
+}
+
+/** 不同数据库支持的列字段类型  以及支持调整的选项*/
+export interface IColumnTypes {
   typeName: string;
+  supportAutoIncrement: boolean; // 是否支持自增
+  supportCharset: boolean; // 是否支持字符集
+  supportCollation: boolean; // 是否支持排序规则
+  supportComments: boolean; // 是否支持注释
+  supportDefaultValue: boolean; // 是否支持默认值
+  supportExtent: boolean; // 是否支持扩展
+  supportLength: boolean; // 是否支持长度
+  supportNullable: boolean; // 是否支持为空
+  supportScale: boolean; // 是否支持小数位
 }

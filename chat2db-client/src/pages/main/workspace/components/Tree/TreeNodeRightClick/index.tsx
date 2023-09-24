@@ -1,11 +1,10 @@
-import React, { memo, useContext, useMemo, useState, useRef } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import i18n from '@/i18n';
-import classnames from 'classnames';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
-import { MenuProps, message, Modal, Input, Dropdown, notification } from 'antd';
+import { message, Modal, Input, Dropdown, notification } from 'antd';
 import { TreeNodeType, CreateTabIntroType, WorkspaceTabType } from '@/constants';
-import { ITreeConfigItem, ITreeConfig, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
+import { ITreeConfigItem, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
 import connectionServer from '@/service/connection';
 import mysqlServer from '@/service/sql';
@@ -21,7 +20,7 @@ export type IProps = {
   data: ITreeNode;
   dispatch: any;
   workspaceModel: IWorkspaceModelType['state'];
-}
+};
 
 export interface IOperationColumnConfigItem {
   text: string;
@@ -35,14 +34,14 @@ function TreeNodeRightClick(props: IProps) {
   const [verifyTableName, setVerifyTableName] = useState<string>('');
   const [modalApi, modelDom] = Modal.useModal();
   const [notificationApi, notificationDom] = notification.useNotification();
-  const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType]
+  const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
   const { getChildren, operationColumn } = treeNodeConfig;
   const { curWorkspaceParams } = workspaceModel;
   const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
   const [monacoDefaultValue, setMonacoDefaultValue] = useState('');
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
-    return t.type === data.extraParams?.databaseType
-  })!
+    return t.type === data.extraParams?.databaseType;
+  })!;
   const OperationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
     [OperationColumn.Refresh]: (data) => {
       return {
@@ -50,36 +49,38 @@ function TreeNodeRightClick(props: IProps) {
         icon: '\uec08',
         handle: () => {
           refresh();
-        }
-      }
+        },
+      };
     },
     [OperationColumn.ExportDDL]: (data) => {
       return {
         text: i18n('workspace.menu.exportDDL'),
         icon: '\ue613',
         handle: () => {
-          mysqlServer.exportCreateTableSql({
-            ...curWorkspaceParams,
-            tableName: data.key
-          } as any).then(res => {
-            setMonacoDefaultValue(res);
-            setMonacoVerifyDialog(true);
-          })
-        }
-      }
+          mysqlServer
+            .exportCreateTableSql({
+              ...curWorkspaceParams,
+              tableName: data.key,
+            } as any)
+            .then((res) => {
+              setMonacoDefaultValue(res);
+              setMonacoVerifyDialog(true);
+            });
+        },
+      };
     },
     [OperationColumn.ShiftOut]: (data) => {
       return {
         text: '移出',
         icon: '\ue62a',
         handle: () => {
-          connectionServer.remove({ id: +data.key }).then(res => {
-            treeConfig[TreeNodeType.DATA_SOURCES]?.getChildren!({} as any).then(res => {
+          connectionServer.remove({ id: +data.key }).then((res) => {
+            treeConfig[TreeNodeType.DATA_SOURCES]?.getChildren!({} as any).then((res) => {
               // setTreeData(res);
-            })
-          })
-        }
-      }
+            });
+          });
+        },
+      };
     },
     [OperationColumn.CreateTable]: (data) => {
       return {
@@ -88,19 +89,18 @@ function TreeNodeRightClick(props: IProps) {
         handle: () => {
           const operationData = {
             type: 'new',
-            nodeData: data
-          }
+            nodeData: data,
+          };
           // setOperationDataDialog(operationData)
-        }
-      }
+        },
+      };
     },
     [OperationColumn.CreateConsole]: (data) => {
       return {
         text: '新建查询',
         icon: '\ue619',
-        handle: () => {
-        }
-      }
+        handle: () => {},
+      };
     },
     [OperationColumn.DeleteTable]: (data) => {
       return {
@@ -108,8 +108,8 @@ function TreeNodeRightClick(props: IProps) {
         icon: '\ue6a7',
         handle: () => {
           setVerifyDialog(true);
-        }
-      }
+        },
+      };
     },
     [OperationColumn.EditTable]: (data) => {
       return {
@@ -123,9 +123,9 @@ function TreeNodeRightClick(props: IProps) {
               workspaceTabType: WorkspaceTabType.EditTable,
               treeNodeData: data,
             },
-          })
-        }
-      }
+          });
+        },
+      };
     },
     [OperationColumn.EditSource]: (data) => {
       return {
@@ -136,24 +136,24 @@ function TreeNodeRightClick(props: IProps) {
           //   dataType: data.dataType as any,
           //   id: +data.key
           // })
-        }
-      }
+        },
+      };
     },
     [OperationColumn.Top]: (data) => {
       return {
         text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
-        handle: handelTop
-      }
+        handle: handelTop,
+      };
     },
-  }
+  };
 
   function handelTop() {
-    const api = data.pinned ? 'deleteTablePin' : 'addTablePin'
+    const api = data.pinned ? 'deleteTablePin' : 'addTablePin';
     mysqlServer[api]({
       ...curWorkspaceParams,
-      tableName: data.key
-    } as any).then(res => {
+      tableName: data.key,
+    } as any).then((res) => {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {
@@ -162,10 +162,10 @@ function TreeNodeRightClick(props: IProps) {
           refresh: true,
         },
         callback: () => {
-          message.success(i18n('common.text.submittedSuccessfully'))
-        }
-      })
-    })
+          message.success(i18n('common.text.submittedSuccessfully'));
+        },
+      });
+    });
   }
 
   function refresh() {
@@ -173,11 +173,11 @@ function TreeNodeRightClick(props: IProps) {
     setIsLoading(true);
     getChildren?.({
       ...data,
-      ...data.extraParams
-    }).then(res => {
+      ...data.extraParams,
+    }).then((res) => {
       data.children = res;
       setIsLoading(false);
-    })
+    });
   }
 
   function handleOk() {
@@ -185,14 +185,14 @@ function TreeNodeRightClick(props: IProps) {
       let p: any = {
         ...data.extraParams,
         tableName: data.key,
-      }
-      mysqlServer.deleteTable(p).then(res => {
+      };
+      mysqlServer.deleteTable(p).then((res) => {
         // notificationApi.success(
         //   {
         //     message: i18n('common.text.successfullyDelete'),
         //   }
         // )
-        message.success(i18n('common.text.successfullyDelete'))
+        message.success(i18n('common.text.successfullyDelete'));
         dispatch({
           type: 'workspace/fetchGetCurTableList',
           payload: {
@@ -202,30 +202,29 @@ function TreeNodeRightClick(props: IProps) {
           callback: () => {
             setVerifyDialog(false);
             setVerifyTableName('');
-          }
-        })
-
-      })
+          },
+        });
+      });
     } else {
-      message.error(i18n('workspace.tips.affirmDeleteTable'))
+      message.error(i18n('workspace.tips.affirmDeleteTable'));
     }
   }
 
   function excludeSomeOperation() {
-    const excludes = dataSourceFormConfig.baseInfo.excludes
-    const newOperationColumn: OperationColumn[] = []
+    const excludes = dataSourceFormConfig.baseInfo.excludes;
+    const newOperationColumn: OperationColumn[] = [];
     operationColumn?.map((item: OperationColumn) => {
-      let flag = false
-      excludes?.map(t => {
+      let flag = false;
+      excludes?.map((t) => {
         if (item === t) {
-          flag = true
+          flag = true;
         }
-      })
+      });
       if (!flag) {
-        newOperationColumn.push(item)
+        newOperationColumn.push(item);
       }
-    })
-    return newOperationColumn
+    });
+    return newOperationColumn;
   }
 
   const dropdowns = useMemo(() => {
@@ -234,68 +233,78 @@ function TreeNodeRightClick(props: IProps) {
         const concrete = OperationColumnConfig[t](data);
         return {
           key: i,
-          label: <div className={styles.operationItem}>
-            <Iconfont className={styles.operationIcon} code={concrete?.icon} />
-            <div className={styles.operationTitle}>
-              {concrete.text}
+          label: (
+            <div className={styles.operationItem}>
+              <Iconfont className={styles.operationIcon} code={concrete?.icon} />
+              <div className={styles.operationTitle}>{concrete.text}</div>
             </div>
-          </div>,
-          onClick: concrete.handle
-        }
+          ),
+          onClick: concrete.handle,
+        };
       });
     }
-    return []
-  }, [dataSourceFormConfig])
+    return [];
+  }, [dataSourceFormConfig]);
 
-  return <>
-    {modelDom}
-    {notificationDom}
-    {
-      !!dropdowns.length &&
-      <Dropdown
-        className={className}
-        menu={{
-          items: dropdowns,
-        }}
-      >
-        <div>
-          <Iconfont code="&#xe601;"></Iconfont>
-        </div>
-      </Dropdown>
-    }
-    <Modal
-      maskClosable={false}
-      title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}
-      open={verifyDialog}
-      onOk={handleOk}
-      width={400}
-      onCancel={(() => { setVerifyDialog(false) })}
-    >
-      <Input placeholder={i18n('workspace.menu.deleteTablePlaceHolder')} value={verifyTableName} onChange={(e) => { setVerifyTableName(e.target.value) }}></Input>
-    </Modal>
-    {/* 这里后续肯定是要提出去的 */}
-    {
-      monacoVerifyDialog &&
+  return (
+    <>
+      {modelDom}
+      {notificationDom}
+      {!!dropdowns.length && (
+        <Dropdown
+          className={className}
+          menu={{
+            items: dropdowns,
+          }}
+        >
+          <div>
+            <Iconfont code="&#xe601;"></Iconfont>
+          </div>
+        </Dropdown>
+      )}
       <Modal
         maskClosable={false}
-        title={`${data.key}-DDL`}
-        open={monacoVerifyDialog}
-        width="600px"
-        onCancel={(() => { setMonacoVerifyDialog(false) })}
-        footer={false}
+        title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}
+        open={verifyDialog}
+        onOk={handleOk}
+        width={400}
+        onCancel={() => {
+          setVerifyDialog(false);
+        }}
       >
-        <div className={styles.monacoEditorBox}>
-          <MonacoEditor
-            id='edit-dialog'
-            appendValue={{
-              text: monacoDefaultValue,
-              range: 'reset'
-            }}
-          ></MonacoEditor>
-        </div>
+        <Input
+          placeholder={i18n('workspace.menu.deleteTablePlaceHolder')}
+          value={verifyTableName}
+          onChange={(e) => {
+            setVerifyTableName(e.target.value);
+          }}
+        ></Input>
       </Modal>
-    }
-  </>
+      {/* 这里后续肯定是要提出去的 */}
+      {monacoVerifyDialog && (
+        <Modal
+          maskClosable={false}
+          title={`${data.key}-DDL`}
+          open={monacoVerifyDialog}
+          width="600px"
+          onCancel={() => {
+            setMonacoVerifyDialog(false);
+          }}
+          footer={false}
+        >
+          <div className={styles.monacoEditorBox}>
+            <MonacoEditor
+              id="edit-dialog"
+              appendValue={{
+                text: monacoDefaultValue,
+                range: 'reset',
+              }}
+            ></MonacoEditor>
+          </div>
+        </Modal>
+      )}
+    </>
+  );
 }
 
-export default memo(TreeNodeRightClick)
+export default memo(TreeNodeRightClick);
