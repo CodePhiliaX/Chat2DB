@@ -108,5 +108,8 @@ public class TableIndexColumn {
      */
     @JsonAlias({"FILTER_CONDITION"})
     private String filterCondition;
+
+
+    private Long subPart;
 }
 
