@@ -43,8 +43,8 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(dbType).getDBConfig().getDefaultDriverConfig();
     }
 
-    public static SqlBuilder getSqlBuilder(String dbType) {
-        return PLUGIN_MAP.get(dbType).getMetaData().getSqlBuilder();
+    public static SqlBuilder getSqlBuilder() {
+        return PLUGIN_MAP.get(getConnectInfo().getDbType()).getMetaData().getSqlBuilder();
     }
 
     /**
