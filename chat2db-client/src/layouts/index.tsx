@@ -66,7 +66,6 @@ export default function Layout() {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <AppContainer></AppContainer>
-      {/* <Sub /> */}
     </ConfigProvider>
   );
 }
@@ -164,7 +163,7 @@ function AppContainer() {
           {startSchedule === 1 && (
             <>
               <div className={styles.loadingBox}>
-                <Spin spinning={!serviceFail} />
+                <Spin spinning={!serviceFail} size='large' />
                 {/* <div className={styles.hint}>
                     <Setting />
                   </div> */}

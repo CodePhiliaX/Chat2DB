@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;

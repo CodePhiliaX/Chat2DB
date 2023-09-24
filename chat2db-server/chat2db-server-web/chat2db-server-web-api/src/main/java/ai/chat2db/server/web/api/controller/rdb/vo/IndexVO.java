@@ -39,5 +39,5 @@ public class IndexVO {
     /**
      * 索引包含的列
      */
-    private List<ColumnVO> columnList;
+    private List<IndexColumnVO> columnList;
 }

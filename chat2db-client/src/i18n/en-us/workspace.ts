@@ -4,6 +4,7 @@ export default {
   'workspace.title.saved': 'Saved',
   'workspace.menu.exportDDL': 'Export DDL',
   'workspace.menu.deleteTable': 'Delete Table',
+  'workspace.menu.editTable': 'Edit Table',
   'workspace.menu.pin': 'Pin',
   'workspace.menu.unPin': 'Unpin',
   'workspace.menu.deleteTablePlaceHolder': 'Please enter the name of the table you want to delete',

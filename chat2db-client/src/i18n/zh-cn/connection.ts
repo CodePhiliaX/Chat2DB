@@ -25,4 +25,6 @@ export default {
   'connection.text.downloadSuccess': '下载成功',
   'connection.text.tryAgainDownload': '尝试重新下载',
   'connection.text.downloading': '下载中...',
+  'connection.label.private': '私有',
+  'connection.label.shared': '共享',
 }

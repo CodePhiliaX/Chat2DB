@@ -76,5 +76,18 @@ public class Table {
      * ddl
      */
     private String ddl;
+
+
+    private String engine;
+
+
+    private String charset;
+
+
+    private String collate;
+
+    private Long incrementValue;
+
+    private String partition;
 }
 

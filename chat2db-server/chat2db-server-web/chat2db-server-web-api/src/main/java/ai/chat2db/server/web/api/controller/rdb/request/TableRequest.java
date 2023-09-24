@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 
 import java.util.List;
 
+import ai.chat2db.spi.model.TableColumn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +31,7 @@ public class TableRequest {
     /**
      * 列
      */
-    private List<ColumnRequest> columnList;
+    private List<TableColumn> columnList;
 
     /**
      * 索引

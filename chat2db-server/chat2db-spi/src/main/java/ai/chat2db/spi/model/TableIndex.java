@@ -19,6 +19,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TableIndex {
 
+    private String oldName;
+
     /**
      * 索引名称
      */
@@ -60,4 +62,7 @@ public class TableIndex {
      * 索引包含的列
      */
     private List<TableIndexColumn> columnList;
+
+
+    private String editStatus;
 }

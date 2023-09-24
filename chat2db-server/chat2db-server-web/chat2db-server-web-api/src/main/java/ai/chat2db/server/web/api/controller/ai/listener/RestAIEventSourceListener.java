@@ -54,6 +54,8 @@ public class RestAIEventSourceListener extends EventSourceListener {
         }
         Message message = new Message();
         if (StringUtils.isNotBlank(data)) {
+            data = data.replaceAll("^\"|\"$", "");
+            data = data.replaceAll("\\\\n", "\n");
             message.setContent(data);
             sseEmitter.send(SseEmitter.event()
                 .id(id)
@@ -78,7 +80,6 @@ public class RestAIEventSourceListener extends EventSourceListener {
         try {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
-                message = message + ", AI无法正常访问, 请参考文章<https://github.com/chat2db/Chat2DB/blob/main/CHAT2DB_AI_SQL.md>进行配置";
                 Message sseMessage = new Message();
                 sseMessage.setContent(message);
                 sseEmitter.send(SseEmitter.event()
@@ -94,15 +95,15 @@ public class RestAIEventSourceListener extends EventSourceListener {
             String bodyString = null;
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("REST AI sse连接异常data：{}，异常：{}", bodyString, t);
+                log.error("REST AI sse body error：{}，exception：{}", bodyString, t);
             } else {
-                log.error("REST AI sse连接异常data：{}，异常：{}", response, t);
+                log.error("REST AI sse response error：{}，exception：{}", response, t);
             }
             if (Objects.nonNull(eventSource)) {
                 eventSource.cancel();
             }
             Message message = new Message();
-            message.setContent("出现异常,请在帮助中查看详细日志：" + bodyString);
+            message.setContent("Rest AI Error:" + bodyString);
             sseEmitter.send(SseEmitter.event()
                 .id("[ERROR]")
                 .data(message));

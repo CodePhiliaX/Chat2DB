@@ -80,7 +80,7 @@ function ChatInput(props: IProps) {
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-        {props.aiType === AiSqlSourceType.CHAT2DBAI && (
+        {/* {props.aiType === AiSqlSourceType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
             <div
               className={styles.remainBlock}
@@ -91,7 +91,7 @@ function ChatInput(props: IProps) {
               {i18n('chat.input.remain', remainCnt)}
             </div>
           </Spin>
-        )}
+        )} */}
       </div>
     );
   };

@@ -112,6 +112,9 @@ public class AutomaticUpgrade {
         String[] versionArray = upgrade.getVersion().split("\\.");
         String[] localVersionArray = localVersion.split("\\.");
         for (int i = 0; i < versionArray.length; i++) {
+            if (Long.parseLong(versionArray[i]) < Long.parseLong(localVersionArray[i])) {
+                return false;
+            }
             if (Long.parseLong(versionArray[i]) > Long.parseLong(localVersionArray[i])) {
                 return true;
             }

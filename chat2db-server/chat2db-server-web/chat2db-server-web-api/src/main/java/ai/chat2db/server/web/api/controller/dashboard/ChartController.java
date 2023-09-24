@@ -1,20 +1,20 @@
 package ai.chat2db.server.web.api.controller.dashboard;
 
-import java.util.List;
-
-import ai.chat2db.server.domain.api.model.Chart;
-import ai.chat2db.server.domain.api.param.ChartCreateParam;
-import ai.chat2db.server.domain.api.param.ChartUpdateParam;
+import ai.chat2db.server.domain.api.chart.ChartCreateParam;
+import ai.chat2db.server.domain.api.chart.ChartListQueryParam;
+import ai.chat2db.server.domain.api.chart.ChartQueryParam;
+import ai.chat2db.server.domain.api.chart.ChartUpdateParam;
 import ai.chat2db.server.domain.api.service.ChartService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.dashboard.converter.ChartWebConverter;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartCreateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartQueryRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartUpdateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.vo.ChartVO;
-
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +42,6 @@ public class ChartController {
     @Autowired
     private ChartWebConverter chartWebConverter;
 
-
     /**
      * 根据id查询图表详情
      *
@@ -51,9 +50,11 @@ public class ChartController {
      */
     @GetMapping("/{id}")
     public DataResult<ChartVO> get(@PathVariable("id") Long id) {
-        Chart chart = chartService.find(id).getData();
-        ChartVO chartVO = chartWebConverter.model2vo(chart);
-        return DataResult.of(chartVO);
+        ChartQueryParam param = new ChartQueryParam();
+        param.setId(id);
+        param.setUserId(ContextUtils.getUserId());
+        return chartService.queryExistent(param)
+            .map(chartWebConverter::model2vo);
     }
 
     /**
@@ -64,9 +65,11 @@ public class ChartController {
      */
     @GetMapping("/listByIds")
     public ListResult<ChartVO> list(ChartQueryRequest request) {
-        List<Chart> charts = chartService.queryByIds(request.getIds()).getData();
-        List<ChartVO> chartVOS = chartWebConverter.model2vo(charts);
-        return ListResult.of(chartVOS);
+        ChartListQueryParam param = new ChartListQueryParam();
+        param.setIdList(request.getIds());
+        param.setUserId(ContextUtils.getUserId());
+        return chartService.listQuery(param)
+            .map(chartWebConverter::model2vo);
     }
 
     /**
@@ -76,9 +79,9 @@ public class ChartController {
      * @return
      */
     @PostMapping("/create")
-    public DataResult<Long> create(@RequestBody ChartCreateRequest request) {
+    public DataResult<Long> create(@Valid @RequestBody ChartCreateRequest request) {
         ChartCreateParam chartCreateParam = chartWebConverter.req2param(request);
-        return chartService.create(chartCreateParam);
+        return chartService.createWithPermission(chartCreateParam);
     }
 
     /**
@@ -90,7 +93,7 @@ public class ChartController {
     @RequestMapping(value = "/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody ChartUpdateRequest request) {
         ChartUpdateParam param = chartWebConverter.req2updateParam(request);
-        return chartService.update(param);
+        return chartService.updateWithPermission(param);
     }
 
     /**
@@ -101,7 +104,7 @@ public class ChartController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable("id") Long id) {
-        return chartService.delete(id);
+        return chartService.deleteWithPermission(id);
     }
 
 }

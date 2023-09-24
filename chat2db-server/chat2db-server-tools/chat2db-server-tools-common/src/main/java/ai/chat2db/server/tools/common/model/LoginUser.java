@@ -32,4 +32,16 @@ public class LoginUser implements Serializable {
      * 昵称
      */
     private String nickName;
+
+    /**
+     * Is it an administrator
+     */
+    private Boolean admin;
+
+    /**
+     * 角色编码
+     *
+     * @see RoleCodeEnum
+     */
+    private String roleCode;
 }

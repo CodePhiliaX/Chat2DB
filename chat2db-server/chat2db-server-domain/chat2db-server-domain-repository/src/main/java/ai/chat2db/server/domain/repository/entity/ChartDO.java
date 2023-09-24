@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +13,8 @@ import lombok.Setter;
  * 自定义报表表
  * </p>
  *
- * @author ali-dbhub
- * @since 2023-06-09
+ * @author chat2db
+ * @since 2023-09-09
  */
 @Getter
 @Setter
@@ -32,12 +32,12 @@ public class ChartDO implements Serializable {
     /**
      * 创建时间
      */
-    private LocalDateTime gmtCreate;
+    private Date gmtCreate;
 
     /**
      * 修改时间
      */
-    private LocalDateTime gmtModified;
+    private Date gmtModified;
 
     /**
      * 图表名称

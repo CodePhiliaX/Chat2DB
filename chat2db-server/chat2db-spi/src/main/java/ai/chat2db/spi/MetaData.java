@@ -172,4 +172,29 @@ public interface MetaData {
      * @return
      */
     Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,String procedureName);
+
+
+    /**
+     *
+     * @param connection
+     * @return
+     */
+    List<Type> types(Connection connection);
+
+
+    /**
+     * Get sql builder.
+     * @return
+     */
+    SqlBuilder getSqlBuilder();
+
+
+    /**
+     *
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @return
+     */
+    TableMeta getTableMeta( String databaseName, String schemaName, String tableName);
 }

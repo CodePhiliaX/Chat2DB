@@ -57,6 +57,16 @@
             </dependency>
             <dependency>
                 <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-admin-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-common-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>ai.chat2db</groupId>
                 <artifactId>chat2db-server-domain-api</artifactId>
                 <version>${revision}</version>
             </dependency>

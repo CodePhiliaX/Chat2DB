@@ -26,10 +26,18 @@ export default memo<IProps>(function Popularize(props) {
     }
     return dom;
   };
+
+  const renderImage = () => {
+    if (!props.source && !props.imageUrl) {
+      return null;
+    }
+    return <img className={styles.wechatImg} src={props.source ? url : props.imageUrl} />;
+  };
+  
   return (
     <div className={classnames(styles.box, className)}>
       {/* <div className={styles.title}>获取更多次数</div> */}
-      <img className={styles.wechatImg} src={props.source ? url : props.imageUrl} />
+      {renderImage()}
       <div className={styles.text}>{renderTip()}</div>
     </div>
   );

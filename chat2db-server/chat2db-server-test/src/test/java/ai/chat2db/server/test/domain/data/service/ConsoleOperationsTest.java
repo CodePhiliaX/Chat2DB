@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.annotation.Resource;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
-import ai.chat2db.server.domain.api.param.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;

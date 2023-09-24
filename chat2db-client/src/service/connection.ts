@@ -1,12 +1,13 @@
-import { IPageResponse, IConnectionDetails } from '@/typings';
-import { DatabaseTypeCode } from '@/constants';
+import { IPageResponse, IConnectionDetails, IConnectionEnv } from '@/typings';
+import { DatabaseTypeCode, ConnectionKind } from '@/constants';
 import createRequest from './base';
 
 export interface IGetConnectionParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
-  refresh?: boolean
+  refresh?: boolean;
+  kind?: ConnectionKind;
 }
 
 /**
@@ -73,9 +74,13 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
   errorLevel: false,
   method: 'get',
 });
+
 const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
 
+const getEnvList = createRequest<void, IConnectionEnv[]>('/api/common/environment/list_all', { errorLevel: false});
+
 export default {
+  getEnvList,
   getList,
   getDetails,
   save,

@@ -13,7 +13,7 @@
   flex-direction: column;
   width: 220px;
   overflow: hidden;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   border-right: 1px solid var(--color-border-secondary);
   border-top: 0px;
   border-bottom: 0px;
@@ -55,7 +55,21 @@
     .menuItemsTitle {
       flex: 1;
       width: 0;
-      .f-single-line();
+      display: flex;
+      align-items: center;
+      .name {
+        .f-single-line();
+      }
+      .envTag {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        margin-right: 8px;
+      }
+      .databaseTypeIcon {
+        margin-right: 6px;
+      }
     }
 
     .moreButton {
@@ -100,7 +114,6 @@
   justify-content: center;
   align-items: center;
   position: relative;
-
 }
 
 .dataBaseList {
@@ -196,4 +209,19 @@
   z-index: 1;
   transform: scale(1);
   transition: transform 0.3s ease-in-out;
+}
+
+.envLabel {
+  display: flex;
+  justify-content: space-between;
+  line-height: 30px;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.envRefreshBox {
+  &:hover {
+    cursor: pointer;
+    color: var(--color-primary);
+  }
 }

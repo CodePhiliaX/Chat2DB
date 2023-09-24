@@ -12,6 +12,7 @@ export interface IOptions {
   delayTime?: number | true;
   outside?: boolean;
   isFullPath?: boolean;
+  dynamicUrl?: boolean; 
 }
 
 // TODO:
@@ -35,7 +36,7 @@ const codeMessage: { [errorCode: number]: string } = {
 
 enum ErrorCode {
   /** 需要登录 */
-  NEED_LOGGED_IN = 'NEED_LOGGED_IN',
+  NEED_LOGGED_IN = 'common.needLoggedIn',
 }
 
 const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
@@ -100,8 +101,8 @@ request.interceptors.request.use((url, options) => {
       ...options.headers,
     },
   };
-  if (localStorage.getItem('DBHUB')) {
-    myOptions.headers.DBHUB = localStorage.getItem('DBHUB');
+  if (localStorage.getItem('Chat2db')) {
+    myOptions.headers.Chat2db = localStorage.getItem('Chat2db');
   }
   return {
     options: myOptions,
@@ -111,23 +112,22 @@ request.interceptors.request.use((url, options) => {
 request.interceptors.response.use(async (response, options) => {
   const res = await response.clone().json();
   if (__ENV__ === 'desktop') {
-    const DBHUB = response.headers.get('DBHUB') || '';
-    if (DBHUB) {
-      localStorage.setItem('DBHUB', DBHUB);
+    const Chat2db = response.headers.get('Chat2db') || '';
+    if (Chat2db) {
+      localStorage.setItem('Chat2db', Chat2db);
     }
   }
   const { errorCode, codeMessage } = res;
   if (errorCode === ErrorCode.NEED_LOGGED_IN) {
-    // window.location.href = '#/login?callback=' + window.location.hash.substr(1);
     const callback = window.location.hash.substr(1).split('?')[0];
-    window.location.href = '#/login?' + (callback === '/login' ? '' : `callback=${callback}`);
+    window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
   }
 
   return response;
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath } = options || {};
+  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
 
   // 是否需要mock
   let _baseURL = (mock ? mockUrl : baseURL) || '';
@@ -167,6 +167,11 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
       let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
       eventualUrl = isFullPath ? url : eventualUrl;
 
+      // 动态的url
+      if(dynamicUrl){
+        eventualUrl = params as string;
+      }
+
       request[method](eventualUrl, { [dataName]: params })
         .then((res) => {
           if (!res) return;
@@ -180,7 +185,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
                 errorMessage,
                 errorDetail,
                 solutionLink,
-              })
+              });
               // message.error(`${errorCode}: ${errorMessage}`);
               reject(`${errorCode}: ${errorMessage}`);
             }, delayTime);

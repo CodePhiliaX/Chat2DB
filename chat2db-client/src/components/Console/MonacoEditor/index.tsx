@@ -148,7 +148,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   useEffect(() => {
     if (options?.theme) {
       monaco.editor.setTheme(options.theme);
-      return
+      return;
     }
     monaco.editor.setTheme(appTheme.backgroundColor);
   }, [appTheme.backgroundColor, options?.theme]);
@@ -327,7 +327,12 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     case 'select':
       const selection = editor.getSelection();
       if (selection) {
-        newRange = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn);
+        newRange = new monaco.Range(
+          selection.startLineNumber,
+          selection.startColumn,
+          selection.endLineNumber,
+          selection.endColumn,
+        );
       }
       break;
     // 在末尾添加内容

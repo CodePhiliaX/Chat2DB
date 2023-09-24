@@ -138,7 +138,7 @@ export default memo<IProps>(function SearchResult(props) {
             type="line"
             onEdit={onEdit}
             onChange={onChange}
-            tabs={tabs}
+            items={tabs}
             className={styles.tabs}
             activeTab={currentTab}
           />
