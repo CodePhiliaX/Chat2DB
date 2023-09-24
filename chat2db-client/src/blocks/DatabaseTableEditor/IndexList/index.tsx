@@ -59,6 +59,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   const isEditing = (record: IIndexItem) => record.key === editingKey;
 
   const edit = (record: IIndexItem) => {
+    console.log(record);
     form.setFieldsValue({ ...record });
     setEditingKey(record.key || null);
   };
@@ -165,8 +166,11 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
 
   function getIndexListInfo(): IIndexListInfo {
     return dataSource.map((i) => {
-      delete i.key;
-      return i;
+      const newData = {
+        ...i,
+      };
+      delete newData.key;
+      return newData;
     });
   }
 
