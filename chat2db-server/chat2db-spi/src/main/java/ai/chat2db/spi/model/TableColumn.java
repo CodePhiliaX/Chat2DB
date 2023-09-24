@@ -165,4 +165,7 @@ public class TableColumn {
     private String charSetName;
 
     private String collationName;
+
+    private String value;
+
 }

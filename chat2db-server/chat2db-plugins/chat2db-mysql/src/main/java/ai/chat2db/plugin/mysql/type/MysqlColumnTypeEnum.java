@@ -13,105 +13,105 @@ import java.util.Map;
 
 public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
-    BIT("BIT", true, false, true, false, false, false, true, true, false),
+    BIT("BIT", true, false, true, false, false, false, true, true, false, false),
 
-    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false),
+    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false, false),
 
-    TINYINT_UNSIGNED("TINYINT UNSIGNED", false, false, true, true, false, false, true, true, false),
+    TINYINT_UNSIGNED("TINYINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
-    SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false),
+    SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false, false),
 
-    SMALLINT_UNSIGNED("SMALLINT UNSIGNED", false, false, true, true, false, false, true, true, false),
+    SMALLINT_UNSIGNED("SMALLINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
-    MEDIUMINT("MEDIUMINT", false, false, true, true, false, false, true, true, false),
+    MEDIUMINT("MEDIUMINT", false, false, true, true, false, false, true, true, false, false),
 
-    MEDIUMINT_UNSIGNED("MEDIUMINT UNSIGNED", false, false, true, true, false, false, true, true, false),
+    MEDIUMINT_UNSIGNED("MEDIUMINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
-    INT("INT", false, false, true, true, false, false, true, true, false),
-
-
-    INT_UNSIGNED("INT UNSIGNED", false, false, true, true, false, false, true, true, false),
-
-    BIGINT("BIGINT", false, false, true, true, false, false, true, true, false),
+    INT("INT", false, false, true, true, false, false, true, true, false, false),
 
 
-    BIGINT_UNSIGNED("BIGINT UNSIGNED", false, false, true, true, false, false, true, true, false),
+    INT_UNSIGNED("INT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
+
+    BIGINT("BIGINT", false, false, true, true, false, false, true, true, false, false),
 
 
-    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false),
-
-    DECIMAL_UNSIGNED("DECIMAL UNSIGNED", true, true, true, false, false, false, true, true, false),
+    BIGINT_UNSIGNED("BIGINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
 
-    FLOAT("FLOAT", true, true, true, false, false, false, true, true, false),
+    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
 
-    FLOAT_UNSIGNED("FLOAT UNSIGNED", true, true, true, false, false, false, true, true, false),
-
-    DOUBLE("DOUBLE", true, true, true, false, false, false, true, true, false),
-
-    DOUBLE_UNSIGNED("DOUBLE UNSIGNED", true, true, true, false, false, false, true, true, false),
-    DATE("DATE", false, false, true, false, false, false, true, true, false),
-    DATETIME("DATETIME", true, false, true, false, false, false, true, true, true),
-
-    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true),
-    TIME("TIME", true, false, true, false, false, false, true, true, false),
-    YEAR("YEAR", false, false, true, false, false, false, true, true, false),
-    CHAR("CHAR", true, false, true, false, true, true, true, true, false),
-
-    VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false),
-
-    BINARY("BINARY", true, false, true, false, false, false, true, true, false),
-
-    VARBINARY("VARBINARY", true, false, true, false, false, false, true, true, false),
-
-    TINYBLOB("TINYBLOB", false, false, true, false, false, false, true, false, false),
-
-    BLOB("BLOB", false, false, true, false, false, false, true, false, false),
-
-    MEDIUMBLOB("MEDIUMBLOB", false, false, true, false, false, false, true, false, false),
-
-    LONGBLOB("LONGBLOB", false, false, true, false, false, false, true, false, false),
-
-    TINYTEXT("TINYTEXT", false, false, true, false, false, true, true, false, false),
-
-    TEXT("TEXT", false, false, true, false, false, true, true, false, false),
-
-    MEDIUMTEXT("MEDIUMTEXT", false, false, true, false, false, true, true, false, false),
-
-    LONGTEXT("LONGTEXT", false, false, true, false, false, true, true, false, false),
+    DECIMAL_UNSIGNED("DECIMAL UNSIGNED", true, true, true, false, false, false, true, true, false, false),
 
 
-    ENUM("ENUM", false, false, true, false, false, true, true, true, true),
+    FLOAT("FLOAT", true, true, true, false, false, false, true, true, false, false),
+
+    FLOAT_UNSIGNED("FLOAT UNSIGNED", true, true, true, false, false, false, true, true, false, false),
+
+    DOUBLE("DOUBLE", true, true, true, false, false, false, true, true, false, false),
+
+    DOUBLE_UNSIGNED("DOUBLE UNSIGNED", true, true, true, false, false, false, true, true, false, false),
+    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
+    DATETIME("DATETIME", true, false, true, false, false, false, true, true, true, false),
+
+    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true, false),
+    TIME("TIME", true, false, true, false, false, false, true, true, false, false),
+    YEAR("YEAR", false, false, true, false, false, false, true, true, false, false),
+    CHAR("CHAR", true, false, true, false, true, true, true, true, false, false),
+
+    VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false, false),
+
+    BINARY("BINARY", true, false, true, false, false, false, true, true, false, false),
+
+    VARBINARY("VARBINARY", true, false, true, false, false, false, true, true, false, false),
+
+    TINYBLOB("TINYBLOB", false, false, true, false, false, false, true, false, false, false),
+
+    BLOB("BLOB", false, false, true, false, false, false, true, false, false, false),
+
+    MEDIUMBLOB("MEDIUMBLOB", false, false, true, false, false, false, true, false, false, false),
+
+    LONGBLOB("LONGBLOB", false, false, true, false, false, false, true, false, false, false),
+
+    TINYTEXT("TINYTEXT", false, false, true, false, false, true, true, false, false, false),
+
+    TEXT("TEXT", false, false, true, false, false, true, true, false, false, false),
+
+    MEDIUMTEXT("MEDIUMTEXT", false, false, true, false, false, true, true, false, false, false),
+
+    LONGTEXT("LONGTEXT", false, false, true, false, false, true, true, false, false, false),
 
 
-    BOOL("BOOL", false, false, true, true, false, false, true, true, false),
-
-    INTEGER("INTEGER", false, false, true, true, false, false, true, true, false),
-
-    INTEGER_UNSIGNED("INTEGER UNSIGNED", false, false, true, true, false, false, true, true, false),
-
-    REAL("REAL", true, true, true, false, false, false, true, true, false),
-
-    SET("SET", false, false, true, false, false, true, true, true, true),
+    ENUM("ENUM", false, false, true, false, false, true, true, true, true, true),
 
 
-    GEOMETRY("GEOMETRY", false, false, true, false, false, false, true, false, false),
+    BOOL("BOOL", false, false, true, true, false, false, true, true, false, false),
 
-    POINT("POINT", false, false, true, false, false, false, true, false, false),
+    INTEGER("INTEGER", false, false, true, true, false, false, true, true, false, false),
 
-    LINESTRING("LINESTRING", false, false, true, false, false, false, true, false, false),
+    INTEGER_UNSIGNED("INTEGER UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
-    POLYGON("POLYGON", false, false, true, false, false, false, true, false, false),
+    REAL("REAL", true, true, true, false, false, false, true, true, false, false),
 
-    MULTIPOINT("MULTIPOINT", false, false, true, false, false, false, true, false, false),
+    SET("SET", false, false, true, false, false, true, true, true, true, true),
 
-    MULTILINESTRING("MULTILINESTRING", false, false, true, false, false, false, true, false, false),
 
-    MULTIPOLYGON("MULTIPOLYGON", false, false, true, false, false, false, true, false, false),
+    GEOMETRY("GEOMETRY", false, false, true, false, false, false, true, false, false, false),
 
-    GEOMETRYCOLLECTION("GEOMETRYCOLLECTION", false, false, true, false, false, false, true, false, false),
+    POINT("POINT", false, false, true, false, false, false, true, false, false, false),
 
-    JSON("JSON", false, false, true, false, false, false, true, false, false);
+    LINESTRING("LINESTRING", false, false, true, false, false, false, true, false, false, false),
+
+    POLYGON("POLYGON", false, false, true, false, false, false, true, false, false, false),
+
+    MULTIPOINT("MULTIPOINT", false, false, true, false, false, false, true, false, false, false),
+
+    MULTILINESTRING("MULTILINESTRING", false, false, true, false, false, false, true, false, false, false),
+
+    MULTIPOLYGON("MULTIPOLYGON", false, false, true, false, false, false, true, false, false, false),
+
+    GEOMETRYCOLLECTION("GEOMETRYCOLLECTION", false, false, true, false, false, false, true, false, false, false),
+
+    JSON("JSON", false, false, true, false, false, false, true, false, false, false);
 
     private ColumnType columnType;
 
@@ -124,8 +124,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     }
 
 
-    MysqlColumnTypeEnum(String dataTypeName, boolean supportLength, boolean supportScale, boolean supportNullable, boolean supportAutoIncrement, boolean supportCharset, boolean supportCollation, boolean supportComments, boolean supportDefaultValue, boolean supportExtent) {
-        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent);
+    MysqlColumnTypeEnum(String dataTypeName, boolean supportLength, boolean supportScale, boolean supportNullable, boolean supportAutoIncrement, boolean supportCharset, boolean supportCollation, boolean supportComments, boolean supportDefaultValue, boolean supportExtent,boolean supportValue) {
+        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent,supportValue);
     }
 
     private static Map<String, MysqlColumnTypeEnum> COLUMN_TYPE_MAP = Maps.newHashMap();
@@ -149,6 +149,10 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDataType(column, type)).append(" ");
 
+        script.append(buildCharset(column,type)).append(" ");
+
+        script.append(buildCollation(column,type)).append(" ");
+
         script.append(buildNullable(column,type)).append(" ");
 
         script.append(buildDefaultValue(column,type)).append(" ");
@@ -160,6 +164,20 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         script.append(buildComment(column,type)).append(" ");
 
         return script.toString();
+    }
+
+    private String buildCharset(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportCharset() || StringUtils.isEmpty(column.getCharSetName())){
+            return "";
+        }
+        return StringUtils.join("CHARACTER SET ",column.getCharSetName());
+    }
+
+    private String buildCollation(TableColumn column, MysqlColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportCollation() || StringUtils.isEmpty(column.getCollationName())){
+            return "";
+        }
+        return StringUtils.join("COLLATE ",column.getCollationName());
     }
 
     @Override
@@ -218,7 +236,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
         if(Arrays.asList(DATETIME,TIMESTAMP).contains(type)){
-            if("CURRENT_TIMESTAMP".equalsIgnoreCase(column.getDefaultValue())){
+            if("CURRENT_TIMESTAMP".equalsIgnoreCase(column.getDefaultValue().trim())){
                 return StringUtils.join("DEFAULT ",column.getDefaultValue());
             }
             return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
@@ -282,8 +300,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
         if(Arrays.asList(SET,ENUM).contains(type)){
-            if(!StringUtils.isEmpty( column.getDefaultValue())){
-                return StringUtils.join(columnType,"(",column.getDefaultValue(),")");
+            if(!StringUtils.isEmpty( column.getValue())){
+                return StringUtils.join(columnType,"(",column.getValue(),")");
             }
             //List<String> enumList = column.
         }
