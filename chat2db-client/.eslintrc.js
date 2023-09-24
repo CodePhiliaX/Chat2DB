@@ -56,7 +56,7 @@ module.exports = {
     //     allow: ['info', 'error', 'warn'],
     //   },
     // ],
-    'no-duplicate-imports': 2, // 禁止重复 import
+    'no-duplicate-imports': [2], // 禁止重复 import
     'newline-per-chained-call': 2, // 链式调用必须换行
     'no-underscore-dangle': 2, // 禁止标识符中有悬空下划线
     'eol-last': 2, // 文件以单一的换行符结束

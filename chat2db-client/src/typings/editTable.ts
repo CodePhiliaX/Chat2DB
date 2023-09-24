@@ -7,7 +7,7 @@ export interface IBaseInfo {
 }
 
 export interface IColumnItemNew {
-  operationType?: EditColumnOperationType; // 操作类型
+  editStatus: EditColumnOperationType | null; // 操作类型
 
   key?: string;
   oldName: string | null; // 老的列名
@@ -36,8 +36,12 @@ export interface IColumnItemNew {
   generatedColumn: string | null; // 是否生成列
 }
 
-export interface IIndexIncludeColumnItem {
-  key?: string; // 列的key 前端自己给的
+// 
+export interface IIndexIncludeColumnItem extends IColumnItemNew {
+}
+
+// 后端给的索引内列的数据结构
+export interface IAfterEndIndexIncludeColumnItem {
   ascOrDesc: string | null; // 升序还是降序
   cardinality: number | null; // 基数
   collation: string | null; // 排序规则
@@ -53,8 +57,8 @@ export interface IIndexIncludeColumnItem {
   tableName: string | null; // 表名
   type: string | null; // 类型
   pages: number | null; // 页数
-  prefixLength: number | null; // 前缀长度
 }
+
 
 // 编辑表时索引的数据结构
 export interface IIndexItem {
@@ -64,6 +68,8 @@ export interface IIndexItem {
   comment?: string | null;
   type: IndexesType | null;
   columnList: IIndexIncludeColumnItem[];
+  editStatus: EditColumnOperationType | null; // 操作类型
+
 }
 
 // 编辑表时整体的数据结构

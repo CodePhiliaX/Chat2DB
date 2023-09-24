@@ -1,7 +1,11 @@
 @import '../../../styles/var.less';
 
-.box {
+.indexList {
+  height: 100%;
   padding: 10px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .indexListHeader {
@@ -10,6 +14,19 @@
     margin: 0px 5px;
   }
 }
+
+.formBox {
+  flex: 1;
+  height: 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableBox {
+  flex: 1;
+  overflow: auto;
+}
+
 .editableCell {
   height: 28px;
   line-height: 26px;

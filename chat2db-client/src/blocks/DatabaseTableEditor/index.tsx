@@ -8,6 +8,7 @@ import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import { IEditTableInfo } from '@/typings';
 import i18n from '@/i18n';
+import lodash from 'lodash';
 
 interface IProps {
   dataSourceId: number;
@@ -73,7 +74,20 @@ export default memo((props: IProps) => {
         refresh: true,
       };
       sqlService.getTableDetails(params).then((res) => {
-        setTableDetails(res || {});
+        const newTableDetails = lodash.cloneDeep(res);
+        newTableDetails.indexList.forEach((i) => {
+          i.columnList = i.columnList.map((j: any) => {
+            let newColumn: any = {};
+            newTableDetails.columnList.forEach((k: any) => {
+              if (j.columnName === k.name) {
+                newColumn = k;
+              }
+            });
+            return newColumn;
+          });
+        });
+        console.log(newTableDetails);
+        setTableDetails(newTableDetails || {});
         setOldTableDetails(res);
       });
     }
@@ -82,6 +96,7 @@ export default memo((props: IProps) => {
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
       const newTable = {
+        ...oldTableDetails,
         ...baseInfoRef.current.getBaseInfo(),
         columnList: columnListRef.current.getColumnListInfo()!,
         indexList: indexListRef.current.getIndexListInfo()!,
@@ -100,6 +115,7 @@ export default memo((props: IProps) => {
         params.oldTable = oldTableDetails;
       }
       console.log(newTable);
+      console.log(params.oldTable);
       sqlService.getModifyTableSql(params).then((res) => {
         console.log(res);
       });

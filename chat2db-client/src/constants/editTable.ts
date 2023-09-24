@@ -1,20 +1,17 @@
 // 索引类型
 export enum IndexesType {
-  // 普通索引
-  Normal = 'normal',
-  // 唯一索引
-  Unique = 'unique',
-  // 全文索引
-  Fulltext = 'fulltext',
-  // 空间索引
-  Spatial = 'spatial',
+  NormPRIMARY_KEYal = 'PRIMARY_KEY',
+  NORMAL = 'NORMAL',
+  UNIQUE = 'UNIQUE',
+  FULLTEXT = 'FULLTEXT',
+  SPATIAL = 'SPATIAL',
 }
 
 export enum EditColumnOperationType { 
   // 新增
-  Add = 'add',
+  Add = 'ADD',
   // 修改
-  Modify = 'modify',
+  Modify = 'MODIFY',
   // 删除
-  Delete = 'delete',
+  Delete = 'DELETE',
 }
