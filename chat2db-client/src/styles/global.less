@@ -13,33 +13,33 @@ body {
 // 修改账号密码自动回填后input背景变色问题
 input:-webkit-autofill {
   -webkit-text-fill-color: var(--color-text) !important; // 填充状态下的字体颜色
-  transition: background-color 0s 9999999999s;
-  caret-color: var(--color-text); // 光标的颜色
+  transition: background-color 0s 9999999999s !important;
+  caret-color: var(--color-text) !important; // 光标的颜色
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+// ::-webkit-scrollbar {
+//   width: 6px;
+//   height: 6px;
+// }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-fill);
-  border-radius: 3px;
-}
+// ::-webkit-scrollbar-thumb {
+//   background-color: var(--color-fill);
+//   border-radius: 3px;
+// }
 
-::-webkit-scrollbar-button {
-  width: 0;
-  height: 0;
-  background: transparent;
-}
+// ::-webkit-scrollbar-button {
+//   width: 0;
+//   height: 0;
+//   background: transparent;
+// }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+// ::-webkit-scrollbar-track {
+//   background: transparent;
+// }
 
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
+// ::-webkit-scrollbar-corner {
+//   background: transparent;
+// }
 
 html,
 body,
@@ -133,9 +133,8 @@ li {
   list-style: none;
 }
 
-
 // 覆盖antd 的一些样式
 
-button{
+button {
   box-shadow: none !important;
 }

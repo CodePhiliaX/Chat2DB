@@ -118,13 +118,6 @@ public class TableColumn {
     @JsonAlias({"NUM_PREC_RADIX"})
     private Integer numPrecRadix;
 
-    /**
-     * is NULL allowed.
-     * columnNoNulls - might not allow NULL values
-     * columnNullable - definitely allows NULL values
-     * columnNullableUnknown - nullability unknown
-     */
-    private Integer nullableInt;
 
     /**
      * unused
@@ -164,4 +157,12 @@ public class TableColumn {
     private Boolean generatedColumn;
 
 
+    private String extent;
+
+
+    private String editStatus;
+
+    private String charSetName;
+
+    private String collationName;
 }

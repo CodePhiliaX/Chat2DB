@@ -33,37 +33,6 @@ export enum OSType {
   RESTS = 'rests',
 }
 
-export enum OperationType {
-  CONSOLE = 'console',
-  FUNCTION = 'function',
-  PROCEDURE = 'procedure',
-  VIEW = 'view',
-  TRIGGER = 'trigger',
-}
-
-export const operationTypeConfig: {
-  [key in OperationType]: {
-    icon: string
-  };
-} = {
-  [OperationType.CONSOLE]: {
-    icon: '\uec83'
-  },
-  [OperationType.VIEW]: {
-    icon: '\ue70c'
-  },
-  [OperationType.FUNCTION]: {
-    icon: '\ue76a'
-  },
-  [OperationType.PROCEDURE]: {
-    icon: '\ue73c'
-  },
-
-  [OperationType.TRIGGER]: {
-    icon: '\ue64a'
-  }
-}
-
 export enum ConnectionKind {
   Private = 'PRIVATE',
   Shared = 'SHARED'

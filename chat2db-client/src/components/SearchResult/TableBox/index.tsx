@@ -36,7 +36,7 @@ interface IViewTableCellData {
 const SupportBaseTable: any = styled(BaseTable)`
   &.supportBaseTable {
     --bgcolor: var(--color-bg-base);
-    --header-bgcolor: var(--color-bg-elevated);
+    --header-bgcolor: var(--color-bg-subtle);
     --hover-bgcolor: var(--color-hover-bg);
     --header-hover-bgcolor: var(--color-hover-bg);
     --highlight-bgcolor: var(--color-hover-bg);
@@ -124,13 +124,13 @@ export default function TableBox(props: ITableProps) {
 
   const columns: ArtColumn[] = useMemo(
     () =>
-      (headerList || []).map((item, index) => {
+      (headerList || []).map((item, colIndex) => {
         const { dataType, name } = item;
         const isNumber = dataType === TableDataType.NUMERIC;
         const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
         if (isNumericalOrder) {
           return {
-            code: `${preCode}No.`,
+            code: `${preCode}${colIndex}No.`,
             name: 'No.',
             key: name,
             lock: true,
@@ -146,7 +146,7 @@ export default function TableBox(props: ITableProps) {
           };
         }
         return {
-          code: `${preCode}${name}`,
+          code: `${preCode}${colIndex}${name}`,
           name: name,
           key: name,
           width: 120,
@@ -174,8 +174,8 @@ export default function TableBox(props: ITableProps) {
     } else {
       return (dataList || []).map((item, rowIndex) => {
         const rowData: any = {};
-        item.map((i: string | null, index: number) => {
-          const name = `${preCode}${columns[index].name}`;
+        item.map((i: string | null, colIndex: number) => {
+          const name = `${preCode}${colIndex}${columns[colIndex].name}`;
           if (i === null) {
             rowData[name] = '<null>';
           } else {
@@ -212,6 +212,7 @@ export default function TableBox(props: ITableProps) {
   const onPageNoChange = (pageNo: number) => {
     onConfigChange && onConfigChange({ ...config, pageNo });
   };
+
   const onPageSizeChange = (pageSize: number) => {
     onConfigChange && onConfigChange({ ...config, pageSize, pageNo: 1 });
   };
@@ -221,6 +222,7 @@ export default function TableBox(props: ITableProps) {
       return await props.onSearchTotal();
     }
   };
+
   const renderContent = () => {
     const bottomStatus = (
       <div className={styles.statusBar}>
@@ -271,6 +273,7 @@ export default function TableBox(props: ITableProps) {
       );
     }
   };
+
   return (
     <div className={classnames(className, styles.tableBox)}>
       {renderContent()}

@@ -13,7 +13,7 @@
   flex-direction: column;
   width: 220px;
   overflow: hidden;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   border-right: 1px solid var(--color-border-secondary);
   border-top: 0px;
   border-bottom: 0px;
@@ -55,11 +55,21 @@
     .menuItemsTitle {
       flex: 1;
       width: 0;
-      .f-single-line();
-    }
-
-    .envTag{
-      margin: 0px 4px;
+      display: flex;
+      align-items: center;
+      .name {
+        .f-single-line();
+      }
+      .envTag {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        margin-right: 8px;
+      }
+      .databaseTypeIcon {
+        margin-right: 6px;
+      }
     }
 
     .moreButton {

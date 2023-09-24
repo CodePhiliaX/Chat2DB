@@ -8,6 +8,7 @@ export default {
     'team.action.editDatasource': 'Edit DataSource',
     'team.action.addDatasource': 'Add DataSource',
     'team.action.addDatasource.placeholder': 'Search DataSource',
+    'team.action.editUser': 'Edit user',
     'team.action.addUser': 'Add User',
     'team.action.addUser.placeholder': 'Search User',
     'team.action.editTeam': 'Edit Team',

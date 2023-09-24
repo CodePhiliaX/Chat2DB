@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.Plugin;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import com.jcraft.jsch.JSchException;
@@ -40,6 +41,10 @@ public class Chat2DBContext {
 
     public static DriverConfig getDefaultDriverConfig(String dbType) {
         return PLUGIN_MAP.get(dbType).getDBConfig().getDefaultDriverConfig();
+    }
+
+    public static SqlBuilder getSqlBuilder() {
+        return PLUGIN_MAP.get(getConnectInfo().getDbType()).getMetaData().getSqlBuilder();
     }
 
     /**

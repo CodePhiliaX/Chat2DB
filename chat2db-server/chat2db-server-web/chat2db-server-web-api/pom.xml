@@ -60,6 +60,23 @@
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
         </dependency>
+        <!--poi-tl-->
+        <dependency>
+            <groupId>com.deepoove</groupId>
+            <artifactId>poi-tl</artifactId>
+            <version>1.10.5</version>
+        </dependency>
+        <!--pdf-->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,7 +1,5 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
-import java.util.List;
-
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
@@ -18,18 +16,13 @@ import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.model.Type;
+import ai.chat2db.spi.model.*;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/table")
@@ -150,14 +143,14 @@ public class TableController {
      * @return
      */
     @GetMapping("/query")
-    public DataResult<TableVO> query(@Valid TableDetailQueryRequest request) {
+    public DataResult<Table> query(@Valid TableDetailQueryRequest request) {
         TableQueryParam queryParam = rdbWebConverter.tableRequest2param(request);
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(true);
-        DataResult<Table> tableDTODataResult = tableService.query(queryParam, tableSelector);
-        TableVO tableVO = rdbWebConverter.tableDto2vo(tableDTODataResult.getData());
-        return DataResult.of(tableVO);
+        return tableService.query(queryParam, tableSelector);
+        //TableVO tableVO = rdbWebConverter.tableDto2vo(tableDTODataResult.getData());
+        //return DataResult.of(tableVO);
     }
 
     /**
@@ -166,8 +159,8 @@ public class TableController {
      * @param request
      * @return
      */
-    @GetMapping("/modify/sql")
-    public ListResult<SqlVO> modifySql(@Valid TableModifySqlRequest request) {
+    @PostMapping("/modify/sql")
+    public ListResult<SqlVO> modifySql(@Valid @RequestBody TableModifySqlRequest request) {
         return tableService.buildSql(
                         rdbWebConverter.tableRequest2param(request.getOldTable()),
                         rdbWebConverter.tableRequest2param(request.getNewTable()))
@@ -186,6 +179,14 @@ public class TableController {
         TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
         List<Type> types = tableService.queryTypes(typeQueryParam);
         return ListResult.of(types);
+    }
+
+
+    @GetMapping("/table_meta")
+    public DataResult<TableMeta> tableMeta(@Valid TypeQueryRequest request) {
+        TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        TableMeta tableMeta = tableService.queryTableMeta(typeQueryParam);
+        return DataResult.of(tableMeta);
     }
 
     /**
