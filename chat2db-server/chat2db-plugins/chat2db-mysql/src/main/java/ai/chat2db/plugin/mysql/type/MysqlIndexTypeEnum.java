@@ -9,13 +9,13 @@ public enum MysqlIndexTypeEnum {
 
     PRIMARY_KEY("Primary", "PRIMARY KEY"),
 
-    NORMAL("Normal", "KEY"),
+    NORMAL("Normal", "INDEX"),
 
-    UNIQUE("Unique", "UNIQUE KEY"),
+    UNIQUE("Unique", "UNIQUE INDEX"),
 
-    FULLTEXT("Fulltext", "FULLTEXT KEY"),
+    FULLTEXT("Fulltext", "FULLTEXT INDEX"),
 
-    SPATIAL("Spatial", "SPATIAL KEY");
+    SPATIAL("Spatial", "SPATIAL INDEX");
 
     public String getName() {
         return name;
@@ -72,7 +72,9 @@ public enum MysqlIndexTypeEnum {
         StringBuilder script = new StringBuilder();
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
-            script.append("`").append(column.getColumnName()).append("`").append(",");
+            if(StringUtils.isNotBlank(column.getColumnName())) {
+                script.append("`").append(column.getColumnName()).append("`").append(",");
+            }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(")");
@@ -104,6 +106,6 @@ public enum MysqlIndexTypeEnum {
         if (MysqlIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
             return StringUtils.join("DROP PRIMARY KEY");
         }
-        return StringUtils.join("DROP KEY `", tableIndex.getOldName());
+        return StringUtils.join("DROP INDEX `", tableIndex.getOldName());
     }
 }

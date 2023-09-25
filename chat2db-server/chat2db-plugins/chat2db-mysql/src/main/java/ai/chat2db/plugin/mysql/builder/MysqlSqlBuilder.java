@@ -18,14 +18,20 @@ public class MysqlSqlBuilder implements SqlBuilder {
 
         // append column
         for (TableColumn column : table.getColumnList()) {
+            if(StringUtils.isBlank(column.getName())|| StringUtils.isBlank(column.getColumnType())){
+                continue;
+            }
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 
         // append primary key and index
         for (TableIndex tableIndex : table.getIndexList()) {
+            if(StringUtils.isBlank(tableIndex.getName())|| StringUtils.isBlank(tableIndex.getType())){
+                continue;
+            }
             MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
-            script.append("\t").append("ADD ").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            script.append("\t").append("").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
         }
 
         script = new StringBuilder(script.substring(0, script.length() - 2));
@@ -84,7 +90,7 @@ public class MysqlSqlBuilder implements SqlBuilder {
 
         // append modify index
         for (TableIndex tableIndex : newTable.getIndexList()) {
-            if (StringUtils.isNotBlank(tableIndex.getEditStatus())) {
+            if (StringUtils.isNotBlank(tableIndex.getEditStatus()) && StringUtils.isNotBlank(tableIndex.getType())) {
                 MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
             }
