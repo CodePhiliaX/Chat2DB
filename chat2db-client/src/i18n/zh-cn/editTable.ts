@@ -28,4 +28,5 @@ export default {
   'editTable.label.engine': '引擎',
   'editTable.label.incrementValue': '自增值',
   'editTable.title.sqlPreview': 'sql预览',
+  'editTable.button.addColumn': '添加列',
 };

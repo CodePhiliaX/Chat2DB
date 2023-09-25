@@ -10,6 +10,7 @@ import { Context } from '../index';
 import { IColumnItemNew, IIndexIncludeColumnItem } from '@/typings';
 import i18n from '@/i18n';
 import lodash from 'lodash';
+import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   includedColumnList: IIndexIncludeColumnItem[];
@@ -79,15 +80,16 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     edit(newData);
   };
 
-  const deleteData = () => {
-    setDataSource(dataSource.filter((i) => i.key !== editingKey));
+  const deleteData = (record) => {
+    setDataSource(dataSource.filter((i) => i.key !== record.key));
   };
 
   const columns = [
     {
       title: i18n('editTable.label.index'),
       dataIndex: 'index',
-      width: '10%',
+      width: '50px',
+      align: 'center',
       render: (text: string, record: IIndexIncludeColumnItem) => {
         return dataSource.findIndex((i) => i.key === record.key) + 1;
       },
@@ -105,6 +107,23 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
         ) : (
           <div className={styles.editableCell} onClick={() => edit(record)}>
             {text}
+          </div>
+        );
+      },
+    },
+    {
+      width: '40px',
+      render: (text: string, record: IIndexIncludeColumnItem) => {
+        return (
+          <div
+            className={styles.operationBar}
+            onClick={() => {
+              deleteData(record);
+            }}
+          >
+            <div className={styles.deleteIconBox}>
+              <Iconfont code="&#xe64e;" />
+            </div>
           </div>
         );
       },
@@ -145,9 +164,11 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   };
 
   const getIncludeColInfo = (): IIndexIncludeColumnItem[] => {
-    return dataSource.map((t) => {
-      return lodash.omit(t, 'key');
-    });
+    return dataSource
+      .map((t) => {
+        return lodash.omit(t, 'key');
+      })
+      .filter((t) => t.columnName);
   };
 
   useImperativeHandle(ref, () => ({
@@ -155,13 +176,23 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   }));
 
   return (
-    <div className={classnames(styles.box)}>
+    <div className={classnames(styles.includeCol)}>
       <div className={styles.indexListHeader}>
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
-        <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
+        {/* <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button> */}
       </div>
-      <Form form={form} onFieldsChange={handelFieldsChange}>
-        <Table pagination={false} rowKey="key" columns={columns} dataSource={dataSource} />
+      <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
+        <Table
+          style={{
+            maxHeight: '100%',
+            overflow: 'auto',
+          }}
+          sticky
+          pagination={false}
+          rowKey="key"
+          columns={columns as any}
+          dataSource={dataSource}
+        />
       </Form>
     </div>
   );

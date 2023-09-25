@@ -3,7 +3,7 @@ import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Table, InputNumber, Input, Form, Select, Checkbox, Button } from 'antd';
+import { Table, InputNumber, Input, Form, Select, Checkbox } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -13,6 +13,7 @@ import { IColumnItemNew, IColumnTypes } from '@/typings';
 import i18n from '@/i18n';
 import { EditColumnOperationType } from '@/constants';
 import CustomSelect from '@/components/CustomSelect';
+import Iconfont from '@/components/Iconfont';
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
@@ -223,12 +224,16 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       width: '160px',
       render: (text: string, record: IColumnItemNew) => {
         const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="name" style={{ margin: 0 }}>
-            <Input autoComplete="off" />
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell}>{text}</div>
+        return (
+          <div className={styles.cellContent}>
+            {editable ? (
+              <Form.Item name="name" style={{ margin: 0 }}>
+                <Input autoComplete="off" />
+              </Form.Item>
+            ) : (
+              <div className={styles.editableCell}>{text}</div>
+            )}
+          </div>
         );
       },
     },
@@ -299,6 +304,23 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         );
       },
     },
+    {
+      width: '40px',
+      render: (text: string, record: IColumnItemNew) => {
+        return (
+          <div
+            className={styles.operationBar}
+            onClick={() => {
+              deleteData(record);
+            }}
+          >
+            <div className={styles.deleteIconBox}>
+              <Iconfont code="&#xe64e;" />
+            </div>
+          </div>
+        );
+      },
+    },
   ];
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
@@ -356,13 +378,13 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     edit(newData);
   };
 
-  const deleteData = () => {
+  const deleteData = (record) => {
     let list: any = [];
-    if (editingData?.editStatus === EditColumnOperationType.Add) {
-      list = dataSource.filter((i) => i.key !== editingData?.key);
+    if (record?.editStatus === EditColumnOperationType.Add) {
+      list = dataSource.filter((i) => i.key !== record?.key);
     } else {
       list = dataSource.map((i) => {
-        if (i.key === editingData?.key) {
+        if (i.key === record?.key) {
           setEditingData(null);
           setEditingConfig(null);
           return {
@@ -374,30 +396,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       });
     }
     setDataSource(list);
-  };
-
-  const moveData = (action: 'up' | 'down') => {
-    const index = dataSource.findIndex((i) => i.key === editingData?.key);
-    if (index === -1) {
-      return;
-    }
-    if (action === 'up') {
-      if (index === 0) {
-        return;
-      }
-      const newData = [...dataSource];
-      newData[index] = dataSource[index - 1];
-      newData[index - 1] = dataSource[index];
-      setDataSource(newData);
-    } else {
-      if (index === dataSource.length - 1) {
-        return;
-      }
-      const newData = [...dataSource];
-      newData[index] = dataSource[index + 1];
-      newData[index + 1] = dataSource[index];
-      setDataSource(newData);
-    }
   };
 
   function getColumnListInfo(): IColumnItemNew[] {
@@ -486,12 +484,12 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   return (
     <div className={styles.columnList}>
-      <div className={styles.columnListHeader}>
+      {/* <div className={styles.columnListHeader}>
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
         <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
         <Button onClick={moveData.bind(null, 'up')}>{i18n('editTable.button.up')}</Button>
         <Button onClick={moveData.bind(null, 'down')}>{i18n('editTable.button.down')}</Button>
-      </div>
+      </div> */}
       <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
         <div className={styles.tableBox}>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
@@ -503,7 +501,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                   },
                 }}
                 style={{
-                  height: '100%',
+                  maxHeight: '100%',
                   overflow: 'auto',
                 }}
                 sticky
@@ -515,7 +513,12 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               />
             </SortableContext>
           </DndContext>
+          <div onClick={addData} className={styles.addColumnButton}>
+            <Iconfont code="&#xe631;" />
+            {i18n('editTable.button.addColumn')}
+          </div>
         </div>
+
         <div className={styles.otherInfo}>
           <div className={styles.otherInfoFormBox}>{renderOtherInfoForm()}</div>
         </div>

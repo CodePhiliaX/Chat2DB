@@ -19,6 +19,7 @@ interface IProps {
 }
 
 interface ITabItem {
+  index: number;
   title: string;
   key: string;
   component: any; // TODO: 组件的Ts是什么
@@ -38,22 +39,26 @@ export default memo((props: IProps) => {
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const [viewSqlModal, setViewSqlModal] = useState<string | false>(false);
+  const [newTableName, setNewTableName] = useState<string | null | undefined>(tableName);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
   const tabList = useMemo(() => {
     return [
       {
+        index: 0,
         title: i18n('editTable.tab.basicInfo'),
         key: 'basic',
         component: <BaseInfo ref={baseInfoRef} />,
       },
       {
+        index: 1,
         title: i18n('editTable.tab.columnInfo'),
         key: 'column',
         component: <ColumnList ref={columnListRef} />,
       },
       {
+        index: 2,
         title: i18n('editTable.tab.indexInfo'),
         key: 'index',
         component: <IndexList ref={indexListRef} />,
@@ -68,20 +73,25 @@ export default memo((props: IProps) => {
 
   useEffect(() => {
     if (tableName) {
-      const params = {
-        databaseName,
-        dataSourceId,
-        tableName,
-        schemaName,
-        refresh: true,
-      };
-      sqlService.getTableDetails(params).then((res) => {
-        const newTableDetails = lodash.cloneDeep(res);
-        setTableDetails(newTableDetails || {});
-        setOldTableDetails(res);
-      });
+      getTableDetails();
     }
   }, []);
+
+  const getTableDetails = () => {
+    if (!newTableName) return;
+    const params = {
+      databaseName,
+      dataSourceId,
+      tableName: newTableName,
+      schemaName,
+      refresh: true,
+    };
+    sqlService.getTableDetails(params).then((res) => {
+      const newTableDetails = lodash.cloneDeep(res);
+      setTableDetails(newTableDetails || {});
+      setOldTableDetails(res);
+    });
+  };
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
@@ -100,11 +110,12 @@ export default memo((props: IProps) => {
         newTable,
       };
 
-      if (tableName) {
-        params.tableName = tableName;
+      if (newTableName) {
+        // params.tableName = tableName;
         params.oldTable = oldTableDetails;
       }
       sqlService.getModifyTableSql(params).then((res) => {
+        setNewTableName(newTable.name);
         setViewSqlModal(res?.[0].sql);
       });
     }
@@ -120,6 +131,7 @@ export default memo((props: IProps) => {
 
     sqlService.executeSql(executeSQLParams).then(() => {
       message.success(i18n('common.text.successfulExecution'));
+      getTableDetails();
       setViewSqlModal(false);
     });
   };
@@ -136,7 +148,7 @@ export default memo((props: IProps) => {
     >
       <div className={classnames(styles.box)}>
         <div className={styles.header}>
-          <div className={styles.tabList}>
+          <div className={styles.tabList} style={{ '--i': currentTab.index } as any}>
             {tabList.map((item) => {
               return (
                 <div
