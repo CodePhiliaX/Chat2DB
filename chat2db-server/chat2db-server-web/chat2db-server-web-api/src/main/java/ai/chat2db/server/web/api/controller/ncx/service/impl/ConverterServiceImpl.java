@@ -3,15 +3,22 @@ package ai.chat2db.server.web.api.controller.ncx.service.impl;
 import ai.chat2db.server.domain.core.util.DesUtil;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.web.api.controller.ncx.cipher.CommonCipher;
 import ai.chat2db.server.web.api.controller.ncx.enums.DataBaseType;
+import ai.chat2db.server.web.api.controller.ncx.enums.ExportConstants;
 import ai.chat2db.server.web.api.controller.ncx.enums.VersionEnum;
 import ai.chat2db.server.web.api.controller.ncx.factory.CipherFactory;
 import ai.chat2db.server.web.api.controller.ncx.service.ConverterService;
 import ai.chat2db.server.web.api.controller.ncx.vo.UploadVO;
+import ai.chat2db.server.web.api.util.XMLUtils;
 import ai.chat2db.spi.model.SSHInfo;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.util.FileUtils;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.google.common.io.Files;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,15 +29,22 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * ConverterServiceImpl
@@ -120,10 +134,93 @@ public class ConverterServiceImpl implements ConverterService {
         return vo;
     }
 
-
+    @SneakyThrows
     @Override
     public UploadVO dbpUploadFile(File file) {
-        return null;
+        UploadVO vo = new UploadVO();
+        Document metaTree;
+        //等待删除的projects
+        List<String> projects = new ArrayList<>();
+        try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
+            ZipEntry metaEntry = zipFile.getEntry(ExportConstants.META_FILENAME);
+            if (metaEntry == null) {
+                throw new RuntimeException("Cannot find meta file");
+            }
+            try (InputStream metaStream = zipFile.getInputStream(metaEntry)) {
+                metaTree = XMLUtils.parseDocument(metaStream);
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot parse meta file: " + e.getMessage());
+            }
+            Element projectsElement = XMLUtils.getChildElement(metaTree.getDocumentElement(), ExportConstants.TAG_PROJECTS);
+            if (projectsElement != null) {
+                final Collection<Element> projectList = XMLUtils.getChildElementList(projectsElement, ExportConstants.TAG_PROJECT);
+                for (Element projectElement : projectList) {
+                    //获取项目名称
+                    String projectName = projectElement.getAttribute(ExportConstants.ATTR_NAME);
+                    //导入匹配文件目录
+                    String config = ConfigUtils.CONFIG_BASE_PATH + File.separator + projectName + File.separator + ExportConstants.CONFIG_FILE;
+                    importDbeaverConfig(new File(config),
+                            projectElement,
+                            //不可替换成File.separator
+                            ExportConstants.DIR_PROJECTS + "/" + projectName + "/",
+                            zipFile);
+                    //加入删除名单
+                    projects.add(projectName);
+                    //配置的json文件
+                    File json = new File(config + File.separator + ExportConstants.CONFIG_DATASOURCE_FILE);
+                    JSONObject jsonObject = JSON.parseObject(new FileInputStream(json));
+                    JSONObject connections = jsonObject.getJSONObject("connections");
+                    Set<String> keys = connections.keySet();
+                    for (String key : keys) {
+                        JSONObject configurations = connections.getJSONObject(key);
+                        JSONObject configuration = configurations.getJSONObject("configuration");
+                        DataSourceDO dataSourceDO = new DataSourceDO();
+                        LocalDateTime dateTime = LocalDateTime.now();
+                        dataSourceDO.setGmtCreate(dateTime);
+                        dataSourceDO.setGmtModified(dateTime);
+                        dataSourceDO.setAlias(configurations.getString("name"));
+                        dataSourceDO.setHost(configuration.getString("host"));
+                        dataSourceDO.setPort(configuration.getString("port"));
+                        dataSourceDO.setUrl(configuration.getString("url"));
+                        //dataSourceDO.setUserName(configuration.getString("host"));
+                        //dataSourceDO.setDriver(configuration.getString("host"));
+                        dataSourceDO.setType(configurations.getString("provider").toUpperCase());
+                        dataSourceMapper.insert(dataSourceDO);
+                    }
+                }
+            }
+        }
+        //删除临时文件
+        FileUtils.delete(file);
+        //删除dbeaver存留的配置临时文件
+        //projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
+        return vo;
+    }
+
+    @SneakyThrows
+    private static void importDbeaverConfig(File resource, Element resourceElement, String containerPath, ZipFile zipFile) {
+        for (Element childElement : XMLUtils.getChildElementList(resourceElement, ExportConstants.TAG_RESOURCE)) {
+            String childName = childElement.getAttribute(ExportConstants.ATTR_NAME);
+            String entryPath = containerPath + childName;
+            ZipEntry resourceEntry = zipFile.getEntry(entryPath);
+            if (resourceEntry == null) {
+                continue;
+            }
+            boolean isDirectory = resourceEntry.isDirectory();
+            if (isDirectory) {
+                File folder = new File(resource.getPath());
+                if (!folder.exists()) {
+                    FileUtil.mkdir(folder);
+                }
+                resource = folder;
+                importDbeaverConfig(folder, childElement, entryPath + "/", zipFile);
+            } else {
+                File file = new File(resource.getPath() + File.separator + childName);
+                if (!file.exists()) {
+                    FileUtil.writeFromStream(zipFile.getInputStream(resourceEntry), file);
+                }
+            }
+        }
     }
 
     @SneakyThrows
