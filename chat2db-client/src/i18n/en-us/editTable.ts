@@ -8,8 +8,8 @@ export default {
   'editTable.button.delete': 'Delete',
   'editTable.button.up': 'Up',
   'editTable.button.down': 'Down',
-  'editTable.label.indexName': 'Index name',
-  'editTable.label.indexType': 'Index type',
+  'editTable.label.indexName': 'Name',
+  'editTable.label.indexType': 'Type',
   'editTable.label.includeColumn': 'Include column',
   'editTable.button.createTable': 'Create table',
   'editTable.button.importTable': 'Import table',
@@ -27,4 +27,5 @@ export default {
   'editTable.label.engine': 'Engine',
   'editTable.label.incrementValue': 'Increment value',
   'editTable.title.sqlPreview': 'SQL preview',
+  'editTable.button.addColumn': 'Add column',
 };
