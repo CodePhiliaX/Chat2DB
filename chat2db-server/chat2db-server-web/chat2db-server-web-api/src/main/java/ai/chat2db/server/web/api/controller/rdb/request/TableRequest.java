@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 import java.util.List;
 
 import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,19 @@ public class TableRequest {
     /**
      * 索引
      */
-    private List<IndexRequest> indexList;
+    private List<TableIndex> indexList;
+
+
+    private String engine;
+
+
+    private String charset;
+
+
+    private String collate;
+
+    private Long incrementValue;
+
+    private String partition;
+
 }
