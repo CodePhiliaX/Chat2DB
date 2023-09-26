@@ -1,13 +1,12 @@
-package ai.chat2db.server.web.api.controller.ai.listener;
+package ai.chat2db.server.web.api.controller.ai.azure.listener;
 
 import java.io.IOException;
 import java.util.Objects;
 
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatChoice;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatCompletions;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureCompletionsUsage;
-import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatChoice;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletions;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureCompletionsUsage;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.entity.chat.Message;
