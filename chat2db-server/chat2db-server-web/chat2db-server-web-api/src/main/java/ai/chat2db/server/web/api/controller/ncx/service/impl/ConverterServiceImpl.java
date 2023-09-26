@@ -5,6 +5,7 @@ import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.web.api.controller.ncx.cipher.CommonCipher;
+import ai.chat2db.server.web.api.controller.ncx.dbeaver.DefaultValueEncryptor;
 import ai.chat2db.server.web.api.controller.ncx.enums.DataBaseType;
 import ai.chat2db.server.web.api.controller.ncx.enums.ExportConstants;
 import ai.chat2db.server.web.api.controller.ncx.enums.VersionEnum;
@@ -16,14 +17,16 @@ import ai.chat2db.spi.model.SSHInfo;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.util.FileUtils;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.google.common.io.Files;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,15 +34,15 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,6 +71,10 @@ public class ConverterServiceImpl implements ConverterService {
      * xml连接信息开始标志位
      **/
     private static final String BEGIN = "#BEGIN#";
+    /**
+     * 密码json的key
+     **/
+    private static final String connection = "#connection";
 
     @Autowired
     private DataSourceMapper dataSourceMapper;
@@ -82,7 +89,6 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public UploadVO uploadFile(File file) {
-
         UploadVO vo = new UploadVO();
         try {
             // List<Map <连接名，Map<属性名，值>>> 要导入的连接
@@ -169,30 +175,64 @@ public class ConverterServiceImpl implements ConverterService {
                     //配置的json文件
                     File json = new File(config + File.separator + ExportConstants.CONFIG_DATASOURCE_FILE);
                     JSONObject jsonObject = JSON.parseObject(new FileInputStream(json));
-                    JSONObject connections = jsonObject.getJSONObject("connections");
+                    JSONObject connections = jsonObject.getJSONObject(ExportConstants.DIR_CONNECTIONS);
                     Set<String> keys = connections.keySet();
                     for (String key : keys) {
                         JSONObject configurations = connections.getJSONObject(key);
-                        JSONObject configuration = configurations.getJSONObject("configuration");
-                        DataSourceDO dataSourceDO = new DataSourceDO();
-                        LocalDateTime dateTime = LocalDateTime.now();
-                        dataSourceDO.setGmtCreate(dateTime);
-                        dataSourceDO.setGmtModified(dateTime);
-                        dataSourceDO.setAlias(configurations.getString("name"));
-                        dataSourceDO.setHost(configuration.getString("host"));
-                        dataSourceDO.setPort(configuration.getString("port"));
-                        dataSourceDO.setUrl(configuration.getString("url"));
-                        //dataSourceDO.setUserName(configuration.getString("host"));
-                        //dataSourceDO.setDriver(configuration.getString("host"));
-                        dataSourceDO.setType(configurations.getString("provider").toUpperCase());
-                        dataSourceMapper.insert(dataSourceDO);
+                        JSONObject configuration = configurations.getJSONObject(ExportConstants.DIR_CONFIGURATION);
+                        //匹配数据库类型
+                        String provider = configurations.getString("provider");
+                        if (provider.equals(ExportConstants.GENERIC)) {
+                            //自定义驱动
+                            JSONObject drivers = jsonObject.getJSONObject(ExportConstants.DIR_DRIVERS);
+                            //获得驱动id
+                            String driverId = configurations.getString("driver");
+                            //获得所有generic
+                            JSONObject generics = drivers.getJSONObject(provider);
+                            //获得自己的驱动
+                            JSONObject generic = generics.getJSONObject(driverId);
+                            //如果不存在，则不导入
+                            if (null == generic) {
+                                continue;
+                            }
+                            //赋值驱动名称，用来确定数据库的类型
+                            provider = generic.getString("name");
+                        }
+                        DataBaseType dataBaseType = DataBaseType.matchType(provider.toUpperCase());
+                        DataSourceDO dataSourceDO;
+                        //未匹配到数据库类型，如：dbeaver支持自定义驱动等，但chat2DB暂不支持
+                        if (null != dataBaseType) {
+                            //密码信息
+                            File credentials = new File(config + File.separator + ExportConstants.CONFIG_CREDENTIALS_FILE);
+                            DefaultValueEncryptor defaultValueEncryptor = new DefaultValueEncryptor(DefaultValueEncryptor.getLocalSecretKey());
+                            JSONObject credentialsJson = JSON.parseObject(defaultValueEncryptor.decryptValue(Files.readAllBytes(credentials.toPath())));
+                            dataSourceDO = new DataSourceDO();
+                            LocalDateTime dateTime = LocalDateTime.now();
+                            dataSourceDO.setGmtCreate(dateTime);
+                            dataSourceDO.setGmtModified(dateTime);
+                            dataSourceDO.setAlias(configurations.getString("name"));
+                            dataSourceDO.setHost(configuration.getString("host"));
+                            dataSourceDO.setPort(configuration.getString("port"));
+                            dataSourceDO.setUrl(configuration.getString("url"));
+                            if (null != credentialsJson) {
+                                JSONObject userInfo = credentialsJson.getJSONObject(key);
+                                JSONObject userPassword = userInfo.getJSONObject(connection);
+                                dataSourceDO.setUserName(userPassword.getString("user"));
+                                DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
+                                String password = userPassword.getString("password");
+                                String encryptStr = desUtil.encrypt(Optional.ofNullable(password).orElse(""), "CBC");
+                                dataSourceDO.setPassword(encryptStr);
+                            }
+                            dataSourceDO.setType(dataBaseType.name());
+                            dataSourceMapper.insert(dataSourceDO);
+                        }
                     }
                 }
             }
         }
         //删除临时文件
         FileUtils.delete(file);
-        //删除dbeaver存留的配置临时文件
+        //删除导入dbeaver时，dbp产生的临时配置文件
         //projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
         return vo;
     }
@@ -212,13 +252,10 @@ public class ConverterServiceImpl implements ConverterService {
                 if (!folder.exists()) {
                     FileUtil.mkdir(folder);
                 }
-                resource = folder;
                 importDbeaverConfig(folder, childElement, entryPath + "/", zipFile);
             } else {
                 File file = new File(resource.getPath() + File.separator + childName);
-                if (!file.exists()) {
-                    FileUtil.writeFromStream(zipFile.getInputStream(resourceEntry), file);
-                }
+                FileUtil.writeFromStream(zipFile.getInputStream(resourceEntry), file, true);
             }
         }
     }
