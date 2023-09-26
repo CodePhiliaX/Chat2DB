@@ -239,9 +239,7 @@ export function formatSql(sql: string, dbType: DatabaseTypeCode) {
     try {
       formatRes = format(sql || '');
     }
-    catch { 
-
-    }
+    catch {}
     // 如果格式化失败，直接返回原始sql
     if (!formatRes) {
       sqlServer.sqlFormat({
