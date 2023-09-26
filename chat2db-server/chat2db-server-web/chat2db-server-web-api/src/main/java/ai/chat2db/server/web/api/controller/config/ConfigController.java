@@ -17,7 +17,7 @@ import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
-import ai.chat2db.server.web.api.util.OpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

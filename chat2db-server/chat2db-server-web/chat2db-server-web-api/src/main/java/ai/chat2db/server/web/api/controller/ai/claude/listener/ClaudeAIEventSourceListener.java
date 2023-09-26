@@ -1,4 +1,4 @@
-package ai.chat2db.server.web.api.controller.ai.listener;
+package ai.chat2db.server.web.api.controller.ai.claude.listener;
 
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeCompletionResponse;
 import com.fasterxml.jackson.databind.DeserializationFeature;
