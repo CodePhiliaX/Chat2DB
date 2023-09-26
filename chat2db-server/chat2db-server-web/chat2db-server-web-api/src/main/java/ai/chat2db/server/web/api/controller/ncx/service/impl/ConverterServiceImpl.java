@@ -4,6 +4,7 @@ import ai.chat2db.server.domain.core.util.DesUtil;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.ncx.cipher.CommonCipher;
 import ai.chat2db.server.web.api.controller.ncx.dbeaver.DefaultValueEncryptor;
 import ai.chat2db.server.web.api.controller.ncx.enums.DataBaseType;
@@ -210,10 +211,16 @@ public class ConverterServiceImpl implements ConverterService {
                             Date dateTime = new Date();
                             dataSourceDO.setGmtCreate(dateTime);
                             dataSourceDO.setGmtModified(dateTime);
+                            //插入用户id
+                            dataSourceDO.setUserId(ContextUtils.getUserId());
                             dataSourceDO.setAlias(configurations.getString("name"));
                             dataSourceDO.setHost(configuration.getString("host"));
                             dataSourceDO.setPort(configuration.getString("port"));
                             dataSourceDO.setUrl(configuration.getString("url"));
+                            //ssh设置为false
+                            SSHInfo sshInfo = new SSHInfo();
+                            sshInfo.setUse(false);
+                            dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
                             if (null != credentialsJson) {
                                 JSONObject userInfo = credentialsJson.getJSONObject(key);
                                 JSONObject userPassword = userInfo.getJSONObject(connection);
@@ -291,6 +298,8 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(rootElement.getAttribute("name"));
+                //插入用户id
+                dataSourceDO.setUserId(ContextUtils.getUserId());
                 // 获取子元素 database-info
                 Element databaseInfoElement = (Element) rootElement.getElementsByTagName("database-info").item(0);
 
@@ -319,6 +328,10 @@ public class ConverterServiceImpl implements ConverterService {
 
                     }
                 }
+                //ssh设置为false
+                SSHInfo sshInfo = new SSHInfo();
+                sshInfo.setUse(false);
+                dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
                 dataSourceDO.setHost(host);
                 dataSourceDO.setPort(port);
                 dataSourceDO.setUrl(jdbcUrl);
@@ -361,6 +374,8 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setAlias(resultMap.get("ConnectionName"));
                 dataSourceDO.setUserName(resultMap.get("UserName"));
                 dataSourceDO.setType(resultMap.get("ConnType"));
+                //插入用户id
+                dataSourceDO.setUserId(ContextUtils.getUserId());
                 //password 为解密出来的密文，再使用chat2db的加密
                 DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
                 String encryptStr = desUtil.encrypt(password, "CBC");
