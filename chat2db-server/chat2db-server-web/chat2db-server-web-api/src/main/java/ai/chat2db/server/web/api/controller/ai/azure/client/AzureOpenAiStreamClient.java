@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.azure.interceptor.AzureHeaderAuthorizationInterceptor;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatCompletionsOptions;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletionsOptions;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
