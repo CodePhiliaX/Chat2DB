@@ -520,6 +520,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 changeTabDetails={changeTabDetails}
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
+                databaseType={curWorkspaceParams?.databaseType}
                 schemaName={curWorkspaceParams?.schemaName!}
                 tableName={uniqueData.tableName}
               />
