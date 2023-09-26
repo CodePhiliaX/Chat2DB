@@ -7,7 +7,7 @@ import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
 import MonacoEditor from '@/components/Console/MonacoEditor';
-import { IEditTableInfo } from '@/typings';
+import { IEditTableInfo, IWorkspaceTab } from '@/typings';
 import i18n from '@/i18n';
 import lodash from 'lodash';
 
@@ -16,6 +16,8 @@ interface IProps {
   databaseName: string;
   schemaName: string | undefined;
   tableName?: string;
+  changeTabDetails: (data: IWorkspaceTab) => void;
+  tabDetails: IWorkspaceTab;
 }
 
 interface ITabItem {
@@ -35,11 +37,10 @@ interface IContext extends IProps {
 export const Context = createContext<IContext>({} as any);
 
 export default memo((props: IProps) => {
-  const { databaseName, dataSourceId, tableName, schemaName } = props;
+  const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const [viewSqlModal, setViewSqlModal] = useState<string | false>(false);
-  const [newTableName, setNewTableName] = useState<string | null | undefined>(tableName);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
@@ -78,11 +79,11 @@ export default memo((props: IProps) => {
   }, []);
 
   const getTableDetails = () => {
-    if (!newTableName) return;
+    if (!tableName) return;
     const params = {
       databaseName,
       dataSourceId,
-      tableName: newTableName,
+      tableName,
       schemaName,
       refresh: true,
     };
@@ -110,12 +111,11 @@ export default memo((props: IProps) => {
         newTable,
       };
 
-      if (newTableName) {
+      if (tableName) {
         // params.tableName = tableName;
         params.oldTable = oldTableDetails;
       }
       sqlService.getModifyTableSql(params).then((res) => {
-        setNewTableName(newTable.name);
         setViewSqlModal(res?.[0].sql);
       });
     }
@@ -130,6 +130,17 @@ export default memo((props: IProps) => {
     };
 
     sqlService.executeSql(executeSQLParams).then(() => {
+      if (!tableName) {
+        const newTableName = baseInfoRef.current?.getBaseInfo().name;
+        changeTabDetails({
+          ...tabDetails,
+          title: `edit-${newTableName}`,
+          uniqueData: {
+            ...(tabDetails.uniqueData || {}),
+            tableName: newTableName,
+          },
+        });
+      }
       message.success(i18n('common.text.successfulExecution'));
       getTableDetails();
       setViewSqlModal(false);
