@@ -30,14 +30,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 工作台tab列表
   const [workspaceTabList, setWorkspaceTabList] = useState<IWorkspaceTab[]>([]);
 
-  const {
-    curWorkspaceParams,
-    doubleClickTreeNodeData,
-    createTabIntro,
-    openConsoleList,
-    curConsoleId,
-    createConsoleIntro,
-  } = workspaceModel;
+  const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, createConsoleIntro } =
+    workspaceModel;
 
   // 根据保存的console列表生成tab列表
   useEffect(() => {
@@ -480,6 +474,16 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     });
   }
 
+  const changeTabDetails = (data: IWorkspaceTab) => {
+    const list = workspaceTabList.map((t) => {
+      if (t.id === data.id) {
+        return data;
+      }
+      return t;
+    });
+    setWorkspaceTabList(list);
+  };
+
   const tabsList = useMemo(() => {
     return workspaceTabList.map((t) => {
       const { uniqueData } = t;
@@ -497,21 +501,23 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               WorkspaceTabType.TRIGGER,
               WorkspaceTabType.VIEW,
             ].includes(t.type) && (
-                <SQLExecute
-                  isActive={activeConsoleId === t.id}
-                  data={{
-                    initDDL: uniqueData?.ddl,
-                    databaseName: curWorkspaceParams.databaseName!,
-                    dataSourceId: curWorkspaceParams.dataSourceId!,
-                    type: curWorkspaceParams.databaseType!,
-                    schemaName: curWorkspaceParams?.schemaName!,
-                    consoleId: t.id as number,
-                    consoleName: uniqueData.name,
-                  }}
-                />
-              )}
+              <SQLExecute
+                isActive={activeConsoleId === t.id}
+                data={{
+                  initDDL: uniqueData?.ddl,
+                  databaseName: curWorkspaceParams.databaseName!,
+                  dataSourceId: curWorkspaceParams.dataSourceId!,
+                  type: curWorkspaceParams.databaseType!,
+                  schemaName: curWorkspaceParams?.schemaName!,
+                  consoleId: t.id as number,
+                  consoleName: uniqueData.name,
+                }}
+              />
+            )}
             {t.type === WorkspaceTabType.EditTable && (
               <DatabaseTableEditor
+                tabDetails={t}
+                changeTabDetails={changeTabDetails}
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
                 schemaName={curWorkspaceParams?.schemaName!}
