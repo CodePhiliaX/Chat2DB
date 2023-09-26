@@ -17,10 +17,6 @@
 
 package ai.chat2db.server.web.api.controller.ncx.enums;
 
-import ai.chat2db.server.tools.common.util.ConfigUtils;
-
-import java.io.File;
-
 /**
  * Import/Export constants
  */
@@ -29,8 +25,12 @@ public class ExportConstants {
     public static final String ARCHIVE_FILE_EXT = ".dbp"; //NON-NLS-1
     public static final String CONFIG_FILE = ".dbeaver"; //NON-NLS-1
     public static final String CONFIG_DATASOURCE_FILE = "data-sources.json"; //NON-NLS-1
+    public static final String CONFIG_CREDENTIALS_FILE = "credentials-config.json"; //NON-NLS-1
     public static final String DIR_PROJECTS = "projects"; //NON-NLS-1
     public static final String DIR_DRIVERS = "drivers"; //NON-NLS-1
+    public static final String DIR_CONNECTIONS = "connections"; //NON-NLS-1
+    public static final String DIR_CONFIGURATION = "configuration"; //NON-NLS-1
+    public static final String GENERIC = "generic"; //NON-NLS-1
 
     public static final String META_FILENAME = "meta.xml"; //NON-NLS-1
 
