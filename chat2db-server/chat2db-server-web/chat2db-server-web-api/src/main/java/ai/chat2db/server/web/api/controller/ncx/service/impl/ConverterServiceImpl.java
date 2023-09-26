@@ -233,7 +233,7 @@ public class ConverterServiceImpl implements ConverterService {
         //删除临时文件
         FileUtils.delete(file);
         //删除导入dbeaver时，dbp产生的临时配置文件
-        //projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
+        projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
         return vo;
     }
 
