@@ -246,14 +246,14 @@ export default memo((props: IProps) => {
               </div>
               <Button className={styles.executeButton} type="primary" onClick={executeSql} loading={executeLoading}>
                 <Iconfont code="&#xe656;" />
-                执行
+                {i18n('common.button.execute')}
               </Button>
             </div>
             {renderMonacoEditor}
           </div>
           {executeSqlResult && (
             <div className={styles.result}>
-              <div className={styles.resultHeader}>错误信息</div>
+              <div className={styles.resultHeader}>{i18n('common.text.errorMessage')}</div>
               <div className={styles.resultContent}>
                 {executeSqlResult
                   ?.filter((t) => !t.success)
@@ -262,7 +262,7 @@ export default memo((props: IProps) => {
                       <div key={i}>
                         <div className={styles.errorTitle}>
                           <Iconfont code="&#xe87c;" />
-                          执行错误sql{i + 1}:{t.sql}
+                          sql{i + 1}:{t.sql}
                         </div>
                         <div className={styles.errorMessage}>{t.message}</div>
                       </div>
