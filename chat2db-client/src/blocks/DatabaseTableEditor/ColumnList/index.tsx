@@ -417,7 +417,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   const renderOtherInfoForm = () => {
     const labelCol = {
-      style: { width: 90 },
+      style: { width: 100 },
     };
 
     return (
