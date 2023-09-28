@@ -61,13 +61,13 @@ public class RdbDmlController {
      * @return
      */
     @RequestMapping(value = "/execute_ddl", method = {RequestMethod.POST, RequestMethod.PUT})
-    public DataResult<Long> executeDDL(@RequestBody DmlRequest request) {
+    public DataResult<ExecuteResultVO> executeDDL(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
         Connection connection = Chat2DBContext.getConnection();
         if (connection != null) {
             try {
                 boolean flag = true;
-                String message = "";
+                ExecuteResultVO executeResult = null;
                 connection.setAutoCommit(false);
                 ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
                 List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
@@ -75,15 +75,18 @@ public class RdbDmlController {
                     for (ExecuteResultVO resultVO : resultVOS) {
                         if (!resultVO.getSuccess()) {
                             flag = false;
+                            executeResult = resultVO;
+                            break;
+
                         }
                     }
                 }
                 if (flag) {
                     connection.commit();
-                    return DataResult.of(1L);
+                    return DataResult.of(resultVOS.get(0));
                 }else {
                     connection.rollback();
-                    return DataResult.error("sql error",message);
+                    return DataResult.of(executeResult);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
