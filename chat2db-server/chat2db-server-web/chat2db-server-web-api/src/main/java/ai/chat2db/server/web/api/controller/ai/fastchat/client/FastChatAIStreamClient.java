@@ -1,13 +1,9 @@
-package ai.chat2db.server.web.api.controller.ai.azure.client;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
+package ai.chat2db.server.web.api.controller.ai.fastchat.client;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
-import ai.chat2db.server.web.api.controller.ai.azure.interceptor.AzureHeaderAuthorizationInterceptor;
-import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletionsOptions;
-import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHeaderAuthorizationInterceptor;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -22,13 +18,17 @@ import okhttp3.sse.EventSources;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 /**
- * 自定义AI接口client
+ * Fast Chat Aligned Client
  *
  * @author moji
  */
 @Slf4j
-public class AzureOpenAiStreamClient {
+public class FastChatAIStreamClient {
 
     /**
      * apikey
@@ -38,17 +38,17 @@ public class AzureOpenAiStreamClient {
     private String apiKey;
 
     /**
-     * endpoint
+     * apiHost
      */
     @Getter
     @NotNull
-    private String endpoint;
+    private String apiHost;
 
     /**
-     * deployId
+     * model
      */
     @Getter
-    private String deployId;
+    private String model;
 
     /**
      * okHttpClient
@@ -60,10 +60,10 @@ public class AzureOpenAiStreamClient {
     /**
      * @param builder
      */
-    private AzureOpenAiStreamClient(Builder builder) {
+    private FastChatAIStreamClient(Builder builder) {
         this.apiKey = builder.apiKey;
-        this.endpoint = builder.endpoint;
-        this.deployId = builder.deployId;
+        this.apiHost = builder.apiHost;
+        this.model = builder.model;
         if (Objects.isNull(builder.okHttpClient)) {
             builder.okHttpClient = this.okHttpClient();
         }
@@ -76,7 +76,7 @@ public class AzureOpenAiStreamClient {
     private OkHttpClient okHttpClient() {
         OkHttpClient okHttpClient = new OkHttpClient
             .Builder()
-            .addInterceptor(new AzureHeaderAuthorizationInterceptor(this.apiKey))
+            .addInterceptor(new FastChatHeaderAuthorizationInterceptor(this.apiKey))
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(50, TimeUnit.SECONDS)
             .readTimeout(50, TimeUnit.SECONDS)
@@ -89,55 +89,58 @@ public class AzureOpenAiStreamClient {
      *
      * @return
      */
-    public static AzureOpenAiStreamClient.Builder builder() {
-        return new AzureOpenAiStreamClient.Builder();
+    public static FastChatAIStreamClient.Builder builder() {
+        return new FastChatAIStreamClient.Builder();
     }
 
+    /**
+     * builder
+     */
     public static final class Builder {
         private String apiKey;
 
-        private String endpoint;
+        private String apiHost;
 
-        private String deployId;
+        private String model;
 
         /**
-         * 自定义OkhttpClient
+         * OkhttpClient
          */
         private OkHttpClient okHttpClient;
 
         public Builder() {
         }
 
-        public AzureOpenAiStreamClient.Builder apiKey(String apiKeyValue) {
+        public FastChatAIStreamClient.Builder apiKey(String apiKeyValue) {
             this.apiKey = apiKeyValue;
             return this;
         }
 
         /**
-         * @param endpointValue
+         * @param apiHostValue
          * @return
          */
-        public AzureOpenAiStreamClient.Builder endpoint(String endpointValue) {
-            this.endpoint = endpointValue;
+        public FastChatAIStreamClient.Builder apiHost(String apiHostValue) {
+            this.apiHost = apiHostValue;
             return this;
         }
 
         /**
-         * @param deployIdValue
+         * @param modelValue
          * @return
          */
-        public AzureOpenAiStreamClient.Builder deployId(String deployIdValue) {
-            this.deployId = deployIdValue;
+        public FastChatAIStreamClient.Builder model(String modelValue) {
+            this.model = modelValue;
             return this;
         }
 
-        public AzureOpenAiStreamClient.Builder okHttpClient(OkHttpClient val) {
+        public FastChatAIStreamClient.Builder okHttpClient(OkHttpClient val) {
             this.okHttpClient = val;
             return this;
         }
 
-        public AzureOpenAiStreamClient build() {
-            return new AzureOpenAiStreamClient(this);
+        public FastChatAIStreamClient build() {
+            return new FastChatAIStreamClient(this);
         }
 
     }
@@ -148,38 +151,34 @@ public class AzureOpenAiStreamClient {
      * @param chatMessages
      * @param eventSourceListener
      */
-    public void streamCompletions(List<AzureChatMessage> chatMessages, EventSourceListener eventSourceListener) {
+    public void streamCompletions(List<FastChatMessage> chatMessages, EventSourceListener eventSourceListener) {
         if (CollectionUtils.isEmpty(chatMessages)) {
-            log.error("param error：Azure Prompt cannot be empty");
+            log.error("param error：Fast Chat Prompt cannot be empty");
             throw new ParamBusinessException("prompt");
         }
         if (Objects.isNull(eventSourceListener)) {
-            log.error("param error：AzureEventSourceListener cannot be empty");
+            log.error("param error：FastChatEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("Azure Open AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
+        log.info("Fast Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
 
-            AzureChatCompletionsOptions chatCompletionsOptions = new AzureChatCompletionsOptions(chatMessages);
+            FastChatCompletionsOptions chatCompletionsOptions = new FastChatCompletionsOptions(chatMessages);
             chatCompletionsOptions.setStream(true);
-            chatCompletionsOptions.setModel(this.deployId);
+            chatCompletionsOptions.setModel(this.model);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
-            if (!endpoint.endsWith("/")) {
-                endpoint = endpoint + "/";
-            }
-            String url = this.endpoint + "openai/deployments/"+ deployId + "/chat/completions?api-version=2023-05-15";
             Request request = new Request.Builder()
-                .url(url)
+                .url(apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
             //创建事件
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
-            log.info("finish invoking azure ai");
+            log.info("finish invoking fast chat ai");
         } catch (Exception e) {
-            log.error("azure ai error", e);
+            log.error("fast chat ai error", e);
             eventSourceListener.onFailure(null, e, null);
             throw new ParamBusinessException();
         }

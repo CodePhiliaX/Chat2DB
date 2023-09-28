@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package ai.chat2db.server.web.api.controller.ai.azure.models;
+package ai.chat2db.server.web.api.controller.ai.azure.model;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
