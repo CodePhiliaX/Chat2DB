@@ -32,6 +32,10 @@ import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
 import ai.chat2db.server.web.api.controller.ai.openai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.rest.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
@@ -218,6 +222,8 @@ public class ChatController {
                 return chatWithAzureAi(queryRequest, sseEmitter, uid);
             case CLAUDEAI:
                 return chatWithClaudeAi(queryRequest, sseEmitter, uid);
+            case FASTCHATAI:
+                return chatWithFastChatAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -328,6 +334,36 @@ public class ChatController {
 
         AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
         AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
+     * chat with fast chat openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithFastChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
+        if (CollectionUtils.isNotEmpty(messages)) {
+            if (messages.size() >= contextLength) {
+                messages = messages.subList(1, contextLength);
+            }
+        } else {
+            messages = Lists.newArrayList();
+        }
+        FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
+        messages.add(currentMessage);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        FastChatAIEventSourceListener sourceListener = new FastChatAIEventSourceListener(sseEmitter);
+        FastChatAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
