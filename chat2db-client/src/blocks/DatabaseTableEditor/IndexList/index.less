@@ -16,15 +16,38 @@
 }
 
 .formBox {
-  flex: 1;
   height: 0px;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
 
 .tableBox {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+  border-radius: 8px 8px 0px 0px;
+  overflow: hidden;
+}
+
+.addColumnButton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--color-border);
+  line-height: 30px;
+  margin-top: 10px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  i {
+    margin-right: 5px;
+  }
+  &:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
 }
 
 .editableCell {
@@ -49,6 +72,55 @@
     cursor: pointer;
     &:hover {
       color: var(--color-primary-hover);
+    }
+  }
+}
+
+.operationBar {
+  display: flex;
+  justify-content: end;
+  .deleteIconBox {
+    height: 26px;
+    width: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.indexList {
+  :global {
+    .ant-table-body {
+      border: 1px solid var(--color-border);
+      border-top: 0px;
+      border-bottom: 0px;
+    }
+    .ant-table-header {
+      border: 1px solid var(--color-border);
+      border-bottom: 0px;
+    }
+    .ant-table {
+      border-radius: 10px;
+      border-bottom: 0px;
+    }
+    .ant-table-wrapper .ant-table-tbody > tr > td {
+      // border: 0px;
+      padding: 4px 2px;
+    }
+    .ant-table-wrapper .ant-table-thead > tr > th {
+      padding: 8px 4px;
+      &::before {
+        display: none;
+      }
+    }
+    .ant-table-wrapper .ant-table-thead > tr > td {
+      &::before {
+        display: none;
+      }
     }
   }
 }

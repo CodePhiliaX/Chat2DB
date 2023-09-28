@@ -1,4 +1,4 @@
-package ai.chat2db.server.web.api.controller.ai.azure.models;
+package ai.chat2db.server.web.api.controller.ai.azure.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

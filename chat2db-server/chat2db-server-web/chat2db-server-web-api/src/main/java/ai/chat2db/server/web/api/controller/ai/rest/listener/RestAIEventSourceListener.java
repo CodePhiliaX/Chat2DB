@@ -1,4 +1,4 @@
-package ai.chat2db.server.web.api.controller.ai.listener;
+package ai.chat2db.server.web.api.controller.ai.rest.listener;
 
 import java.util.Objects;
 

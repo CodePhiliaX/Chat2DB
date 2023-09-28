@@ -1,5 +1,5 @@
 
-package ai.chat2db.server.web.api.util;
+package ai.chat2db.server.web.api.controller.ai.openai.client;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -8,6 +8,7 @@ import java.util.Objects;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.service.ConfigService;
 
+import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import com.google.common.collect.Lists;
 import com.unfbx.chatgpt.OpenAiStreamClient;
 import com.unfbx.chatgpt.constant.OpenAIConst;

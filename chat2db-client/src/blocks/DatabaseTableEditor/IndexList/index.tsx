@@ -15,11 +15,12 @@ import { type DragEndEvent, DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Table, Input, Form, Select, Button, Modal } from 'antd';
+import { Table, Input, Form, Select, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
 import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
 import { IndexesType, EditColumnOperationType } from '@/constants';
+import Iconfont from '@/components/Iconfont';
 import { Context } from '../index';
 import i18n from '@/i18n';
 import lodash from 'lodash';
@@ -111,13 +112,12 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     edit(newData);
   };
 
-  const deleteData = () => {
-    setDataSource(dataSource.filter((i) => i.key !== editingData?.key));
+  const deleteData = (record) => {
+    setDataSource(dataSource.filter((i) => i.key !== record?.key));
     setDataSource(
       dataSource.map((i) => {
-        if (i.key === editingData?.key) {
+        if (i.key === record?.key) {
           setEditingData(null);
-          // setEditingConfig(null);
           return {
             ...i,
             editStatus: EditColumnOperationType.Delete,
@@ -248,22 +248,39 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         );
       },
     },
-    // {
-    //   title: i18n('editTable.label.comment'),
-    //   dataIndex: 'comment',
-    //   render: (text: string, record: IIndexItem) => {
-    //     const editable = isEditing(record);
-    //     return editable ? (
-    //       <Form.Item name="comment" style={{ margin: 0 }}>
-    //         <Input />
-    //       </Form.Item>
-    //     ) : (
-    //       <div className={styles.editableCell} onClick={() => edit(record)}>
-    //         {text}
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      title: i18n('editTable.label.comment'),
+      dataIndex: 'comment',
+      render: (text: string, record: IIndexItem) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <Form.Item name="comment" style={{ margin: 0 }}>
+            <Input autoComplete="off" />
+          </Form.Item>
+        ) : (
+          <div className={styles.editableCell} onClick={() => edit(record)}>
+            {text}
+          </div>
+        );
+      },
+    },
+    {
+      width: '40px',
+      render: (text: string, record: IIndexItem) => {
+        return (
+          <div
+            className={styles.operationBar}
+            onClick={() => {
+              deleteData(record);
+            }}
+          >
+            <div className={styles.deleteIconBox}>
+              <Iconfont code="&#xe64e;" />
+            </div>
+          </div>
+        );
+      },
+    },
   ];
 
   const getIncludeColInfo = () => {
@@ -298,16 +315,16 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       }
     });
     return list;
-  }, [editingData?.key]);
+  }, [includeColModalOpen]);
 
   return (
     <div className={classnames(styles.indexList)}>
-      <div className={styles.indexListHeader}>
+      {/* <div className={styles.indexListHeader}>
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
         <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
-        {/* <Button onClick={moveData.bind(null, 'up')}>上移</Button>
-      <Button onClick={moveData.bind(null, 'down')}>下移</Button> */}
-      </div>
+        <Button onClick={moveData.bind(null, 'up')}>上移</Button>
+        <Button onClick={moveData.bind(null, 'down')}>下移</Button>
+      </div> */}
       <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
         <div className={styles.tableBox}>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
@@ -319,7 +336,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
                   },
                 }}
                 style={{
-                  height: '100%',
+                  maxHeight: '100%',
                   overflow: 'auto',
                 }}
                 sticky
@@ -331,11 +348,16 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
               />
             </SortableContext>
           </DndContext>
+          <div onClick={addData} className={styles.addColumnButton}>
+            <Iconfont code="&#xe631;" />
+            {i18n('editTable.button.addColumn')}
+          </div>
         </div>
       </Form>
       <Modal
+        className={styles.includeColModal}
         open={includeColModalOpen}
-        width={800}
+        width={460}
         title={i18n('editTable.label.includeColumn')}
         onOk={getIncludeColInfo}
         onCancel={() => {
