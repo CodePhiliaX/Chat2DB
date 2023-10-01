@@ -348,6 +348,12 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
         }
+        const editingDataItem = {
+          ...item,
+          [name]: value,
+          editStatus,
+        };
+
         if (name === 'columnType') {
           // 根据当前字段类型，设置编辑配置
           databaseSupportField.columnTypes.forEach((i) => {
@@ -358,15 +364,19 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               });
             }
           });
+          // 特殊处理VARCHAR的默认长度 为255
+          if (value === 'VARCHAR' && editingDataItem.columnSize === null) {
+            editingDataItem.columnSize = 255;
+            form.setFieldsValue({
+              columnSize: 255,
+            });
+          }
         }
-        return {
-          ...item,
-          [name]: value,
-          editStatus,
-        };
+        return editingDataItem;
       }
       return item;
     });
+    console.log(newData);
     setDataSource(newData);
   };
 
