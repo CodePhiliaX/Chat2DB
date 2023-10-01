@@ -77,7 +77,7 @@ public enum OracleIndexTypeEnum {
     }
 
     private String buildIndexName(TableIndex tableIndex) {
-        return "\"" + tableIndex.getSchemaName() + "\"" + "\"" + tableIndex.getName() + "\"";
+        return "\"" + tableIndex.getSchemaName() + "\"." + "\"" + tableIndex.getName() + "\"";
     }
 
     public String buildModifyIndex(TableIndex tableIndex) {
