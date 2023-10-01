@@ -205,9 +205,13 @@ export interface IModifyTableSqlParams {
 }
 
 /** 获取修改表的sql */ 
-const getModifyTableSql = createRequest<IModifyTableSqlParams, {sql:string}[]>('/api/rdb/table/modify/sql', { method: 'post' });
+const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', { method: 'post' });
+
+/** 执行编辑表的sql, 专为编辑表而生 */ 
+const executeDDL = createRequest<IExecuteSqlParams, {success: boolean, message: string}>('/api/rdb/dml/execute_ddl', {method:'post'});
 
 export default {
+  executeDDL,
   getModifyTableSql,
   getTableDetails,
   getDatabaseFieldTypeList,

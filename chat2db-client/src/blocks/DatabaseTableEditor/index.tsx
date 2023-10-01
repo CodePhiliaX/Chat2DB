@@ -7,7 +7,7 @@ import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
-import { IEditTableInfo, IWorkspaceTab, IManageResultData } from '@/typings';
+import { IEditTableInfo, IWorkspaceTab } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import i18n from '@/i18n';
 import lodash from 'lodash';
@@ -49,7 +49,7 @@ export default memo((props: IProps) => {
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
   const monacoEditorRef = useRef<IExportRefFunction>(null);
-  const [executeSqlResult, setExecuteSqlResult] = useState<IManageResultData[]>();
+  const [executeSqlResult, setExecuteSqlResult] = useState<string | null>(null);
   const [executeLoading, setExecuteLoading] = useState<boolean>(false);
   const [appendValue, setAppendValue] = useState<string>('');
   const tabList = useMemo(() => {
@@ -81,17 +81,23 @@ export default memo((props: IProps) => {
   }
 
   useEffect(() => {
+    if (!viewSqlModal) {
+      setExecuteSqlResult(null);
+    }
+  }, [viewSqlModal]);
+
+  useEffect(() => {
     if (tableName) {
-      getTableDetails();
+      getTableDetails({});
     }
   }, []);
 
-  const getTableDetails = () => {
+  const getTableDetails = ({ tableNameProps }: { tableNameProps?: string }) => {
     if (!tableName) return;
     const params = {
       databaseName,
       dataSourceId,
-      tableName,
+      tableName: tableNameProps || tableName,
       schemaName,
       refresh: true,
     };
@@ -139,25 +145,26 @@ export default memo((props: IProps) => {
     };
     setExecuteLoading(true);
     sqlService
-      .executeSql(executeSQLParams)
+      .executeDDL(executeSQLParams)
       .then((res) => {
-        if (!tableName) {
-          const newTableName = baseInfoRef.current?.getBaseInfo().name;
-          changeTabDetails({
-            ...tabDetails,
-            title: `edit-${newTableName}`,
-            uniqueData: {
-              ...(tabDetails.uniqueData || {}),
-              tableName: newTableName,
-            },
-          });
-        }
-        if (res.filter((t) => !t.success).length === 0) {
+        if (res.success) {
           setViewSqlModal(false);
           message.success(i18n('common.text.successfulExecution'));
+          const newTableName = baseInfoRef.current?.getBaseInfo().name;
+          getTableDetails({ tableNameProps: newTableName });
+          if (!tableName) {
+            changeTabDetails({
+              ...tabDetails,
+              title: `edit-${newTableName}`,
+              uniqueData: {
+                ...(tabDetails.uniqueData || {}),
+                tableName: newTableName,
+              },
+            });
+          }
+        } else {
+          setExecuteSqlResult(res.message);
         }
-        setExecuteSqlResult(res);
-        getTableDetails();
       })
       .finally(() => {
         setExecuteLoading(false);
@@ -255,19 +262,7 @@ export default memo((props: IProps) => {
             <div className={styles.result}>
               <div className={styles.resultHeader}>{i18n('common.text.errorMessage')}</div>
               <div className={styles.resultContent}>
-                {executeSqlResult
-                  ?.filter((t) => !t.success)
-                  .map((t, i) => {
-                    return (
-                      <div key={i}>
-                        <div className={styles.errorTitle}>
-                          <Iconfont code="&#xe87c;" />
-                          sql{i + 1}:{t.sql}
-                        </div>
-                        <div className={styles.errorMessage}>{t.message}</div>
-                      </div>
-                    );
-                  })}
+                <div className={styles.errorMessage}>{executeSqlResult}</div>
               </div>
             </div>
           )}
