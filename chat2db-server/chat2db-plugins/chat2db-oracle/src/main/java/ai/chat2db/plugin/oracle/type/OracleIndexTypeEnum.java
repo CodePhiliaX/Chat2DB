@@ -53,7 +53,7 @@ public enum OracleIndexTypeEnum {
         } else {
             script.append("CREATE INDEX ");
         }
-        script.append(buildIndexName(tableIndex)).append(" ON \"").append(tableIndex.getTableName()).append("\" ").append(buildIndexColumn(tableIndex));
+        script.append(buildIndexName(tableIndex)).append(" ON \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ").append(buildIndexColumn(tableIndex));
 
         return script.toString();
     }
@@ -85,7 +85,7 @@ public enum OracleIndexTypeEnum {
             return buildDropIndex(tableIndex);
         }
         if (EditStatus.MODIFY.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join(buildDropIndex(tableIndex), ",\n" , buildIndexScript(tableIndex));
+            return StringUtils.join(buildDropIndex(tableIndex), ";\n" , buildIndexScript(tableIndex));
         }
         if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
             return StringUtils.join( buildIndexScript(tableIndex));
