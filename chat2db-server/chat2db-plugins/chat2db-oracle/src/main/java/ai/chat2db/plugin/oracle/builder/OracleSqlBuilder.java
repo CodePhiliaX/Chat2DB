@@ -66,7 +66,7 @@ public class OracleSqlBuilder implements SqlBuilder {
         StringBuilder script = new StringBuilder();
 
         if (!StringUtils.equalsIgnoreCase(oldTable.getName(), newTable.getName())) {
-            script.append("ALTER TABLE "). append("\"").append(oldTable.getSchemaName()).append("\"").append("").append("\"").append(oldTable.getName()).append("\"");
+            script.append("ALTER TABLE "). append("\"").append(oldTable.getSchemaName()).append("\".\"").append(oldTable.getName()).append("\"");
             script.append(" ").append("RENAME TO ").append("\"").append(newTable.getName()).append("\"").append(";");
         }
         if (!StringUtils.equalsIgnoreCase(oldTable.getComment(), newTable.getComment())) {

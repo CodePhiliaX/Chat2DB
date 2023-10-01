@@ -219,24 +219,25 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\"").append("").append("\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("DROP COLUMN ").append("\"").append(tableColumn.getName()).append("\"").append(";");
+            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
+            script.append(" ").append("DROP COLUMN ").append("\"").append(tableColumn.getName()).append("\"");
             return script.toString();
         }
         if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\"").append("").append("\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("ADD (").append(buildCreateColumnSql(tableColumn)).append(");");
+            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
+            script.append(" ").append("ADD (").append(buildCreateColumnSql(tableColumn)).append(")");
             return script.toString();
         }
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\"").append("").append("\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append("); \n" );
+            script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
+            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append(") \n" );
 
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
-                script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\"").append("").append("\"").append(tableColumn.getTableName()).append("\"");
-                script.append(" ").append("RENAME COLUMN ").append("\"").append(tableColumn.getOldName()).append("\"").append(" TO ").append("\"").append(tableColumn.getName()).append("\"").append(";");
+                script.append(";");
+                script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
+                script.append(" ").append("RENAME COLUMN ").append("\"").append(tableColumn.getOldName()).append("\"").append(" TO ").append("\"").append(tableColumn.getName()).append("\"");
 
             }
             return script.toString();
