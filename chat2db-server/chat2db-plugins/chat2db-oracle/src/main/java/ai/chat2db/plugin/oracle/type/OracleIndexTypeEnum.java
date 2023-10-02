@@ -47,14 +47,15 @@ public enum OracleIndexTypeEnum {
     public String buildIndexScript(TableIndex tableIndex) {
         StringBuilder script = new StringBuilder();
         if (PRIMARY_KEY.equals(this)) {
-            script.append("CREATE PRIMARY KEY ");
-        } else if (UNIQUE.equals(this)) {
-            script.append("CREATE UNIQUE INDEX ");
+            script.append("ALTER TABLE \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ADD PRIMARY KEY ").append(buildIndexColumn(tableIndex));
         } else {
-            script.append("CREATE INDEX ");
+            if (UNIQUE.equals(this)) {
+                script.append("CREATE UNIQUE INDEX ");
+            } else {
+                script.append("CREATE INDEX ");
+            }
+            script.append(buildIndexName(tableIndex)).append(" ON \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ").append(buildIndexColumn(tableIndex));
         }
-        script.append(buildIndexName(tableIndex)).append(" ON \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ").append(buildIndexColumn(tableIndex));
-
         return script.toString();
     }
 
@@ -65,10 +66,10 @@ public enum OracleIndexTypeEnum {
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if (StringUtils.isNotBlank(column.getColumnName())) {
                 script.append("\"").append(column.getColumnName()).append("\"");
-                if(!StringUtils.isBlank(column.getAscOrDesc())){
+                if (!StringUtils.isBlank(column.getAscOrDesc())) {
                     script.append(" ").append(column.getAscOrDesc());
                 }
-                script .append(",");
+                script.append(",");
             }
         }
         script.deleteCharAt(script.length() - 1);
@@ -85,10 +86,10 @@ public enum OracleIndexTypeEnum {
             return buildDropIndex(tableIndex);
         }
         if (EditStatus.MODIFY.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join(buildDropIndex(tableIndex), ";\n" , buildIndexScript(tableIndex));
+            return StringUtils.join(buildDropIndex(tableIndex), ";\n", buildIndexScript(tableIndex));
         }
         if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join( buildIndexScript(tableIndex));
+            return StringUtils.join(buildIndexScript(tableIndex));
         }
         return "";
     }
