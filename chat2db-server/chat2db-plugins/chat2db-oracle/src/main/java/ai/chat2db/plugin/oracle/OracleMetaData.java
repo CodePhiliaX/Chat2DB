@@ -19,10 +19,12 @@ import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
 public class OracleMetaData extends DefaultMetaService implements MetaData {
+
+    private static final String TABLE_DDL_SQL = "select dbms_metadata.get_ddl('TABLE','%s','%s') as sql from dual";
+
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "select dbms_metadata.get_ddl('TABLE','" + tableName + "') as sql from dual,"
-                + "user_tables where table_name = '" + tableName + "'";
+        String sql = String.format(TABLE_DDL_SQL, tableName, schemaName);
         return SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> {
             try {
                 if (resultSet.next()) {
@@ -43,7 +45,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = String.format(SELECT_TABLE_SQL, schemaName);
-        if(StringUtils.isNotBlank(tableName)){
+        if (StringUtils.isNotBlank(tableName)) {
             sql = sql + " and A.TABLE_NAME = '" + tableName + "'";
         }
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
@@ -61,6 +63,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     }
 
     private static String SELECT_TAB_COLS = "SELECT atc.column_id , atc.column_name as COLUMN_NAME, atc.data_type as DATA_TYPE , atc.data_length as DATA_LENGTH , atc.data_type_mod , atc.nullable ,  atc.data_default ,  acc.comments ,  atc.DATA_PRECISION ,  atc.DATA_SCALE , atc.CHAR_USED  FROM  all_tab_columns atc, all_col_comments acc WHERE atc.owner = acc.owner AND atc.table_name = acc.table_name AND atc.column_name = acc.column_name AND atc.owner = '%s'  AND atc.table_name = '%s'  order by atc.column_id";
+
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = String.format(SELECT_TAB_COLS, schemaName, tableName);
@@ -75,13 +78,13 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
                 tableColumn.setDefaultValue(resultSet.getString("DATA_DEFAULT"));
                 tableColumn.setComment(resultSet.getString("COMMENTS"));
-                tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE"))?1:0);
+                tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE")) ? 1 : 0);
                 tableColumn.setOrdinalPosition(resultSet.getInt("COLUMN_ID"));
                 tableColumn.setDecimalDigits(resultSet.getInt("DATA_SCALE"));
                 String charUsed = resultSet.getString("CHAR_USED");
-                if("B".equalsIgnoreCase(charUsed)){
+                if ("B".equalsIgnoreCase(charUsed)) {
                     tableColumn.setUnit("BYTE");
-                }else if("C".equalsIgnoreCase(charUsed)){
+                } else if ("C".equalsIgnoreCase(charUsed)) {
                     tableColumn.setUnit("CHAR");
                 }
                 tableColumns.add(tableColumn);
@@ -167,10 +170,10 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                         index.setType(OracleIndexTypeEnum.NORMAL.getName());
                     } else if ("BITMAP".equalsIgnoreCase(index.getType())) {
                         index.setType(OracleIndexTypeEnum.BITMAP.getName());
-                    } else if(StringUtils.isNotBlank(index.getType()) && index.getType().toUpperCase().contains("NORMAL")){
+                    } else if (StringUtils.isNotBlank(index.getType()) && index.getType().toUpperCase().contains("NORMAL")) {
                         index.setType(OracleIndexTypeEnum.NORMAL.getName());
                     }
-                    if(pkSet.contains(keyName)){
+                    if (pkSet.contains(keyName)) {
                         index.setType(OracleIndexTypeEnum.PRIMARY_KEY.getName());
                     }
                     map.put(keyName, index);
@@ -185,8 +188,8 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
         tableIndexColumn.setColumnName(resultSet.getString("Column_name"));
         String expression = resultSet.getString("COLUMN_EXPRESSION");
-        if(!StringUtils.isBlank(expression)){
-            tableIndexColumn.setColumnName(expression.replace("\"",""));
+        if (!StringUtils.isBlank(expression)) {
+            tableIndexColumn.setColumnName(expression.replace("\"", ""));
         }
         tableIndexColumn.setOrdinalPosition(resultSet.getShort("Seq_in_index"));
         tableIndexColumn.setCollation(resultSet.getString("Collation"));
