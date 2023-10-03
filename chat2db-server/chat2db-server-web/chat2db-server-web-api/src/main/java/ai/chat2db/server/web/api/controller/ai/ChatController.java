@@ -217,13 +217,12 @@ public class ChatController {
             case CHAT2DBAI:
                 return chatWithChat2dbAi(queryRequest, sseEmitter, uid);
             case RESTAI :
-                return chatWithRestAi(queryRequest, sseEmitter);
+            case FASTCHATAI:
+                return chatWithFastChatAi(queryRequest, sseEmitter, uid);
             case AZUREAI :
                 return chatWithAzureAi(queryRequest, sseEmitter, uid);
             case CLAUDEAI:
                 return chatWithClaudeAi(queryRequest, sseEmitter, uid);
-            case FASTCHATAI:
-                return chatWithFastChatAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
