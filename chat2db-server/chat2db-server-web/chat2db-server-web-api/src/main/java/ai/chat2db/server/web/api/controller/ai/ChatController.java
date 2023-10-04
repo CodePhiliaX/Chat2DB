@@ -45,6 +45,7 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.model.TableSchema;
+import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
 import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -528,7 +529,15 @@ public class ChatController {
         contentVector.add(response.getData().get(0).getEmbedding());
 
         // search embedding
-        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(contentVector, queryRequest.getDataSourceId());
+        TableSchemaRequest tableSchemaRequest = new TableSchemaRequest();
+        tableSchemaRequest.setSchemaVector(contentVector);
+        tableSchemaRequest.setDataSourceId(queryRequest.getDataSourceId());
+        String databaseName = StringUtils.isNotBlank(queryRequest.getDatabaseName()) ? queryRequest.getDatabaseName() : queryRequest.getSchemaName();
+        if (Objects.isNull(databaseName)) {
+            databaseName = "";
+        }
+        tableSchemaRequest.setDatabaseName(databaseName);
+        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
 
         List<String> schemas = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
