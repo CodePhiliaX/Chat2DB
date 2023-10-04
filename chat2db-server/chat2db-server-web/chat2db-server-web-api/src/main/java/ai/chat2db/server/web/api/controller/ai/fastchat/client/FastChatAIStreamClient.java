@@ -1,11 +1,14 @@
 package ai.chat2db.server.web.api.controller.ai.fastchat.client;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbedding;
+import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.reactivex.Single;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
@@ -16,6 +19,7 @@ import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -51,10 +55,19 @@ public class FastChatAIStreamClient {
     private String model;
 
     /**
+     * embeddingModel
+     */
+    @Getter
+    private String embeddingModel;
+
+    /**
      * okHttpClient
      */
     @Getter
     private OkHttpClient okHttpClient;
+
+    @Getter
+    private FastChatOpenAiApi fastChatOpenAiApi;
 
 
     /**
@@ -64,6 +77,7 @@ public class FastChatAIStreamClient {
         this.apiKey = builder.apiKey;
         this.apiHost = builder.apiHost;
         this.model = builder.model;
+        this.embeddingModel = builder.embeddingModel;
         if (Objects.isNull(builder.okHttpClient)) {
             builder.okHttpClient = this.okHttpClient();
         }
@@ -103,6 +117,8 @@ public class FastChatAIStreamClient {
 
         private String model;
 
+        private String embeddingModel;
+
         /**
          * OkhttpClient
          */
@@ -131,6 +147,11 @@ public class FastChatAIStreamClient {
          */
         public FastChatAIStreamClient.Builder model(String modelValue) {
             this.model = modelValue;
+            return this;
+        }
+
+        public FastChatAIStreamClient.Builder embeddingModel(String embeddingModelValue) {
+            this.embeddingModel = embeddingModelValue;
             return this;
         }
 
@@ -184,4 +205,28 @@ public class FastChatAIStreamClient {
         }
     }
 
+    /**
+     * Creates an embedding vector representing the input text.
+     *
+     * @param input
+     * @return EmbeddingResponse
+     */
+    public FastChatEmbeddingResponse embeddings(String input) {
+        FastChatEmbedding embedding = FastChatEmbedding.builder().input(input).build();
+        if (StringUtils.isNotBlank(this.embeddingModel)) {
+            embedding.setModel(this.embeddingModel);
+        }
+        return this.embeddings(embedding);
+    }
+
+    /**
+     * Creates an embedding vector representing the input text.
+     *
+     * @param embedding
+     * @return EmbeddingResponse
+     */
+    public FastChatEmbeddingResponse embeddings(FastChatEmbedding embedding) {
+        Single<FastChatEmbeddingResponse> embeddings = this.fastChatOpenAiApi.embeddings(embedding);
+        return embeddings.blockingGet();
+    }
 }
