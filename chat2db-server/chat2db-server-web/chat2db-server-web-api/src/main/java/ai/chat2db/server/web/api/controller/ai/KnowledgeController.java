@@ -102,7 +102,9 @@ public class KnowledgeController extends ChatController {
         contentVector.add(response.getData().get(0).getEmbedding());
 
         // search embedding
-        DataResult<KnowledgeResponse> result = gatewayClientService.knowledgeVectorSearch(contentVector);
+        KnowledgeRequest knowledgeRequest = new KnowledgeRequest();
+        knowledgeRequest.setContentVector(contentVector);
+        DataResult<KnowledgeResponse> result = gatewayClientService.knowledgeVectorSearch(knowledgeRequest);
         queryRequest.setPromptType(PromptType.TEXT_GENERATION.getCode());
         String prompt = queryRequest.getMessage();
         if (CollectionUtils.isNotEmpty(result.getData().getKnowledgeList())) {

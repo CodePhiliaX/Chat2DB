@@ -16,9 +16,11 @@ public class TableSchemaRequest {
 
     private Long dataSourceId;
 
-    private List<List<BigDecimal>> contentVector;
+    private String databaseName;
 
-    private List<String> sentenceList;
+    private List<java.util.List<BigDecimal>> schemaVector;
+
+    private List<String> schemaList;
 
     private Boolean deleteBeforeInsert;
 }

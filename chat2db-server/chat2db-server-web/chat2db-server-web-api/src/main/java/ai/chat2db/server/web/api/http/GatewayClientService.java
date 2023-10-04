@@ -81,15 +81,14 @@ public interface GatewayClientService {
      * @return
      */
     @Get("/api/milvus/knowledge/search")
-    DataResult<KnowledgeResponse> knowledgeVectorSearch(List<List<BigDecimal>> searchVectors);
+    DataResult<KnowledgeResponse> knowledgeVectorSearch(KnowledgeRequest searchVectors);
 
     /**
      * save table schema vector
      *
-     * @param searchVectors
-     * @param datasourceId
+     * @param request
      * @return
      */
     @Get("/api/milvus/schema/search")
-    DataResult<TableSchemaResponse> schemaVectorSearch(List<List<BigDecimal>> searchVectors, Long datasourceId);
+    DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request);
 }
