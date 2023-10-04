@@ -528,7 +528,7 @@ public class ChatController {
         contentVector.add(response.getData().get(0).getEmbedding());
 
         // search embedding
-        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(contentVector);
+        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(contentVector, queryRequest.getDataSourceId());
 
         List<String> schemas = Lists.newArrayList();
         if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {

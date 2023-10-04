@@ -87,8 +87,9 @@ public interface GatewayClientService {
      * save table schema vector
      *
      * @param searchVectors
+     * @param datasourceId
      * @return
      */
     @Get("/api/milvus/schema/search")
-    DataResult<TableSchemaResponse> schemaVectorSearch(List<List<BigDecimal>> searchVectors);
+    DataResult<TableSchemaResponse> schemaVectorSearch(List<List<BigDecimal>> searchVectors, Long datasourceId);
 }

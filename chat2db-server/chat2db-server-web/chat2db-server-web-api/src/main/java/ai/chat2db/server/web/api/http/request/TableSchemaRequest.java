@@ -19,4 +19,6 @@ public class TableSchemaRequest {
     private List<List<BigDecimal>> contentVector;
 
     private List<String> sentenceList;
+
+    private Boolean deleteBeforeInsert;
 }
