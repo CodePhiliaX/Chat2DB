@@ -47,16 +47,16 @@ public class TextGenerationController extends ChatController {
     public SseEmitter prompt(ChatQueryRequest queryRequest, @RequestHeader Map<String, String> headers)
             throws Exception {
         queryRequest.setPromptType(PromptType.TEXT_GENERATION.getCode());
+
         String promptTemplate = "### Instructions:\n" +
-                "Your task is generate a SQL query according to the prompt, given a %s database schema.\n" +
+                "Your task is generate a SQL query according to the prompt %s.\n" +
                 "Adhere to these rules:\n" +
                 "- **Deliberately go through the prompt and database schema word by word** to appropriately answer the question\n" +
                 "- **Use Table Aliases** to prevent ambiguity. For example, `SELECT table1.col1, table2.col1 FROM table1 JOIN table2 ON table1.id = table2.id`.\n" +
                 "\n" +
                 "### Input:\n" +
                 "Generate a SQL query according to the prompt `%s`.\n" +
-                "This query will run on a database whose schema is represented in this string:\n" +
-                "{%s}\n" +
+                "%s\n" +
                 "\n" +
                 "### Response:\n" +
                 "Based on your instructions, here is the SQL query I have generated to complete the prompt `{%s}`:\n" +
@@ -65,6 +65,13 @@ public class TextGenerationController extends ChatController {
         // query database schema info
         String databaseType = queryDatabaseType(queryRequest);
         String schemas = queryDatabaseSchema(queryRequest);
+        if (StringUtils.isNotBlank(schemas)) {
+            databaseType = String.format(", given a %s database schema", databaseType);
+            schemas = String.format("This query will run on a database whose schema is represented in this string:\n$s", schemas);
+        } else  {
+            databaseType = "";
+            schemas = "";
+        }
         String prompt = String.format(promptTemplate, databaseType, queryRequest.getMessage(), schemas, queryRequest.getMessage());
         queryRequest.setMessage(prompt);
 
