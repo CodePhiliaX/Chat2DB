@@ -1,6 +1,7 @@
 package ai.chat2db.server.web.api.controller.ai;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,14 +43,19 @@ import ai.chat2db.server.web.api.controller.ai.rest.listener.RestAIEventSourceLi
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
+import ai.chat2db.server.web.api.http.GatewayClientService;
+import ai.chat2db.server.web.api.http.model.TableSchema;
+import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.spi.model.TableColumn;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unfbx.chatgpt.entity.chat.Message;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -90,6 +96,9 @@ public class ChatController {
 
     @Value("${chatgpt.version}")
     private String gptVersion;
+
+    @Resource
+    private GatewayClientService gatewayClientService;
 
     /**
      * chat的超时时间
@@ -459,11 +468,7 @@ public class ChatController {
         }
 
         // 查询schema信息
-        DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
-        String dataSourceType = dataResult.getData().getType();
-        if (StringUtils.isBlank(dataSourceType)) {
-            dataSourceType = "MYSQL";
-        }
+        String dataSourceType = queryDatabaseType(queryRequest);
         TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
         Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
         List<String> tableSchemas = tableColumns.entrySet().stream().map(
@@ -490,6 +495,48 @@ public class ChatController {
                 break;
         }
         return schemaProperty;
+    }
+
+    /**
+     * query database type
+     *
+     * @param queryRequest
+     * @return
+     */
+    public String queryDatabaseType(ChatQueryRequest queryRequest) {
+        // 查询schema信息
+        DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
+        String dataSourceType = dataResult.getData().getType();
+        if (StringUtils.isBlank(dataSourceType)) {
+            dataSourceType = "MYSQL";
+        }
+        return dataSourceType;
+    }
+
+
+    /**
+     * query database schema
+     *
+     * @param queryRequest
+     * @return
+     * @throws IOException
+     */
+    public String queryDatabaseSchema(ChatQueryRequest queryRequest) throws IOException {
+        // request embedding
+        FastChatEmbeddingResponse response = distributeAIEmbedding(queryRequest.getMessage());
+        List<List<BigDecimal>> contentVector = new ArrayList<>();
+        contentVector.add(response.getData().get(0).getEmbedding());
+
+        // search embedding
+        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(contentVector);
+
+        List<String> schemas = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
+            for(TableSchema data: result.getData().getTableSchemas()){
+                schemas.add(data.getTableSchema());
+            }
+        }
+        return JSON.toJSONString(schemas);
     }
 
     /**

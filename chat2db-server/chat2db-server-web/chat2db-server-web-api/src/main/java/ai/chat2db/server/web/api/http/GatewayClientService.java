@@ -4,10 +4,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
-import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
-import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
-import ai.chat2db.server.web.api.http.response.KnowledgeResponse;
-import ai.chat2db.server.web.api.http.response.QrCodeResponse;
+import ai.chat2db.server.web.api.http.response.*;
 import com.dtflys.forest.annotation.*;
 
 import java.math.BigDecimal;
@@ -93,5 +90,5 @@ public interface GatewayClientService {
      * @return
      */
     @Get("/api/milvus/schema/search")
-    DataResult<KnowledgeResponse> schemaVectorSearch(List<List<BigDecimal>> searchVectors);
+    DataResult<TableSchemaResponse> schemaVectorSearch(List<List<BigDecimal>> searchVectors);
 }
