@@ -35,9 +35,9 @@ public enum PromptType implements BaseEnum<String> {
     SQL_2_SQL("进行SQL转换"),
 
     /**
-     * knowledge qa
+     * text generation
      */
-    QUESTION_ANSWERING("问答"),
+    TEXT_GENERATION("文本生成"),
     ;
 
     final String description;
