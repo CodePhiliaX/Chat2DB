@@ -454,7 +454,7 @@ public class ChatController {
      * @return
      */
     private String buildPrompt(ChatQueryRequest queryRequest) {
-        if (PromptType.QUESTION_ANSWERING.getCode().equals(queryRequest.getPromptType())) {
+        if (PromptType.TEXT_GENERATION.getCode().equals(queryRequest.getPromptType())) {
             return queryRequest.getMessage();
         }
 

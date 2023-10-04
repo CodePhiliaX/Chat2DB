@@ -6,6 +6,7 @@ import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.DocParser.AbstractParser;
 import ai.chat2db.server.web.api.controller.ai.DocParser.PdfParse;
+import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.http.GatewayClientService;
@@ -102,7 +103,7 @@ public class KnowledgeController extends ChatController {
 
         // search embedding
         DataResult<KnowledgeResponse> result = gatewayClientService.knowledgeVectorSearch(contentVector);
-
+        queryRequest.setPromptType(PromptType.TEXT_GENERATION.getCode());
         String prompt = queryRequest.getMessage();
         if (CollectionUtils.isNotEmpty(result.getData().getKnowledgeList())) {
             List<String> contents = new ArrayList<>();
