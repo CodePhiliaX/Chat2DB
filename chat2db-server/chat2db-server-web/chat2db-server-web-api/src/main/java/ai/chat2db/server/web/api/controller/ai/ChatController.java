@@ -33,6 +33,7 @@ import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
@@ -199,7 +200,7 @@ public class ChatController {
      *
      * @return
      */
-    private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+    public SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
@@ -453,6 +454,10 @@ public class ChatController {
      * @return
      */
     private String buildPrompt(ChatQueryRequest queryRequest) {
+        if (PromptType.QUESTION_ANSWERING.getCode().equals(queryRequest.getPromptType())) {
+            return queryRequest.getMessage();
+        }
+
         // 查询schema信息
         DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
         String dataSourceType = dataResult.getData().getType();
@@ -485,6 +490,46 @@ public class ChatController {
                 break;
         }
         return schemaProperty;
+    }
+
+    /**
+     * distribute embedding with different AI
+     *
+     * @return
+     */
+    public FastChatEmbeddingResponse distributeAIEmbedding(String input) throws IOException {
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        if (Objects.nonNull(config)) {
+            aiSqlSource = config.getContent();
+        }
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+            case CHAT2DBAI:
+            case RESTAI :
+            case FASTCHATAI:
+            case AZUREAI :
+            case CLAUDEAI:
+                return distributeAIEmbedding(input);
+        }
+        return distributeAIEmbedding(input);
+    }
+
+    /**
+     * embedding with fast chat openai
+     *
+     * @param input
+     * @return
+     * @throws IOException
+     */
+    private FastChatEmbeddingResponse embeddingWithFastChatAi(String input) throws IOException {
+        FastChatEmbeddingResponse response = FastChatAIClient.getInstance().embeddings(input);
+        return response;
     }
 
     ///**

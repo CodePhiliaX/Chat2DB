@@ -33,6 +33,11 @@ public enum PromptType implements BaseEnum<String> {
      * SQL转换
      */
     SQL_2_SQL("进行SQL转换"),
+
+    /**
+     * knowledge qa
+     */
+    QUESTION_ANSWERING("问答"),
     ;
 
     final String description;

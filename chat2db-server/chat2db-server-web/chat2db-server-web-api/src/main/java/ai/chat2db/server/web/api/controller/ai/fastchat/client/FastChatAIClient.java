@@ -29,6 +29,11 @@ public class FastChatAIClient {
      */
     public static final String FASTCHAT_MODEL= "fastchat.model";
 
+    /**
+     * FASTCHAT OPENAI embedding model
+     */
+    public static final String FASTCHAT_embedding_MODEL= "fastchat.embedding.model";
+
     private static FastChatAIStreamClient FASTCHAT_AI_CLIENT;
 
 
