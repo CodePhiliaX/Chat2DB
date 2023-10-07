@@ -1,8 +1,10 @@
 package ai.chat2db.spi.jdbc;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -105,4 +107,12 @@ public class DefaultMetaService implements MetaData {
     public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
         return null;
     }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).collect(Collectors.joining("."));
+    }
+
+
+
 }
