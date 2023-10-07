@@ -49,12 +49,32 @@ export default defineConfig({
   targets: {
     chrome: 80,
   },
+  links: [{
+    rel: 'manifest',
+    href: 'manifest.json',
+  }],
   headScripts: [
     `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    `if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker
+          .register("sw.js")
+          .then(res => console.log("service worker registered"))
+          .catch(err => console.log("service worker not registered", err));
+      })
+    }`,
+    `var deferredPrompt = null;
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+    window.addEventListener("appinstalled", () => {
+      deferredPrompt = null;
+    })`,
     {
       src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61',
       async: true,
