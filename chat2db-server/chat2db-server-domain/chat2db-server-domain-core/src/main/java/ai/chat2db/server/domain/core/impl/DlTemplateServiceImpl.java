@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
+import ai.chat2db.spi.MetaData;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
@@ -52,12 +54,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return ListResult.empty();
         }
         // 解析sql
-        SqlAnalyseParam sqlAnalyseParam = new SqlAnalyseParam();
-        sqlAnalyseParam.setDataSourceId(param.getDataSourceId());
-        sqlAnalyseParam.setSql(param.getSql());
+        RemoveSpecialGO(param);
         DbType dbType =
-            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
+
+
         if (CollectionUtils.isEmpty(sqlList)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
@@ -76,6 +78,16 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
         return listResult;
     }
+
+    private void RemoveSpecialGO(DlExecuteParam param) {
+        String sql = param.getSql();
+        if (StringUtils.isBlank(sql)) {
+            return;
+        }
+        sql = sql.replaceAll("(?i)\\s*go\\s*", ";");
+        param.setSql(sql);
+    }
+
 
     private ExecuteResult executeSQL(String originalSql, DbType dbType, DlExecuteParam param) {
         int pageNo = 1;
@@ -103,12 +115,13 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         ExecuteResult executeResult = execute(originalSql, offset, count);
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
+        executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
 
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
             executeResult.setPageSize(pageSize);
             executeResult.setHasNextPage(
-                CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
+                    CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
         } else {
             executeResult.setPageNo(pageNo);
             executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
@@ -118,9 +131,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         // Splice row numbers
         List<Header> newHeaderList = new ArrayList<>();
         newHeaderList.add(Header.builder()
-            .name(I18nUtils.getMessage("sqlResult.rowNumber"))
-            .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                .getCode()).build());
+                .name(I18nUtils.getMessage("sqlResult.rowNumber"))
+                .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
+                        .getCode()).build());
         if (executeResult.getHeaderList() != null) {
             newHeaderList.addAll(executeResult.getHeaderList());
         }
@@ -158,7 +171,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         DbType dbType =
-            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
         // 解析sql分页
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
@@ -173,12 +186,64 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         String count = EasyCollectionUtils.stream(executeResult.getDataList())
-            .findFirst()
-            .orElse(Collections.emptyList())
-            .stream()
-            .findFirst()
-            .orElse("0");
+                .findFirst()
+                .orElse(Collections.emptyList())
+                .stream()
+                .findFirst()
+                .orElse("0");
         return DataResult.of(Long.valueOf(count));
+    }
+
+    @Override
+    public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
+        StringBuilder stringBuilder = new StringBuilder();
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        for (int i = 0; i < param.getDataList().size(); i++) {
+            List<String> row = param.getDataList().get(i);
+            if (CollectionUtils.isEmpty(row)) {
+                continue;
+            }
+            List<String> odlRow = param.getOldDataList().get(i);
+
+            String sql = getUpdateSql(param, row, odlRow, metaSchema);
+            stringBuilder.append(sql+";\n");
+        }
+        return DataResult.of(stringBuilder.toString());
+    }
+
+    private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema) {
+        StringBuilder script = new StringBuilder();
+        script.append("UPDATE ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
+                .append(" set ");
+        for (int i = 0; i < row.size(); i++) {
+            String newValue = row.get(i);
+            String oldValue = odlRow.get(i);
+            if (StringUtils.equals(newValue, oldValue)) {
+                continue;
+            }
+            Header header = param.getHeaderList().get(i);
+            String newSqlValue = SqlUtils.getSqlValue(newValue, header.getDataType());
+            script.append(metaSchema.getMetaDataName(header.getName()))
+                    .append(" = ")
+                    .append(newSqlValue)
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(" where ");
+        for (int i = 0; i < odlRow.size(); i++) {
+            String oldValue = odlRow.get(i);
+            if (oldValue == null) {
+                continue;
+            }
+            Header header = param.getHeaderList().get(i);
+            script.append(metaSchema.getMetaDataName(header.getName()))
+                    .append(" = ")
+                    .append(SqlUtils.getSqlValue(oldValue, header.getDataType()))
+                    .append(" and ");
+        }
+
+        script.delete(script.length() - 4, script.length());
+        return script.toString();
     }
 
     private ExecuteResult execute(String sql, Integer offset, Integer count) {
@@ -188,10 +253,10 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()
-                .sql(sql)
-                .success(Boolean.FALSE)
-                .message(e.getMessage())
-                .build();
+                    .sql(sql)
+                    .success(Boolean.FALSE)
+                    .message(e.getMessage())
+                    .build();
         }
         return executeResult;
     }
