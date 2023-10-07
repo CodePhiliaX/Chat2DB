@@ -84,5 +84,6 @@ export default {
   'common.tips.createSuccess': '创建成功',
   'common.text.action': '操作',
   'common.button.add': '添加',
+  'common.text.errorMessage': '错误信息',
   
 };

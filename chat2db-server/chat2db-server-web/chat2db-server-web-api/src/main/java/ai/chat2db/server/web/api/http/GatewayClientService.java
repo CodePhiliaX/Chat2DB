@@ -1,13 +1,14 @@
 package ai.chat2db.server.web.api.http;
 
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
-import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
-import ai.chat2db.server.web.api.http.response.QrCodeResponse;
-import com.dtflys.forest.annotation.BaseRequest;
-import com.dtflys.forest.annotation.Get;
-import com.dtflys.forest.annotation.Query;
-import com.dtflys.forest.annotation.Var;
+import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
+import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.response.*;
+import com.dtflys.forest.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Gateway 的http 服务
@@ -54,4 +55,40 @@ public interface GatewayClientService {
     @Get("/api/client/inviteQrCode")
     DataResult<InviteQrCodeResponse> getInviteQrCode(@Query("apiKey") String apiKey);
 
+
+    /**
+     * save knowledge vector
+     *
+     * @param request
+     * @return
+     */
+    @Post("/api/milvus/knowledge/save")
+    ActionResult knowledgeVectorSave(KnowledgeRequest request);
+
+    /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Post("/api/milvus/schema/save")
+    ActionResult schemaVectorSave(TableSchemaRequest request);
+
+    /**
+     * save knowledge vector
+     *
+     * @param searchVectors
+     * @return
+     */
+    @Get("/api/milvus/knowledge/search")
+    DataResult<KnowledgeResponse> knowledgeVectorSearch(KnowledgeRequest searchVectors);
+
+    /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Get("/api/milvus/schema/search")
+    DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request);
 }

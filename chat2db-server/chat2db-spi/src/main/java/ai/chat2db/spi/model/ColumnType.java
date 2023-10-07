@@ -19,4 +19,6 @@ public class ColumnType {
     private boolean supportExtent;
 
     private boolean supportValue;
+
+    private boolean supportUnit;
 }

@@ -125,7 +125,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
 
     MysqlColumnTypeEnum(String dataTypeName, boolean supportLength, boolean supportScale, boolean supportNullable, boolean supportAutoIncrement, boolean supportCharset, boolean supportCollation, boolean supportComments, boolean supportDefaultValue, boolean supportExtent,boolean supportValue) {
-        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent,supportValue);
+        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent,supportValue,false);
     }
 
     private static Map<String, MysqlColumnTypeEnum> COLUMN_TYPE_MAP = Maps.newHashMap();
@@ -227,6 +227,15 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         if(!type.getColumnType().isSupportDefaultValue() || StringUtils.isEmpty(column.getDefaultValue())){
             return "";
         }
+
+        if("EMPTY_STRING".equalsIgnoreCase(column.getDefaultValue().trim())){
+            return StringUtils.join("DEFAULT ''");
+        }
+
+        if("NULL".equalsIgnoreCase(column.getDefaultValue().trim())){
+            return StringUtils.join("DEFAULT NULL");
+        }
+
         if(Arrays.asList(CHAR,VARCHAR,BINARY,VARBINARY, SET,ENUM).contains(type)){
             return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
         }
