@@ -79,6 +79,9 @@ public class OracleSqlBuilder implements SqlBuilder {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
                 OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(tableColumn.getColumnType());
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
+                if(StringUtils.isNotBlank(tableColumn.getComment())){
+                    script.append("\n").append(buildComment(tableColumn)).append(";\n");
+                }
             }
         }
 

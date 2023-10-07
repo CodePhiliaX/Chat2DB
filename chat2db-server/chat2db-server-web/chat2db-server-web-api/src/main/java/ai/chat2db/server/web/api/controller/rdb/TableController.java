@@ -174,9 +174,11 @@ public class TableController {
             tableIndex.setTableName(table.getName());
             tableIndex.setDatabaseName(request.getDatabaseName());
         }
+
         return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()),table)
                 .map(rdbWebConverter::dto2vo);
     }
+
 
 
     /**
