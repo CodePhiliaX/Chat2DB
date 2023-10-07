@@ -168,4 +168,7 @@ public class TableColumn {
 
     private String value;
 
+
+    private String unit;
+
 }
