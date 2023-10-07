@@ -281,4 +281,9 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 .collations(Lists.newArrayList())
                 .build();
     }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
 }

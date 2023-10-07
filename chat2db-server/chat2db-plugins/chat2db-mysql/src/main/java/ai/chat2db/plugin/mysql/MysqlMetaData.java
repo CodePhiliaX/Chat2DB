@@ -125,7 +125,7 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = String.format(SELECT_TABLE_COLUMNS,  databaseName,  tableName);
+        String sql = String.format(SELECT_TABLE_COLUMNS, databaseName, tableName);
         List<TableColumn> tableColumns = new ArrayList<>();
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
@@ -146,20 +146,20 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
                 column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
                 column.setCollationName(resultSet.getString("COLLATION_NAME"));
-                setColumnSize(column,resultSet.getString("COLUMN_TYPE"));
+                setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
                 tableColumns.add(column);
             }
             return tableColumns;
         });
     }
 
-    private void setColumnSize(TableColumn column,String columnType){
+    private void setColumnSize(TableColumn column, String columnType) {
         try {
             if (columnType.contains("(")) {
                 String size = columnType.substring(columnType.indexOf("(") + 1, columnType.indexOf(")"));
-                if("SET".equalsIgnoreCase(column.getColumnType())|| "ENUM".equalsIgnoreCase(column.getColumnType())){
+                if ("SET".equalsIgnoreCase(column.getColumnType()) || "ENUM".equalsIgnoreCase(column.getColumnType())) {
                     column.setValue(size);
-                }else {
+                } else {
                     if (size.contains(",")) {
                         String[] sizes = size.split(",");
                         if (StringUtils.isNotBlank(sizes[0])) {
@@ -173,10 +173,9 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
-
 
 
     private static String VIEW_SQL
@@ -270,5 +269,10 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 .charsets(MysqlCharsetEnum.getCharsets())
                 .collations(MysqlCollationEnum.getCollations())
                 .build();
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).map(name -> "`" + name + "`").collect(Collectors.joining("."));
     }
 }

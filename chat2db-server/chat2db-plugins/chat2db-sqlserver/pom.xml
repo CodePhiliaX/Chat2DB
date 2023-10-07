@@ -17,6 +17,12 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-spi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>11.2.1.jre17</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -86,6 +86,7 @@ public class TableServiceImpl implements TableService {
 
     @Override
     public ListResult<Sql> buildSql(Table oldTable, Table newTable) {
+        initOldTable(oldTable, newTable);
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         List<Sql> sqls = new ArrayList<>();
         if (oldTable == null) {
@@ -94,6 +95,19 @@ public class TableServiceImpl implements TableService {
             sqls.add(Sql.builder().sql(sqlBuilder.buildModifyTaleSql(oldTable, newTable)).build());
         }
         return ListResult.of(sqls);
+    }
+
+    private void initOldTable(Table oldTable, Table newTable) {
+        if (oldTable == null) {
+            return;
+        }
+        Map<String, TableColumn> columnMap = oldTable.getColumnList().stream().collect(Collectors.toMap(TableColumn::getName, Function.identity()));
+        for (TableColumn newColumn : newTable.getColumnList()) {
+            TableColumn oldColumn = columnMap.get(newColumn.getName());
+            if (oldColumn != null) {
+                newColumn.setOldColumn(oldColumn);
+            }
+        }
     }
 
     @Override
