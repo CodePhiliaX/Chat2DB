@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.spi.MetaData;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
@@ -15,9 +15,6 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.ParserException;
 
-import ai.chat2db.server.domain.api.param.DlCountParam;
-import ai.chat2db.server.domain.api.param.DlExecuteParam;
-import ai.chat2db.server.domain.api.param.SqlAnalyseParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.excption.BusinessException;
@@ -116,6 +113,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
         executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
+        executeResult.setTableName(SqlUtils.getTableName(originalSql,dbType));
 
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
@@ -199,17 +197,64 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         StringBuilder stringBuilder = new StringBuilder();
         MetaData metaSchema = Chat2DBContext.getMetaData();
         for (int i = 0; i < param.getOperations().size(); i++) {
-            List<String> row = param.getOperations().get(i).getDataList();
-            if (CollectionUtils.isEmpty(row)) {
-                continue;
-            }
-            List<String> odlRow = param.getOperations().get(i).getOldDataList();
+            SelectResultOperation operation = param.getOperations().get(i);
 
-            String sql = getUpdateSql(param, row, odlRow, metaSchema);
+            List<String> row = operation.getDataList();
+            List<String> odlRow = operation.getOldDataList();
+            String sql = "";
+            if("UPDATE".equalsIgnoreCase(operation.getType())){
+                sql = getUpdateSql(param, row, odlRow, metaSchema);
+            }else if("CREATE".equalsIgnoreCase(operation.getType())){
+                sql = getInsertSql(param, row,metaSchema);
+
+            }else if("DELETE".equalsIgnoreCase(operation.getType())){
+                sql= getDeleteSql(param, odlRow,metaSchema);
+            }
+
             stringBuilder.append(sql+";\n");
         }
         return DataResult.of(stringBuilder.toString());
     }
+
+    private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
+        StringBuilder script = new StringBuilder();
+        script.append("DELETE FROM ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
+                .append(" where ");
+        for (int i = 0; i < row.size(); i++) {
+            String newValue = row.get(i);
+            Header header = param.getHeaderList().get(i);
+            script.append(metaSchema.getMetaDataName(header.getName()))
+                    .append(" = ")
+                    .append(SqlUtils.getSqlValue(newValue, header.getDataType()))
+                    .append(" and ");
+        }
+        script.delete(script.length() - 4, script.length());
+        return script.toString();
+    }
+
+    private String getInsertSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
+        StringBuilder script = new StringBuilder();
+        script.append("INSERT INTO ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
+                .append(" (");
+        for (int i = 0; i < row.size(); i++) {
+            Header header = param.getHeaderList().get(i);
+            script.append(metaSchema.getMetaDataName(header.getName()))
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(") VALUES (");
+        for (int i = 0; i < row.size(); i++) {
+            String newValue = row.get(i);
+            Header header = param.getHeaderList().get(i);
+            script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(")");
+        return script.toString();
+
+    }
+
 
     private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema) {
         StringBuilder script = new StringBuilder();
