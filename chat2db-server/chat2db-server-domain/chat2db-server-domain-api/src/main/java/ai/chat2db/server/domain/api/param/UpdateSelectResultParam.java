@@ -44,13 +44,8 @@ public class UpdateSelectResultParam {
      * 修改后数据的列表
      */
     @NotEmpty
-    private List<List<String>> dataList;
+    private List<SelectResultOperation> operations;
 
-    /**
-     * 数据的列表
-     */
-    @NotEmpty
-    private List<List<String>> oldDataList;
 
     /**
      * 表名
