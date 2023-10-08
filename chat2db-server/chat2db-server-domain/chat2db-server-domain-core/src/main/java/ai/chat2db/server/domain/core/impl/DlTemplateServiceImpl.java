@@ -198,12 +198,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
         StringBuilder stringBuilder = new StringBuilder();
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        for (int i = 0; i < param.getDataList().size(); i++) {
-            List<String> row = param.getDataList().get(i);
+        for (int i = 0; i < param.getOperations().size(); i++) {
+            List<String> row = param.getOperations().get(i).getDataList();
             if (CollectionUtils.isEmpty(row)) {
                 continue;
             }
-            List<String> odlRow = param.getOldDataList().get(i);
+            List<String> odlRow = param.getOperations().get(i).getOldDataList();
 
             String sql = getUpdateSql(param, row, odlRow, metaSchema);
             stringBuilder.append(sql+";\n");
