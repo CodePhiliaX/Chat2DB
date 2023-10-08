@@ -23,7 +23,7 @@ interface IProps {
   items: ITabItem[] | undefined;
   activeKey?: number | string;
   onChange?: (key: string | number | undefined) => void;
-  onEdit?: (action: 'add' | 'remove', data?: ITabItem) => void;
+  onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
   hideAdd?: boolean;
   type?: 'line';
   editableNameOnBlur?: (option: ITabItem) => void;
@@ -66,7 +66,7 @@ export default memo<IProps>((props) => {
     }
     changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
-    onEdit?.('remove', data);
+    onEdit?.('remove', data, newInternalTabs);
   }
 
   function changeTab(key: string | number | undefined) {

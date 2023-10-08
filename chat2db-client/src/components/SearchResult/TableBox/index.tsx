@@ -1,22 +1,24 @@
-import React, { useMemo, useState } from 'react';
-import { Button, Dropdown, MenuProps, message, Modal, Space } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
 import i18n from '@/i18n';
+import { CRUD } from '@/constants';
 import { TableDataType } from '@/constants/table';
 import { IManageResultData, IResultConfig } from '@/typings/database';
+import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { compareStrings } from '@/utils/sort';
 import { DownOutlined } from '@ant-design/icons';
-import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { copy } from '@/utils';
 import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import styles from './index.less';
-import { IExportParams } from '@/service/sql';
+import sqlService, { IExportParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
+import lodash from 'lodash';
 
 interface ITableProps {
   className?: string;
@@ -30,6 +32,13 @@ interface ITableProps {
 interface IViewTableCellData {
   name: string;
   value: any;
+}
+
+interface IUpdateData {
+  oldDataList?: string[];
+  dataList?: string[];
+  type: CRUD;
+  index: number;
 }
 
 // const defaultResultConfig: IResultConfig = {
@@ -51,6 +60,8 @@ const SupportBaseTable: any = styled(BaseTable)`
     --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
     --border-color: var(--color-border-secondary);
+    --cell-padding: 0px 4px;
+    --row-height: 32px;
   }
 `;
 
@@ -61,7 +72,11 @@ export default function TableBox(props: ITableProps) {
   const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
-  // const [pageConfig, setPageConfig] = useState<IResultConfig>(defaultResultConfig);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [editingCell, setEditingCell] = useState<[number, number] | null>(null);
+  const [editingData, setEditingData] = useState<string>('');
+  const [curOperationRowIndex, setCurOperationRowIndex] = useState<number>(-1);
+  const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -121,12 +136,12 @@ export default function TableBox(props: ITableProps) {
     [headerList],
   );
 
-  function viewTableCell(data: IViewTableCellData) {
-    setViewTableCellData(data);
+  function viewTableCell(cellData: IViewTableCellData) {
+    setViewTableCellData(cellData);
   }
 
-  function copyTableCell(data: IViewTableCellData) {
-    copy(data?.value || viewTableCellData?.value);
+  function copyTableCell(cellData: IViewTableCellData) {
+    copy(cellData?.value || viewTableCellData?.value);
     messageApi.success(i18n('common.button.copySuccessfully'));
   }
 
@@ -134,70 +149,122 @@ export default function TableBox(props: ITableProps) {
     setViewTableCellData(null);
   }
 
-  const columns: ArtColumn[] = useMemo(
-    () =>
-      (headerList || []).map((item, colIndex) => {
-        const { dataType, name } = item;
-        const isNumber = dataType === TableDataType.NUMERIC;
-        const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
-        if (isNumericalOrder) {
-          return {
-            code: `${preCode}${colIndex}No.`,
-            name: 'No.',
-            key: name,
-            lock: true,
-            width: 48,
-            features: { sortable: compareStrings },
-            render: (value: any) => {
-              return (
-                <div className={styles.tableItem}>
-                  <div>{value}</div>
-                </div>
-              );
-            },
-          };
-        }
+  const handleDoubleClickTableItem = (colIndex, rowIndex, value) => {
+    setEditingData(value);
+    setEditingCell([colIndex, rowIndex]);
+  };
+
+  // 编辑数据失焦
+  const editDataOnBlur = () => {
+    setEditingCell(null);
+    setEditingData('');
+    const [colIndex, rowIndex] = editingCell!;
+    const newTableData = lodash.cloneDeep(tableData);
+    newTableData[rowIndex][`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
+    setTableData(newTableData);
+    // 如果已经存在该行的更新数据，则更新，否则新增
+    const index = updateData.findIndex((item) => item.index === rowIndex);
+    if (index === -1) {
+      setUpdateData([
+        ...updateData,
+        {
+          type: CRUD.UPDATE,
+          oldDataList: dataList[rowIndex],
+          dataList: Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]),
+          index: rowIndex,
+        },
+      ]);
+    } else {
+      updateData[index] = {
+        ...updateData[index],
+        dataList: Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]),
+      };
+      setUpdateData([...updateData]);
+    }
+  };
+
+  const renderTableCellValue = (value) => {
+    if (value === null) {
+      return '<null>';
+    } else {
+      return value;
+    }
+  };
+
+  const columns: ArtColumn[] = useMemo(() => {
+    return (headerList || []).map((item, colIndex) => {
+      const { dataType, name } = item;
+      const isNumber = dataType === TableDataType.NUMERIC;
+      const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
+      if (isNumericalOrder) {
         return {
-          code: `${preCode}${colIndex}${name}`,
-          name: name,
+          code: `${preCode}${colIndex}No.`,
+          name: 'No.',
           key: name,
-          width: 120,
+          lock: true,
+          width: 48,
+          features: { sortable: compareStrings },
           render: (value: any) => {
             return (
               <div className={styles.tableItem}>
-                {value}
-                <div className={styles.tableHoverBox}>
-                  <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-                  <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
-                </div>
+                <div className={styles.tableItemNo}>{value}</div>
               </div>
             );
           },
-          // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
-          features: { sortable: isNumber ? compareStrings : true },
         };
-      }),
-    [headerList],
-  );
+      }
+      return {
+        code: `${preCode}${colIndex}${name}`,
+        name: name,
+        key: name,
+        width: 120,
+        render: (value: any, a, rowIndex) => {
+          return (
+            <div
+              className={styles.tableItem}
+              onDoubleClick={handleDoubleClickTableItem.bind(null, colIndex, rowIndex, value)}
+            >
+              {editingCell?.join(',') === `${colIndex},${rowIndex}` ? (
+                <Input
+                  value={editingData}
+                  onChange={(e) => {
+                    setEditingData(e.target.value);
+                  }}
+                  onBlur={editDataOnBlur}
+                />
+              ) : (
+                <>
+                  {renderTableCellValue(value)}
+                  <div className={styles.tableHoverBox}>
+                    <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
+                    <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        },
+        // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
+        features: { sortable: isNumber ? compareStrings : true },
+      };
+    });
+  }, [headerList, editingCell, editingData]);
 
-  const tableData = useMemo(() => {
+  useEffect(() => {
     if (!columns?.length) {
-      return [];
+      setTableData([]);
     } else {
-      return (dataList || []).map((item) => {
+      const newData = (dataList || []).map((item) => {
         const rowData: any = {};
         item.map((i: string | null, colIndex: number) => {
           const name = `${preCode}${colIndex}${columns[colIndex].name}`;
-          if (i === null) {
-            rowData[name] = '<null>';
-          } else {
-            rowData[name] = i;
-          }
+          rowData[name] = i;
         });
         return rowData;
       });
+      setTableData(newData);
     }
-  }, [dataList, columns]);
+  }, [dataList]);
 
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
@@ -215,9 +282,6 @@ export default function TableBox(props: ITableProps) {
         fallbackSize: 120,
         minSize: 60,
         maxSize: 1080,
-        // handleBackground: '#ddd',
-        // handleHoverBackground: '#aaa',
-        // handleActiveBackground: '#89bff7',
       }),
     );
 
@@ -233,6 +297,61 @@ export default function TableBox(props: ITableProps) {
     if (props.onSearchTotal) {
       return await props.onSearchTotal();
     }
+  };
+
+  const handelCreateData = () => {
+    const newTableData = lodash.cloneDeep(tableData);
+    const newData = {};
+    columns.forEach((item, index) => {
+      if (item.name === 'No.') {
+        newData[`${preCode}${index}${item.name}`] = newTableData.length + 1;
+      } else {
+        newData[`${preCode}${index}${item.name}`] = null;
+      }
+    });
+    newTableData.push(newData);
+    setTableData(newTableData);
+    setUpdateData([
+      ...updateData,
+      {
+        type: CRUD.CREATE,
+        dataList: Object.keys(newData).map((item) => newData[item]),
+        index: newTableData.length,
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    console.log('updateData', updateData);
+  }, [updateData]);
+
+  const handelDeleteData = () => {
+    const newTableData = lodash.cloneDeep(tableData);
+    newTableData.splice(curOperationRowIndex, 1);
+    setTableData(newTableData);
+    setCurOperationRowIndex(-1);
+  };
+
+  // 查看更新数据的sql
+  const handelViewSql = () => {
+    if (!updateData.length) {
+      return;
+    }
+    console.log('handelViewSql');
+  };
+
+  // 更新数据的sql
+  const handelUpdateSubmit = () => {
+    if (!updateData.length) {
+      return;
+    }
+    const params = {
+      ...props.executeSqlParams,
+      operations: updateData,
+    };
+    sqlService.getExecuteUpdateSql(params).then((res) => {
+      console.log('res', res);
+    });
   };
 
   const renderContent = () => {
@@ -263,21 +382,67 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-
-            <Dropdown menu={{ items }}>
-              <Button>
-                <Space>
+            <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
+              <div onClick={handelCreateData} className={classnames(styles.createDataBar, styles.editTableDataBarItem)}>
+                <Iconfont code="&#xe61b;" />
+              </div>
+              <div
+                onClick={handelDeleteData}
+                className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
+                  [styles.disableBar]: curOperationRowIndex === -1,
+                })}
+              >
+                <Iconfont code="&#xe644;" />
+              </div>
+              <div
+                onClick={handelViewSql}
+                className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
+                  [styles.disableBar]: !updateData.length,
+                })}
+              >
+                <Iconfont code="&#xe651;" />
+              </div>
+              <div
+                onClick={handelUpdateSubmit}
+                className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
+                  [styles.disableBar]: !updateData.length,
+                })}
+              >
+                <Iconfont code="&#xe650;" />
+              </div>
+            </div>
+            <div className={styles.toolBarRight}>
+              <Dropdown menu={{ items }}>
+                <Space className={styles.exportBar}>
                   {i18n('common.text.export')}
                   <DownOutlined />
                 </Space>
-              </Button>
-            </Dropdown>
+              </Dropdown>
+            </div>
           </div>
           <SupportBaseTable
             className={classnames('supportBaseTable', props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
             stickyTop={31}
+            getRowProps={(record, rowIndex) => {
+              return {
+                style:
+                  rowIndex === curOperationRowIndex
+                    ? {
+                        '--hover-bgcolor': 'transparent',
+                        '--bgcolor': 'transparent',
+                        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+                      }
+                    : {
+                        // 覆盖 website 中自带的 style，实际使用时可以忽略
+                        backgroundColor: 'transparent',
+                      },
+                onClick() {
+                  setCurOperationRowIndex(rowIndex);
+                },
+              };
+            }}
             {...pipeline.getProps()}
           />
           {bottomStatus}
