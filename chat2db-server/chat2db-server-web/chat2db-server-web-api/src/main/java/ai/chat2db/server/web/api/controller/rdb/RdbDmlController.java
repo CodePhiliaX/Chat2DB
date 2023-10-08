@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
+import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -11,6 +12,7 @@ import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DmlRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.SelectResultUpdateRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.sql.Chat2DBContext;
@@ -51,6 +53,20 @@ public class RdbDmlController {
         ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
         List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
         return ListResult.of(resultVOS);
+    }
+
+
+    /**
+     * update 查询结果
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/execute_update", method = {RequestMethod.POST, RequestMethod.PUT})
+    public   DataResult<String> executeUpdate(@RequestBody SelectResultUpdateRequest request) {
+        UpdateSelectResultParam param = rdbWebConverter.request2param(request);
+        return dlTemplateService.updateSelectResult(param);
+
     }
 
 

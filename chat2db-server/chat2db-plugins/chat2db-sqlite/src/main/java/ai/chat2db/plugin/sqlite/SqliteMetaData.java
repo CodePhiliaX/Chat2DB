@@ -2,7 +2,9 @@ package ai.chat2db.plugin.sqlite;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
@@ -34,5 +36,10 @@ public class SqliteMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<Schema> schemas(Connection connection,String databaseName) {
         return Lists.newArrayList();
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).collect(Collectors.joining("."));
     }
 }
