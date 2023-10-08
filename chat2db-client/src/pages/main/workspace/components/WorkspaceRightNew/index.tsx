@@ -9,6 +9,7 @@ import TabsNew, { ITabItem } from '@/components/TabsNew';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
+import EditTableData from '@/blocks/EditTableData';
 import SQLExecute from '@/blocks/SQLExecute';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
@@ -40,6 +41,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         id: t.id,
         title: t.name,
         type: t.operationType,
+        editableName: true,
         uniqueData: t,
       };
     });
@@ -63,7 +65,10 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   useEffect(() => {
     if (createTabIntro) {
       // 如果已经打开了这个表的编辑页面，那么就切换到这个页面
-      const flag = workspaceTabList?.find((t) => t.uniqueData?.tableName === createTabIntro.treeNodeData.name);
+      const flag = workspaceTabList?.find(
+        (t) =>
+          t.uniqueData?.tableName === createTabIntro.treeNodeData.name && t.type === createTabIntro.workspaceTabType,
+      );
       if (flag) {
         setActiveConsoleId(flag.id);
         return;
@@ -73,7 +78,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const newData = {
         id,
         type: createTabIntro.workspaceTabType,
-        title: `edit-${createTabIntro.treeNodeData.name}`,
+        title: `${createTabIntro.treeNodeData.name}`,
         uniqueData: {
           tableName: createTabIntro.treeNodeData.name,
         },
@@ -388,7 +393,13 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     if (action === 'remove') {
       setWorkspaceTabList(workspaceTabList.filter((t) => t.id !== data.key));
       const editData = workspaceTabList?.find((t) => t.id === data.key);
-      if (editData?.type !== WorkspaceTabType.EditTable) {
+      if (
+        editData?.type === WorkspaceTabType.CONSOLE ||
+        editData?.type === WorkspaceTabType.FUNCTION ||
+        editData?.type === WorkspaceTabType.PROCEDURE ||
+        editData?.type === WorkspaceTabType.TRIGGER ||
+        editData?.type === WorkspaceTabType.VIEW
+      ) {
         closeWindowTab(data.key as number);
       }
     }
@@ -491,7 +502,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         prefixIcon: workspaceTabConfig[t.type]?.icon,
         label: t.title,
         key: t.id,
-        // 这里还缺一个参数 是否可编辑tab名称, 编辑表不可编辑名称 TODO:
+        editableName: t.editableName,
         children: (
           <>
             {[
@@ -514,10 +525,19 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 }}
               />
             )}
-            {t.type === WorkspaceTabType.EditTable && (
+            {(t.type === WorkspaceTabType.EditTable || t.type === WorkspaceTabType.CreateTable) && (
               <DatabaseTableEditor
                 tabDetails={t}
                 changeTabDetails={changeTabDetails}
+                dataSourceId={curWorkspaceParams.dataSourceId}
+                databaseName={curWorkspaceParams.databaseName!}
+                databaseType={curWorkspaceParams?.databaseType}
+                schemaName={curWorkspaceParams?.schemaName!}
+                tableName={uniqueData.tableName}
+              />
+            )}
+            {t.type === WorkspaceTabType.EditTableData && (
+              <EditTableData
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
                 databaseType={curWorkspaceParams?.databaseType}
@@ -539,7 +559,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             className={styles.tabs}
             onChange={onTabChange}
             onEdit={onEdit as any}
-            editableName={true}
             activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
             items={tabsList}

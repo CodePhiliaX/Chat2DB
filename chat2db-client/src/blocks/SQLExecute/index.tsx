@@ -10,11 +10,9 @@ import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import historyServer, { ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
-import sqlServer, { IExecuteSqlParams, IExportParams } from '@/service/sql';
+import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { isNumber } from 'lodash';
-import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { downloadFile } from '@/utils/common';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 interface IProps {
   className?: string;
@@ -125,7 +123,6 @@ const SQLExecute = memo<IProps>((props) => {
     const sqlResult = await sqlServer.executeSql(param);
     resultData[index] = { ...resultData[index], ...sqlResult[0] };
     setResultData([...resultData]);
-
     resultConfig[index] = {
       ...config,
       total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
@@ -144,16 +141,6 @@ const SQLExecute = memo<IProps>((props) => {
     };
     setResultConfig([...resultConfig]);
     return total;
-  };
-
-  const handleExportSQLResult = async (
-    sql: string,
-    originalSql: string,
-    exportType: ExportTypeEnum,
-    exportSize: ExportSizeEnum,
-  ) => {
-    const params: IExportParams = { ...data, sql, originalSql, exportType, exportSize };
-    downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
 
   const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {
@@ -205,10 +192,9 @@ const SQLExecute = memo<IProps>((props) => {
               onTabEdit={handleResultTabEdit}
               onExecute={handleExecuteSQLbyConfigChanged}
               onSearchTotal={handleSearchTotal}
-              onExport={handleExportSQLResult}
-              manageResultDataList={resultData}
+              executeSqlParams={data}
               resultConfig={resultConfig}
-              isLoading={tableLoading}
+              manageResultDataList={resultData}
             />
           }
         </div>

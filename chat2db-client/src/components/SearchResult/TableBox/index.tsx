@@ -4,20 +4,19 @@ import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-
 import styled from 'styled-components';
 import classnames from 'classnames';
 import i18n from '@/i18n';
-import { ThemeType } from '@/constants';
 import { TableDataType } from '@/constants/table';
-import { useTheme } from '@/hooks/useTheme';
 import { IManageResultData, IResultConfig } from '@/typings/database';
 import { compareStrings } from '@/utils/sort';
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
+import { DownOutlined } from '@ant-design/icons';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { formatDate } from '@/utils/date';
 import { copy } from '@/utils';
 import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import styles from './index.less';
+import { IExportParams } from '@/service/sql';
+import { downloadFile } from '@/utils/common';
 
 interface ITableProps {
   className?: string;
@@ -25,13 +24,20 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
-  onExport: (sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => void;
+  executeSqlParams: any;
 }
 
 interface IViewTableCellData {
   name: string;
   value: any;
 }
+
+// const defaultResultConfig: IResultConfig = {
+//   pageNo: 1,
+//   pageSize: 200,
+//   total: 0,
+//   hasNextPage: true,
+// };
 
 const SupportBaseTable: any = styled(BaseTable)`
   &.supportBaseTable {
@@ -51,15 +57,21 @@ const SupportBaseTable: any = styled(BaseTable)`
 const preCode = '$$chat2db_';
 
 export default function TableBox(props: ITableProps) {
-  const { className, data, config, onConfigChange, onSearchTotal } = props;
-  const { headerList, dataList, duration, description, sqlType } = data || {};
+  const { className, data, config, onConfigChange } = props;
+  const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
-  const [appTheme] = useTheme();
-  const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
   const [messageApi, contextHolder] = message.useMessage();
+  // const [pageConfig, setPageConfig] = useState<IResultConfig>(defaultResultConfig);
 
-  const handleExport = (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
-    props.onExport && props.onExport(data.sql, data.originalSql, exportType, exportSize);
+  const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+    const params: IExportParams = {
+      ...(props.executeSqlParams || {}),
+      sql: data.sql,
+      originalSql: data.originalSql,
+      exportType,
+      exportSize,
+    };
+    downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
 
   const items: MenuProps['items'] = useMemo(
@@ -69,7 +81,7 @@ export default function TableBox(props: ITableProps) {
         key: '1',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
+          handleExportSQLResult(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
         },
       },
       {
@@ -77,7 +89,7 @@ export default function TableBox(props: ITableProps) {
         key: '2',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
+          handleExportSQLResult(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
         },
       },
       {
@@ -85,7 +97,7 @@ export default function TableBox(props: ITableProps) {
         key: '3',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
+          handleExportSQLResult(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
         },
       },
       {
@@ -93,7 +105,7 @@ export default function TableBox(props: ITableProps) {
         key: '4',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
+          handleExportSQLResult(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
         },
       },
     ],
@@ -150,7 +162,7 @@ export default function TableBox(props: ITableProps) {
           name: name,
           key: name,
           width: 120,
-          render: (value: any, row: any, rowIndex: number) => {
+          render: (value: any) => {
             return (
               <div className={styles.tableItem}>
                 {value}
@@ -172,7 +184,7 @@ export default function TableBox(props: ITableProps) {
     if (!columns?.length) {
       return [];
     } else {
-      return (dataList || []).map((item, rowIndex) => {
+      return (dataList || []).map((item) => {
         const rowData: any = {};
         item.map((i: string | null, colIndex: number) => {
           const name = `${preCode}${colIndex}${columns[colIndex].name}`;

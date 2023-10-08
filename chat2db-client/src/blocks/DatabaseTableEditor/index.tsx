@@ -8,7 +8,7 @@ import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
 import { IEditTableInfo, IWorkspaceTab } from '@/typings';
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
 import lodash from 'lodash';
 import Iconfont from '@/components/Iconfont';
@@ -155,7 +155,8 @@ export default memo((props: IProps) => {
           if (!tableName) {
             changeTabDetails({
               ...tabDetails,
-              title: `edit-${newTableName}`,
+              title: `${newTableName}`,
+              type: WorkspaceTabType.EditTable,
               uniqueData: {
                 ...(tabDetails.uniqueData || {}),
                 tableName: newTableName,
