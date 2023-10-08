@@ -1,13 +1,13 @@
 @import '../../styles/var.less';
 
-.box {
+.searchResult {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .tabs {
-  border-bottom: 1px solid var(--color-border);
+  height: 100%;
 }
 
 .recordIcon {
@@ -15,49 +15,17 @@
   margin-right: 4px;
 }
 
-.resultHeader {
-  flex-shrink: 0;
-  overflow-x: scroll;
-  background-color: var(--color-bg-base);
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .statusIcon {
-    margin-right: 6px;
-    font-size: 12px;
-  }
-
-  .successIcon {
-    color: var(--color-primary);
-  }
-
-  .failIcon {
-    color: var(--color-primary);
-  }
+.statusIcon {
+  margin-right: 6px;
+  font-size: 12px;
 }
 
-.resultContentWrapper {
-  flex: 1;
-
-  :global {
-    .ant-spin-container {
-      height: 100%;
-      width: 100%;
-      position: relative;
-      overflow: auto;
-    }
-  }
+.successIcon {
+  color: var(--color-primary);
 }
 
-.cursorTableBox {
-  // display: block !important;
-  // height: 100%;
-  display: flex !important;
-  flex-direction: column;
-  justify-content: space-between;
-  // background-color: var(--bgcolor);
+.failIcon {
+  color: var(--color-primary);
 }
 
 .tableIndex {
@@ -79,10 +47,6 @@
   justify-content: center;
   align-items: center;
   font-size: 12px;
-}
-
-.stateIndicator {
-  display: none;
 }
 
 .cursorStateIndicator {
