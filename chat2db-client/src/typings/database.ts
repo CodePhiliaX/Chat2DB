@@ -25,6 +25,8 @@ export interface IManageResultData {
   fuzzyTotal: string;
   hasNextPage: boolean;
   sqlType: 'SELECT' | 'UNKNOWN';
+  canEdit?: boolean; // 返回的数据是否可以编辑
+  tableName?: string; // 如果可以编辑的话。后端会返回表名称。修改需要给后端传递表名
 }
 
 /** 查询结果 配置属性 */
