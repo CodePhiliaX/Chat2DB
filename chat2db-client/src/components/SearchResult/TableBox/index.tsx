@@ -150,6 +150,9 @@ export default function TableBox(props: ITableProps) {
   }
 
   const handleDoubleClickTableItem = (colIndex, rowIndex, value) => {
+    if (!data.canEdit) {
+      return;
+    }
     setEditingData(value);
     setEditingCell([colIndex, rowIndex]);
   };
@@ -300,6 +303,14 @@ export default function TableBox(props: ITableProps) {
   };
 
   const handelCreateData = () => {
+    // 如果加的这行数据是删除过的，则恢复
+    const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.DELETE);
+    if (index !== -1) {
+      updateData.splice(index, 1);
+      setUpdateData([...updateData]);
+      return;
+    }
+    // 正常的新增
     const newTableData = lodash.cloneDeep(tableData);
     const newData = {};
     columns.forEach((item, index) => {
@@ -316,7 +327,7 @@ export default function TableBox(props: ITableProps) {
       {
         type: CRUD.CREATE,
         dataList: Object.keys(newData).map((item) => newData[item]),
-        index: newTableData.length,
+        index: newTableData.length - 1,
       },
     ]);
   };
@@ -326,9 +337,28 @@ export default function TableBox(props: ITableProps) {
   }, [updateData]);
 
   const handelDeleteData = () => {
-    const newTableData = lodash.cloneDeep(tableData);
-    newTableData.splice(curOperationRowIndex, 1);
-    setTableData(newTableData);
+    if (curOperationRowIndex === -1) {
+      return;
+    }
+    // 如果是新增的行，则直接删除
+    const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.CREATE);
+    if (index !== -1) {
+      updateData.splice(index, 1);
+      setUpdateData([...updateData]);
+      setTableData(tableData.filter((item, index) => index !== curOperationRowIndex));
+      return;
+    }
+    const index2 = updateData.findIndex((item) => item.index === curOperationRowIndex);
+    if (index2 === -1) {
+      setUpdateData([
+        ...updateData,
+        {
+          type: CRUD.DELETE,
+          oldDataList: dataList[curOperationRowIndex],
+          index: curOperationRowIndex,
+        },
+      ]);
+    }
     setCurOperationRowIndex(-1);
   };
 
@@ -347,11 +377,41 @@ export default function TableBox(props: ITableProps) {
     }
     const params = {
       ...props.executeSqlParams,
+      tableName: data.tableName || 't_user1', // TODO:
       operations: updateData,
     };
     sqlService.getExecuteUpdateSql(params).then((res) => {
       console.log('res', res);
     });
+  };
+
+  const tableRowStyle = (rowIndex: number) => {
+    // 如果是删除过的行
+    const index = updateData.findIndex((item) => item.index === rowIndex && item.type === CRUD.DELETE);
+    if (index !== -1) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'red',
+      };
+    }
+    // 如果是新增的行
+    const index2 = updateData.findIndex((item) => item.index === rowIndex && item.type === CRUD.CREATE);
+    if (index2 !== -1) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'green',
+      };
+    }
+    if (rowIndex === curOperationRowIndex) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+      };
+    }
+    return {};
   };
 
   const renderContent = () => {
@@ -382,6 +442,8 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
+            {/* {data.canEdit && (
+            )} */}
             <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
               <div onClick={handelCreateData} className={classnames(styles.createDataBar, styles.editTableDataBarItem)}>
                 <Iconfont code="&#xe61b;" />
@@ -427,17 +489,7 @@ export default function TableBox(props: ITableProps) {
             stickyTop={31}
             getRowProps={(record, rowIndex) => {
               return {
-                style:
-                  rowIndex === curOperationRowIndex
-                    ? {
-                        '--hover-bgcolor': 'transparent',
-                        '--bgcolor': 'transparent',
-                        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
-                      }
-                    : {
-                        // 覆盖 website 中自带的 style，实际使用时可以忽略
-                        backgroundColor: 'transparent',
-                      },
+                style: tableRowStyle(rowIndex),
                 onClick() {
                   setCurOperationRowIndex(rowIndex);
                 },
