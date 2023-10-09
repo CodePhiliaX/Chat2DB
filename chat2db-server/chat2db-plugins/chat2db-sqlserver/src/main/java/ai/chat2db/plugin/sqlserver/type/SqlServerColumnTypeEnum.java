@@ -285,6 +285,11 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
             StringBuilder script = new StringBuilder();
             script.append("ALTER TABLE ").append("[").append(tableColumn.getSchemaName()).append("].[").append(tableColumn.getTableName()).append("]");
             script.append(" ").append("ADD ").append(buildCreateColumnSql(tableColumn)).append(" \ngo\n");
+
+
+            if (StringUtils.isNotBlank(tableColumn.getComment())) {
+                script.append("\n").append(buildModifyColumnComment(tableColumn));
+            }
             return script.toString();
         }
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {

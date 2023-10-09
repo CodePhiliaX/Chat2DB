@@ -82,7 +82,7 @@ public class MysqlSqlBuilder implements SqlBuilder {
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
+            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) &&  StringUtils.isNotBlank(tableColumn.getColumnType())&& StringUtils.isNotBlank(tableColumn.getName())){
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             }

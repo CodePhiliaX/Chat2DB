@@ -1,23 +1,25 @@
-import React, { useMemo, useState } from 'react';
-import { Button, Dropdown, MenuProps, message, Modal, Space } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
 import i18n from '@/i18n';
-import { ThemeType } from '@/constants';
+import { CRUD } from '@/constants';
 import { TableDataType } from '@/constants/table';
-import { useTheme } from '@/hooks/useTheme';
+import ExecuteSQL from '@/components/ExecuteSQL';
 import { IManageResultData, IResultConfig } from '@/typings/database';
-import { compareStrings } from '@/utils/sort';
-import { DownOutlined, UserOutlined } from '@ant-design/icons';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { formatDate } from '@/utils/date';
+import { compareStrings } from '@/utils/sort';
+import { DownOutlined } from '@ant-design/icons';
 import { copy } from '@/utils';
 import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import styles from './index.less';
+import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
+import { downloadFile } from '@/utils/common';
+import lodash, { set } from 'lodash';
 
 interface ITableProps {
   className?: string;
@@ -25,13 +27,27 @@ interface ITableProps {
   config: IResultConfig;
   onConfigChange: (config: IResultConfig) => void;
   onSearchTotal: () => Promise<number | undefined>;
-  onExport: (sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => void;
+  executeSqlParams: any;
 }
 
 interface IViewTableCellData {
   name: string;
   value: any;
 }
+
+interface IUpdateData {
+  oldDataList?: string[];
+  dataList?: string[];
+  type: CRUD;
+  rowNo: string;
+}
+
+// const defaultResultConfig: IResultConfig = {
+//   pageNo: 1,
+//   pageSize: 200,
+//   total: 0,
+//   hasNextPage: true,
+// };
 
 const SupportBaseTable: any = styled(BaseTable)`
   &.supportBaseTable {
@@ -45,21 +61,37 @@ const SupportBaseTable: any = styled(BaseTable)`
     --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
     --border-color: var(--color-border-secondary);
+    --cell-padding: 0px 4px;
+    --row-height: 32px;
   }
 `;
 
 const preCode = '$$chat2db_';
 
 export default function TableBox(props: ITableProps) {
-  const { className, data, config, onConfigChange, onSearchTotal } = props;
-  const { headerList, dataList, duration, description, sqlType } = data || {};
+  const { className, data, config, onConfigChange } = props;
+  const { headerList, dataList, duration, description } = data || {};
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
-  const [appTheme] = useTheme();
-  const isDarkTheme = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
   const [messageApi, contextHolder] = message.useMessage();
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [editingCell, setEditingCell] = useState<[string, string] | null>(null);
+  const [editingData, setEditingData] = useState<string>('');
+  const [curOperationRowNo, setCurOperationRowNo] = useState<string | null>(null);
+  const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
+  const [updateDataSql, setUpdateDataSql] = useState<string>('');
+  const [initError, setInitError] = useState<string>('');
+  const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
+  const tableBoxRef = React.useRef<HTMLDivElement>(null);
 
-  const handleExport = (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
-    props.onExport && props.onExport(data.sql, data.originalSql, exportType, exportSize);
+  const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
+    const params: IExportParams = {
+      ...(props.executeSqlParams || {}),
+      sql: data.sql,
+      originalSql: data.originalSql,
+      exportType,
+      exportSize,
+    };
+    downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
 
   const items: MenuProps['items'] = useMemo(
@@ -69,7 +101,7 @@ export default function TableBox(props: ITableProps) {
         key: '1',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
+          handleExportSQLResult(ExportTypeEnum.CSV, ExportSizeEnum.ALL);
         },
       },
       {
@@ -77,7 +109,7 @@ export default function TableBox(props: ITableProps) {
         key: '2',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
+          handleExportSQLResult(ExportTypeEnum.INSERT, ExportSizeEnum.ALL);
         },
       },
       {
@@ -85,7 +117,7 @@ export default function TableBox(props: ITableProps) {
         key: '3',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
+          handleExportSQLResult(ExportTypeEnum.CSV, ExportSizeEnum.CURRENT_PAGE);
         },
       },
       {
@@ -93,7 +125,7 @@ export default function TableBox(props: ITableProps) {
         key: '4',
         // icon: <UserOutlined />,
         onClick: () => {
-          handleExport(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
+          handleExportSQLResult(ExportTypeEnum.INSERT, ExportSizeEnum.CURRENT_PAGE);
         },
       },
     ],
@@ -109,12 +141,12 @@ export default function TableBox(props: ITableProps) {
     [headerList],
   );
 
-  function viewTableCell(data: IViewTableCellData) {
-    setViewTableCellData(data);
+  function viewTableCell(cellData: IViewTableCellData) {
+    setViewTableCellData(cellData);
   }
 
-  function copyTableCell(data: IViewTableCellData) {
-    copy(data?.value || viewTableCellData?.value);
+  function copyTableCell(cellData: IViewTableCellData) {
+    copy(cellData?.value || viewTableCellData?.value);
     messageApi.success(i18n('common.button.copySuccessfully'));
   }
 
@@ -122,70 +154,173 @@ export default function TableBox(props: ITableProps) {
     setViewTableCellData(null);
   }
 
-  const columns: ArtColumn[] = useMemo(
-    () =>
-      (headerList || []).map((item, colIndex) => {
-        const { dataType, name } = item;
-        const isNumber = dataType === TableDataType.NUMERIC;
-        const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
-        if (isNumericalOrder) {
-          return {
-            code: `${preCode}${colIndex}No.`,
-            name: 'No.',
-            key: name,
-            lock: true,
-            width: 48,
-            features: { sortable: compareStrings },
-            render: (value: any) => {
-              return (
-                <div className={styles.tableItem}>
-                  <div>{value}</div>
-                </div>
-              );
-            },
-          };
-        }
+  const handleDoubleClickTableItem = (colIndex, rowNo, value) => {
+    if (!data.canEdit) {
+      return;
+    }
+    setEditingData(value);
+    setEditingCell([colIndex, rowNo]);
+  };
+
+  // 编辑数据失焦
+  const editDataOnBlur = () => {
+    setEditingCell(null);
+    setEditingData('');
+    const [colIndex, rowNo] = editingCell!;
+    const newTableData = lodash.cloneDeep(tableData);
+    let oldDataList: string[] = [];
+    let newDataList: string[] = [];
+    newTableData.forEach((item) => {
+      if (item[`${preCode}0No.`] === rowNo) {
+        item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
+        newDataList = Object.keys(item).map((i) => item[i]);
+      }
+    });
+
+    setTableData(newTableData);
+
+    dataList.forEach((item) => {
+      if (item[0] === rowNo) {
+        oldDataList = item;
+      }
+    });
+
+    // 如果已经存在该行的更新数据则更新，否则新增
+    const index = updateData.findIndex((item) => item.rowNo === rowNo);
+    // 如果datalist和oldDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
+    if (oldDataList?.join(',') === newDataList?.join(',')) {
+      if (index !== -1) {
+        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo));
+      }
+      return;
+    }
+
+    if (index === -1) {
+      setUpdateData([
+        ...updateData,
+        {
+          type: CRUD.UPDATE,
+          oldDataList: oldDataList,
+          dataList: newDataList,
+          rowNo,
+        },
+      ]);
+      return;
+    }
+
+    updateData[index] = {
+      ...updateData[index],
+      dataList: newDataList,
+    };
+    setUpdateData([...updateData]);
+  };
+
+  const renderTableCellValue = (value) => {
+    if (value === null) {
+      return '<null>';
+    } else {
+      return value;
+    }
+  };
+
+  // 每个单元格的样式
+  const tableCellStyle = (value, colIndex, rowNo) => {
+    // 单元格的基础样式
+    const styleList = [styles.tableItem];
+    // 如果当前单元格所在的行被选中了，则需要把单元格的背景色设置为透明
+    console.log(curOperationRowNo, rowNo);
+    if (curOperationRowNo === rowNo) {
+      return classnames(...styleList);
+    }
+
+    // 编辑过的单元格的样式
+    let oldValue = '';
+    dataList.forEach((item) => {
+      if (item[0] === rowNo) {
+        oldValue = item[colIndex];
+      }
+    });
+    if (value !== oldValue) {
+      styleList.push(styles.tableItemEdit);
+    }
+    return classnames(...styleList);
+  };
+
+  const columns: ArtColumn[] = useMemo(() => {
+    return (headerList || []).map((item, colIndex) => {
+      const { dataType, name } = item;
+      const isNumber = dataType === TableDataType.NUMERIC;
+      const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
+      if (isNumericalOrder) {
         return {
-          code: `${preCode}${colIndex}${name}`,
-          name: name,
+          code: `${preCode}${colIndex}No.`,
+          name: 'No.',
           key: name,
-          width: 120,
-          render: (value: any, row: any, rowIndex: number) => {
+          lock: true,
+          width: 48,
+          features: { sortable: compareStrings },
+          render: (value: any) => {
             return (
               <div className={styles.tableItem}>
-                {value}
-                <div className={styles.tableHoverBox}>
-                  <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-                  <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
-                </div>
+                <div className={styles.tableItemNo}>{value}</div>
               </div>
             );
           },
-          // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
-          features: { sortable: isNumber ? compareStrings : true },
         };
-      }),
-    [headerList],
-  );
+      }
+      return {
+        code: `${preCode}${colIndex}${name}`,
+        name: name,
+        key: name,
+        width: 120,
+        render: (value: any, rowData) => {
+          const rowNo = rowData[`${preCode}0No.`];
+          return (
+            <div
+              className={tableCellStyle(value, colIndex, rowNo)}
+              onDoubleClick={handleDoubleClickTableItem.bind(null, colIndex, rowNo, value)}
+            >
+              {editingCell?.join(',') === `${colIndex},${rowNo}` ? (
+                <Input
+                  value={editingData}
+                  onChange={(e) => {
+                    setEditingData(e.target.value);
+                  }}
+                  onBlur={editDataOnBlur}
+                />
+              ) : (
+                <>
+                  {renderTableCellValue(value)}
+                  <div className={styles.tableHoverBox}>
+                    <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
+                    <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        },
+        // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
+        features: { sortable: isNumber ? compareStrings : true },
+      };
+    });
+  }, [headerList, editingCell, editingData, curOperationRowNo]);
 
-  const tableData = useMemo(() => {
+  useEffect(() => {
     if (!columns?.length) {
-      return [];
+      setTableData([]);
     } else {
-      return (dataList || []).map((item, rowIndex) => {
+      const newData = (dataList || []).map((item) => {
         const rowData: any = {};
         item.map((i: string | null, colIndex: number) => {
           const name = `${preCode}${colIndex}${columns[colIndex].name}`;
-          if (i === null) {
-            rowData[name] = '<null>';
-          } else {
-            rowData[name] = i;
-          }
+          rowData[name] = i;
         });
         return rowData;
       });
+      setTableData(newData);
     }
-  }, [dataList, columns]);
+  }, [dataList]);
 
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
@@ -203,9 +338,6 @@ export default function TableBox(props: ITableProps) {
         fallbackSize: 120,
         minSize: 60,
         maxSize: 1080,
-        // handleBackground: '#ddd',
-        // handleHoverBackground: '#aaa',
-        // handleActiveBackground: '#89bff7',
       }),
     );
 
@@ -221,6 +353,174 @@ export default function TableBox(props: ITableProps) {
     if (props.onSearchTotal) {
       return await props.onSearchTotal();
     }
+  };
+
+  // 处理创建数据
+  const handelCreateData = () => {
+    // 如果加的这行数据是删除过的，则恢复
+    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.DELETE);
+    if (index !== -1) {
+      updateData.splice(index, 1);
+      setUpdateData([...updateData]);
+      return;
+    }
+    // 正常的新增
+    const newTableData = lodash.cloneDeep(tableData);
+    const newData = {};
+    columns.forEach((t, i) => {
+      if (t.name === 'No.') {
+        newData[`${preCode}${i}${t.name}`] = (newTableData.length + 1).toString();
+      } else {
+        newData[`${preCode}${i}${t.name}`] = null;
+      }
+    });
+    newTableData.push(newData);
+    setTableData(newTableData);
+    setUpdateData([
+      ...updateData,
+      {
+        type: CRUD.CREATE,
+        dataList: Object.keys(newData).map((item) => newData[item]),
+        rowNo: newTableData.length.toString(),
+      },
+    ]);
+
+    // 新增一条数据，tableBox需要滚动到最下方
+    setTimeout(() => {
+      tableBoxRef.current?.scrollTo(0, tableBoxRef.current?.scrollHeight + 31);
+    }, 0);
+  };
+
+  // 处理删除数据
+  const handelDeleteData = () => {
+    if (curOperationRowNo === null) {
+      return;
+    }
+
+    // 如果是新增的行，则直接删除
+    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.CREATE);
+    if (index !== -1) {
+      updateData.splice(index, 1);
+      setUpdateData([...updateData]);
+      setTableData(tableData.filter((item) => item[`${preCode}0No.`] !== curOperationRowNo));
+      return;
+    }
+
+    // 正常的删除数据
+    const deleteIndex = updateData.findIndex((t) => t.rowNo === curOperationRowNo);
+    if (deleteIndex !== -1) {
+      updateData.splice(deleteIndex, 1);
+    }
+    setUpdateData([
+      ...updateData,
+      {
+        type: CRUD.DELETE,
+        oldDataList: dataList[curOperationRowNo!],
+        rowNo: curOperationRowNo!,
+      },
+    ]);
+    setCurOperationRowNo(null);
+  };
+
+  // 查看更新数据的sql
+  const handelViewSql = () => {
+    if (!updateData.length) {
+      return;
+    }
+    getExecuteUpdateSql().then((res) => {
+      setUpdateDataSql(res);
+      setViewUpdateDataSql(true);
+    });
+  };
+
+  // 更新数据的sql
+  const handelUpdateSubmit = () => {
+    if (!updateData.length) {
+      return;
+    }
+    getExecuteUpdateSql().then((res) => {
+      executeSql(res);
+    });
+  };
+
+  // 获取更新数据的sql
+  const getExecuteUpdateSql = () => {
+    return new Promise<string>((resolve) => {
+      const params = {
+        databaseName: props.executeSqlParams?.databaseName,
+        dataSourceId: props.executeSqlParams?.dataSourceId,
+        schemaName: props.executeSqlParams?.schemaName,
+        type: props.executeSqlParams?.databaseType,
+        tableName: data.tableName,
+        headerList,
+        operations: updateData,
+      };
+      sqlService.getExecuteUpdateSql(params).then((res) => {
+        resolve(res || '');
+      });
+    });
+  };
+
+  // 执行sql
+  const executeSql = (sql: string) => {
+    const executeSQLParams: IExecuteSqlParams = {
+      sql,
+      dataSourceId: props.executeSqlParams?.dataSourceId,
+      databaseName: props.executeSqlParams?.databaseName,
+      schemaName: props.executeSqlParams?.schemaName,
+      tableName: data.tableName,
+    };
+    sqlService.executeDDL(executeSQLParams).then((res) => {
+      if (res.success) {
+        message.success(i18n('common.text.successfulExecution'));
+        setUpdateData([]);
+        // 在执行一遍sql，刷新数据？// TODO:
+      } else {
+        setUpdateDataSql(res.originalSql);
+        setViewUpdateDataSql(true);
+        setInitError(res.message);
+      }
+    });
+  };
+
+  // 不同状态下的表格行样式
+  const tableRowStyle = (rowNo: string) => {
+    // 如果是当前操作的行
+    if (rowNo === curOperationRowNo) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+      };
+    }
+    // 如果是删除过的行
+    const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.DELETE);
+    if (index !== -1) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'var(--color-error-bg)',
+      };
+    }
+    // 如果是新增的行
+    const index2 = updateData.findIndex((item) => {
+      return item.rowNo === rowNo && item.type === CRUD.CREATE;
+    });
+    if (index2 !== -1) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'var(--color-success-bg)',
+      };
+    }
+    return {};
+  };
+
+  // sql执行成功后的回调
+  const executeSuccessCallBack = () => {
+    setViewUpdateDataSql(false);
+    message.success(i18n('common.text.successfulExecution'));
+    setUpdateData([]);
   };
 
   const renderContent = () => {
@@ -251,21 +551,63 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-
-            <Dropdown menu={{ items }}>
-              <Button>
-                <Space>
+            {data.canEdit && (
+              <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
+                <div
+                  onClick={handelCreateData}
+                  className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
+                >
+                  <Iconfont code="&#xe61b;" />
+                </div>
+                <div
+                  onClick={handelDeleteData}
+                  className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: curOperationRowNo === null,
+                  })}
+                >
+                  <Iconfont code="&#xe644;" />
+                </div>
+                <div
+                  onClick={handelViewSql}
+                  className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: !updateData.length,
+                  })}
+                >
+                  <Iconfont code="&#xe651;" />
+                </div>
+                <div
+                  onClick={handelUpdateSubmit}
+                  className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: !updateData.length,
+                  })}
+                >
+                  <Iconfont code="&#xe650;" />
+                </div>
+              </div>
+            )}
+            <div className={styles.toolBarRight}>
+              <Dropdown menu={{ items }}>
+                <Space className={styles.exportBar}>
                   {i18n('common.text.export')}
                   <DownOutlined />
                 </Space>
-              </Button>
-            </Dropdown>
+              </Dropdown>
+            </div>
           </div>
           <SupportBaseTable
             className={classnames('supportBaseTable', props.className, styles.table)}
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
             stickyTop={31}
+            getRowProps={(record) => {
+              const rowNo = record[`${preCode}0No.`];
+              return {
+                style: tableRowStyle(rowNo),
+                onClick() {
+                  setCurOperationRowNo(rowNo);
+                },
+              };
+            }}
             {...pipeline.getProps()}
           />
           {bottomStatus}
@@ -275,7 +617,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   return (
-    <div className={classnames(className, styles.tableBox)}>
+    <div ref={tableBoxRef} className={classnames(className, styles.tableBox)}>
       {renderContent()}
       <Modal
         title={viewTableCellData?.name}
@@ -283,15 +625,16 @@ export default function TableBox(props: ITableProps) {
         onCancel={handleCancel}
         width="60vw"
         maskClosable={false}
-        footer={
-          <>
-            {
-              <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
-                {i18n('common.button.copy')}
-              </Button>
-            }
-          </>
-        }
+        footer={false}
+        // footer={
+        //   <>
+        //     {
+        //       <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
+        //         {i18n('common.button.copy')}
+        //       </Button>
+        //     }
+        //   </>
+        // }
       >
         <div className={styles.monacoEditor}>
           <MonacoEditor
@@ -305,6 +648,30 @@ export default function TableBox(props: ITableProps) {
             }}
           />
         </div>
+      </Modal>
+      <Modal
+        width="60vw"
+        maskClosable={false}
+        title={initError ? i18n('common.button.executionError') : i18n('editTable.title.sqlPreview')}
+        open={viewUpdateDataSql}
+        footer={false}
+        destroyOnClose={true}
+        onCancel={() => {
+          setViewUpdateDataSql(false);
+          setUpdateDataSql('');
+          setInitError('');
+        }}
+      >
+        <ExecuteSQL
+          initError={initError}
+          initSql={updateDataSql}
+          databaseName={props.executeSqlParams?.databaseName}
+          dataSourceId={props.executeSqlParams?.dataSourceId}
+          tableName={data.tableName}
+          schemaName={props.executeSqlParams?.schemaName}
+          databaseType={props.executeSqlParams?.databaseType}
+          executeSuccessCallBack={executeSuccessCallBack}
+        />
       </Modal>
       {contextHolder}
     </div>

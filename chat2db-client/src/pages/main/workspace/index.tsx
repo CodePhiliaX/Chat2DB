@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useMemo, useState } from 'react';
+import React, { memo, useRef, useEffect } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
@@ -9,7 +9,6 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
-import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   className?: string;
@@ -31,7 +30,11 @@ const workspacePage = memo<IProps>((props) => {
   const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
-  const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
+  const isReady =
+    curWorkspaceParams?.dataSourceId &&
+    (curWorkspaceParams?.databaseName ||
+      curWorkspaceParams?.schemaName ||
+      (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null));
 
   useEffect(() => {
     clearData();
@@ -44,22 +47,22 @@ const workspacePage = memo<IProps>((props) => {
   }, [curWorkspaceParams]);
 
   function clearData() {
-    dispatch(({
+    dispatch({
       type: 'workspace/setOpenConsoleList',
       payload: [],
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setConsoleList',
       payload: [],
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setDatabaseAndSchema',
       payload: undefined,
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setCurTableList',
       payload: [],
-    }))
+    });
   }
 
   function getConsoleList() {
@@ -84,7 +87,7 @@ const workspacePage = memo<IProps>((props) => {
 
   return (
     <div className={styles.workspace}>
-      <WorkspaceHeader></WorkspaceHeader>
+      <WorkspaceHeader />
       <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={false}>
         <DraggableContainer className={styles.workspaceMain}>
           <div ref={draggableRef} className={styles.boxLeft}>
@@ -94,9 +97,9 @@ const workspacePage = memo<IProps>((props) => {
             <WorkspaceRightNew />
           </div>
         </DraggableContainer>
-      </LoadingContent >
+      </LoadingContent>
     </div>
   );
 });
 
-export default dvaModel(workspacePage)
+export default dvaModel(workspacePage);

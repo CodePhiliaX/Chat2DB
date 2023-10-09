@@ -3,12 +3,11 @@ import i18n from '@/i18n';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
 import { message, Modal, Input, Dropdown, notification } from 'antd';
-import { TreeNodeType, CreateTabIntroType, WorkspaceTabType } from '@/constants';
+import { TreeNodeType, CreateTabIntroType, WorkspaceTabType, OperationColumn } from '@/constants';
 import { ITreeConfigItem, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
 import connectionServer from '@/service/connection';
 import mysqlServer from '@/service/sql';
-import { OperationColumn } from '../treeConfig';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
 import { IWorkspaceModelType } from '@/models/workspace';
@@ -49,6 +48,15 @@ function TreeNodeRightClick(props: IProps) {
         icon: '\uec08',
         handle: () => {
           refresh();
+        },
+      };
+    },
+    [OperationColumn.EditTableData]: (data) => {
+      return {
+        text: i18n('workspace.menu.editTableData'),
+        icon: '\ue7b5',
+        handle: () => {
+          openEditTableData();
         },
       };
     },
@@ -180,6 +188,17 @@ function TreeNodeRightClick(props: IProps) {
     });
   }
 
+  function openEditTableData() {
+    dispatch({
+      type: 'workspace/setCreateTabIntro',
+      payload: {
+        type: CreateTabIntroType.EditTableData,
+        workspaceTabType: WorkspaceTabType.EditTableData,
+        treeNodeData: data,
+      },
+    });
+  }
+
   function handleOk() {
     if (verifyTableName === data.key) {
       let p: any = {
@@ -258,7 +277,7 @@ function TreeNodeRightClick(props: IProps) {
           }}
         >
           <div>
-            <Iconfont code="&#xe601;"></Iconfont>
+            <Iconfont code="&#xe601;" />
           </div>
         </Dropdown>
       )}
@@ -278,7 +297,7 @@ function TreeNodeRightClick(props: IProps) {
           onChange={(e) => {
             setVerifyTableName(e.target.value);
           }}
-        ></Input>
+        />
       </Modal>
       {/* 这里后续肯定是要提出去的 */}
       {monacoVerifyDialog && (
@@ -299,7 +318,7 @@ function TreeNodeRightClick(props: IProps) {
                 text: monacoDefaultValue,
                 range: 'reset',
               }}
-            ></MonacoEditor>
+            />
           </div>
         </Modal>
       )}

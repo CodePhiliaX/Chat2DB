@@ -19,13 +19,11 @@ import { Table, Input, Form, Select, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
 import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
-import { IndexesType, EditColumnOperationType } from '@/constants';
+import { EditColumnOperationType } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 import { Context } from '../index';
 import i18n from '@/i18n';
 import lodash from 'lodash';
-
-const indexesTypeList = Object.values(IndexesType);
 
 interface IProps {}
 
@@ -79,12 +77,13 @@ const Row = ({ children, ...props }: RowProps) => {
 };
 
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
-  const { tableDetails } = useContext(Context);
+  const { databaseSupportField, tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IIndexItem | null>(null);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
   const includeColRef = useRef<IIncludeColRef>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const isEditing = (record: IIndexItem) => record.key === editingData?.key;
 
@@ -110,6 +109,9 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     const newData = createInitialData();
     setDataSource([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
   const deleteData = (record) => {
@@ -210,9 +212,9 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         return editable ? (
           <Form.Item name="type" style={{ margin: 0 }}>
             <Select style={{ width: '100%' }}>
-              {indexesTypeList.map((i) => (
-                <Select.Option key={i} value={i}>
-                  {i}
+              {databaseSupportField?.indexTypes?.map((i) => (
+                <Select.Option key={i.value} value={i.value}>
+                  {i.label}
                 </Select.Option>
               ))}
             </Select>
@@ -330,6 +332,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
               <Table
+                ref={tableRef}
                 components={{
                   body: {
                     row: Row,

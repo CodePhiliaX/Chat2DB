@@ -279,11 +279,12 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 .columnTypes(OracleColumnTypeEnum.getTypes())
                 .charsets(Lists.newArrayList())
                 .collations(Lists.newArrayList())
+                .indexTypes(OracleIndexTypeEnum.getIndexTypes())
                 .build();
     }
 
     @Override
     public String getMetaDataName(String... names) {
-        return Arrays.stream(names).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 }

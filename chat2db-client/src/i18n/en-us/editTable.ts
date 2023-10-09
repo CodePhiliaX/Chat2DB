@@ -26,6 +26,7 @@ export default {
   'editTable.label.autoIncrement': 'Auto increment',
   'editTable.label.engine': 'Engine',
   'editTable.label.incrementValue': 'Increment value',
+  'editTable.label.order': 'Order',
   'editTable.title.sqlPreview': 'SQL preview',
   'editTable.button.addColumn': 'Add column',
 };
