@@ -1,8 +1,5 @@
-import { extend, ResponseError } from 'umi-request';
-import { message, notification } from 'antd';
-import { getLang } from '@/utils/localStorage';
-import ErrorNotification from '@/components/MyNotification';
-const path = require('path');
+import { extend, ResponseError,type RequestOptionsInit } from 'umi-request';
+import { message } from 'antd';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -109,7 +106,7 @@ request.interceptors.request.use((url, options) => {
   };
 });
 
-request.interceptors.response.use(async (response, options) => {
+request.interceptors.response.use(async (response) => {
   const res = await response.clone().json();
   if (__ENV__ === 'desktop') {
     const Chat2db = response.headers.get('Chat2db') || '';
@@ -117,7 +114,7 @@ request.interceptors.response.use(async (response, options) => {
       localStorage.setItem('Chat2db', Chat2db);
     }
   }
-  const { errorCode, codeMessage } = res;
+  const { errorCode } = res;
   if (errorCode === ErrorCode.NEED_LOGGED_IN) {
     const callback = window.location.hash.substr(1).split('?')[0];
     window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
@@ -130,8 +127,8 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
   const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
 
   // 是否需要mock
-  let _baseURL = (mock ? mockUrl : baseURL) || '';
-  return function (params: P) {
+  const _baseURL = (mock ? mockUrl : baseURL) || '';
+  return function (params: P,  restParams?: RequestOptionsInit) {
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
 
@@ -175,7 +172,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
         eventualUrl = params as string;
       }
 
-      request[method](eventualUrl, { [dataName]: params })
+      request[method](eventualUrl, { [dataName]: params, ...restParams })
         .then((res) => {
           if (!res) return;
           const { success, errorCode, errorMessage, errorDetail, solutionLink, data } = res;
@@ -211,7 +208,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
 }
 
 // 简单的延时函数
-function delayTimeFn(callback: Function, time: number | true | undefined) {
+function delayTimeFn(callback: () => void, time: number | true | undefined) {
   if (time) {
     const timer = setTimeout(() => {
       callback();

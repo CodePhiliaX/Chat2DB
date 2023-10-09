@@ -13,6 +13,7 @@ import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { isNumber } from 'lodash';
+import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 interface IProps {
   className?: string;
@@ -44,10 +45,9 @@ const SQLExecute = memo<IProps>((props) => {
   const [appendValue, setAppendValue] = useState<IAppendValue>();
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
-
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
-
+  const controllerRef = useRef<AbortController>();
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
       return;
@@ -76,6 +76,7 @@ const SQLExecute = memo<IProps>((props) => {
    */
   const handleExecuteSQL = async (sql: string) => {
     setTableLoading(true);
+    setResultData([]);
 
     const executeSQLParams: IExecuteSqlParams = {
       sql,
@@ -83,8 +84,12 @@ const SQLExecute = memo<IProps>((props) => {
       ...data,
     };
 
+    controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-    let sqlResult = await sqlServer.executeSql(executeSQLParams);
+    let sqlResult = await sqlServer.executeSql(executeSQLParams, {
+      signal: controllerRef.current.signal,
+    });
+
     sqlResult = sqlResult.map((res) => ({
       ...res,
       uuid: uuidV4(),
@@ -153,6 +158,11 @@ const SQLExecute = memo<IProps>((props) => {
     }
   };
 
+  const stopExecuteSql = () => {
+    controllerRef.current && controllerRef.current.abort();
+    setTableLoading(false);
+  };
+
   return (
     <div className={classnames(styles.box)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
@@ -187,7 +197,14 @@ const SQLExecute = memo<IProps>((props) => {
           />
         </div>
         <div className={styles.boxRightResult}>
-          {
+          {tableLoading ? (
+            <div className={styles.tableLoading}>
+              <Spin />
+              <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
+                取消请求
+              </div>
+            </div>
+          ) : (
             <SearchResult
               onTabEdit={handleResultTabEdit}
               onExecute={handleExecuteSQLbyConfigChanged}
@@ -196,7 +213,7 @@ const SQLExecute = memo<IProps>((props) => {
               resultConfig={resultConfig}
               manageResultDataList={resultData}
             />
-          }
+          )}
         </div>
       </DraggableContainer>
     </div>
