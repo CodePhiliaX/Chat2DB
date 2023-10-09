@@ -7,7 +7,7 @@ import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
 import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import ExecuteSQL from '@/components/ExecuteSQL';
-import { IEditTableInfo, IWorkspaceTab } from '@/typings';
+import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
 import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
 import lodash from 'lodash';
@@ -33,9 +33,27 @@ interface IContext extends IProps {
   baseInfoRef: React.RefObject<IBaseInfoRef>;
   columnListRef: React.RefObject<IColumnListRef>;
   indexListRef: React.RefObject<IIndexListRef>;
+  databaseSupportField: IDatabaseSupportField;
 }
 
 export const Context = createContext<IContext>({} as any);
+
+interface IOption {
+  label: string;
+  value: string | number | null;
+}
+
+// 列字段类型，select组件的options需要的数据结构
+interface IColumnTypesOption extends IColumnTypes {
+  label: string;
+  value: string | number | null;
+}
+export interface IDatabaseSupportField {
+  columnTypes: IColumnTypesOption[];
+  charsets: IOption[];
+  collations: IOption[];
+  indexTypes: IOption[];
+}
 
 export default memo((props: IProps) => {
   const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails, databaseType } = props;
@@ -69,6 +87,12 @@ export default memo((props: IProps) => {
     ];
   }, []);
   const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
+  const [databaseSupportField, setDatabaseSupportField] = useState<IDatabaseSupportField>({
+    columnTypes: [],
+    charsets: [],
+    collations: [],
+    indexTypes: [],
+  });
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item);
@@ -78,7 +102,58 @@ export default memo((props: IProps) => {
     if (tableName) {
       getTableDetails({});
     }
+    getDatabaseFieldTypeList();
   }, []);
+
+  // 获取数据库字段类型列表
+  const getDatabaseFieldTypeList = () => {
+    sqlService
+      .getDatabaseFieldTypeList({
+        dataSourceId,
+        databaseName,
+      })
+      .then((res) => {
+        const columnTypes =
+          res?.columnTypes?.map((i) => {
+            return {
+              ...i,
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        const charsets =
+          res?.charsets?.map((i) => {
+            return {
+              value: i.charsetName,
+              label: i.charsetName,
+            };
+          }) || [];
+
+        const collations =
+          res?.collations?.map((i) => {
+            return {
+              value: i.collationName,
+              label: i.collationName,
+            };
+          }) || [];
+
+        const indexTypes =
+          res?.indexTypes?.map((i) => {
+            return {
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        setDatabaseSupportField({
+          columnTypes,
+          charsets,
+          collations,
+          indexTypes,
+        });
+      });
+  };
 
   const getTableDetails = ({ tableNameProps }: { tableNameProps?: string }) => {
     if (!tableName) return;
@@ -150,6 +225,7 @@ export default memo((props: IProps) => {
         baseInfoRef,
         columnListRef,
         indexListRef,
+        databaseSupportField,
       }}
     >
       <div className={classnames(styles.box)}>

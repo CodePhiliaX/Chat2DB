@@ -42,6 +42,7 @@ export interface IDatabaseSupportField {
   columnTypes: IColumnTypes[];
   charsets: ICharset[];
   collations: ICollation[];
+  indexTypes: IIndexTypes[];
 }
 
 /** 字段所对应的 字符集*/
@@ -53,6 +54,11 @@ export interface ICharset {
 /** 排列规则*/
 export interface ICollation {
   collationName: string;
+}
+
+/** 索引的类型*/
+export interface IIndexTypes {
+  typeName: string;
 }
 
 /** 不同数据库支持的列字段类型  以及支持调整的选项*/

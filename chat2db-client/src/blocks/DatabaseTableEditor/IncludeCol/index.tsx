@@ -125,6 +125,27 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       },
     },
     {
+      title: i18n('editTable.label.order'),
+      dataIndex: 'ascOrDesc',
+      render: (text: string, record: IIndexIncludeColumnItem) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <Form.Item name="ascOrDesc" style={{ margin: 0 }}>
+            <Select
+              options={[
+                { label: 'ASC', value: 'A' },
+                { label: 'DESC', value: 'D' },
+              ]}
+            />
+          </Form.Item>
+        ) : (
+          <div className={styles.editableCell} onClick={() => edit(record)}>
+            {text === 'A' ? 'ASC' : text === 'D' ? 'DESC' : null}
+          </div>
+        );
+      },
+    },
+    {
       width: '40px',
       render: (text: string, record: IIndexIncludeColumnItem) => {
         return (
@@ -141,6 +162,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
         );
       },
     },
+
     // {
     //   title: i18n('editTable.label.prefixLength'),
     //   dataIndex: 'prefixLength',
