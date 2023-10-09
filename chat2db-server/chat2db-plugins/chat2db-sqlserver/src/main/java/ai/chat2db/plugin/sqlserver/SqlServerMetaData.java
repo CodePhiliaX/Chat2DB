@@ -6,12 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ai.chat2db.plugin.sqlserver.type.SqlServerColumnTypeEnum;
+import ai.chat2db.plugin.sqlserver.type.SqlServerIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Function;
-import ai.chat2db.spi.model.Procedure;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
@@ -225,6 +224,17 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             return table;
         });
     }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .columnTypes(SqlServerColumnTypeEnum.getTypes())
+                .charsets(null)
+                .collations(null)
+                .indexTypes(SqlServerIndexTypeEnum.getIndexTypes())
+                .build();
+    }
+
 
     @Override
     public String getMetaDataName(String... names) {
