@@ -80,6 +80,7 @@ export default function TableBox(props: ITableProps) {
   const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
   const [updateDataSql, setUpdateDataSql] = useState<string>('');
   const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
+  const tableBoxRef = React.useRef<HTMLDivElement>(null);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -358,6 +359,11 @@ export default function TableBox(props: ITableProps) {
         index: newTableData.length - 1,
       },
     ]);
+
+    // 新增一条数据，tableBox需要滚动到最下方
+    setTimeout(() => {
+      tableBoxRef.current?.scrollTo(0, tableBoxRef.current?.scrollHeight + 31);
+    }, 0);
   };
 
   useEffect(() => {
@@ -460,7 +466,7 @@ export default function TableBox(props: ITableProps) {
     });
   };
 
-  // 不通状态下的表格行样式
+  // 不同状态下的表格行样式
   const tableRowStyle = (rowIndex: number) => {
     // 如果是当前操作的行
     if (rowIndex === curOperationRowIndex) {
@@ -591,7 +597,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   return (
-    <div className={classnames(className, styles.tableBox)}>
+    <div ref={tableBoxRef} className={classnames(className, styles.tableBox)}>
       {renderContent()}
       <Modal
         title={viewTableCellData?.name}
