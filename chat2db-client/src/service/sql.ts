@@ -16,6 +16,7 @@ export interface IExecuteSqlParams {
   dataSourceId?: number;
   databaseName?: string;
   schemaName?: string;
+  tableName?: string;
 }
 
 export interface IExecuteSqlResponse {

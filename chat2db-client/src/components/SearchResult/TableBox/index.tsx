@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import i18n from '@/i18n';
 import { CRUD } from '@/constants';
 import { TableDataType } from '@/constants/table';
+import ExecuteSQL from '@/components/ExecuteSQL';
 import { IManageResultData, IResultConfig } from '@/typings/database';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { compareStrings } from '@/utils/sort';
@@ -16,7 +17,7 @@ import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import styles from './index.less';
-import sqlService, { IExportParams } from '@/service/sql';
+import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
 import lodash from 'lodash';
 
@@ -77,6 +78,8 @@ export default function TableBox(props: ITableProps) {
   const [editingData, setEditingData] = useState<string>('');
   const [curOperationRowIndex, setCurOperationRowIndex] = useState<number>(-1);
   const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
+  const [updateDataSql, setUpdateDataSql] = useState<string>('');
+  const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -302,6 +305,7 @@ export default function TableBox(props: ITableProps) {
     }
   };
 
+  // 处理创建数据
   const handelCreateData = () => {
     // 如果加的这行数据是删除过的，则恢复
     const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.DELETE);
@@ -336,6 +340,7 @@ export default function TableBox(props: ITableProps) {
     console.log('updateData', updateData);
   }, [updateData]);
 
+  // 处理删除数据
   const handelDeleteData = () => {
     if (curOperationRowIndex === -1) {
       return;
@@ -367,7 +372,10 @@ export default function TableBox(props: ITableProps) {
     if (!updateData.length) {
       return;
     }
-    console.log('handelViewSql');
+    getExecuteUpdateSql().then((res) => {
+      setUpdateDataSql(res);
+      setViewUpdateDataSql(true);
+    });
   };
 
   // 更新数据的sql
@@ -375,16 +383,49 @@ export default function TableBox(props: ITableProps) {
     if (!updateData.length) {
       return;
     }
-    const params = {
-      ...props.executeSqlParams,
-      tableName: data.tableName || 't_user1', // TODO:
-      operations: updateData,
-    };
-    sqlService.getExecuteUpdateSql(params).then((res) => {
-      console.log('res', res);
+    getExecuteUpdateSql().then((res) => {
+      executeSql(res);
     });
   };
 
+  // 获取更新数据的sql
+  const getExecuteUpdateSql = () => {
+    return new Promise<string>((resolve) => {
+      const params = {
+        databaseName: props.executeSqlParams?.databaseName,
+        dataSourceId: props.executeSqlParams?.dataSourceId,
+        schemaName: props.executeSqlParams?.schemaName,
+        type: props.executeSqlParams?.databaseType,
+        tableName: data.tableName,
+        operations: updateData,
+      };
+      sqlService.getExecuteUpdateSql(params).then((res) => {
+        resolve(res?.[0].sql);
+      });
+    });
+  };
+
+  // 执行sql
+  const executeSql = (sql: string) => {
+    const executeSQLParams: IExecuteSqlParams = {
+      sql,
+      dataSourceId: props.executeSqlParams?.dataSourceId,
+      databaseName: props.executeSqlParams?.databaseName,
+      schemaName: props.executeSqlParams?.schemaName,
+      tableName: data.tableName,
+    };
+    sqlService.executeDDL(executeSQLParams).then((res) => {
+      if (res.success) {
+        message.success(i18n('common.text.successfulExecution'));
+        setUpdateData([]);
+      } else {
+        // setExecuteSqlResult(res.message);
+        // TODO:弹出错误弹窗
+      }
+    });
+  };
+
+  // 不通状态下的表格行样式
   const tableRowStyle = (rowIndex: number) => {
     // 如果是当前操作的行
     if (rowIndex === curOperationRowIndex) {
@@ -415,6 +456,13 @@ export default function TableBox(props: ITableProps) {
     return {};
   };
 
+  // sql执行成功后的回调
+  const executeSuccessCallBack = () => {
+    setViewUpdateDataSql(false);
+    message.success(i18n('common.text.successfulExecution'));
+    setUpdateData([]);
+  };
+
   const renderContent = () => {
     const bottomStatus = (
       <div className={styles.statusBar}>
@@ -443,37 +491,40 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-            {/* {data.canEdit && (
-            )} */}
-            <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
-              <div onClick={handelCreateData} className={classnames(styles.createDataBar, styles.editTableDataBarItem)}>
-                <Iconfont code="&#xe61b;" />
+            {data.canEdit && (
+              <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
+                <div
+                  onClick={handelCreateData}
+                  className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
+                >
+                  <Iconfont code="&#xe61b;" />
+                </div>
+                <div
+                  onClick={handelDeleteData}
+                  className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: curOperationRowIndex === -1,
+                  })}
+                >
+                  <Iconfont code="&#xe644;" />
+                </div>
+                <div
+                  onClick={handelViewSql}
+                  className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: !updateData.length,
+                  })}
+                >
+                  <Iconfont code="&#xe651;" />
+                </div>
+                <div
+                  onClick={handelUpdateSubmit}
+                  className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: !updateData.length,
+                  })}
+                >
+                  <Iconfont code="&#xe650;" />
+                </div>
               </div>
-              <div
-                onClick={handelDeleteData}
-                className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
-                  [styles.disableBar]: curOperationRowIndex === -1,
-                })}
-              >
-                <Iconfont code="&#xe644;" />
-              </div>
-              <div
-                onClick={handelViewSql}
-                className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
-                  [styles.disableBar]: !updateData.length,
-                })}
-              >
-                <Iconfont code="&#xe651;" />
-              </div>
-              <div
-                onClick={handelUpdateSubmit}
-                className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
-                  [styles.disableBar]: !updateData.length,
-                })}
-              >
-                <Iconfont code="&#xe650;" />
-              </div>
-            </div>
+            )}
             <div className={styles.toolBarRight}>
               <Dropdown menu={{ items }}>
                 <Space className={styles.exportBar}>
@@ -535,6 +586,27 @@ export default function TableBox(props: ITableProps) {
             }}
           />
         </div>
+      </Modal>
+      <Modal
+        width="60vw"
+        maskClosable={false}
+        title={i18n('editTable.title.sqlPreview')}
+        open={viewUpdateDataSql}
+        footer={false}
+        onCancel={() => {
+          setViewUpdateDataSql(false);
+          setUpdateDataSql('');
+        }}
+      >
+        <ExecuteSQL
+          initSql={updateDataSql}
+          databaseName={props.executeSqlParams?.databaseName}
+          dataSourceId={props.executeSqlParams?.dataSourceId}
+          tableName={data.tableName}
+          schemaName={props.executeSqlParams?.schemaName}
+          databaseType={props.executeSqlParams?.databaseType}
+          executeSuccessCallBack={executeSuccessCallBack}
+        />
       </Modal>
       {contextHolder}
     </div>
