@@ -168,25 +168,37 @@ export default function TableBox(props: ITableProps) {
     const newTableData = lodash.cloneDeep(tableData);
     newTableData[rowIndex][`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
     setTableData(newTableData);
-    // 如果已经存在该行的更新数据，则更新，否则新增
+    // 如果已经存在该行的更新数据则更新，否则新增
     const index = updateData.findIndex((item) => item.index === rowIndex);
+    const oldDataList = dataList[rowIndex];
+    const newDataList = Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]);
+
+    // 如果datalist和oldDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
+    if (oldDataList?.join(',') === newDataList?.join(',')) {
+      if (index !== -1) {
+        setUpdateData(updateData.filter((item) => item.index !== rowIndex));
+      }
+      return;
+    }
+
     if (index === -1) {
       setUpdateData([
         ...updateData,
         {
           type: CRUD.UPDATE,
-          oldDataList: dataList[rowIndex],
-          dataList: Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]),
+          oldDataList: oldDataList,
+          dataList: newDataList,
           index: rowIndex,
         },
       ]);
-    } else {
-      updateData[index] = {
-        ...updateData[index],
-        dataList: Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]),
-      };
-      setUpdateData([...updateData]);
+      return;
     }
+
+    updateData[index] = {
+      ...updateData[index],
+      dataList: newDataList,
+    };
+    setUpdateData([...updateData]);
   };
 
   const renderTableCellValue = (value) => {
@@ -195,6 +207,18 @@ export default function TableBox(props: ITableProps) {
     } else {
       return value;
     }
+  };
+
+  // 每个单元格的样式
+  const tableCellStyle = (value, colIndex, rowIndex) => {
+    // 单元格的基础样式
+    const styleList = [styles.tableItem];
+    // 编辑过的单元格的样式
+    const oldValue = dataList?.[rowIndex]?.[colIndex];
+    if (value !== oldValue) {
+      styleList.push(styles.tableItemEdit);
+    }
+    return classnames(...styleList);
   };
 
   const columns: ArtColumn[] = useMemo(() => {
@@ -227,7 +251,7 @@ export default function TableBox(props: ITableProps) {
         render: (value: any, a, rowIndex) => {
           return (
             <div
-              className={styles.tableItem}
+              className={tableCellStyle(value, colIndex, rowIndex)}
               onDoubleClick={handleDoubleClickTableItem.bind(null, colIndex, rowIndex, value)}
             >
               {editingCell?.join(',') === `${colIndex},${rowIndex}` ? (
@@ -356,17 +380,18 @@ export default function TableBox(props: ITableProps) {
     }
 
     // 正常的删除数据
-    const index2 = updateData.findIndex((t) => t.index === curOperationRowIndex);
-    if (index2 === -1) {
-      setUpdateData([
-        ...updateData,
-        {
-          type: CRUD.DELETE,
-          oldDataList: dataList[curOperationRowIndex],
-          index: curOperationRowIndex,
-        },
-      ]);
+    const deleteIndex = updateData.findIndex((t) => t.index === curOperationRowIndex);
+    if (deleteIndex !== -1) {
+      updateData.splice(deleteIndex, 1);
     }
+    setUpdateData([
+      ...updateData,
+      {
+        type: CRUD.DELETE,
+        oldDataList: dataList[curOperationRowIndex],
+        index: curOperationRowIndex,
+      },
+    ]);
     setCurOperationRowIndex(-1);
   };
 
@@ -423,14 +448,14 @@ export default function TableBox(props: ITableProps) {
         message.success(i18n('common.text.successfulExecution'));
         setUpdateData([]);
       } else {
-        window._notificationApi({
-          requestUrl: eventualUrl,
-          requestParams: JSON.stringify(params),
-          errorCode,
-          errorMessage,
-          errorDetail,
-          solutionLink,
-        });
+        // window._notificationApi({
+        //   requestUrl: eventualUrl,
+        //   requestParams: JSON.stringify(params),
+        //   errorCode,
+        //   errorMessage,
+        //   errorDetail,
+        //   solutionLink,
+        // });
       }
     });
   };
