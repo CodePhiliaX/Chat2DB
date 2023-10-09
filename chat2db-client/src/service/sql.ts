@@ -212,7 +212,7 @@ const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]
 const executeDDL = createRequest<IExecuteSqlParams, { success: boolean, message: string }>('/api/rdb/dml/execute_ddl', { method: 'post' });
 
 /** 获取修改表数据的接口 */ 
-const getExecuteUpdateSql = createRequest<any, { sql: string }[]>('/api/rdb/dml/execute_update', { method: 'post' });
+const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/execute_update', { method: 'post' });
 
 export default {
   getExecuteUpdateSql,

@@ -397,10 +397,11 @@ export default function TableBox(props: ITableProps) {
         schemaName: props.executeSqlParams?.schemaName,
         type: props.executeSqlParams?.databaseType,
         tableName: data.tableName,
+        headerList,
         operations: updateData,
       };
       sqlService.getExecuteUpdateSql(params).then((res) => {
-        resolve(res?.[0].sql);
+        resolve(res || '');
       });
     });
   };
