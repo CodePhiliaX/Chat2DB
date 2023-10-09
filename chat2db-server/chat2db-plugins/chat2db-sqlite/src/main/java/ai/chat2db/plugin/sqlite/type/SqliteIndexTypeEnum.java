@@ -63,11 +63,10 @@ public enum SqliteIndexTypeEnum {
 
         script.append(keyword).append(" ");
 
-        script.append(buildIndexName(tableIndex)).append(" ");
+        script.append(buildIndexName(tableIndex)).append(" ON ").append(tableIndex.getTableName()).append(" ");
 
         script.append(buildIndexColumn(tableIndex)).append(" ");
 
-        script.append(buildIndexComment(tableIndex)).append(" ");
 
         return script.toString();
     }
@@ -86,7 +85,7 @@ public enum SqliteIndexTypeEnum {
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if(StringUtils.isNotBlank(column.getColumnName())) {
-                script.append("`").append(column.getColumnName()).append("`").append(",");
+                script.append("\"").append(column.getColumnName()).append("\"").append(",");
             }
         }
         script.deleteCharAt(script.length() - 1);
@@ -98,7 +97,7 @@ public enum SqliteIndexTypeEnum {
         if(this.equals(PRIMARY_KEY)){
             return "";
         }else {
-            return "`"+tableIndex.getName()+"`";
+            return "\""+tableIndex.getName()+"\"";
         }
     }
 
@@ -110,7 +109,7 @@ public enum SqliteIndexTypeEnum {
             return StringUtils.join(buildDropIndex(tableIndex),",\n", "ADD ", buildIndexScript(tableIndex));
         }
         if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join("ADD ", buildIndexScript(tableIndex));
+            return StringUtils.join("CREATE ", buildIndexScript(tableIndex));
         }
         return "";
     }
@@ -119,7 +118,7 @@ public enum SqliteIndexTypeEnum {
         if (SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
             return StringUtils.join("DROP PRIMARY KEY");
         }
-        return StringUtils.join("DROP INDEX `", tableIndex.getOldName(),"`");
+        return StringUtils.join("DROP INDEX \"", tableIndex.getOldName(),"\"");
     }
     public static List<IndexType> getIndexTypes() {
         return Arrays.asList(SqliteIndexTypeEnum.values()).stream().map(SqliteIndexTypeEnum::getIndexType).collect(java.util.stream.Collectors.toList());
