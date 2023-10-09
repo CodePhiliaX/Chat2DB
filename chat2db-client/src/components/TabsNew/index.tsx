@@ -95,12 +95,11 @@ export default memo<IProps>((props) => {
     }
 
     return (
-      <Popover content={t.popover}>
+      <Popover content={t.popover} key={t.key}>
         <div
           onDoubleClick={() => {
             onDoubleClick(t);
           }}
-          key={t.key}
           className={classnames(
             { [styles.tabItem]: type !== 'line' },
             { [styles.tabItemLine]: type === 'line' },
