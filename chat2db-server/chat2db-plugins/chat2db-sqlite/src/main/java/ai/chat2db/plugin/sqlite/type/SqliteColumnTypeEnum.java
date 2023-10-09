@@ -14,14 +14,14 @@ import java.util.Map;
 public enum SqliteColumnTypeEnum implements ColumnBuilder {
 
 
-    INTEGER("INTEGER", true, false, true, false, false, true, true, false, false, false),
+    INTEGER("INTEGER", true, false, true, false, false, true, false, false, false, false),
 
-    REAL("REAL", true, false, true, false, false, true, true, false, false, false),
+    REAL("REAL", true, false, true, false, false, true, false, false, false, false),
 
-    BLOB("BLOB", true, false, true, false, false, true, true, false, false, false),
+    BLOB("BLOB", true, false, true, false, false, true, false, false, false, false),
 
 
-    TEXT("TEXT", true, false, true, false, false, true, true, false, false, false),
+    TEXT("TEXT", true, false, true, false, false, true, false, false, false, false),
 
     ;
     private ColumnType columnType;
@@ -56,7 +56,7 @@ public enum SqliteColumnTypeEnum implements ColumnBuilder {
         }
         StringBuilder script = new StringBuilder();
 
-        script.append("`").append(column.getName()).append("`").append(" ");
+        script.append("\"").append(column.getName()).append("\"").append(" ");
 
         script.append(buildDataType(column, type)).append(" ");
 
@@ -72,7 +72,7 @@ public enum SqliteColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildAutoIncrement(column, type)).append(" ");
 
-        script.append(buildComment(column, type)).append(" ");
+//        script.append(buildComment(column, type)).append(" ");
 
         return script.toString();
     }
@@ -94,19 +94,19 @@ public enum SqliteColumnTypeEnum implements ColumnBuilder {
     @Override
     public String buildModifyColumn(TableColumn tableColumn) {
 
-        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
-            return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");
-        }
+//        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
+//            return StringUtils.join("DROP COLUMN \"", tableColumn.getName() + "\"");
+//        }
         if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
-            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
+            return StringUtils.join("ADD ", buildCreateColumnSql(tableColumn));
         }
-        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
-            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
-                return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
-            } else {
-                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
-            }
-        }
+//        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
+//            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
+//                return StringUtils.join("CHANGE COLUMN \"", tableColumn.getOldName(), "\" ", buildCreateColumnSql(tableColumn));
+//            } else {
+//                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+//            }
+//        }
         return "";
     }
 
@@ -120,12 +120,6 @@ public enum SqliteColumnTypeEnum implements ColumnBuilder {
         return "";
     }
 
-    private String buildComment(TableColumn column, SqliteColumnTypeEnum type) {
-        if (!type.columnType.isSupportComments() || StringUtils.isEmpty(column.getComment())) {
-            return "";
-        }
-        return StringUtils.join("COMMENT '", column.getComment(), "'");
-    }
 
     private String buildExt(TableColumn column, SqliteColumnTypeEnum type) {
         if (!type.columnType.isSupportExtent() || StringUtils.isEmpty(column.getExtent())) {
