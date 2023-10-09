@@ -6,7 +6,7 @@ export enum CreateTabIntroType {
 
 // 工作台Tab的类型
 export enum WorkspaceTabType {
-  CONSOLE = 'table',
+  CONSOLE = 'console',
   FUNCTION = 'function',
   PROCEDURE = 'procedure',
   VIEW = 'view',
