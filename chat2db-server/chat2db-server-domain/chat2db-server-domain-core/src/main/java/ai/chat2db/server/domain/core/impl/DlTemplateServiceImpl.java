@@ -112,8 +112,13 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         ExecuteResult executeResult = execute(originalSql, offset, count);
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
-        executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
-        executeResult.setTableName(SqlUtils.getTableName(originalSql,dbType));
+        try {
+            executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
+            executeResult.setTableName(SqlUtils.getTableName(originalSql,dbType));
+        }catch (Exception e){
+
+        }
+
 
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
