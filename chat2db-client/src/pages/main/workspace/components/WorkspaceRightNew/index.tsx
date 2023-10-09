@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -504,7 +504,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         key: t.id,
         editableName: t.editableName,
         children: (
-          <>
+          <Fragment key={t.id}>
             {[
               WorkspaceTabType.CONSOLE,
               WorkspaceTabType.FUNCTION,
@@ -545,7 +545,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 tableName={uniqueData.tableName}
               />
             )}
-          </>
+          </Fragment>
         ),
       };
     });
