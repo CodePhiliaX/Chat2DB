@@ -16,4 +16,7 @@ public class TableMeta {
 
 
     private List<Collation> collations;
+
+
+    private List<IndexType> indexTypes;
 }

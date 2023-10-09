@@ -268,6 +268,7 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 .columnTypes(MysqlColumnTypeEnum.getTypes())
                 .charsets(MysqlCharsetEnum.getCharsets())
                 .collations(MysqlCollationEnum.getCollations())
+                .indexTypes(MysqlIndexTypeEnum.getIndexTypes())
                 .build();
     }
 

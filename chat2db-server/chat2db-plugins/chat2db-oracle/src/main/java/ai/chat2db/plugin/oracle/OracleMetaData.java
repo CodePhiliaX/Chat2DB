@@ -279,6 +279,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 .columnTypes(OracleColumnTypeEnum.getTypes())
                 .charsets(Lists.newArrayList())
                 .collations(Lists.newArrayList())
+                .indexTypes(OracleIndexTypeEnum.getIndexTypes())
                 .build();
     }
 

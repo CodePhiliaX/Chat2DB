@@ -1,9 +1,13 @@
 package ai.chat2db.plugin.oracle.type;
 
 import ai.chat2db.spi.enums.EditStatus;
+import ai.chat2db.spi.model.IndexType;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableIndexColumn;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 public enum OracleIndexTypeEnum {
 
@@ -14,6 +18,16 @@ public enum OracleIndexTypeEnum {
     UNIQUE("Unique", "UNIQUE INDEX"),
 
     BITMAP("BITMAP", "BITMAP INDEX");
+
+    public IndexType getIndexType() {
+        return indexType;
+    }
+
+    public void setIndexType(IndexType indexType) {
+        this.indexType = indexType;
+    }
+
+    private IndexType indexType;
 
 
     public String getName() {
@@ -32,6 +46,7 @@ public enum OracleIndexTypeEnum {
     OracleIndexTypeEnum(String name, String keyword) {
         this.name = name;
         this.keyword = keyword;
+        this.indexType = new IndexType(name);
     }
 
 
@@ -103,5 +118,9 @@ public enum OracleIndexTypeEnum {
         script.append(buildIndexName(tableIndex));
 
         return script.toString();
+    }
+
+    public static List<IndexType> getIndexTypes() {
+        return Arrays.asList(OracleIndexTypeEnum.values()).stream().map(OracleIndexTypeEnum::getIndexType).collect(java.util.stream.Collectors.toList());
     }
 }
