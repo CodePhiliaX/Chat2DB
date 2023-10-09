@@ -5,15 +5,12 @@ import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
 import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
-import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
-import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
-import { IEditTableInfo, IWorkspaceTab } from '@/typings';
-import { DatabaseTypeCode } from '@/constants';
+import sqlService, { IModifyTableSqlParams } from '@/service/sql';
+import ExecuteSQL from '@/components/ExecuteSQL';
+import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
+import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
 import lodash from 'lodash';
-import Iconfont from '@/components/Iconfont';
-import { formatSql } from '@/utils';
-
 interface IProps {
   dataSourceId: number;
   databaseName: string;
@@ -36,9 +33,27 @@ interface IContext extends IProps {
   baseInfoRef: React.RefObject<IBaseInfoRef>;
   columnListRef: React.RefObject<IColumnListRef>;
   indexListRef: React.RefObject<IIndexListRef>;
+  databaseSupportField: IDatabaseSupportField;
 }
 
 export const Context = createContext<IContext>({} as any);
+
+interface IOption {
+  label: string;
+  value: string | number | null;
+}
+
+// 列字段类型，select组件的options需要的数据结构
+interface IColumnTypesOption extends IColumnTypes {
+  label: string;
+  value: string | number | null;
+}
+export interface IDatabaseSupportField {
+  columnTypes: IColumnTypesOption[];
+  charsets: IOption[];
+  collations: IOption[];
+  indexTypes: IOption[];
+}
 
 export default memo((props: IProps) => {
   const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails, databaseType } = props;
@@ -48,9 +63,6 @@ export default memo((props: IProps) => {
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
-  const monacoEditorRef = useRef<IExportRefFunction>(null);
-  const [executeSqlResult, setExecuteSqlResult] = useState<string | null>(null);
-  const [executeLoading, setExecuteLoading] = useState<boolean>(false);
   const [appendValue, setAppendValue] = useState<string>('');
   const tabList = useMemo(() => {
     return [
@@ -75,22 +87,73 @@ export default memo((props: IProps) => {
     ];
   }, []);
   const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
+  const [databaseSupportField, setDatabaseSupportField] = useState<IDatabaseSupportField>({
+    columnTypes: [],
+    charsets: [],
+    collations: [],
+    indexTypes: [],
+  });
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item);
   }
 
   useEffect(() => {
-    if (!viewSqlModal) {
-      setExecuteSqlResult(null);
-    }
-  }, [viewSqlModal]);
-
-  useEffect(() => {
     if (tableName) {
       getTableDetails({});
     }
+    getDatabaseFieldTypeList();
   }, []);
+
+  // 获取数据库字段类型列表
+  const getDatabaseFieldTypeList = () => {
+    sqlService
+      .getDatabaseFieldTypeList({
+        dataSourceId,
+        databaseName,
+      })
+      .then((res) => {
+        const columnTypes =
+          res?.columnTypes?.map((i) => {
+            return {
+              ...i,
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        const charsets =
+          res?.charsets?.map((i) => {
+            return {
+              value: i.charsetName,
+              label: i.charsetName,
+            };
+          }) || [];
+
+        const collations =
+          res?.collations?.map((i) => {
+            return {
+              value: i.collationName,
+              label: i.collationName,
+            };
+          }) || [];
+
+        const indexTypes =
+          res?.indexTypes?.map((i) => {
+            return {
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        setDatabaseSupportField({
+          columnTypes,
+          charsets,
+          collations,
+          indexTypes,
+        });
+      });
+  };
 
   const getTableDetails = ({ tableNameProps }: { tableNameProps?: string }) => {
     if (!tableName) return;
@@ -136,61 +199,22 @@ export default memo((props: IProps) => {
     }
   }
 
-  const executeSql = () => {
-    const executeSQLParams: IExecuteSqlParams = {
-      sql: monacoEditorRef.current?.getAllContent() || '',
-      dataSourceId,
-      databaseName,
-      schemaName,
-    };
-    setExecuteLoading(true);
-    sqlService
-      .executeDDL(executeSQLParams)
-      .then((res) => {
-        if (res.success) {
-          setViewSqlModal(false);
-          message.success(i18n('common.text.successfulExecution'));
-          const newTableName = baseInfoRef.current?.getBaseInfo().name;
-          getTableDetails({ tableNameProps: newTableName });
-          if (!tableName) {
-            changeTabDetails({
-              ...tabDetails,
-              title: `edit-${newTableName}`,
-              uniqueData: {
-                ...(tabDetails.uniqueData || {}),
-                tableName: newTableName,
-              },
-            });
-          }
-        } else {
-          setExecuteSqlResult(res.message);
-        }
-      })
-      .finally(() => {
-        setExecuteLoading(false);
+  const executeSuccessCallBack = () => {
+    setViewSqlModal(false);
+    message.success(i18n('common.text.successfulExecution'));
+    const newTableName = baseInfoRef.current?.getBaseInfo().name;
+    getTableDetails({ tableNameProps: newTableName });
+    if (!tableName) {
+      changeTabDetails({
+        ...tabDetails,
+        title: `${newTableName}`,
+        type: WorkspaceTabType.EditTable,
+        uniqueData: {
+          ...(tabDetails.uniqueData || {}),
+          tableName: newTableName,
+        },
       });
-  };
-
-  //
-  const renderMonacoEditor = useMemo(() => {
-    return (
-      <MonacoEditor
-        className={styles.monacoEditor}
-        id="view_sql"
-        ref={monacoEditorRef}
-        appendValue={{
-          text: appendValue,
-          range: 'reset',
-        }}
-      />
-    );
-  }, [appendValue]);
-
-  const handleFormatSql = () => {
-    const sql = monacoEditorRef.current?.getAllContent() || '';
-    formatSql(sql, databaseType).then((res) => {
-      setAppendValue(res);
-    });
+    }
   };
 
   return (
@@ -201,6 +225,7 @@ export default memo((props: IProps) => {
         baseInfoRef,
         columnListRef,
         indexListRef,
+        databaseSupportField,
       }}
     >
       <div className={classnames(styles.box)}>
@@ -243,30 +268,17 @@ export default memo((props: IProps) => {
         width="60vw"
         maskClosable={false}
         footer={false}
+        destroyOnClose={true}
       >
-        <div className={styles.monacoEditorModal}>
-          <div className={styles.monacoEditorContent}>
-            <div className={styles.monacoEditorHeader}>
-              <div className={styles.formatButton} onClick={handleFormatSql}>
-                <Iconfont code="&#xe64f;" />
-                {i18n('common.button.format')}
-              </div>
-              <Button className={styles.executeButton} type="primary" onClick={executeSql} loading={executeLoading}>
-                <Iconfont code="&#xe656;" />
-                {i18n('common.button.execute')}
-              </Button>
-            </div>
-            {renderMonacoEditor}
-          </div>
-          {executeSqlResult && (
-            <div className={styles.result}>
-              <div className={styles.resultHeader}>{i18n('common.text.errorMessage')}</div>
-              <div className={styles.resultContent}>
-                <div className={styles.errorMessage}>{executeSqlResult}</div>
-              </div>
-            </div>
-          )}
-        </div>
+        <ExecuteSQL
+          initSql={appendValue}
+          databaseName={databaseName}
+          dataSourceId={dataSourceId}
+          tableName={tableName}
+          schemaName={schemaName}
+          databaseType={databaseType}
+          executeSuccessCallBack={executeSuccessCallBack}
+        />
       </Modal>
     </Context.Provider>
   );

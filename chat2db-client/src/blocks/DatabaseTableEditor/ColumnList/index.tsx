@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, { useContext, useEffect, useState, useRef, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
@@ -7,7 +7,6 @@ import { Table, InputNumber, Input, Form, Select, Checkbox } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import sqlService from '@/service/sql';
 import { Context } from '../index';
 import { IColumnItemNew, IColumnTypes } from '@/typings';
 import i18n from '@/i18n';
@@ -21,20 +20,9 @@ interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
 
 interface IProps {}
 
-interface IOption {
-  label: string;
-  value: string | number | null;
-}
-
 // 编辑配置
 interface IEditingConfig extends IColumnTypes {
   editKey: string;
-}
-
-// 列字段类型，select组件的options需要的数据结构
-interface IColumnTypesOption extends IColumnTypes {
-  label: string;
-  value: string | number | null;
 }
 
 // 本组件暴露给父组件的方法
@@ -105,20 +93,12 @@ const createInitialData = () => {
 };
 
 const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>) => {
-  const { dataSourceId, databaseName, schemaName, tableDetails } = useContext(Context);
+  const { databaseSupportField, databaseName, schemaName, tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IColumnItemNew[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IColumnItemNew | null>(null);
   const [editingConfig, setEditingConfig] = useState<IEditingConfig | null>(null);
-  const [databaseSupportField, setDatabaseSupportField] = useState<{
-    columnTypes: IColumnTypesOption[];
-    charsets: IOption[];
-    collations: IOption[];
-  }>({
-    columnTypes: [],
-    charsets: [],
-    collations: [],
-  });
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const isEditing = (record: IColumnItemNew) => record.key === editingData?.key;
 
@@ -157,47 +137,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       setDataSource(list);
     }
   }, [tableDetails]);
-
-  useEffect(() => {
-    // 获取数据库字段类型列表
-    sqlService
-      .getDatabaseFieldTypeList({
-        dataSourceId,
-        databaseName,
-      })
-      .then((res) => {
-        const columnTypes =
-          res?.columnTypes?.map((i) => {
-            return {
-              ...i,
-              value: i.typeName,
-              label: i.typeName,
-            };
-          }) || [];
-
-        const charsets =
-          res?.charsets?.map((i) => {
-            return {
-              value: i.charsetName,
-              label: i.charsetName,
-            };
-          }) || [];
-
-        const collations =
-          res?.collations?.map((i) => {
-            return {
-              value: i.collationName,
-              label: i.collationName,
-            };
-          }) || [];
-
-        setDatabaseSupportField({
-          columnTypes,
-          charsets,
-          collations,
-        });
-      });
-  }, []);
 
   const columns = [
     {
@@ -386,6 +325,9 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     };
     setDataSource([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
   const deleteData = (record) => {
@@ -505,6 +447,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
               <Table
+                ref={tableRef}
                 components={{
                   body: {
                     row: Row,

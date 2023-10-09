@@ -1,7 +1,16 @@
 /**
  * 这个组件只负责拿到用户选择的表名
  *  */
-import React, { useMemo, useState, useContext, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, {
+  useMemo,
+  useState,
+  useRef,
+  useContext,
+  useEffect,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+} from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Table, Form, Select, Button } from 'antd';
@@ -49,6 +58,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   const [form] = Form.useForm();
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const isEditing = (record: IIndexIncludeColumnItem) => record.key === editingKey;
+  const tableRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (includedColumnList.length) {
@@ -78,6 +88,9 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     setDataSource([...dataSource, newData]);
     console.log([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
   const deleteData = (record) => {
@@ -112,6 +125,27 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       },
     },
     {
+      title: i18n('editTable.label.order'),
+      dataIndex: 'ascOrDesc',
+      render: (text: string, record: IIndexIncludeColumnItem) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <Form.Item name="ascOrDesc" style={{ margin: 0 }}>
+            <Select
+              options={[
+                { label: 'ASC', value: 'A' },
+                { label: 'DESC', value: 'D' },
+              ]}
+            />
+          </Form.Item>
+        ) : (
+          <div className={styles.editableCell} onClick={() => edit(record)}>
+            {text === 'A' ? 'ASC' : text === 'D' ? 'DESC' : null}
+          </div>
+        );
+      },
+    },
+    {
       width: '40px',
       render: (text: string, record: IIndexIncludeColumnItem) => {
         return (
@@ -128,6 +162,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
         );
       },
     },
+
     // {
     //   title: i18n('editTable.label.prefixLength'),
     //   dataIndex: 'prefixLength',
@@ -183,6 +218,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
       </div>
       <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
         <Table
+          ref={tableRef}
           style={{
             maxHeight: '100%',
             overflow: 'auto',

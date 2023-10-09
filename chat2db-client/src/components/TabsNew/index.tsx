@@ -2,12 +2,15 @@ import React, { memo, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import styles from './index.less';
+import { Popover } from 'antd';
 
 export interface ITabItem {
-  prefixIcon?: string;
+  prefixIcon?: string | React.ReactNode;
   label: React.ReactNode;
   key: number | string;
+  popover?: string | React.ReactNode;
   children?: React.ReactNode;
+  editableName?: boolean | undefined;
 }
 
 export interface IOnchangeProps {
@@ -20,15 +23,14 @@ interface IProps {
   items: ITabItem[] | undefined;
   activeKey?: number | string;
   onChange?: (key: string | number | undefined) => void;
-  onEdit?: (action: 'add' | 'remove', data?: ITabItem) => void;
+  onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
   hideAdd?: boolean;
   type?: 'line';
-  editableName?: boolean;
   editableNameOnBlur?: (option: ITabItem) => void;
 }
 
 export default memo<IProps>((props) => {
-  const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableName, editableNameOnBlur } = props;
+  const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableNameOnBlur } = props;
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
@@ -64,7 +66,7 @@ export default memo<IProps>((props) => {
     }
     changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
-    onEdit?.('remove', data);
+    onEdit?.('remove', data, newInternalTabs);
   }
 
   function changeTab(key: string | number | undefined) {
@@ -76,7 +78,7 @@ export default memo<IProps>((props) => {
   }
 
   function onDoubleClick(t: ITabItem) {
-    if (editableName) {
+    if (t.editableName) {
       setEditingTab(t.key);
     }
   }
@@ -93,39 +95,45 @@ export default memo<IProps>((props) => {
     }
 
     return (
-      <div
-        onDoubleClick={() => {
-          onDoubleClick(t);
-        }}
-        key={t.key}
-        className={classnames(
-          { [styles.tabItem]: type !== 'line' },
-          { [styles.tabItemLine]: type === 'line' },
-          { [styles.activeTabLine]: t.key === internalActiveTab && type === 'line' },
-          { [styles.activeTab]: t.key === internalActiveTab && type !== 'line' },
-        )}
-      >
-        {t.key === editingTab ? (
-          <input
-            value={t.label as string}
-            onChange={(e) => {
-              inputOnChange(e.target.value);
-            }}
-            className={styles.input}
-            autoFocus
-            onBlur={onBlur}
-            type="text"
-          />
-        ) : (
-          <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
-            {t.prefixIcon && <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />}
-            <div className={styles.text}>{t.label}</div>
+      <Popover content={t.popover} key={t.key}>
+        <div
+          onDoubleClick={() => {
+            onDoubleClick(t);
+          }}
+          className={classnames(
+            { [styles.tabItem]: type !== 'line' },
+            { [styles.tabItemLine]: type === 'line' },
+            { [styles.activeTabLine]: t.key === internalActiveTab && type === 'line' },
+            { [styles.activeTab]: t.key === internalActiveTab && type !== 'line' },
+          )}
+        >
+          {t.key === editingTab ? (
+            <input
+              value={t.label as string}
+              onChange={(e) => {
+                inputOnChange(e.target.value);
+              }}
+              className={styles.input}
+              autoFocus
+              onBlur={onBlur}
+              type="text"
+            />
+          ) : (
+            <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
+              {t.prefixIcon &&
+                (typeof t.prefixIcon == 'string' ? (
+                  <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />
+                ) : (
+                  t.prefixIcon
+                ))}
+              <div className={styles.text}>{t.label}</div>
+            </div>
+          )}
+          <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
+            <Iconfont code="&#xe634;" />
           </div>
-        )}
-        <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
-          <Iconfont code="&#xe634;" />
         </div>
-      </div>
+      </Popover>
     );
   }
 

@@ -85,5 +85,7 @@ export default {
   'common.text.action': '操作',
   'common.button.add': '添加',
   'common.text.errorMessage': '错误信息',
+  'common.button.cancelRequest': '取消请求',
+  'common.button.executionError': '执行错误',
   
 };
