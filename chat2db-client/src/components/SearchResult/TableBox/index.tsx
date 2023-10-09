@@ -39,7 +39,7 @@ interface IUpdateData {
   oldDataList?: string[];
   dataList?: string[];
   type: CRUD;
-  index: number;
+  rowNo: string;
 }
 
 // const defaultResultConfig: IResultConfig = {
@@ -74,9 +74,9 @@ export default function TableBox(props: ITableProps) {
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [tableData, setTableData] = useState<any[]>([]);
-  const [editingCell, setEditingCell] = useState<[number, number] | null>(null);
+  const [editingCell, setEditingCell] = useState<[string, string] | null>(null);
   const [editingData, setEditingData] = useState<string>('');
-  const [curOperationRowIndex, setCurOperationRowIndex] = useState<number>(-1);
+  const [curOperationRowNo, setCurOperationRowNo] = useState<string | null>(null);
   const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
   const [updateDataSql, setUpdateDataSql] = useState<string>('');
   const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
@@ -153,31 +153,43 @@ export default function TableBox(props: ITableProps) {
     setViewTableCellData(null);
   }
 
-  const handleDoubleClickTableItem = (colIndex, rowIndex, value) => {
+  const handleDoubleClickTableItem = (colIndex, rowNo, value) => {
     if (!data.canEdit) {
       return;
     }
     setEditingData(value);
-    setEditingCell([colIndex, rowIndex]);
+    setEditingCell([colIndex, rowNo]);
   };
 
   // 编辑数据失焦
   const editDataOnBlur = () => {
     setEditingCell(null);
     setEditingData('');
-    const [colIndex, rowIndex] = editingCell!;
+    const [colIndex, rowNo] = editingCell!;
     const newTableData = lodash.cloneDeep(tableData);
-    newTableData[rowIndex][`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
-    setTableData(newTableData);
-    // 如果已经存在该行的更新数据则更新，否则新增
-    const index = updateData.findIndex((item) => item.index === rowIndex);
-    const oldDataList = dataList[rowIndex];
-    const newDataList = Object.keys(newTableData[rowIndex]).map((item) => newTableData[rowIndex][item]);
+    let oldDataList: string[] = [];
+    let newDataList: string[] = [];
+    newTableData.forEach((item) => {
+      if (item[`${preCode}0No.`] === rowNo) {
+        item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
+        newDataList = Object.keys(item).map((i) => item[i]);
+      }
+    });
 
+    setTableData(newTableData);
+
+    dataList.forEach((item) => {
+      if (item[0] === rowNo) {
+        oldDataList = item;
+      }
+    });
+
+    // 如果已经存在该行的更新数据则更新，否则新增
+    const index = updateData.findIndex((item) => item.rowNo === rowNo);
     // 如果datalist和oldDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
     if (oldDataList?.join(',') === newDataList?.join(',')) {
       if (index !== -1) {
-        setUpdateData(updateData.filter((item) => item.index !== rowIndex));
+        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo));
       }
       return;
     }
@@ -189,7 +201,7 @@ export default function TableBox(props: ITableProps) {
           type: CRUD.UPDATE,
           oldDataList: oldDataList,
           dataList: newDataList,
-          index: rowIndex,
+          rowNo,
         },
       ]);
       return;
@@ -211,11 +223,16 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 每个单元格的样式
-  const tableCellStyle = (value, colIndex, rowIndex) => {
+  const tableCellStyle = (value, colIndex, rowNo) => {
     // 单元格的基础样式
     const styleList = [styles.tableItem];
     // 编辑过的单元格的样式
-    const oldValue = dataList?.[rowIndex]?.[colIndex];
+    let oldValue = '';
+    dataList.forEach((item) => {
+      if (item[0] === rowNo) {
+        oldValue = item[colIndex];
+      }
+    });
     if (value !== oldValue) {
       styleList.push(styles.tableItemEdit);
     }
@@ -249,13 +266,14 @@ export default function TableBox(props: ITableProps) {
         name: name,
         key: name,
         width: 120,
-        render: (value: any, a, rowIndex) => {
+        render: (value: any, rowData) => {
+          const rowNo = rowData[`${preCode}0No.`];
           return (
             <div
-              className={tableCellStyle(value, colIndex, rowIndex)}
-              onDoubleClick={handleDoubleClickTableItem.bind(null, colIndex, rowIndex, value)}
+              className={tableCellStyle(value, colIndex, rowNo)}
+              onDoubleClick={handleDoubleClickTableItem.bind(null, colIndex, rowNo, value)}
             >
-              {editingCell?.join(',') === `${colIndex},${rowIndex}` ? (
+              {editingCell?.join(',') === `${colIndex},${rowNo}` ? (
                 <Input
                   value={editingData}
                   onChange={(e) => {
@@ -333,7 +351,7 @@ export default function TableBox(props: ITableProps) {
   // 处理创建数据
   const handelCreateData = () => {
     // 如果加的这行数据是删除过的，则恢复
-    const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.DELETE);
+    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.DELETE);
     if (index !== -1) {
       updateData.splice(index, 1);
       setUpdateData([...updateData]);
@@ -344,7 +362,7 @@ export default function TableBox(props: ITableProps) {
     const newData = {};
     columns.forEach((t, i) => {
       if (t.name === 'No.') {
-        newData[`${preCode}${i}${t.name}`] = newTableData.length + 1;
+        newData[`${preCode}${i}${t.name}`] = (newTableData.length + 1).toString();
       } else {
         newData[`${preCode}${i}${t.name}`] = null;
       }
@@ -356,7 +374,7 @@ export default function TableBox(props: ITableProps) {
       {
         type: CRUD.CREATE,
         dataList: Object.keys(newData).map((item) => newData[item]),
-        index: newTableData.length - 1,
+        rowNo: newTableData.length.toString(),
       },
     ]);
 
@@ -366,27 +384,23 @@ export default function TableBox(props: ITableProps) {
     }, 0);
   };
 
-  useEffect(() => {
-    console.log('updateData', updateData);
-  }, [updateData]);
-
   // 处理删除数据
   const handelDeleteData = () => {
-    if (curOperationRowIndex === -1) {
+    if (curOperationRowNo === null) {
       return;
     }
 
     // 如果是新增的行，则直接删除
-    const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.CREATE);
+    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.CREATE);
     if (index !== -1) {
       updateData.splice(index, 1);
       setUpdateData([...updateData]);
-      setTableData(tableData.filter((item, i) => i !== curOperationRowIndex));
+      setTableData(tableData.filter((item) => item[`${preCode}0No.`] !== curOperationRowNo));
       return;
     }
 
     // 正常的删除数据
-    const deleteIndex = updateData.findIndex((t) => t.index === curOperationRowIndex);
+    const deleteIndex = updateData.findIndex((t) => t.rowNo === curOperationRowNo);
     if (deleteIndex !== -1) {
       updateData.splice(deleteIndex, 1);
     }
@@ -394,11 +408,11 @@ export default function TableBox(props: ITableProps) {
       ...updateData,
       {
         type: CRUD.DELETE,
-        oldDataList: dataList[curOperationRowIndex],
-        index: curOperationRowIndex,
+        oldDataList: dataList[curOperationRowNo!],
+        rowNo: curOperationRowNo!,
       },
     ]);
-    setCurOperationRowIndex(-1);
+    setCurOperationRowNo(null);
   };
 
   // 查看更新数据的sql
@@ -467,9 +481,9 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 不同状态下的表格行样式
-  const tableRowStyle = (rowIndex: number) => {
+  const tableRowStyle = (rowNo: string) => {
     // 如果是当前操作的行
-    if (rowIndex === curOperationRowIndex) {
+    if (rowNo === curOperationRowNo) {
       return {
         '--hover-bgcolor': 'transparent',
         '--bgcolor': 'transparent',
@@ -477,7 +491,7 @@ export default function TableBox(props: ITableProps) {
       };
     }
     // 如果是删除过的行
-    const index = updateData.findIndex((item) => item.index === rowIndex && item.type === CRUD.DELETE);
+    const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.DELETE);
     if (index !== -1) {
       return {
         '--hover-bgcolor': 'transparent',
@@ -486,7 +500,9 @@ export default function TableBox(props: ITableProps) {
       };
     }
     // 如果是新增的行
-    const index2 = updateData.findIndex((item) => item.index === rowIndex && item.type === CRUD.CREATE);
+    const index2 = updateData.findIndex((item) => {
+      return item.rowNo === rowNo && item.type === CRUD.CREATE;
+    });
     if (index2 !== -1) {
       return {
         '--hover-bgcolor': 'transparent',
@@ -543,7 +559,7 @@ export default function TableBox(props: ITableProps) {
                 <div
                   onClick={handelDeleteData}
                   className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: curOperationRowIndex === -1,
+                    [styles.disableBar]: curOperationRowNo === null,
                   })}
                 >
                   <Iconfont code="&#xe644;" />
@@ -580,11 +596,12 @@ export default function TableBox(props: ITableProps) {
             components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
             isStickyHead
             stickyTop={31}
-            getRowProps={(record, rowIndex) => {
+            getRowProps={(record) => {
+              const rowNo = record[`${preCode}0No.`];
               return {
-                style: tableRowStyle(rowIndex),
+                style: tableRowStyle(rowNo),
                 onClick() {
-                  setCurOperationRowIndex(rowIndex);
+                  setCurOperationRowNo(rowNo);
                 },
               };
             }}
@@ -605,15 +622,16 @@ export default function TableBox(props: ITableProps) {
         onCancel={handleCancel}
         width="60vw"
         maskClosable={false}
-        footer={
-          <>
-            {
-              <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
-                {i18n('common.button.copy')}
-              </Button>
-            }
-          </>
-        }
+        footer={false}
+        // footer={
+        //   <>
+        //     {
+        //       <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
+        //         {i18n('common.button.copy')}
+        //       </Button>
+        //     }
+        //   </>
+        // }
       >
         <div className={styles.monacoEditor}>
           <MonacoEditor

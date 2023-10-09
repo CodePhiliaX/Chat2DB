@@ -394,11 +394,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       setWorkspaceTabList(workspaceTabList.filter((t) => t.id !== data.key));
       const editData = workspaceTabList?.find((t) => t.id === data.key);
       if (
-        editData?.type === WorkspaceTabType.CONSOLE ||
-        editData?.type === WorkspaceTabType.FUNCTION ||
-        editData?.type === WorkspaceTabType.PROCEDURE ||
-        editData?.type === WorkspaceTabType.TRIGGER ||
-        editData?.type === WorkspaceTabType.VIEW
+        editData?.type !== WorkspaceTabType.EditTable &&
+        editData?.type !== WorkspaceTabType.CreateTable &&
+        editData?.type !== WorkspaceTabType.EditTableData
       ) {
         closeWindowTab(data.key as number);
       }
