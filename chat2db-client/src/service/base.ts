@@ -162,6 +162,9 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
         case 'put':
           dataName = 'data';
           break;
+        default:
+          dataName = 'params';
+          break;
       }
 
       let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;

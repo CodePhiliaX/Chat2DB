@@ -317,11 +317,11 @@ export default function TableBox(props: ITableProps) {
     // 正常的新增
     const newTableData = lodash.cloneDeep(tableData);
     const newData = {};
-    columns.forEach((item, index) => {
-      if (item.name === 'No.') {
-        newData[`${preCode}${index}${item.name}`] = newTableData.length + 1;
+    columns.forEach((t, i) => {
+      if (t.name === 'No.') {
+        newData[`${preCode}${i}${t.name}`] = newTableData.length + 1;
       } else {
-        newData[`${preCode}${index}${item.name}`] = null;
+        newData[`${preCode}${i}${t.name}`] = null;
       }
     });
     newTableData.push(newData);
@@ -345,15 +345,18 @@ export default function TableBox(props: ITableProps) {
     if (curOperationRowIndex === -1) {
       return;
     }
+
     // 如果是新增的行，则直接删除
     const index = updateData.findIndex((item) => item.index === curOperationRowIndex && item.type === CRUD.CREATE);
     if (index !== -1) {
       updateData.splice(index, 1);
       setUpdateData([...updateData]);
-      setTableData(tableData.filter((item, index) => index !== curOperationRowIndex));
+      setTableData(tableData.filter((item, i) => i !== curOperationRowIndex));
       return;
     }
-    const index2 = updateData.findIndex((item) => item.index === curOperationRowIndex);
+
+    // 正常的删除数据
+    const index2 = updateData.findIndex((t) => t.index === curOperationRowIndex);
     if (index2 === -1) {
       setUpdateData([
         ...updateData,
@@ -420,8 +423,14 @@ export default function TableBox(props: ITableProps) {
         message.success(i18n('common.text.successfulExecution'));
         setUpdateData([]);
       } else {
-        // setExecuteSqlResult(res.message);
-        // TODO:弹出错误弹窗
+        window._notificationApi({
+          requestUrl: eventualUrl,
+          requestParams: JSON.stringify(params),
+          errorCode,
+          errorMessage,
+          errorDetail,
+          solutionLink,
+        });
       }
     });
   };
