@@ -594,6 +594,7 @@ export default function TableBox(props: ITableProps) {
         title={i18n('editTable.title.sqlPreview')}
         open={viewUpdateDataSql}
         footer={false}
+        destroyOnClose={true}
         onCancel={() => {
           setViewUpdateDataSql(false);
           setUpdateDataSql('');
