@@ -110,7 +110,7 @@ public class DefaultMetaService implements MetaData {
 
     @Override
     public String getMetaDataName(String... names) {
-        return Arrays.stream(names).collect(Collectors.joining("."));
+        return Arrays.stream(names).filter(name -> StringUtils.isBlank(name)).collect(Collectors.joining("."));
     }
 
 

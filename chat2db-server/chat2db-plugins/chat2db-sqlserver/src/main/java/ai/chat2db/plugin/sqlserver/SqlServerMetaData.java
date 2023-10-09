@@ -2,6 +2,7 @@ package ai.chat2db.plugin.sqlserver;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -223,5 +224,10 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             return table;
         });
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isBlank(name)).map(name -> "[" + name + "]").collect(Collectors.joining("."));
     }
 }
