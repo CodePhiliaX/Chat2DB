@@ -242,7 +242,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
     operationColumn: [
-      OperationColumn.EditTableData,
+      // OperationColumn.EditTableData,
       OperationColumn.Top,
       OperationColumn.ExportDDL,
       OperationColumn.EditTable,

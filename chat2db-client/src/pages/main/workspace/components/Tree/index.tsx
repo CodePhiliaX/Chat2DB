@@ -129,6 +129,7 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
 
   function nodeDoubleClick() {
     if (
+      data.treeNodeType === TreeNodeType.TABLE ||
       data.treeNodeType === TreeNodeType.FUNCTION ||
       data.treeNodeType === TreeNodeType.TRIGGER ||
       data.treeNodeType === TreeNodeType.VIEW ||
@@ -138,16 +139,18 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
         type: 'workspace/setDoubleClickTreeNodeData',
         payload: data,
       });
-    } else if (data.treeNodeType === TreeNodeType.TABLE) {
-      dispatch({
-        type: 'workspace/setCreateTabIntro',
-        payload: {
-          type: CreateTabIntroType.EditTableData,
-          workspaceTabType: WorkspaceTabType.EditTableData,
-          treeNodeData: data,
-        },
-      });
-    } else {
+    }
+    // else if (data.treeNodeType === TreeNodeType.TABLE) {
+    //   dispatch({
+    //     type: 'workspace/setCreateTabIntro',
+    //     payload: {
+    //       type: CreateTabIntroType.EditTableData,
+    //       workspaceTabType: WorkspaceTabType.EditTableData,
+    //       treeNodeData: data,
+    //     },
+    //   });
+    // }
+    else {
       handleClick(data);
     }
   }
@@ -178,10 +181,10 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
             )}
             <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
               <div className={styles.typeIcon}>
-                <Iconfont code={recognizeIcon(data.treeNodeType)!}></Iconfont>
+                <Iconfont code={recognizeIcon(data.treeNodeType)!} />
               </div>
               <div className={styles.contentText}>
-                <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }}></div>
+                <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }} />
                 {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
               </div>
             </div>
