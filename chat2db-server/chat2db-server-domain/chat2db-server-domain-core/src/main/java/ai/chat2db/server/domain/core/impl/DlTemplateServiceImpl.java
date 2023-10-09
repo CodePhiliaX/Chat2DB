@@ -220,7 +220,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         StringBuilder script = new StringBuilder();
         script.append("DELETE FROM ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
                 .append(" where ");
-        for (int i = 0; i < row.size(); i++) {
+        for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             Header header = param.getHeaderList().get(i);
             script.append(metaSchema.getMetaDataName(header.getName()))
@@ -236,14 +236,14 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         StringBuilder script = new StringBuilder();
         script.append("INSERT INTO ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
                 .append(" (");
-        for (int i = 0; i < row.size(); i++) {
+        for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
             script.append(metaSchema.getMetaDataName(header.getName()))
                     .append(",");
         }
         script.deleteCharAt(script.length() - 1);
         script.append(") VALUES (");
-        for (int i = 0; i < row.size(); i++) {
+        for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             Header header = param.getHeaderList().get(i);
             script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
@@ -260,7 +260,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         StringBuilder script = new StringBuilder();
         script.append("UPDATE ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
                 .append(" set ");
-        for (int i = 0; i < row.size(); i++) {
+        for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             String oldValue = odlRow.get(i);
             if (StringUtils.equals(newValue, oldValue)) {
@@ -275,7 +275,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
         script.deleteCharAt(script.length() - 1);
         script.append(" where ");
-        for (int i = 0; i < odlRow.size(); i++) {
+        for (int i = 1; i < odlRow.size(); i++) {
             String oldValue = odlRow.get(i);
             if (oldValue == null) {
                 continue;
