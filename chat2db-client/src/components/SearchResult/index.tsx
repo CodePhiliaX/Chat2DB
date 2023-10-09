@@ -6,8 +6,6 @@ import StateIndicator from '@/components/StateIndicator';
 import { IManageResultData, IResultConfig } from '@/typings';
 import TableBox from './TableBox';
 import styles from './index.less';
-import i18n from '@/i18n';
-import EmptyImg from '@/assets/img/empty.svg';
 
 interface IProps {
   className?: string;
@@ -90,18 +88,9 @@ export default memo<IProps>((props) => {
     });
   }, [resultDataList]);
 
-  const renderEmpty = () => {
-    return (
-      <div className={styles.noData}>
-        <img src={EmptyImg} />
-        <p>{i18n('common.text.noData')}</p>
-      </div>
-    );
-  };
-
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {tabsList.length ? (
+      {tabsList.length && (
         <TabsNew
           hideAdd
           className={styles.tabs}
@@ -110,8 +99,6 @@ export default memo<IProps>((props) => {
           activeKey={currentTab}
           items={tabsList}
         />
-      ) : (
-        renderEmpty()
       )}
     </div>
   );

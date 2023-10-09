@@ -15,6 +15,8 @@ import { v4 as uuidV4 } from 'uuid';
 import { isNumber } from 'lodash';
 import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import i18n from '@/i18n';
+import EmptyImg from '@/assets/img/empty.svg';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -163,6 +165,15 @@ const SQLExecute = memo<IProps>((props) => {
     setTableLoading(false);
   };
 
+  const renderEmpty = () => {
+    return (
+      <div className={styles.noData}>
+        <img src={EmptyImg} />
+        <p>{i18n('common.text.noData')}</p>
+      </div>
+    );
+  };
+
   return (
     <div className={classnames(styles.box)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
@@ -201,10 +212,10 @@ const SQLExecute = memo<IProps>((props) => {
             <div className={styles.tableLoading}>
               <Spin />
               <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
-                取消请求
+                {i18n('common.button.cancelRequest')}
               </div>
             </div>
-          ) : (
+          ) : resultData?.length ? (
             <SearchResult
               onTabEdit={handleResultTabEdit}
               onExecute={handleExecuteSQLbyConfigChanged}
@@ -213,6 +224,8 @@ const SQLExecute = memo<IProps>((props) => {
               resultConfig={resultConfig}
               manageResultDataList={resultData}
             />
+          ) : (
+            renderEmpty()
           )}
         </div>
       </DraggableContainer>

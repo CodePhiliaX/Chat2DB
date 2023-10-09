@@ -12,6 +12,7 @@ import { DatabaseTypeCode } from '@/constants';
 interface IProps {
   className?: string;
   initSql: string;
+  initError?: string;
   databaseType: DatabaseTypeCode;
   databaseName: string;
   dataSourceId: number;
@@ -24,6 +25,7 @@ export default memo<IProps>((props) => {
   const {
     className,
     initSql,
+    initError,
     databaseType,
     databaseName,
     dataSourceId,
@@ -38,6 +40,7 @@ export default memo<IProps>((props) => {
 
   useEffect(() => {
     setAppendValue(initSql);
+    setExecuteSqlResult(initError || null);
   }, []);
 
   const handleFormatSql = () => {

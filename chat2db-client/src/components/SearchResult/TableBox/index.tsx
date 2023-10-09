@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
+import { Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
@@ -19,7 +19,7 @@ import MyPagination from '../Pagination';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
-import lodash from 'lodash';
+import lodash, { set } from 'lodash';
 
 interface ITableProps {
   className?: string;
@@ -79,6 +79,7 @@ export default function TableBox(props: ITableProps) {
   const [curOperationRowNo, setCurOperationRowNo] = useState<string | null>(null);
   const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
   const [updateDataSql, setUpdateDataSql] = useState<string>('');
+  const [initError, setInitError] = useState<string>('');
   const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
 
@@ -467,15 +468,11 @@ export default function TableBox(props: ITableProps) {
       if (res.success) {
         message.success(i18n('common.text.successfulExecution'));
         setUpdateData([]);
+        // 在执行一遍sql，刷新数据？// TODO:
       } else {
-        // window._notificationApi({
-        //   requestUrl: eventualUrl,
-        //   requestParams: JSON.stringify(params),
-        //   errorCode,
-        //   errorMessage,
-        //   errorDetail,
-        //   solutionLink,
-        // });
+        setUpdateDataSql(res.originalSql);
+        setViewUpdateDataSql(true);
+        setInitError(res.message);
       }
     });
   };
@@ -649,16 +646,18 @@ export default function TableBox(props: ITableProps) {
       <Modal
         width="60vw"
         maskClosable={false}
-        title={i18n('editTable.title.sqlPreview')}
+        title={initError ? i18n('common.button.executionError') : i18n('editTable.title.sqlPreview')}
         open={viewUpdateDataSql}
         footer={false}
         destroyOnClose={true}
         onCancel={() => {
           setViewUpdateDataSql(false);
           setUpdateDataSql('');
+          setInitError('');
         }}
       >
         <ExecuteSQL
+          initError={initError}
           initSql={updateDataSql}
           databaseName={props.executeSqlParams?.databaseName}
           dataSourceId={props.executeSqlParams?.dataSourceId}
