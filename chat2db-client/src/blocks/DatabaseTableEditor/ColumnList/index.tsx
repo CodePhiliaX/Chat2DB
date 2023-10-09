@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, { useContext, useEffect, useState, useRef, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
@@ -110,6 +110,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IColumnItemNew | null>(null);
   const [editingConfig, setEditingConfig] = useState<IEditingConfig | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
   const [databaseSupportField, setDatabaseSupportField] = useState<{
     columnTypes: IColumnTypesOption[];
     charsets: IOption[];
@@ -386,6 +387,9 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     };
     setDataSource([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
   const deleteData = (record) => {
@@ -505,6 +509,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
               <Table
+                ref={tableRef}
                 components={{
                   body: {
                     row: Row,

@@ -85,6 +85,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   const [editingData, setEditingData] = useState<IIndexItem | null>(null);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
   const includeColRef = useRef<IIncludeColRef>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const isEditing = (record: IIndexItem) => record.key === editingData?.key;
 
@@ -110,6 +111,9 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     const newData = createInitialData();
     setDataSource([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
   const deleteData = (record) => {
@@ -330,6 +334,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
               <Table
+                ref={tableRef}
                 components={{
                   body: {
                     row: Row,
