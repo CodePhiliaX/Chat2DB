@@ -386,13 +386,21 @@ export default function TableBox(props: ITableProps) {
   };
 
   const tableRowStyle = (rowIndex: number) => {
+    // 如果是当前操作的行
+    if (rowIndex === curOperationRowIndex) {
+      return {
+        '--hover-bgcolor': 'transparent',
+        '--bgcolor': 'transparent',
+        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+      };
+    }
     // 如果是删除过的行
     const index = updateData.findIndex((item) => item.index === rowIndex && item.type === CRUD.DELETE);
     if (index !== -1) {
       return {
         '--hover-bgcolor': 'transparent',
         '--bgcolor': 'transparent',
-        background: 'red',
+        background: 'var(--color-error-bg)',
       };
     }
     // 如果是新增的行
@@ -401,14 +409,7 @@ export default function TableBox(props: ITableProps) {
       return {
         '--hover-bgcolor': 'transparent',
         '--bgcolor': 'transparent',
-        background: 'green',
-      };
-    }
-    if (rowIndex === curOperationRowIndex) {
-      return {
-        '--hover-bgcolor': 'transparent',
-        '--bgcolor': 'transparent',
-        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+        background: 'var(--color-success-bg)',
       };
     }
     return {};
