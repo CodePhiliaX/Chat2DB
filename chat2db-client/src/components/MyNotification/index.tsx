@@ -20,7 +20,7 @@ interface IProps {
   /** 请求的接口 */
   requestUrl: string;
   /** 请求的参数 */
-  requestParams: string;
+  requestParams?: string;
 }
 
 function MyNotification() {
@@ -79,7 +79,8 @@ function MyNotification() {
   }, []);
 
   function renderModalTitle() {
-    return <div className={styles.modalTitle}>{`${props?.errorCode}：${props?.errorMessage} `}</div>;
+    const list = [props?.errorCode, props?.errorMessage];
+    return <div className={styles.modalTitle}>{list.filter((t) => t).join(':')}</div>;
   }
 
   function copyError() {
@@ -92,13 +93,16 @@ function MyNotification() {
   }
 
   function renderModalFooter() {
-    return (
-      <div className={styles.modalFooter} onClick={copyError}>
-        <Iconfont code="&#xeb4e;" />
-        {i18n('common.button.copyError')}
-        <span className={styles.copyErrorTips}>{i18n('common.button.copyErrorTips')}</span>
-      </div>
-    );
+    if (props?.requestParams) {
+      return (
+        <div className={styles.modalFooter} onClick={copyError}>
+          <Iconfont code="&#xeb4e;" />
+          {i18n('common.button.copyError')}
+          <span className={styles.copyErrorTips}>{i18n('common.button.copyErrorTips')}</span>
+        </div>
+      );
+    }
+    return false;
   }
 
   return (
