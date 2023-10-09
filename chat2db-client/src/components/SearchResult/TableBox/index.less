@@ -126,20 +126,18 @@
 }
 
 .tableItem {
-  width: 100%;
+  width: calc(100% + 8px);
   height: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-
+  padding: 0px 4px;
+  margin: 0px -4px;
   max-height: 120px;
   overflow-y: auto;
-
-  // &::-webkit-scrollbar {
-  //   display: none;
-  // }
+  user-select: none;
 
   &:hover .tableHoverBox {
     display: block;
@@ -148,6 +146,10 @@
   input {
     background: none;
   }
+}
+
+.tableItemEdit {
+  background-color: var(--color-success-bg);
 }
 
 .tableItemNo {
