@@ -227,6 +227,12 @@ export default function TableBox(props: ITableProps) {
   const tableCellStyle = (value, colIndex, rowNo) => {
     // 单元格的基础样式
     const styleList = [styles.tableItem];
+    // 如果当前单元格所在的行被选中了，则需要把单元格的背景色设置为透明
+    console.log(curOperationRowNo, rowNo);
+    if (curOperationRowNo === rowNo) {
+      return classnames(...styleList);
+    }
+
     // 编辑过的单元格的样式
     let oldValue = '';
     dataList.forEach((item) => {
@@ -298,7 +304,7 @@ export default function TableBox(props: ITableProps) {
         features: { sortable: isNumber ? compareStrings : true },
       };
     });
-  }, [headerList, editingCell, editingData]);
+  }, [headerList, editingCell, editingData, curOperationRowNo]);
 
   useEffect(() => {
     if (!columns?.length) {
