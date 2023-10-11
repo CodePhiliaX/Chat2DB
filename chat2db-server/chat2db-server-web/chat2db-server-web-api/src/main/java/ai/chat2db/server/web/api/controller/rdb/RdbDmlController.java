@@ -73,7 +73,7 @@ public class RdbDmlController {
 
     }
     @RequestMapping(value = "/get_update_sql", method = {RequestMethod.POST, RequestMethod.PUT})
-    public DataResult<String> getUpdateSelectResultSql(SelectResultUpdateRequest request) {
+    public DataResult<String> getUpdateSelectResultSql(@RequestBody SelectResultUpdateRequest request) {
         UpdateSelectResultParam param = rdbWebConverter.request2param(request);
         return dlTemplateService.updateSelectResult(param);
     }
