@@ -12,7 +12,6 @@ import historyServer, { ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
-import { isNumber } from 'lodash';
 import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import i18n from '@/i18n';
@@ -124,41 +123,20 @@ const SQLExecute = memo<IProps>((props) => {
    * 因为 pageNo、pageSize等信息导致的
    * 单条SQL执行
    */
-  const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
-    setTableLoading(true);
-    const param = { ...data, ...config, sql };
-    const sqlResult = await sqlServer.executeSql(param);
-    resultData[index] = { ...resultData[index], ...sqlResult[0] };
-    setResultData([...resultData]);
-    resultConfig[index] = {
-      ...config,
-      total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
-      hasNextPage: sqlResult[0].hasNextPage,
-    };
-    setResultConfig([...resultConfig]);
-    setTableLoading(false);
-  };
-
-  const handleSearchTotal = async (index: number) => {
-    const { originalSql } = resultData[index];
-    const total = await sqlServer.getDMLCount({ ...data, sql: originalSql });
-    resultConfig[index] = {
-      ...resultConfig[index],
-      total,
-    };
-    setResultConfig([...resultConfig]);
-    return total;
-  };
-
-  const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {
-    if (type === 'remove') {
-      const tabIndex = resultData.findIndex((d) => d.uuid === uuid);
-      resultData.splice(tabIndex, 1);
-      resultConfig.splice(tabIndex, 1);
-      setResultData([...resultData]);
-      setResultConfig([...resultConfig]);
-    }
-  };
+  // const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
+  //   setTableLoading(true);
+  //   const param = { ...data, ...config, sql };
+  //   const sqlResult = await sqlServer.executeSql(param);
+  //   resultData[index] = { ...resultData[index], ...sqlResult[0] };
+  //   setResultData([...resultData]);
+  //   resultConfig[index] = {
+  //     ...config,
+  //     total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
+  //     hasNextPage: sqlResult[0].hasNextPage,
+  //   };
+  //   setResultConfig([...resultConfig]);
+  //   setTableLoading(false);
+  // };
 
   const stopExecuteSql = () => {
     controllerRef.current && controllerRef.current.abort();
@@ -216,14 +194,7 @@ const SQLExecute = memo<IProps>((props) => {
               </div>
             </div>
           ) : resultData?.length ? (
-            <SearchResult
-              onTabEdit={handleResultTabEdit}
-              onExecute={handleExecuteSQLbyConfigChanged}
-              onSearchTotal={handleSearchTotal}
-              executeSqlParams={data}
-              resultConfig={resultConfig}
-              manageResultDataList={resultData}
-            />
+            <SearchResult executeSqlParams={data} queryResultDataList={resultData} />
           ) : (
             renderEmpty()
           )}

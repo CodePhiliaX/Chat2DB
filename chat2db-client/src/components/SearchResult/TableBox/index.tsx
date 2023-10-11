@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
+import { Dropdown, Input, MenuProps, message, Modal, Space, Popover } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
@@ -19,14 +19,11 @@ import MyPagination from '../Pagination';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
-import lodash, { set } from 'lodash';
+import lodash from 'lodash';
 
 interface ITableProps {
   className?: string;
-  data: IManageResultData;
-  config: IResultConfig;
-  onConfigChange: (config: IResultConfig) => void;
-  onSearchTotal: () => Promise<number | undefined>;
+  outerQueryResultData: IManageResultData;
   executeSqlParams: any;
 }
 
@@ -41,13 +38,6 @@ interface IUpdateData {
   type: CRUD;
   rowNo: string;
 }
-
-// const defaultResultConfig: IResultConfig = {
-//   pageNo: 1,
-//   pageSize: 200,
-//   total: 0,
-//   hasNextPage: true,
-// };
 
 const SupportBaseTable: any = styled(BaseTable)`
   &.supportBaseTable {
@@ -68,33 +58,81 @@ const SupportBaseTable: any = styled(BaseTable)`
 
 const preCode = '$$chat2db_';
 
+const defaultPaginationConfig: IResultConfig = {
+  pageNo: 1,
+  pageSize: 200,
+  total: 0,
+  hasNextPage: true,
+};
+
 export default function TableBox(props: ITableProps) {
-  const { className, data, config, onConfigChange } = props;
-  const { headerList, dataList, duration, description } = data || {};
+  const { className, outerQueryResultData } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
-  const [tableData, setTableData] = useState<any[]>([]);
+  const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
+  // sql查询结果
+  const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
+  // tableData：带列标识的表数据 可以传给Table组件 进行渲染
+  // 保存原始的表数据，用于撤销
+  const [oldTableData, setOldTableData] = useState<{ [key: string]: string }[]>([]);
+  // 实时更新的表数据
+  const [tableData, setTableData] = useState<{ [key: string]: string }[]>([]);
+  // DataList不带列标识的表数据
+  // 保存原始的表数据，用于对比新老数据看是否有变化
+  const [oldDataList, setOldDataList] = useState<string[][]>([]);
+  // 正在标记的单元格的坐标
   const [editingCell, setEditingCell] = useState<[string, string] | null>(null);
+  // input受控的正在编辑的数据
   const [editingData, setEditingData] = useState<string>('');
+  // 当前选中的行号
   const [curOperationRowNo, setCurOperationRowNo] = useState<string | null>(null);
+  // 操作过的数据列表
   const [updateData, setUpdateData] = useState<IUpdateData[] | []>([]);
-  const [updateDataSql, setUpdateDataSql] = useState<string>('');
-  const [initError, setInitError] = useState<string>('');
-  const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
+  // 更新数据的sql
+  const [updateDataSql, setUpdateDataSql] = useState<string | null>(null);
+  // ExecuteSQL弹窗 初始化的错误信息
+  const [initError, setInitError] = useState<string | null>(null);
+  // 是否显示更新数据的sql
+  const [viewUpdateDataSqlModal, setViewUpdateDataSqlModal] = useState<boolean>(false);
+  // 用于滚动到底部
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
       ...(props.executeSqlParams || {}),
-      sql: data.sql,
-      originalSql: data.originalSql,
+      sql: queryResultData.sql,
+      originalSql: queryResultData.originalSql,
       exportType,
       exportSize,
     };
     downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
 
-  const items: MenuProps['items'] = useMemo(
+  useEffect(() => {
+    setPaginationConfig({
+      ...paginationConfig,
+      total: queryResultData.fuzzyTotal,
+      hasNextPage: queryResultData.hasNextPage,
+    });
+  }, [queryResultData]);
+
+  useEffect(() => {
+    // 每次dataList变化，都需要重新计算tableData
+    if (!columns?.length) {
+      setTableData([]);
+    } else {
+      const newTableData = dataListTransformTableData(queryResultData.dataList);
+      setTableData(newTableData);
+      setOldTableData(newTableData);
+    }
+    // 每次data变化，都需要重新计算oldDataList
+    if (queryResultData.dataList?.length) {
+      setOldDataList(queryResultData.dataList);
+    }
+  }, [queryResultData.dataList]);
+
+  // 导出sql的菜单项
+  const exportDropdownItems: MenuProps['items'] = useMemo(
     () => [
       {
         label: i18n('workspace.table.export.all.csv'),
@@ -129,16 +167,16 @@ export default function TableBox(props: ITableProps) {
         },
       },
     ],
-    [data],
+    [queryResultData],
   );
 
   const defaultSorts: SortItem[] = useMemo(
     () =>
-      (headerList || []).map((item) => ({
+      (queryResultData.headerList || []).map((item) => ({
         code: item.name,
         order: 'none',
       })),
-    [headerList],
+    [queryResultData.headerList],
   );
 
   function viewTableCell(cellData: IViewTableCellData) {
@@ -155,7 +193,7 @@ export default function TableBox(props: ITableProps) {
   }
 
   const handleDoubleClickTableItem = (colIndex, rowNo, value) => {
-    if (!data.canEdit) {
+    if (!queryResultData.canEdit) {
       return;
     }
     setEditingData(value);
@@ -168,29 +206,28 @@ export default function TableBox(props: ITableProps) {
     setEditingData('');
     const [colIndex, rowNo] = editingCell!;
     const newTableData = lodash.cloneDeep(tableData);
-    let oldDataList: string[] = [];
-    let newDataList: string[] = [];
+    let oldRowDataList: string[] = [];
+    let newRowDataList: string[] = [];
     newTableData.forEach((item) => {
       if (item[`${preCode}0No.`] === rowNo) {
         item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
-        newDataList = Object.keys(item).map((i) => item[i]);
+        newRowDataList = Object.keys(item).map((i) => item[i]);
       }
     });
 
     setTableData(newTableData);
 
-    dataList.forEach((item) => {
+    oldDataList.forEach((item) => {
       if (item[0] === rowNo) {
-        oldDataList = item;
+        oldRowDataList = item;
       }
     });
 
-    // 如果已经存在该行的更新数据则更新，否则新增
     const index = updateData.findIndex((item) => item.rowNo === rowNo);
-    // 如果datalist和oldDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
-    if (oldDataList?.join(',') === newDataList?.join(',')) {
+    // 如果newRowDataList和oldRowDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
+    if (oldRowDataList?.join(',') === newRowDataList?.join(',')) {
       if (index !== -1) {
-        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo));
+        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo && item.type !== CRUD.UPDATE));
       }
       return;
     }
@@ -200,21 +237,29 @@ export default function TableBox(props: ITableProps) {
         ...updateData,
         {
           type: CRUD.UPDATE,
-          oldDataList: oldDataList,
-          dataList: newDataList,
+          oldDataList: oldRowDataList,
+          dataList: newRowDataList,
           rowNo,
         },
       ]);
       return;
     }
 
-    updateData[index] = {
+    const newRowUpdateData = {
       ...updateData[index],
-      dataList: newDataList,
+      dataList: newRowDataList,
     };
+
+    // 如果是删除过的，则需要把type改为update
+    if (newRowUpdateData.type === CRUD.DELETE) {
+      newRowUpdateData.type = CRUD.UPDATE;
+    }
+
+    updateData[index] = newRowUpdateData;
     setUpdateData([...updateData]);
   };
 
+  // 渲染单元格的值
   const renderTableCellValue = (value) => {
     if (value === null) {
       return '<null>';
@@ -228,14 +273,13 @@ export default function TableBox(props: ITableProps) {
     // 单元格的基础样式
     const styleList = [styles.tableItem];
     // 如果当前单元格所在的行被选中了，则需要把单元格的背景色设置为透明
-    console.log(curOperationRowNo, rowNo);
     if (curOperationRowNo === rowNo) {
       return classnames(...styleList);
     }
 
     // 编辑过的单元格的样式
     let oldValue = '';
-    dataList.forEach((item) => {
+    oldDataList.forEach((item) => {
       if (item[0] === rowNo) {
         oldValue = item[colIndex];
       }
@@ -246,8 +290,22 @@ export default function TableBox(props: ITableProps) {
     return classnames(...styleList);
   };
 
+  // 纯数据的dataList 转换为 tableData
+  const dataListTransformTableData = (myDataList: string[][]) => {
+    const newTableData = (myDataList || []).map((item) => {
+      const rowData: any = {};
+      item.map((i: string | null, colIndex: number) => {
+        const name = `${preCode}${colIndex}${columns[colIndex].name}`;
+        rowData[name] = i;
+      });
+      return rowData;
+    });
+    return newTableData;
+  };
+
+  // 表格的列配置
   const columns: ArtColumn[] = useMemo(() => {
-    return (headerList || []).map((item, colIndex) => {
+    return (queryResultData.headerList || []).map((item, colIndex) => {
       const { dataType, name } = item;
       const isNumber = dataType === TableDataType.NUMERIC;
       const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
@@ -304,24 +362,9 @@ export default function TableBox(props: ITableProps) {
         features: { sortable: isNumber ? compareStrings : true },
       };
     });
-  }, [headerList, editingCell, editingData, curOperationRowNo]);
+  }, [queryResultData.headerList, editingCell, editingData, curOperationRowNo, oldDataList]);
 
-  useEffect(() => {
-    if (!columns?.length) {
-      setTableData([]);
-    } else {
-      const newData = (dataList || []).map((item) => {
-        const rowData: any = {};
-        item.map((i: string | null, colIndex: number) => {
-          const name = `${preCode}${colIndex}${columns[colIndex].name}`;
-          rowData[name] = i;
-        });
-        return rowData;
-      });
-      setTableData(newData);
-    }
-  }, [dataList]);
-
+  // 表格渲染的配置
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
     .use(
@@ -342,17 +385,34 @@ export default function TableBox(props: ITableProps) {
     );
 
   const onPageNoChange = (pageNo: number) => {
-    onConfigChange && onConfigChange({ ...config, pageNo });
+    const config = { ...paginationConfig, pageNo };
+    setPaginationConfig(config);
+    getTableData({ pageNo });
   };
 
   const onPageSizeChange = (pageSize: number) => {
-    onConfigChange && onConfigChange({ ...config, pageSize, pageNo: 1 });
+    const config = { ...paginationConfig, pageSize, pageNo: 1 };
+    setPaginationConfig(config);
+    getTableData({ pageSize, pageNo: 1 });
   };
 
   const onClickTotalBtn = async () => {
-    if (props.onSearchTotal) {
-      return await props.onSearchTotal();
-    }
+    return sqlService.getDMLCount({
+      sql: queryResultData.originalSql,
+      ...(props.executeSqlParams || {}),
+    });
+  };
+
+  // 处理撤销
+  const handleRevoke = () => {
+    setUpdateData(updateData.filter((item) => item.rowNo !== curOperationRowNo));
+    setTableData(
+      tableData.map((item) =>
+        item[`${preCode}0No.`] === curOperationRowNo
+          ? oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)!
+          : item,
+      ),
+    );
   };
 
   // 处理创建数据
@@ -415,8 +475,8 @@ export default function TableBox(props: ITableProps) {
       ...updateData,
       {
         type: CRUD.DELETE,
-        oldDataList: dataList[curOperationRowNo!],
-        rowNo: curOperationRowNo!,
+        oldDataList: oldDataList[curOperationRowNo],
+        rowNo: curOperationRowNo,
       },
     ]);
     setCurOperationRowNo(null);
@@ -429,7 +489,7 @@ export default function TableBox(props: ITableProps) {
     }
     getExecuteUpdateSql().then((res) => {
       setUpdateDataSql(res);
-      setViewUpdateDataSql(true);
+      setViewUpdateDataSqlModal(true);
     });
   };
 
@@ -439,7 +499,7 @@ export default function TableBox(props: ITableProps) {
       return;
     }
     getExecuteUpdateSql().then((res) => {
-      executeSql(res);
+      executeUpdateDataSql(res);
     });
   };
 
@@ -451,8 +511,8 @@ export default function TableBox(props: ITableProps) {
         dataSourceId: props.executeSqlParams?.dataSourceId,
         schemaName: props.executeSqlParams?.schemaName,
         type: props.executeSqlParams?.databaseType,
-        tableName: data.tableName,
-        headerList,
+        tableName: queryResultData.tableName,
+        headerList: queryResultData.headerList,
         operations: updateData,
       };
       sqlService.getExecuteUpdateSql(params).then((res) => {
@@ -462,24 +522,43 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 执行sql
-  const executeSql = (sql: string) => {
+  const executeUpdateDataSql = (sql: string) => {
     const executeSQLParams: IExecuteSqlParams = {
       sql,
       dataSourceId: props.executeSqlParams?.dataSourceId,
       databaseName: props.executeSqlParams?.databaseName,
       schemaName: props.executeSqlParams?.schemaName,
-      tableName: data.tableName,
+      tableName: queryResultData.tableName,
     };
     sqlService.executeDDL(executeSQLParams).then((res) => {
       if (res.success) {
-        message.success(i18n('common.text.successfulExecution'));
-        setUpdateData([]);
-        // 在执行一遍sql，刷新数据？// TODO:
+        // 更新成功后，需要重新获取表格数据
+        getTableData().then(() => {
+          message.success(i18n('common.text.successfulExecution'));
+          setUpdateData([]);
+        });
       } else {
         setUpdateDataSql(res.originalSql);
-        setViewUpdateDataSql(true);
+        setViewUpdateDataSqlModal(true);
         setInitError(res.message);
       }
+    });
+  };
+
+  // 获取表格数据 接受一个参数params 包含IExecuteSqlParams中的一个或多个
+  const getTableData = (params?: Partial<IExecuteSqlParams>) => {
+    const executeSQLParams: IExecuteSqlParams = {
+      sql: queryResultData.sql,
+      dataSourceId: props.executeSqlParams?.dataSourceId,
+      databaseName: props.executeSqlParams?.databaseName,
+      schemaName: props.executeSqlParams?.schemaName,
+      pageNo: paginationConfig.pageNo,
+      pageSize: paginationConfig.pageSize,
+      ...(params || {}),
+    };
+
+    return sqlService.executeSql(executeSQLParams).then((res) => {
+      setQueryResultData(res?.[0]);
     });
   };
 
@@ -518,16 +597,32 @@ export default function TableBox(props: ITableProps) {
 
   // sql执行成功后的回调
   const executeSuccessCallBack = () => {
-    setViewUpdateDataSql(false);
-    message.success(i18n('common.text.successfulExecution'));
-    setUpdateData([]);
+    getTableData().then(() => {
+      setViewUpdateDataSqlModal(false);
+      message.success(i18n('common.text.successfulExecution'));
+      setUpdateData([]);
+    });
   };
+
+  // 撤销按钮是否可用
+  const revokeDisableBarState = useMemo(() => {
+    if (!curOperationRowNo) {
+      return true;
+    }
+    return (
+      updateData.findIndex(
+        (item) =>
+          (item.rowNo === curOperationRowNo && item.type === CRUD.UPDATE) ||
+          (item.rowNo === curOperationRowNo && item.type === CRUD.DELETE),
+      ) === -1
+    );
+  }, [curOperationRowNo, updateData]);
 
   const renderContent = () => {
     const bottomStatus = (
       <div className={styles.statusBar}>
-        <span>{`【${i18n('common.text.result')}】${description}.`}</span>
-        <span>{`【${i18n('common.text.timeConsuming')}】${duration}ms.`}</span>
+        <span>{`【${i18n('common.text.result')}】${queryResultData.description}.`}</span>
+        <span>{`【${i18n('common.text.timeConsuming')}】${queryResultData.duration}ms.`}</span>
         <span>{`【${i18n('common.text.searchRow')}】${tableData.length} ${i18n('common.text.row')}.`}</span>
       </div>
     );
@@ -545,48 +640,66 @@ export default function TableBox(props: ITableProps) {
           <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
               <MyPagination
-                data={config}
+                data={paginationConfig}
                 onPageNoChange={onPageNoChange}
                 onPageSizeChange={onPageSizeChange}
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-            {data.canEdit && (
+            {queryResultData.canEdit && (
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
-                <div
-                  onClick={handelCreateData}
-                  className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
-                >
-                  <Iconfont code="&#xe61b;" />
-                </div>
-                <div
-                  onClick={handelDeleteData}
-                  className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: curOperationRowNo === null,
-                  })}
-                >
-                  <Iconfont code="&#xe644;" />
-                </div>
-                <div
-                  onClick={handelViewSql}
-                  className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: !updateData.length,
-                  })}
-                >
-                  <Iconfont code="&#xe651;" />
-                </div>
-                <div
-                  onClick={handelUpdateSubmit}
-                  className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: !updateData.length,
-                  })}
-                >
-                  <Iconfont code="&#xe650;" />
-                </div>
+                <Popover content={i18n('editTableData.tips.addRow')} trigger="hover">
+                  <div
+                    onClick={handelCreateData}
+                    className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
+                  >
+                    <Iconfont code="&#xe61b;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.deleteRow')} trigger="hover">
+                  <div
+                    onClick={handelDeleteData}
+                    className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: curOperationRowNo === null,
+                    })}
+                  >
+                    <Iconfont code="&#xe644;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.revert')} trigger="hover">
+                  <div
+                    onClick={handleRevoke}
+                    className={classnames(styles.revokeBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: revokeDisableBarState,
+                    })}
+                  >
+                    <Iconfont code="&#xe6e2;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.previewPendingChanges')} trigger="hover">
+                  <div
+                    onClick={handelViewSql}
+                    className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: !updateData.length,
+                    })}
+                  >
+                    <Iconfont code="&#xe651;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.submit')} trigger="hover">
+                  <div
+                    onClick={handelUpdateSubmit}
+                    className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: !updateData.length,
+                    })}
+                  >
+                    <Iconfont code="&#xe650;" />
+                  </div>
+                </Popover>
               </div>
             )}
             <div className={styles.toolBarRight}>
-              <Dropdown menu={{ items }}>
+              <Dropdown menu={{ items: exportDropdownItems }}>
                 <Space className={styles.exportBar}>
                   {i18n('common.text.export')}
                   <DownOutlined />
@@ -653,13 +766,13 @@ export default function TableBox(props: ITableProps) {
         width="60vw"
         maskClosable={false}
         title={initError ? i18n('common.button.executionError') : i18n('editTable.title.sqlPreview')}
-        open={viewUpdateDataSql}
+        open={viewUpdateDataSqlModal}
         footer={false}
         destroyOnClose={true}
         onCancel={() => {
-          setViewUpdateDataSql(false);
+          setViewUpdateDataSqlModal(false);
           setUpdateDataSql('');
-          setInitError('');
+          setInitError(null);
         }}
       >
         <ExecuteSQL
@@ -667,7 +780,7 @@ export default function TableBox(props: ITableProps) {
           initSql={updateDataSql}
           databaseName={props.executeSqlParams?.databaseName}
           dataSourceId={props.executeSqlParams?.dataSourceId}
-          tableName={data.tableName}
+          tableName={queryResultData.tableName}
           schemaName={props.executeSqlParams?.schemaName}
           databaseType={props.executeSqlParams?.databaseType}
           executeSuccessCallBack={executeSuccessCallBack}

@@ -25,7 +25,6 @@
     "start:web": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
   },
   "dependencies": {
-    "@dnd-kit/modifiers": "^6.0.1",
     "ahooks": "^3.7.7",
     "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
@@ -45,7 +44,8 @@
     "styled-components": "^6.0.1",
     "umi": "^4.0.70",
     "umi-request": "^1.4.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "@dnd-kit/modifiers": "^6.0.1"
   },
   "devDependencies": {
     "@types/event-source-polyfill": "^1.0.1",

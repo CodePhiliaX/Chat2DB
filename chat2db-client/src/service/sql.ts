@@ -17,6 +17,8 @@ export interface IExecuteSqlParams {
   databaseName?: string;
   schemaName?: string;
   tableName?: string;
+  pageNo?: number;
+  pageSize?: number;
 }
 
 export interface IExecuteSqlResponse {
@@ -198,7 +200,7 @@ const getTableDetails = createRequest<{
 export interface IModifyTableSqlParams { 
   dataSourceId: number;
   databaseName: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName?: string;
   oldTable?: IEditTableInfo;
   newTable: IEditTableInfo;
