@@ -3,87 +3,65 @@ import classnames from 'classnames';
 import TabsNew from '@/components/TabsNew';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
-import { IManageResultData, IResultConfig } from '@/typings';
+import { IManageResultData } from '@/typings';
 import TableBox from './TableBox';
 import styles from './index.less';
 
 interface IProps {
   className?: string;
-  manageResultDataList?: IManageResultData[];
-  resultConfig: IResultConfig[];
-  onExecute: (sql: string, config: IResultConfig, index: number) => void;
-  onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
-  onSearchTotal: (index: number) => Promise<number>;
+  queryResultDataList?: IManageResultData[];
   executeSqlParams: any;
 }
 
 export default memo<IProps>((props) => {
-  const { className, manageResultDataList = [], onExecute } = props;
+  const { className, queryResultDataList = [] } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
-  const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
 
   useEffect(() => {
-    setResultConfig(props.resultConfig);
-  }, [props.resultConfig]);
-
-  useEffect(() => {
-    if (!manageResultDataList.length) {
+    if (!queryResultDataList.length) {
       return;
     }
 
-    if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
-      setCurrentTab(manageResultDataList[0].uuid);
+    if (!currentTab || !queryResultDataList.find((d) => d.uuid === currentTab)) {
+      setCurrentTab(queryResultDataList[0].uuid);
     }
 
-    setResultDataList([...manageResultDataList]);
-  }, [manageResultDataList]);
+    setResultDataList([...queryResultDataList]);
+  }, [queryResultDataList]);
 
   const onChange = useCallback((uuid: string | number) => {
     setCurrentTab(uuid);
   }, []);
 
-  const onEdit = useCallback((type: 'add' | 'remove', value?: number | string) => {
-    props.onTabEdit && props.onTabEdit(type, value);
-  }, []);
-
-  const renderTable = (item, index) => {
-    if (item.success) {
+  const renderTable = (queryResultData) => {
+    if (queryResultData.success) {
       return (
         <TableBox
-          key={item.uuid}
-          data={item}
-          config={resultConfig?.[index]}
+          key={queryResultData.uuid}
+          outerQueryResultData={queryResultData}
           executeSqlParams={props.executeSqlParams}
-          onConfigChange={(config: IResultConfig) => {
-            onExecute && onExecute(item.originalSql, config, index);
-          }}
-          onSearchTotal={async () => {
-            if (props.onSearchTotal) {
-              return await props.onSearchTotal(index);
-            }
-          }}
         />
       );
     } else {
-      return <StateIndicator key={item.uuid} state="error" text={item.message} />;
+      return <StateIndicator key={queryResultData.uuid} state="error" text={queryResultData.message} />;
     }
   };
 
   const tabsList = useMemo(() => {
-    return resultDataList.map((item, index) => {
+    return resultDataList.map((queryResultData, index) => {
       return {
         prefixIcon: (
           <Iconfont
             key={index}
-            className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
-            code={item.success ? '\ue605' : '\ue87c'}
+            className={classnames(styles[queryResultData.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
+            code={queryResultData.success ? '\ue605' : '\ue87c'}
           />
         ),
-        popover: item.originalSql,
-        label: item.originalSql,
-        key: item.uuid!,
-        children: renderTable(item, index),
+        popover: queryResultData.originalSql,
+        label: queryResultData.originalSql,
+        key: queryResultData.uuid!,
+        children: renderTable(queryResultData),
       };
     });
   }, [resultDataList]);
@@ -107,7 +85,6 @@ export default memo<IProps>((props) => {
           hideAdd
           className={styles.tabs}
           onChange={onChange as any}
-          onEdit={onEdit as any}
           activeKey={currentTab}
           // items={[outputTab, ...tabsList]}
           items={[...tabsList]}

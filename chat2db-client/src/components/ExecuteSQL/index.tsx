@@ -11,8 +11,8 @@ import { DatabaseTypeCode } from '@/constants';
 
 interface IProps {
   className?: string;
-  initSql: string;
-  initError?: string;
+  initSql: string | null;
+  initError?: string | null;
   databaseType: DatabaseTypeCode;
   databaseName: string;
   dataSourceId: number;
@@ -24,8 +24,8 @@ interface IProps {
 export default memo<IProps>((props) => {
   const {
     className,
-    initSql,
-    initError,
+    initSql = null,
+    initError = null,
     databaseType,
     databaseName,
     dataSourceId,
@@ -39,8 +39,8 @@ export default memo<IProps>((props) => {
   const [executeSqlResult, setExecuteSqlResult] = useState<string | null>(null);
 
   useEffect(() => {
-    setAppendValue(initSql);
-    setExecuteSqlResult(initError || null);
+    setAppendValue(initSql || '');
+    setExecuteSqlResult(initError);
   }, []);
 
   const handleFormatSql = () => {
