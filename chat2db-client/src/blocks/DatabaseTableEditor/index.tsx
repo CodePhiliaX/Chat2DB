@@ -14,7 +14,7 @@ import lodash from 'lodash';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
-  schemaName: string | undefined;
+  schemaName: string | null;
   tableName?: string;
   databaseType: DatabaseTypeCode;
   changeTabDetails: (data: IWorkspaceTab) => void;
@@ -100,7 +100,7 @@ export default memo((props: IProps) => {
 
   useEffect(() => {
     if (tableName) {
-      getTableDetails({});
+      getTableDetails();
     }
     getDatabaseFieldTypeList();
   }, []);
@@ -155,20 +155,23 @@ export default memo((props: IProps) => {
       });
   };
 
-  const getTableDetails = ({ tableNameProps }: { tableNameProps?: string }) => {
-    if (!tableName) return;
-    const params = {
-      databaseName,
-      dataSourceId,
-      tableName: tableNameProps || tableName,
-      schemaName,
-      refresh: true,
-    };
-    sqlService.getTableDetails(params).then((res) => {
-      const newTableDetails = lodash.cloneDeep(res);
-      setTableDetails(newTableDetails || {});
-      setOldTableDetails(res);
-    });
+  const getTableDetails = (myParams?: { tableNameProps?: string }) => {
+    const { tableNameProps } = myParams || {};
+    const myTableName = tableNameProps || tableName;
+    if (myTableName) {
+      const params = {
+        databaseName,
+        dataSourceId,
+        tableName: myTableName,
+        schemaName,
+        refresh: true,
+      };
+      sqlService.getTableDetails(params).then((res) => {
+        const newTableDetails = lodash.cloneDeep(res);
+        setTableDetails(newTableDetails || {});
+        setOldTableDetails(res);
+      });
+    }
   };
 
   function submit() {

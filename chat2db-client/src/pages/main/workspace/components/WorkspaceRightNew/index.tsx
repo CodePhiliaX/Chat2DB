@@ -517,7 +517,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                   databaseName: curWorkspaceParams.databaseName!,
                   dataSourceId: curWorkspaceParams.dataSourceId!,
                   type: curWorkspaceParams.databaseType!,
-                  schemaName: curWorkspaceParams?.schemaName!,
+                  schemaName: curWorkspaceParams?.schemaName,
                   consoleId: t.id as number,
                   consoleName: uniqueData.name,
                 }}
@@ -530,7 +530,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
                 databaseType={curWorkspaceParams?.databaseType}
-                schemaName={curWorkspaceParams?.schemaName!}
+                schemaName={curWorkspaceParams?.schemaName}
                 tableName={uniqueData.tableName}
               />
             )}
@@ -539,7 +539,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
                 databaseType={curWorkspaceParams?.databaseType}
-                schemaName={curWorkspaceParams?.schemaName!}
+                schemaName={curWorkspaceParams?.schemaName}
                 tableName={uniqueData.tableName}
               />
             )}

@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.core.impl;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,6 +77,31 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return listResult;
     }
 
+    @Override
+    public DataResult<ExecuteResult> executeUpdate(DlExecuteParam param) {
+        DataResult<ExecuteResult> dataResult = new DataResult<>();
+        dataResult.setSuccess(true);
+        RemoveSpecialGO(param);
+        DbType dbType =
+                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
+        Connection connection = Chat2DBContext.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            for (String originalSql : sqlList) {
+                ExecuteResult executeResult = SQLExecutor.getInstance().executeUpdate(originalSql, connection, 1);
+               dataResult.setData(executeResult);
+            }
+            connection.commit();
+        }catch (Exception e){
+            log.error("executeUpdate error",e);
+            dataResult.setSuccess(false);
+            dataResult.setErrorCode("connection error");
+            dataResult.setErrorMessage(e.getMessage());
+        }
+        return dataResult;
+    }
+
     private void RemoveSpecialGO(DlExecuteParam param) {
         String sql = param.getSql();
         if (StringUtils.isBlank(sql)) {
@@ -114,8 +140,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         executeResult.setOriginalSql(originalSql);
         try {
             executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
-            executeResult.setTableName(SqlUtils.getTableName(originalSql,dbType));
-        }catch (Exception e){
+            executeResult.setTableName(SqlUtils.getTableName(originalSql, dbType));
+        } catch (Exception e) {
         }
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
@@ -204,16 +230,16 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             List<String> row = operation.getDataList();
             List<String> odlRow = operation.getOldDataList();
             String sql = "";
-            if("UPDATE".equalsIgnoreCase(operation.getType())){
+            if ("UPDATE".equalsIgnoreCase(operation.getType())) {
                 sql = getUpdateSql(param, row, odlRow, metaSchema);
-            }else if("CREATE".equalsIgnoreCase(operation.getType())){
-                sql = getInsertSql(param, row,metaSchema);
+            } else if ("CREATE".equalsIgnoreCase(operation.getType())) {
+                sql = getInsertSql(param, row, metaSchema);
 
-            }else if("DELETE".equalsIgnoreCase(operation.getType())){
-                sql= getDeleteSql(param, odlRow,metaSchema);
+            } else if ("DELETE".equalsIgnoreCase(operation.getType())) {
+                sql = getDeleteSql(param, odlRow, metaSchema);
             }
 
-            stringBuilder.append(sql+";\n");
+            stringBuilder.append(sql + ";\n");
         }
         return DataResult.of(stringBuilder.toString());
     }
@@ -221,15 +247,30 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
         StringBuilder script = new StringBuilder();
         script.append("DELETE FROM ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
-                .append(" where ");
+                .append("");
+
+        script.append(buildWhere(param.getHeaderList(), row, metaSchema));
+        return script.toString();
+    }
+
+    private String buildWhere(List<Header> headerList, List<String> row, MetaData metaSchema) {
+        StringBuilder script = new StringBuilder();
+        script.append(" where ");
         for (int i = 1; i < row.size(); i++) {
-            String newValue = row.get(i);
-            Header header = param.getHeaderList().get(i);
-            script.append(metaSchema.getMetaDataName(header.getName()))
-                    .append(" = ")
-                    .append(SqlUtils.getSqlValue(newValue, header.getDataType()))
-                    .append(" and ");
+            String oldValue = row.get(i);
+            Header header = headerList.get(i);
+            String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
+            if (value == null) {
+                script.append(metaSchema.getMetaDataName(header.getName()))
+                        .append(" is null and ");
+            } else {
+                script.append(metaSchema.getMetaDataName(header.getName()))
+                        .append(" = ")
+                        .append(value)
+                        .append(" and ");
+            }
         }
+
         script.delete(script.length() - 4, script.length());
         return script.toString();
     }
@@ -276,20 +317,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     .append(",");
         }
         script.deleteCharAt(script.length() - 1);
-        script.append(" where ");
-        for (int i = 1; i < odlRow.size(); i++) {
-            String oldValue = odlRow.get(i);
-            if (oldValue == null) {
-                continue;
-            }
-            Header header = param.getHeaderList().get(i);
-            script.append(metaSchema.getMetaDataName(header.getName()))
-                    .append(" = ")
-                    .append(SqlUtils.getSqlValue(oldValue, header.getDataType()))
-                    .append(" and ");
-        }
-
-        script.delete(script.length() - 4, script.length());
+        script.append(buildWhere(param.getHeaderList(), odlRow, metaSchema));
         return script.toString();
     }
 
