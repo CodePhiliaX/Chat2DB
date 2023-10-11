@@ -88,16 +88,29 @@ export default memo<IProps>((props) => {
     });
   }, [resultDataList]);
 
+  const outputTab = useMemo(() => {
+    return {
+      prefixIcon: (
+        <Iconfont key="output" className={classnames(styles['successIcon'], styles.statusIcon)} code={'\ue605'} />
+      ),
+      popover: 'output',
+      label: 'output',
+      key: 'output',
+      children: <div>output</div>,
+    };
+  }, []);
+
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {tabsList.length && (
+      {!!tabsList.length && (
         <TabsNew
           hideAdd
           className={styles.tabs}
           onChange={onChange as any}
           onEdit={onEdit as any}
           activeKey={currentTab}
-          items={tabsList}
+          // items={[outputTab, ...tabsList]}
+          items={[...tabsList]}
         />
       )}
     </div>
