@@ -338,7 +338,6 @@ export default function TableBox(props: ITableProps) {
         code: `${preCode}${colIndex}${name}`,
         name: name,
         key: name,
-        width: 120,
         render: (value: any, rowData) => {
           const rowNo = rowData[`${preCode}0No.`];
           return (

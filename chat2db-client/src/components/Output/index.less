@@ -1,0 +1,46 @@
+@import '../../styles/var.less';
+
+.output {
+  overflow: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  :global {
+    .ant-table-body {
+      border-top: 0px;
+      border-bottom: 0px;
+    }
+    .ant-table-wrapper .ant-table .ant-table-header {
+      border-radius: 0px;
+    }
+    .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
+      border-top-left-radius: 0px;
+    }
+    .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
+      border-top-right-radius: 0px;
+    }
+    .ant-table-header {
+      border-bottom: 0px;
+    }
+    .ant-table {
+      border-radius: 10px;
+      border-bottom: 0px;
+    }
+    .ant-table-wrapper .ant-table-tbody > tr > td {
+      padding: 4px 2px;
+    }
+    .ant-table-wrapper .ant-table-thead > tr > th {
+      padding: 8px 4px;
+      &::before {
+        display: none;
+      }
+    }
+    .ant-table-wrapper .ant-table-thead > tr > td {
+      &::before {
+        display: none;
+      }
+    }
+  }
+}

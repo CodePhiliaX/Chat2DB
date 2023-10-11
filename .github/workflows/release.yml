@@ -278,7 +278,7 @@ jobs:
           endpoint: "oss-accelerate.aliyuncs.com"
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          ossutil-version: "latest"
+          ossutil-version: "1.7.16"
       - name: Upload to oss
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/release/${{ steps.chat2db_version.outputs.substring }}/
