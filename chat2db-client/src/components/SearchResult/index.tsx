@@ -1,14 +1,14 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import TabsNew from '@/components/TabsNew';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
+import Output from '@/components/Output';
 import { IManageResultData } from '@/typings';
 import TableBox from './TableBox';
 import styles from './index.less';
 import EmptyImg from '@/assets/img/empty.svg';
 import i18n from '@/i18n';
-import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 
 interface IProps {
   className?: string;
@@ -21,20 +21,13 @@ export default memo<IProps>((props) => {
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>(queryResultDataList);
 
-  useUpdateEffect(() => {
-    if (!queryResultDataList.length) {
-      return;
-    }
-
-    if (!currentTab || !queryResultDataList.find((d) => d.uuid === currentTab)) {
-      setCurrentTab(queryResultDataList[0].uuid);
-    }
-    console.log([...queryResultDataList]);
-    setResultDataList([...queryResultDataList]);
+  useEffect(() => {
+    setCurrentTab(queryResultDataList[0]?.uuid);
   }, [queryResultDataList]);
 
   const onChange = useCallback((uuid: string | number) => {
-    setCurrentTab(uuid);
+    console.log('onChange', uuid);
+    // setCurrentTab(uuid);
   }, []);
 
   const renderTable = (queryResultData) => {
@@ -79,28 +72,31 @@ export default memo<IProps>((props) => {
     [resultDataList],
   );
 
-  // const outputTab = useMemo(() => {
-  //   return {
-  //     prefixIcon: (
-  //       <Iconfont key="output" className={classnames(styles['successIcon'], styles.statusIcon)} code={'\ue605'} />
-  //     ),
-  //     popover: 'output',
-  //     label: 'output',
-  //     key: 'output',
-  //     children: <div>output</div>,
-  //   };
-  // }, []);
+  const outputTabAndTabsList = useMemo(() => {
+    return [
+      {
+        prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
+        label: 'Output',
+        key: 'output',
+        children: <Output />,
+        styles: { width: '80px' },
+        canClosed: false,
+      },
+      ...tabsList,
+    ];
+  }, [tabsList]);
 
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {tabsList.length ? (
+      {outputTabAndTabsList.length ? (
         <TabsNew
           hideAdd
+          concealTabHeader={outputTabAndTabsList?.length === 1}
           className={styles.tabs}
           onChange={onChange as any}
           activeKey={currentTab}
           onEdit={onEdit as any}
-          items={tabsList}
+          items={outputTabAndTabsList}
         />
       ) : (
         <div className={styles.noData}>
