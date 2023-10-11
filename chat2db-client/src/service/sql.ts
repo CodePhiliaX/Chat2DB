@@ -15,7 +15,7 @@ export interface IExecuteSqlParams {
   consoleId?: number;
   dataSourceId?: number;
   databaseName?: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName?: string;
   pageNo?: number;
   pageSize?: number;
@@ -192,7 +192,7 @@ const getDatabaseFieldTypeList = createRequest<{
 const getTableDetails = createRequest<{
   dataSourceId: number;
   databaseName: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName: string;
   refresh: boolean;
 }, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
