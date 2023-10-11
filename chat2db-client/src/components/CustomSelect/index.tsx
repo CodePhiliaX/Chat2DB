@@ -16,7 +16,8 @@ interface IProps {
 const CustomSelect = memo<IProps>((props: IProps) => {
   const { options, onChange, value } = props;
   const [customOptions, setCustomOptions] = useState<IOption[]>([]);
-  const [customValue, setCustomValue] = useState<string>();
+  const [customValue, setCustomValue] = useState<string>('');
+  const [curSearch, setCurSearch] = useState<string | null>(null);
 
   useEffect(() => {
     setCustomOptions([...options, { label: '', value: null }]);
@@ -40,22 +41,30 @@ const CustomSelect = memo<IProps>((props: IProps) => {
   };
 
   const onSearch = (v: string) => {
-    customOptions[customOptions.length - 1].label = v;
-    customOptions[customOptions.length - 1].value = v;
-    setCustomOptions([...customOptions]);
+    setCurSearch(v);
   };
   const customChange = (v: string) => {
+    setCurSearch(null);
     setCustomValue(v);
     onChange?.(v);
   };
+  const onBlur = () => {
+    if (curSearch) {
+      onChange?.(curSearch);
+    }
+    setCurSearch(null);
+  };
+
   return (
     <Select
+      onBlur={onBlur}
       allowClear
       onChange={customChange}
       value={customValue}
       showSearch
       onSearch={onSearch}
       options={filtrationCustomOptions(customOptions)}
+      notFoundContent={false}
     />
   );
 });

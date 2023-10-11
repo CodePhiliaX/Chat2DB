@@ -86,5 +86,8 @@ export default {
   'common.tips.createSuccess': 'Create Successfully',
   'common.text.action': 'Action',
   'common.button.add': 'Add',
+  'common.text.errorMessage': 'Error Message',
+  'common.button.cancelRequest': 'Cancel Request',
+  'common.button.executionError': 'Execution Error',
 
 };

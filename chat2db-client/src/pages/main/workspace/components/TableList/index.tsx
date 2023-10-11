@@ -75,7 +75,7 @@ const TableList = dvaModel((props: any) => {
             type: 'workspace/setCreateConsoleIntro',
             payload: {
               id: uuidV4(),
-              type: WorkspaceTabType.EditTable,
+              type: WorkspaceTabType.CreateTable,
               title: 'create-table',
               uniqueData: {},
             },

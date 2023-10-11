@@ -1,6 +1,6 @@
 export enum CreateTabIntroType {
-  EditorTable = 'EditorTable',
-  OpenTable = 'openTable',
+  EditorTable = 'editorTable',
+  EditTableData = 'editTableData',
 }
 
 
@@ -12,7 +12,8 @@ export enum WorkspaceTabType {
   VIEW = 'view',
   TRIGGER = 'trigger',
   EditTable = 'editTable',
-  OpenTable = 'openTable',
+  CreateTable = 'createTable',
+  EditTableData = 'editTableData',
 }
 
 // 工作台Tab的类型对应的一些配置
@@ -37,10 +38,13 @@ export const workspaceTabConfig: {
     icon: '\ue64a'
   },
   [WorkspaceTabType.EditTable]: {
+    icon: '\ue6f3'
+  },
+  [WorkspaceTabType.CreateTable]: {
     icon: '\ue6b6'
   },
-  [WorkspaceTabType.OpenTable]: {
-    icon: '\ue618'
+  [WorkspaceTabType.EditTableData]: {
+    icon: '\ue7b5'
   }
 }
 

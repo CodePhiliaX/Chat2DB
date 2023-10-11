@@ -6,13 +6,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  display: none;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   :global {
-    // .hGEOgo td {
-    //   border-bottom: 0;
-    //   // height: 400px !important;
-    // }
     .hGEOgo {
       --header-bgcolor: #fafafa;
       --header-color: #000;
@@ -49,7 +46,7 @@
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
   background-color: var(--color-bg-subtle);
-  padding: 0 16px;
+  padding: 0px 4px 0px 0px;
   height: 30px;
 }
 .toolBarItem {
@@ -60,6 +57,52 @@
   align-items: center;
   &:not(:last-child) {
     border-right: 1px solid var(--color-border);
+  }
+}
+
+.toolBarRight {
+  flex: 1;
+  display: flex;
+  justify-content: end;
+  .exportBar {
+    cursor: pointer;
+  }
+}
+
+.editTableDataBar {
+  padding: 0px 4px;
+  i {
+    color: var(--color-text-disabled);
+  }
+  .editTableDataBarItem {
+    width: 24px;
+    box-sizing: border-box;
+    padding: 4px 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    i {
+      color: var(--color-primary);
+    }
+    // &:hover i {
+    // }
+  }
+  .disableBar {
+    cursor: default;
+    i {
+      color: var(--color-text-disabled);
+    }
+  }
+  .deleteDataBar {
+    i {
+      font-size: 19px;
+    }
+  }
+  .viewSqlBar {
+    i {
+      font-size: 15px;
+    }
   }
 }
 
@@ -85,39 +128,45 @@
 }
 
 .tableItem {
-  width: 100%;
+  width: calc(100% + 8px);
   height: 100%;
-  // cursor: pointer;
-  // display: flex;
-  // align-items: center;
-  // justify-content: space-between;
-
-  // height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0px 4px;
+  margin: 0px -4px;
   max-height: 120px;
   overflow-y: auto;
-
-  // &::-webkit-scrollbar {
-  //   display: none;
-  // }
+  user-select: none;
 
   &:hover .tableHoverBox {
-    // display: flex !important;
     display: block;
   }
+
+  input {
+    background: none;
+  }
+}
+
+.tableItemEdit {
+  background-color: var(--color-success-bg);
+}
+
+.tableItemNo {
+  width: 100%;
+  text-align: center;
 }
 
 .tableHoverBox {
   position: absolute;
-  top: 0px;
+  top: 50%;
   right: 0px;
   width: 40px;
   display: none;
   align-items: center;
-  // position: absolute;
-  background-color: var(--color-bg-subtle);
-  // top: 0;
-  // right: 0;
-  // bottom: 0;
+  transform: translateY(-50%);
   cursor: pointer;
 
   i {
@@ -126,7 +175,7 @@
   }
 
   i:hover {
-    color: var(--custom-primary-color);
+    color: var(--color-primary);
   }
 }
 
@@ -149,5 +198,12 @@
 }
 
 .monacoEditor {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
   height: 60vh;
+}
+
+.errorDetail {
+  white-space: normal;
 }

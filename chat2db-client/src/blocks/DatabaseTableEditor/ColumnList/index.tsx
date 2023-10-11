@@ -1,18 +1,18 @@
-import React, { useContext, useEffect, useState, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, { useContext, useEffect, useState, useRef, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Table, InputNumber, Input, Form, Select, Checkbox, Button } from 'antd';
+import { Table, InputNumber, Input, Form, Select, Checkbox } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import sqlService from '@/service/sql';
 import { Context } from '../index';
 import { IColumnItemNew, IColumnTypes } from '@/typings';
 import i18n from '@/i18n';
 import { EditColumnOperationType } from '@/constants';
 import CustomSelect from '@/components/CustomSelect';
+import Iconfont from '@/components/Iconfont';
 
 interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
   'data-row-key': string;
@@ -20,20 +20,9 @@ interface RowProps extends React.HTMLAttributes<HTMLTableRowElement> {
 
 interface IProps {}
 
-interface IOption {
-  label: string;
-  value: string | number | null;
-}
-
 // 编辑配置
 interface IEditingConfig extends IColumnTypes {
   editKey: string;
-}
-
-// 列字段类型，select组件的options需要的数据结构
-interface IColumnTypesOption extends IColumnTypes {
-  label: string;
-  value: string | number | null;
 }
 
 // 本组件暴露给父组件的方法
@@ -96,37 +85,36 @@ const createInitialData = () => {
     ordinalPosition: null,
     nullable: null,
     generatedColumn: null,
+    charSetName: null,
+    collationName: null,
+    value: null,
     editStatus: EditColumnOperationType.Add,
   };
 };
 
 const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>) => {
-  const { dataSourceId, databaseName, schemaName, tableDetails } = useContext(Context);
+  const { databaseSupportField, databaseName, schemaName, tableDetails } = useContext(Context);
   const [dataSource, setDataSource] = useState<IColumnItemNew[]>([createInitialData()]);
   const [form] = Form.useForm();
-  const [editingKey, setEditingKey] = useState<string | null>(null);
+  const [editingData, setEditingData] = useState<IColumnItemNew | null>(null);
   const [editingConfig, setEditingConfig] = useState<IEditingConfig | null>(null);
-  const [databaseSupportField, setDatabaseSupportField] = useState<{
-    columnTypes: IColumnTypesOption[];
-    charsets: IOption[];
-    collations: IOption[];
-  }>({
-    columnTypes: [],
-    charsets: [],
-    collations: [],
-  });
+  const tableRef = useRef<HTMLDivElement>(null);
 
-  const isEditing = (record: IColumnItemNew) => record.key === editingKey;
+  const isEditing = (record: IColumnItemNew) => record.key === editingData?.key;
 
   const edit = (record: IColumnItemNew) => {
     if (record.key) {
       form.setFieldsValue({ ...record });
-      setEditingKey(record.key);
-
+      setEditingData(record);
       // 根据当前字段类型，设置编辑配置
+      console.log(databaseSupportField.columnTypes, record.columnType);
       databaseSupportField.columnTypes.forEach((i) => {
         if (i.typeName === record.columnType) {
           setEditingConfig({
+            ...i,
+            editKey: record.key!,
+          });
+          console.log({
             ...i,
             editKey: record.key!,
           });
@@ -150,79 +138,40 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     }
   }, [tableDetails]);
 
-  useEffect(() => {
-    // 获取数据库字段类型列表
-    sqlService
-      .getDatabaseFieldTypeList({
-        dataSourceId,
-        databaseName,
-      })
-      .then((res) => {
-        const columnTypes =
-          res?.columnTypes?.map((i) => {
-            return {
-              ...i,
-              value: i.typeName,
-              label: i.typeName,
-            };
-          }) || [];
-
-        const charsets =
-          res?.charsets?.map((i) => {
-            return {
-              value: i.charsetName,
-              label: i.charsetName,
-            };
-          }) || [];
-
-        const collations =
-          res?.collations?.map((i) => {
-            return {
-              value: i.collationName,
-              label: i.collationName,
-            };
-          }) || [];
-
-        setDatabaseSupportField({
-          columnTypes,
-          charsets,
-          collations,
-        });
-      });
-  }, []);
-
   const columns = [
     {
       key: 'sort',
       width: '40px',
       align: 'center',
     },
-    {
-      title: 'O T',
-      dataIndex: 'editStatus',
-      width: '60px',
-      align: 'center',
-      render: (text: EditColumnOperationType) => {
-        return text === EditColumnOperationType.Add ? (
-          <span style={{ color: '#52c41a' }}>新</span>
-        ) : (
-          <span style={{ color: '#f5222d' }}>原</span>
-        );
-      },
-    },
+    // {
+    //   title: 'O T',
+    //   dataIndex: 'editStatus',
+    //   width: '60px',
+    //   align: 'center',
+    //   render: (text: EditColumnOperationType) => {
+    //     return text === EditColumnOperationType.Add ? (
+    //       <span style={{ color: '#52c41a' }}>新</span>
+    //     ) : (
+    //       <span style={{ color: '#f5222d' }}>原</span>
+    //     );
+    //   },
+    // },
     {
       title: i18n('editTable.label.columnName'),
       dataIndex: 'name',
       width: '160px',
       render: (text: string, record: IColumnItemNew) => {
         const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="name" style={{ margin: 0 }}>
-            <Input />
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
+        return (
+          <div className={styles.cellContent}>
+            {editable ? (
+              <Form.Item name="name" style={{ margin: 0 }}>
+                <Input autoComplete="off" />
+              </Form.Item>
+            ) : (
+              <div className={styles.editableCell}>{text}</div>
+            )}
           </div>
         );
       },
@@ -240,7 +189,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                 <Select showSearch options={databaseSupportField.columnTypes} />
               </Form.Item>
             ) : (
-              <div style={{ maxWidth: '184px' }} className={styles.editableCell} onClick={() => edit(record)}>
+              <div style={{ maxWidth: '184px' }} className={styles.editableCell}>
                 {text}
               </div>
             )}
@@ -256,12 +205,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="columnSize" style={{ margin: 0 }}>
-            <InputNumber />
+            <InputNumber disabled={!editingConfig?.supportLength} />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
+          <div className={styles.editableCell}>{text}</div>
         );
       },
     },
@@ -273,10 +220,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="nullable" style={{ margin: 0 }} valuePropName="checked">
-            <Checkbox checked={nullable === 1} />
+            <Checkbox checked={nullable === 1} disabled={!editingConfig?.supportNullable} />
           </Form.Item>
         ) : (
-          <div onClick={() => edit(record)}>
+          <div>
             <Checkbox checked={nullable === 1} />
           </div>
         );
@@ -289,11 +236,26 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         const editable = isEditing(record);
         return editable ? (
           <Form.Item name="comment" style={{ margin: 0 }}>
-            <Input />
+            <Input autoComplete="off" disabled={!editingConfig?.supportComments} />
           </Form.Item>
         ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
+          <div className={styles.editableCell}>{text}</div>
+        );
+      },
+    },
+    {
+      width: '40px',
+      render: (text: string, record: IColumnItemNew) => {
+        return (
+          <div
+            className={styles.operationBar}
+            onClick={() => {
+              deleteData(record);
+            }}
+          >
+            <div className={styles.deleteIconBox}>
+              <Iconfont code="&#xe64e;" />
+            </div>
           </div>
         );
       },
@@ -319,12 +281,18 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     }
 
     const newData = dataSource.map((item) => {
-      if (item.key === editingKey) {
+      if (item.key === editingData?.key) {
         // 判断当前数据是新增的数据还是编辑后的数据
         let editStatus = item.editStatus;
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
         }
+        const editingDataItem = {
+          ...item,
+          [name]: value,
+          editStatus,
+        };
+
         if (name === 'columnType') {
           // 根据当前字段类型，设置编辑配置
           databaseSupportField.columnTypes.forEach((i) => {
@@ -335,17 +303,20 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               });
             }
           });
+          // 特殊处理VARCHAR的默认长度 为255
+          if (value === 'VARCHAR' && editingDataItem.columnSize === null) {
+            editingDataItem.columnSize = 255;
+            form.setFieldsValue({
+              columnSize: 255,
+            });
+          }
         }
-        return {
-          ...item,
-          [name]: value,
-          editStatus,
-        };
+        return editingDataItem;
       }
       return item;
     });
+    console.log(newData);
     setDataSource(newData);
-    console.log(field);
   };
 
   const addData = () => {
@@ -354,13 +325,19 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     };
     setDataSource([...dataSource, newData]);
     edit(newData);
+    setTimeout(() => {
+      tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);
+    }, 0);
   };
 
-  const deleteData = () => {
-    setDataSource(
-      dataSource.map((i) => {
-        if (i.key === editingKey) {
-          setEditingKey(null);
+  const deleteData = (record) => {
+    let list: any = [];
+    if (record?.editStatus === EditColumnOperationType.Add) {
+      list = dataSource.filter((i) => i.key !== record?.key);
+    } else {
+      list = dataSource.map((i) => {
+        if (i.key === record?.key) {
+          setEditingData(null);
           setEditingConfig(null);
           return {
             ...i,
@@ -368,32 +345,9 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           };
         }
         return i;
-      }),
-    );
-  };
-
-  const moveData = (action: 'up' | 'down') => {
-    const index = dataSource.findIndex((i) => i.key === editingKey);
-    if (index === -1) {
-      return;
+      });
     }
-    if (action === 'up') {
-      if (index === 0) {
-        return;
-      }
-      const newData = [...dataSource];
-      newData[index] = dataSource[index - 1];
-      newData[index - 1] = dataSource[index];
-      setDataSource(newData);
-    } else {
-      if (index === dataSource.length - 1) {
-        return;
-      }
-      const newData = [...dataSource];
-      newData[index] = dataSource[index + 1];
-      newData[index + 1] = dataSource[index];
-      setDataSource(newData);
-    }
+    setDataSource(list);
   };
 
   function getColumnListInfo(): IColumnItemNew[] {
@@ -415,18 +369,28 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   const renderOtherInfoForm = () => {
     const labelCol = {
-      style: { width: 90 },
+      style: { width: 100 },
     };
 
     return (
       <>
+        {editingConfig?.supportAutoIncrement && (
+          <Form.Item
+            labelCol={labelCol}
+            label={i18n('editTable.label.autoIncrement')}
+            name="autoIncrement"
+            valuePropName="checked"
+          >
+            <Checkbox />
+          </Form.Item>
+        )}
         {editingConfig?.supportDefaultValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.defaultValue')} name="defaultValue">
             <CustomSelect
               options={[
                 {
-                  label: 'EMPTY STRING',
-                  value: 'EMPTY STRING',
+                  label: 'EMPTY_STRING',
+                  value: 'EMPTY_STRING',
                 },
                 {
                   label: 'NULL',
@@ -437,42 +401,64 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           </Form.Item>
         )}
         {editingConfig?.supportCharset && (
-          <Form.Item labelCol={labelCol} label={i18n('editTable.label.characterSet')} name="characterSet">
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.characterSet')} name="charSetName">
             <CustomSelect options={databaseSupportField.charsets} />
           </Form.Item>
         )}
         {editingConfig?.supportCollation && (
-          <Form.Item labelCol={labelCol} label={i18n('editTable.label.collation')} name="collation">
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.collation')} name="collationName">
             <CustomSelect options={databaseSupportField.collations} />
           </Form.Item>
         )}
         {editingConfig?.supportScale && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.decimalPoint')} name="decimalPoint">
-            <Input />
+            <Input autoComplete="off" />
+          </Form.Item>
+        )}
+        {editingConfig?.supportValue && (
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.value')} name="value">
+            <Input autoComplete="off" />
           </Form.Item>
         )}
       </>
     );
   };
 
+  const onRow = (record: any) => {
+    return {
+      onClick: () => {
+        if (editingData?.key !== record.key) {
+          edit(record);
+        }
+      },
+    };
+  };
+
   return (
     <div className={styles.columnList}>
-      <div className={styles.columnListHeader}>
+      {/* <div className={styles.columnListHeader}>
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
         <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button>
         <Button onClick={moveData.bind(null, 'up')}>{i18n('editTable.button.up')}</Button>
         <Button onClick={moveData.bind(null, 'down')}>{i18n('editTable.button.down')}</Button>
-      </div>
+      </div> */}
       <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
         <div className={styles.tableBox}>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>
               <Table
+                ref={tableRef}
                 components={{
                   body: {
                     row: Row,
                   },
                 }}
+                style={{
+                  maxHeight: '100%',
+                  overflow: 'auto',
+                }}
+                sticky
+                onRow={onRow}
                 pagination={false}
                 rowKey="key"
                 columns={columns as any}
@@ -480,7 +466,12 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               />
             </SortableContext>
           </DndContext>
+          <div onClick={addData} className={styles.addColumnButton}>
+            <Iconfont code="&#xe631;" />
+            {i18n('editTable.button.addColumn')}
+          </div>
         </div>
+
         <div className={styles.otherInfo}>
           <div className={styles.otherInfoFormBox}>{renderOtherInfoForm()}</div>
         </div>

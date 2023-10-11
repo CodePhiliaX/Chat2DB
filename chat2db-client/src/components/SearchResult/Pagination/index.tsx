@@ -11,11 +11,11 @@ interface IProps {
   onPageSizeChange?: (pageSize: number) => void;
   onPageNoChange?: (pageNo: number) => void;
   onClickTotalBtn?: () => Promise<number | undefined>;
-  data?: IResultConfig;
+  data?: IResultConfig | null;
 }
 type IIconType = 'pre' | 'next' | 'first' | 'last';
 export default function Pagination(props: IProps) {
-  const { onPageNoChange, onPageSizeChange, onClickTotalBtn, data } = props;
+  const { onPageNoChange, onPageSizeChange, data } = props;
   const [inputValue, setInputValue] = useState<number | null>(1);
   const [totalLoading, setTotalLoading] = useState(false);
 

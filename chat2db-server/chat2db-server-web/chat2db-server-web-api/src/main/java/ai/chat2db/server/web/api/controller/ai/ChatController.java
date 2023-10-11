@@ -1,6 +1,7 @@
 package ai.chat2db.server.web.api.controller.ai;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatMessage;
-import ai.chat2db.server.web.api.controller.ai.azure.models.AzureChatRole;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatRole;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.claude.client.ClaudeAIClient;
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatCompletionsOptions;
@@ -30,21 +31,32 @@ import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
-import ai.chat2db.server.web.api.controller.ai.listener.AzureOpenAIEventSourceListener;
-import ai.chat2db.server.web.api.controller.ai.listener.ClaudeAIEventSourceListener;
-import ai.chat2db.server.web.api.controller.ai.listener.OpenAIEventSourceListener;
-import ai.chat2db.server.web.api.controller.ai.listener.RestAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
+import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
+import ai.chat2db.server.web.api.controller.ai.openai.listener.OpenAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.rest.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
+import ai.chat2db.server.web.api.http.GatewayClientService;
+import ai.chat2db.server.web.api.http.model.TableSchema;
+import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
-import ai.chat2db.server.web.api.util.OpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.spi.model.TableColumn;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.unfbx.chatgpt.entity.chat.Message;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +97,9 @@ public class ChatController {
 
     @Value("${chatgpt.version}")
     private String gptVersion;
+
+    @Resource
+    private GatewayClientService gatewayClientService;
 
     /**
      * chat的超时时间
@@ -195,7 +210,7 @@ public class ChatController {
      *
      * @return
      */
-    private SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+    public SseEmitter distributeAISql(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
@@ -213,7 +228,8 @@ public class ChatController {
             case CHAT2DBAI:
                 return chatWithChat2dbAi(queryRequest, sseEmitter, uid);
             case RESTAI :
-                return chatWithRestAi(queryRequest, sseEmitter);
+            case FASTCHATAI:
+                return chatWithFastChatAi(queryRequest, sseEmitter, uid);
             case AZUREAI :
                 return chatWithAzureAi(queryRequest, sseEmitter, uid);
             case CLAUDEAI:
@@ -332,6 +348,36 @@ public class ChatController {
         return sseEmitter;
     }
 
+    /**
+     * chat with fast chat openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithFastChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
+        if (CollectionUtils.isNotEmpty(messages)) {
+            if (messages.size() >= contextLength) {
+                messages = messages.subList(1, contextLength);
+            }
+        } else {
+            messages = Lists.newArrayList();
+        }
+        FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
+        messages.add(currentMessage);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        FastChatAIEventSourceListener sourceListener = new FastChatAIEventSourceListener(sseEmitter);
+        FastChatAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
 
     /**
      * chat with claude ai
@@ -418,12 +464,12 @@ public class ChatController {
      * @return
      */
     private String buildPrompt(ChatQueryRequest queryRequest) {
-        // 查询schema信息
-        DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
-        String dataSourceType = dataResult.getData().getType();
-        if (StringUtils.isBlank(dataSourceType)) {
-            dataSourceType = "MYSQL";
+        if (PromptType.TEXT_GENERATION.getCode().equals(queryRequest.getPromptType())) {
+            return queryRequest.getMessage();
         }
+
+        // 查询schema信息
+        String dataSourceType = queryDatabaseType(queryRequest);
         TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
         Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
         List<String> tableSchemas = tableColumns.entrySet().stream().map(
@@ -450,6 +496,96 @@ public class ChatController {
                 break;
         }
         return schemaProperty;
+    }
+
+    /**
+     * query database type
+     *
+     * @param queryRequest
+     * @return
+     */
+    public String queryDatabaseType(ChatQueryRequest queryRequest) {
+        // 查询schema信息
+        DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
+        String dataSourceType = dataResult.getData().getType();
+        if (StringUtils.isBlank(dataSourceType)) {
+            dataSourceType = "MYSQL";
+        }
+        return dataSourceType;
+    }
+
+
+    /**
+     * query database schema
+     *
+     * @param queryRequest
+     * @return
+     * @throws IOException
+     */
+    public String queryDatabaseSchema(ChatQueryRequest queryRequest) throws IOException {
+        // request embedding
+        FastChatEmbeddingResponse response = distributeAIEmbedding(queryRequest.getMessage());
+        List<List<BigDecimal>> contentVector = new ArrayList<>();
+        contentVector.add(response.getData().get(0).getEmbedding());
+
+        // search embedding
+        TableSchemaRequest tableSchemaRequest = new TableSchemaRequest();
+        tableSchemaRequest.setSchemaVector(contentVector);
+        tableSchemaRequest.setDataSourceId(queryRequest.getDataSourceId());
+        String databaseName = StringUtils.isNotBlank(queryRequest.getDatabaseName()) ? queryRequest.getDatabaseName() : queryRequest.getSchemaName();
+        if (Objects.isNull(databaseName)) {
+            databaseName = "";
+        }
+        tableSchemaRequest.setDatabaseName(databaseName);
+        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
+
+        List<String> schemas = Lists.newArrayList();
+        if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
+            for(TableSchema data: result.getData().getTableSchemas()){
+                schemas.add(data.getTableSchema());
+            }
+        }
+        return JSON.toJSONString(schemas);
+    }
+
+    /**
+     * distribute embedding with different AI
+     *
+     * @return
+     */
+    public FastChatEmbeddingResponse distributeAIEmbedding(String input) throws IOException {
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        if (Objects.nonNull(config)) {
+            aiSqlSource = config.getContent();
+        }
+        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
+        if (Objects.isNull(aiSqlSourceEnum)) {
+            aiSqlSourceEnum = AiSqlSourceEnum.OPENAI;
+        }
+        switch (Objects.requireNonNull(aiSqlSourceEnum)) {
+            case OPENAI :
+            case CHAT2DBAI:
+            case RESTAI :
+            case FASTCHATAI:
+            case AZUREAI :
+            case CLAUDEAI:
+                return distributeAIEmbedding(input);
+        }
+        return distributeAIEmbedding(input);
+    }
+
+    /**
+     * embedding with fast chat openai
+     *
+     * @param input
+     * @return
+     * @throws IOException
+     */
+    private FastChatEmbeddingResponse embeddingWithFastChatAi(String input) throws IOException {
+        FastChatEmbeddingResponse response = FastChatAIClient.getInstance().embeddings(input);
+        return response;
     }
 
     ///**

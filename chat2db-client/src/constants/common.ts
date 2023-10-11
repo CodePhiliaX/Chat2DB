@@ -37,3 +37,11 @@ export enum ConnectionKind {
   Private = 'PRIVATE',
   Shared = 'SHARED'
 }
+
+// 通用的增删改查枚举
+export enum CRUD {
+  CREATE = 'CREATE',
+  READ = 'READ',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+}

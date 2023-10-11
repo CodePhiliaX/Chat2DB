@@ -95,7 +95,7 @@ function Connections(props: IProps) {
     });
   };
 
-  const handelEnvRefresh = (kind: ConnectionKind) => {
+  const handleEnvRefresh = (kind: ConnectionKind) => {
     let p = {
       pageNo: 1,
       pageSize: 999,
@@ -143,7 +143,7 @@ function Connections(props: IProps) {
               <>
                 <div className={styles.envLabel}>
                   <div>{data.name}</div>
-                  <RefreshLoadingButton loading={data.loading} className={styles.envRefreshBox} onClick={() => handelEnvRefresh(t as ConnectionKind)} />
+                  <RefreshLoadingButton loading={data.loading} className={styles.envRefreshBox} onClick={() => handleEnvRefresh(t as ConnectionKind)} />
                 </div>
                 {(data.list || []).map(t => {
                   const { key, label, icon } = t;

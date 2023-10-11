@@ -65,7 +65,7 @@ export default function Layout() {
 
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
-      <AppContainer></AppContainer>
+      <AppContainer />
     </ConfigProvider>
   );
 }
@@ -163,7 +163,7 @@ function AppContainer() {
           {startSchedule === 1 && (
             <>
               <div className={styles.loadingBox}>
-                <Spin spinning={!serviceFail} size='large' />
+                <Spin spinning={!serviceFail} size="large" />
                 {/* <div className={styles.hint}>
                     <Setting />
                   </div> */}
@@ -188,7 +188,7 @@ function AppContainer() {
         </div>
       )}
       {/* 全局的弹窗 */}
-      <MyNotification></MyNotification>
+      <MyNotification />
     </div>
   );
 }

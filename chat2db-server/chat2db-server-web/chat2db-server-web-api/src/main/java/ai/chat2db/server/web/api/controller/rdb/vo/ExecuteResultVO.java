@@ -87,4 +87,14 @@ public class ExecuteResultVO {
      * 执行持续时间
      */
     private Long duration;
+
+    /**
+     * 返回结果是否可以编辑
+     */
+    private boolean canEdit;
+
+    /**
+     * 表名
+     */
+    private String tableName;
 }

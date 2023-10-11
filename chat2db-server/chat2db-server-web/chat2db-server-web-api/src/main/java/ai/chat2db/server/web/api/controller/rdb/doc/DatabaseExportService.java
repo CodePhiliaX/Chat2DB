@@ -3,7 +3,10 @@ package ai.chat2db.server.web.api.controller.rdb.doc;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
 import ai.chat2db.server.domain.api.model.IndexInfo;
 import ai.chat2db.server.domain.api.model.TableParameter;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.controller.rdb.doc.conf.ExportOptions;
+import ai.chat2db.server.web.api.controller.rdb.doc.constant.CommonConstant;
+import ai.chat2db.server.web.api.controller.rdb.doc.constant.PatternConstant;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
@@ -58,6 +61,41 @@ public class DatabaseExportService {
     public final static String JOINER = "---";
 
     private void init() {
+        CommonConstant.INDEX_HEAD_NAMES = new String[]{I18nUtils.getMessage("main.indexName"),
+                I18nUtils.getMessage("main.indexFieldName"),
+                I18nUtils.getMessage("main.indexType"),
+                I18nUtils.getMessage("main.indexMethod"),
+                I18nUtils.getMessage("main.indexNote")};
+        CommonConstant.COLUMN_HEAD_NAMES = new String[]{I18nUtils.getMessage("main.fieldNo"),
+                I18nUtils.getMessage("main.fieldName"),
+                I18nUtils.getMessage("main.fieldType"),
+                I18nUtils.getMessage("main.fieldLength"),
+                I18nUtils.getMessage("main.fieldIfEmpty"),
+                I18nUtils.getMessage("main.fieldDefault"),
+                I18nUtils.getMessage("main.fieldDecimalPlaces"),
+                I18nUtils.getMessage("main.fieldNote")};
+        // index表头
+        StringBuilder mdIndex = new StringBuilder(PatternConstant.MD_SPLIT);
+        StringBuilder htmlIndex = new StringBuilder("<tr><th>");
+        for (int i = 0; i < CommonConstant.INDEX_HEAD_NAMES.length; i++) {
+            mdIndex.append(CommonConstant.INDEX_HEAD_NAMES[i]).append(i == CommonConstant.INDEX_HEAD_NAMES.length - 1 ? "" : PatternConstant.MD_SPLIT);
+            htmlIndex.append(CommonConstant.INDEX_HEAD_NAMES[i]).append(i == CommonConstant.INDEX_HEAD_NAMES.length - 1 ? "" : "</th><th>");
+        }
+        mdIndex.append(PatternConstant.MD_SPLIT);
+        htmlIndex.append("</th></tr>");
+        // column 表头
+        StringBuilder mdColumn = new StringBuilder(PatternConstant.MD_SPLIT);
+        StringBuilder htmlColumn = new StringBuilder("<tr><th>");
+        for (int i = 0; i < CommonConstant.COLUMN_HEAD_NAMES.length; i++) {
+            mdColumn.append(CommonConstant.COLUMN_HEAD_NAMES[i]).append(i == CommonConstant.COLUMN_HEAD_NAMES.length - 1 ? "" : PatternConstant.MD_SPLIT);
+            htmlColumn.append(CommonConstant.COLUMN_HEAD_NAMES[i]).append(i == CommonConstant.COLUMN_HEAD_NAMES.length - 1 ? "" : "</th><th>");
+        }
+        mdColumn.append(PatternConstant.MD_SPLIT);
+        htmlColumn.append("</th></tr>");
+        PatternConstant.ALL_INDEX_TABLE_HEADER = mdIndex.toString();
+        PatternConstant.HTML_INDEX_TABLE_HEADER = htmlIndex.toString();
+        PatternConstant.ALL_TABLE_HEADER = mdColumn.toString();
+        PatternConstant.HTML_TABLE_HEADER = htmlColumn.toString();
         listMap.clear();
         indexMap.clear();
     }

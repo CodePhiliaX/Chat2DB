@@ -161,11 +161,24 @@ public class TableController {
      */
     @PostMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid @RequestBody TableModifySqlRequest request) {
-        return tableService.buildSql(
-                        rdbWebConverter.tableRequest2param(request.getOldTable()),
-                        rdbWebConverter.tableRequest2param(request.getNewTable()))
+        Table table =  rdbWebConverter.tableRequest2param(request.getNewTable());
+        table.setSchemaName(request.getSchemaName());
+        table.setDatabaseName(request.getDatabaseName());
+        for (TableColumn tableColumn : table.getColumnList()) {
+            tableColumn.setSchemaName(request.getSchemaName());
+            tableColumn.setTableName(table.getName());
+            tableColumn.setDatabaseName(request.getDatabaseName());
+        }
+        for (TableIndex tableIndex : table.getIndexList()) {
+            tableIndex.setSchemaName(request.getSchemaName());
+            tableIndex.setTableName(table.getName());
+            tableIndex.setDatabaseName(request.getDatabaseName());
+        }
+
+        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()),table)
                 .map(rdbWebConverter::dto2vo);
     }
+
 
 
     /**

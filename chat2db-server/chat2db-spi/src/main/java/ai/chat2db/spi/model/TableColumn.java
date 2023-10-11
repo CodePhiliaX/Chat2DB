@@ -16,6 +16,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TableColumn {
+
+    /**
+     * Old column, when modifying a column, you need this parameter
+     */
+    private TableColumn oldColumn;
     /**
      * 旧的列名，在修改列的时候需要这个参数
      * 在返回的时候oldName=name
@@ -58,6 +63,8 @@ public class TableColumn {
     @JsonAlias({"COLUMN_DEF"})
     private String defaultValue;
 
+
+
     /**
      * 是否自增
      * 为空 代表没有值 数据库的实际语义是 false
@@ -88,7 +95,7 @@ public class TableColumn {
     private String databaseName;
 
     /**
-     *  Data source dependent type name, for a UDT the type name is fully qualified
+     * Data source dependent type name, for a UDT the type name is fully qualified
      */
     private String typeName;
 
@@ -151,8 +158,8 @@ public class TableColumn {
 
     /**
      * String => Indicates whether this is a generated column
-     *      * YES --- if this a generated column
-     *      * NO --- if this not a generated column
+     * * YES --- if this a generated column
+     * * NO --- if this not a generated column
      */
     private Boolean generatedColumn;
 
@@ -161,4 +168,20 @@ public class TableColumn {
 
 
     private String editStatus;
+
+    private String charSetName;
+
+    private String collationName;
+
+    //Mysql
+    private String value;
+
+    //ORACLE
+    private String unit;
+
+    // sqlserver
+    private Boolean sparse;
+
+    // sqlserver
+    private String defaultConstraintName;
 }

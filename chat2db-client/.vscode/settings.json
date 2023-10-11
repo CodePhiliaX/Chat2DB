@@ -78,8 +78,10 @@
     "umijs",
     "USERANDPASSWORD",
     "uuidv",
+    "VARCHAR",
     "VIEWCOLUMN",
-    "wireframe"
+    "wireframe",
+    "yapi"
   ],
   "typescript.tsdk": "/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/node_modules/typescript/lib"
 }

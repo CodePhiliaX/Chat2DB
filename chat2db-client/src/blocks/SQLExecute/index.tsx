@@ -8,15 +8,14 @@ import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
-import historyServer, { IGetSavedListParams, ISaveBasicInfo } from '@/service/history';
+import historyServer, { ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
-import sqlServer, { IExecuteSqlParams, IExportParams } from '@/service/sql';
+import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
-import sql from '@/service/sql';
-import { isNumber } from 'lodash';
-import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { downloadFile } from '@/utils/common';
+import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+import i18n from '@/i18n';
+import EmptyImg from '@/assets/img/empty.svg';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -47,10 +46,9 @@ const SQLExecute = memo<IProps>((props) => {
   const [appendValue, setAppendValue] = useState<IAppendValue>();
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
   const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
-
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
-
+  const controllerRef = useRef<AbortController>();
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
       return;
@@ -79,15 +77,20 @@ const SQLExecute = memo<IProps>((props) => {
    */
   const handleExecuteSQL = async (sql: string) => {
     setTableLoading(true);
+    setResultData([]);
 
-    let executeSQLParams: IExecuteSqlParams = {
+    const executeSQLParams: IExecuteSqlParams = {
       sql,
       ...defaultResultConfig,
       ...data,
     };
 
+    controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-    let sqlResult = await sqlServer.executeSql(executeSQLParams);
+    let sqlResult = await sqlServer.executeSql(executeSQLParams, {
+      signal: controllerRef.current.signal,
+    });
+
     sqlResult = sqlResult.map((res) => ({
       ...res,
       uuid: uuidV4(),
@@ -108,7 +111,7 @@ const SQLExecute = memo<IProps>((props) => {
     setResultData(sqlResult);
     setTableLoading(false);
 
-    let createHistoryParams: ISaveBasicInfo = {
+    const createHistoryParams: ISaveBasicInfo = {
       ...data,
       ddl: sql,
       name: `${new Date()}-${sql}`,
@@ -120,51 +123,33 @@ const SQLExecute = memo<IProps>((props) => {
    * 因为 pageNo、pageSize等信息导致的
    * 单条SQL执行
    */
-  const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
-    setTableLoading(true);
-    const param = { ...data, ...config, sql };
-    let sqlResult = await sqlServer.executeSql(param);
-    resultData[index] = { ...resultData[index], ...sqlResult[0] };
-    setResultData([...resultData]);
+  // const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
+  //   setTableLoading(true);
+  //   const param = { ...data, ...config, sql };
+  //   const sqlResult = await sqlServer.executeSql(param);
+  //   resultData[index] = { ...resultData[index], ...sqlResult[0] };
+  //   setResultData([...resultData]);
+  //   resultConfig[index] = {
+  //     ...config,
+  //     total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
+  //     hasNextPage: sqlResult[0].hasNextPage,
+  //   };
+  //   setResultConfig([...resultConfig]);
+  //   setTableLoading(false);
+  // };
 
-    resultConfig[index] = {
-      ...config,
-      total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
-      hasNextPage: sqlResult[0].hasNextPage,
-    };
-    setResultConfig([...resultConfig]);
+  const stopExecuteSql = () => {
+    controllerRef.current && controllerRef.current.abort();
     setTableLoading(false);
   };
 
-  const handleSearchTotal = async (index: number) => {
-    const { originalSql } = resultData[index];
-    let total = await sqlServer.getDMLCount({ ...data, sql: originalSql });
-    resultConfig[index] = {
-      ...resultConfig[index],
-      total,
-    };
-    setResultConfig([...resultConfig]);
-    return total;
-  };
-
-  const handleExportSQLResult = async (
-    sql: string,
-    originalSql: string,
-    exportType: ExportTypeEnum,
-    exportSize: ExportSizeEnum,
-  ) => {
-    const params: IExportParams = { ...data, sql, originalSql, exportType, exportSize };
-    downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
-  };
-
-  const handleResultTabEdit = (type: 'add' | 'remove', uuid?: string | number) => {
-    if (type === 'remove') {
-      const tabIndex = resultData.findIndex((d) => d.uuid === uuid);
-      resultData.splice(tabIndex, 1);
-      resultConfig.splice(tabIndex, 1);
-      setResultData([...resultData]);
-      setResultConfig([...resultConfig]);
-    }
+  const renderEmpty = () => {
+    return (
+      <div className={styles.noData}>
+        <img src={EmptyImg} />
+        <p>{i18n('common.text.noData')}</p>
+      </div>
+    );
   };
 
   return (
@@ -201,17 +186,18 @@ const SQLExecute = memo<IProps>((props) => {
           />
         </div>
         <div className={styles.boxRightResult}>
-          {
-            <SearchResult
-              onTabEdit={handleResultTabEdit}
-              onExecute={handleExecuteSQLbyConfigChanged}
-              onSearchTotal={handleSearchTotal}
-              onExport={handleExportSQLResult}
-              manageResultDataList={resultData}
-              resultConfig={resultConfig}
-              isLoading={tableLoading}
-            />
-          }
+          {tableLoading ? (
+            <div className={styles.tableLoading}>
+              <Spin />
+              <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
+                {i18n('common.button.cancelRequest')}
+              </div>
+            </div>
+          ) : resultData?.length ? (
+            <SearchResult executeSqlParams={data} queryResultDataList={resultData} />
+          ) : (
+            renderEmpty()
+          )}
         </div>
       </DraggableContainer>
     </div>

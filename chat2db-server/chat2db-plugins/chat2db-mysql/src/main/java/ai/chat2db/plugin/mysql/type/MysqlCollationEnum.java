@@ -62,6 +62,7 @@ public enum MysqlCollationEnum {
         return collation;
     }
 
+
     public static List<Collation> getCollations() {
         return Arrays.asList(MysqlCollationEnum.values()).stream().map(MysqlCollationEnum::getCollation).collect(java.util.stream.Collectors.toList());
     }

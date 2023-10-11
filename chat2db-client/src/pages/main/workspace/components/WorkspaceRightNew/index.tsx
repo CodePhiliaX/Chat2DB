@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -9,6 +9,7 @@ import TabsNew, { ITabItem } from '@/components/TabsNew';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
+import EditTableData from '@/blocks/EditTableData';
 import SQLExecute from '@/blocks/SQLExecute';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
@@ -30,14 +31,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 工作台tab列表
   const [workspaceTabList, setWorkspaceTabList] = useState<IWorkspaceTab[]>([]);
 
-  const {
-    curWorkspaceParams,
-    doubleClickTreeNodeData,
-    createTabIntro,
-    openConsoleList,
-    curConsoleId,
-    createConsoleIntro,
-  } = workspaceModel;
+  const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, createConsoleIntro } =
+    workspaceModel;
 
   // 根据保存的console列表生成tab列表
   useEffect(() => {
@@ -46,6 +41,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         id: t.id,
         title: t.name,
         type: t.operationType,
+        editableName: true,
         uniqueData: t,
       };
     });
@@ -69,7 +65,10 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   useEffect(() => {
     if (createTabIntro) {
       // 如果已经打开了这个表的编辑页面，那么就切换到这个页面
-      const flag = workspaceTabList?.find((t) => t.uniqueData?.tableName === createTabIntro.treeNodeData.name);
+      const flag = workspaceTabList?.find(
+        (t) =>
+          t.uniqueData?.tableName === createTabIntro.treeNodeData.name && t.type === createTabIntro.workspaceTabType,
+      );
       if (flag) {
         setActiveConsoleId(flag.id);
         return;
@@ -79,7 +78,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const newData = {
         id,
         type: createTabIntro.workspaceTabType,
-        title: `edit-${createTabIntro.treeNodeData.name}`,
+        title: `${createTabIntro.treeNodeData.name}`,
         uniqueData: {
           tableName: createTabIntro.treeNodeData.name,
         },
@@ -394,7 +393,11 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     if (action === 'remove') {
       setWorkspaceTabList(workspaceTabList.filter((t) => t.id !== data.key));
       const editData = workspaceTabList?.find((t) => t.id === data.key);
-      if (editData?.type !== WorkspaceTabType.EditTable) {
+      if (
+        editData?.type !== WorkspaceTabType.EditTable &&
+        editData?.type !== WorkspaceTabType.CreateTable &&
+        editData?.type !== WorkspaceTabType.EditTableData
+      ) {
         closeWindowTab(data.key as number);
       }
     }
@@ -480,6 +483,16 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     });
   }
 
+  const changeTabDetails = (data: IWorkspaceTab) => {
+    const list = workspaceTabList.map((t) => {
+      if (t.id === data.id) {
+        return data;
+      }
+      return t;
+    });
+    setWorkspaceTabList(list);
+  };
+
   const tabsList = useMemo(() => {
     return workspaceTabList.map((t) => {
       const { uniqueData } = t;
@@ -487,9 +500,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         prefixIcon: workspaceTabConfig[t.type]?.icon,
         label: t.title,
         key: t.id,
-        // 这里还缺一个参数 是否可编辑tab名称, 编辑表不可编辑名称 TODO:
+        editableName: t.editableName,
         children: (
-          <>
+          <Fragment key={t.id}>
             {[
               WorkspaceTabType.CONSOLE,
               WorkspaceTabType.FUNCTION,
@@ -497,28 +510,40 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               WorkspaceTabType.TRIGGER,
               WorkspaceTabType.VIEW,
             ].includes(t.type) && (
-                <SQLExecute
-                  isActive={activeConsoleId === t.id}
-                  data={{
-                    initDDL: uniqueData?.ddl,
-                    databaseName: curWorkspaceParams.databaseName!,
-                    dataSourceId: curWorkspaceParams.dataSourceId!,
-                    type: curWorkspaceParams.databaseType!,
-                    schemaName: curWorkspaceParams?.schemaName!,
-                    consoleId: t.id as number,
-                    consoleName: uniqueData.name,
-                  }}
-                />
-              )}
-            {t.type === WorkspaceTabType.EditTable && (
+              <SQLExecute
+                isActive={activeConsoleId === t.id}
+                data={{
+                  initDDL: uniqueData?.ddl,
+                  databaseName: curWorkspaceParams.databaseName!,
+                  dataSourceId: curWorkspaceParams.dataSourceId!,
+                  type: curWorkspaceParams.databaseType!,
+                  schemaName: curWorkspaceParams?.schemaName,
+                  consoleId: t.id as number,
+                  consoleName: uniqueData.name,
+                }}
+              />
+            )}
+            {(t.type === WorkspaceTabType.EditTable || t.type === WorkspaceTabType.CreateTable) && (
               <DatabaseTableEditor
+                tabDetails={t}
+                changeTabDetails={changeTabDetails}
                 dataSourceId={curWorkspaceParams.dataSourceId}
                 databaseName={curWorkspaceParams.databaseName!}
-                schemaName={curWorkspaceParams?.schemaName!}
+                databaseType={curWorkspaceParams?.databaseType}
+                schemaName={curWorkspaceParams?.schemaName}
                 tableName={uniqueData.tableName}
               />
             )}
-          </>
+            {t.type === WorkspaceTabType.EditTableData && (
+              <EditTableData
+                dataSourceId={curWorkspaceParams.dataSourceId}
+                databaseName={curWorkspaceParams.databaseName!}
+                databaseType={curWorkspaceParams?.databaseType}
+                schemaName={curWorkspaceParams?.schemaName}
+                tableName={uniqueData.tableName}
+              />
+            )}
+          </Fragment>
         ),
       };
     });
@@ -532,7 +557,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             className={styles.tabs}
             onChange={onTabChange}
             onEdit={onEdit as any}
-            editableName={true}
             activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
             items={tabsList}

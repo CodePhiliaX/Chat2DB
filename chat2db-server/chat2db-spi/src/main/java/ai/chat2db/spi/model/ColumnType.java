@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ColumnType {
-
     private String typeName;
     private boolean supportLength;
     private boolean supportScale;
@@ -17,4 +16,7 @@ public class ColumnType {
     private boolean supportComments;
     private boolean supportDefaultValue;
     private boolean supportExtent;
+    private boolean supportValue;
+    private boolean supportUnit;
+
 }
