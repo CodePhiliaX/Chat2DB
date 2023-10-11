@@ -65,38 +65,11 @@ public class RdbDmlController {
     @RequestMapping(value = "/execute_update", method = {RequestMethod.POST, RequestMethod.PUT})
     public  DataResult<ExecuteResultVO> executeSelectResultUpdate(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        Connection connection = Chat2DBContext.getConnection();
-        if (connection != null) {
-            try {
-                boolean flag = true;
-                ExecuteResultVO executeResult = null;
-                connection.setAutoCommit(false);
-                ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
-                List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
-                if (!CollectionUtils.isEmpty(resultVOS)) {
-                    for (ExecuteResultVO resultVO : resultVOS) {
-                        if (!resultVO.getSuccess()) {
-                            flag = false;
-                            executeResult = resultVO;
-                            break;
-
-                        }
-                    }
-                }
-                if (flag) {
-                    connection.commit();
-                    return DataResult.of(resultVOS.get(0));
-                }else {
-                    connection.rollback();
-                    return DataResult.of(executeResult);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-        } else {
-            return DataResult.error("connection error", "");
+        DataResult<ExecuteResult>  result = dlTemplateService.executeUpdate(param);
+        if(!result.success()){
+            return DataResult.error(result.getErrorCode(),result.getErrorMessage());
         }
+       return DataResult.of(rdbWebConverter.dto2vo(result.getData()));
 
     }
     @RequestMapping(value = "/get_update_sql", method = {RequestMethod.POST, RequestMethod.PUT})
