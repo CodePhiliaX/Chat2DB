@@ -31,4 +31,16 @@ public class CacheKey {
         }
         return stringBuffer.toString();
     }
+
+    public static String getColumnKey(Long dataSourceId, String databaseName, String schemaName,String tableName) {
+        StringBuffer stringBuffer = new StringBuffer("columns_dataSourceId" + dataSourceId);
+        if (!StringUtils.isEmpty(databaseName)) {
+            stringBuffer.append("_databaseName" + databaseName);
+        }
+        if (!StringUtils.isEmpty(schemaName)) {
+            stringBuffer.append("_schemaName" + schemaName);
+        }
+        stringBuffer.append("_tableName"+tableName);
+        return stringBuffer.toString();
+    }
 }
