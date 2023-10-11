@@ -530,7 +530,7 @@ export default function TableBox(props: ITableProps) {
       schemaName: props.executeSqlParams?.schemaName,
       tableName: queryResultData.tableName,
     };
-    sqlService.executeDDL(executeSQLParams).then((res) => {
+    sqlService.executeUpdateDataSql(executeSQLParams).then((res) => {
       if (res.success) {
         // 更新成功后，需要重新获取表格数据
         getTableData().then(() => {
