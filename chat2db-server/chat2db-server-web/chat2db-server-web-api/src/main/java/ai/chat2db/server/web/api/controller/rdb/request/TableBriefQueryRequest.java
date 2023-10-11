@@ -43,4 +43,5 @@ public class TableBriefQueryRequest extends PageQueryRequest implements DataSour
      * if true, refresh the cache
      */
     private boolean refresh;
+
 }
