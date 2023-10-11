@@ -16,7 +16,7 @@ interface IProps {
   databaseType: DatabaseTypeCode;
   databaseName: string;
   dataSourceId: number;
-  schemaName: string | undefined;
+  schemaName?: string | null;
   tableName?: string;
   executeSuccessCallBack: () => void;
   executeSqlApi?: 'executeUpdateDataSql'; // 两个地方用到了这个组件，但是两个需要的执行sql的接口不一样
