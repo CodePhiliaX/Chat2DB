@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dropdown, Input, MenuProps, message, Modal, Space } from 'antd';
+import { Dropdown, Input, MenuProps, message, Modal, Space, Popover } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
@@ -648,44 +648,54 @@ export default function TableBox(props: ITableProps) {
             </div>
             {queryResultData.canEdit && (
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
-                <div
-                  onClick={handelCreateData}
-                  className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
-                >
-                  <Iconfont code="&#xe61b;" />
-                </div>
-                <div
-                  onClick={handelDeleteData}
-                  className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: curOperationRowNo === null,
-                  })}
-                >
-                  <Iconfont code="&#xe644;" />
-                </div>
-                <div
-                  onClick={handleRevoke}
-                  className={classnames(styles.revokeBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: revokeDisableBarState,
-                  })}
-                >
-                  <Iconfont code="&#xe6e2;" />
-                </div>
-                <div
-                  onClick={handelViewSql}
-                  className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: !updateData.length,
-                  })}
-                >
-                  <Iconfont code="&#xe651;" />
-                </div>
-                <div
-                  onClick={handelUpdateSubmit}
-                  className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
-                    [styles.disableBar]: !updateData.length,
-                  })}
-                >
-                  <Iconfont code="&#xe650;" />
-                </div>
+                <Popover content={i18n('editTableData.tips.addRow')} trigger="hover">
+                  <div
+                    onClick={handelCreateData}
+                    className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
+                  >
+                    <Iconfont code="&#xe61b;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.deleteRow')} trigger="hover">
+                  <div
+                    onClick={handelDeleteData}
+                    className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: curOperationRowNo === null,
+                    })}
+                  >
+                    <Iconfont code="&#xe644;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.revert')} trigger="hover">
+                  <div
+                    onClick={handleRevoke}
+                    className={classnames(styles.revokeBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: revokeDisableBarState,
+                    })}
+                  >
+                    <Iconfont code="&#xe6e2;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.previewPendingChanges')} trigger="hover">
+                  <div
+                    onClick={handelViewSql}
+                    className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: !updateData.length,
+                    })}
+                  >
+                    <Iconfont code="&#xe651;" />
+                  </div>
+                </Popover>
+                <Popover content={i18n('editTableData.tips.submit')} trigger="hover">
+                  <div
+                    onClick={handelUpdateSubmit}
+                    className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
+                      [styles.disableBar]: !updateData.length,
+                    })}
+                  >
+                    <Iconfont code="&#xe650;" />
+                  </div>
+                </Popover>
               </div>
             )}
             <div className={styles.toolBarRight}>

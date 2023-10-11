@@ -8,6 +8,7 @@ import chat from './chat';
 import team from './team'
 import login from './login';
 import editTable from './editTable';
+import editTableData from './editTableData';
 
 export default {
   lang: 'en',
@@ -20,5 +21,6 @@ export default {
   ...chat,
   ...team,
   ...login,
-  ...editTable
+  ...editTable,
+  ...editTableData
 };
