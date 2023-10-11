@@ -47,4 +47,7 @@ public class TablePageQueryParam extends PageQueryParam {
      * if true, refresh the cache
      */
     private boolean refresh;
+
+
+    private String searchKey;
 }
