@@ -136,10 +136,10 @@ public class TableServiceImpl implements TableService {
     @Override
     public PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TableCacheVersionDO::getKey, buildKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
+        queryWrapper.eq(TableCacheVersionDO::getKey, getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
         TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
         if (param.isRefresh() || versionDO == null) {
-            addDBCache(param, versionDO);
+            addDBCache(param.getDataSourceId(),param.getDatabaseName(),param.getSchemaName(), versionDO);
         }
         LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
         query.eq(TableCacheDO::getVersion, versionDO.getVersion());
@@ -154,7 +154,7 @@ public class TableServiceImpl implements TableService {
             query.like(TableCacheDO::getTableName, param.getSearchKey());
         }
         Page<TableCacheDO> page = new Page<>(param.getPageNo(), param.getPageSize());
-       // page.setSearchCount(param.getEnableReturnCount());
+        // page.setSearchCount(param.getEnableReturnCount());
         IPage<TableCacheDO> iPage = tableCacheMapper.selectPage(page, query);
         List<Table> tables = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
@@ -170,14 +170,49 @@ public class TableServiceImpl implements TableService {
         return PageResult.of(tables, versionDO.getTableCount(), param);
     }
 
-    private void addDBCache(TablePageQueryParam param, TableCacheVersionDO versionDO) {
+    @Override
+    public ListResult<SimpleTable> queryTables(TablePageQueryParam param) {
+        LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TableCacheVersionDO::getKey, getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
+        TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
+        if (param.isRefresh() || versionDO == null) {
+            addDBCache(param.getDataSourceId(),param.getDatabaseName(), param.getSchemaName(), versionDO);
+        }
+        LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
+        query.eq(TableCacheDO::getVersion, versionDO.getVersion());
+        query.eq(TableCacheDO::getDataSourceId, param.getDataSourceId());
+        if (StringUtils.isNotBlank(param.getDatabaseName())) {
+            query.eq(TableCacheDO::getDatabaseName, param.getDatabaseName());
+        }
+        if (StringUtils.isNotBlank(param.getSchemaName())) {
+            query.eq(TableCacheDO::getSchemaName, param.getSchemaName());
+        }
+        List<SimpleTable> tables = new ArrayList<>();
+
+        for (int i = 0; i < versionDO.getTableCount()/500 +1; i++) {
+            Page<TableCacheDO> page = new Page<>(i+1, 500);
+            IPage<TableCacheDO> iPage = tableCacheMapper.selectPage(page, query);
+            if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
+                for (TableCacheDO tableCacheDO : iPage.getRecords()) {
+                    SimpleTable t = new SimpleTable();
+                    t.setName(tableCacheDO.getTableName());
+                    t.setComment(tableCacheDO.getExtendInfo());
+                    tables.add(t);
+                }
+            }
+        }
+        return ListResult.of(tables);
+    }
+
+    private void addDBCache(Long dataSourceId,String databaseName,String schemaName, TableCacheVersionDO versionDO) {
+        String key = getTableKey(dataSourceId, databaseName, schemaName);
         if (versionDO == null) {
             versionDO = new TableCacheVersionDO();
-            versionDO.setDatabaseName(param.getDatabaseName());
-            versionDO.setSchemaName(param.getSchemaName());
-            versionDO.setDataSourceId(param.getDataSourceId());
+            versionDO.setDatabaseName(databaseName);
+            versionDO.setSchemaName(schemaName);
+            versionDO.setDataSourceId(dataSourceId);
             versionDO.setStatus("2");
-            versionDO.setKey(buildKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
+            versionDO.setKey(key);
             versionDO.setVersion(0L);
             versionDO.setTableCount(0L);
             tableCacheVersionMapper.insert(versionDO);
@@ -188,7 +223,7 @@ public class TableServiceImpl implements TableService {
         }
         Connection connection = Chat2DBContext.getConnection();
         long n = 0;
-        try (ResultSet resultSet = connection.getMetaData().getTables(param.getDatabaseName(), param.getSchemaName(), param.getTableName(),
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
                 new String[]{"TABLE"})) {
             List<TableCacheDO> cacheDOS = new ArrayList<>();
             while (resultSet.next()) {
@@ -197,9 +232,9 @@ public class TableServiceImpl implements TableService {
                 tableCacheDO.setSchemaName(resultSet.getString("TABLE_SCHEM"));
                 tableCacheDO.setTableName(resultSet.getString("TABLE_NAME"));
                 tableCacheDO.setExtendInfo(resultSet.getString("REMARKS"));
-                tableCacheDO.setDataSourceId(param.getDataSourceId());
+                tableCacheDO.setDataSourceId(dataSourceId);
                 tableCacheDO.setVersion(versionDO.getVersion());
-                tableCacheDO.setKey(buildKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
+                tableCacheDO.setKey(key);
                 cacheDOS.add(tableCacheDO);
                 if (cacheDOS.size() >= 500) {
                     tableCacheMapper.batchInsert(cacheDOS);
@@ -214,13 +249,13 @@ public class TableServiceImpl implements TableService {
             versionDO.setTableCount(n);
             tableCacheVersionMapper.updateById(versionDO);
             LambdaQueryWrapper<TableCacheDO> q = new LambdaQueryWrapper();
-            q.eq(TableCacheDO::getDataSourceId, param.getDataSourceId());
+            q.eq(TableCacheDO::getDataSourceId, dataSourceId);
             q.lt(TableCacheDO::getVersion, versionDO.getVersion());
-            if (param.getDatabaseName() != null) {
-                q.eq(TableCacheDO::getDatabaseName, param.getDatabaseName());
+            if (StringUtils.isNotBlank(databaseName)) {
+                q.eq(TableCacheDO::getDatabaseName, databaseName);
             }
-            if (param.getSchemaName() != null) {
-                q.eq(TableCacheDO::getSchemaName, param.getSchemaName());
+            if (StringUtils.isNotBlank(schemaName)) {
+                q.eq(TableCacheDO::getSchemaName, schemaName);
             }
             tableCacheMapper.delete(q);
         } catch (SQLException e) {
@@ -230,16 +265,16 @@ public class TableServiceImpl implements TableService {
     }
 
 
-    private String buildKey(Long dataSourceId, String databaseName, String schemaName) {
-        StringBuilder stringBuilder = new StringBuilder(dataSourceId.toString());
-        if (StringUtils.isNotBlank(databaseName)) {
-            stringBuilder.append("_").append(databaseName);
-        }
-        if (StringUtils.isNotBlank(schemaName)) {
-            stringBuilder.append("_").append(schemaName);
-        }
-        return stringBuilder.toString();
-    }
+//    private String buildKey(Long dataSourceId, String databaseName, String schemaName) {
+//        StringBuilder stringBuilder = new StringBuilder(dataSourceId.toString());
+//        if (StringUtils.isNotBlank(databaseName)) {
+//            stringBuilder.append("_").append(databaseName);
+//        }
+//        if (StringUtils.isNotBlank(schemaName)) {
+//            stringBuilder.append("_").append(schemaName);
+//        }
+//        return stringBuilder.toString();
+//    }
 
     private List<Table> pinTable(List<Table> list, TablePageQueryParam param) {
         if (CollectionUtils.isEmpty(list)) {
