@@ -15,8 +15,10 @@ export interface IExecuteSqlParams {
   consoleId?: number;
   dataSourceId?: number;
   databaseName?: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName?: string;
+  pageNo?: number;
+  pageSize?: number;
 }
 
 export interface IExecuteSqlResponse {
@@ -190,7 +192,7 @@ const getDatabaseFieldTypeList = createRequest<{
 const getTableDetails = createRequest<{
   dataSourceId: number;
   databaseName: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName: string;
   refresh: boolean;
 }, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
@@ -198,7 +200,7 @@ const getTableDetails = createRequest<{
 export interface IModifyTableSqlParams { 
   dataSourceId: number;
   databaseName: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName?: string;
   oldTable?: IEditTableInfo;
   newTable: IEditTableInfo;
@@ -209,14 +211,18 @@ export interface IModifyTableSqlParams {
 const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', { method: 'post' });
 
 /** 执行编辑表的sql, 专为编辑表而生 */ 
-const executeDDL = createRequest<IExecuteSqlParams, { success: boolean, message: string, originalSql:string }>('/api/rdb/dml/execute_ddl', { method: 'post' });
+const executeDDL = createRequest<IExecuteSqlParams, { success: boolean, message: string, originalSql: string }>('/api/rdb/dml/execute_ddl', { method: 'post' });
+
+// 执行修改表数据的sql
+const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean, message: string, sql:string }>('/api/rdb/dml/execute_update', { method: 'post' });
 
 /** 获取修改表数据的接口 */ 
-const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/execute_update', { method: 'post' });
+const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/get_update_sql', { method: 'post' });
 
 export default {
-  getExecuteUpdateSql,
+  executeUpdateDataSql,
   executeDDL,
+  getExecuteUpdateSql,
   getModifyTableSql,
   getTableDetails,
   getDatabaseFieldTypeList,

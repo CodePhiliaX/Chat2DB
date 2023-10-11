@@ -11,26 +11,28 @@ import { DatabaseTypeCode } from '@/constants';
 
 interface IProps {
   className?: string;
-  initSql: string;
-  initError?: string;
+  initSql: string | null;
+  initError?: string | null;
   databaseType: DatabaseTypeCode;
   databaseName: string;
   dataSourceId: number;
-  schemaName: string | undefined;
+  schemaName?: string | null;
   tableName?: string;
   executeSuccessCallBack: () => void;
+  executeSqlApi?: 'executeUpdateDataSql'; // 两个地方用到了这个组件，但是两个需要的执行sql的接口不一样
 }
 
 export default memo<IProps>((props) => {
   const {
     className,
-    initSql,
-    initError,
+    initSql = null,
+    initError = null,
     databaseType,
     databaseName,
     dataSourceId,
     schemaName,
     tableName,
+    executeSqlApi = 'executeDDL',
     executeSuccessCallBack,
   } = props;
   const monacoEditorRef = useRef<IExportRefFunction>(null);
@@ -39,8 +41,8 @@ export default memo<IProps>((props) => {
   const [executeSqlResult, setExecuteSqlResult] = useState<string | null>(null);
 
   useEffect(() => {
-    setAppendValue(initSql);
-    setExecuteSqlResult(initError || null);
+    setAppendValue(initSql || '');
+    setExecuteSqlResult(initError);
   }, []);
 
   const handleFormatSql = () => {
@@ -59,8 +61,7 @@ export default memo<IProps>((props) => {
       tableName,
     };
     setExecuteLoading(true);
-    sqlService
-      .executeDDL(executeSQLParams)
+    sqlService[executeSqlApi](executeSQLParams)
       .then((res) => {
         if (res.success) {
           executeSuccessCallBack?.();

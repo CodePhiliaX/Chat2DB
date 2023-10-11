@@ -58,23 +58,23 @@ export default defineConfig({
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
-    `if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker
-          .register("sw.js")
-          .then(res => console.log("service worker registered"))
-          .catch(err => console.log("service worker not registered", err));
-      })
-    }`,
-    `var deferredPrompt = null;
-    window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
-    window.addEventListener("appinstalled", () => {
-      deferredPrompt = null;
-    })`,
+    // `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    // `if ("serviceWorker" in navigator) {
+    //   window.addEventListener("load", function () {
+    //     navigator.serviceWorker
+    //       .register("sw.js")
+    //       .then(res => console.log("service worker registered"))
+    //       .catch(err => console.log("service worker not registered", err));
+    //   })
+    // }`,
+    // `var deferredPrompt = null;
+    // window.addEventListener("beforeinstallprompt", e => {
+    //   e.preventDefault();
+    //   deferredPrompt = e;
+    // });
+    // window.addEventListener("appinstalled", () => {
+    //   deferredPrompt = null;
+    // })`,
     {
       src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61',
       async: true,
@@ -96,4 +96,5 @@ export default defineConfig({
     __APP_VERSION__: yarn_config.app_version || '0.0.0',
     __APP_PORT__: yarn_config.app_port,
   },
+  esbuildMinifyIIFE: true
 });

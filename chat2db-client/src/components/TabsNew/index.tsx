@@ -11,6 +11,8 @@ export interface ITabItem {
   popover?: string | React.ReactNode;
   children?: React.ReactNode;
   editableName?: boolean | undefined;
+  canClosed?: boolean;
+  styles?: React.CSSProperties;
 }
 
 export interface IOnchangeProps {
@@ -20,20 +22,22 @@ export interface IOnchangeProps {
 
 interface IProps {
   className?: string;
-  items: ITabItem[] | undefined;
+  items?: ITabItem[];
   activeKey?: number | string;
   onChange?: (key: string | number | undefined) => void;
   onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
   hideAdd?: boolean;
   type?: 'line';
   editableNameOnBlur?: (option: ITabItem) => void;
+  concealTabHeader?: boolean;
 }
 
 export default memo<IProps>((props) => {
-  const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableNameOnBlur } = props;
+  const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableNameOnBlur, concealTabHeader } = props;
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
+  console.log('items', items);
 
   useEffect(() => {
     if (activeKey !== null && activeKey !== undefined) {
@@ -44,7 +48,7 @@ export default memo<IProps>((props) => {
   useEffect(() => {
     setInternalTabs(items || []);
     if (items?.length && internalActiveTab === undefined) {
-      setInternalActiveTab(items[0].key);
+      setInternalActiveTab(items[0]?.key);
     }
   }, [items]);
 
@@ -100,6 +104,7 @@ export default memo<IProps>((props) => {
           onDoubleClick={() => {
             onDoubleClick(t);
           }}
+          style={t.styles}
           className={classnames(
             { [styles.tabItem]: type !== 'line' },
             { [styles.tabItemLine]: type === 'line' },
@@ -129,9 +134,11 @@ export default memo<IProps>((props) => {
               <div className={styles.text}>{t.label}</div>
             </div>
           )}
-          <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
-            <Iconfont code="&#xe634;" />
-          </div>
+          {t.canClosed !== false && (
+            <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
+              <Iconfont code="&#xe634;" />
+            </div>
+          )}
         </div>
       </Popover>
     );
@@ -139,22 +146,24 @@ export default memo<IProps>((props) => {
 
   return (
     <div className={classnames(styles.tabBox, className)}>
-      <div className={styles.tabsNav}>
-        {!!internalTabs?.length && (
-          <div className={styles.tabList}>
-            {internalTabs.map((t, index) => {
-              return renderTabItem(t, index);
-            })}
-          </div>
-        )}
-        {!hideAdd && (
-          <div className={styles.rightBox}>
-            <div className={styles.addIcon} onClick={handleAdd}>
-              <Iconfont code="&#xe631;" />
+      {!concealTabHeader && (
+        <div className={styles.tabsNav}>
+          {!!internalTabs?.length && (
+            <div className={styles.tabList}>
+              {internalTabs.map((t, index) => {
+                return renderTabItem(t, index);
+              })}
             </div>
-          </div>
-        )}
-      </div>
+          )}
+          {!hideAdd && (
+            <div className={styles.rightBox}>
+              <div className={styles.addIcon} onClick={handleAdd}>
+                <Iconfont code="&#xe631;" />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       <div className={styles.tabsContent}>
         {internalTabs?.map((t) => {
           return (

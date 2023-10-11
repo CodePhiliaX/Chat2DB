@@ -82,19 +82,16 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    &:hover i {
+    i {
       color: var(--color-primary);
     }
+    // &:hover i {
+    // }
   }
   .disableBar {
-    cursor: not-allowed;
-    &:hover i {
-      color: var(--color-text-disabled);
-    }
-  }
-  .deleteDataBar {
+    cursor: default;
     i {
-      font-size: 19px;
+      color: var(--color-text-disabled);
     }
   }
   .viewSqlBar {

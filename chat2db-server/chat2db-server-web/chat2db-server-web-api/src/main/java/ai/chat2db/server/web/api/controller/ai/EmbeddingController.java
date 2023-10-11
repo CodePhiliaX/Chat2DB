@@ -53,7 +53,7 @@ public class EmbeddingController extends ChatController {
     private TableService tableService;
 
     /**
-     * save knowledge embeddings from pdf file
+     * save datasource embeddings
      *
      * @param request
      * @return

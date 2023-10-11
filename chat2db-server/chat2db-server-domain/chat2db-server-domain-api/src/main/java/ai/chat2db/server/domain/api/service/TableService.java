@@ -75,6 +75,14 @@ public interface TableService {
      */
     PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
 
+
+    /**
+     * 查询表信息
+     * @param param
+     * @return
+     */
+    ListResult<SimpleTable> queryTables(TablePageQueryParam param);
+
     /**
      * 查询表包含的字段
      *

@@ -25,6 +25,15 @@ public interface DlTemplateService {
      */
     ListResult<ExecuteResult> execute(DlExecuteParam param);
 
+
+    /**
+     * 数据源执行update
+     *
+     * @param param
+     * @return
+     */
+    DataResult<ExecuteResult> executeUpdate(DlExecuteParam param);
+
     /**
      * 执行统计sql
      *
