@@ -112,9 +112,9 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 column.setNullable(resultSet.getInt("IS_NULLABLE"));
                 column.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
                 column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
-                column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
+               // column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
                 column.setCollationName(resultSet.getString("COLLATION_NAME"));
-                column.setColumnSize(resultSet.getInt("CHARACTER_MAXIMUM_LENGTH"));
+                column.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
                 //setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
                 tableColumns.add(column);
             }

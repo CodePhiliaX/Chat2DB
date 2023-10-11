@@ -15,7 +15,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import i18n from '@/i18n';
-import EmptyImg from '@/assets/img/empty.svg';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -45,7 +44,6 @@ const SQLExecute = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>();
   const [resultData, setResultData] = useState<IManageResultData[]>([]);
-  const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
@@ -71,13 +69,16 @@ const SQLExecute = memo<IProps>((props) => {
     setAppendValue({ text: data.initDDL });
   }, [data.initDDL]);
 
+  useEffect(() => {
+    console.log(resultData);
+  }, [resultData]);
+
   /**
    * 执行SQL
    * @param sql
    */
   const handleExecuteSQL = async (sql: string) => {
     setTableLoading(true);
-    setResultData([]);
 
     const executeSQLParams: IExecuteSqlParams = {
       sql,
@@ -96,18 +97,6 @@ const SQLExecute = memo<IProps>((props) => {
       uuid: uuidV4(),
     }));
 
-    // 获取当前SQL的总条数
-    // let reqDMLCountPromiseArr: Array<Promise<any>> = [];
-    // (sqlResult || []).forEach((res) => {
-    //   const { originalSql } = res;
-    //   let p = sqlServer.getDMLCount({ ...executeSQLParams, sql: originalSql });
-    //   reqDMLCountPromiseArr.push(p);
-    // });
-    // let reqDMLCountArr = await Promise.all(reqDMLCountPromiseArr);
-
-    setResultConfig(
-      sqlResult.map((res) => ({ ...defaultResultConfig, total: res.fuzzyTotal, hasNextPage: res.hasNextPage })),
-    );
     setResultData(sqlResult);
     setTableLoading(false);
 
@@ -119,37 +108,10 @@ const SQLExecute = memo<IProps>((props) => {
     historyServer.createHistory(createHistoryParams);
   };
 
-  /**
-   * 因为 pageNo、pageSize等信息导致的
-   * 单条SQL执行
-   */
-  // const handleExecuteSQLbyConfigChanged = async (sql: string, config: IResultConfig, index: number) => {
-  //   setTableLoading(true);
-  //   const param = { ...data, ...config, sql };
-  //   const sqlResult = await sqlServer.executeSql(param);
-  //   resultData[index] = { ...resultData[index], ...sqlResult[0] };
-  //   setResultData([...resultData]);
-  //   resultConfig[index] = {
-  //     ...config,
-  //     total: isNumber(resultConfig[index].total) ? resultConfig[index].total : sqlResult[0].fuzzyTotal,
-  //     hasNextPage: sqlResult[0].hasNextPage,
-  //   };
-  //   setResultConfig([...resultConfig]);
-  //   setTableLoading(false);
-  // };
-
   const stopExecuteSql = () => {
     controllerRef.current && controllerRef.current.abort();
+    setResultData([]);
     setTableLoading(false);
-  };
-
-  const renderEmpty = () => {
-    return (
-      <div className={styles.noData}>
-        <img src={EmptyImg} />
-        <p>{i18n('common.text.noData')}</p>
-      </div>
-    );
   };
 
   return (
@@ -193,10 +155,8 @@ const SQLExecute = memo<IProps>((props) => {
                 {i18n('common.button.cancelRequest')}
               </div>
             </div>
-          ) : resultData?.length ? (
-            <SearchResult executeSqlParams={data} queryResultDataList={resultData} />
           ) : (
-            renderEmpty()
+            <SearchResult executeSqlParams={data} queryResultDataList={resultData} />
           )}
         </div>
       </DraggableContainer>

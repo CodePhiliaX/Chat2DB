@@ -27,7 +27,7 @@ public class TextGenerationController extends ChatController {
 
 
     /**
-     * chat的超时时间
+     * chat timeout time
      */
     private static final Long CHAT_TIMEOUT = Duration.ofMinutes(50).toMillis();
 

@@ -96,6 +96,8 @@ export default function TableBox(props: ITableProps) {
   const [viewUpdateDataSqlModal, setViewUpdateDataSqlModal] = useState<boolean>(false);
   // 用于滚动到底部
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
+  // 所有数据准备好了
+  const [allDataReady, setAllDataReady] = useState<boolean>(false);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -124,6 +126,7 @@ export default function TableBox(props: ITableProps) {
       const newTableData = dataListTransformTableData(queryResultData.dataList);
       setTableData(newTableData);
       setOldTableData(newTableData);
+      setAllDataReady(true);
     }
     // 每次data变化，都需要重新计算oldDataList
     if (queryResultData.dataList?.length) {
@@ -398,7 +401,7 @@ export default function TableBox(props: ITableProps) {
 
   const onClickTotalBtn = async () => {
     return sqlService.getDMLCount({
-      sql: queryResultData.originalSql,
+      sql: queryResultData.sql,
       ...(props.executeSqlParams || {}),
     });
   };
@@ -471,6 +474,16 @@ export default function TableBox(props: ITableProps) {
     if (deleteIndex !== -1) {
       updateData.splice(deleteIndex, 1);
     }
+
+    // 如果删除的这个数据时编辑过的，要把这个数据恢复
+    setTableData(
+      tableData.map((item) =>
+        item[`${preCode}0No.`] === curOperationRowNo
+          ? oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)!
+          : item,
+      ),
+    );
+
     setUpdateData([
       ...updateData,
       {
@@ -530,15 +543,15 @@ export default function TableBox(props: ITableProps) {
       schemaName: props.executeSqlParams?.schemaName,
       tableName: queryResultData.tableName,
     };
-    sqlService.executeDDL(executeSQLParams).then((res) => {
-      if (res.success) {
+    sqlService.executeUpdateDataSql(executeSQLParams).then((res) => {
+      if (res?.success) {
         // 更新成功后，需要重新获取表格数据
         getTableData().then(() => {
           message.success(i18n('common.text.successfulExecution'));
           setUpdateData([]);
         });
       } else {
-        setUpdateDataSql(res.originalSql);
+        setUpdateDataSql(res.sql);
         setViewUpdateDataSqlModal(true);
         setInitError(res.message);
       }
@@ -707,22 +720,24 @@ export default function TableBox(props: ITableProps) {
               </Dropdown>
             </div>
           </div>
-          <SupportBaseTable
-            className={classnames('supportBaseTable', props.className, styles.table)}
-            components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-            isStickyHead
-            stickyTop={31}
-            getRowProps={(record) => {
-              const rowNo = record[`${preCode}0No.`];
-              return {
-                style: tableRowStyle(rowNo),
-                onClick() {
-                  setCurOperationRowNo(rowNo);
-                },
-              };
-            }}
-            {...pipeline.getProps()}
-          />
+          {allDataReady && (
+            <SupportBaseTable
+              className={classnames('supportBaseTable', props.className, styles.table)}
+              components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+              isStickyHead
+              stickyTop={31}
+              getRowProps={(record) => {
+                const rowNo = record[`${preCode}0No.`];
+                return {
+                  style: tableRowStyle(rowNo),
+                  onClick() {
+                    setCurOperationRowNo(rowNo);
+                  },
+                };
+              }}
+              {...pipeline.getProps()}
+            />
+          )}
           {bottomStatus}
         </>
       );
@@ -784,6 +799,7 @@ export default function TableBox(props: ITableProps) {
           schemaName={props.executeSqlParams?.schemaName}
           databaseType={props.executeSqlParams?.databaseType}
           executeSuccessCallBack={executeSuccessCallBack}
+          executeSqlApi="executeUpdateDataSql"
         />
       </Modal>
       {contextHolder}

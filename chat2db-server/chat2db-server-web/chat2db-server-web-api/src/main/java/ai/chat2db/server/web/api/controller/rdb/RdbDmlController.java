@@ -63,10 +63,19 @@ public class RdbDmlController {
      * @return
      */
     @RequestMapping(value = "/execute_update", method = {RequestMethod.POST, RequestMethod.PUT})
-    public   DataResult<String> executeUpdate(@RequestBody SelectResultUpdateRequest  request) {
+    public  DataResult<ExecuteResultVO> executeSelectResultUpdate(@RequestBody DmlRequest request) {
+        DlExecuteParam param = rdbWebConverter.request2param(request);
+        DataResult<ExecuteResult>  result = dlTemplateService.executeUpdate(param);
+        if(!result.success()){
+            return DataResult.error(result.getErrorCode(),result.getErrorMessage());
+        }
+       return DataResult.of(rdbWebConverter.dto2vo(result.getData()));
+
+    }
+    @RequestMapping(value = "/get_update_sql", method = {RequestMethod.POST, RequestMethod.PUT})
+    public DataResult<String> getUpdateSelectResultSql(@RequestBody SelectResultUpdateRequest request) {
         UpdateSelectResultParam param = rdbWebConverter.request2param(request);
         return dlTemplateService.updateSelectResult(param);
-
     }
 
 

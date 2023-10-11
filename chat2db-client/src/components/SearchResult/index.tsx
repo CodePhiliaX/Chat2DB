@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import TabsNew from '@/components/TabsNew';
 import Iconfont from '@/components/Iconfont';
@@ -6,6 +6,9 @@ import StateIndicator from '@/components/StateIndicator';
 import { IManageResultData } from '@/typings';
 import TableBox from './TableBox';
 import styles from './index.less';
+import EmptyImg from '@/assets/img/empty.svg';
+import i18n from '@/i18n';
+import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 
 interface IProps {
   className?: string;
@@ -16,9 +19,9 @@ interface IProps {
 export default memo<IProps>((props) => {
   const { className, queryResultDataList = [] } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
-  const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
+  const [resultDataList, setResultDataList] = useState<IManageResultData[]>(queryResultDataList);
 
-  useEffect(() => {
+  useUpdateEffect(() => {
     if (!queryResultDataList.length) {
       return;
     }
@@ -26,7 +29,7 @@ export default memo<IProps>((props) => {
     if (!currentTab || !queryResultDataList.find((d) => d.uuid === currentTab)) {
       setCurrentTab(queryResultDataList[0].uuid);
     }
-
+    console.log([...queryResultDataList]);
     setResultDataList([...queryResultDataList]);
   }, [queryResultDataList]);
 
@@ -66,29 +69,44 @@ export default memo<IProps>((props) => {
     });
   }, [resultDataList]);
 
-  const outputTab = useMemo(() => {
-    return {
-      prefixIcon: (
-        <Iconfont key="output" className={classnames(styles['successIcon'], styles.statusIcon)} code={'\ue605'} />
-      ),
-      popover: 'output',
-      label: 'output',
-      key: 'output',
-      children: <div>output</div>,
-    };
-  }, []);
+  const onEdit = useCallback(
+    (type: 'add' | 'remove', value) => {
+      if (type === 'remove') {
+        const newResultDataList = resultDataList.filter((d) => d.uuid !== value.key);
+        setResultDataList(newResultDataList);
+      }
+    },
+    [resultDataList],
+  );
+
+  // const outputTab = useMemo(() => {
+  //   return {
+  //     prefixIcon: (
+  //       <Iconfont key="output" className={classnames(styles['successIcon'], styles.statusIcon)} code={'\ue605'} />
+  //     ),
+  //     popover: 'output',
+  //     label: 'output',
+  //     key: 'output',
+  //     children: <div>output</div>,
+  //   };
+  // }, []);
 
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {!!tabsList.length && (
+      {tabsList.length ? (
         <TabsNew
           hideAdd
           className={styles.tabs}
           onChange={onChange as any}
           activeKey={currentTab}
-          // items={[outputTab, ...tabsList]}
-          items={[...tabsList]}
+          onEdit={onEdit as any}
+          items={tabsList}
         />
+      ) : (
+        <div className={styles.noData}>
+          <img src={EmptyImg} />
+          <p>{i18n('common.text.noData')}</p>
+        </div>
       )}
     </div>
   );
