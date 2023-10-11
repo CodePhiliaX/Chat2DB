@@ -98,6 +98,8 @@ export default function TableBox(props: ITableProps) {
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
   // 所有数据准备好了
   const [allDataReady, setAllDataReady] = useState<boolean>(false);
+  // 编辑数据的inputRef
+  const editDataInputRef = React.useRef<any>(null);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -201,6 +203,9 @@ export default function TableBox(props: ITableProps) {
     }
     setEditingData(value);
     setEditingCell([colIndex, rowNo]);
+    setTimeout(() => {
+      editDataInputRef?.current?.focus();
+    }, 0);
   };
 
   // 编辑数据失焦
@@ -343,6 +348,7 @@ export default function TableBox(props: ITableProps) {
             >
               {editingCell?.join(',') === `${colIndex},${rowNo}` ? (
                 <Input
+                  ref={editDataInputRef}
                   value={editingData}
                   onChange={(e) => {
                     setEditingData(e.target.value);
@@ -754,15 +760,6 @@ export default function TableBox(props: ITableProps) {
         width="60vw"
         maskClosable={false}
         footer={false}
-        // footer={
-        //   <>
-        //     {
-        //       <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
-        //         {i18n('common.button.copy')}
-        //       </Button>
-        //     }
-        //   </>
-        // }
       >
         <div className={styles.monacoEditor}>
           <MonacoEditor
