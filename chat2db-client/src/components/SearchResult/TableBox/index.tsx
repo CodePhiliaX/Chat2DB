@@ -96,6 +96,10 @@ export default function TableBox(props: ITableProps) {
   const [viewUpdateDataSqlModal, setViewUpdateDataSqlModal] = useState<boolean>(false);
   // 用于滚动到底部
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
+  // 所有数据准备好了
+  const [allDataReady, setAllDataReady] = useState<boolean>(false);
+  // 编辑数据的inputRef
+  const editDataInputRef = React.useRef<any>(null);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -124,6 +128,7 @@ export default function TableBox(props: ITableProps) {
       const newTableData = dataListTransformTableData(queryResultData.dataList);
       setTableData(newTableData);
       setOldTableData(newTableData);
+      setAllDataReady(true);
     }
     // 每次data变化，都需要重新计算oldDataList
     if (queryResultData.dataList?.length) {
@@ -198,6 +203,9 @@ export default function TableBox(props: ITableProps) {
     }
     setEditingData(value);
     setEditingCell([colIndex, rowNo]);
+    setTimeout(() => {
+      editDataInputRef?.current?.focus();
+    }, 0);
   };
 
   // 编辑数据失焦
@@ -340,6 +348,7 @@ export default function TableBox(props: ITableProps) {
             >
               {editingCell?.join(',') === `${colIndex},${rowNo}` ? (
                 <Input
+                  ref={editDataInputRef}
                   value={editingData}
                   onChange={(e) => {
                     setEditingData(e.target.value);
@@ -398,7 +407,7 @@ export default function TableBox(props: ITableProps) {
 
   const onClickTotalBtn = async () => {
     return sqlService.getDMLCount({
-      sql: queryResultData.originalSql,
+      sql: queryResultData.sql,
       ...(props.executeSqlParams || {}),
     });
   };
@@ -548,7 +557,7 @@ export default function TableBox(props: ITableProps) {
           setUpdateData([]);
         });
       } else {
-        setUpdateDataSql(res.originalSql);
+        setUpdateDataSql(res.sql);
         setViewUpdateDataSqlModal(true);
         setInitError(res.message);
       }
@@ -717,22 +726,24 @@ export default function TableBox(props: ITableProps) {
               </Dropdown>
             </div>
           </div>
-          <SupportBaseTable
-            className={classnames('supportBaseTable', props.className, styles.table)}
-            components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-            isStickyHead
-            stickyTop={31}
-            getRowProps={(record) => {
-              const rowNo = record[`${preCode}0No.`];
-              return {
-                style: tableRowStyle(rowNo),
-                onClick() {
-                  setCurOperationRowNo(rowNo);
-                },
-              };
-            }}
-            {...pipeline.getProps()}
-          />
+          {allDataReady && (
+            <SupportBaseTable
+              className={classnames('supportBaseTable', props.className, styles.table)}
+              components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+              isStickyHead
+              stickyTop={31}
+              getRowProps={(record) => {
+                const rowNo = record[`${preCode}0No.`];
+                return {
+                  style: tableRowStyle(rowNo),
+                  onClick() {
+                    setCurOperationRowNo(rowNo);
+                  },
+                };
+              }}
+              {...pipeline.getProps()}
+            />
+          )}
           {bottomStatus}
         </>
       );
@@ -749,15 +760,6 @@ export default function TableBox(props: ITableProps) {
         width="60vw"
         maskClosable={false}
         footer={false}
-        // footer={
-        //   <>
-        //     {
-        //       <Button onClick={copyTableCell.bind(null, viewTableCellData!)} className={styles.cancel}>
-        //         {i18n('common.button.copy')}
-        //       </Button>
-        //     }
-        //   </>
-        // }
       >
         <div className={styles.monacoEditor}>
           <MonacoEditor
@@ -794,6 +796,7 @@ export default function TableBox(props: ITableProps) {
           schemaName={props.executeSqlParams?.schemaName}
           databaseType={props.executeSqlParams?.databaseType}
           executeSuccessCallBack={executeSuccessCallBack}
+          executeSqlApi="executeUpdateDataSql"
         />
       </Modal>
       {contextHolder}
