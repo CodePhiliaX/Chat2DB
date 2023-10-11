@@ -1,27 +1,33 @@
-import React, { useEffect, useState, PropsWithChildren, lazy, Suspense } from 'react';
-import { history, connect } from 'umi';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { connect } from 'umi';
+import { Dropdown } from 'antd';
 import classnames from 'classnames';
-import Setting from '@/blocks/Setting';
+
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
+
+import { findObjListValue } from '@/utils';
+import { getUser, userLogout } from '@/service/user';
+import { INavItem } from '@/typings/main';
+import { ILoginUser } from '@/typings/user';
+import i18n from '@/i18n';
+
+// ----- model -----
 import { IMainPageType } from '@/models/mainPage';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IConnectionModelType } from '@/models/connection';
-import { findObjListValue } from '@/utils';
-import { INavItem } from '@/typings/main';
-import Connection from './connection';
+
+// ----- block -----
 import Workspace from './workspace';
 import Dashboard from './dashboard';
+import Connection from './connection';
+import Team from './team';
+import Setting from '@/blocks/Setting';
 
 import styles from './index.less';
-import { getUser, userLogout } from '@/service/user';
-import { ILoginUser } from '@/typings/user';
-import { Dropdown } from 'antd';
-import Team from './team';
-import i18n from '@/i18n';
-import { useNavigate } from 'react-router-dom';
 
-let navConfig: INavItem[] = [
+const navConfig: INavItem[] = [
   {
     key: 'workspace',
     icon: '\ue616',
@@ -68,14 +74,13 @@ function MainPage(props: IProps) {
   const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
-  // const [activeNav, setActiveNav] = useState<INavItem>(navConfig[4]);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
 
   useEffect(() => {
     getUser().then((res) => {
       if (res) {
         setUserInfo(res);
-        const hasTeamIcon = navConfig.find((i) => i.key === 'team')
+        const hasTeamIcon = navConfig.find((i) => i.key === 'team');
         if (res.admin && !hasTeamIcon) {
           navConfig.splice(3, 0, {
             key: 'team',
@@ -88,7 +93,7 @@ function MainPage(props: IProps) {
             setActiveNav(navConfig[3]);
           }
         }
-        if(!res.admin && hasTeamIcon){
+        if (!res.admin && hasTeamIcon) {
           navConfig.splice(3, 1);
           if (localStorage.getItem('curPage') === 'team') {
             setActiveNav(navConfig[2]);
@@ -171,7 +176,7 @@ function MainPage(props: IProps) {
       <div className={styles.layoutLeft}>
         <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
         <ul className={styles.navList}>
-          {navConfig.map((item, index) => {
+          {navConfig.map((item) => {
             return (
               <li
                 key={item.key}
@@ -181,7 +186,6 @@ function MainPage(props: IProps) {
                 onClick={() => switchingNav(item)}
               >
                 <Iconfont style={{ fontSize: `${item.iconFontSize}px` }} className={styles.icon} code={item.icon} />
-                {/* <div>{item.title}</div> */}
               </li>
             );
           })}
