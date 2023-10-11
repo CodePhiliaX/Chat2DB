@@ -80,6 +80,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     @Override
     public DataResult<ExecuteResult> executeUpdate(DlExecuteParam param) {
         DataResult<ExecuteResult> dataResult = new DataResult<>();
+        dataResult.setSuccess(true);
         RemoveSpecialGO(param);
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
@@ -89,16 +90,11 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             connection.setAutoCommit(false);
             for (String originalSql : sqlList) {
                 ExecuteResult executeResult = SQLExecutor.getInstance().executeUpdate(originalSql, connection, 1);
-                if (!executeResult.getSuccess()) {
-                    dataResult.setSuccess(false);
-                    dataResult.errorCode(executeResult.getDescription());
-                    dataResult.setErrorMessage(executeResult.getMessage());
-                    connection.rollback();
-                    return dataResult;
-                }
+               dataResult.setData(executeResult);
             }
             connection.commit();
         }catch (Exception e){
+            log.error("executeUpdate error",e);
             dataResult.setSuccess(false);
             dataResult.setErrorCode("connection error");
             dataResult.setErrorMessage(e.getMessage());
@@ -262,17 +258,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         script.append(" where ");
         for (int i = 1; i < row.size(); i++) {
             String oldValue = row.get(i);
-            if (oldValue == null) {
-                continue;
-            }
             Header header = headerList.get(i);
-
             String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
             if (value == null) {
                 script.append(metaSchema.getMetaDataName(header.getName()))
                         .append(" is null and ");
             } else {
-
                 script.append(metaSchema.getMetaDataName(header.getName()))
                         .append(" = ")
                         .append(value)
