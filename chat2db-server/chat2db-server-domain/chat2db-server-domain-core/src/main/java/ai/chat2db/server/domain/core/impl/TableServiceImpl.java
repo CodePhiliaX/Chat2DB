@@ -139,7 +139,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
         TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
         if (param.isRefresh() || versionDO == null) {
-            addDBCache(param.getDataSourceId(),param.getDatabaseName(),param.getSchemaName(), versionDO);
+            versionDO = addDBCache(param.getDataSourceId(),param.getDatabaseName(),param.getSchemaName(), versionDO);
         }
         LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
         query.eq(TableCacheDO::getVersion, versionDO.getVersion());
@@ -204,7 +204,7 @@ public class TableServiceImpl implements TableService {
         return ListResult.of(tables);
     }
 
-    private void addDBCache(Long dataSourceId,String databaseName,String schemaName, TableCacheVersionDO versionDO) {
+    private TableCacheVersionDO addDBCache(Long dataSourceId,String databaseName,String schemaName, TableCacheVersionDO versionDO) {
         String key = getTableKey(dataSourceId, databaseName, schemaName);
         if (versionDO == null) {
             versionDO = new TableCacheVersionDO();
@@ -228,8 +228,8 @@ public class TableServiceImpl implements TableService {
             List<TableCacheDO> cacheDOS = new ArrayList<>();
             while (resultSet.next()) {
                 TableCacheDO tableCacheDO = new TableCacheDO();
-                tableCacheDO.setDatabaseName(resultSet.getString("TABLE_CAT"));
-                tableCacheDO.setSchemaName(resultSet.getString("TABLE_SCHEM"));
+                tableCacheDO.setDatabaseName(databaseName);
+                tableCacheDO.setSchemaName(schemaName);
                 tableCacheDO.setTableName(resultSet.getString("TABLE_NAME"));
                 tableCacheDO.setExtendInfo(resultSet.getString("REMARKS"));
                 tableCacheDO.setDataSourceId(dataSourceId);
@@ -261,6 +261,7 @@ public class TableServiceImpl implements TableService {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return versionDO;
 
     }
 
