@@ -96,4 +96,5 @@ export default defineConfig({
     __APP_VERSION__: yarn_config.app_version || '0.0.0',
     __APP_PORT__: yarn_config.app_port,
   },
+  esbuildMinifyIIFE: true
 });
