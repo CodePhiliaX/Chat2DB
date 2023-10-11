@@ -19,7 +19,7 @@ import MyPagination from '../Pagination';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
-import lodash, { set } from 'lodash';
+import lodash from 'lodash';
 
 interface ITableProps {
   className?: string;
@@ -74,6 +74,7 @@ export default function TableBox(props: ITableProps) {
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [tableData, setTableData] = useState<any[]>([]);
+  const [oldTableData, setOldTableData] = useState<any[]>([]);
   const [editingCell, setEditingCell] = useState<[string, string] | null>(null);
   const [editingData, setEditingData] = useState<string>('');
   const [curOperationRowNo, setCurOperationRowNo] = useState<string | null>(null);
@@ -82,6 +83,7 @@ export default function TableBox(props: ITableProps) {
   const [initError, setInitError] = useState<string>('');
   const [viewUpdateDataSql, setViewUpdateDataSql] = useState<boolean>(false);
   const tableBoxRef = React.useRef<HTMLDivElement>(null);
+  const [oldDataList, setOldDataList] = useState<string[][]>([]);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -93,6 +95,12 @@ export default function TableBox(props: ITableProps) {
     };
     downloadFile(window._BaseURL + '/api/rdb/dml/export', params);
   };
+
+  useEffect(() => {
+    if (data.dataList?.length) {
+      setOldDataList(data.dataList);
+    }
+  }, [data.dataList]);
 
   const items: MenuProps['items'] = useMemo(
     () => [
@@ -168,29 +176,28 @@ export default function TableBox(props: ITableProps) {
     setEditingData('');
     const [colIndex, rowNo] = editingCell!;
     const newTableData = lodash.cloneDeep(tableData);
-    let oldDataList: string[] = [];
-    let newDataList: string[] = [];
+    let oldRowDataList: string[] = [];
+    let newRowDataList: string[] = [];
     newTableData.forEach((item) => {
       if (item[`${preCode}0No.`] === rowNo) {
         item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
-        newDataList = Object.keys(item).map((i) => item[i]);
+        newRowDataList = Object.keys(item).map((i) => item[i]);
       }
     });
 
     setTableData(newTableData);
 
-    dataList.forEach((item) => {
+    oldDataList.forEach((item) => {
       if (item[0] === rowNo) {
-        oldDataList = item;
+        oldRowDataList = item;
       }
     });
 
-    // 如果已经存在该行的更新数据则更新，否则新增
     const index = updateData.findIndex((item) => item.rowNo === rowNo);
-    // 如果datalist和oldDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
-    if (oldDataList?.join(',') === newDataList?.join(',')) {
+    // 如果newRowDataList和oldRowDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
+    if (oldRowDataList?.join(',') === newRowDataList?.join(',')) {
       if (index !== -1) {
-        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo));
+        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo && item.type !== CRUD.UPDATE));
       }
       return;
     }
@@ -200,18 +207,25 @@ export default function TableBox(props: ITableProps) {
         ...updateData,
         {
           type: CRUD.UPDATE,
-          oldDataList: oldDataList,
-          dataList: newDataList,
+          oldDataList: oldRowDataList,
+          dataList: newRowDataList,
           rowNo,
         },
       ]);
       return;
     }
 
-    updateData[index] = {
+    const newRowUpdateData = {
       ...updateData[index],
-      dataList: newDataList,
+      dataList: newRowDataList,
     };
+
+    // 如果是删除过的，则需要把type改为update
+    if (newRowUpdateData.type === CRUD.DELETE) {
+      newRowUpdateData.type = CRUD.UPDATE;
+    }
+
+    updateData[index] = newRowUpdateData;
     setUpdateData([...updateData]);
   };
 
@@ -228,14 +242,13 @@ export default function TableBox(props: ITableProps) {
     // 单元格的基础样式
     const styleList = [styles.tableItem];
     // 如果当前单元格所在的行被选中了，则需要把单元格的背景色设置为透明
-    console.log(curOperationRowNo, rowNo);
     if (curOperationRowNo === rowNo) {
       return classnames(...styleList);
     }
 
     // 编辑过的单元格的样式
     let oldValue = '';
-    dataList.forEach((item) => {
+    oldDataList.forEach((item) => {
       if (item[0] === rowNo) {
         oldValue = item[colIndex];
       }
@@ -304,23 +317,30 @@ export default function TableBox(props: ITableProps) {
         features: { sortable: isNumber ? compareStrings : true },
       };
     });
-  }, [headerList, editingCell, editingData, curOperationRowNo]);
+  }, [headerList, editingCell, editingData, curOperationRowNo, oldDataList]);
 
   useEffect(() => {
     if (!columns?.length) {
       setTableData([]);
     } else {
-      const newData = (dataList || []).map((item) => {
-        const rowData: any = {};
-        item.map((i: string | null, colIndex: number) => {
-          const name = `${preCode}${colIndex}${columns[colIndex].name}`;
-          rowData[name] = i;
-        });
-        return rowData;
-      });
-      setTableData(newData);
+      const newTableData = dataListTransformTableData(dataList);
+      setTableData(newTableData);
+      setOldTableData(newTableData);
     }
   }, [dataList]);
+
+  // 纯数据的dataList 转换为 tableData
+  const dataListTransformTableData = (myDataList: string[][]) => {
+    const newTableData = (myDataList || []).map((item) => {
+      const rowData: any = {};
+      item.map((i: string | null, colIndex: number) => {
+        const name = `${preCode}${colIndex}${columns[colIndex].name}`;
+        rowData[name] = i;
+      });
+      return rowData;
+    });
+    return newTableData;
+  };
 
   const pipeline = useTablePipeline()
     .input({ dataSource: tableData, columns })
@@ -353,6 +373,18 @@ export default function TableBox(props: ITableProps) {
     if (props.onSearchTotal) {
       return await props.onSearchTotal();
     }
+  };
+
+  // 处理撤销
+  const handleRevoke = () => {
+    setUpdateData(updateData.filter((item) => item.rowNo !== curOperationRowNo));
+    setTableData(
+      tableData.map((item) =>
+        item[`${preCode}0No.`] === curOperationRowNo
+          ? oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)
+          : item,
+      ),
+    );
   };
 
   // 处理创建数据
@@ -415,8 +447,8 @@ export default function TableBox(props: ITableProps) {
       ...updateData,
       {
         type: CRUD.DELETE,
-        oldDataList: dataList[curOperationRowNo!],
-        rowNo: curOperationRowNo!,
+        oldDataList: oldDataList[curOperationRowNo],
+        rowNo: curOperationRowNo,
       },
     ]);
     setCurOperationRowNo(null);
@@ -472,15 +504,32 @@ export default function TableBox(props: ITableProps) {
     };
     sqlService.executeDDL(executeSQLParams).then((res) => {
       if (res.success) {
-        message.success(i18n('common.text.successfulExecution'));
-        setUpdateData([]);
-        // 在执行一遍sql，刷新数据？// TODO:
+        getTableData().then((sqlRes) => {
+          setOldDataList(sqlRes?.[0]?.dataList);
+          const newTableData = dataListTransformTableData(sqlRes?.[0]?.dataList);
+          setTableData(newTableData);
+          setOldTableData(newTableData);
+          message.success(i18n('common.text.successfulExecution'));
+          setUpdateData([]);
+        });
       } else {
         setUpdateDataSql(res.originalSql);
         setViewUpdateDataSql(true);
         setInitError(res.message);
       }
     });
+  };
+
+  // 获取表格数据
+  const getTableData = async () => {
+    const executeSQLParams: IExecuteSqlParams = {
+      sql: data.sql,
+      dataSourceId: props.executeSqlParams?.dataSourceId,
+      databaseName: props.executeSqlParams?.databaseName,
+      schemaName: props.executeSqlParams?.schemaName,
+    };
+
+    return sqlService.executeSql(executeSQLParams);
   };
 
   // 不同状态下的表格行样式
@@ -522,6 +571,19 @@ export default function TableBox(props: ITableProps) {
     message.success(i18n('common.text.successfulExecution'));
     setUpdateData([]);
   };
+
+  const revokeDisableBarState = useMemo(() => {
+    if (!curOperationRowNo) {
+      return true;
+    }
+    return (
+      updateData.findIndex(
+        (item) =>
+          (item.rowNo === curOperationRowNo && item.type === CRUD.UPDATE) ||
+          (item.rowNo === curOperationRowNo && item.type === CRUD.DELETE),
+      ) === -1
+    );
+  }, [curOperationRowNo, updateData]);
 
   const renderContent = () => {
     const bottomStatus = (
@@ -566,6 +628,14 @@ export default function TableBox(props: ITableProps) {
                   })}
                 >
                   <Iconfont code="&#xe644;" />
+                </div>
+                <div
+                  onClick={handleRevoke}
+                  className={classnames(styles.revokeBar, styles.editTableDataBarItem, {
+                    [styles.disableBar]: revokeDisableBarState,
+                  })}
+                >
+                  <Iconfont code="&#xe6e2;" />
                 </div>
                 <div
                   onClick={handelViewSql}
