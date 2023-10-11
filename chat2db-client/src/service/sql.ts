@@ -17,6 +17,8 @@ export interface IExecuteSqlParams {
   databaseName?: string;
   schemaName?: string;
   tableName?: string;
+  pageNo?: number;
+  pageSize?: number;
 }
 
 export interface IExecuteSqlResponse {
