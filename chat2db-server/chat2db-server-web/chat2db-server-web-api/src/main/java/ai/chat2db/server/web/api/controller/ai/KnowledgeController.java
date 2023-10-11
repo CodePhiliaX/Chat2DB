@@ -51,7 +51,7 @@ public class KnowledgeController extends ChatController {
     private GatewayClientService gatewayClientService;
 
     /**
-     * save knowledge embeddings from pdf file
+     * save knowledge from pdf file
      *
      * @param file
      * @return
@@ -86,7 +86,7 @@ public class KnowledgeController extends ChatController {
     }
 
     /**
-     * search knowledge embeddings
+     * search knowledge
      *
      * @param queryRequest
      * @return
