@@ -14,7 +14,7 @@ import lodash from 'lodash';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
-  schemaName: string | undefined;
+  schemaName: string | null;
   tableName?: string;
   databaseType: DatabaseTypeCode;
   changeTabDetails: (data: IWorkspaceTab) => void;
