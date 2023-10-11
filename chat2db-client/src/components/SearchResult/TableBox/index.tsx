@@ -471,6 +471,16 @@ export default function TableBox(props: ITableProps) {
     if (deleteIndex !== -1) {
       updateData.splice(deleteIndex, 1);
     }
+
+    // 如果删除的这个数据时编辑过的，要把这个数据恢复
+    setTableData(
+      tableData.map((item) =>
+        item[`${preCode}0No.`] === curOperationRowNo
+          ? oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)!
+          : item,
+      ),
+    );
+
     setUpdateData([
       ...updateData,
       {
@@ -531,7 +541,7 @@ export default function TableBox(props: ITableProps) {
       tableName: queryResultData.tableName,
     };
     sqlService.executeUpdateDataSql(executeSQLParams).then((res) => {
-      if (res.success) {
+      if (res?.success) {
         // 更新成功后，需要重新获取表格数据
         getTableData().then(() => {
           message.success(i18n('common.text.successfulExecution'));
