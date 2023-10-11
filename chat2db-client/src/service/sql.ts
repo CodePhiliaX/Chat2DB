@@ -198,7 +198,7 @@ const getTableDetails = createRequest<{
 export interface IModifyTableSqlParams { 
   dataSourceId: number;
   databaseName: string;
-  schemaName?: string;
+  schemaName?: string | null;
   tableName?: string;
   oldTable?: IEditTableInfo;
   newTable: IEditTableInfo;
