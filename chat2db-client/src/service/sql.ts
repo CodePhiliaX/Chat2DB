@@ -214,15 +214,15 @@ const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]
 const executeDDL = createRequest<IExecuteSqlParams, { success: boolean, message: string, originalSql: string }>('/api/rdb/dml/execute_ddl', { method: 'post' });
 
 // 执行修改表数据的sql
-const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean, message: string, originalSql:string }>('/api/rdb/dml/execute_update', { method: 'post' });
+const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean, message: string, sql:string }>('/api/rdb/dml/execute_update', { method: 'post' });
 
 /** 获取修改表数据的接口 */ 
 const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/get_update_sql', { method: 'post' });
 
 export default {
   executeUpdateDataSql,
-  getExecuteUpdateSql,
   executeDDL,
+  getExecuteUpdateSql,
   getModifyTableSql,
   getTableDetails,
   getDatabaseFieldTypeList,
