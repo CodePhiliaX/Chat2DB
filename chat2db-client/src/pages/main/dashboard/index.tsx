@@ -79,8 +79,8 @@ function Chart(props: IProps) {
   };
 
   const initCreateChart = async (dashboard?: IDashboardItem) => {
-    if(!dashboard) return;
-    
+    if (!dashboard) return;
+
     let chartId = await createChart({});
     const newDashboard = {
       ...dashboard,

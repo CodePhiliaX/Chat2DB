@@ -18,6 +18,7 @@ import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
+// import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 
 enum IPromptType {
@@ -42,7 +43,7 @@ export type IAppendValue = {
 };
 
 interface IProps {
-  /** 是谁在调用我 */
+  /** 调用来源 */
   source: 'workspace';
   /** 是否是活跃的console，用于快捷键 */
   isActive?: boolean;
@@ -96,17 +97,15 @@ function Console(props: IProps) {
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
-  const monacoHint = useRef<any>();
-  const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
 
   /**
-   * 当前选择的AI类型是Chat2DBAi
+   * 当前选择的AI类型是Chat2DBAI
    */
-  const isChat2DBAi = useMemo(
+  const isChat2DBAI = useMemo(
     () => aiModel.aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
     [aiModel.aiConfig?.aiSqlSource],
   );
@@ -116,15 +115,6 @@ function Console(props: IProps) {
       editorRef?.current?.setValue(appendValue.text, appendValue.range);
     }
   }, [appendValue]);
-
-  useEffect(() => {
-    monacoHint.current?.dispose();
-    const myEditorHintData: any = {};
-    props.tables?.map((item: any) => {
-      myEditorHintData[item.name] = [];
-    });
-    monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
-  }, [props.tables]);
 
   useEffect(() => {
     if (source !== 'workspace') {
@@ -215,7 +205,6 @@ function Console(props: IProps) {
     } catch (e) {
       setIsLoading(false);
     }
-
   };
 
   const handleAIChatInEditor = async (content: string, promptType: IPromptType) => {
@@ -224,9 +213,8 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig) => {
-    const { apiKey, aiSqlSource } = aiConfig || props.aiModel?.aiConfig || {};
-    const isChat2DBAi = aiSqlSource === AiSqlSourceType.CHAT2DBAI;
-    if (!apiKey && isChat2DBAi) {
+    const { apiKey } = aiConfig || props.aiModel?.aiConfig || {};
+    if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
@@ -256,7 +244,7 @@ function Console(props: IProps) {
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
-          if (isChat2DBAi) {
+          if (isChat2DBAI) {
             dispatch({
               type: 'ai/fetchRemainingUse',
               payload: {
@@ -375,7 +363,7 @@ function Console(props: IProps) {
   ];
 
   const handleClickRemainBtn = async () => {
-    if (!isChat2DBAi) return;
+    if (!isChat2DBAI) return;
 
     // chat2dbAi模型下，没有key，就需要登录
     if (!aiModel.aiConfig?.apiKey) {
@@ -412,7 +400,7 @@ function Console(props: IProps) {
       sql = editorRef?.current?.getAllContent() || '';
       setValueType = 'cover';
     }
-    formatSql(sql, executeParams.type!).then(res => {
+    formatSql(sql, executeParams.type!).then((res) => {
       editorRef?.current?.setValue(res, setValueType);
     });
   };
@@ -455,9 +443,10 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-          tables={props.tables}
-        // onChange={}
         />
+
+        {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
+
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>

@@ -39,6 +39,7 @@
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "node-machine-id": "^1.1.12",
+    "react-monaco-editor": "^0.54.0",
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",

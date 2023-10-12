@@ -1,14 +1,16 @@
 import React, { memo, useRef, useEffect } from 'react';
 import { connect } from 'umi';
-import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
-import WorkspaceLeft from './components/WorkspaceLeft';
-import WorkspaceRightNew from './components/WorkspaceRightNew';
 import WorkspaceHeader from './components/WorkspaceHeader';
+import WorkspaceLeft from './components/WorkspaceLeft';
+import WorkspaceRight from './components/WorkspaceRight';
+import LoadingContent from '@/components/Loading/LoadingContent';
+
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
+
+import styles from './index.less';
 
 interface IProps {
   className?: string;
@@ -34,7 +36,7 @@ const workspacePage = memo<IProps>((props) => {
     curWorkspaceParams?.dataSourceId &&
     (curWorkspaceParams?.databaseName ||
       curWorkspaceParams?.schemaName ||
-      (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null));
+      (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName === null));
 
   useEffect(() => {
     clearData();
@@ -66,7 +68,7 @@ const workspacePage = memo<IProps>((props) => {
   }
 
   function getConsoleList() {
-    let p: any = {
+    const p = {
       pageNo: 1,
       pageSize: 999,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
@@ -94,7 +96,7 @@ const workspacePage = memo<IProps>((props) => {
             <WorkspaceLeft />
           </div>
           <div className={styles.boxRight}>
-            <WorkspaceRightNew />
+            <WorkspaceRight />
           </div>
         </DraggableContainer>
       </LoadingContent>

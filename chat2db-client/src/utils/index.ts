@@ -214,8 +214,8 @@ export function getApplicationMessage() {
     env,
     versions,
     buildTime,
-    userAgent
-  }
+    userAgent,
+  };
 }
 
 // os is mac or windows
@@ -225,11 +225,15 @@ export function OSnow(): {
 } {
   const agent = navigator.userAgent.toLowerCase();
   const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
-  const isWin = agent.indexOf("win32") >= 0 || agent.indexOf("wow32") >= 0 || agent.indexOf("win64") >= 0 || agent.indexOf("wow64") >= 0
+  const isWin =
+    agent.indexOf('win32') >= 0 ||
+    agent.indexOf('wow32') >= 0 ||
+    agent.indexOf('win64') >= 0 ||
+    agent.indexOf('wow64') >= 0;
   return {
     isMac,
-    isWin
-  }
+    isWin,
+  };
 }
 
 // 格式化sql
@@ -238,20 +242,20 @@ export function formatSql(sql: string, dbType: DatabaseTypeCode) {
     let formatRes = '';
     try {
       formatRes = format(sql || '');
-    }
-    catch {}
+    } catch {}
     // 如果格式化失败，直接返回原始sql
     if (!formatRes) {
-      sqlServer.sqlFormat({
-        sql,
-        dbType,
-      }).then((res) => {
-        formatRes = res;
-        r(formatRes);
-      })
+      sqlServer
+        .sqlFormat({
+          sql,
+          dbType,
+        })
+        .then((res) => {
+          formatRes = res;
+          r(formatRes);
+        });
     } else {
       r(formatRes);
     }
-  })
+  });
 }
-
