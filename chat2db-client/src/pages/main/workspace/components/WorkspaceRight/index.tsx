@@ -316,9 +316,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           schemaName,
         })
         .then((data) => {
-          console.log('databaseName', data);
           tableList.current = (data || []).map((item: any) => item.name);
-          registerIntelliSenseTable(data, databaseName, databaseType);
+          registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
           registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
         });
     }
