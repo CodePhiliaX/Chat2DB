@@ -238,10 +238,12 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     // 覆盖所有内容
     case 'cover':
       newRange = model.getFullModelRange();
+      editor.revealLine(lastLine);
       break;
     // 在开头添加内容
     case 'front':
       newRange = new monaco.Range(1, 1, 1, 1);
+      editor.revealLine(1);
       break;
     // 格式化选中区域的sql
     case 'select':
@@ -261,6 +263,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
       const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
       text = `${text}`;
+      editor.revealLine(lastLine);
       break;
     default:
       break;
