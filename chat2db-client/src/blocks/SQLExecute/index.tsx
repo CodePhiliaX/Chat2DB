@@ -25,7 +25,7 @@ interface IProps {
     databaseName: string;
     dataSourceId: number;
     type: DatabaseTypeCode;
-    schemaName: string;
+    schemaName?: string;
     consoleId: number;
     consoleName: string;
     initDDL: string;
@@ -47,6 +47,7 @@ const SQLExecute = memo<IProps>((props) => {
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
+
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
       return;

@@ -1,13 +1,10 @@
-import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
-const { keywords: SQLKeys } = language;
-const { keywords } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
-import { useUpdateEffect } from '@/hooks';
+
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
@@ -16,33 +13,108 @@ export type IAppendValue = {
   text: any;
   range?: IRangeType;
 };
+
 interface IProps {
-  id: string | number;
+  id: string;
   isActive?: boolean;
   language?: string;
   className?: string;
   options?: IEditorOptions;
   needDestroy?: boolean;
   addAction?: Array<{ id: string; label: string; action: (selectedText: string) => void }>;
+  defaultValue?: string;
   appendValue?: IAppendValue;
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
-  defaultValue?: string;
   onExecute?: (value: string) => void; // 快捷键执行的回调
-  tables?: any[];
 }
 
 export interface IExportRefFunction {
   getCurrentSelectContent: () => string;
   getAllContent: () => string;
   setValue: (text: any, range?: IRangeType) => void;
-  handleRegisterTigger: (hintData: IHintData) => void;
 }
 
 export interface IHintData {
   [keys: string]: string[];
 }
+// monaco.languages.registerCompletionItemProvider(`sql`, {
+//   triggerCharacters: [' ', '('],
+//   provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
+//     const { lineNumber, column } = position;
+//     const textBeforePointer = model.getValueInRange({
+//       startLineNumber: lineNumber,
+//       startColumn: 0,
+//       endLineNumber: lineNumber,
+//       endColumn: column,
+//     });
+//     const tokens = textBeforePointer.trim().split(/\s+/);
+//     const lastToken = tokens[tokens.length - 1]; // 获取最后一段非空字符串
+//     const lastTokenBefore = tokens[tokens.length - 2]; // 获取最后一段非空字符串
+
+//     // 后面显示表名
+//     if (
+//       ['FROM', 'JOIN', 'UPDATE', 'DELETE'].includes(lastToken.toUpperCase()) ||
+//       ['INSERT INTO', 'ALTER TABLE', 'DROP TABLE'].includes((lastTokenBefore + ' ' + lastToken).toUpperCase())
+//     ) {
+//       return {
+//         // suggestions: [
+//         //   {
+//         //     label: 'table1(datasource1)',
+//         //     kind: monaco.languages.CompletionItemKind.Method,
+//         //     insertText: 'table1',
+//         //     detail: '<Table>',
+//         //   },
+//         // ],
+//         suggestions: getTableSuggest(tableList),
+//       };
+//     }
+
+//     // // 后面显示字段名
+//     // if (['SELECT'].includes(lastToken.toUpperCase())) {
+//     //   return {
+//     //     suggestions: [
+//     //       {
+//     //         label: 'field1(table1)',
+//     //         kind: monaco.languages.CompletionItemKind.Field,
+//     //         insertText: 'field1',
+//     //         detail: '<Field>',
+//     //       },
+//     //       {
+//     //         label: '*',
+//     //         kind: monaco.languages.CompletionItemKind.Field,
+//     //         insertText: '*',
+//     //         detail: '<Field>',
+//     //       },
+//     //     ],
+//     //   };
+//     // }
+
+//     return {
+//       suggestions: [
+//         ...getSQLKeywords(),
+//         ...getSQLFunctions(),
+//         ...getTableSuggest([
+//           {
+//             tableName: 'table1',
+//             datasourceName: 'datasource1',
+//           },
+//         ]),
+//         ...getFieldSuggest([
+//           {
+//             tableName: 'table1',
+//             fields: [
+//               {
+//                 name: 'field1',
+//               },
+//             ],
+//           },
+//         ]),
+//       ],
+//     };
+//   },
+// });
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const {
@@ -124,8 +196,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     });
 
     createAction(editorIns);
+
     return () => {
-      if (props.needDestroy) editorRef.current && editorRef.current.dispose();
+      if (props.needDestroy) {
+        editorRef.current && editorRef.current.dispose();
+      }
     };
   }, []);
 
@@ -153,16 +228,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     monaco.editor.setTheme(appTheme.backgroundColor);
   }, [appTheme.backgroundColor, options?.theme]);
 
-  // useEffect(() => {
-  //   const _ref = editorRef.current?.onDidChangeModelContent((e) => {
-  //     const curVal = editorRef.current?.getValue();
-  //     props.onChange?.(curVal || '', e);
-  //   });
-  //   return () => _ref && _ref.dispose();
-  // }, [props.onChange]);
-
   useImperativeHandle(ref, () => ({
-    handleRegisterTigger,
     getCurrentSelectContent,
     getAllContent,
     setValue,
@@ -197,72 +263,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     const model = editorRef.current?.getModel();
     const value = model?.getValue();
     return value || '';
-  };
-
-  const handleRegisterTigger = (hintData: IHintData) => {
-    // 获取 SQL 语法提示
-    const getSQLSuggest = () => {
-      return SQLKeys.map((key: any) => ({
-        label: key,
-        kind: monaco.languages.CompletionItemKind.Keyword,
-        insertText: key,
-        detail: '<Keywords>',
-      }));
-    };
-
-    // 获取一级数据
-    const getFirstSuggest = () => {
-      return Object.keys(hintData).map((key) => ({
-        label: key,
-        kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `${key}`,
-        detail: '<Database>',
-      }));
-    };
-
-    // 获取二级数据
-    // const getSecondSuggest = (keys: string) => {
-    //   const secondNames = hintData[keys];
-    //   if (!secondNames) {
-    //     return [];
-    //   }
-    //   return (secondNames || []).map((name: any) => ({
-    //     label: name,
-    //     kind: monaco.languages.CompletionItemKind.Snippet,
-    //     insertText: name,
-    //     detail: '<Table>',
-    //   }));
-    // };
-    const editorHintExamples = monaco.languages.registerCompletionItemProvider('sql', {
-      triggerCharacters: [' ', ...SQLKeys],
-      provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
-        let suggestions: any = [];
-        const { lineNumber, column } = position;
-        const textBeforePointer = model.getValueInRange({
-          startLineNumber: lineNumber,
-          startColumn: 0,
-          endLineNumber: lineNumber,
-          endColumn: column,
-        });
-        const tokens = textBeforePointer.trim().split(/\s+/);
-        const lastToken = tokens[tokens.length - 1]; // 获取最后一段非空字符串
-
-        if (lastToken.endsWith('.')) {
-          const tokenNoDot = lastToken.slice(0, lastToken.length - 1);
-          // suggestions = [...getSecondSuggest(tokenNoDot)];
-          suggestions = [];
-        } else if (lastToken === '.') {
-          suggestions = [];
-        } else {
-          suggestions = [...getFirstSuggest(), ...getSQLSuggest()];
-        }
-        return {
-          suggestions,
-        };
-      },
-    });
-
-    return editorHintExamples;
   };
 
   const createAction = (editor: IEditorIns) => {
