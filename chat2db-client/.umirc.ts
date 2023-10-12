@@ -49,16 +49,16 @@ export default defineConfig({
   targets: {
     chrome: 80,
   },
-  links: [{
-    rel: 'manifest',
-    href: 'manifest.json',
-  }],
+  // links: [{
+  //   rel: 'manifest',
+  //   href: 'manifest.json',
+  // }],
   headScripts: [
     `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v2');
     }`,
-    // `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {
     //   window.addEventListener("load", function () {
     //     navigator.serviceWorker
