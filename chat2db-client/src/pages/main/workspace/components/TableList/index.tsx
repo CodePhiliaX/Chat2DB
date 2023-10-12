@@ -380,7 +380,7 @@ const TableList = dvaModel((props: any) => {
       <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
         <Tree className={styles.tree} initialData={searchedTableList || curList} />
       </LoadingContent>
-      {pagingData?.total > 200 && (
+      {pagingData?.total > 100 && (
         <div className={styles.paging}>
           <div className={styles.paginationBox}>
             <Pagination
