@@ -193,8 +193,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     icon: '\ueac5',
     getChildren: (params) => {
       return new Promise((r, j) => {
-        params.pageNo = params.pageNo || 1;
-        params.pageSize = 200;
         mysqlServer
           .getTableList(params)
           .then((res) => {
