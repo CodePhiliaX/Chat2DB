@@ -1,5 +1,6 @@
 import { DatabaseTypeCode } from '@/constants';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { addIntelliSenseField } from './field';
 
 /** 当前库下的表 */
 let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
@@ -12,9 +13,19 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
 
 const registerIntelliSenseTable = (
   tableList: Array<{ name: string; comment: string }>,
-  databaseName?: string,
   databaseCode?: DatabaseTypeCode,
+  dataSourceId?: number,
+  databaseName?: string,
+  schemaName?: string,
 ) => {
+  monaco.editor.registerCommand('myCustomCommand', (_: any, ...args: any[]) => {
+    // access the arguments here
+    console.log('trigger suggest', args[0]);
+    // addIntelliSenseField(tableName)
+    addIntelliSenseField(args[0]);
+    return;
+  });
+
   intelliSenseTable.dispose();
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' '],
@@ -38,6 +49,18 @@ const registerIntelliSenseTable = (
             insertText: handleInsertText(tableName.name),
             // range: monaco.Range.fromPositions(position),
             documentation: tableName.comment,
+            command: {
+              id: 'myCustomCommand',
+              title: 'operator_additional_suggestions',
+              arguments: [
+                {
+                  tableName: tableName.name,
+                  dataSourceId,
+                  databaseName,
+                  schemaName,
+                },
+              ],
+            },
           };
         }),
       };
