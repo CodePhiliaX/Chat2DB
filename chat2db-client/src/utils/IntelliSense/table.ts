@@ -17,12 +17,13 @@ const registerIntelliSenseTable = (
 ) => {
   intelliSenseTable.dispose();
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
+    triggerCharacters: [' '],
     provideCompletionItems: (model, position) => {
       const handleInsertText = (text) => {
         if (databaseCode === DatabaseTypeCode.POSTGRESQL) {
-          return `"${text}"`;
+          return `${text}`;
         } else {
-          return `\`${text}\``;
+          return `${text}`;
         }
       };
       return {

@@ -1,5 +1,13 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseSupportField, IEditTableInfo } from '@/typings';
+import {
+  IPageResponse,
+  IPageParams,
+  IUniversalTableParams,
+  IManageResultData,
+  IRoutines,
+  IDatabaseSupportField,
+  IEditTableInfo,
+} from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
@@ -133,71 +141,112 @@ export interface IExportParams extends IExecuteSqlParams {
 const getViewList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', { method: 'get' });
 
 /** 获取函数列表 */
-const getFunctionList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', { method: 'get' });
+const getFunctionList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', {
+  method: 'get',
+});
 
 /** 获取触发器列表 */
-const getTriggerList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', { method: 'get' });
+const getTriggerList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', {
+  method: 'get',
+});
 
 /** 获取过程列表 */
-const getProcedureList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', { method: 'get' });
+const getProcedureList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', {
+  method: 'get',
+});
 
 /** 获取视图列列表 */
-const getViewColumnList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', { method: 'get' });
+const getViewColumnList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', {
+  method: 'get',
+});
 
 /** 获取视图详情 */
-const getViewDetail = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-  schemaName?: string;
-  tableName: string
-}, {ddl: string}>('/api/rdb/view/detail', { method: 'get' });
+const getViewDetail = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string;
+    tableName: string;
+  },
+  { ddl: string }
+>('/api/rdb/view/detail', { method: 'get' });
 
 /** 获取触发器详情 */
-const getTriggerDetail = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-  schemaName?: string;
-  triggerName: string
-}, {triggerBody: string}>('/api/rdb/trigger/detail', { method: 'get' });
+const getTriggerDetail = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string;
+    triggerName: string;
+  },
+  { triggerBody: string }
+>('/api/rdb/trigger/detail', { method: 'get' });
 
 /** 获取函数详情 */
-const getFunctionDetail = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-  schemaName?: string;
-  functionName: string
-}, {functionBody: string}>('/api/rdb/function/detail', { method: 'get' });
+const getFunctionDetail = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string;
+    functionName: string;
+  },
+  { functionBody: string }
+>('/api/rdb/function/detail', { method: 'get' });
 
 /** 获取过程详情 */
-const getProcedureDetail = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-  schemaName?: string;
-  procedureName: string
-}, { procedureBody: string }>('/api/rdb/procedure/detail', { method: 'get' });
+const getProcedureDetail = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string;
+    procedureName: string;
+  },
+  { procedureBody: string }
+>('/api/rdb/procedure/detail', { method: 'get' });
 
 /** 格式化sql */
-const sqlFormat = createRequest<{
-  sql: string;
-  dbType: DatabaseTypeCode;
-}, string>('/api/sql/format', { method: 'get' });
+const sqlFormat = createRequest<
+  {
+    sql: string;
+    dbType: DatabaseTypeCode;
+  },
+  string
+>('/api/sql/format', { method: 'get' });
 
-/** 数据库支持的数据类型 */ 
-const getDatabaseFieldTypeList = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-}, IDatabaseSupportField>('/api/rdb/table/table_meta', { method: 'get' });
+/** 数据库支持的数据类型 */
+const getDatabaseFieldTypeList = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+  },
+  IDatabaseSupportField
+>('/api/rdb/table/table_meta', { method: 'get' });
 
-/** 获取表的详情 */ 
-const getTableDetails = createRequest<{
-  dataSourceId: number;
-  databaseName: string;
-  schemaName?: string | null;
-  tableName: string;
-  refresh: boolean;
-}, IEditTableInfo>('/api/rdb/table/query', { method: 'get' });
+/** 获取表的详情 */
+const getTableDetails = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string | null;
+    tableName: string;
+    refresh: boolean;
+  },
+  IEditTableInfo
+>('/api/rdb/table/query', { method: 'get' });
 
-export interface IModifyTableSqlParams { 
+/** 获取库的所有表 */
+const getAllTableList = createRequest<
+  { dataSourceId: number; databaseName: string; schemaName?: string | null },
+  Array<{ name: string; comment: string }>
+>('/api/rdb/table/table_list', { method: 'get' });
+
+/** 获取表的所有字段 */
+const getAllFieldByTable = createRequest<
+  { dataSourceId: number; databaseName: string; schemaName?: string | null; tableName: string },
+  Array<{ name: string; tableName: string }>
+>('/api/rdb/table/column_list', { method: 'get' });
+
+export interface IModifyTableSqlParams {
   dataSourceId: number;
   databaseName: string;
   schemaName?: string | null;
@@ -207,16 +256,24 @@ export interface IModifyTableSqlParams {
   refresh: boolean;
 }
 
-/** 获取修改表的sql */ 
-const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', { method: 'post' });
+/** 获取修改表的sql */
+const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', {
+  method: 'post',
+});
 
-/** 执行编辑表的sql, 专为编辑表而生 */ 
-const executeDDL = createRequest<IExecuteSqlParams, { success: boolean, message: string, originalSql: string }>('/api/rdb/dml/execute_ddl', { method: 'post' });
+/** 执行编辑表的sql, 专为编辑表而生 */
+const executeDDL = createRequest<IExecuteSqlParams, { success: boolean; message: string; originalSql: string }>(
+  '/api/rdb/dml/execute_ddl',
+  { method: 'post' },
+);
 
 // 执行修改表数据的sql
-const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean, message: string, sql:string }>('/api/rdb/dml/execute_update', { method: 'post' });
+const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean; message: string; sql: string }>(
+  '/api/rdb/dml/execute_update',
+  { method: 'post' },
+);
 
-/** 获取修改表数据的接口 */ 
+/** 获取修改表数据的接口 */
 const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/get_update_sql', { method: 'post' });
 
 export default {
@@ -253,6 +310,6 @@ export default {
   deleteTablePin,
   getDMLCount,
   // exportResultTable
+  getAllTableList,
+  getAllFieldByTable
 };
-
-
