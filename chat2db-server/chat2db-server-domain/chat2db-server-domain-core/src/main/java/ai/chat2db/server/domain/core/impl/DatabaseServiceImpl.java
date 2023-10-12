@@ -43,9 +43,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ListResult<Database> queryAll(DatabaseQueryAllParam param) {
         List<Database> databases = CacheManage.getList(getDataBasesKey(param.getDataSourceId()), Database.class,
-            (key) -> param.isRefresh(),
-            (key) -> getDatabases(param.getDbType(), param.getConnection() == null ? Chat2DBContext.getConnection()
-                : param.getConnection())
+                (key) -> param.isRefresh(),
+                (key) -> getDatabases(param.getDbType(), param.getConnection() == null ? Chat2DBContext.getConnection()
+                        : param.getConnection())
         );
         return ListResult.of(databases);
     }
@@ -70,7 +70,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         // If the database name contains the name of the current database, the current database is placed in the first place
         int num = -1;
         for (int i = 0; i < databases.size(); i++) {
-            if (StringUtils.isNotBlank(ulr) && ulr.contains(databases.get(i).getName())) {
+            if (StringUtils.isNotBlank(ulr) && StringUtils.isNotBlank(databases.get(i).getName())&& ulr.contains(databases.get(i).getName())) {
                 num = i;
                 break;
             }
@@ -83,12 +83,12 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ListResult<Schema> querySchema(SchemaQueryParam param) {
         List<Schema> schemas = CacheManage.getList(getSchemasKey(param.getDataSourceId(), param.getDataBaseName()),
-            Schema.class,
-            (key) -> param.isRefresh(), (key) -> {
-                Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
-                    : param.getConnection();
-                return getSchemaList(param.getDataBaseName(), connection);
-            });
+                Schema.class,
+                (key) -> param.isRefresh(), (key) -> {
+                    Connection connection = param.getConnection() == null ? Chat2DBContext.getConnection()
+                            : param.getConnection();
+                    return getSchemaList(param.getDataBaseName(), connection);
+                });
         return ListResult.of(schemas);
     }
 
@@ -128,34 +128,34 @@ public class DatabaseServiceImpl implements DatabaseService {
         MetaSchema metaSchema = new MetaSchema();
         MetaData metaData = Chat2DBContext.getMetaData();
         MetaSchema ms = CacheManage.get(getDataSourceKey(param.getDataSourceId()), MetaSchema.class,
-            (key) -> param.isRefresh(), (key) -> {
-                Connection connection = Chat2DBContext.getConnection();
-                List<Database> databases = metaData.databases(connection);
-                if (!CollectionUtils.isEmpty(databases)) {
-                    CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(databases.size());
-                    for (Database database : databases) {
-                        ThreadUtil.execute(() -> {
-                            try {
-                                database.setSchemas(metaData.schemas(connection, database.getName()));
-                                countDownLatch.countDown();
-                            } catch (Exception e) {
-                                log.error("queryDatabaseSchema error", e);
-                            }
-                        });
-                    }
-                    try {
-                        countDownLatch.await();
-                    } catch (InterruptedException e) {
-                        log.error("queryDatabaseSchema error", e);
-                    }
-                    metaSchema.setDatabases(databases);
+                (key) -> param.isRefresh(), (key) -> {
+                    Connection connection = Chat2DBContext.getConnection();
+                    List<Database> databases = metaData.databases(connection);
+                    if (!CollectionUtils.isEmpty(databases)) {
+                        CountDownLatch countDownLatch = ThreadUtil.newCountDownLatch(databases.size());
+                        for (Database database : databases) {
+                            ThreadUtil.execute(() -> {
+                                try {
+                                    database.setSchemas(metaData.schemas(connection, database.getName()));
+                                    countDownLatch.countDown();
+                                } catch (Exception e) {
+                                    log.error("queryDatabaseSchema error", e);
+                                }
+                            });
+                        }
+                        try {
+                            countDownLatch.await();
+                        } catch (InterruptedException e) {
+                            log.error("queryDatabaseSchema error", e);
+                        }
+                        metaSchema.setDatabases(databases);
 
-                } else {
-                    List<Schema> schemas = metaData.schemas(connection, null);
-                    metaSchema.setSchemas(schemas);
-                }
-                return metaSchema;
-            });
+                    } else {
+                        List<Schema> schemas = metaData.schemas(connection, null);
+                        metaSchema.setSchemas(schemas);
+                    }
+                    return metaSchema;
+                });
 
         return DataResult.of(ms);
     }
@@ -175,29 +175,29 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ActionResult modifyDatabase(DatabaseOperationParam param) {
         Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getDatabaseName(),
-            param.getNewDatabaseName());
+                param.getNewDatabaseName());
         return ActionResult.isSuccess();
     }
 
     @Override
     public ActionResult deleteSchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().dropSchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
-            param.getSchemaName());
+                param.getSchemaName());
         return ActionResult.isSuccess();
     }
 
     @Override
     public ActionResult createSchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().createSchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
-            param.getSchemaName());
+                param.getSchemaName());
         return ActionResult.isSuccess();
     }
 
     @Override
     public ActionResult modifySchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().modifySchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
-            param.getSchemaName(),
-            param.getNewSchemaName());
+                param.getSchemaName(),
+                param.getNewSchemaName());
         return ActionResult.isSuccess();
     }
 
