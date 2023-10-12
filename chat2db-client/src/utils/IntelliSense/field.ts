@@ -1,6 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import sqlService from '@/service/sql';
 
-let fieldList: Record<string, string[]> = {};
+let fieldList: Record<string, Array<{ name: string; tableName: string }>> = {};
 
 /** 当前库下的表 */
 let intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
@@ -15,9 +16,8 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
   intelliSenseField.dispose();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', '.'],
+    triggerCharacters: [' ', '.', '`', "'", '"'],
     provideCompletionItems: async (model, position) => {
-      console.log('registerIntelliSenseField start');
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,
@@ -26,24 +26,26 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         endColumn: position.column,
       });
 
-      // 查找最后一个单词，这里通过正则获取空格或句号之前的最后一个单词
-      const match = textUntilPosition.match(/([\w]+)[\s\.]$/);
-
-      if (!match) {
-        return; // 如果没有匹配到，直接返回
+      const match = textUntilPosition.match(/(\b\w+\b)[^\w]*$/);
+      let word;
+      if (match) {
+        word = match[1];
+        console.log(word); // 输出: text
       }
 
-      const word = match[1]; // 获取匹配到的单词
-
+      console.log('registerIntelliSenseField start', textUntilPosition, word);
+      if (!word) {
+        return; // 如果没有匹配到，直接返回
+      }
       if (word && tableList.includes(word) && !fieldList[word]) {
         console.log('registerIntelliSenseField start word');
-        const response = await fetch(
-          `/api/rdb/table/column_list?dataSourceId=${dataSourceId}&databaseName=${databaseName}&tableName=${word}`,
-          {},
-        );
-        const data = await response.json();
-
-        fieldList[word] = data.data;
+        const data = await sqlService.getAllFieldByTable({
+          dataSourceId,
+          databaseName,
+          schemaName,
+          tableName: word,
+        });
+        fieldList[word] = data;
       }
 
       const suggestions = Object.keys(fieldList).reduce((acc, cur) => {

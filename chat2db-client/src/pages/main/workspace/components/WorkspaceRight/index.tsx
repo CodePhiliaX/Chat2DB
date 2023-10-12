@@ -17,7 +17,11 @@ import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
-import { registerIntelliSenseField, registerIntelliSenseKeyword, registerIntelliSenseTable } from '@/utils/IntelliSense';
+import {
+  registerIntelliSenseField,
+  registerIntelliSenseKeyword,
+  registerIntelliSenseTable,
+} from '@/utils/IntelliSense';
 
 interface IProps {
   className?: string;
@@ -305,18 +309,16 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   useEffect(() => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
     if (databaseName) {
-      fetch(
-        `/api/rdb/table/table_list?dataSourceId=${dataSourceId}&databaseName=${databaseName}`,
-        // `/api/rdb/table/table_list?dataSourceId=${dataSourceId}&databaseName=${databaseName}&schemaName=${schemaName}`,
-        {},
-      )
-        .then((res) => {
-          return res.json();
+      sqlService
+        .getAllTableList({
+          dataSourceId,
+          databaseName,
+          schemaName,
         })
         .then((data) => {
-          console.log('databaseName', data.data);
-          tableList.current = (data.data || []).map((item: any) => item.name);
-          registerIntelliSenseTable(data.data, databaseName, databaseType);
+          console.log('databaseName', data);
+          tableList.current = (data || []).map((item: any) => item.name);
+          registerIntelliSenseTable(data, databaseName, databaseType);
           registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
         });
     }
