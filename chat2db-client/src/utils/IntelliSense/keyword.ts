@@ -39,13 +39,12 @@ const registerIntelliSenseKeyword = (databaseCode?: DatabaseTypeCode) => {
   intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '('],
     provideCompletionItems: (model, position) => {
-      if (databaseCode === DatabaseTypeCode.POSTGRESQL) {
-        const intelliSensePostgreSQL = Object.values(intelliSense).find((v) => v.type === DatabaseTypeCode.ORACLE);
-        if (!intelliSensePostgreSQL) return { suggestions: [] };
+      const commonIntelliSense = Object.values(intelliSense).find((v) => v.type === databaseCode);
+      if (commonIntelliSense) {
         return {
           suggestions: [
-            ...getSQLKeywords(intelliSensePostgreSQL?.keywords),
-            ...getSQLFunctions(intelliSensePostgreSQL?.functions),
+            ...getSQLKeywords(commonIntelliSense?.keywords),
+            ...getSQLFunctions(commonIntelliSense?.functions),
           ],
         };
       } else {
