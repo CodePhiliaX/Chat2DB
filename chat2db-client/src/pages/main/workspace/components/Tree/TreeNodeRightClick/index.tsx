@@ -10,7 +10,7 @@ import connectionServer from '@/service/connection';
 import mysqlServer from '@/service/sql';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { ICurWorkspaceParams } from '@/models/workspace';
 import MonacoEditor from '@/components/Console/MonacoEditor';
 
 export type IProps = {
@@ -18,7 +18,7 @@ export type IProps = {
   setIsLoading: (value: boolean) => void;
   data: ITreeNode;
   dispatch: any;
-  workspaceModel: IWorkspaceModelType['state'];
+  curWorkspaceParams: ICurWorkspaceParams;
 };
 
 export interface IOperationColumnConfigItem {
@@ -28,14 +28,13 @@ export interface IOperationColumnConfigItem {
 }
 
 function TreeNodeRightClick(props: IProps) {
-  const { className, data, setIsLoading, dispatch, workspaceModel } = props;
+  const { className, data, setIsLoading, dispatch, curWorkspaceParams } = props;
   const [verifyDialog, setVerifyDialog] = useState<boolean>();
   const [verifyTableName, setVerifyTableName] = useState<string>('');
   const [modalApi, modelDom] = Modal.useModal();
   const [notificationApi, notificationDom] = notification.useNotification();
   const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
   const { getChildren, operationColumn } = treeNodeConfig;
-  const { curWorkspaceParams } = workspaceModel;
   const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
   const [monacoDefaultValue, setMonacoDefaultValue] = useState('');
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {

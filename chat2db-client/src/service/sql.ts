@@ -1,9 +1,9 @@
 import createRequest from './base';
-import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseSupportField, IEditTableInfo } from '@/typings';
+import { IPageResponse, IPageParams, IUniversalTableParams, IManageResultData, IRoutines, IDatabaseSupportField, IEditTableInfo, ITable } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
-export interface IGetListParams extends IPageParams {
+export interface IGetTableListParams extends IPageParams {
   dataSourceId: number;
   databaseName: string;
   schemaName?: string;
@@ -35,7 +35,7 @@ export interface IConnectConsoleParams {
   databaseName: string;
 }
 
-const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
+const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
 
 const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
 
@@ -130,19 +130,19 @@ export interface IExportParams extends IExecuteSqlParams {
 // const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
 
 /** 获取视图列表 */
-const getViewList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', { method: 'get' });
+const getViewList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', { method: 'get' });
 
 /** 获取函数列表 */
-const getFunctionList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', { method: 'get' });
+const getFunctionList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', { method: 'get' });
 
 /** 获取触发器列表 */
-const getTriggerList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', { method: 'get' });
+const getTriggerList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', { method: 'get' });
 
 /** 获取过程列表 */
-const getProcedureList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', { method: 'get' });
+const getProcedureList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', { method: 'get' });
 
 /** 获取视图列列表 */
-const getViewColumnList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', { method: 'get' });
+const getViewColumnList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', { method: 'get' });
 
 /** 获取视图详情 */
 const getViewDetail = createRequest<{
@@ -236,7 +236,7 @@ export default {
   getTriggerList,
   getFunctionList,
   getViewList,
-  getList,
+  getTableList,
   executeSql,
   connectConsole,
   deleteTable,

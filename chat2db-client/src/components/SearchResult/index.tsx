@@ -40,7 +40,7 @@ export default memo<IProps>((props) => {
         />
       );
     } else {
-      return <StateIndicator key={queryResultData.uuid} state="error" text={queryResultData.message} />;
+      return <StateIndicator className={styles.stateIndicator} key={queryResultData.uuid} state="error" text={queryResultData.message} />;
     }
   };
 
@@ -78,7 +78,8 @@ export default memo<IProps>((props) => {
         prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
         label: 'Output',
         key: 'output',
-        children: <Output />,
+        // children: <Output />,
+        children: '1',
         styles: { width: '80px' },
         canClosed: false,
       },
