@@ -176,7 +176,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName()));
         TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
         if (param.isRefresh() || versionDO == null) {
-            addDBCache(param.getDataSourceId(),param.getDatabaseName(), param.getSchemaName(), versionDO);
+            versionDO = addDBCache(param.getDataSourceId(),param.getDatabaseName(), param.getSchemaName(), versionDO);
         }
         LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
         query.eq(TableCacheDO::getVersion, versionDO.getVersion());
