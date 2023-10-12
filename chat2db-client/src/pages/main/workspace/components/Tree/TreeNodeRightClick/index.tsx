@@ -176,11 +176,12 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function refresh() {
-    data.children = [];
+    // data.children = [];
     setIsLoading(true);
     getChildren?.({
       ...data,
       ...data.extraParams,
+      refresh: true,
     }).then((res) => {
       data.children = res;
       setIsLoading(false);

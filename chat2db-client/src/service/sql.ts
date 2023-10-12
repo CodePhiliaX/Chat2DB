@@ -111,10 +111,10 @@ const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('
 const exportCreateTableSql = createRequest<ITableParams, string>('/api/rdb/ddl/export', { method: 'get' });
 const executeTable = createRequest<IExecuteTableParams, string>('/api/rdb/ddl/execute', { method: 'post' });
 
-const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/column_list', { method: 'get' });
-const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', { method: 'get' });
-const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get' });
-const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get' });
+const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/column_list', { method: 'get', delayTime: 200 });
+const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', { method: 'get', delayTime: 200 });
+const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get', delayTime: 200 });
+const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get', delayTime: 200 });
 
 const getDatabaseSchemaList = createRequest<{ dataSourceId: number }, MetaSchemaVO>(
   '/api/rdb/ddl/database_schema_list',

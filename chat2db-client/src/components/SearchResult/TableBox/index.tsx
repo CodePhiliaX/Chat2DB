@@ -384,6 +384,13 @@ export default function TableBox(props: ITableProps) {
         // onChangeSorts,
       }),
     );
+  // .use(
+  //   features.columnResize({
+  //     fallbackSize: 120,
+  //     minSize: 60,
+  //     maxSize: 1080,
+  //   }),
+  // );
 
   const onPageNoChange = (pageNo: number) => {
     const config = { ...paginationConfig, pageNo };
