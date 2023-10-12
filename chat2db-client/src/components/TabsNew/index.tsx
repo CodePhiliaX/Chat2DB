@@ -37,7 +37,6 @@ export default memo<IProps>((props) => {
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
-  console.log('items', items);
 
   useEffect(() => {
     if (activeKey !== null && activeKey !== undefined) {

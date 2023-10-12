@@ -57,9 +57,11 @@
       width: 0;
       display: flex;
       align-items: center;
+
       .name {
         .f-single-line();
       }
+
       .envTag {
         width: 8px;
         height: 8px;
@@ -67,6 +69,7 @@
         background-color: var(--color-primary);
         margin-right: 8px;
       }
+
       .databaseTypeIcon {
         margin-right: 6px;
       }
@@ -80,6 +83,7 @@
 
     &:hover {
       background-color: var(--color-hover-bg);
+
       .moreButton {
         display: block;
       }
@@ -117,17 +121,25 @@
 }
 
 .dataBaseList {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  max-width: 800px;
+  // display: flex;
+  // justify-content: space-between;
+  // flex-wrap: wrap;
+  // max-width: 800px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1000px) {
+  .dataBaseList {
+      grid-template-columns: repeat(2, 1fr);
+  }
 }
 
+
 .databaseItem {
-  flex-grow: 1;
+  min-width: 220px;
   border-radius: 4px;
   height: 50px;
-  width: 210px;
   margin: 10px 20px;
   padding: 0px 16px;
   border-radius: 8px;
@@ -150,6 +162,7 @@
 
   .databaseItemRight {
     display: none;
+
     i {
       font-size: 16px;
     }
@@ -163,6 +176,7 @@
 
     .databaseItemRight {
       display: block;
+
       i {
         color: var(--color-primary);
       }
