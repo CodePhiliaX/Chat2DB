@@ -12,12 +12,33 @@ let intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
   },
 });
 
+const addIntelliSenseField = async (props: {
+  tableName: string;
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string;
+}) => {
+  const { tableName, dataSourceId, databaseName, schemaName } = props;
+
+  if (!fieldList[tableName]) {
+    const data = await sqlService.getAllFieldByTable({
+      dataSourceId,
+      databaseName,
+      schemaName,
+      tableName,
+    });
+    fieldList[tableName] = data;
+  }
+};
+
 const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseName, schemaName) => {
   intelliSenseField.dispose();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', '.', '`', "'", '"'],
+    triggerCharacters: [' ', '.', '('],
     provideCompletionItems: async (model, position) => {
+      console.log('registerIntelliSenseField');
+
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,
@@ -33,7 +54,6 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         console.log(word); // 输出: text
       }
 
-      console.log('registerIntelliSenseField start', textUntilPosition, word);
       if (!word) {
         return; // 如果没有匹配到，直接返回
       }
@@ -70,4 +90,4 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
   });
 };
 
-export { intelliSenseField, registerIntelliSenseField };
+export { intelliSenseField, registerIntelliSenseField, addIntelliSenseField };
