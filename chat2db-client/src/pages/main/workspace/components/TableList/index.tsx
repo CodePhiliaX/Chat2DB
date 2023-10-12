@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Input, Cascader, Dropdown, MenuProps, Pagination } from 'antd';
+import { Input, Cascader, Dropdown, MenuProps, Pagination, Select } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
@@ -17,6 +17,7 @@ import { IPagingData, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { ExportTypeEnum } from '@/typings/resultTable';
 import historyService from '@/service/history';
+import { debounce } from 'lodash';
 
 interface IOption {
   value: TreeNodeType;
@@ -36,7 +37,7 @@ const optionsList: IOption[] = [
 
 const defaultPaddingData = {
   total: 0,
-  pageSize: 200,
+  pageSize: 100,
   pageNo: 1,
 };
 
@@ -62,6 +63,7 @@ const TableList = dvaModel((props: any) => {
   const [curList, setCurList] = useState<ITreeNode[]>([]);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [pagingData, setPagingData] = useState<IPagingData>(defaultPaddingData);
+  const [searchKey, setSearchKey] = useState<string>('');
 
   // 导出表结构
   const handleExport = (exportType: ExportTypeEnum) => {
@@ -182,6 +184,16 @@ const TableList = dvaModel((props: any) => {
     getList();
   }, [curType]);
 
+  useUpdateEffect(() => {
+    getList();
+  }, [pagingData.pageSize, pagingData.pageNo]);
+
+  useUpdateEffect(() => {
+    if (curType.value !== TreeNodeType.TABLES) {
+      setSearchedTableList(approximateTreeNode(curList, searchKey));
+    }
+  }, [searchKey]);
+
   useEffect(() => {
     setCurList([]);
     if (isReady) {
@@ -225,37 +237,41 @@ const TableList = dvaModel((props: any) => {
     });
   };
 
-  function getList(params?: { pageNo?: number; refresh?: boolean; searchKey?: string }) {
-    const { refresh = false, searchKey, pageNo = 1 } = params || {};
+  function getList(params?: { refresh?: boolean }) {
+    const { refresh = false } = params || {};
     setTableLoading(true);
-    return new Promise((resolve) => {
-      treeConfig[curType.value].getChildren!({
-        refresh,
-        ...curWorkspaceParams,
-        extraParams: curWorkspaceParams,
-        searchKey,
-        pageNo,
-      })
-        .then((res: any) => {
+    const p = {
+      refresh,
+      ...curWorkspaceParams,
+      extraParams: curWorkspaceParams,
+      searchKey: inputRef.current?.input.value || '',
+    };
+    if (curType.value === TreeNodeType.TABLES) {
+      p.pageNo = pagingData.pageNo;
+      p.pageSize = pagingData.pageSize;
+    }
+    treeConfig[curType.value].getChildren!(p)
+      .then((res: any) => {
+        // 表的处理
+        console.log(curType);
+        if (curType.value === TreeNodeType.TABLES) {
           setCurList(res.data);
-          resolve(res);
           setPagingData({
+            ...pagingData,
             total: res.total,
-            pageSize: res.pageSize,
-            pageNo: res.pageNo,
           });
-          if (curType.value === TreeNodeType.TABLES) {
-            dispatch({
-              type: 'workspace/setCurTableList',
-              payload: res.data,
-            });
-          }
-          setTableLoading(false);
-        })
-        .catch(() => {
-          setTableLoading(false);
-        });
-    });
+          dispatch({
+            type: 'workspace/setCurTableList',
+            payload: res.data,
+          });
+        } else {
+          setCurList(res);
+        }
+        setTableLoading(false);
+      })
+      .catch(() => {
+        setTableLoading(false);
+      });
   }
 
   function openSearch() {
@@ -266,19 +282,6 @@ const TableList = dvaModel((props: any) => {
     if (!inputRef.current.input.value) {
       setSearching(false);
       setSearchedTableList(undefined);
-    }
-  }
-
-  function onChange(value: string) {
-    if (curType.value === TreeNodeType.TABLES) {
-      getList({
-        searchKey: value,
-        refresh: false,
-      }).then((res: any) => {
-        setSearchedTableList(approximateTreeNode(res.data, value));
-      });
-    } else {
-      setSearchedTableList(approximateTreeNode(curList, value));
     }
   }
 
@@ -296,14 +299,33 @@ const TableList = dvaModel((props: any) => {
   }
 
   const handelChangePagination = (pageNo: number) => {
-    getList({
+    setPagingData({
+      ...pagingData,
       pageNo,
-      refresh: false,
-      searchKey: inputRef.current?.input.value,
-    }).then((res: any) => {
-      setSearchedTableList(approximateTreeNode(res.data, inputRef.current?.input.value));
     });
   };
+
+  const handleChangePageSize = (value: number) => {
+    setPagingData({
+      ...pagingData,
+      pageSize: value,
+    });
+  };
+
+  const handleValue = useCallback(
+    debounce(() => {
+      if (curType.value === TreeNodeType.TABLES) {
+        if (pagingData.pageNo === 1) {
+          getList();
+        }
+        setPagingData({
+          ...pagingData,
+          pageNo: 1,
+        });
+      }
+    }, 500),
+    [curType, pagingData],
+  );
 
   return (
     <div className={styles.tableModule}>
@@ -312,11 +334,15 @@ const TableList = dvaModel((props: any) => {
           <div className={styles.leftModuleTitleSearch}>
             <Input
               ref={inputRef}
+              value={searchKey}
               size="small"
               placeholder={i18n('common.text.search')}
               prefix={<Iconfont code="&#xe600;" />}
               onBlur={onBlur}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                setSearchKey(e.target.value);
+                handleValue();
+              }}
               allowClear
             />
           </div>
@@ -356,14 +382,29 @@ const TableList = dvaModel((props: any) => {
       </LoadingContent>
       {pagingData?.total > 200 && (
         <div className={styles.paging}>
-          <Pagination
-            onChange={handelChangePagination}
-            current={pagingData?.pageNo}
-            defaultPageSize={pagingData?.pageSize}
-            simple
-            size="small"
-            total={pagingData?.total}
-          />
+          <div className={styles.paginationBox}>
+            <Pagination
+              onChange={handelChangePagination}
+              current={pagingData?.pageNo}
+              pageSize={pagingData?.pageSize}
+              simple
+              size="small"
+              total={pagingData?.total}
+            />
+          </div>
+          <div className={styles.paginationSelectBox}>
+            <Select
+              defaultValue={100}
+              style={{ width: 60 }}
+              onChange={handleChangePageSize}
+              bordered={false}
+              options={[
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+                { value: 200, label: '200' },
+              ]}
+            />
+          </div>
         </div>
       )}
     </div>

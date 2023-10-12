@@ -58,10 +58,20 @@
 
 .paging {
   flex-shrink: 0;
-  height: 25px;
+  height: 30px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 0px 4px;
+  border-top: 1px solid var(--color-border);
+  .paginationBox,
+  .paginationSelectBox {
+    display: flex;
+    align-items: center;
+    height: 30px;
+  }
 }
 
 .refreshIconBox {
