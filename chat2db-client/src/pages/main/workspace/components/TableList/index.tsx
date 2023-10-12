@@ -255,7 +255,7 @@ const TableList = dvaModel((props: any) => {
         // 表的处理
         console.log(curType);
         if (curType.value === TreeNodeType.TABLES) {
-          setCurList(res.data);
+          setCurList(approximateTreeNode(res.data, inputRef.current?.input.value));
           setPagingData({
             ...pagingData,
             total: res.total,
@@ -265,7 +265,7 @@ const TableList = dvaModel((props: any) => {
             payload: res.data,
           });
         } else {
-          setCurList(res);
+          setCurList(approximateTreeNode(res, inputRef.current?.input.value));
         }
         setTableLoading(false);
       })
@@ -380,7 +380,7 @@ const TableList = dvaModel((props: any) => {
       <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
         <Tree className={styles.tree} initialData={searchedTableList || curList} />
       </LoadingContent>
-      {pagingData?.total > 100 && (
+      {pagingData?.total > 100 && !searchKey && (
         <div className={styles.paging}>
           <div className={styles.paginationBox}>
             <Pagination

@@ -181,12 +181,15 @@ const TreeNode = (props: TreeNodeIProps) => {
         <div className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}>
           <div className={styles.left}>
             {indentArr.map((item, i) => {
-              return <div key={i} className={styles.indent}></div>;
+              return <div key={i} className={styles.indent} />;
             })}
           </div>
           <div className={styles.right}>
             {!data.isLeaf && (
-              <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
+              <div
+                onClick={handleClick.bind(null, data)}
+                className={classnames(styles.arrows, { [styles.loadingArrows]: isLoading })}
+              >
                 {isLoading ? (
                   <div className={styles.loadingIcon}>
                     <Iconfont code="&#xe6cd;" />
