@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo, Fragment } from 'react';
+import React, { memo, useEffect, useState, useMemo, Fragment, useRef } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
@@ -17,6 +17,8 @@ import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
+import { registerIntelliSenseField, registerIntelliSenseKeyword, registerIntelliSenseTable } from '@/utils/IntelliSense';
+
 interface IProps {
   className?: string;
   workspaceModel: IWorkspaceModelState;
@@ -33,6 +35,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
 
   const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, createConsoleIntro } =
     workspaceModel;
+
+  const tableList = useRef<Array<string>>([]);
 
   // 根据保存的console列表生成tab列表
   useEffect(() => {
@@ -290,39 +294,33 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     }
   }, [activeConsoleId]);
 
-  // useEffect(() => {
-  //   openConsoleListRef.current = openConsoleList;
-  //   const newActiveConsoleId = curConsoleId || activeConsoleId || Number(localStorage.getItem('active-console-id') || 0);
-  //   // 用完之后就清掉curConsoleId
-  //   if (!openConsoleList?.length) {
-  //     setActiveConsoleId(undefined);
-  //   } else if (!newActiveConsoleId) {
-  //     setActiveConsoleId(openConsoleList[0].id);
-  //   } else {
-  //     // 如果你指定了让我打开哪个那我就打开哪个
-  //     if (curConsoleId) {
-  //       setActiveConsoleId(curConsoleId);
-  //       dispatch({
-  //         type: 'workspace/setCurConsoleId',
-  //         payload: null,
-  //       });
-  //       return
-  //     }
+  // 更新关键字提示
+  useEffect(() => {
+    if (curWorkspaceParams.databaseType) {
+      registerIntelliSenseKeyword(curWorkspaceParams.databaseType);
+    }
+  }, [curWorkspaceParams.databaseType]);
 
-  //     let flag = false;
-  //     openConsoleList?.forEach((t) => {
-  //       if (t.id === newActiveConsoleId) {
-  //         flag = true;
-  //       }
-  //     });
-  //     if (flag) {
-  //       setActiveConsoleId(newActiveConsoleId);
-  //     } else {
-  //       // 如果发现当前列表里并没有newActiveConsoleId
-  //       setActiveConsoleId(openConsoleList?.[openConsoleList?.length - 1].id);
-  //     }
-  //   }
-  // }, [openConsoleList]);
+  // 更新表名提示
+  useEffect(() => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    if (databaseName) {
+      fetch(
+        `/api/rdb/table/table_list?dataSourceId=${dataSourceId}&databaseName=${databaseName}`,
+        // `/api/rdb/table/table_list?dataSourceId=${dataSourceId}&databaseName=${databaseName}&schemaName=${schemaName}`,
+        {},
+      )
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          console.log('databaseName', data.data);
+          tableList.current = (data.data || []).map((item: any) => item.name);
+          registerIntelliSenseTable(data.data, databaseName, databaseType);
+          registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
+        });
+    }
+  }, [curWorkspaceParams.databaseType, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
   function createConsole(params: {
     doubleClickTreeNodeData: any;
@@ -514,8 +512,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                 isActive={activeConsoleId === t.id}
                 data={{
                   initDDL: uniqueData?.ddl,
-                  databaseName: curWorkspaceParams.databaseName!,
                   dataSourceId: curWorkspaceParams.dataSourceId!,
+                  databaseName: curWorkspaceParams.databaseName!,
                   type: curWorkspaceParams.databaseType!,
                   schemaName: curWorkspaceParams?.schemaName,
                   consoleId: t.id as number,
