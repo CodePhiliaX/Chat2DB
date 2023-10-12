@@ -2,20 +2,21 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Input, Cascader, Dropdown, MenuProps } from 'antd';
+import { Input, Cascader, Dropdown, MenuProps, Pagination } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
 import { treeConfig } from '../Tree/treeConfig';
-import { TreeNodeType, WorkspaceTabType } from '@/constants';
+import { TreeNodeType, WorkspaceTabType, ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
 import { approximateTreeNode } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
-import { ITreeNode } from '@/typings';
+import { IPagingData, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { ExportTypeEnum } from '@/typings/resultTable';
+import historyService from '@/service/history';
 
 interface IOption {
   value: TreeNodeType;
@@ -32,6 +33,12 @@ const optionsList: IOption[] = [
   { value: TreeNodeType.PROCEDURES, label: i18n('workspace.tree.procedure') },
   { value: TreeNodeType.TRIGGERS, label: i18n('workspace.tree.trigger') },
 ];
+
+const defaultPaddingData = {
+  total: 0,
+  pageSize: 200,
+  pageNo: 1,
+};
 
 const dvaModel = connect(
   ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
@@ -54,6 +61,7 @@ const TableList = dvaModel((props: any) => {
   const [curType, setCurType] = useState<IOption>(optionsList[0]);
   const [curList, setCurList] = useState<ITreeNode[]>([]);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
+  const [pagingData, setPagingData] = useState<IPagingData>(defaultPaddingData);
 
   // 导出表结构
   const handleExport = (exportType: ExportTypeEnum) => {
@@ -62,6 +70,18 @@ const TableList = dvaModel((props: any) => {
 
   const items: MenuProps['items'] = useMemo(
     () => [
+      {
+        label: (
+          <div className={styles.operationItem}>
+            <Iconfont className={styles.operationIcon} code="&#xe63a;" />
+            <div className={styles.operationTitle}>{i18n('common.button.createConsole')}</div>
+          </div>
+        ),
+        key: 'createConsole',
+        onClick: () => {
+          addConsole();
+        },
+      },
       {
         label: (
           <div className={styles.operationItem}>
@@ -177,26 +197,65 @@ const TableList = dvaModel((props: any) => {
     }
   }, [searching]);
 
-  function getList(refresh: boolean = false) {
-    setTableLoading(true);
-    treeConfig[curType.value].getChildren!({
-      refresh,
-      ...curWorkspaceParams,
-      extraParams: curWorkspaceParams,
-    })
-      .then((res) => {
-        setCurList(res);
-        setTableLoading(false);
-        if (curType.value === TreeNodeType.TABLES) {
-          dispatch({
-            type: 'workspace/setCurTableList',
-            payload: res,
-          });
-        }
-      })
-      .catch(() => {
-        setTableLoading(false);
+  const addConsole = () => {
+    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    const params = {
+      name: `new console`,
+      ddl: '',
+      dataSourceId: dataSourceId!,
+      databaseName: databaseName!,
+      schemaName: schemaName!,
+      type: databaseType,
+      status: ConsoleStatus.DRAFT,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
+      operationType: WorkspaceTabType.CONSOLE,
+      tabType: WorkspaceTabType.CONSOLE,
+    };
+
+    historyService.saveConsole(params).then((res) => {
+      dispatch({
+        type: 'workspace/setCreateConsoleIntro',
+        payload: {
+          id: res,
+          type: WorkspaceTabType.CONSOLE,
+          title: params.name,
+          uniqueData: params,
+        },
       });
+    });
+  };
+
+  function getList(params?: { pageNo?: number; refresh?: boolean; searchKey?: string }) {
+    const { refresh = false, searchKey, pageNo = 1 } = params || {};
+    setTableLoading(true);
+    return new Promise((resolve) => {
+      treeConfig[curType.value].getChildren!({
+        refresh,
+        ...curWorkspaceParams,
+        extraParams: curWorkspaceParams,
+        searchKey,
+        pageNo,
+      })
+        .then((res: any) => {
+          setCurList(res.data);
+          resolve(res);
+          setPagingData({
+            total: res.total,
+            pageSize: res.pageSize,
+            pageNo: res.pageNo,
+          });
+          if (curType.value === TreeNodeType.TABLES) {
+            dispatch({
+              type: 'workspace/setCurTableList',
+              payload: res.data,
+            });
+          }
+          setTableLoading(false);
+        })
+        .catch(() => {
+          setTableLoading(false);
+        });
+    });
   }
 
   function openSearch() {
@@ -211,19 +270,40 @@ const TableList = dvaModel((props: any) => {
   }
 
   function onChange(value: string) {
-    setSearchedTableList(approximateTreeNode(curList, value));
+    if (curType.value === TreeNodeType.TABLES) {
+      getList({
+        searchKey: value,
+        refresh: false,
+      }).then((res: any) => {
+        setSearchedTableList(approximateTreeNode(res.data, value));
+      });
+    } else {
+      setSearchedTableList(approximateTreeNode(curList, value));
+    }
   }
 
   function refreshTableList() {
     if (isReady) {
       setCurList([]);
-      getList(true);
+      getList({
+        refresh: true,
+      });
     }
   }
 
   function cascaderChange(value: string[], selectedOptions: IOption[]) {
     setCurType(selectedOptions[0]);
   }
+
+  const handelChangePagination = (pageNo: number) => {
+    getList({
+      pageNo,
+      refresh: false,
+      searchKey: inputRef.current?.input.value,
+    }).then((res: any) => {
+      setSearchedTableList(approximateTreeNode(res.data, inputRef.current?.input.value));
+    });
+  };
 
   return (
     <div className={styles.tableModule}>
@@ -274,6 +354,18 @@ const TableList = dvaModel((props: any) => {
       <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
         <Tree className={styles.tree} initialData={searchedTableList || curList} />
       </LoadingContent>
+      {pagingData?.total > 200 && (
+        <div className={styles.paging}>
+          <Pagination
+            onChange={handelChangePagination}
+            current={pagingData?.pageNo}
+            defaultPageSize={pagingData?.pageSize}
+            simple
+            size="small"
+            total={pagingData?.total}
+          />
+        </div>
+      )}
     </div>
   );
 });

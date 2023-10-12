@@ -7,8 +7,8 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType } from '@/constants';
-import styles from './index.less';
 import historyService from '@/service/history';
+import styles from './index.less';
 import TableList from '../TableList';
 import SaveList from '../SaveList';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
@@ -75,12 +75,12 @@ const WorkspaceLeft = memo<IProps>((props) => {
       <SaveList />
       <Divider className={styles.divider} />
       <TableList onExport={handleExportTableStructure} />
-      <div className={styles.createButtonBox}>
+      {/* <div className={styles.createButtonBox}>
         <Button className={styles.createButton} type="primary" onClick={addConsole}>
           <Iconfont code="&#xe63a;" />
           {i18n('common.button.createConsole')}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 });
