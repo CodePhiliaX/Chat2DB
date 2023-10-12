@@ -3,7 +3,6 @@ import { DatabaseTypeCode } from '../common';
 export default {
   type: DatabaseTypeCode.MYSQL,
   keywords: [
-    '*',
     'ACCESSIBLE',
     'ADD',
     'ALL',
@@ -584,7 +583,6 @@ export default {
     'ROW_NUMBER',
     'RPAD',
     'RTRIM',
-    'SCHEMA',
     'SEC_TO_TIME',
     'SECOND',
     'SESSION_USER',

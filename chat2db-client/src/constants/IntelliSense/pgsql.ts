@@ -3,7 +3,6 @@ import { DatabaseTypeCode } from '../common';
 export default {
   type: DatabaseTypeCode.POSTGRESQL,
   keywords: [
-    '*',
     'ALL',
     'ANALYSE',
     'ANALYZE',
