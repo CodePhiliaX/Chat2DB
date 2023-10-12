@@ -60,6 +60,22 @@ public class TableController {
                 request.getPageSize());
     }
 
+    /**
+     * 查询当前DB下的表列表
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/table_list")
+    public ListResult<SimpleTable> tableList(@Valid TableBriefQueryRequest request) {
+        TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
+        return tableService.queryTables(queryParam);
+
+    }
+
+
+
+
 
     /**
      * 查询当前DB下的表columns
