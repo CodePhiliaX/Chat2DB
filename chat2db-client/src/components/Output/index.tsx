@@ -1,151 +1,20 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Table } from 'antd';
+import historyService, { IGetHistoryListParams } from '@/service/history';
+import { set } from 'lodash';
+
+export interface IGetOutputParams extends IGetHistoryListParams {}
 
 interface IProps {
   className?: string;
-  dataSourcesId?: string;
-}
-
-// 获取Output的参数
-export interface IGetOutputParams {
-  dataSourcesId?: string;
-  databaseName?: string;
+  params: IGetOutputParams;
 }
 
 export default memo<IProps>((props) => {
-  const { className } = props;
-  const dataSource = [
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '1',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-    {
-      key: '2',
-      time: '2022-10-11 12:00:00',
-      sql: 'select * from test',
-      executionTime: '100ms',
-      databaseName: 'sys',
-      state: '成功',
-    },
-  ];
+  const { className, params } = props;
+  const [dataSource, setDataSource] = React.useState<any[]>([]);
 
   const columns = [
     {
@@ -175,8 +44,8 @@ export default memo<IProps>((props) => {
     },
     {
       title: 'sql',
-      dataIndex: 'sql',
-      key: 'sql',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: '执行耗时',
@@ -184,6 +53,16 @@ export default memo<IProps>((props) => {
       key: 'executionTime',
     },
   ];
+
+  useEffect(() => {
+    getHistoryList();
+  }, []);
+
+  const getHistoryList = () => {
+    historyService.getHistoryList(params).then((res) => {
+      setDataSource(res.data);
+    });
+  };
 
   return (
     <div className={classnames(styles.output, className)}>
