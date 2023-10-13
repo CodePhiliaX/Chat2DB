@@ -1,6 +1,6 @@
 {
   "workbench.colorTheme": "One Dark Pro",
-  "workbench.iconTheme": "vscode-icons-mac",
+  "workbench.iconTheme": "material-icon-theme",
   "editor.fontSize": 14,
   "editor.tabSize": 2,
   // 自动格式化
