@@ -14,15 +14,12 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
 /** 根据不同的数据库，插入不同的表名  */
 const handleInsertText = (text, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
   if (
-    [
-      DatabaseTypeCode.POSTGRESQL,
-      DatabaseTypeCode.ORACLE,
-      DatabaseTypeCode.DB2,
-      DatabaseTypeCode.SQLITE,
-    ].includes(databaseCode)
+    [DatabaseTypeCode.POSTGRESQL, DatabaseTypeCode.ORACLE, DatabaseTypeCode.DB2, DatabaseTypeCode.SQLITE].includes(
+      databaseCode,
+    )
   ) {
     return `\"${text}\"`;
-  } else if([DatabaseTypeCode.SQLSERVER].includes(databaseCode)){
+  } else if ([DatabaseTypeCode.SQLSERVER].includes(databaseCode)) {
     return `[${text}]`;
   } else if ([DatabaseTypeCode.MYSQL].includes(databaseCode)) {
     return `\`${text}\``;
@@ -77,11 +74,11 @@ const registerIntelliSenseTable = (
               detail: databaseName ? `(${databaseName})` : null,
               description: '表名',
             },
-            kind: monaco.languages.CompletionItemKind.Variable,
+            kind: monaco.languages.CompletionItemKind.Folder,
             insertText: handleInsertText(tableName.name, databaseCode),
             // range: monaco.Range.fromPositions(position),
             // documentation: tableName.comment,
-            sortText: (isTableContext ? '01' : '02') + tableName.name,
+            sortText: isTableContext ? '01' : '08',
             command: {
               id: 'addFieldList',
               title: 'addFieldList',

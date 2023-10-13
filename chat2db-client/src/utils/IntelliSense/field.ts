@@ -89,7 +89,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
           },
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: fieldObj.name,
-          sortText: (isFieldContext ? '01' : '02') + fieldObj.name,
+          sortText: isFieldContext ? '01' : '08',
         }));
 
         return [...acc, ...arr];

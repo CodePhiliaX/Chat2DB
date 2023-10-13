@@ -62,7 +62,7 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post("/api/milvus/knowledge/save")
+    @Post("/api/client/milvus/knowledge/save")
     ActionResult knowledgeVectorSave(KnowledgeRequest request);
 
     /**
@@ -71,7 +71,7 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post("/api/milvus/schema/save")
+    @Post("/api/client/milvus/schema/save")
     ActionResult schemaVectorSave(TableSchemaRequest request);
 
     /**
@@ -80,7 +80,7 @@ public interface GatewayClientService {
      * @param searchVectors
      * @return
      */
-    @Get("/api/milvus/knowledge/search")
+    @Get("/api/client/milvus/knowledge/search")
     DataResult<KnowledgeResponse> knowledgeVectorSearch(KnowledgeRequest searchVectors);
 
     /**
@@ -89,6 +89,6 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Get("/api/milvus/schema/search")
+    @Get("/api/client/milvus/schema/search")
     DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request);
 }
