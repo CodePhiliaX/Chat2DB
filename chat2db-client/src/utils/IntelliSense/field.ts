@@ -31,14 +31,25 @@ const addIntelliSenseField = async (props: {
   }
 };
 
+function checkFieldContext(text) {
+  const normalizedText = text.trim().toUpperCase();
+  const columnKeywords = ['SELECT', 'WHERE', 'AND', 'OR', 'GROUP BY', 'ORDER BY', 'SET'];
+
+  for (const keyword of columnKeywords) {
+    if (normalizedText.endsWith(keyword)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseName, schemaName) => {
   intelliSenseField.dispose();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '.', '('],
     provideCompletionItems: async (model, position) => {
-      console.log('registerIntelliSenseField');
-
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,
@@ -47,7 +58,9 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         endColumn: position.column,
       });
 
+      const isFieldContext = checkFieldContext(textUntilPosition);
       const match = textUntilPosition.match(/(\b\w+\b)[^\w]*$/);
+
       let word;
       if (match) {
         word = match[1];
@@ -58,7 +71,6 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         return; // 如果没有匹配到，直接返回
       }
       if (word && tableList.includes(word) && !fieldList[word]) {
-        console.log('registerIntelliSenseField start word');
         const data = await sqlService.getAllFieldByTable({
           dataSourceId,
           databaseName,
@@ -68,7 +80,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         fieldList[word] = data;
       }
 
-      const suggestions = Object.keys(fieldList).reduce((acc, cur) => {
+      const suggestions: monaco.languages.CompletionItem[] = Object.keys(fieldList).reduce((acc, cur) => {
         const arr = fieldList[cur].map((fieldObj) => ({
           label: {
             label: fieldObj.name,
@@ -77,11 +89,11 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
           },
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: fieldObj.name,
+          sortText: (isFieldContext ? '01' : '02') + fieldObj.name,
         }));
 
         return [...acc, ...arr];
       }, []);
-      console.log('field suggestions', suggestions);
 
       return {
         suggestions,
