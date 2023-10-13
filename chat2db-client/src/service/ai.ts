@@ -1,4 +1,3 @@
-import { IChartItem, IDashboardItem, IPageResponse } from '@/typings';
 import { IInviteQrCode, ILoginAndQrCode, IRemainingUse } from '@/typings/ai';
 import createRequest from './base';
 
