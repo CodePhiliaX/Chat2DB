@@ -18,6 +18,10 @@ public class TableSchemaRequest {
 
     private String databaseName;
 
+    private String apiKey;
+
+    private String dataSourceSchema;
+
     private List<java.util.List<BigDecimal>> schemaVector;
 
     private List<String> schemaList;
