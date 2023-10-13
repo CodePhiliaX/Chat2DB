@@ -25,7 +25,8 @@ const getSQLFunctions = (functions: string[]) => {
       description: '函数',
       sortText: '09',
     },
-    kind: monaco.languages.CompletionItemKind.Method,
+    // kind: monaco.languages.CompletionItemKind.Method,
+    kind: monaco.languages.CompletionItemKind.Function,
     insertText: key,
   }));
 };

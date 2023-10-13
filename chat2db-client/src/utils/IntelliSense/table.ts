@@ -74,7 +74,7 @@ const registerIntelliSenseTable = (
               detail: databaseName ? `(${databaseName})` : null,
               description: '表名',
             },
-            kind: monaco.languages.CompletionItemKind.Variable,
+            kind: monaco.languages.CompletionItemKind.Folder,
             insertText: handleInsertText(tableName.name, databaseCode),
             // range: monaco.Range.fromPositions(position),
             // documentation: tableName.comment,
