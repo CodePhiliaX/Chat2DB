@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin } from 'antd';
+import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Tooltip, Radio } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
@@ -12,12 +12,14 @@ interface IProps {
   value?: string;
   result?: string;
   tables?: string[];
+  syncTableModel: number;
   selectedTables?: string[];
   remainingUse?: IRemainingUse;
   aiType: AiSqlSourceType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
   onPressEnter: (value: string) => void;
+  onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
   onClickRemainBtn: Function;
 }
@@ -37,31 +39,38 @@ const ChatInput = (props: IProps) => {
   };
 
   const renderSelectTable = () => {
-    const { tables, selectedTables, onSelectTables } = props;
+    const { tables, syncTableModel, onSelectTableSyncModel, selectedTables, onSelectTables } = props;
     const options = (tables || []).map((t) => ({ value: t, label: t }));
     return (
       <div className={styles.aiSelectedTable}>
-        <span className={styles.aiSelectedTableTips}>
-          {/* <WarningOutlined style={{color: 'yellow'}}/> */}
-          {i18n('chat.input.remain.tooltip')}
-        </span>
-        <Select
-          showSearch
-          mode="multiple"
-          allowClear
-          options={options}
-          placeholder={i18n('chat.input.tableSelect.placeholder')}
-          value={selectedTables}
-          onChange={(v) => {
-            onSelectTables && onSelectTables(v);
-          }}
-        />
+        <Radio.Group onChange={(v) => onSelectTableSyncModel(v.target.value)} value={syncTableModel}>
+          <Radio value={0}>{i18n('chat.input.syncTable.tips')}</Radio>
+          <Radio value={1} style={{ marginTop: '8px', display: 'flex' }}>
+            <>
+              <span className={styles.aiSelectedTableTips}>
+                {/* <WarningOutlined style={{color: 'yellow'}}/> */}
+                {i18n('chat.input.remain.tooltip')}
+              </span>
+              <Select
+                showSearch
+                mode="multiple"
+                allowClear
+                options={options}
+                placeholder={i18n('chat.input.tableSelect.placeholder')}
+                value={selectedTables}
+                onChange={(v) => {
+                  onSelectTables && onSelectTables(v);
+                }}
+              />
+            </>
+          </Radio>
+        </Radio.Group>
       </div>
     );
   };
 
   const renderSuffix = () => {
-    const remainCnt = props?.remainingUse?.remainingUses ?? '-';
+    // const remainCnt = props?.remainingUse?.remainingUses ?? '-';
     return (
       <div className={styles.suffixBlock}>
         <Button
@@ -75,11 +84,20 @@ const ChatInput = (props: IProps) => {
         >
           <Iconfont code="&#xe643;" className={styles.enterIcon} />
         </Button>
-        <div className={styles.tableSelectBlock}>
-          <Popover content={renderSelectTable()} placement="bottom">
-            <Iconfont code="&#xe618;" />
-          </Popover>
-        </div>
+        <Tooltip
+          title="🎉上线自动同步所有表功能"
+          open={!localStorage.getItem('syncTableBubble')}
+          onOpenChange={() => {
+            localStorage.setItem('syncTableBubble', 'true');
+          }}
+        >
+          <div className={styles.tableSelectBlock}>
+            <Popover content={renderSelectTable()} placement="bottom">
+              <Iconfont code="&#xe618;" />
+            </Popover>
+          </div>
+        </Tooltip>
+
         {/* {props.aiType === AiSqlSourceType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
             <div
@@ -110,6 +128,6 @@ const ChatInput = (props: IProps) => {
       />
     </div>
   );
-}
+};
 
 export default ChatInput;
