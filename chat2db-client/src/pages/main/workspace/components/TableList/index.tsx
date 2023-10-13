@@ -64,6 +64,8 @@ const TableList = dvaModel((props: any) => {
   const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [pagingData, setPagingData] = useState<IPagingData>(defaultPaddingData);
   const [searchKey, setSearchKey] = useState<string>('');
+  const leftModuleTitleRef = useRef<any>(null);
+  const treeBoxRef = useRef<any>(null);
 
   // 导出表结构
   const handleExport = (exportType: ExportTypeEnum) => {
@@ -209,6 +211,27 @@ const TableList = dvaModel((props: any) => {
     }
   }, [searching]);
 
+  // 监听treeBox滚动时，给leftModuleTitle添加下阴影
+  useEffect(() => {
+    const treeBox = treeBoxRef.current;
+    const leftModuleTitleDom = leftModuleTitleRef.current;
+    if (!treeBox || !leftModuleTitleDom) {
+      return;
+    }
+    const handleScroll = () => {
+      const scrollTop = treeBox.scrollTop;
+      if (scrollTop > 0) {
+        leftModuleTitleDom.classList.add(styles.leftModuleTitleShadow);
+      } else {
+        leftModuleTitleDom.classList.remove(styles.leftModuleTitleShadow);
+      }
+    };
+    treeBox.addEventListener('scroll', handleScroll);
+    return () => {
+      treeBox.removeEventListener('scroll', handleScroll);
+    };
+  }, [treeBoxRef.current, leftModuleTitleRef.current]);
+
   const addConsole = () => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
     const params = {
@@ -329,7 +352,7 @@ const TableList = dvaModel((props: any) => {
 
   return (
     <div className={styles.tableModule}>
-      <div className={styles.leftModuleTitle}>
+      <div ref={leftModuleTitleRef} className={styles.leftModuleTitle}>
         {searching ? (
           <div className={styles.leftModuleTitleSearch}>
             <Input
@@ -377,9 +400,11 @@ const TableList = dvaModel((props: any) => {
           </div>
         )}
       </div>
-      <LoadingContent className={styles.treeBox} isLoading={tableLoading}>
-        <Tree className={styles.tree} initialData={searchedTableList || curList} />
-      </LoadingContent>
+      <div ref={treeBoxRef} className={styles.treeBox}>
+        <LoadingContent isLoading={tableLoading}>
+          <Tree initialData={searchedTableList || curList} />
+        </LoadingContent>
+      </div>
       {pagingData?.total > 100 && !searchKey && (
         <div className={styles.paging}>
           <div className={styles.paginationBox}>
