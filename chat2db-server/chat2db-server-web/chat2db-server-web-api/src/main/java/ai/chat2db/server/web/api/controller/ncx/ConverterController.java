@@ -57,7 +57,7 @@ public class ConverterController {
         // 验证文件后缀
         String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.DBP.name())) {
-            return DataResult.error("1", "上传的文件必须是ncx文件！");
+            return DataResult.error("1", "上传的文件必须是dbp文件！");
         }
         File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + UUID.randomUUID() + ".tmp");
         file.transferTo(temp);
