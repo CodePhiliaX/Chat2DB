@@ -12,6 +12,7 @@ const getSQLKeywords = (keywords: string[]) => {
     },
     kind: monaco.languages.CompletionItemKind.Text,
     insertText: key,
+    sortText: '08',
   }));
 };
 
@@ -22,6 +23,7 @@ const getSQLFunctions = (functions: string[]) => {
       label: key,
       detail: '',
       description: '函数',
+      sortText: '09',
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: key,
