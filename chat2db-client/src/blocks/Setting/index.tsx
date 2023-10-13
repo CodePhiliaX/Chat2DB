@@ -28,14 +28,19 @@ function Setting(props: IProps) {
 
   const [currentMenu, setCurrentMenu] = useState(0);
 
+  // 判断当前页面是否为登录页
+  const loginPage = window.location.pathname === '/login';
+
   useEffect(() => {
-    if (isModalVisible) {
+    if (isModalVisible && !loginPage) {
       getAiSystemConfig();
     }
   }, [isModalVisible]);
 
   useEffect(() => {
-    getAiSystemConfig();
+    if (!loginPage) {
+      getAiSystemConfig();
+    }
   }, []);
 
   const getAiSystemConfig = () => {
@@ -114,6 +119,9 @@ function Setting(props: IProps) {
           <div className={styles.menus}>
             <div className={classnames(styles.menusTitle)}>{i18n('setting.title.setting')}</div>
             {menusList.map((t, index) => {
+              if (loginPage && index === 1) {
+                return false;
+              }
               return (
                 <div
                   key={index}

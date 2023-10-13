@@ -259,3 +259,12 @@ export function formatSql(sql: string, dbType: DatabaseTypeCode) {
     }
   });
 }
+
+// 桌面端用hash模式，web端用history模式，路由跳转
+export function navigate(path: string) {
+  if (__ENV__ === 'desktop') {
+    window.location.href = `#${path}`;
+  } else {
+    window.location.href = path;
+  }
+}

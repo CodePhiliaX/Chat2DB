@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Form, Input, Tooltip } from 'antd';
-import { getUser, userLogin } from '@/service/user';
-import { history } from 'umi';
+import { userLogin } from '@/service/user';
 import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
@@ -14,10 +13,10 @@ interface IFormData {
   password: string;
 }
 
-const App: React.FC = () => {
+const Login: React.FC = () => {
   const navigate = useNavigate();
-  const handleLogin = async (formData: { userName: string; password: string }) => {
-    let res = await userLogin(formData);
+  const handleLogin = async (formData: IFormData) => {
+    const res = await userLogin(formData);
     if (res) {
       navigate('/');
     }
@@ -77,4 +76,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default Login;

@@ -1,5 +1,6 @@
-import { extend, ResponseError,type RequestOptionsInit } from 'umi-request';
+import { extend, ResponseError, type RequestOptionsInit } from 'umi-request';
 import { message } from 'antd';
+import { navigate } from '@/utils'
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -116,14 +117,16 @@ request.interceptors.response.use(async (response) => {
   }
   const { errorCode } = res;
   if (errorCode === ErrorCode.NEED_LOGGED_IN) {
-    const callback = window.location.hash.substr(1).split('?')[0];
-    window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
+    navigate('/login');
+    // const callback = window.location.hash.substr(1).split('?')[0];
+    // window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
   }
 
   return response;
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
+  // 路由跳转
   const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
 
   // 是否需要mock

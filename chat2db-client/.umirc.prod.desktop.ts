@@ -13,6 +13,9 @@ const chainWebpack = (config: any, { webpack }: any) => {
 };
 
 export default defineConfig({
+  history: {
+    type: 'hash',
+  },
   publicPath: './',
   chainWebpack,
   define: {
