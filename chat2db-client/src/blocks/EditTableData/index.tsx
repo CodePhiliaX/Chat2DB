@@ -7,7 +7,7 @@ interface IProps {
   className?: string;
   dataSourceId: number;
   databaseName: string;
-  schemaName: string | undefined;
+  schemaName?: string | null;
   tableName?: string;
   databaseType: DatabaseTypeCode;
 }

@@ -12,7 +12,6 @@ export interface IWorkspaceTab {
   id: number | string; // Tab的id
   type: WorkspaceTabType; // 工作区tab的类型
   title: string; // 工作区tab的名称
-  editableName?: boolean; // 可以编辑名称
   uniqueData?: any;
 }
 

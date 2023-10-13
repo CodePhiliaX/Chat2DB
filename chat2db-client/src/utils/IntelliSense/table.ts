@@ -49,7 +49,7 @@ const registerIntelliSenseTable = (
   databaseCode?: DatabaseTypeCode,
   dataSourceId?: number,
   databaseName?: string,
-  schemaName?: string,
+  schemaName?: string | null,
 ) => {
   monaco.editor.registerCommand('addFieldList', (_: any, ...args: any[]) => {
     addIntelliSenseField(args[0]);

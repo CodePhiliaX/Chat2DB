@@ -10,7 +10,7 @@ export interface ITabItem {
   key: number | string;
   popover?: string | React.ReactNode;
   children?: React.ReactNode;
-  editableName?: boolean | undefined;
+  editableName?: boolean;
   canClosed?: boolean;
   styles?: React.CSSProperties;
 }
