@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Tooltip, Radio } from 'antd';
+import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Tooltip, Radio, Space } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
@@ -43,34 +43,41 @@ const ChatInput = (props: IProps) => {
     const options = (tables || []).map((t) => ({ value: t, label: t }));
     return (
       <div className={styles.aiSelectedTable}>
-        <Radio.Group onChange={(v) => onSelectTableSyncModel(v.target.value)} value={syncTableModel}>
-          <Radio value={0}>{i18n('chat.input.syncTable.tips')}</Radio>
-          <Radio value={1} style={{ marginTop: '8px', display: 'flex' }}>
-            <>
-              <span className={styles.aiSelectedTableTips}>
-                {/* <WarningOutlined style={{color: 'yellow'}}/> */}
-                {i18n('chat.input.remain.tooltip')}
-              </span>
-              <Select
-                showSearch
-                mode="multiple"
-                allowClear
-                options={options}
-                placeholder={i18n('chat.input.tableSelect.placeholder')}
-                value={selectedTables}
-                onChange={(v) => {
-                  onSelectTables && onSelectTables(v);
-                }}
-              />
-            </>
-          </Radio>
+        <Radio.Group
+          onChange={(v) => onSelectTableSyncModel(v.target.value)}
+          value={syncTableModel}
+          style={{ marginBottom: '8px' }}
+        >
+          <Space direction="horizontal">
+            <Radio value={0}>自动</Radio>
+            <Radio value={1}>手动</Radio>
+          </Space>
         </Radio.Group>
+        {syncTableModel === 0 ? (
+          i18n('chat.input.syncTable.tips')
+        ) : (
+          <>
+            <span className={styles.aiSelectedTableTips}>{i18n('chat.input.remain.tooltip')}</span>
+            <Select
+              showSearch
+              mode="multiple"
+              allowClear
+              options={options}
+              placeholder={i18n('chat.input.tableSelect.placeholder')}
+              value={selectedTables}
+              onChange={(v) => {
+                onSelectTables && onSelectTables(v);
+              }}
+            />
+          </>
+        )}
       </div>
     );
   };
 
   const renderSuffix = () => {
     // const remainCnt = props?.remainingUse?.remainingUses ?? '-';
+    const hasBubble = localStorage.getItem('syncTableBubble');
     return (
       <div className={styles.suffixBlock}>
         <Button
@@ -85,8 +92,10 @@ const ChatInput = (props: IProps) => {
           <Iconfont code="&#xe643;" className={styles.enterIcon} />
         </Button>
         <Tooltip
-          title="🎉上线自动同步所有表功能"
-          open={!localStorage.getItem('syncTableBubble')}
+          title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
+          defaultOpen={!hasBubble}
+          color={window._AppThemePack.colorBgBase}
+          trigger={'click'}
           onOpenChange={() => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
