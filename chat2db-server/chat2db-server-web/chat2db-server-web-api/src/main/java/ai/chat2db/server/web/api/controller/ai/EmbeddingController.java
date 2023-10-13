@@ -12,6 +12,7 @@ import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.TableMilvusQueryRequest;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
 import ai.chat2db.spi.model.Table;
@@ -61,7 +62,7 @@ public class EmbeddingController extends ChatController {
      */
     @PostMapping("/datasource")
     @CrossOrigin
-    public ActionResult embeddings(@Valid TableBriefQueryRequest request)
+    public ActionResult embeddings(@Valid TableMilvusQueryRequest request)
         throws Exception {
 
         // query tables
@@ -87,12 +88,10 @@ public class EmbeddingController extends ChatController {
         // save first table embedding
         TableSchemaRequest tableSchemaRequest = new TableSchemaRequest();
         tableSchemaRequest.setDataSourceId(request.getDataSourceId());
+        tableSchemaRequest.setApiKey(request.getApikey());
         tableSchemaRequest.setDeleteBeforeInsert(true);
-        String databaseName = StringUtils.isNotBlank(request.getDatabaseName()) ? request.getDatabaseName() : request.getSchemaName();
-        if (Objects.isNull(databaseName)) {
-            databaseName = "";
-        }
-        tableSchemaRequest.setDatabaseName(databaseName);
+        tableSchemaRequest.setDataSourceSchema(request.getSchemaName());
+        tableSchemaRequest.setDatabaseName(request.getDatabaseName());
 
         saveTableEmbedding(tableSchema, tableSchemaRequest);
 
