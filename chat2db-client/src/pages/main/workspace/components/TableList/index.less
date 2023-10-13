@@ -9,8 +9,10 @@
 
 .leftModuleTitle {
   flex-shrink: 0;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0px 10px;
   .leftModuleTitleText {
+    // 下阴影
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -52,7 +54,24 @@
   flex: 1;
   height: 0;
   overflow-y: auto;
-  margin: 0px -10px;
+}
+
+.paging {
+  flex-shrink: 0;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 0px 4px;
+  border-top: 1px solid var(--color-border);
+  .paginationBox,
+  .paginationSelectBox {
+    display: flex;
+    align-items: center;
+    height: 26px;
+  }
 }
 
 .refreshIconBox {

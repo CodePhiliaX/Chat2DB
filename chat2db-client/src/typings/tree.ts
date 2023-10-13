@@ -1,5 +1,4 @@
 import { TreeNodeType, DatabaseTypeCode } from '@/constants';
-import { IPageParams } from '@/typings';
 
 export interface IExtraParams {
   databaseType?: DatabaseTypeCode;
@@ -11,8 +10,7 @@ export interface IExtraParams {
   functionName?: string;
   procedureName?: string;
   triggerName?: string;
-  
-};
+}
 
 export interface ITreeNode {
   key: string | number;
@@ -31,4 +29,20 @@ export interface IRoutines {
   name: string; // 名称
   comment: string; // 描述
   pinned: boolean; // 是否置顶
+}
+
+export interface ITable {
+   /**
+    * 表描述
+    */
+   comment?: string | null;
+   /**
+    * 表名称
+    */
+   name: string | null;
+   /**
+    * 是否已经被固定
+    */
+   pinned?: boolean;
+
 }

@@ -559,6 +559,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
             items={tabsList}
+            lastTabCannotClosed
           />
         </div>
       </LoadingContent>

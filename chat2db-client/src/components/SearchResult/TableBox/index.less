@@ -13,6 +13,22 @@
     .hGEOgo {
       --header-bgcolor: #fafafa;
       --header-color: #000;
+      table colgroup col {
+        min-width: 120px;
+      }
+      table colgroup col:nth-of-type(1) {
+        min-width: 60px;
+      }
+      .fnWppk {
+        // word-break: break-all;
+        // display: -webkit-box;
+        // -webkit-box-orient: vertical;
+        // box-orient: vertical;
+        // -webkit-line-clamp: 1;
+        // line-clamp: 1;
+        // text-overflow: ellipsis;
+        overflow: hidden;
+      }
       th {
         font-weight: bold;
       }
@@ -26,7 +42,6 @@
         border-top: 0;
       }
     }
-
     .art-table-cell {
       position: relative;
     }
@@ -106,6 +121,8 @@
 }
 
 .statusBar {
+  height: 26px;
+  box-sizing: border-box;
   position: sticky;
   bottom: 0;
   z-index: 30;

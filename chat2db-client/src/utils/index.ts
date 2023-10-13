@@ -75,7 +75,7 @@ export function deepClone(target: any) {
 }
 
 // 模糊匹配树并且高亮
-export function approximateTreeNode(treeData: ITreeNode[], target: string, isDelete = true) {
+export function approximateTreeNode(treeData: ITreeNode[], target: string = '', isDelete = true) {
   if (target) {
     const newTree: ITreeNode[] = lodash.cloneDeep(treeData || []);
     newTree.map((item, index) => {

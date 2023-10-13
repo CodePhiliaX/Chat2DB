@@ -6,14 +6,16 @@ import Iconfont from '@/components/Iconfont';
 import { Tooltip } from 'antd';
 import { ITreeNode } from '@/typings';
 import { callVar, approximateTreeNode } from '@/utils';
-import { TreeNodeType, databaseMap, CreateTabIntroType, WorkspaceTabType } from '@/constants';
+import { TreeNodeType, databaseMap } from '@/constants';
 import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { IWorkspaceModelType, ICurWorkspaceParams } from '@/models/workspace';
 
 interface IProps {
   className?: string;
   initialData?: ITreeNode[];
+  workspaceModel: IWorkspaceModelType['state'];
+  dispatch: any;
 }
 
 interface TreeNodeIProps {
@@ -22,7 +24,7 @@ interface TreeNodeIProps {
   show: boolean;
   setTreeData: Function;
   showAllChildrenPenetrate?: boolean;
-  workspaceModel: IWorkspaceModelType['state'];
+  curWorkspaceParams: ICurWorkspaceParams;
   dispatch: any;
 }
 
@@ -30,8 +32,8 @@ const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => 
   workspaceModel: workspace,
 }));
 
-function Tree(props: IProps) {
-  const { className, initialData } = props;
+const Tree = dvaModel((props: IProps) => {
+  const { className, initialData, workspaceModel, dispatch } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | undefined>();
   const [searchedTreeData, setSearchedTreeData] = useState<ITreeNode[] | null>(null);
 
@@ -48,16 +50,34 @@ function Tree(props: IProps) {
   }
 
   return (
-    <div className={classnames(className, styles.box)}>
+    <div className={classnames(className, styles.treeBox)}>
       {(searchedTreeData || treeData)?.map((item, index) => {
-        return <TreeNode setTreeData={setTreeData} key={item.name + index} show={true} level={0} data={item} />;
+        return (
+          <TreeNode
+            curWorkspaceParams={workspaceModel.curWorkspaceParams}
+            dispatch={dispatch}
+            setTreeData={setTreeData}
+            key={item.name + index}
+            show={true}
+            level={0}
+            data={item}
+          />
+        );
       })}
     </div>
   );
-}
+});
 
-const TreeNode = dvaModel((props: TreeNodeIProps) => {
-  const { setTreeData, data, level, show = false, showAllChildrenPenetrate = false, dispatch, workspaceModel } = props;
+const TreeNode = (props: TreeNodeIProps) => {
+  const {
+    setTreeData,
+    data,
+    level,
+    show = false,
+    showAllChildrenPenetrate = false,
+    dispatch,
+    curWorkspaceParams,
+  } = props;
   const [showChildren, setShowChildren] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
@@ -161,12 +181,15 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
         <div className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}>
           <div className={styles.left}>
             {indentArr.map((item, i) => {
-              return <div key={i} className={styles.indent}></div>;
+              return <div key={i} className={styles.indent} />;
             })}
           </div>
           <div className={styles.right}>
             {!data.isLeaf && (
-              <div onClick={handleClick.bind(null, data)} className={styles.arrows}>
+              <div
+                onClick={handleClick.bind(null, data)}
+                className={classnames(styles.arrows, { [styles.loadingArrows]: isLoading })}
+              >
                 {isLoading ? (
                   <div className={styles.loadingIcon}>
                     <Iconfont code="&#xe6cd;" />
@@ -194,7 +217,7 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
                 dispatch={dispatch}
                 className={styles.moreButton}
                 data={data}
-                workspaceModel={workspaceModel}
+                curWorkspaceParams={curWorkspaceParams}
               />
             </div>
           </div>
@@ -203,6 +226,8 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
       {data.children?.map((item: any, i: number) => {
         return (
           <TreeNode
+            curWorkspaceParams={curWorkspaceParams}
+            dispatch={dispatch}
             key={i}
             data={item}
             level={level + 1}
@@ -216,6 +241,6 @@ const TreeNode = dvaModel((props: TreeNodeIProps) => {
   ) : (
     <></>
   );
-});
+};
 
 export default Tree;
