@@ -50,8 +50,6 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '.', '('],
     provideCompletionItems: async (model, position) => {
-      console.log('registerIntelliSenseField');
-
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,
@@ -61,8 +59,8 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
       });
 
       const isFieldContext = checkFieldContext(textUntilPosition);
-
       const match = textUntilPosition.match(/(\b\w+\b)[^\w]*$/);
+
       let word;
       if (match) {
         word = match[1];
@@ -73,7 +71,6 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         return; // 如果没有匹配到，直接返回
       }
       if (word && tableList.includes(word) && !fieldList[word]) {
-        console.log('registerIntelliSenseField start word');
         const data = await sqlService.getAllFieldByTable({
           dataSourceId,
           databaseName,
@@ -83,7 +80,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         fieldList[word] = data;
       }
 
-      const suggestions = Object.keys(fieldList).reduce((acc, cur) => {
+      const suggestions: monaco.languages.CompletionItem[] = Object.keys(fieldList).reduce((acc, cur) => {
         const arr = fieldList[cur].map((fieldObj) => ({
           label: {
             label: fieldObj.name,
