@@ -19,6 +19,7 @@ import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
+
 declare global {
   interface Window {
     _Lang: string;
