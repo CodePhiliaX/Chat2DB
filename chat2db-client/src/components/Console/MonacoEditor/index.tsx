@@ -132,7 +132,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         onSave?.(value || '');
       });
 
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, (event: Event) => {
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
         const value = getCurrentSelectContent();
         onExecute?.(value);
       });
@@ -169,11 +169,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
    * @returns
    */
   const getCurrentSelectContent = () => {
-    let selection = editorRef.current?.getSelection();
+    const selection = editorRef.current?.getSelection();
     if (!selection || selection.isEmpty()) {
       return '';
     } else {
-      var selectedText = editorRef.current?.getModel()?.getValueInRange(selection);
+      const selectedText = editorRef.current?.getModel()?.getValueInRange(selection);
       return selectedText || '';
     }
   };
@@ -187,16 +187,16 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   const createAction = (editor: IEditorIns) => {
     // 用于控制切换该菜单键的显示
-    const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
+    // const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
 
     if (!props.addAction || !props.addAction.length) {
       return;
     }
 
     props.addAction.forEach((action) => {
-      const { id, label, action: runFn } = action;
+      const { id: _id, label, action: runFn } = action;
       editor.addAction({
-        id,
+        id: _id,
         label,
         // 控制该菜单键显示
         precondition: 'shouldShowSqlRunnerAction',
@@ -204,7 +204,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         contextMenuGroupId: 'navigation',
         contextMenuOrder: 1.5,
         // 点击该菜单键后运行
-        run: (event: monaco.editor.ICodeEditor) => {
+        run: () => {
           const selectedText = editor.getModel()?.getValueInRange(editor.getSelection()!) || '';
           runFn(selectedText);
         },
@@ -234,6 +234,10 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     editor.setValue(text);
     return;
   }
+  let newText = text;
+  const lastLine = editor.getModel().getLineCount();
+  const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
+
   switch (range) {
     // 覆盖所有内容
     case 'cover':
@@ -246,7 +250,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
       editor.revealLine(1);
       break;
     // 格式化选中区域的sql
-    case 'select':
+    case 'select': {
       const selection = editor.getSelection();
       if (selection) {
         newRange = new monaco.Range(
@@ -257,24 +261,29 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
         );
       }
       break;
+    }
     // 在末尾添加内容
     case 'end':
-      const lastLine = editor.getModel().getLineCount();
-      const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
-      text = `${text}`;
-      editor.revealLine(lastLine);
+      newText = `${text}`;
       break;
     default:
       break;
   }
+
   const op = {
     range: newRange,
-    text,
+    text: newText,
   };
+
   // decorations?: IModelDeltaDecoration[]: 一个数组类型的参数，用于指定插入的文本的装饰。可以用来设置文本的样式、颜色、背景色等。如果不需要设置装饰，可以忽略此参数。
   const decorations = [{}]; // 解决新增的文本默认背景色为灰色
   editor.executeEdits('setValue', [op], decorations);
+  if (range === 'end') {
+    setTimeout(() => {
+      editor.revealLine(lastLine + 1);
+    }, 0);
+  }
 };
 
 export default forwardRef(MonacoEditor);

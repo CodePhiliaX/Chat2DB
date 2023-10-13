@@ -2,6 +2,7 @@
 
 .saveModule {
   flex-shrink: 0;
+  padding-top: 6px;
 }
 
 .leftModuleTitle {
@@ -15,10 +16,12 @@
     height: 26px;
     .modelName {
       font-weight: bold;
+      line-height: 100%;
     }
     .iconBox {
       display: flex;
       align-items: center;
+      height: 100%;
     }
     .refreshIcon {
       margin-right: 10px;
@@ -26,6 +29,9 @@
     .refreshIcon,
     .searchIcon {
       cursor: pointer;
+      height: 100%;
+      display: flex;
+      align-items: center;
       &:hover {
         color: var(--color-primary);
       }
@@ -42,14 +48,19 @@
   overflow-y: auto;
 }
 
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
+}
+
 .saveItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 10px;
-  margin-bottom: 2px;
+  padding: 0px 6px;
+  height: 26px;
   line-height: 26px;
-  border-radius: 2px;
+  border-radius: 4px;
   user-select: none;
   cursor: pointer;
   .saveItemText {
