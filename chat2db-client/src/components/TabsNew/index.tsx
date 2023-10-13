@@ -30,10 +30,23 @@ interface IProps {
   type?: 'line';
   editableNameOnBlur?: (option: ITabItem) => void;
   concealTabHeader?: boolean;
+  // 最后一个tab不能关闭
+  lastTabCannotClosed?: boolean;
 }
 
 export default memo<IProps>((props) => {
-  const { className, items, onChange, onEdit, activeKey, hideAdd, type, editableNameOnBlur, concealTabHeader } = props;
+  const {
+    className,
+    items,
+    onChange,
+    onEdit,
+    activeKey,
+    hideAdd,
+    type,
+    lastTabCannotClosed,
+    editableNameOnBlur,
+    concealTabHeader,
+  } = props;
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
@@ -97,6 +110,16 @@ export default memo<IProps>((props) => {
       setEditingTab(undefined);
     }
 
+    function showClosed() {
+      if (lastTabCannotClosed && internalTabs.length === 1) {
+        return false;
+      }
+      if (t.canClosed === true) {
+        return false;
+      }
+      return true;
+    }
+
     return (
       <Popover content={t.popover} key={t.key}>
         <div
@@ -133,7 +156,7 @@ export default memo<IProps>((props) => {
               <div className={styles.text}>{t.label}</div>
             </div>
           )}
-          {t.canClosed !== false && (
+          {showClosed() && (
             <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
               <Iconfont code="&#xe634;" />
             </div>

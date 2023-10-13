@@ -9,6 +9,10 @@ export interface IGetSavedListParams extends IPageParams {
   tabOpened?: ConsoleOpenedStatus;
   status?: ConsoleStatus
 }
+export interface IGetHistoryListParams extends IPageParams { 
+  dataSourceId?: string;
+  databaseName?: string;
+}
 export interface ISaveBasicInfo {
   name: string;
   type: DatabaseTypeCode;
@@ -34,7 +38,7 @@ const deleteSavedConsole = createRequest<{ id: number }, string>('/api/operation
 
 const createHistory = createRequest<ISaveBasicInfo, void>('/api/operation/log/create', { method: 'post' });
 
-const getHistoryList = createRequest<IGetSavedListParams, IPageResponse<IHistoryRecord>>('/api/operation/log/list', {});
+const getHistoryList = createRequest<IGetHistoryListParams, IPageResponse<IHistoryRecord>>('/api/operation/log/list', {});
 
 export default {
   getSavedConsoleList,

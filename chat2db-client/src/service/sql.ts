@@ -7,11 +7,12 @@ import {
   IRoutines,
   IDatabaseSupportField,
   IEditTableInfo,
+  ITable,
 } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 
-export interface IGetListParams extends IPageParams {
+export interface IGetTableListParams extends IPageParams {
   dataSourceId: number;
   databaseName: string;
   schemaName?: string;
@@ -43,7 +44,7 @@ export interface IConnectConsoleParams {
   databaseName: string;
 }
 
-const getList = createRequest<IGetListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
+const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
 
 const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
 
@@ -110,10 +111,10 @@ const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('
 const exportCreateTableSql = createRequest<ITableParams, string>('/api/rdb/ddl/export', { method: 'get' });
 const executeTable = createRequest<IExecuteTableParams, string>('/api/rdb/ddl/execute', { method: 'post' });
 
-const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/column_list', { method: 'get' });
-const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', { method: 'get' });
-const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get' });
-const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get' });
+const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/column_list', { method: 'get', delayTime: 200 });
+const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', { method: 'get', delayTime: 200 });
+const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get', delayTime: 200 });
+const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', { method: 'get', delayTime: 200 });
 
 const getDatabaseSchemaList = createRequest<{ dataSourceId: number }, MetaSchemaVO>(
   '/api/rdb/ddl/database_schema_list',
@@ -138,25 +139,27 @@ export interface IExportParams extends IExecuteSqlParams {
 // const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
 
 /** 获取视图列表 */
-const getViewList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', { method: 'get' });
+const getViewList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', {
+  method: 'get',
+});
 
 /** 获取函数列表 */
-const getFunctionList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', {
+const getFunctionList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/function/list', {
   method: 'get',
 });
 
 /** 获取触发器列表 */
-const getTriggerList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', {
+const getTriggerList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/trigger/list', {
   method: 'get',
 });
 
 /** 获取过程列表 */
-const getProcedureList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', {
+const getProcedureList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/procedure/list', {
   method: 'get',
 });
 
 /** 获取视图列列表 */
-const getViewColumnList = createRequest<IGetListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', {
+const getViewColumnList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', {
   method: 'get',
 });
 
@@ -293,7 +296,7 @@ export default {
   getTriggerList,
   getFunctionList,
   getViewList,
-  getList,
+  getTableList,
   executeSql,
   connectConsole,
   deleteTable,
@@ -311,5 +314,5 @@ export default {
   getDMLCount,
   // exportResultTable
   getAllTableList,
-  getAllFieldByTable
+  getAllFieldByTable,
 };

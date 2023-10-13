@@ -1,6 +1,7 @@
-import { ITreeNode } from '@/typings';
+import { ITreeNode, IPagingData } from '@/typings';
 import { TreeNodeType, OperationColumn } from '@/constants';
 import connectionService from '@/service/connection';
+
 import mysqlServer, { ISchemaParams, ITableParams } from '@/service/sql';
 
 export type ITreeConfig = Partial<{ [key in TreeNodeType]: ITreeConfigItem }>;
@@ -67,7 +68,12 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
 
 export interface ITreeConfigItem {
   icon?: string;
-  getChildren?: (params: any) => Promise<ITreeNode[]>;
+  getChildren?: (params: any) => Promise<
+    | ITreeNode[]
+    | ({
+        data: ITreeNode[];
+      } & IPagingData)
+  >;
   next?: TreeNodeType;
   operationColumn?: OperationColumn[];
 }
@@ -78,7 +84,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         let p = {
           pageNo: 1,
-          pageSize: 999,
+          pageSize: 1000,
         };
         connectionService
           .getList(p)
@@ -186,9 +192,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.TABLES]: {
     icon: '\ueac5',
     getChildren: (params) => {
-      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+      return new Promise((r, j) => {
         mysqlServer
-          .getList(params)
+          .getTableList(params)
           .then((res) => {
             const tableList: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -203,10 +209,15 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 },
               };
             });
-            r(tableList);
+            r({
+              data: tableList,
+              pageNo: res.pageNo,
+              pageSize: res.pageSize,
+              total: res.total,
+            });
           })
           .catch((error) => {
-            j();
+            j(error);
           });
       });
     },

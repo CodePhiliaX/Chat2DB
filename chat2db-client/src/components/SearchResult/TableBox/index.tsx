@@ -323,7 +323,7 @@ export default function TableBox(props: ITableProps) {
           name: 'No.',
           key: name,
           lock: true,
-          width: 48,
+          width: 60,
           features: { sortable: compareStrings },
           render: (value: any) => {
             return (
@@ -383,14 +383,14 @@ export default function TableBox(props: ITableProps) {
         // sorts,
         // onChangeSorts,
       }),
-    )
-    .use(
-      features.columnResize({
-        fallbackSize: 120,
-        minSize: 60,
-        maxSize: 1080,
-      }),
     );
+  // .use(
+  //   features.columnResize({
+  //     fallbackSize: 120,
+  //     minSize: 60,
+  //     maxSize: 1080,
+  //   }),
+  // );
 
   const onPageNoChange = (pageNo: number) => {
     const config = { ...paginationConfig, pageNo };
