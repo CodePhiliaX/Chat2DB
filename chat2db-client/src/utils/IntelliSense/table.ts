@@ -11,6 +11,28 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
   },
 });
 
+/** 根据不同的数据库，插入不同的表名  */
+const handleInsertText = (text, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
+  if (databaseCode === DatabaseTypeCode.POSTGRESQL) {
+    return `${text}`;
+  } else {
+    return `${text}`;
+  }
+};
+
+function checkTableContext(text) {
+  const normalizedText = text.trim().toUpperCase();
+  const tableKeywords = ['FROM', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UPDATE'];
+
+  for (const keyword of tableKeywords) {
+    if (normalizedText.endsWith(keyword)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 const registerIntelliSenseTable = (
   tableList: Array<{ name: string; comment: string }>,
   databaseCode?: DatabaseTypeCode,
@@ -18,10 +40,7 @@ const registerIntelliSenseTable = (
   databaseName?: string,
   schemaName?: string,
 ) => {
-  monaco.editor.registerCommand('myCustomCommand', (_: any, ...args: any[]) => {
-    // access the arguments here
-    console.log('trigger suggest', args[0]);
-    // addIntelliSenseField(tableName)
+  monaco.editor.registerCommand('addFieldList', (_: any, ...args: any[]) => {
     addIntelliSenseField(args[0]);
     return;
   });
@@ -30,13 +49,15 @@ const registerIntelliSenseTable = (
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' '],
     provideCompletionItems: (model, position) => {
-      const handleInsertText = (text) => {
-        if (databaseCode === DatabaseTypeCode.POSTGRESQL) {
-          return `${text}`;
-        } else {
-          return `${text}`;
-        }
-      };
+      const lineContentUntilPosition = model.getValueInRange({
+        startLineNumber: position.lineNumber,
+        startColumn: 1,
+        endLineNumber: position.lineNumber,
+        endColumn: position.column,
+      });
+
+      const isTableContext = checkTableContext(lineContentUntilPosition);
+
       return {
         suggestions: (tableList || []).map((tableName) => {
           return {
@@ -46,12 +67,13 @@ const registerIntelliSenseTable = (
               description: '表名',
             },
             kind: monaco.languages.CompletionItemKind.Variable,
-            insertText: handleInsertText(tableName.name),
+            insertText: handleInsertText(tableName.name, databaseCode),
             // range: monaco.Range.fromPositions(position),
             documentation: tableName.comment,
+            sortText: (isTableContext ? '01' : '02') + tableName.name,
             command: {
-              id: 'myCustomCommand',
-              title: 'operator_additional_suggestions',
+              id: 'addFieldList',
+              title: 'addFieldList',
               arguments: [
                 {
                   tableName: tableName.name,

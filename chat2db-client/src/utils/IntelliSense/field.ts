@@ -31,6 +31,19 @@ const addIntelliSenseField = async (props: {
   }
 };
 
+function checkFieldContext(text) {
+  const normalizedText = text.trim().toUpperCase();
+  const columnKeywords = ['SELECT', 'WHERE', 'AND', 'OR', 'GROUP BY', 'ORDER BY', 'SET'];
+
+  for (const keyword of columnKeywords) {
+    if (normalizedText.endsWith(keyword)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseName, schemaName) => {
   intelliSenseField.dispose();
   fieldList = {};
@@ -46,6 +59,8 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
         endLineNumber: position.lineNumber,
         endColumn: position.column,
       });
+
+      const isFieldContext = checkFieldContext(textUntilPosition);
 
       const match = textUntilPosition.match(/(\b\w+\b)[^\w]*$/);
       let word;
@@ -77,11 +92,11 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
           },
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: fieldObj.name,
+          sortText: (isFieldContext ? '01' : '02') + fieldObj.name,
         }));
 
         return [...acc, ...arr];
       }, []);
-      console.log('field suggestions', suggestions);
 
       return {
         suggestions,
