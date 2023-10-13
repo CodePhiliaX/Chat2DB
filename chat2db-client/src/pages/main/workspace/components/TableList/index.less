@@ -23,19 +23,26 @@
       display: flex;
       align-items: center;
       font-weight: bold;
+      height: 100%;
     }
     .iconBox {
       display: flex;
       align-items: center;
       margin: 0px -5px;
+      height: 100%;
     }
     .itemIcon {
-      margin: 0px 5px;
+      padding: 0px 5px;
+      height: 100%;
+      display: flex;
+      align-items: center;
     }
     .refreshIcon {
     }
     .moreIcon {
-      transform: rotate(90deg);
+      i {
+        transform: rotate(90deg);
+      }
     }
     .refreshIcon,
     .searchIcon {
@@ -48,6 +55,11 @@
   .leftModuleTitleSearch {
     height: 26px;
   }
+}
+
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
 }
 
 .treeBox {
