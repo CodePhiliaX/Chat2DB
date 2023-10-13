@@ -8,7 +8,7 @@ import connectionService from '@/service/connection';
 import { databaseMap, databaseTypeList, ConnectionKind } from '@/constants';
 import { IDatabase, IConnectionDetails, IConnectionEnv } from '@/typings';
 import { Button, Dropdown } from 'antd';
-import { connect, history, Dispatch } from 'umi';
+import { connect } from 'umi';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import FileUploadModal from '@/components/ImportConnection';
@@ -42,7 +42,7 @@ interface IProps {
 
 function Connections(props: IProps) {
   const { connectionModel, dispatch } = props;
-  const { connectionList, connectionEnvList } = connectionModel;
+  const { connectionList } = connectionModel;
   const volatileRef = useRef<any>();
   const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
   const [allMenuList, setAllMenuList] = useState<IAllMenuList>();
@@ -160,7 +160,7 @@ function Connections(props: IProps) {
                           [styles.menuItemActive]: curConnection.id === key,
                         })}
                         onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
-                        onClick={(event) => {
+                        onClick={() => {
                           if (curConnection.id !== t.meta?.id) {
                             setCurConnection(t.meta);
                           }

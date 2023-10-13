@@ -49,7 +49,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         id: t.id,
         title: t.name,
         type: t.operationType,
-        editableName: true,
         uniqueData: t,
       };
     });
@@ -112,7 +111,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.VIEW) {
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, tableName, dataSourceId } = extraParams || {};
-      const callback = (consoleId: number, workspaceTabList: IWorkspaceTab[]) => {
+      const callback = (consoleId: number, _workspaceTabList: IWorkspaceTab[]) => {
         sqlService
           .getViewDetail({
             dataSourceId: dataSourceId!,
@@ -122,7 +121,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           })
           .then((res) => {
             // 更新ddl
-            const newList = workspaceTabList.map((t) => {
+            const newList = _workspaceTabList.map((t) => {
               if (t.id === consoleId) {
                 return {
                   ...t,
@@ -151,7 +150,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, triggerName, dataSourceId } = extraParams || {};
       const name = doubleClickTreeNodeData.name;
-      const callback = (consoleId: number, workspaceTabList: IWorkspaceTab[]) => {
+      const callback = (consoleId: number, _workspaceTabList: IWorkspaceTab[]) => {
         sqlService
           .getTriggerDetail({
             dataSourceId: dataSourceId!,
@@ -161,7 +160,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           })
           .then((res) => {
             // 更新ddl
-            const newList = workspaceTabList.map((t) => {
+            const newList = _workspaceTabList.map((t) => {
               if (t.id === consoleId) {
                 return {
                   ...t,
@@ -188,7 +187,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, procedureName, dataSourceId } = extraParams || {};
       const name = doubleClickTreeNodeData.name;
-      const callback = (consoleId: number, workspaceTabList: IWorkspaceTab[]) => {
+      const callback = (consoleId: number, _workspaceTabList: IWorkspaceTab[]) => {
         sqlService
           .getProcedureDetail({
             dataSourceId: dataSourceId!,
@@ -198,7 +197,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           })
           .then((res) => {
             // 更新ddl
-            const newList = workspaceTabList.map((t) => {
+            const newList = _workspaceTabList.map((t) => {
               if (t.id === consoleId) {
                 return {
                   ...t,
@@ -225,7 +224,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const { extraParams } = doubleClickTreeNodeData;
       const { databaseName, schemaName, dataSourceId, functionName } = extraParams || {};
       const name = doubleClickTreeNodeData.name;
-      const callback = (consoleId: number, workspaceTabList: IWorkspaceTab[]) => {
+      const callback = (consoleId: number, _workspaceTabList: IWorkspaceTab[]) => {
         sqlService
           .getFunctionDetail({
             dataSourceId: dataSourceId!,
@@ -235,7 +234,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           })
           .then((res) => {
             // 更新ddl
-            const newList = workspaceTabList?.map((t) => {
+            const newList = _workspaceTabList?.map((t) => {
               if (t.id === consoleId) {
                 return {
                   ...t,
@@ -327,11 +326,11 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     doubleClickTreeNodeData: any;
     workSpaceTabType: WorkspaceTabType;
     name: string;
-    callback?: Function;
+    callback?: (res: number, list: any) => void;
     ddl?: string;
   }) {
-    const { doubleClickTreeNodeData, workSpaceTabType, name, callback, ddl } = params;
-    const { extraParams } = doubleClickTreeNodeData;
+    const { doubleClickTreeNodeData: _doubleClickTreeNodeData, workSpaceTabType, name, callback, ddl } = params;
+    const { extraParams } = _doubleClickTreeNodeData;
     const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType } = extraParams || {};
     const newConsole: any = {
       name,
@@ -361,7 +360,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     });
   }
 
-  function getConsoleList(callback?: Function) {
+  function getConsoleList(callback?: () => void) {
     const p: any = {
       pageNo: 1,
       pageSize: 999,
@@ -434,7 +433,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   };
 
   const closeWindowTab = (key: number) => {
-    let p: any = {
+    const p: any = {
       id: key,
       tabOpened: 'n',
     };
@@ -457,11 +456,11 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   }
 
   function editableNameOnBlur(t: ITabItem) {
-    let p: any = {
+    const _params: any = {
       id: t.key,
       name: t.label,
     };
-    historyService.updateSavedConsole(p).then(() => {
+    historyService.updateSavedConsole(_params).then(() => {
       getConsoleList();
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
@@ -499,7 +498,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         prefixIcon: workspaceTabConfig[t.type]?.icon,
         label: t.title,
         key: t.id,
-        editableName: t.editableName,
+        editableName: t.type === WorkspaceTabType.CONSOLE,
         children: (
           <Fragment key={t.id}>
             {[
