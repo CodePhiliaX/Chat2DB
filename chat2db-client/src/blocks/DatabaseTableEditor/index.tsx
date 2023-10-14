@@ -229,6 +229,7 @@ export default memo((props: IProps) => {
         columnListRef,
         indexListRef,
         databaseSupportField,
+        databaseType,
       }}
     >
       <div className={classnames(styles.box)}>

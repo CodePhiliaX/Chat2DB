@@ -19,7 +19,7 @@ import { Table, Input, Form, Select, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import IncludeCol, { IIncludeColRef } from '../IncludeCol';
 import { IIndexItem, IIndexIncludeColumnItem } from '@/typings';
-import { EditColumnOperationType } from '@/constants';
+import { EditColumnOperationType, DatabaseTypeCode } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 import { Context } from '../index';
 import i18n from '@/i18n';
@@ -77,7 +77,7 @@ const Row = ({ children, ...props }: RowProps) => {
 };
 
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
-  const { databaseSupportField, tableDetails } = useContext(Context);
+  const { databaseSupportField, tableDetails, databaseType } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IIndexItem | null>(null);
@@ -174,116 +174,146 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     getIndexListInfo,
   }));
 
-  const columns = [
-    {
-      key: 'sort',
-      width: '40px',
-      align: 'center',
-    },
-    // {
-    //   title: i18n('editTable.label.index'),
-    //   width: '70px',
-    //   align: 'center',
-    //   render: (text: string, record: IIndexItem) => {
-    //     return dataSource.findIndex((i) => i.key === record.key) + 1;
-    //   },
-    // },
-    {
-      title: i18n('editTable.label.indexName'),
-      dataIndex: 'name',
-      width: '180px',
-      render: (text: string, record: IIndexItem) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="name" style={{ margin: 0 }}>
-            <Input autoComplete="off" />
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell}>{text}</div>
-        );
+  const columns = useMemo(() => {
+    const _columns = [
+      {
+        key: 'sort',
+        width: '40px',
+        align: 'center',
       },
-    },
-    {
-      title: i18n('editTable.label.indexType'),
-      dataIndex: 'type',
-      width: '180px',
-      render: (text: string, record: IIndexItem) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="type" style={{ margin: 0 }}>
-            <Select style={{ width: '100%' }}>
-              {databaseSupportField?.indexTypes?.map((i) => (
-                <Select.Option key={i.value} value={i.value}>
-                  {i.label}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell}>{text}</div>
-        );
+      // {
+      //   title: i18n('editTable.label.index'),
+      //   width: '70px',
+      //   align: 'center',
+      //   render: (text: string, record: IIndexItem) => {
+      //     return dataSource.findIndex((i) => i.key === record.key) + 1;
+      //   },
+      // },
+      {
+        title: i18n('editTable.label.indexName'),
+        dataIndex: 'name',
+        width: '180px',
+        render: (text: string, record: IIndexItem) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <Form.Item name="name" style={{ margin: 0 }}>
+              <Input autoComplete="off" />
+            </Form.Item>
+          ) : (
+            <div className={styles.editableCell}>{text}</div>
+          );
+        },
       },
-    },
-    {
-      title: i18n('editTable.label.includeColumn'),
-      dataIndex: 'columnList',
-      render: (columnList: IIndexIncludeColumnItem[], record: IIndexItem) => {
-        const editable = isEditing(record);
-        const text = columnList
-          ?.map((t) => {
-            return `${t.columnName}`;
-          })
-          .join(',');
-        return editable ? (
-          <div className={styles.columnListCell}>
-            <span
+      {
+        title: i18n('editTable.label.indexType'),
+        dataIndex: 'type',
+        width: '180px',
+        render: (text: string, record: IIndexItem) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <Form.Item name="type" style={{ margin: 0 }}>
+              <Select style={{ width: '100%' }}>
+                {databaseSupportField?.indexTypes?.map((i) => (
+                  <Select.Option key={i.value} value={i.value}>
+                    {i.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          ) : (
+            <div className={styles.editableCell}>{text}</div>
+          );
+        },
+      },
+      {
+        title: i18n('editTable.label.includeColumn'),
+        dataIndex: 'columnList',
+        render: (columnList: IIndexIncludeColumnItem[], record: IIndexItem) => {
+          const editable = isEditing(record);
+          const text = columnList
+            ?.map((t) => {
+              return `${t.columnName}`;
+            })
+            .join(',');
+          return editable ? (
+            <div className={styles.columnListCell}>
+              <span
+                onClick={() => {
+                  setIncludeColModalOpen(true);
+                }}
+              >
+                {i18n('common.button.edit')}
+              </span>
+              {text}
+            </div>
+          ) : (
+            <div className={styles.editableCell}>{text}</div>
+          );
+        },
+      },
+      {
+        title: i18n('editTable.label.comment'),
+        dataIndex: 'comment',
+        render: (text: string, record: IIndexItem) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <Form.Item name="comment" style={{ margin: 0 }}>
+              <Input autoComplete="off" />
+            </Form.Item>
+          ) : (
+            <div className={styles.editableCell} onClick={() => edit(record)}>
+              {text}
+            </div>
+          );
+        },
+      },
+      {
+        width: '40px',
+        render: (text: string, record: IIndexItem) => {
+          return (
+            <div
+              className={styles.operationBar}
               onClick={() => {
-                setIncludeColModalOpen(true);
+                deleteData(record);
               }}
             >
-              {i18n('common.button.edit')}
-            </span>
-            {text}
-          </div>
-        ) : (
-          <div className={styles.editableCell}>{text}</div>
-        );
-      },
-    },
-    {
-      title: i18n('editTable.label.comment'),
-      dataIndex: 'comment',
-      render: (text: string, record: IIndexItem) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="comment" style={{ margin: 0 }}>
-            <Input autoComplete="off" />
-          </Form.Item>
-        ) : (
-          <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text}
-          </div>
-        );
-      },
-    },
-    {
-      width: '40px',
-      render: (text: string, record: IIndexItem) => {
-        return (
-          <div
-            className={styles.operationBar}
-            onClick={() => {
-              deleteData(record);
-            }}
-          >
-            <div className={styles.deleteIconBox}>
-              <Iconfont code="&#xe64e;" />
+              <div className={styles.deleteIconBox}>
+                <Iconfont code="&#xe64e;" />
+              </div>
             </div>
-          </div>
-        );
+          );
+        },
       },
-    },
-  ];
+    ];
+    if (databaseType === DatabaseTypeCode.MYSQL) {
+      _columns.splice(3, 0, {
+        title: i18n('editTable.label.indexMethod'),
+        dataIndex: 'method',
+        width: '180px',
+        render: (text: string, record: IIndexItem) => {
+          const editable = isEditing(record);
+          return editable ? (
+            <Form.Item name="method" style={{ margin: 0 }}>
+              <Select style={{ width: '100%' }}>
+                {['HASH', 'BTREE'].map((i) => (
+                  <Select.Option key={i} value={i}>
+                    {i}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          ) : (
+            <div className={styles.editableCell}>{text}</div>
+          );
+        },
+      });
+    }
+    if (databaseType === DatabaseTypeCode.ORACLE) {
+      _columns.splice(-2, 1);
+    }
+    return _columns;
+    // TODO: isEditing 每次都会变所以这里是无意义的，后续在优化一下
+  }, [isEditing]);
 
   const getIncludeColInfo = () => {
     setDataSource(
@@ -353,7 +383,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
           </DndContext>
           <div onClick={addData} className={styles.addColumnButton}>
             <Iconfont code="&#xe631;" />
-            {i18n('editTable.button.addColumn')}
+            {i18n('editTable.button.addIndex')}
           </div>
         </div>
       </Form>
