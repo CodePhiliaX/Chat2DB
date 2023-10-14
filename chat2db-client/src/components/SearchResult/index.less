@@ -57,11 +57,41 @@
   font-size: 12px;
 }
 
-.outputPrefixIcon{
+.outputPrefixIcon {
   margin-right: 4px;
 }
 
-.stateIndicator{
+.stateIndicator {
   width: 70%;
   margin: 0 auto;
+}
+
+.successResult {
+  height: 100%;
+  .successResultContent {
+    height: calc(100% - 26px);
+  }
+
+  .updateCount {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.statusBar {
+  height: 26px;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  font-size: 12px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  border-top: 1px solid var(--color-border-secondary);
+  background-color: var(--color-bg-subtle);
+
+  & > span {
+    margin-right: 16px;
+  }
 }

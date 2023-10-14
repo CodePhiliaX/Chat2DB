@@ -88,5 +88,6 @@ export default {
   'common.text.errorMessage': '错误信息',
   'common.button.cancelRequest': '取消请求',
   'common.button.executionError': '执行错误',
-  'common.text.selectFile' : '选择文件'
+  'common.text.affectedRows': '受影响行：{1}',
+  'common.text.selectFile' : '选择文件',
 };
