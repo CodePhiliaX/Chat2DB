@@ -96,13 +96,6 @@ const SQLExecute = memo<IProps>((props) => {
 
     setResultData(sqlResult);
     setTableLoading(false);
-
-    const createHistoryParams: ISaveBasicInfo = {
-      ...data,
-      ddl: sql,
-      name: `${new Date()}-${sql}`,
-    };
-    historyServer.createHistory(createHistoryParams);
   };
 
   const stopExecuteSql = () => {
