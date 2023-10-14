@@ -171,7 +171,7 @@ function Console(props: IProps) {
         ddl: editorRef?.current?.getAllContent(),
         userId: getCookie('CHAT2DB.USER_ID'),
       });
-    }, 10000);
+    }, 3000);
   }
 
   const tableListName = useMemo(() => {
