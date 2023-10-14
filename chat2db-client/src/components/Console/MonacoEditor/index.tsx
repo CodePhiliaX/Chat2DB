@@ -136,6 +136,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         const value = getCurrentSelectContent();
         onExecute?.(value);
       });
+
+      // 注册快捷键command+shift+L新建console
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+        // onShortcutKeyCallback?.(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, keyCode: 76 }));
+      });
     }
   }, [editorRef.current, isActive]);
 

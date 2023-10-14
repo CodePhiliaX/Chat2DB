@@ -200,7 +200,7 @@ export function getApplicationMessage() {
 }
 
 // os is mac or windows
-export function OSnow(): {
+export function osNow(): {
   isMac: boolean;
   isWin: boolean;
 } {

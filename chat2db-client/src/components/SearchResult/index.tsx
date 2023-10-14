@@ -25,8 +25,7 @@ export default memo<IProps>((props) => {
     setCurrentTab(queryResultDataList[0]?.uuid);
   }, [queryResultDataList]);
 
-  const onChange = useCallback((uuid: string | number) => {
-    console.log('onChange', uuid);
+  const onChange = useCallback(() => {
     // setCurrentTab(uuid);
   }, []);
 
