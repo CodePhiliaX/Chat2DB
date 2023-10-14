@@ -4,6 +4,7 @@ import classnames from 'classnames';
 import { Form, Input } from 'antd';
 import { Context } from '../index';
 import { IBaseInfo } from '@/typings';
+import { DatabaseTypeCode } from '@/constants';
 import i18n from '@/i18n';
 
 export interface IBaseInfoRef {
@@ -16,7 +17,7 @@ interface IProps {
 
 const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => {
   const { className } = props;
-  const { tableDetails } = useContext(Context);
+  const { tableDetails, databaseType } = useContext(Context);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -53,15 +54,19 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<IBaseInfoRef>) => 
           <Form.Item label={`${i18n('editTable.label.comment')}:`} name="comment">
             <Input autoComplete="off" />
           </Form.Item>
-          <Form.Item label={`${i18n('editTable.label.characterSet')}:`} name="charset">
-            <Input autoComplete="off" />
-          </Form.Item>
-          <Form.Item label={`${i18n('editTable.label.engine')}:`} name="engine">
-            <Input autoComplete="off" />
-          </Form.Item>
-          <Form.Item label={`${i18n('editTable.label.incrementValue')}:`} name="incrementValue">
-            <Input autoComplete="off" />
-          </Form.Item>
+          {databaseType === DatabaseTypeCode.MYSQL && (
+            <>
+              <Form.Item label={`${i18n('editTable.label.characterSet')}:`} name="charset">
+                <Input autoComplete="off" />
+              </Form.Item>
+              <Form.Item label={`${i18n('editTable.label.engine')}:`} name="engine">
+                <Input autoComplete="off" />
+              </Form.Item>
+              <Form.Item label={`${i18n('editTable.label.incrementValue')}:`} name="incrementValue">
+                <Input autoComplete="off" />
+              </Form.Item>
+            </>
+          )}
         </Form>
       </div>
     </div>
