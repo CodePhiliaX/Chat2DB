@@ -64,11 +64,20 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     editorRef.current = editorIns;
     didMount && didMount(editorIns);
 
+    const { colorPrimary } = window._AppThemePack;
+    const colors = {
+      'editor.lineHighlightBackground': colorPrimary + '14', // 当前行背景色
+      'editor.selectionBackground': colorPrimary + '20', // 选中文本的背景色
+      // 'editorLineNumber.foreground': colorPrimary, // 行号颜色
+      'editorLineNumber.activeForeground': colorPrimary, // 当前行号颜色
+      // 'editorCursor.foreground': colorPrimary, // 光标颜色
+    };
     monaco.editor.defineTheme(ThemeType.Light, {
       base: 'vs',
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
       colors: {
+        ...colors,
         'editor.foreground': '#000000',
         'editor.background': '#fff', //背景色
       },
@@ -79,7 +88,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
       colors: {
-        // 相关颜色属性配置
         'editor.foreground': '#ffffff',
         'editor.background': '#0A0B0C', //背景色
       },
@@ -89,7 +97,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
       colors: {
-        // 相关颜色属性配置
         'editor.foreground': '#ffffff',
         'editor.background': '#1c2128', //背景色
       },
@@ -100,6 +107,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       inherit: true,
       rules: [{ background: '#15161a' }] as any,
       colors: {
+        ...colors,
         'editor.foreground': '#000000',
         'editor.background': '#f8f9fa', //背景色
       },
@@ -253,6 +261,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     case 'front':
       newRange = new monaco.Range(1, 1, 1, 1);
       editor.revealLine(1);
+      editor.setPosition({ lineNumber: 1, column: 1 });
       break;
     // 格式化选中区域的sql
     case 'select': {
@@ -270,7 +279,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     // 在末尾添加内容
     case 'end':
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
-      newText = `${text}`;
+      newText = `\n${text}`;
       break;
     default:
       break;
@@ -287,6 +296,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   if (range === 'end') {
     setTimeout(() => {
       editor.revealLine(lastLine + 1);
+      editor.setPosition({ lineNumber: lastLine + 1, column: 1 });
     }, 0);
   }
 };

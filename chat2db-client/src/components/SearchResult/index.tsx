@@ -29,25 +29,48 @@ export default memo<IProps>((props) => {
     // setCurrentTab(uuid);
   }, []);
 
-  const renderTable = (queryResultData) => {
-    if (queryResultData.success) {
+  const renderResult = (queryResultData) => {
+    function renderSuccessResult() {
+      const needTable = queryResultData?.headerList?.length > 1;
       return (
-        <TableBox
-          key={queryResultData.uuid}
-          outerQueryResultData={queryResultData}
-          executeSqlParams={props.executeSqlParams}
-        />
-      );
-    } else {
-      return (
-        <StateIndicator
-          className={styles.stateIndicator}
-          key={queryResultData.uuid}
-          state="error"
-          text={queryResultData.message}
-        />
+        <div className={styles.successResult}>
+          <div className={styles.successResultContent}>
+            {needTable ? (
+              <TableBox
+                key={queryResultData.uuid}
+                outerQueryResultData={queryResultData}
+                executeSqlParams={props.executeSqlParams}
+              />
+            ) : (
+              <div className={styles.updateCount}>{i18n('common.text.affectedRows', queryResultData.updateCount)}</div>
+            )}
+          </div>
+          <div className={styles.statusBar}>
+            <span>{`【${i18n('common.text.result')}】${queryResultData.description}.`}</span>
+            <span>{`【${i18n('common.text.timeConsuming')}】${queryResultData.duration}ms.`}</span>
+            {queryResultData?.dataList?.length && (
+              <span>{`【${i18n('common.text.searchRow')}】${queryResultData?.dataList?.length} ${i18n(
+                'common.text.row',
+              )}.`}</span>
+            )}
+          </div>
+        </div>
       );
     }
+    return (
+      <>
+        {queryResultData.success ? (
+          renderSuccessResult()
+        ) : (
+          <StateIndicator
+            className={styles.stateIndicator}
+            key={queryResultData.uuid}
+            state="error"
+            text={queryResultData.message}
+          />
+        )}
+      </>
+    );
   };
 
   const tabsList = useMemo(() => {
@@ -63,7 +86,7 @@ export default memo<IProps>((props) => {
         popover: queryResultData.originalSql,
         label: queryResultData.originalSql,
         key: queryResultData.uuid!,
-        children: renderTable(queryResultData),
+        children: renderResult(queryResultData),
       };
     });
   }, [resultDataList]);
