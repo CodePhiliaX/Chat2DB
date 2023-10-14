@@ -89,5 +89,5 @@ export default {
   'common.text.errorMessage': 'Error Message',
   'common.button.cancelRequest': 'Cancel Request',
   'common.button.executionError': 'Execution Error',
-
+  'common.text.affectedRows': 'Affected rows: {1}',
 };

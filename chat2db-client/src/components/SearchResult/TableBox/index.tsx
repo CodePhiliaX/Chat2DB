@@ -742,7 +742,7 @@ export default function TableBox(props: ITableProps) {
               {...pipeline.getProps()}
             />
           )}
-          {bottomStatus}
+          {/* {bottomStatus} */}
         </>
       );
     }
