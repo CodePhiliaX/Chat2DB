@@ -72,7 +72,14 @@ const ImportConnection: React.FC<IImportConnectionProps> = ({ open, onClose, onC
       onOk={handleConfirmUpload}
       confirmLoading={uploading}
     >
-      <Upload name="file" accept=".ncx,.dbp" beforeUpload={handleBeforeUpload} maxCount={1}>
+      <Upload
+        name="file"
+        accept=".ncx,.dbp"
+        beforeUpload={handleBeforeUpload}
+        maxCount={1}
+        
+        fileList={selectedFile ? [selectedFile] : []}
+      >
         <Button icon={<UploadOutlined />}>Select File</Button>
       </Upload>
     </Modal>
