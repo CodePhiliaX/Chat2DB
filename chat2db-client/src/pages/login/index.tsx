@@ -17,7 +17,6 @@ interface IFormData {
 const Login: React.FC = () => {
   useEffect(() => {
     logoutClearSomeLocalStorage();
-    // 清空dva中的数据
   }, []);
 
   // const navigate = useNavigate();
