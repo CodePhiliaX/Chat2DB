@@ -308,6 +308,10 @@ function Connections(props: IProps) {
         onClose={() => {
           setIsFileUploadModalOpen(false);
         }}
+        onConfirm={() => {
+          setIsFileUploadModalOpen(false);
+          handleEnvRefresh(ConnectionKind.Private);
+        }}
       />
     </>
   );
