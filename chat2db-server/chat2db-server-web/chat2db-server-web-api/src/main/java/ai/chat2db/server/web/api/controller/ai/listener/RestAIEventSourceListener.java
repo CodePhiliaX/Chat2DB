@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @Slf4j
 public class RestAIEventSourceListener extends EventSourceListener {
 
-    private SseEmitter sseEmitter;
+    private final SseEmitter sseEmitter;
 
     public RestAIEventSourceListener(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
