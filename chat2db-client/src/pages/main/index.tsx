@@ -58,9 +58,7 @@ const navConfig: INavItem[] = [
   },
 ];
 
-const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
-const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
-navConfig[activeIndex].isLoad = true;
+// const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
 
 interface IProps {
   mainModel: IMainPageType['state'];
@@ -73,7 +71,7 @@ function MainPage(props: IProps) {
   const navigate = useNavigate();
   const { mainModel, dispatch } = props;
   const { curPage } = mainModel;
-  const [activeNav, setActiveNav] = useState<INavItem>(navConfig[activeIndex]);
+  const [activeNav, setActiveNav] = useState<INavItem | null>(null);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
 
   useEffect(() => {
@@ -104,6 +102,13 @@ function MainPage(props: IProps) {
   }, []);
 
   useEffect(() => {
+    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
+    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
+    navConfig[activeIndex].isLoad = true;
+    setActiveNav(navConfig[activeIndex]);
+  }, []);
+
+  useEffect(() => {
     dispatch({
       type: 'connection/fetchConnectionList',
     });
@@ -113,6 +118,9 @@ function MainPage(props: IProps) {
   }, []);
 
   useEffect(() => {
+    if (!activeNav) {
+      return;
+    }
     // activeNav 发生变化，同步到全局状态管理
     activeNav.isLoad = true;
     dispatch({
@@ -130,7 +138,7 @@ function MainPage(props: IProps) {
 
   useEffect(() => {
     // 全局状态curPage发生变化，activeNav 需要同步变化
-    if (curPage && curPage !== activeNav.key) {
+    if (curPage && curPage !== activeNav?.key) {
       const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)];
       setActiveNav(newActiveNav);
     }
@@ -146,7 +154,7 @@ function MainPage(props: IProps) {
   }
 
   const handleLogout = () => {
-    userLogout().then((res) => {
+    userLogout().then(() => {
       setUserInfo(undefined);
       navigate('/login');
     });
@@ -181,7 +189,7 @@ function MainPage(props: IProps) {
               <li
                 key={item.key}
                 className={classnames({
-                  [styles.activeNav]: item.key == activeNav.key,
+                  [styles.activeNav]: item.key == activeNav?.key,
                 })}
                 onClick={() => switchingNav(item)}
               >
@@ -205,7 +213,7 @@ function MainPage(props: IProps) {
       <div className={styles.layoutRight}>
         {navConfig.map((item) => {
           return (
-            <div key={item.key} className={styles.componentBox} hidden={activeNav.key !== item.key}>
+            <div key={item.key} className={styles.componentBox} hidden={activeNav?.key !== item.key}>
               {item.isLoad ? item.component : null}
             </div>
           );

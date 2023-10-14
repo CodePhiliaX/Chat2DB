@@ -1,7 +1,7 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history';
-import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
+import { DatabaseTypeCode, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
 import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro, IWorkspaceTab } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';

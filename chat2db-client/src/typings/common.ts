@@ -14,6 +14,13 @@ export interface IPageParams {
   pageSize: number;
 }
 
+export interface IPagingData {
+  hasNextPage?: boolean;
+  pageNo: number;
+  pageSize: number;
+  total: number;
+}
+
 // 控制台详情
 export interface IConsole {
   id: number; // consoleId

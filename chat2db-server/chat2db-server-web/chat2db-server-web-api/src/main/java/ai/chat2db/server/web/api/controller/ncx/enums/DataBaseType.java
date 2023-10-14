@@ -37,31 +37,31 @@ public enum DataBaseType {
     /**
      * Mariadb
      **/
-    Mariadb("jdbc:mariadb://%s:%s"),
+    MARIADB("jdbc:mariadb://%s:%s"),
     /**
      * DM
      **/
     DM("jdbc:dm://%s:%s"),
     /**
-     * KINGBASE8
+     * KINGBASE
      **/
-    KINGBASE8("jdbc:kingbase8://%s:%s"),
+    KINGBASE("jdbc:kingbase8://%s:%s"),
     /**
      * Presto
      **/
-    Presto("jdbc:presto://%s:%s"),
+    PRESTO("jdbc:presto://%s:%s"),
     /**
      * OceanBase
      **/
-    OceanBase("jdbc:oceanbase://%s:%s"),
+    OCEANBASE("jdbc:oceanbase://%s:%s"),
     /**
      * Hive
      **/
-    Hive("jdbc:hive2://%s:%s"),
+    HIVE("jdbc:hive2://%s:%s"),
     /**
      * ClickHouse
      **/
-    ClickHouse("jdbc:clickhouse://%s:%s");
+    CLICKHOUSE("jdbc:clickhouse://%s:%s");
 
     private String urlString;
 
@@ -76,7 +76,8 @@ public enum DataBaseType {
     public static DataBaseType matchType(String value) {
         if (StringUtils.isNotEmpty(value)) {
             for (DataBaseType dataBase : DataBaseType.values()) {
-                if (dataBase.name().equals(value.toUpperCase())) {
+                //kingbase -> kingbase8
+                if (value.toUpperCase().contains(dataBase.name())) {
                     return dataBase;
                 }
             }

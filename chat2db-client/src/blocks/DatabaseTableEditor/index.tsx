@@ -14,7 +14,7 @@ import lodash from 'lodash';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
-  schemaName: string | null;
+  schemaName?: string | null;
   tableName?: string;
   databaseType: DatabaseTypeCode;
   changeTabDetails: (data: IWorkspaceTab) => void;
@@ -229,6 +229,7 @@ export default memo((props: IProps) => {
         columnListRef,
         indexListRef,
         databaseSupportField,
+        databaseType,
       }}
     >
       <div className={classnames(styles.box)}>

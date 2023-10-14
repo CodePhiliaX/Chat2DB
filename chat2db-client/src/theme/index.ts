@@ -21,7 +21,7 @@ export function getAntdThemeConfig(theme: ITheme) {
 }
 
 // TODO: 只插入一次
-export function InjectThemeVar(token: { [key in string]: string }, theme: ThemeType, primaryColor: PrimaryColorType) {
+export function injectThemeVar(token: { [key in string]: string }, theme: ThemeType, primaryColor: PrimaryColorType) {
   let css = '';
   Object.keys(token).map((t) => {
     const attributeName = camelToDash(t);

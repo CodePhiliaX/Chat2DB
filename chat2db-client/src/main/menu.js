@@ -101,7 +101,21 @@ const registerAppMenu = (mainWindow) => {
         {
           label: '访问官网',
           click() {
-            const url = 'https://chat2db.opensource.alibaba.com/';
+            const url = 'https://chat2db.ai/';
+            shell.openExternal(url);
+          },
+        },
+        {
+          label: '查看文档',
+          click() {
+            const url = 'https://doc.chat2db.ai/';
+            shell.openExternal(url);
+          },
+        },
+        {
+          label: '查看更新日志',
+          click() {
+            const url = 'https://doc.chat2db.ai/changelog/';
             shell.openExternal(url);
           },
         },

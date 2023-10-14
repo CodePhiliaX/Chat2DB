@@ -1,6 +1,6 @@
 {
   "workbench.colorTheme": "One Dark Pro",
-  "workbench.iconTheme": "vscode-icons-mac",
+  "workbench.iconTheme": "material-icon-theme",
   "editor.fontSize": 14,
   "editor.tabSize": 2,
   // 自动格式化
@@ -55,6 +55,7 @@
     "Mddhhmmss",
     "Menlo",
     "netstat",
+    "NOCASE",
     "nsis",
     "OCEANBASE",
     "OPENAI",
@@ -67,6 +68,7 @@
     "Prec",
     "remaininguses",
     "RESTAI",
+    "RTRIM",
     "scrollbar",
     "Sercurity",
     "sortablejs",
@@ -82,6 +84,7 @@
     "VARCHAR",
     "VIEWCOLUMN",
     "wireframe",
+    "Wppk",
     "yapi"
   ],
   "typescript.tsdk": "/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/node_modules/typescript/lib"

@@ -323,7 +323,7 @@ export default function TableBox(props: ITableProps) {
           name: 'No.',
           key: name,
           lock: true,
-          width: 48,
+          width: 60,
           features: { sortable: compareStrings },
           render: (value: any) => {
             return (
@@ -383,14 +383,14 @@ export default function TableBox(props: ITableProps) {
         // sorts,
         // onChangeSorts,
       }),
-    )
-    .use(
-      features.columnResize({
-        fallbackSize: 120,
-        minSize: 60,
-        maxSize: 1080,
-      }),
     );
+  // .use(
+  //   features.columnResize({
+  //     fallbackSize: 120,
+  //     minSize: 60,
+  //     maxSize: 1080,
+  //   }),
+  // );
 
   const onPageNoChange = (pageNo: number) => {
     const config = { ...paginationConfig, pageNo };
@@ -488,12 +488,12 @@ export default function TableBox(props: ITableProps) {
           : item,
       ),
     );
-
+    const newDataOldList = oldDataList.find((item) => item[0] === curOperationRowNo);
     setUpdateData([
       ...updateData,
       {
         type: CRUD.DELETE,
-        oldDataList: oldDataList[curOperationRowNo],
+        oldDataList: newDataOldList,
         rowNo: curOperationRowNo,
       },
     ]);
@@ -579,7 +579,6 @@ export default function TableBox(props: ITableProps) {
       setQueryResultData(res?.[0]);
     });
   };
-
   // 不同状态下的表格行样式
   const tableRowStyle = (rowNo: string) => {
     // 如果是当前操作的行
@@ -587,7 +586,7 @@ export default function TableBox(props: ITableProps) {
       return {
         '--hover-bgcolor': 'transparent',
         '--bgcolor': 'transparent',
-        background: 'linear-gradient(140deg, #ff000038, #009cff3d)',
+        background: 'var(--color-primary-bg-hover)',
       };
     }
     // 如果是删除过的行

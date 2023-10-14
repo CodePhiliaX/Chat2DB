@@ -1,13 +1,10 @@
-import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql';
-const { keywords: SQLKeys } = language;
-const { keywords } = language;
 import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
 import styles from './index.less';
-import { useUpdateEffect } from '@/hooks';
+
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
 export type IEditorOptions = monaco.editor.IStandaloneEditorConstructionOptions;
 export type IEditorContentChangeEvent = monaco.editor.IModelContentChangedEvent;
@@ -16,32 +13,27 @@ export type IAppendValue = {
   text: any;
   range?: IRangeType;
 };
+
 interface IProps {
-  id: string | number;
+  id: string;
   isActive?: boolean;
   language?: string;
   className?: string;
   options?: IEditorOptions;
   needDestroy?: boolean;
   addAction?: Array<{ id: string; label: string; action: (selectedText: string) => void }>;
+  defaultValue?: string;
   appendValue?: IAppendValue;
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
-  defaultValue?: string;
   onExecute?: (value: string) => void; // 快捷键执行的回调
-  tables?: any[];
 }
 
 export interface IExportRefFunction {
   getCurrentSelectContent: () => string;
   getAllContent: () => string;
   setValue: (text: any, range?: IRangeType) => void;
-  handleRegisterTigger: (hintData: IHintData) => void;
-}
-
-export interface IHintData {
-  [keys: string]: string[];
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
@@ -124,8 +116,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     });
 
     createAction(editorIns);
+
     return () => {
-      if (props.needDestroy) editorRef.current && editorRef.current.dispose();
+      if (props.needDestroy) {
+        editorRef.current && editorRef.current.dispose();
+      }
     };
   }, []);
 
@@ -137,9 +132,14 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         onSave?.(value || '');
       });
 
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, (event: Event) => {
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
         const value = getCurrentSelectContent();
         onExecute?.(value);
+      });
+
+      // 注册快捷键command+shift+L新建console
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+        // onShortcutKeyCallback?.(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, keyCode: 76 }));
       });
     }
   }, [editorRef.current, isActive]);
@@ -153,16 +153,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     monaco.editor.setTheme(appTheme.backgroundColor);
   }, [appTheme.backgroundColor, options?.theme]);
 
-  // useEffect(() => {
-  //   const _ref = editorRef.current?.onDidChangeModelContent((e) => {
-  //     const curVal = editorRef.current?.getValue();
-  //     props.onChange?.(curVal || '', e);
-  //   });
-  //   return () => _ref && _ref.dispose();
-  // }, [props.onChange]);
-
   useImperativeHandle(ref, () => ({
-    handleRegisterTigger,
     getCurrentSelectContent,
     getAllContent,
     setValue,
@@ -183,11 +174,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
    * @returns
    */
   const getCurrentSelectContent = () => {
-    let selection = editorRef.current?.getSelection();
+    const selection = editorRef.current?.getSelection();
     if (!selection || selection.isEmpty()) {
       return '';
     } else {
-      var selectedText = editorRef.current?.getModel()?.getValueInRange(selection);
+      const selectedText = editorRef.current?.getModel()?.getValueInRange(selection);
       return selectedText || '';
     }
   };
@@ -199,84 +190,18 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     return value || '';
   };
 
-  const handleRegisterTigger = (hintData: IHintData) => {
-    // 获取 SQL 语法提示
-    const getSQLSuggest = () => {
-      return SQLKeys.map((key: any) => ({
-        label: key,
-        kind: monaco.languages.CompletionItemKind.Keyword,
-        insertText: key,
-        detail: '<Keywords>',
-      }));
-    };
-
-    // 获取一级数据
-    const getFirstSuggest = () => {
-      return Object.keys(hintData).map((key) => ({
-        label: key,
-        kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `${key}`,
-        detail: '<Database>',
-      }));
-    };
-
-    // 获取二级数据
-    // const getSecondSuggest = (keys: string) => {
-    //   const secondNames = hintData[keys];
-    //   if (!secondNames) {
-    //     return [];
-    //   }
-    //   return (secondNames || []).map((name: any) => ({
-    //     label: name,
-    //     kind: monaco.languages.CompletionItemKind.Snippet,
-    //     insertText: name,
-    //     detail: '<Table>',
-    //   }));
-    // };
-    const editorHintExamples = monaco.languages.registerCompletionItemProvider('sql', {
-      triggerCharacters: [' ', ...SQLKeys],
-      provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
-        let suggestions: any = [];
-        const { lineNumber, column } = position;
-        const textBeforePointer = model.getValueInRange({
-          startLineNumber: lineNumber,
-          startColumn: 0,
-          endLineNumber: lineNumber,
-          endColumn: column,
-        });
-        const tokens = textBeforePointer.trim().split(/\s+/);
-        const lastToken = tokens[tokens.length - 1]; // 获取最后一段非空字符串
-
-        if (lastToken.endsWith('.')) {
-          const tokenNoDot = lastToken.slice(0, lastToken.length - 1);
-          // suggestions = [...getSecondSuggest(tokenNoDot)];
-          suggestions = [];
-        } else if (lastToken === '.') {
-          suggestions = [];
-        } else {
-          suggestions = [...getFirstSuggest(), ...getSQLSuggest()];
-        }
-        return {
-          suggestions,
-        };
-      },
-    });
-
-    return editorHintExamples;
-  };
-
   const createAction = (editor: IEditorIns) => {
     // 用于控制切换该菜单键的显示
-    const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
+    // const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
 
     if (!props.addAction || !props.addAction.length) {
       return;
     }
 
     props.addAction.forEach((action) => {
-      const { id, label, action: runFn } = action;
+      const { id: _id, label, action: runFn } = action;
       editor.addAction({
-        id,
+        id: _id,
         label,
         // 控制该菜单键显示
         precondition: 'shouldShowSqlRunnerAction',
@@ -284,7 +209,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         contextMenuGroupId: 'navigation',
         contextMenuOrder: 1.5,
         // 点击该菜单键后运行
-        run: (event: monaco.editor.ICodeEditor) => {
+        run: () => {
           const selectedText = editor.getModel()?.getValueInRange(editor.getSelection()!) || '';
           runFn(selectedText);
         },
@@ -314,17 +239,23 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     editor.setValue(text);
     return;
   }
+  let newText = text;
+  const lastLine = editor.getModel().getLineCount();
+  const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
+
   switch (range) {
     // 覆盖所有内容
     case 'cover':
       newRange = model.getFullModelRange();
+      editor.revealLine(lastLine);
       break;
     // 在开头添加内容
     case 'front':
       newRange = new monaco.Range(1, 1, 1, 1);
+      editor.revealLine(1);
       break;
     // 格式化选中区域的sql
-    case 'select':
+    case 'select': {
       const selection = editor.getSelection();
       if (selection) {
         newRange = new monaco.Range(
@@ -335,23 +266,29 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
         );
       }
       break;
+    }
     // 在末尾添加内容
     case 'end':
-      const lastLine = editor.getModel().getLineCount();
-      const lastLineLength = editor.getModel().getLineMaxColumn(lastLine);
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
-      text = `${text}`;
+      newText = `${text}`;
       break;
     default:
       break;
   }
+
   const op = {
     range: newRange,
-    text,
+    text: newText,
   };
+
   // decorations?: IModelDeltaDecoration[]: 一个数组类型的参数，用于指定插入的文本的装饰。可以用来设置文本的样式、颜色、背景色等。如果不需要设置装饰，可以忽略此参数。
   const decorations = [{}]; // 解决新增的文本默认背景色为灰色
   editor.executeEdits('setValue', [op], decorations);
+  if (range === 'end') {
+    setTimeout(() => {
+      editor.revealLine(lastLine + 1);
+    }, 0);
+  }
 };
 
 export default forwardRef(MonacoEditor);

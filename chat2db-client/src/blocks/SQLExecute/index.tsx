@@ -25,7 +25,7 @@ interface IProps {
     databaseName: string;
     dataSourceId: number;
     type: DatabaseTypeCode;
-    schemaName: string;
+    schemaName?: string;
     consoleId: number;
     consoleName: string;
     initDDL: string;
@@ -47,6 +47,7 @@ const SQLExecute = memo<IProps>((props) => {
   const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
+
   useEffect(() => {
     if (!doubleClickTreeNodeData) {
       return;
@@ -68,10 +69,6 @@ const SQLExecute = memo<IProps>((props) => {
   useUpdateEffect(() => {
     setAppendValue({ text: data.initDDL });
   }, [data.initDDL]);
-
-  useEffect(() => {
-    console.log(resultData);
-  }, [resultData]);
 
   /**
    * 执行SQL
@@ -99,13 +96,6 @@ const SQLExecute = memo<IProps>((props) => {
 
     setResultData(sqlResult);
     setTableLoading(false);
-
-    const createHistoryParams: ISaveBasicInfo = {
-      ...data,
-      ddl: sql,
-      name: `${new Date()}-${sql}`,
-    };
-    historyServer.createHistory(createHistoryParams);
   };
 
   const stopExecuteSql = () => {

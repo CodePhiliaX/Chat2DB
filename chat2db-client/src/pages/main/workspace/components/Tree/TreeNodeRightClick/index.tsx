@@ -10,7 +10,7 @@ import connectionServer from '@/service/connection';
 import mysqlServer from '@/service/sql';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
-import { IWorkspaceModelType } from '@/models/workspace';
+import { ICurWorkspaceParams } from '@/models/workspace';
 import MonacoEditor from '@/components/Console/MonacoEditor';
 
 export type IProps = {
@@ -18,7 +18,7 @@ export type IProps = {
   setIsLoading: (value: boolean) => void;
   data: ITreeNode;
   dispatch: any;
-  workspaceModel: IWorkspaceModelType['state'];
+  curWorkspaceParams: ICurWorkspaceParams;
 };
 
 export interface IOperationColumnConfigItem {
@@ -28,14 +28,13 @@ export interface IOperationColumnConfigItem {
 }
 
 function TreeNodeRightClick(props: IProps) {
-  const { className, data, setIsLoading, dispatch, workspaceModel } = props;
+  const { className, data, setIsLoading, dispatch, curWorkspaceParams } = props;
   const [verifyDialog, setVerifyDialog] = useState<boolean>();
   const [verifyTableName, setVerifyTableName] = useState<string>('');
   const [modalApi, modelDom] = Modal.useModal();
   const [notificationApi, notificationDom] = notification.useNotification();
   const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
   const { getChildren, operationColumn } = treeNodeConfig;
-  const { curWorkspaceParams } = workspaceModel;
   const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
   const [monacoDefaultValue, setMonacoDefaultValue] = useState('');
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
@@ -129,7 +128,10 @@ function TreeNodeRightClick(props: IProps) {
             payload: {
               type: CreateTabIntroType.EditorTable,
               workspaceTabType: WorkspaceTabType.EditTable,
-              treeNodeData: data,
+              treeNodeData: {
+                ...data,
+                name: data.key,
+              },
             },
           });
         },
@@ -177,11 +179,12 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function refresh() {
-    data.children = [];
+    // data.children = [];
     setIsLoading(true);
     getChildren?.({
       ...data,
       ...data.extraParams,
+      refresh: true,
     }).then((res) => {
       data.children = res;
       setIsLoading(false);
@@ -189,13 +192,17 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function openEditTableData() {
+    const payload = {
+      type: CreateTabIntroType.EditTableData,
+      workspaceTabType: WorkspaceTabType.EditTableData,
+      treeNodeData: {
+        ...data,
+        name: data.key,
+      },
+    };
     dispatch({
       type: 'workspace/setCreateTabIntro',
-      payload: {
-        type: CreateTabIntroType.EditTableData,
-        workspaceTabType: WorkspaceTabType.EditTableData,
-        treeNodeData: data,
-      },
+      payload,
     });
   }
 

@@ -291,6 +291,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .columnTypes(PostgreSQLColumnTypeEnum.getTypes())
                 .charsets(PostgreSQLCharsetEnum.getCharsets())
                 .collations(PostgreSQLCollationEnum.getCollations())
+                .indexTypes(PostgreSQLIndexTypeEnum.getIndexTypes())
                 .build();
     }
 }

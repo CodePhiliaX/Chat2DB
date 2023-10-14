@@ -58,7 +58,10 @@ public class OperationLogServiceImpl implements OperationLogService {
     public PageResult<OperationLog> queryPage(OperationLogPageQueryParam param) {
         EasyLambdaQueryWrapper<OperationLogDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper.likeWhenPresent(OperationLogDO::getDdl, EasySqlUtils.buildLikeRightFuzzy(param.getSearchKey()))
-            .eqWhenPresent(OperationLogDO::getUserId, param.getUserId())
+                .eqWhenPresent(OperationLogDO::getUserId, param.getUserId())
+                .eqWhenPresent(OperationLogDO::getDataSourceId, param.getDataSourceId())
+                .eqWhenPresent(OperationLogDO::getDatabaseName, param.getDatabaseName())
+                .eqWhenPresent(OperationLogDO::getSchemaName, param.getSchemaName())
         ;
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();

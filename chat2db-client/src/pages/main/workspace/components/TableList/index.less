@@ -9,8 +9,10 @@
 
 .leftModuleTitle {
   flex-shrink: 0;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0px 10px;
   .leftModuleTitleText {
+    // 下阴影
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -21,19 +23,26 @@
       display: flex;
       align-items: center;
       font-weight: bold;
+      height: 100%;
     }
     .iconBox {
       display: flex;
       align-items: center;
       margin: 0px -5px;
+      height: 100%;
     }
     .itemIcon {
-      margin: 0px 5px;
+      padding: 0px 5px;
+      height: 100%;
+      display: flex;
+      align-items: center;
     }
     .refreshIcon {
     }
     .moreIcon {
-      transform: rotate(90deg);
+      i {
+        transform: rotate(90deg);
+      }
     }
     .refreshIcon,
     .searchIcon {
@@ -48,11 +57,33 @@
   }
 }
 
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
+}
+
 .treeBox {
   flex: 1;
   height: 0;
   overflow-y: auto;
-  margin: 0px -10px;
+}
+
+.paging {
+  flex-shrink: 0;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 0px 4px;
+  border-top: 1px solid var(--color-border);
+  .paginationBox,
+  .paginationSelectBox {
+    display: flex;
+    align-items: center;
+    height: 26px;
+  }
 }
 
 .refreshIconBox {

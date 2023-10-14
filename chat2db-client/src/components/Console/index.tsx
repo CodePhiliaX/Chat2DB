@@ -13,12 +13,14 @@ import Iconfont from '../Iconfont';
 import { IAiConfig, ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText, formatSql } from '@/utils';
+import { formatSql, getCookie } from '@/utils';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
+// import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
+import indexedDB from '@/indexedDB';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -42,7 +44,7 @@ export type IAppendValue = {
 };
 
 interface IProps {
-  /** 是谁在调用我 */
+  /** 调用来源 */
   source: 'workspace';
   /** 是否是活跃的console，用于快捷键 */
   isActive?: boolean;
@@ -92,21 +94,21 @@ function Console(props: IProps) {
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [syncTableModel, setSyncTableModel] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
-  const monacoHint = useRef<any>();
-  const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
+  const initializeSuccessful = useRef(false);
 
   /**
-   * 当前选择的AI类型是Chat2DBAi
+   * 当前选择的AI类型是Chat2DBAI
    */
-  const isChat2DBAi = useMemo(
+  const isChat2DBAI = useMemo(
     () => aiModel.aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
     [aiModel.aiConfig?.aiSqlSource],
   );
@@ -118,13 +120,19 @@ function Console(props: IProps) {
   }, [appendValue]);
 
   useEffect(() => {
-    monacoHint.current?.dispose();
-    const myEditorHintData: any = {};
-    props.tables?.map((item: any) => {
-      myEditorHintData[item.name] = [];
-    });
-    monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
-  }, [props.tables]);
+    indexedDB
+      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        userId: getCookie('CHAT2DB.USER_ID'),
+      })
+      .then((res: any) => {
+        const value = res?.[0]?.ddl || '';
+        if (value) {
+          editorRef?.current?.setValue(value, 'reset');
+          initializeSuccessful.current = true;
+        }
+      });
+  }, []);
 
   useEffect(() => {
     if (source !== 'workspace') {
@@ -133,9 +141,13 @@ function Console(props: IProps) {
     // 离开时保存
     if (!isActive) {
       // 离开时清除定时器
+      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        ddl: editorRef?.current?.getAllContent(),
+        userId: getCookie('CHAT2DB.USER_ID'),
+      });
       if (timerRef.current) {
         clearInterval(timerRef.current);
-        handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
       }
     } else {
       // 活跃时自动保存
@@ -148,20 +160,18 @@ function Console(props: IProps) {
     };
   }, [isActive]);
 
-  useEffect(() => {
-    if (source !== 'workspace') {
+  function timingAutoSave() {
+    // 如果没有初始化那就不自动保存
+    if (!initializeSuccessful.current) {
       return;
     }
-    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!);
-    if (value) {
-      editorRef?.current?.setValue(value, 'reset');
-    }
-  }, []);
-
-  function timingAutoSave() {
     timerRef.current = setInterval(() => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
-    }, 500);
+      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        ddl: editorRef?.current?.getAllContent(),
+        userId: getCookie('CHAT2DB.USER_ID'),
+      });
+    }, 3000);
   }
 
   const tableListName = useMemo(() => {
@@ -215,7 +225,6 @@ function Console(props: IProps) {
     } catch (e) {
       setIsLoading(false);
     }
-
   };
 
   const handleAIChatInEditor = async (content: string, promptType: IPromptType) => {
@@ -224,9 +233,8 @@ function Console(props: IProps) {
   };
 
   const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig) => {
-    const { apiKey, aiSqlSource } = aiConfig || props.aiModel?.aiConfig || {};
-    const isChat2DBAi = aiSqlSource === AiSqlSourceType.CHAT2DBAI;
-    if (!apiKey && isChat2DBAi) {
+    const { apiKey } = aiConfig || props.aiModel?.aiConfig || {};
+    if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
@@ -245,7 +253,7 @@ function Console(props: IProps) {
       dataSourceId,
       databaseName,
       schemaName,
-      tableNames: selectedTables,
+      tableNames: syncTableModel ? selectedTables : null,
     });
 
     const handleMessage = (message: string) => {
@@ -256,7 +264,7 @@ function Console(props: IProps) {
         if (isEOF) {
           closeEventSource();
           setIsLoading(false);
-          if (isChat2DBAi) {
+          if (isChat2DBAI) {
             dispatch({
               type: 'ai/fetchRemainingUse',
               payload: {
@@ -349,8 +357,8 @@ function Console(props: IProps) {
       ddl: value,
     };
 
-    historyServer.updateSavedConsole(p).then((res) => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
+    historyServer.updateSavedConsole(p).then(() => {
+      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });
@@ -375,7 +383,7 @@ function Console(props: IProps) {
   ];
 
   const handleClickRemainBtn = async () => {
-    if (!isChat2DBAi) return;
+    if (!isChat2DBAI) return;
 
     // chat2dbAi模型下，没有key，就需要登录
     if (!aiModel.aiConfig?.apiKey) {
@@ -412,7 +420,7 @@ function Console(props: IProps) {
       sql = editorRef?.current?.getAllContent() || '';
       setValueType = 'cover';
     }
-    formatSql(sql, executeParams.type!).then(res => {
+    formatSql(sql, executeParams.type!).then((res) => {
       editorRef?.current?.setValue(res, setValueType);
     });
   };
@@ -441,6 +449,8 @@ function Console(props: IProps) {
               setSelectedTables(tables);
             }}
             onClickRemainBtn={handleClickRemainBtn}
+            syncTableModel={syncTableModel}
+            onSelectTableSyncModel={(model: number) => setSyncTableModel(model)}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
@@ -455,9 +465,10 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-          tables={props.tables}
-        // onChange={}
         />
+
+        {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
+
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>

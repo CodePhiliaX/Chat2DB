@@ -25,8 +25,7 @@ export default memo<IProps>((props) => {
     setCurrentTab(queryResultDataList[0]?.uuid);
   }, [queryResultDataList]);
 
-  const onChange = useCallback((uuid: string | number) => {
-    console.log('onChange', uuid);
+  const onChange = useCallback(() => {
     // setCurrentTab(uuid);
   }, []);
 
@@ -40,7 +39,14 @@ export default memo<IProps>((props) => {
         />
       );
     } else {
-      return <StateIndicator key={queryResultData.uuid} state="error" text={queryResultData.message} />;
+      return (
+        <StateIndicator
+          className={styles.stateIndicator}
+          key={queryResultData.uuid}
+          state="error"
+          text={queryResultData.message}
+        />
+      );
     }
   };
 
@@ -73,12 +79,17 @@ export default memo<IProps>((props) => {
   );
 
   const outputTabAndTabsList = useMemo(() => {
+    const params = {
+      pageNo: 1,
+      pageSize: 10,
+    };
+
     return [
       {
         prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
         label: 'Output',
         key: 'output',
-        children: <Output />,
+        children: <Output params={params} />,
         styles: { width: '80px' },
         canClosed: false,
       },
@@ -88,15 +99,15 @@ export default memo<IProps>((props) => {
 
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {outputTabAndTabsList.length ? (
+      {tabsList.length ? (
         <TabsNew
           hideAdd
-          concealTabHeader={outputTabAndTabsList?.length === 1}
+          // concealTabHeader={outputTabAndTabsList?.length === 1}
           className={styles.tabs}
           onChange={onChange as any}
           activeKey={currentTab}
           onEdit={onEdit as any}
-          items={outputTabAndTabsList}
+          items={tabsList}
         />
       ) : (
         <div className={styles.noData}>

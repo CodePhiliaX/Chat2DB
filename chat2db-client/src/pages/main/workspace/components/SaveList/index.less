@@ -2,11 +2,13 @@
 
 .saveModule {
   flex-shrink: 0;
+  padding-top: 6px;
 }
 
 .leftModuleTitle {
   flex-shrink: 0;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0px 10px;
   .leftModuleTitleText {
     display: flex;
     justify-content: space-between;
@@ -14,10 +16,12 @@
     height: 26px;
     .modelName {
       font-weight: bold;
+      line-height: 100%;
     }
     .iconBox {
       display: flex;
       align-items: center;
+      height: 100%;
     }
     .refreshIcon {
       margin-right: 10px;
@@ -25,6 +29,9 @@
     .refreshIcon,
     .searchIcon {
       cursor: pointer;
+      height: 100%;
+      display: flex;
+      align-items: center;
       &:hover {
         color: var(--color-primary);
       }
@@ -36,22 +43,27 @@
 }
 
 .saveBoxList {
-  margin: 0px -10px;
+  padding: 0px 10px;
   height: calc(26px * 3 + 6px);
   overflow-y: auto;
+}
+
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
 }
 
 .saveItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 10px;
-  margin-bottom: 2px;
+  padding: 0px 6px;
+  height: 26px;
   line-height: 26px;
-  border-radius: 2px;
+  border-radius: 4px;
   user-select: none;
   cursor: pointer;
-  .saveItemText{
+  .saveItemText {
     width: 0px;
     flex: 1;
     .f-single-line();

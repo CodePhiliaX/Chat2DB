@@ -1,24 +1,24 @@
-import React, { useEffect, useLayoutEffect } from 'react';
-import i18n from '@/i18n';
-import { Outlet } from 'umi';
-import { ConfigProvider, theme, App, Button, Spin, notification } from 'antd';
-import { useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import i18n, { isEn } from '@/i18n';
+import { Outlet, useNavigate } from 'umi';
+import { ConfigProvider, theme, Spin } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import { getAntdThemeConfig } from '@/theme';
+import { getAntdThemeConfig, injectThemeVar } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
+import { getUser } from '@/service/user';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
-import { isEn } from '@/i18n';
-import { ThemeType, PrimaryColorType, LangType } from '@/constants/';
-import { InjectThemeVar } from '@/theme';
+import { ThemeType, LangType } from '@/constants/';
 import styles from './index.less';
-import { getLang, getPrimaryColor, getTheme, setLang } from '@/utils/localStorage';
-import { clearOlderLocalStorage } from '@/utils';
+import { getLang, setLang } from '@/utils/localStorage';
+import { clearOlderLocalStorage, getCookie } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
+import indexedDB from '@/indexedDB';
+
 declare global {
   interface Window {
     _Lang: string;
@@ -28,6 +28,7 @@ declare global {
     _AppThemePack: { [key in string]: string };
     _appGatewayParams: IVersionResponse;
     _notificationApi: any;
+    _indexedDB: any;
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
@@ -45,11 +46,11 @@ initConfig();
 
 window._Lang = getLang();
 
-const { getDesignToken, useToken } = theme;
+const { useToken } = theme;
 
-export const colorSchemeListeners: { [key: string]: Function } = {};
+export const colorSchemeListeners: { [key: string]: () => void } = {};
 
-export function addColorSchemeListener(callback: Function) {
+export function addColorSchemeListener(callback: () => void) {
   const uuid = uuidv4();
   colorSchemeListeners[uuid] = callback;
   return uuid;
@@ -74,19 +75,34 @@ export default function Layout() {
 const restartCount = 200;
 
 function AppContainer() {
+  const navigate = useNavigate();
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
   const [startSchedule, setStartSchedule] = useState(1); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
+  const [isLogin, setIsLogin] = useState<boolean | null>(null);
 
   useEffect(() => {
-    let date = new Date('2030-12-30 12:30:00').toUTCString();
+    const date = new Date('2030-12-30 12:30:00').toUTCString();
     document.cookie = `CHAT2DB.LOCALE=${getLang()};Expires=${date}`;
+    indexedDB.createDB('chat2db', 1).then((db) => {
+      window._indexedDB = {
+        chat2db: db,
+      };
+    });
+    getUser().then((res) => {
+      if (!res) {
+        navigate('/login');
+      }
+      // 向cookie中写入当前用户id
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
+      setIsLogin(!!res);
+    });
   }, []);
 
   useEffect(() => {
-    InjectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
+    injectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
   }, [token]);
 
   useLayoutEffect(() => {
@@ -142,7 +158,7 @@ function AppContainer() {
           setStartSchedule(2);
           flag++;
         })
-        .catch((error) => {
+        .catch(() => {
           setStartSchedule(1);
           flag++;
         });
@@ -157,34 +173,30 @@ function AppContainer() {
     <div className={styles.appContainer}>
       {initEnd && (
         <div className={styles.app}>
-          {/* 待启动状态 */}
-          {/* {startSchedule === 0 && <div></div>} */}
           {/* 服务启动中 */}
-          {startSchedule === 1 && (
-            <>
-              <div className={styles.loadingBox}>
-                <Spin spinning={!serviceFail} size="large" />
-                {/* <div className={styles.hint}>
+          {(startSchedule === 1 || isLogin === null) && (
+            <div className={styles.loadingBox}>
+              <Spin spinning={!serviceFail} size="large" />
+              {/* <div className={styles.hint}>
                     <Setting />
                   </div> */}
-                {serviceFail && (
-                  <>
-                    <div className={styles.github}>
-                      {i18n('common.text.contactUs')}：
-                      <a target="_blank" href="https://github.com/chat2db/Chat2DB">
-                        github
-                      </a>
-                    </div>
-                    <div className={styles.restart} onClick={detectionService}>
-                      {i18n('common.text.tryToRestart')}
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
+              {serviceFail && (
+                <>
+                  <div className={styles.github}>
+                    {i18n('common.text.contactUs')}：
+                    <a target="_blank" href="https://github.com/chat2db/Chat2DB" rel="noreferrer">
+                      github
+                    </a>
+                  </div>
+                  <div className={styles.restart} onClick={detectionService}>
+                    {i18n('common.text.tryToRestart')}
+                  </div>
+                </>
+              )}
+            </div>
           )}
           {/* 服务启动完成 */}
-          {startSchedule === 2 && <Outlet />}
+          {startSchedule === 2 && isLogin !== null && <Outlet />}
         </div>
       )}
       {/* 全局的弹窗 */}
