@@ -93,6 +93,7 @@ function Console(props: IProps) {
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [syncTableModel, setSyncTableModel] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
@@ -233,7 +234,7 @@ function Console(props: IProps) {
       dataSourceId,
       databaseName,
       schemaName,
-      tableNames: selectedTables,
+      tableNames: syncTableModel ? selectedTables : null,
     });
 
     const handleMessage = (message: string) => {
@@ -429,6 +430,8 @@ function Console(props: IProps) {
               setSelectedTables(tables);
             }}
             onClickRemainBtn={handleClickRemainBtn}
+            syncTableModel={syncTableModel}
+            onSelectTableSyncModel={(model: number) => setSyncTableModel(model)}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}

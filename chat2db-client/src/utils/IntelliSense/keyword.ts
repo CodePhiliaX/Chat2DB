@@ -43,6 +43,7 @@ const registerIntelliSenseKeyword = (databaseCode?: DatabaseTypeCode) => {
     triggerCharacters: [' ', '('],
     provideCompletionItems: (model, position) => {
       const commonIntelliSense = Object.values(intelliSense).find((v) => v.type === databaseCode);
+
       if (commonIntelliSense) {
         return {
           suggestions: [

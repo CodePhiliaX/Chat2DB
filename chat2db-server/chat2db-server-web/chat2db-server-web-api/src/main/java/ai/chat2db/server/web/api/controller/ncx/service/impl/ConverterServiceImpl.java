@@ -3,31 +3,52 @@ package ai.chat2db.server.web.api.controller.ncx.service.impl;
 import ai.chat2db.server.domain.core.util.DesUtil;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.ncx.cipher.CommonCipher;
+import ai.chat2db.server.web.api.controller.ncx.dbeaver.DefaultValueEncryptor;
 import ai.chat2db.server.web.api.controller.ncx.enums.DataBaseType;
+import ai.chat2db.server.web.api.controller.ncx.enums.ExportConstants;
 import ai.chat2db.server.web.api.controller.ncx.enums.VersionEnum;
 import ai.chat2db.server.web.api.controller.ncx.factory.CipherFactory;
 import ai.chat2db.server.web.api.controller.ncx.service.ConverterService;
 import ai.chat2db.server.web.api.controller.ncx.vo.UploadVO;
+import ai.chat2db.server.web.api.util.XMLUtils;
 import ai.chat2db.spi.model.SSHInfo;
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.excel.util.FileUtils;
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * ConverterServiceImpl
@@ -51,6 +72,10 @@ public class ConverterServiceImpl implements ConverterService {
      * xml连接信息开始标志位
      **/
     private static final String BEGIN = "#BEGIN#";
+    /**
+     * 密码json的key
+     **/
+    private static final String connection = "#connection";
 
     @Autowired
     private DataSourceMapper dataSourceMapper;
@@ -65,7 +90,6 @@ public class ConverterServiceImpl implements ConverterService {
 
     @Override
     public UploadVO uploadFile(File file) {
-
         UploadVO vo = new UploadVO();
         try {
             // List<Map <连接名，Map<属性名，值>>> 要导入的连接
@@ -117,10 +141,130 @@ public class ConverterServiceImpl implements ConverterService {
         return vo;
     }
 
-
+    @SneakyThrows
     @Override
     public UploadVO dbpUploadFile(File file) {
-        return null;
+        UploadVO vo = new UploadVO();
+        Document metaTree;
+        //等待删除的projects
+        List<String> projects = new ArrayList<>();
+        try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
+            ZipEntry metaEntry = zipFile.getEntry(ExportConstants.META_FILENAME);
+            if (metaEntry == null) {
+                throw new RuntimeException("Cannot find meta file");
+            }
+            try (InputStream metaStream = zipFile.getInputStream(metaEntry)) {
+                metaTree = XMLUtils.parseDocument(metaStream);
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot parse meta file: " + e.getMessage());
+            }
+            Element projectsElement = XMLUtils.getChildElement(metaTree.getDocumentElement(), ExportConstants.TAG_PROJECTS);
+            if (projectsElement != null) {
+                final Collection<Element> projectList = XMLUtils.getChildElementList(projectsElement, ExportConstants.TAG_PROJECT);
+                for (Element projectElement : projectList) {
+                    //获取项目名称
+                    String projectName = projectElement.getAttribute(ExportConstants.ATTR_NAME);
+                    //导入匹配文件目录
+                    String config = ConfigUtils.CONFIG_BASE_PATH + File.separator + projectName + File.separator + ExportConstants.CONFIG_FILE;
+                    importDbeaverConfig(new File(config),
+                            projectElement,
+                            //不可替换成File.separator
+                            ExportConstants.DIR_PROJECTS + "/" + projectName + "/",
+                            zipFile);
+                    //加入删除名单
+                    projects.add(projectName);
+                    //配置的json文件
+                    File json = new File(config + File.separator + ExportConstants.CONFIG_DATASOURCE_FILE);
+                    JSONObject jsonObject = JSON.parseObject(new FileInputStream(json));
+                    JSONObject connections = jsonObject.getJSONObject(ExportConstants.DIR_CONNECTIONS);
+                    Set<String> keys = connections.keySet();
+                    for (String key : keys) {
+                        JSONObject configurations = connections.getJSONObject(key);
+                        JSONObject configuration = configurations.getJSONObject(ExportConstants.DIR_CONFIGURATION);
+                        //匹配数据库类型
+                        String provider = configurations.getString("provider");
+                        if (provider.equals(ExportConstants.GENERIC)) {
+                            //自定义驱动
+                            JSONObject drivers = jsonObject.getJSONObject(ExportConstants.DIR_DRIVERS);
+                            //获得驱动id
+                            String driverId = configurations.getString("driver");
+                            //获得所有generic
+                            JSONObject generics = drivers.getJSONObject(provider);
+                            //获得自己的驱动
+                            JSONObject generic = generics.getJSONObject(driverId);
+                            //如果不存在，则不导入
+                            if (null == generic) {
+                                continue;
+                            }
+                            //赋值驱动名称，用来确定数据库的类型
+                            provider = generic.getString("name");
+                        }
+                        DataBaseType dataBaseType = DataBaseType.matchType(provider.toUpperCase());
+                        DataSourceDO dataSourceDO;
+                        //未匹配到数据库类型，如：dbeaver支持自定义驱动等，但chat2DB暂不支持
+                        if (null != dataBaseType) {
+                            //密码信息
+                            File credentials = new File(config + File.separator + ExportConstants.CONFIG_CREDENTIALS_FILE);
+                            DefaultValueEncryptor defaultValueEncryptor = new DefaultValueEncryptor(DefaultValueEncryptor.getLocalSecretKey());
+                            JSONObject credentialsJson = JSON.parseObject(defaultValueEncryptor.decryptValue(Files.readAllBytes(credentials.toPath())));
+                            dataSourceDO = new DataSourceDO();
+                            Date dateTime = new Date();
+                            dataSourceDO.setGmtCreate(dateTime);
+                            dataSourceDO.setGmtModified(dateTime);
+                            //插入用户id
+                            dataSourceDO.setUserId(ContextUtils.getUserId());
+                            dataSourceDO.setAlias(configurations.getString("name"));
+                            dataSourceDO.setHost(configuration.getString("host"));
+                            dataSourceDO.setPort(configuration.getString("port"));
+                            dataSourceDO.setUrl(configuration.getString("url"));
+                            //ssh设置为false
+                            SSHInfo sshInfo = new SSHInfo();
+                            sshInfo.setUse(false);
+                            dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
+                            if (null != credentialsJson) {
+                                JSONObject userInfo = credentialsJson.getJSONObject(key);
+                                JSONObject userPassword = userInfo.getJSONObject(connection);
+                                dataSourceDO.setUserName(userPassword.getString("user"));
+                                DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
+                                String password = userPassword.getString("password");
+                                String encryptStr = desUtil.encrypt(Optional.ofNullable(password).orElse(""), "CBC");
+                                dataSourceDO.setPassword(encryptStr);
+                            }
+                            dataSourceDO.setType(dataBaseType.name());
+                            dataSourceMapper.insert(dataSourceDO);
+                        }
+                    }
+                }
+            }
+        }
+        //删除临时文件
+        FileUtils.delete(file);
+        //删除导入dbeaver时，dbp产生的临时配置文件
+        projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
+        return vo;
+    }
+
+    @SneakyThrows
+    private static void importDbeaverConfig(File resource, Element resourceElement, String containerPath, ZipFile zipFile) {
+        for (Element childElement : XMLUtils.getChildElementList(resourceElement, ExportConstants.TAG_RESOURCE)) {
+            String childName = childElement.getAttribute(ExportConstants.ATTR_NAME);
+            String entryPath = containerPath + childName;
+            ZipEntry resourceEntry = zipFile.getEntry(entryPath);
+            if (resourceEntry == null) {
+                continue;
+            }
+            boolean isDirectory = resourceEntry.isDirectory();
+            if (isDirectory) {
+                File folder = new File(resource.getPath());
+                if (!folder.exists()) {
+                    FileUtil.mkdir(folder);
+                }
+                importDbeaverConfig(folder, childElement, entryPath + "/", zipFile);
+            } else {
+                File file = new File(resource.getPath() + File.separator + childName);
+                FileUtil.writeFromStream(zipFile.getInputStream(resourceEntry), file, true);
+            }
+        }
     }
 
     @SneakyThrows
@@ -154,6 +298,8 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(rootElement.getAttribute("name"));
+                //插入用户id
+                dataSourceDO.setUserId(ContextUtils.getUserId());
                 // 获取子元素 database-info
                 Element databaseInfoElement = (Element) rootElement.getElementsByTagName("database-info").item(0);
 
@@ -182,6 +328,10 @@ public class ConverterServiceImpl implements ConverterService {
 
                     }
                 }
+                //ssh设置为false
+                SSHInfo sshInfo = new SSHInfo();
+                sshInfo.setUse(false);
+                dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
                 dataSourceDO.setHost(host);
                 dataSourceDO.setPort(port);
                 dataSourceDO.setUrl(jdbcUrl);
@@ -224,6 +374,8 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setAlias(resultMap.get("ConnectionName"));
                 dataSourceDO.setUserName(resultMap.get("UserName"));
                 dataSourceDO.setType(resultMap.get("ConnType"));
+                //插入用户id
+                dataSourceDO.setUserId(ContextUtils.getUserId());
                 //password 为解密出来的密文，再使用chat2db的加密
                 DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
                 String encryptStr = desUtil.encrypt(password, "CBC");
