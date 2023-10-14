@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Fragment } from 'react';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import ConnectionEdit from '@/components/ConnectionEdit';
@@ -138,12 +138,12 @@ function Connections(props: IProps) {
     return (
       <div className={styles.menuBox}>
         {allMenuList &&
-          Object.keys(allMenuList).map((t) => {
+          Object.keys(allMenuList).map((t, i) => {
             const data = allMenuList[t as ConnectionKind];
             if (data.list?.length) {
               return (
-                <>
-                  <div className={styles.envLabel}>
+                <Fragment key={i}>
+                  <div key={data.name} className={styles.envLabel}>
                     <div>{data.name}</div>
                     <RefreshLoadingButton
                       loading={data.loading}
@@ -227,7 +227,7 @@ function Connections(props: IProps) {
                       </div>
                     );
                   })}
-                </>
+                </Fragment>
               );
             }
           })}
@@ -296,7 +296,7 @@ function Connections(props: IProps) {
                   </div>
                 );
               })}
-              <Button key={'importBtn'} className={styles.databaseItem} onClick={() => setIsFileUploadModalOpen(true)}>
+              <Button key="importBtn" className={styles.databaseItem} onClick={() => setIsFileUploadModalOpen(true)}>
                 导入链接
               </Button>
             </div>

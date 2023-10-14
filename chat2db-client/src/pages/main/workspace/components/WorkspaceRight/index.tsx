@@ -13,7 +13,6 @@ import EditTableData from '@/blocks/EditTableData';
 import SQLExecute from '@/blocks/SQLExecute';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
-import { handleLocalStorageSavedConsole } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
@@ -22,6 +21,7 @@ import {
   registerIntelliSenseKeyword,
   registerIntelliSenseTable,
 } from '@/utils/IntelliSense';
+import indexedDB from '@/indexedDB';
 
 interface IProps {
   className?: string;
@@ -438,13 +438,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       id: key,
       tabOpened: 'n',
     };
-    // 这行干嘛的？TODO:
-    // const window = openConsoleList?.find((t) => t.id === key);
-    // if (!window?.status) {
-    //   return;
-    // }
+
     historyService.updateSavedConsole(p).then(() => {
-      handleLocalStorageSavedConsole(p.id, 'delete');
+      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', key);
     });
   };
 

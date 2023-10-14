@@ -21,4 +21,19 @@ public class OperationLogPageQueryParam extends PageQueryParam {
      * 搜索关键词
      */
     private String searchKey;
+
+    /**
+     * 数据源id
+     */
+    private Long dataSourceId;
+
+    /**
+     * 数据库名称
+     */
+    private String databaseName;
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
 }

@@ -1,11 +1,15 @@
 package ai.chat2db.plugin.postgresql.type;
 
 import ai.chat2db.spi.enums.EditStatus;
+import ai.chat2db.spi.model.IndexType;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableIndexColumn;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 public enum PostgreSQLIndexTypeEnum {
 
@@ -21,10 +25,13 @@ public enum PostgreSQLIndexTypeEnum {
     private String name;
     private String keyword;
 
+    private IndexType indexType;
+
 
     PostgreSQLIndexTypeEnum(String name, String keyword) {
         this.name = name;
         this.keyword = keyword;
+        this.indexType =new IndexType(name);
     }
 
     public static PostgreSQLIndexTypeEnum getByType(String type) {
@@ -34,6 +41,14 @@ public enum PostgreSQLIndexTypeEnum {
             }
         }
         return null;
+    }
+
+    public static List<IndexType> getIndexTypes() {
+        return Arrays.asList(PostgreSQLIndexTypeEnum.values()).stream().map(PostgreSQLIndexTypeEnum::getIndexType).collect(java.util.stream.Collectors.toList());
+    }
+
+    public IndexType getIndexType() {
+        return indexType;
     }
 
     public String getName() {
