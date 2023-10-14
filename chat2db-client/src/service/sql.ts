@@ -245,7 +245,7 @@ const getAllTableList = createRequest<
 
 /** 获取表的所有字段 */
 const getAllFieldByTable = createRequest<
-  { dataSourceId: number; databaseName: string; schemaName?: string | null; tableName: string },
+  { dataSourceId: number; databaseName?: string; schemaName?: string | null; tableName: string },
   Array<{ name: string; tableName: string }>
 >('/api/rdb/table/column_list', { method: 'get' });
 
