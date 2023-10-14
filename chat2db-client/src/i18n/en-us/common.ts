@@ -25,6 +25,7 @@ export default {
   'common.button.open': 'Open',
   'common.button.refresh': 'Refresh',
   'common.button.execute': 'Run',
+  "common.button.import": 'Import SQL',
   'common.button.format': 'Format',
   'common.message.successfulConfig': 'Successful configuration',
   'common.text.successful': 'successful',
@@ -89,5 +90,6 @@ export default {
   'common.text.errorMessage': 'Error Message',
   'common.button.cancelRequest': 'Cancel Request',
   'common.button.executionError': 'Execution Error',
-
+  'common.text.affectedRows': 'Affected rows: {1}',
+  'common.text.selectFile' : 'Select File',
 };
