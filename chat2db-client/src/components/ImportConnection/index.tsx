@@ -6,13 +6,14 @@ import i18n from '@/i18n';
 const uploadFileType = {
   ncx: {
     accept: '.ncx',
-    uploadUrl: '/api/converter/ncx/upload',
+    uploadUrl: window._BaseURL + '/api/converter/ncx/upload',
   },
   dbp: {
     accept: '.dbp',
-    uploadUrl: '/api/converter/dbp/upload',
+    uploadUrl: window._BaseURL + '/api/converter/dbp/upload',
   },
 };
+
 interface IImportConnectionProps {
   open: boolean;
   onClose: () => void;
