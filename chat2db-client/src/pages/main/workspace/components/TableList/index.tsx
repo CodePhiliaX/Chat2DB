@@ -282,7 +282,6 @@ const TableList = dvaModel((props: any) => {
     treeConfig[curType.value].getChildren!(p)
       .then((res: any) => {
         // 表的处理
-        console.log(curType);
         if (curType.value === TreeNodeType.TABLES) {
           setCurList(approximateTreeNode(res.data, inputRef.current?.input.value));
           setPagingData({

@@ -13,13 +13,14 @@ import Iconfont from '../Iconfont';
 import { IAiConfig, ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText, formatSql } from '@/utils';
+import { formatSql, getCookie } from '@/utils';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AiSqlSourceType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
+import indexedDB from '@/indexedDB';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -102,6 +103,7 @@ function Console(props: IProps) {
   const [modalProps, setModalProps] = useState({});
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
+  const initializeSuccessful = useRef(false);
 
   /**
    * 当前选择的AI类型是Chat2DBAI
@@ -118,15 +120,34 @@ function Console(props: IProps) {
   }, [appendValue]);
 
   useEffect(() => {
+    indexedDB
+      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        userId: getCookie('CHAT2DB.USER_ID'),
+      })
+      .then((res: any) => {
+        const value = res?.[0]?.ddl || '';
+        if (value) {
+          editorRef?.current?.setValue(value, 'reset');
+          initializeSuccessful.current = true;
+        }
+      });
+  }, []);
+
+  useEffect(() => {
     if (source !== 'workspace') {
       return;
     }
     // 离开时保存
     if (!isActive) {
       // 离开时清除定时器
+      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        ddl: editorRef?.current?.getAllContent(),
+        userId: getCookie('CHAT2DB.USER_ID'),
+      });
       if (timerRef.current) {
         clearInterval(timerRef.current);
-        handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
       }
     } else {
       // 活跃时自动保存
@@ -139,20 +160,18 @@ function Console(props: IProps) {
     };
   }, [isActive]);
 
-  useEffect(() => {
-    if (source !== 'workspace') {
+  function timingAutoSave() {
+    // 如果没有初始化那就不自动保存
+    if (!initializeSuccessful.current) {
       return;
     }
-    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!);
-    if (value) {
-      editorRef?.current?.setValue(value, 'reset');
-    }
-  }, []);
-
-  function timingAutoSave() {
     timerRef.current = setInterval(() => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
-    }, 500);
+      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        ddl: editorRef?.current?.getAllContent(),
+        userId: getCookie('CHAT2DB.USER_ID'),
+      });
+    }, 10000);
   }
 
   const tableListName = useMemo(() => {
@@ -338,8 +357,8 @@ function Console(props: IProps) {
       ddl: value,
     };
 
-    historyServer.updateSavedConsole(p).then((res) => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
+    historyServer.updateSavedConsole(p).then(() => {
+      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
     });

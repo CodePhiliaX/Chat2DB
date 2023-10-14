@@ -70,10 +70,6 @@ const SQLExecute = memo<IProps>((props) => {
     setAppendValue({ text: data.initDDL });
   }, [data.initDDL]);
 
-  useEffect(() => {
-    console.log(resultData);
-  }, [resultData]);
-
   /**
    * 执行SQL
    * @param sql

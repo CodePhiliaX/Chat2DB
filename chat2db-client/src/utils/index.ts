@@ -142,39 +142,20 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
   return flag;
 }
 
-// 处理console的保存和删除操作
-export function handleLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
-  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
-  let savedObj: any = {};
-  if (saved) {
-    savedObj = JSON.parse(saved);
-  }
-
-  if (type === 'save') {
-    savedObj[id] = text || '';
-  } else if (type === 'delete') {
-    delete savedObj[id];
-  }
-
-  localStorage.setItem(`timing-auto-save-console-v1`, JSON.stringify(savedObj));
-}
-
-// 获取保存的console
-export function readLocalStorageSavedConsoleText(id: number) {
-  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
-  let savedObj: any = {};
-  if (saved) {
-    savedObj = JSON.parse(saved);
-  }
-  return savedObj[id] || '';
-}
-
 // 清理就版本不兼容的LocalStorage
 export function clearOlderLocalStorage() {
   if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
     localStorage.clear();
     localStorage.setItem('app-local-storage-versions', 'v2');
   }
+}
+
+// 退出登录清理一些记录位置的localStorage
+export function logoutClearSomeLocalStorage() {
+  localStorage.removeItem('current-workspace-database');
+  localStorage.removeItem('cur-connection');
+  localStorage.removeItem('active-console-id');
+  localStorage.removeItem('curPage');
 }
 
 // 判断是否需要更新版本
@@ -267,4 +248,13 @@ export function navigate(path: string) {
   } else {
     window.location.href = path;
   }
+}
+
+// 获取cookie
+export function getCookie(name: string) {
+  const arr = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
+  if (arr != null) {
+    return decodeURIComponent(arr[2]);
+  }
+  return null;
 }
