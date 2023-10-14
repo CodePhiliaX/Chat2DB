@@ -13,10 +13,11 @@ import { useTheme } from '@/hooks';
 import { ThemeType, LangType } from '@/constants/';
 import styles from './index.less';
 import { getLang, setLang } from '@/utils/localStorage';
-import { clearOlderLocalStorage } from '@/utils';
+import { clearOlderLocalStorage, getCookie } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
+import indexedDB from '@/indexedDB';
 
 declare global {
   interface Window {
@@ -27,6 +28,7 @@ declare global {
     _AppThemePack: { [key in string]: string };
     _appGatewayParams: IVersionResponse;
     _notificationApi: any;
+    _indexedDB: any;
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
@@ -84,11 +86,17 @@ function AppContainer() {
   useEffect(() => {
     const date = new Date('2030-12-30 12:30:00').toUTCString();
     document.cookie = `CHAT2DB.LOCALE=${getLang()};Expires=${date}`;
-
+    indexedDB.createDB('chat2db', 1).then((db) => {
+      window._indexedDB = {
+        chat2db: db,
+      };
+    });
     getUser().then((res) => {
       if (!res) {
         navigate('/login');
       }
+      // 向cookie中写入当前用户id
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
       setIsLogin(!!res);
     });
   }, []);
@@ -150,7 +158,7 @@ function AppContainer() {
           setStartSchedule(2);
           flag++;
         })
-        .catch((error) => {
+        .catch(() => {
           setStartSchedule(1);
           flag++;
         });
