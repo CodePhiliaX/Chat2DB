@@ -10,7 +10,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Context } from '../index';
 import { IColumnItemNew, IColumnTypes } from '@/typings';
 import i18n from '@/i18n';
-import { EditColumnOperationType } from '@/constants';
+import { EditColumnOperationType, DatabaseTypeCode } from '@/constants';
 import CustomSelect from '@/components/CustomSelect';
 import Iconfont from '@/components/Iconfont';
 
@@ -93,7 +93,7 @@ const createInitialData = () => {
 };
 
 const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>) => {
-  const { databaseSupportField, databaseName, schemaName, tableDetails } = useContext(Context);
+  const { databaseSupportField, databaseName, schemaName, tableDetails, databaseType } = useContext(Context);
   const [dataSource, setDataSource] = useState<IColumnItemNew[]>([createInitialData()]);
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IColumnItemNew | null>(null);
@@ -246,6 +246,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     {
       width: '40px',
       render: (text: string, record: IColumnItemNew) => {
+        // sqlLite不支持删除字段，新增的字段可以删除
+        if (databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add) {
+          return null;
+        }
         return (
           <div
             className={styles.operationBar}
@@ -384,6 +388,11 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <Checkbox />
           </Form.Item>
         )}
+        {databaseType === DatabaseTypeCode.SQLSERVER && (
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.sparse')} name="sparse" valuePropName="checked">
+            <Checkbox />
+          </Form.Item>
+        )}
         {editingConfig?.supportDefaultValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.defaultValue')} name="defaultValue">
             <CustomSelect
@@ -415,6 +424,17 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             <Input autoComplete="off" />
           </Form.Item>
         )}
+        {editingConfig?.supportUnit && (
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.unit')} name="unit">
+            <Select style={{ width: '100%' }}>
+              {['CHAR', 'BYTE'].map((i) => (
+                <Select.Option key={i} value={i}>
+                  {i}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+        )}
         {editingConfig?.supportValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.value')} name="value">
             <Input autoComplete="off" />
@@ -427,6 +447,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
   const onRow = (record: any) => {
     return {
       onClick: () => {
+        // sqlLite不支持修改字段,新增的字段可以修改
+        if (databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add) {
+          return;
+        }
         if (editingData?.key !== record.key) {
           edit(record);
         }

@@ -9,7 +9,7 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import Tree from '../Tree';
 import { treeConfig } from '../Tree/treeConfig';
-import { TreeNodeType, WorkspaceTabType, ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
+import { TreeNodeType, WorkspaceTabType, ConsoleStatus, ConsoleOpenedStatus, OperationColumn } from '@/constants';
 import { approximateTreeNode } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
@@ -18,6 +18,7 @@ import styles from './index.less';
 import { ExportTypeEnum } from '@/typings/resultTable';
 import historyService from '@/service/history';
 import { debounce } from 'lodash';
+import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 
 interface IOption {
   value: TreeNodeType;
@@ -72,8 +73,8 @@ const TableList = dvaModel((props: any) => {
     props.onExport && props.onExport(exportType);
   };
 
-  const items: MenuProps['items'] = useMemo(
-    () => [
+  const items: MenuProps['items'] = useMemo(() => {
+    const list = [
       {
         label: (
           <div className={styles.operationItem}>
@@ -177,9 +178,14 @@ const TableList = dvaModel((props: any) => {
           },
         ],
       },
-    ],
-    [curWorkspaceParams],
-  );
+    ];
+    const dataSourceFormConfig = dataSourceFormConfigs.find((item) => item.type === curWorkspaceParams.databaseType);
+
+    if (dataSourceFormConfig?.baseInfo.excludes?.includes(OperationColumn.EditTable)) {
+      list.splice(1, 1);
+    }
+    return list;
+  }, [curWorkspaceParams]);
 
   useUpdateEffect(() => {
     setCurList([]);

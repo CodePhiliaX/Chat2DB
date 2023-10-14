@@ -360,7 +360,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:postgresql:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:postgresql://{host}:{port}/{database}',
-      excludes: [OperationColumn.EditTable]
     },
     ssh: sshConfig,
   },
@@ -612,7 +611,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:h2:tcp:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:h2:tcp://{host}:{port}/{database}',
-      excludes: [OperationColumn.EditTable]
     },
     ssh: sshConfig,
   },
@@ -1015,7 +1013,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:clickhouse:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:clickhouse://{host}:{port}/{database}',
-      excludes: [OperationColumn.ExportDDL, OperationColumn.CreateTable]
+      excludes: [OperationColumn.ExportDDL, OperationColumn.CreateTable,OperationColumn.EditTable]
       //排除掉导出ddl 和 创建表功能 支持的功能见 ./enum.ts => OperationColumn
     },
     ssh: sshConfig,
@@ -1124,6 +1122,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:dm:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:dm://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [
@@ -1249,6 +1249,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:db2:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:db2://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [
@@ -1371,6 +1373,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:presto:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:presto://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [
@@ -1493,6 +1497,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:oceanbase:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:oceanbase://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [
@@ -1737,6 +1743,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:hive2:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:hive2://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [
@@ -1859,6 +1867,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:kingbase8:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:kingbase8://{host}:{port}/{database}',
+      excludes: [OperationColumn.EditTable]
+
     },
     ssh: sshConfig,
     extendInfo: [

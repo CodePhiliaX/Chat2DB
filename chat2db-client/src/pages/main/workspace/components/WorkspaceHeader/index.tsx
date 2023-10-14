@@ -260,7 +260,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
               </div>
             </Cascader>
 
-            <Iconfont className={styles.arrow} code="&#xe641;" />
+            {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />}
 
             {!!curDBOptions?.length && (
               <Cascader
