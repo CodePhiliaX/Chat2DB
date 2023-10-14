@@ -21,6 +21,7 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
+import ImportBlock from '../ImportBlock';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -409,6 +410,8 @@ function Console(props: IProps) {
     });
     setPopularizeModal(true);
   };
+
+  const handleImportSQL = () => {};
 
   /**
    * 格式化sql

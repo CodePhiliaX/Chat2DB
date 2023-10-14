@@ -55,7 +55,7 @@ const registerIntelliSenseTable = (
 
   intelliSenseTable.dispose();
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' '],
+    triggerCharacters: [' ', ],
     provideCompletionItems: (model, position) => {
       const lineContentUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,

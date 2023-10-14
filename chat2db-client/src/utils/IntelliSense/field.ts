@@ -48,7 +48,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
   intelliSenseField.dispose();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', '.', '('],
+    triggerCharacters: [' ', ',','.', '('],
     provideCompletionItems: async (model, position) => {
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
