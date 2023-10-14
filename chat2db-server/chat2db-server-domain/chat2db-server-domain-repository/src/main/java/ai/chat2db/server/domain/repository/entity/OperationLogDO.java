@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,8 +14,8 @@ import lombok.Setter;
  * 我的执行记录表
  * </p>
  *
- * @author ali-dbhub
- * @since 2022-12-28
+ * @author chat2db
+ * @since 2023-10-14
  */
 @Getter
 @Setter
@@ -63,4 +64,29 @@ public class OperationLogDO implements Serializable {
      * 用户id
      */
     private Long userId;
+
+    /**
+     * 状态
+     */
+    private String status;
+
+    /**
+     * 操作行数
+     */
+    private Long operationRows;
+
+    /**
+     * 使用时长
+     */
+    private Long useTime;
+
+    /**
+     * 扩展信息
+     */
+    private String extendInfo;
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
 }
