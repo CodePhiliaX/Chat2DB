@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import i18n from '@/i18n';
 
 const uploadFileType = {
   ncx: {
@@ -77,10 +78,9 @@ const ImportConnection: React.FC<IImportConnectionProps> = ({ open, onClose, onC
         accept=".ncx,.dbp"
         beforeUpload={handleBeforeUpload}
         maxCount={1}
-        
         fileList={selectedFile ? [selectedFile] : []}
       >
-        <Button icon={<UploadOutlined />}>Select File</Button>
+        <Button icon={<UploadOutlined />}>{i18n('common.text.selectFile')}</Button>
       </Upload>
     </Modal>
   );

@@ -14,11 +14,12 @@ import { approximateTreeNode } from '@/utils';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IPagingData, ITreeNode } from '@/typings';
-import styles from './index.less';
 import { ExportTypeEnum } from '@/typings/resultTable';
 import historyService from '@/service/history';
 import { debounce } from 'lodash';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
+import styles from './index.less';
+import ImportBlock from '@/components/ImportBlock';
 
 interface IOption {
   value: TreeNodeType;
@@ -85,6 +86,36 @@ const TableList = dvaModel((props: any) => {
         key: 'createConsole',
         onClick: () => {
           addConsole();
+        },
+      },
+      {
+        label: (
+          <ImportBlock
+            title={i18n('common.button.import')}
+            accept={'.sql'}
+            onConfirm={async (file) => {
+              if (Array.isArray(file)) return Promise.resolve(false);
+
+              const reader = new FileReader();
+
+              reader.onload = function (event) {
+                const sqlContent = event.target?.result ?? '';
+                addConsole(sqlContent);
+              };
+
+              reader.readAsText(file);
+              return Promise.resolve(true);
+            }}
+          >
+            <div className={styles.operationItem}>
+              <Iconfont className={styles.operationIcon} code="&#xe66c;" />
+              <div className={styles.operationTitle}>{i18n('common.button.import')}</div>
+            </div>
+          </ImportBlock>
+        ),
+        key: 'importSQL',
+        onClick: () => {
+          // addConsole();
         },
       },
       {
@@ -238,11 +269,11 @@ const TableList = dvaModel((props: any) => {
     };
   }, [treeBoxRef.current, leftModuleTitleRef.current]);
 
-  const addConsole = () => {
+  const addConsole = (ddl?: string) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
     const params = {
       name: `new console`,
-      ddl: '',
+      ddl: ddl || '',
       dataSourceId: dataSourceId!,
       databaseName: databaseName!,
       schemaName: schemaName!,
@@ -326,7 +357,7 @@ const TableList = dvaModel((props: any) => {
     setCurType(selectedOptions[0]);
   }
 
-  const handelChangePagination = (pageNo: number) => {
+  const handleChangePagination = (pageNo: number) => {
     setPagingData({
       ...pagingData,
       pageNo,
@@ -405,16 +436,18 @@ const TableList = dvaModel((props: any) => {
           </div>
         )}
       </div>
+
       <div ref={treeBoxRef} className={styles.treeBox}>
         <LoadingContent isLoading={tableLoading}>
           <Tree initialData={searchedTableList || curList} />
         </LoadingContent>
       </div>
+
       {pagingData?.total > 100 && !searchKey && (
         <div className={styles.paging}>
           <div className={styles.paginationBox}>
             <Pagination
-              onChange={handelChangePagination}
+              onChange={handleChangePagination}
               current={pagingData?.pageNo}
               pageSize={pagingData?.pageSize}
               simple
