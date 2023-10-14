@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.sql.ConnectInfo;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
@@ -35,6 +38,7 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -46,15 +50,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class DlTemplateServiceImpl implements DlTemplateService {
 
+    @Autowired
+    private OperationLogService operationLogService;
+
     @Override
     public ListResult<ExecuteResult> execute(DlExecuteParam param) {
         if (StringUtils.isBlank(param.getSql())) {
             return ListResult.empty();
         }
         // 解析sql
-        RemoveSpecialGO(param);
-        DbType dbType =
-                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+        String type = Chat2DBContext.getConnectInfo().getDbType();
+        DbType dbType = JdbcUtils.parse2DruidDbType(type);
+        if ("SQLSERVER".equalsIgnoreCase(type)) {
+            RemoveSpecialGO(param);
+        }
+
         List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
 
 
@@ -73,6 +83,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 listResult.errorCode(executeResult.getDescription());
                 listResult.setErrorMessage(executeResult.getMessage());
             }
+            addOperationLog(executeResult);
         }
         return listResult;
     }
@@ -90,11 +101,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             connection.setAutoCommit(false);
             for (String originalSql : sqlList) {
                 ExecuteResult executeResult = SQLExecutor.getInstance().executeUpdate(originalSql, connection, 1);
-               dataResult.setData(executeResult);
+                dataResult.setData(executeResult);
+                addOperationLog(executeResult);
             }
             connection.commit();
-        }catch (Exception e){
-            log.error("executeUpdate error",e);
+        } catch (Exception e) {
+            log.error("executeUpdate error", e);
             dataResult.setSuccess(false);
             dataResult.setErrorCode("connection error");
             dataResult.setErrorMessage(e.getMessage());
@@ -107,7 +119,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         if (StringUtils.isBlank(sql)) {
             return;
         }
-        sql = sql.replaceAll("(?i)\\s*go\\s*", ";");
+        sql = sql.replaceAll("(?mi)^[ \\t]*go[ \\t]*$", ";");
         param.setSql(sql);
     }
 
@@ -276,6 +288,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     }
 
     private String getInsertSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
+        if (CollectionUtils.isEmpty(row)) {
+            return "";
+        }
         StringBuilder script = new StringBuilder();
         script.append("INSERT INTO ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
                 .append(" (");
@@ -301,6 +316,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema) {
         StringBuilder script = new StringBuilder();
+        if (CollectionUtils.isEmpty(row) || CollectionUtils.isEmpty(odlRow)) {
+            return "";
+        }
         script.append("UPDATE ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
                 .append(" set ");
         for (int i = 1; i < row.size(); i++) {
@@ -336,4 +354,24 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return executeResult;
     }
 
+    private void addOperationLog(ExecuteResult executeResult) {
+        if (executeResult == null) {
+            return;
+        }
+        try {
+            ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+            OperationLogCreateParam createParam = new OperationLogCreateParam();
+            createParam.setDdl(executeResult.getSql());
+            createParam.setStatus(executeResult.getSuccess() ? "success" : "fail");
+            createParam.setDatabaseName(connectInfo.getDatabaseName());
+            createParam.setDataSourceId(connectInfo.getDataSourceId());
+            createParam.setSchemaName(connectInfo.getSchemaName());
+            createParam.setUseTime(executeResult.getDuration());
+            createParam.setType(connectInfo.getDbType());
+            createParam.setOperationRows(executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()):null);
+            operationLogService.create(createParam);
+        } catch (Exception e) {
+            log.error("addOperationLog error:", e);
+        }
+    }
 }

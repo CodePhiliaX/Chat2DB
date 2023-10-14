@@ -34,4 +34,30 @@ public class OperationLogCreateParam {
      * ddl内容
      */
     private String ddl;
+
+
+    /**
+     * 状态
+     */
+    private String status;
+
+    /**
+     * 操作行数
+     */
+    private Long operationRows;
+
+    /**
+     * 使用时长
+     */
+    private Long useTime;
+
+    /**
+     * 扩展信息
+     */
+    private String extendInfo;
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
 }
