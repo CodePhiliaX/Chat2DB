@@ -1,11 +1,7 @@
 @import '../../../styles/var.less';
 
 .tableBox {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  height: calc(100% - 26px);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -118,25 +114,6 @@
 
 .table {
   flex: 1;
-}
-
-.statusBar {
-  height: 26px;
-  box-sizing: border-box;
-  position: sticky;
-  bottom: 0;
-  z-index: 30;
-  padding: 4px 8px;
-  font-size: 12px;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  border-top: 1px solid var(--color-border-secondary);
-  background-color: var(--color-bg-subtle);
-
-  & > span {
-    margin-right: 16px;
-  }
 }
 
 .tableItem {
