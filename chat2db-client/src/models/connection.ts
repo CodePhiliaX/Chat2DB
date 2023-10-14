@@ -45,7 +45,7 @@ const ConnectionModel: IConnectionModelType = {
 
     // 设置当前选着的Connection
     setCurConnection(state, { payload }) {
-      localStorage.setItem('cur-connection', JSON.stringify(payload));
+      localStorage.setItem(`cur-connection`, JSON.stringify(payload));
       return { ...state, curConnection: payload };
     },
 

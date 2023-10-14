@@ -128,7 +128,10 @@ function TreeNodeRightClick(props: IProps) {
             payload: {
               type: CreateTabIntroType.EditorTable,
               workspaceTabType: WorkspaceTabType.EditTable,
-              treeNodeData: data,
+              treeNodeData: {
+                ...data,
+                name: data.key,
+              },
             },
           });
         },
@@ -189,13 +192,17 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function openEditTableData() {
+    const payload = {
+      type: CreateTabIntroType.EditTableData,
+      workspaceTabType: WorkspaceTabType.EditTableData,
+      treeNodeData: {
+        ...data,
+        name: data.key,
+      },
+    };
     dispatch({
       type: 'workspace/setCreateTabIntro',
-      payload: {
-        type: CreateTabIntroType.EditTableData,
-        workspaceTabType: WorkspaceTabType.EditTableData,
-        treeNodeData: data,
-      },
+      payload,
     });
   }
 

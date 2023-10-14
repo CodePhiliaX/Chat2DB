@@ -74,4 +74,5 @@ export interface IColumnTypes {
   supportNullable: boolean; // 是否支持为空
   supportScale: boolean; // 是否支持小数位
   supportValue: boolean; // 是否支持值
+  supportUnit: boolean; // 是否支持单位
 }

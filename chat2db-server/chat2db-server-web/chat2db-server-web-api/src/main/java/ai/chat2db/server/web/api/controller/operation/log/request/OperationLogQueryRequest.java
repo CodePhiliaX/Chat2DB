@@ -16,4 +16,19 @@ public class OperationLogQueryRequest extends PageQueryRequest {
      * 模糊词搜索
      */
     private String searchKey;
+
+    /**
+     * 数据源id
+     */
+    private Long dataSourceId;
+
+    /**
+     * 数据库名称
+     */
+    private String databaseName;
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
 }
