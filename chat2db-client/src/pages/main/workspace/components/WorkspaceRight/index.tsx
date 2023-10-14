@@ -1,11 +1,13 @@
 import React, { memo, useEffect, useState, useMemo, Fragment, useRef } from 'react';
 import { connect } from 'umi';
+import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import TabsNew, { ITabItem } from '@/components/TabsNew';
+import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
@@ -16,6 +18,7 @@ import { IAIState } from '@/models/ai';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
+import { Button } from 'antd';
 import {
   registerIntelliSenseField,
   registerIntelliSenseKeyword,
@@ -53,7 +56,22 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       };
     });
     setWorkspaceTabList(newTabList || []);
+    setActiveConsoleId(newTabList[0]?.id);
   }, [openConsoleList]);
+
+  // 注册快捷键command+shift+L新建console
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log(e.metaKey, e.shiftKey, e.code === 'KeyL', e);
+      if (e.metaKey && e.shiftKey && e.code === 'KeyL') {
+        addConsole();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [workspaceTabList]);
 
   useEffect(() => {
     if (createConsoleIntro) {
@@ -428,6 +446,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           uniqueData: newConsole,
         },
       ];
+      console.log(newList);
       setWorkspaceTabList(newList);
       setActiveConsoleId(res);
     });
@@ -444,10 +463,21 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     });
   };
 
+  function renderCreateConsoleButton() {
+    return (
+      <div className={styles.createButtonBox}>
+        <Button className={styles.createButton} type="primary" onClick={addConsole}>
+          <Iconfont code="&#xe63a;" />
+          {i18n('common.button.createConsole')}
+        </Button>
+      </div>
+    );
+  }
+
   function renderEmpty() {
     return (
       <div className={styles.ears}>
-        <ShortcutKey />
+        <ShortcutKey slot={renderCreateConsoleButton} />
       </div>
     );
   }
@@ -555,7 +585,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
             items={tabsList}
-            lastTabCannotClosed
+            // lastTabCannotClosed
           />
         </div>
       </LoadingContent>
