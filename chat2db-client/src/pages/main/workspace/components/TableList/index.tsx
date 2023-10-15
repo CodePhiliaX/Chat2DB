@@ -99,7 +99,7 @@ const TableList = dvaModel((props: any) => {
               const reader = new FileReader();
 
               reader.onload = function (event) {
-                const sqlContent = event.target?.result ?? '';
+                const sqlContent = (event.target?.result ?? '') as string;
                 addConsole(sqlContent);
               };
 
