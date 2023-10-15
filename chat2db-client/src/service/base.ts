@@ -140,9 +140,9 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
   return function (params: P, restParams?: RequestOptionsInit) {
     // 是否需要mock
     const _baseURL = (mock ? mockUrl : baseURL) || '';
-    if (url === '/api/rdb/ddl/list') {
-      debugger;
-    }
+    // if (url === '/api/rdb/ddl/list') {
+    //   debugger;
+    // }
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
 
