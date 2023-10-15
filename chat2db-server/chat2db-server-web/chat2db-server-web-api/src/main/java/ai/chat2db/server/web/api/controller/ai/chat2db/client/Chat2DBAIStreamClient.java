@@ -1,20 +1,18 @@
-package ai.chat2db.server.web.api.controller.ai.fastchat.client;
+package ai.chat2db.server.web.api.controller.ai.chat2db.client;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatOpenAiApi;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbedding;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
-import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHeaderAuthorizationInterceptor;
-import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
-import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.reactivex.Single;
+import com.google.common.collect.Lists;
+import com.unfbx.chatgpt.entity.chat.ChatCompletion;
+import com.unfbx.chatgpt.entity.chat.Message;
+import com.unfbx.chatgpt.interceptor.HeaderAuthorizationInterceptor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -35,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @author moji
  */
 @Slf4j
-public class FastChatAIStreamClient {
+public class Chat2DBAIStreamClient {
 
     /**
      * apikey
@@ -76,9 +74,12 @@ public class FastChatAIStreamClient {
     /**
      * @param builder
      */
-    private FastChatAIStreamClient(Builder builder) {
+    private Chat2DBAIStreamClient(Builder builder) {
         this.apiKey = builder.apiKey;
         this.apiHost = builder.apiHost;
+        if (!apiHost.endsWith("/")){
+            apiHost = apiHost + "/";
+        }
         this.model = builder.model;
         this.embeddingModel = builder.embeddingModel;
         if (Objects.isNull(builder.okHttpClient)) {
@@ -99,8 +100,8 @@ public class FastChatAIStreamClient {
     private OkHttpClient okHttpClient() {
         OkHttpClient okHttpClient = new OkHttpClient
             .Builder()
-            .addInterceptor(new FastChatHeaderAuthorizationInterceptor(this.apiKey))
-            .connectTimeout(10, TimeUnit.SECONDS)
+            .addInterceptor(new HeaderAuthorizationInterceptor(Lists.newArrayList(this.apiKey)))
+            .connectTimeout(50, TimeUnit.SECONDS)
             .writeTimeout(50, TimeUnit.SECONDS)
             .readTimeout(50, TimeUnit.SECONDS)
             .build();
@@ -112,8 +113,8 @@ public class FastChatAIStreamClient {
      *
      * @return
      */
-    public static FastChatAIStreamClient.Builder builder() {
-        return new FastChatAIStreamClient.Builder();
+    public static Chat2DBAIStreamClient.Builder builder() {
+        return new Chat2DBAIStreamClient.Builder();
     }
 
     /**
@@ -136,7 +137,7 @@ public class FastChatAIStreamClient {
         public Builder() {
         }
 
-        public FastChatAIStreamClient.Builder apiKey(String apiKeyValue) {
+        public Chat2DBAIStreamClient.Builder apiKey(String apiKeyValue) {
             this.apiKey = apiKeyValue;
             return this;
         }
@@ -145,7 +146,7 @@ public class FastChatAIStreamClient {
          * @param apiHostValue
          * @return
          */
-        public FastChatAIStreamClient.Builder apiHost(String apiHostValue) {
+        public Chat2DBAIStreamClient.Builder apiHost(String apiHostValue) {
             this.apiHost = apiHostValue;
             return this;
         }
@@ -154,23 +155,23 @@ public class FastChatAIStreamClient {
          * @param modelValue
          * @return
          */
-        public FastChatAIStreamClient.Builder model(String modelValue) {
+        public Chat2DBAIStreamClient.Builder model(String modelValue) {
             this.model = modelValue;
             return this;
         }
 
-        public FastChatAIStreamClient.Builder embeddingModel(String embeddingModelValue) {
+        public Chat2DBAIStreamClient.Builder embeddingModel(String embeddingModelValue) {
             this.embeddingModel = embeddingModelValue;
             return this;
         }
 
-        public FastChatAIStreamClient.Builder okHttpClient(OkHttpClient val) {
+        public Chat2DBAIStreamClient.Builder okHttpClient(OkHttpClient val) {
             this.okHttpClient = val;
             return this;
         }
 
-        public FastChatAIStreamClient build() {
-            return new FastChatAIStreamClient(this);
+        public Chat2DBAIStreamClient build() {
+            return new Chat2DBAIStreamClient(this);
         }
 
     }
@@ -181,34 +182,34 @@ public class FastChatAIStreamClient {
      * @param chatMessages
      * @param eventSourceListener
      */
-    public void streamCompletions(List<FastChatMessage> chatMessages, EventSourceListener eventSourceListener) {
+    public void streamCompletions(List<Message> chatMessages, EventSourceListener eventSourceListener) {
         if (CollectionUtils.isEmpty(chatMessages)) {
-            log.error("param error：Fast Chat Prompt cannot be empty");
+            log.error("param error:Chat Prompt cannot be empty");
             throw new ParamBusinessException("prompt");
         }
         if (Objects.isNull(eventSourceListener)) {
-            log.error("param error：FastChatEventSourceListener cannot be empty");
+            log.error("param error：ChatEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("Fast Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
+        log.info("Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
-
-            FastChatCompletionsOptions chatCompletionsOptions = new FastChatCompletionsOptions(chatMessages);
-            chatCompletionsOptions.setStream(true);
-            chatCompletionsOptions.setModel(this.model);
+            ChatCompletion chatCompletion = ChatCompletion.builder()
+                    .messages(chatMessages)
+                    .stream(true)
+                    .build();
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
-            String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
+            String requestBody = mapper.writeValueAsString(chatCompletion);
             Request request = new Request.Builder()
-                .url(apiHost)
-                .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
-                .build();
+                    .url(this.apiHost + "v1/chat/completions")
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
+                    .build();
             //创建事件
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
-            log.info("finish invoking fast chat ai");
+            log.info("finish invoking chat ai");
         } catch (Exception e) {
-            log.error("fast chat ai error", e);
+            log.error("chat ai error", e);
             eventSourceListener.onFailure(null, e, null);
             throw new ParamBusinessException();
         }
@@ -235,7 +236,41 @@ public class FastChatAIStreamClient {
      * @return EmbeddingResponse
      */
     public FastChatEmbeddingResponse embeddings(FastChatEmbedding embedding) {
-        Single<FastChatEmbeddingResponse> embeddings = this.fastChatOpenAiApi.embeddings(embedding);
-        return embeddings.blockingGet();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String requestBody = mapper.writeValueAsString(embedding);
+            Request request = new Request.Builder()
+                    .url(this.apiHost + "v1/embeddings")
+                    .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
+                    .build();
+
+            FastChatEmbeddingResponse chatEmbeddingResponse = null;
+            Response response = this.okHttpClient.newCall(request).execute();
+            StringBuilder body = new StringBuilder();
+            if (response.isSuccessful()) {
+                ResponseBody responseBody = response.body();
+                if (responseBody != null) {
+                    // 获取响应体的输入流
+                    java.io.InputStream inputStream = responseBody.byteStream();
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        // 在这里处理每行响应内容
+                        body.append(line);
+                    }
+
+                    // 关闭流
+                    reader.close();
+                    inputStream.close();
+                }
+                chatEmbeddingResponse = mapper.readValue(body.toString(), FastChatEmbeddingResponse.class);
+            }
+            log.info("finish invoking chat embedding");
+            return chatEmbeddingResponse;
+        } catch (Exception e) {
+            log.error("chat ai error", e);
+            throw new ParamBusinessException();
+        }
     }
 }

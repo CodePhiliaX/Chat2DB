@@ -78,6 +78,10 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-spi</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -6,12 +6,14 @@ package ai.chat2db.server.web.api.controller.ai.fastchat.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Representation of the token counts processed for a completions request. Counts consider all tokens across prompts,
  * choices, choice alternates, best_of generations, and other consumers.
  */
 @Data
+@NoArgsConstructor
 public final class FastChatCompletionsUsage {
 
     /*
