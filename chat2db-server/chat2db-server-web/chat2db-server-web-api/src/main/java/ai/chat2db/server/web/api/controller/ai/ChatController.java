@@ -106,9 +106,6 @@ public class ChatController {
     @Resource
     private GatewayClientService gatewayClientService;
 
-    @Getter
-    private OpenAiApi openAiApi;
-
     /**
      * chat的超时时间
      */
@@ -316,7 +313,7 @@ public class ChatController {
         buildSseEmitter(sseEmitter, uid);
 
         OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
-        Chat2dbAIClient.getInstance().streamChatCompletion(messages, openAIEventSourceListener);
+        Chat2dbAIClient.getInstance().streamCompletions(messages, openAIEventSourceListener);
         LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
     }
@@ -564,21 +561,18 @@ public class ChatController {
     public FastChatEmbeddingResponse distributeAIEmbedding(String input) {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
-        if (Objects.nonNull(config)) {
-            aiSqlSource = config.getContent();
+        String aiSqlSource = config.getContent();
+        if (Objects.isNull(aiSqlSource)) {
+            return null;
         }
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
-            case AZUREAI :
-            case OPENAI:
             case CHAT2DBAI:
-                return embeddingWithOpenAi(input);
-            case RESTAI :
+                return embeddingWithChat2dbAi(input);
             case FASTCHATAI:
                 return embeddingWithFastChatAi(input);
         }
-        return embeddingWithFastChatAi(input);
+        return null;
     }
 
     /**
@@ -599,11 +593,9 @@ public class ChatController {
      * @param input
      * @return
      */
-    private FastChatEmbeddingResponse embeddingWithOpenAi(String input) {
-        Embedding embedding = Embedding.builder().input(input).build();
-        Single<EmbeddingResponse> embeddings = this.openAiApi.embeddings(embedding);
-        EmbeddingResponse embeddingResponse = embeddings.blockingGet();
-        return chatConverter.response2response(embeddingResponse);
+    private FastChatEmbeddingResponse embeddingWithChat2dbAi(String input) {
+        FastChatEmbeddingResponse embeddings = Chat2dbAIClient.getInstance().embeddings(input);
+        return embeddings;
     }
 
 }

@@ -224,4 +224,12 @@ public abstract class RdbWebConverter {
 
 
     public abstract UpdateSelectResultParam request2param(SelectResultUpdateRequest request);
+
+    public abstract TableMilvusQueryRequest request2request(TableBriefQueryRequest request);
+
+    @Mappings({
+            @Mapping(source = "databaseName", target = "database"),
+            @Mapping(source = "schemaName", target = "schema"),
+    })
+    public abstract TableVectorParam param2param(TableBriefQueryRequest request);
 }
