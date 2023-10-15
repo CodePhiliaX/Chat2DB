@@ -279,7 +279,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
     // 在末尾添加内容
     case 'end':
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
-      newText = `\n${text}`;
+      newText = `${text}`;
       break;
     default:
       break;
@@ -296,7 +296,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   if (range === 'end') {
     setTimeout(() => {
       editor.revealLine(lastLine + 1);
-      editor.setPosition({ lineNumber: lastLine + 1, column: 1 });
+      editor.setPosition({ lineNumber: lastLine, column: 1 });
     }, 0);
   }
 };
