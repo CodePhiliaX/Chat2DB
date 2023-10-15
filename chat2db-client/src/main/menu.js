@@ -83,7 +83,7 @@ const registerAppMenu = (mainWindow) => {
       submenu: [
         {
           label: '打开日志',
-          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
           click() {
             const fileName = '.chat2db/logs/application.log';
             const url = path.join(os.homedir(), fileName);

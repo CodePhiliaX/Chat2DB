@@ -62,7 +62,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 注册快捷键command+shift+L新建console
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log(e.metaKey, e.shiftKey, e.code === 'KeyL', e);
       if (e.metaKey && e.shiftKey && e.code === 'KeyL') {
         addConsole();
       }
