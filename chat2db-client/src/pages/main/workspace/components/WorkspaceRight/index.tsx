@@ -337,6 +337,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
           registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
         });
+      console.log('getAllTable Before:', window._BaseURL);
     }
   }, [curWorkspaceParams.databaseType, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
@@ -575,7 +576,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
 
   return (
     <div className={classnames(styles.workspaceRight, className)}>
-      <LoadingContent data={workspaceTabList} handleEmpty empty={renderEmpty()}>
+      <LoadingContent className={styles.workspaceRightMain} data={workspaceTabList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
           <TabsNew
             className={styles.tabs}
@@ -586,6 +587,14 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             items={tabsList}
             // lastTabCannotClosed
           />
+        </div>
+        <div className={styles.rightBar}>
+          <div className={styles.rightBarFront}>
+            <Iconfont code="&#xe8ad;" box size={16} />
+          </div>
+          <div className={styles.rightBarAfter}>
+            <Iconfont code="&#xe8ad;" box size={20} />
+          </div>
         </div>
       </LoadingContent>
     </div>

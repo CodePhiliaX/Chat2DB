@@ -22,10 +22,10 @@ export const editorDefaultOptions: IEditorOptions = {
   scrollbar: { // 滚动条
     alwaysConsumeMouseWheel: false, // 总是消耗鼠标滚轮
   },
-  padding: { 
-    top: 2,
-    bottom: 2,
-  },
+  // padding: { 
+  //   top: 2,
+  //   bottom: 2,
+  // },
   minimap: { // 缩略图
     enabled: false, // 启用
   },

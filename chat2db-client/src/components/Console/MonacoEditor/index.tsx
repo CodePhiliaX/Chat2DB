@@ -152,6 +152,17 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     }
   }, [editorRef.current, isActive]);
 
+  useEffect(() => {
+    // 监听浏览器窗口大小变化，重新渲染编辑器
+    const resize = () => {
+      editorRef.current?.layout();
+    };
+    window.addEventListener('resize', resize);
+    return () => {
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
   // 监听主题色变化切换编辑器主题色
   useEffect(() => {
     if (options?.theme) {

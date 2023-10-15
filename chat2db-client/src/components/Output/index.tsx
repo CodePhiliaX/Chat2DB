@@ -2,19 +2,15 @@ import React, { memo, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Table } from 'antd';
-import historyService, { IGetHistoryListParams } from '@/service/history';
-import { set } from 'lodash';
-
-export interface IGetOutputParams extends IGetHistoryListParams {}
+import historyService, { IHistoryRecord } from '@/service/history';
 
 interface IProps {
   className?: string;
-  params: IGetOutputParams;
 }
 
 export default memo<IProps>((props) => {
-  const { className, params } = props;
-  const [dataSource, setDataSource] = React.useState<any[]>([]);
+  const { className } = props;
+  const [dataSource, setDataSource] = React.useState<IHistoryRecord[]>([]);
 
   const columns = [
     {
@@ -36,21 +32,32 @@ export default memo<IProps>((props) => {
       title: '数据库/schema',
       dataIndex: 'databaseName',
       key: 'databaseName',
+      render: (value: string, record: IHistoryRecord) => {
+        return <span>{`${record.dataSourceName}/${record.databaseName}`}</span>;
+      },
+    },
+    {
+      title: 'ddl',
+      dataIndex: 'ddl',
+      key: 'ddl',
     },
     {
       title: '状态',
-      dataIndex: 'state',
-      key: 'state',
+      dataIndex: 'status',
+      key: 'status',
+      render: (value: boolean) => {
+        return <span style={{ color: value ? 'green' : 'red' }}>{value ? '成功' : '失败'}</span>;
+      },
     },
     {
-      title: 'sql',
-      dataIndex: 'name',
-      key: 'name',
+      title: '影响行数',
+      dataIndex: 'operationRows',
+      key: 'operationRows',
     },
     {
       title: '执行耗时',
-      dataIndex: 'executionTime',
-      key: 'executionTime',
+      dataIndex: 'useTime',
+      key: 'useTime',
     },
   ];
 
@@ -59,9 +66,14 @@ export default memo<IProps>((props) => {
   }, []);
 
   const getHistoryList = () => {
-    historyService.getHistoryList(params).then((res) => {
-      setDataSource(res.data);
-    });
+    historyService
+      .getHistoryList({
+        pageNo: 1,
+        pageSize: 100,
+      })
+      .then((res) => {
+        setDataSource(res.data);
+      });
   };
 
   return (
