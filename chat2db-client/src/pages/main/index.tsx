@@ -167,14 +167,20 @@ function MainPage(props: IProps) {
           items: [
             {
               key: '1',
-              label: <div onClick={handleLogout}>{i18n('login.text.logout')}</div>,
+              label: (
+                <div className={styles.userDropdown} onClick={handleLogout}>
+                  <Iconfont code="&#xe6b2;" />
+                  {i18n('login.text.logout')}
+                </div>
+              ),
             },
           ],
         }}
         placement="bottomRight"
-        arrow={{ pointAtCenter: true }}
       >
-        <Iconfont code="&#xe64c;" className={styles.questionIcon} />
+        <div className={styles.userBox}>
+          <Iconfont code="&#xe64c;" className={styles.questionIcon} />
+        </div>
       </Dropdown>
     );
   };
@@ -206,6 +212,7 @@ function MainPage(props: IProps) {
               window.open('https://github.com/chat2db/chat2db/wiki');
             }}
           /> */}
+
           {userInfo ? renderUser() : null}
           <Setting className={styles.setIcon} />
         </div>
