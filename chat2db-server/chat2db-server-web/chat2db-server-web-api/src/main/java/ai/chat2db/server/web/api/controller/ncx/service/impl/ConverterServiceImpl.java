@@ -20,6 +20,7 @@ import com.alibaba.excel.util.FileUtils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ import java.util.zip.ZipFile;
  * @author lzy
  **/
 @Service
+@Slf4j
 @Transactional(rollbackFor = Exception.class)
 public class ConverterServiceImpl implements ConverterService {
 
@@ -131,8 +133,10 @@ public class ConverterServiceImpl implements ConverterService {
                 connectionMap.put(map.get("ConnectionName") + map.get("ConnType"), map);
             }
             configMap.add(connectionMap);
+            log.info("insert to db, param:{}", JSON.toJSONString(configMap));
             // 将获取到navicat导入的链接，写入chat2db的h2数据库
             insertDBConfig(configMap);
+            log.info("insert to h2 success");
             //删除临时文件
             FileUtils.delete(file);
         } catch (Exception e) {
@@ -401,6 +405,7 @@ public class ConverterServiceImpl implements ConverterService {
                     }
                 }
                 dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
+                log.info("begin insert:{}", JSON.toJSONString(dataSourceDO));
                 dataSourceMapper.insert(dataSourceDO);
             }
         }
