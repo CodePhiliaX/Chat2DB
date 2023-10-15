@@ -72,6 +72,7 @@ const Login: React.FC = () => {
 
       <Setting
         className={styles.setting}
+        noLogin
         render={
           <Button
             type="text"
