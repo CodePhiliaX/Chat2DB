@@ -44,7 +44,7 @@ export interface IConnectConsoleParams {
   databaseName: string;
 }
 
-const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/ddl/list', { method: 'get' });
+const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/table/list', { method: 'get' });
 
 const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
 

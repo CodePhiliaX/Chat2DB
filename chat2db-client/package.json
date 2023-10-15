@@ -46,7 +46,8 @@
     "umi": "^4.0.70",
     "umi-request": "^1.4.0",
     "uuid": "^9.0.0",
-    "@dnd-kit/modifiers": "^6.0.1"
+    "@dnd-kit/modifiers": "^6.0.1",
+    "highlight.js": "^11.9.0"
   },
   "devDependencies": {
     "@types/event-source-polyfill": "^1.0.1",
