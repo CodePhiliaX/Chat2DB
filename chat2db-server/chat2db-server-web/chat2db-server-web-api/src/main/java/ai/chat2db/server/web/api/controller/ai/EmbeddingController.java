@@ -1,20 +1,29 @@
 package ai.chat2db.server.web.api.controller.ai;
 
+import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
+import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableSelector;
+import ai.chat2db.server.domain.api.param.TableVectorParam;
+import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.tools.base.enums.WhiteListTypeEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
+import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableMilvusQueryRequest;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.request.WhiteListRequest;
+import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.spi.model.Table;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
@@ -23,10 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -54,6 +60,15 @@ public class EmbeddingController extends ChatController {
     private TableService tableService;
 
     /**
+     * check if in white list
+     */
+    @GetMapping("/white/check")
+    public DataResult<Boolean> checkInWhite(WhiteListRequest request) {
+        request.setWhiteType(WhiteListTypeEnum.VECTOR.getCode());
+        return gatewayClientService.checkInWhite(request);
+    }
+
+    /**
      * save datasource embeddings
      *
      * @param request
@@ -66,6 +81,7 @@ public class EmbeddingController extends ChatController {
         throws Exception {
 
         // query tables
+        request.setPageNo(1);
         request.setPageSize(1000);
         TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
         TableSelector tableSelector = new TableSelector();
@@ -129,6 +145,51 @@ public class EmbeddingController extends ChatController {
     }
 
     /**
+     * sync table vector
+     *
+     * @param param
+     */
+    public void syncTableVector(TableBriefQueryRequest param) throws Exception {
+        TableVectorParam vectorParam = rdbWebConverter.param2param(param);
+        if (Objects.isNull(vectorParam.getDataSourceId())) {
+            return;
+        }
+        if (StringUtils.isBlank(vectorParam.getDatabase()) && StringUtils.isBlank(vectorParam.getSchema())) {
+            return;
+        }
+        DataResult<Boolean> result = tableService.checkTableVector(vectorParam);
+        if (result.getData()) {
+            return;
+        }
+
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
+        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
+        // only sync for chat2db ai
+        if (Objects.isNull(config) || !aiSqlSource.equals(config.getContent())) {
+            return;
+        }
+        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
+        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
+            return;
+        }
+
+        TableMilvusQueryRequest request = rdbWebConverter.request2request(param);
+        String apiKey = keyConfig.getContent();
+        request.setApikey(apiKey);
+
+        // check if in white list
+        boolean res = gatewayClientService.checkInWhite(new WhiteListRequest(apiKey, WhiteListTypeEnum.VECTOR.getCode())).getData();
+        if (!res) {
+            return;
+        }
+
+        embeddings(request);
+
+        tableService.saveTableVector(vectorParam);
+    }
+
+    /**
      * save table embedding
      *
      * @param tableSchema
@@ -144,9 +205,12 @@ public class EmbeddingController extends ChatController {
             // request embedding
             FastChatEmbeddingResponse response = distributeAIEmbedding(str);
             if(response == null){
-                continue;
+                throw new ParamBusinessException();
             }
             contentVector.add(response.getData().get(0).getEmbedding());
+        }
+        if (CollectionUtils.isEmpty(contentVector)) {
+            throw new ParamBusinessException();
         }
         tableSchemaRequest.setSchemaVector(contentVector);
 
