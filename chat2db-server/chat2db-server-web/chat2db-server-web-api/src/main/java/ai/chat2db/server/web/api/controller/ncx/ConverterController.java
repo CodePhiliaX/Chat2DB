@@ -41,6 +41,7 @@ public class ConverterController {
     @SneakyThrows
     @PostMapping("/ncx/upload")
     public DataResult<UploadVO> ncxUploadFile(@RequestParam("file") MultipartFile file) {
+        log.info("开始上传ncx");
         // 验证文件后缀
         String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.NCX.name())) {
@@ -53,7 +54,7 @@ public class ConverterController {
 
     @SneakyThrows
     @PostMapping("/dbp/upload")
-    public DataResult<UploadVO> dbpUploadFile(@RequestParam("file") MultipartFile file) {
+    public DataResult<UploadVO> edbpUploadFile(@RequestParam("file") MultipartFile file) {
         // 验证文件后缀
         String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.DBP.name())) {
