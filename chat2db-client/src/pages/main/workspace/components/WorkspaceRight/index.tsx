@@ -326,8 +326,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
 
     if (databaseName || schemaName) {
-      console.log('getAllTable Before:', window._BaseURL);
-      debugger;
       sqlService
         .getAllTableList({
           dataSourceId,
