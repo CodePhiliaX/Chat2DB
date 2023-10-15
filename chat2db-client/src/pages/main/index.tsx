@@ -199,7 +199,11 @@ function MainPage(props: IProps) {
                 })}
                 onClick={() => switchingNav(item)}
               >
-                <Iconfont style={{ fontSize: `${item.iconFontSize}px` }} className={styles.icon} code={item.icon} />
+                <Iconfont
+                  style={{ '--icon-size': item.iconFontSize + 'px' } as any}
+                  className={styles.icon}
+                  code={item.icon}
+                />
               </li>
             );
           })}

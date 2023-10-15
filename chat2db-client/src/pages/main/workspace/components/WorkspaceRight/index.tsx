@@ -7,6 +7,7 @@ import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, wor
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import TabsNew, { ITabItem } from '@/components/TabsNew';
+import WorkspaceExtend from '../WorkspaceExtend';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
@@ -18,7 +19,7 @@ import { IAIState } from '@/models/ai';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
-import { Button } from 'antd';
+import { Button, Popover } from 'antd';
 import {
   registerIntelliSenseField,
   registerIntelliSenseKeyword,
@@ -588,14 +589,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             // lastTabCannotClosed
           />
         </div>
-        <div className={styles.rightBar}>
-          <div className={styles.rightBarFront}>
-            <Iconfont code="&#xe8ad;" box size={16} />
-          </div>
-          <div className={styles.rightBarAfter}>
-            <Iconfont code="&#xe8ad;" box size={20} />
-          </div>
-        </div>
+        {/* <WorkspaceExtend className={styles.workspaceExtend} /> */}
       </LoadingContent>
     </div>
   );
