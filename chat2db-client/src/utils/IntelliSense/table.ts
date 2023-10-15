@@ -45,7 +45,7 @@ const registerIntelliSenseTable = (
   tableList: Array<{ name: string; comment: string }>,
   databaseCode?: DatabaseTypeCode,
   dataSourceId?: number,
-  databaseName?: string,
+  databaseName?: string | null,
   schemaName?: string | null,
 ) => {
   monaco.editor.registerCommand('addFieldList', (_: any, ...args: any[]) => {
@@ -55,7 +55,7 @@ const registerIntelliSenseTable = (
 
   intelliSenseTable.dispose();
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', ],
+    triggerCharacters: [' '],
     provideCompletionItems: (model, position) => {
       const lineContentUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,

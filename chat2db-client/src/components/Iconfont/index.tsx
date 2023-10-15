@@ -20,16 +20,43 @@ if (__ENV__ === 'local') {
   style.appendChild(document.createTextNode(container));
 }
 
-export default class Iconfont extends PureComponent<
-  {
-    code: string;
-  } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
-> {
-  render() {
-    return (
-      <i {...this.props} className={classnames(this.props.className, styles.iconfont)}>
-        {this.props.code}
-      </i>
-    );
-  }
+interface IProps {
+  code: string;
+  box?: boolean;
+  boxSize?: number;
+  size?: number;
+  className?: string;
+  classNameBox?: string;
 }
+
+const Iconfont = (props: IProps) => {
+  const { box, boxSize = 32, size = 14, className, classNameBox, ...args } = props;
+  return box ? (
+    <div
+      {...args}
+      style={
+        {
+          '--icon-box-size': `${boxSize}px`,
+          '--icon-size': `${size}px`,
+        } as any
+      }
+      className={classnames(classNameBox, styles.iconBox)}
+    >
+      <i className={classnames(className, styles.iconfont)}>{props.code}</i>
+    </div>
+  ) : (
+    <i
+      {...args}
+      style={
+        {
+          '--icon-size': `${size}px`,
+        } as any
+      }
+      className={classnames(className, styles.iconfont)}
+    >
+      {props.code}
+    </i>
+  );
+};
+
+export default Iconfont;

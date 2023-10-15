@@ -1,6 +1,6 @@
 import { extend, ResponseError, type RequestOptionsInit } from 'umi-request';
 import { message } from 'antd';
-import { navigate } from '@/utils'
+import { navigate } from '@/utils';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -10,7 +10,7 @@ export interface IOptions {
   delayTime?: number | true;
   outside?: boolean;
   isFullPath?: boolean;
-  dynamicUrl?: boolean; 
+  dynamicUrl?: boolean;
 }
 
 // TODO:
@@ -127,11 +127,22 @@ request.interceptors.response.use(async (response) => {
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
   // 路由跳转
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
+  const {
+    method = 'get',
+    mock = false,
+    errorLevel = 'toast',
+    delayTime,
+    outside,
+    isFullPath,
+    dynamicUrl,
+  } = options || {};
 
-  // 是否需要mock
-  const _baseURL = (mock ? mockUrl : baseURL) || '';
-  return function (params: P,  restParams?: RequestOptionsInit) {
+  return function (params: P, restParams?: RequestOptionsInit) {
+    // 是否需要mock
+    const _baseURL = (mock ? mockUrl : baseURL) || '';
+    // if (url === '/api/rdb/ddl/list') {
+    //   debugger;
+    // }
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
 
@@ -171,7 +182,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
       eventualUrl = isFullPath ? url : eventualUrl;
 
       // 动态的url
-      if(dynamicUrl){
+      if (dynamicUrl) {
         eventualUrl = params as string;
       }
 
