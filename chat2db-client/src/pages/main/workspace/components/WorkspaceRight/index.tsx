@@ -326,6 +326,8 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
 
     if (databaseName || schemaName) {
+      console.log('getAllTable Before:', window._BaseURL);
+      debugger;
       sqlService
         .getAllTableList({
           dataSourceId,
@@ -337,6 +339,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
           registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
         });
+      console.log('getAllTable Before:', window._BaseURL);
     }
   }, [curWorkspaceParams.databaseType, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
