@@ -249,6 +249,7 @@ function Console(props: IProps) {
     if (isNL2SQL) {
       setIsLoading(true);
     } else {
+      setAiContent('');
       setIsAiDrawerOpen(true);
       setIsAiDrawerLoading(true);
     }
@@ -264,11 +265,11 @@ function Console(props: IProps) {
     const handleMessage = (message: string) => {
       // console.log('message', message);
       setIsLoading(false);
+      setIsAiDrawerLoading(false);
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
           closeEventSource();
-          setIsLoading(false);
           if (isChat2DBAI) {
             dispatch({
               type: 'ai/fetchRemainingUse',
@@ -326,9 +327,11 @@ function Console(props: IProps) {
           editorRef?.current?.setValue(JSON.parse(message).content);
         } else {
           chatResult.current += JSON.parse(message).content;
+          setAiContent(chatResult.current);
         }
       } catch (error) {
         setIsLoading(false);
+        setIsAiDrawerLoading(false);
       }
     };
 
