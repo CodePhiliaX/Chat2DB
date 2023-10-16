@@ -62,7 +62,7 @@ public interface GatewayClientService {
      * @return
      */
     @Post("/api/client/milvus/knowledge/save")
-    ActionResult knowledgeVectorSave(KnowledgeRequest request);
+    ActionResult knowledgeVectorSave(@Query KnowledgeRequest request);
 
     /**
      * save table schema vector
@@ -71,7 +71,7 @@ public interface GatewayClientService {
      * @return
      */
     @Post("/api/client/milvus/schema/save")
-    ActionResult schemaVectorSave(TableSchemaRequest request);
+    ActionResult schemaVectorSave(@Query TableSchemaRequest request);
 
     /**
      * save knowledge vector
@@ -80,7 +80,7 @@ public interface GatewayClientService {
      * @return
      */
     @Get("/api/client/milvus/knowledge/search")
-    DataResult<KnowledgeResponse> knowledgeVectorSearch(KnowledgeRequest searchVectors);
+    DataResult<KnowledgeResponse> knowledgeVectorSearch(@Query KnowledgeRequest searchVectors);
 
     /**
      * save table schema vector
@@ -89,7 +89,7 @@ public interface GatewayClientService {
      * @return
      */
     @Get("/api/client/milvus/schema/search")
-    DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request);
+    DataResult<TableSchemaResponse> schemaVectorSearch(@Query TableSchemaRequest request);
 
     /**
      * check in white list
@@ -98,6 +98,6 @@ public interface GatewayClientService {
      * @return
      */
     @Get("/api/client/whitelist/check")
-    DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest);
+    DataResult<Boolean> checkInWhite(@Query WhiteListRequest whiteListRequest);
 
 }
