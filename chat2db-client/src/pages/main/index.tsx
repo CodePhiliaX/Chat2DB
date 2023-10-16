@@ -10,7 +10,7 @@ import BrandLogo from '@/components/BrandLogo';
 import { findObjListValue } from '@/utils';
 import { getUser, userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
-import { ILoginUser } from '@/typings/user';
+import { ILoginUser, IRole } from '@/typings/user';
 import i18n from '@/i18n';
 
 // ----- model -----
@@ -217,7 +217,7 @@ function MainPage(props: IProps) {
             }}
           /> */}
 
-          {userInfo ? renderUser() : null}
+          {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
           <Setting className={styles.setIcon} />
         </div>
       </div>
