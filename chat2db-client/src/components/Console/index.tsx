@@ -21,7 +21,7 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
-import { isEmpty } from 'lodash';
+import { isEmpty, set } from 'lodash';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -113,6 +113,10 @@ function Console(props: IProps) {
     () => aiModel.aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
     [aiModel.aiConfig?.aiSqlSource],
   );
+
+  useEffect(() => {
+    handleSelectTableSyncModel();
+  }, [aiModel.hasWhite, localStorage.getItem('syncTableModel')]);
 
   useEffect(() => {
     if (appendValue) {
@@ -430,14 +434,11 @@ function Console(props: IProps) {
     const syncModel: SyncModelType | null = Number(localStorage.getItem('syncTableModel')) ?? null;
     const hasAiAccess = aiModel.hasWhite;
 
-    if (!hasAiAccess) {
-      return SyncModelType.MANUAL;
+    if (!hasAiAccess || isEmpty(syncModel)) {
+      setSyncTableModel(SyncModelType.MANUAL);
     }
 
-    if (isEmpty(syncModel)) {
-      return SyncModelType.MANUAL;
-    }
-    return syncModel;
+    setSyncTableModel(syncModel);
   };
 
   return (
@@ -465,7 +466,6 @@ function Console(props: IProps) {
             }}
             onClickRemainBtn={handleClickRemainBtn}
             syncTableModel={syncTableModel}
-            defaultSelectedSyncModel={handleSelectTableSyncModel()}
             onSelectTableSyncModel={(model: number) => {
               setSyncTableModel(model);
               localStorage.setItem('syncTableModel', String(model));
