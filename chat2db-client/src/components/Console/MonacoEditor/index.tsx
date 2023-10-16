@@ -211,7 +211,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   const createAction = (editor: IEditorIns) => {
     // 用于控制切换该菜单键的显示
-    // const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
+    editor.createContextKey('shouldShowSqlRunnerAction', true);
 
     if (!props.addAction || !props.addAction.length) {
       return;

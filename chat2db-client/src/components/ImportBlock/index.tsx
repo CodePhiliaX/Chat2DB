@@ -38,12 +38,8 @@ function ImportBlock(props: IImportBlockProps) {
   };
 
   return (
-    <div
-      onClick={() => {
-        setOpen(true);
-      }}
-    >
-      {children}
+    <div>
+      <div onClick={() => setOpen(true)}>{children}</div>
 
       <Modal title={title} open={open} onCancel={onClose} onOk={onOk}>
         <Upload
