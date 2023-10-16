@@ -246,25 +246,9 @@ public class Chat2DBAIStreamClient {
 
             FastChatEmbeddingResponse chatEmbeddingResponse = null;
             Response response = this.okHttpClient.newCall(request).execute();
-            StringBuilder body = new StringBuilder();
             if (response.isSuccessful()) {
-                ResponseBody responseBody = response.body();
-                if (responseBody != null) {
-                    // 获取响应体的输入流
-                    java.io.InputStream inputStream = responseBody.byteStream();
-                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        // 在这里处理每行响应内容
-                        body.append(line);
-                    }
-
-                    // 关闭流
-                    reader.close();
-                    inputStream.close();
-                }
-                chatEmbeddingResponse = mapper.readValue(body.toString(), FastChatEmbeddingResponse.class);
+                String body = response.body().string();
+                chatEmbeddingResponse = mapper.readValue(body, FastChatEmbeddingResponse.class);
             }
             log.info("finish invoking chat embedding");
             return chatEmbeddingResponse;
