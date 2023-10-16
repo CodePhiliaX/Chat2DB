@@ -8,6 +8,11 @@ import { WarningOutlined } from '@ant-design/icons';
 import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
 
+export const enum SyncModelType {
+  AUTO = 0,
+  MANUAL = 1,
+}
+
 interface IProps {
   value?: string;
   result?: string;
@@ -49,8 +54,8 @@ const ChatInput = (props: IProps) => {
           style={{ marginBottom: '8px' }}
         >
           <Space direction="horizontal">
-            <Radio value={0}>自动</Radio>
-            <Radio value={1}>手动</Radio>
+            <Radio value={SyncModelType.AUTO}>自动</Radio>
+            <Radio value={SyncModelType.MANUAL}>手动</Radio>
           </Space>
         </Radio.Group>
         {syncTableModel === 0 ? (
@@ -95,7 +100,7 @@ const ChatInput = (props: IProps) => {
           title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
           defaultOpen={!hasBubble}
           color={window._AppThemePack.colorBgBase}
-          trigger={'click'}
+          trigger={'contextMenu'}
           onOpenChange={() => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
