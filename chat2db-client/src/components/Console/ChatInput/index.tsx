@@ -23,7 +23,6 @@ interface IProps {
   aiType: AiSqlSourceType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
-  defaultSelectedSyncModel?: SyncModelType;
   onPressEnter: (value: string) => void;
   onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
@@ -50,7 +49,6 @@ const ChatInput = (props: IProps) => {
     return (
       <div className={styles.aiSelectedTable}>
         <Radio.Group
-          defaultValue={props.defaultSelectedSyncModel ?? SyncModelType.MANUAL}
           onChange={(v) => onSelectTableSyncModel(v.target.value)}
           value={syncTableModel}
           style={{ marginBottom: '8px' }}
@@ -102,7 +100,7 @@ const ChatInput = (props: IProps) => {
           title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
           defaultOpen={!hasBubble}
           color={window._AppThemePack.colorBgBase}
-          trigger={'click'}
+          trigger={'contextMenu'}
           onOpenChange={() => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
