@@ -14,17 +14,25 @@
   }
 }
 
+.workspaceRightMain {
+  display: flex;
+}
+
+.workspaceExtend {
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border);
+  display: flex;
+}
+
 .tabs {
   height: 100%;
   width: 100%;
 }
 
 .tabBox {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
+  flex: 1;
+  width: 0px;
+  height: 100%;
 }
 
 .activeConsoleBox {

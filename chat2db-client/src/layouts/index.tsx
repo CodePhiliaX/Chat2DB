@@ -13,10 +13,12 @@ import { useTheme } from '@/hooks';
 import { ThemeType, LangType } from '@/constants/';
 import styles from './index.less';
 import { getLang, setLang } from '@/utils/localStorage';
-import { clearOlderLocalStorage, getCookie } from '@/utils';
+import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
+import Iconfont from '@/components/Iconfont';
+import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
 
 declare global {
@@ -79,7 +81,7 @@ function AppContainer() {
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
-  const [startSchedule, setStartSchedule] = useState(1); // 0 初始状态 1 服务启动中 2 启动成功
+  const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
   const [isLogin, setIsLogin] = useState<boolean | null>(null);
 
@@ -152,9 +154,6 @@ function AppContainer() {
         .testService()
         .then(() => {
           clearInterval(time);
-          // if (__ENV__ === 'desktop') {
-          //   window.location.href = 'http://127.0.0.1:10824/'
-          // }
           setStartSchedule(2);
           flag++;
         })
@@ -174,12 +173,20 @@ function AppContainer() {
       {initEnd && (
         <div className={styles.app}>
           {/* 服务启动中 */}
-          {(startSchedule === 1 || isLogin === null) && (
+          {(startSchedule < 2 || isLogin === null) && (
             <div className={styles.loadingBox}>
               <Spin spinning={!serviceFail} size="large" />
-              {/* <div className={styles.hint}>
-                    <Setting />
-                  </div> */}
+              {/* 状态等于1时，说明没服务起来需要轮训接口，这时可能服务配置又问题，需要设置来修改 */}
+              {startSchedule === 1 && (
+                <Setting
+                  render={
+                    <div className={styles.settingBox}>
+                      <Iconfont code="&#xe630;" />
+                    </div>
+                  }
+                  noLogin
+                />
+              )}
               {serviceFail && (
                 <>
                   <div className={styles.github}>

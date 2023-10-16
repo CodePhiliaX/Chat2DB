@@ -24,11 +24,15 @@ public class Chat2dbAIClient {
      */
     public static final String CHAT2DB_OPENAI_HOST = "chat2db.apiHost";
 
+    /**
+     * FASTCHAT OPENAI embedding model
+     */
+    public static final String CHAT2DB_EMBEDDING_MODEL= "fastchat.embedding.model";
 
-    private static OpenAiStreamClient CHAT2DB_AI_STREAM_CLIENT;
-    private static String apiKey;
 
-    public static OpenAiStreamClient getInstance() {
+    private static Chat2DBAIStreamClient CHAT2DB_AI_STREAM_CLIENT;
+
+    public static Chat2DBAIStreamClient getInstance() {
         if (CHAT2DB_AI_STREAM_CLIENT != null) {
             return CHAT2DB_AI_STREAM_CLIENT;
         } else {
@@ -36,7 +40,7 @@ public class Chat2dbAIClient {
         }
     }
 
-    private static OpenAiStreamClient singleton() {
+    private static Chat2DBAIStreamClient singleton() {
         if (CHAT2DB_AI_STREAM_CLIENT == null) {
             synchronized (Chat2dbAIClient.class) {
                 if (CHAT2DB_AI_STREAM_CLIENT == null) {
@@ -65,9 +69,8 @@ public class Chat2dbAIClient {
             apikey = ApplicationContextUtil.getProperty(CHAT2DB_OPENAI_KEY);
         }
         log.info("refresh chat2db apikey:{}", maskApiKey(apikey));
-        CHAT2DB_AI_STREAM_CLIENT = OpenAiStreamClient.builder().apiHost(apiHost).apiKey(
-            Lists.newArrayList(apikey)).build();
-        apiKey = apikey;
+        CHAT2DB_AI_STREAM_CLIENT = Chat2DBAIStreamClient.builder().apiHost(apiHost).apiKey(
+            apikey).build();
     }
 
     private static String maskApiKey(String input) {

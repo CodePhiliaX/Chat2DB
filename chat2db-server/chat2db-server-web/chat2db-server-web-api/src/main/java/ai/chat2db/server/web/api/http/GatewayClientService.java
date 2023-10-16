@@ -4,11 +4,10 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.request.WhiteListRequest;
 import ai.chat2db.server.web.api.http.response.*;
 import com.dtflys.forest.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Gateway 的http 服务
@@ -91,4 +90,14 @@ public interface GatewayClientService {
      */
     @Get("/api/client/milvus/schema/search")
     DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request);
+
+    /**
+     * check in white list
+     *
+     * @param whiteListRequest
+     * @return
+     */
+    @Get("/api/client/whitelist/check")
+    DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest);
+
 }

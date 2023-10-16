@@ -113,4 +113,20 @@ public interface TableService {
      * @return
      */
     TableMeta queryTableMeta(TypeQueryParam param);
+
+    /**
+     * save table vector
+     *
+     * @param param
+     * @return
+     */
+    ActionResult saveTableVector(TableVectorParam param);
+
+    /**
+     * check if table vector saved status
+     *
+     * @param param
+     * @return
+     */
+    DataResult<Boolean> checkTableVector(TableVectorParam param);
 }

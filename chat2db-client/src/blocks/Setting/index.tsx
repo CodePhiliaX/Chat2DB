@@ -18,27 +18,24 @@ interface IProps {
   aiConfig: IAiConfig;
   className?: string;
   render?: ReactNode;
-  // text?: string;
   dispatch: (params: any) => void;
+  noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
 }
 
 function Setting(props: IProps) {
-  const { className, dispatch } = props;
+  const { className, dispatch, noLogin = false } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [currentMenu, setCurrentMenu] = useState(0);
 
-  // 判断当前页面是否为登录页
-  const loginPage = window.location.pathname === '/login';
-
   useEffect(() => {
-    if (isModalVisible && !loginPage) {
+    if (isModalVisible && !noLogin) {
       getAiSystemConfig();
     }
   }, [isModalVisible]);
 
   useEffect(() => {
-    if (!loginPage) {
+    if (!noLogin) {
       getAiSystemConfig();
     }
   }, []);
@@ -100,11 +97,6 @@ function Setting(props: IProps) {
     <>
       <div className={classnames(className, styles.box)} onClick={showModal}>
         {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
-        {/* {text ? (
-          <span className={styles.setText}>{text}</span>
-        ) : (
-          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )} */}
       </div>
       <TestVersion />
       <Modal
@@ -119,7 +111,8 @@ function Setting(props: IProps) {
           <div className={styles.menus}>
             <div className={classnames(styles.menusTitle)}>{i18n('setting.title.setting')}</div>
             {menusList.map((t, index) => {
-              if (loginPage && index === 1) {
+              // 如果是没有登录的页面，不显示ai设置等需要登录的功能
+              if (noLogin && index === 1) {
                 return false;
               }
               return (
