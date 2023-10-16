@@ -475,19 +475,24 @@ public class ChatController {
 
         // 查询schema信息
         String dataSourceType = queryDatabaseType(queryRequest);
-        TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
-        Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
-        List<String> tableSchemas = tableColumns.entrySet().stream().map(
-            entry -> String.format("%s(%s)", entry.getKey(),
-                entry.getValue().stream().map(TableColumn::getName).collect(
-                    Collectors.joining(", ")))).collect(Collectors.toList());
-        String properties = String.join("\n#", tableSchemas);
+        String properties = "";
+        if (CollectionUtils.isNotEmpty(queryRequest.getTableNames())) {
+            TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
+            Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
+            List<String> tableSchemas = tableColumns.entrySet().stream().map(
+                    entry -> String.format("%s(%s)", entry.getKey(),
+                            entry.getValue().stream().map(TableColumn::getName).collect(
+                                    Collectors.joining(", ")))).collect(Collectors.toList());
+            properties = String.join("\n#", tableSchemas);
+        } else {
+            properties = queryDatabaseSchema(queryRequest);
+        }
         String prompt = queryRequest.getMessage();
         String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
             : queryRequest.getPromptType();
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
-        String schemaProperty = CollectionUtils.isNotEmpty(tableSchemas) ? String.format(
+        String schemaProperty = StringUtils.isNotEmpty(properties) ? String.format(
             "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables, with their properties:\n#\n# "
                 + "%s\n#\n#\n### SQL input: %s", pType.getDescription(), ext, dataSourceType,
             properties, prompt) : String.format("### 请根据以下SQL input%s. %s\n#\n### SQL input: %s",
@@ -527,7 +532,7 @@ public class ChatController {
      * @return
      * @throws IOException
      */
-    public String queryDatabaseSchema(ChatQueryRequest queryRequest) throws IOException {
+    public String queryDatabaseSchema(ChatQueryRequest queryRequest) {
         // request embedding
         FastChatEmbeddingResponse response = distributeAIEmbedding(queryRequest.getMessage());
         List<List<BigDecimal>> contentVector = new ArrayList<>();
