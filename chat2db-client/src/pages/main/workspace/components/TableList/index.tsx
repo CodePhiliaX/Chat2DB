@@ -79,43 +79,13 @@ const TableList = dvaModel((props: any) => {
       {
         label: (
           <div className={styles.operationItem}>
-            <Iconfont className={styles.operationIcon} code="&#xe63a;" />
+            <Iconfont className={styles.operationIcon} code="&#xec83;" />
             <div className={styles.operationTitle}>{i18n('common.button.createConsole')}</div>
           </div>
         ),
         key: 'createConsole',
         onClick: () => {
           addConsole();
-        },
-      },
-      {
-        label: (
-          <ImportBlock
-            title={i18n('common.button.import')}
-            accept={'.sql'}
-            onConfirm={async (file) => {
-              if (Array.isArray(file)) return Promise.resolve(false);
-
-              const reader = new FileReader();
-
-              reader.onload = function (event) {
-                const sqlContent = (event.target?.result ?? '') as string;
-                addConsole(sqlContent);
-              };
-
-              reader.readAsText(file);
-              return Promise.resolve(true);
-            }}
-          >
-            <div className={styles.operationItem}>
-              <Iconfont className={styles.operationIcon} code="&#xe66c;" />
-              <div className={styles.operationTitle}>{i18n('common.button.import')}</div>
-            </div>
-          </ImportBlock>
-        ),
-        key: 'importSQL',
-        onClick: () => {
-          // addConsole();
         },
       },
       {
@@ -208,6 +178,36 @@ const TableList = dvaModel((props: any) => {
             },
           },
         ],
+      },
+      {
+        label: (
+          <ImportBlock
+            title={i18n('common.button.import')}
+            accept={'.sql'}
+            onConfirm={async (file) => {
+              if (Array.isArray(file)) return Promise.resolve(false);
+
+              const reader = new FileReader();
+
+              reader.onload = function (event) {
+                const sqlContent = (event.target?.result ?? '') as string;
+                addConsole(sqlContent);
+              };
+
+              reader.readAsText(file);
+              return Promise.resolve(true);
+            }}
+          >
+            <div className={styles.operationItem}>
+              <Iconfont className={styles.operationIcon} code="&#xe66c;" />
+              <div className={styles.operationTitle}>{i18n('common.button.import')}</div>
+            </div>
+          </ImportBlock>
+        ),
+        key: 'importSQL',
+        onClick: () => {
+          // addConsole();
+        },
       },
     ];
     const dataSourceFormConfig = dataSourceFormConfigs.find((item) => item.type === curWorkspaceParams.databaseType);
