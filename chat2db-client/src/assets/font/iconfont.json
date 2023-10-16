@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "29570629",
+      "name": "退出",
+      "font_class": "tuichu",
+      "unicode": "e6b2",
+      "unicode_decimal": 59058
+    },
+    {
+      "icon_id": "25071396",
+      "name": "控桩终端",
+      "font_class": "kongzhuangzhongduan",
+      "unicode": "e6bb",
+      "unicode_decimal": 59067
+    },
+    {
       "icon_id": "4890374",
       "name": "撤销",
       "font_class": "chexiao1",

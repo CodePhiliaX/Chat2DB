@@ -11,12 +11,6 @@ import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
 
-// interface IProps {
-//   className?: string;
-//   workspaceModel: IWorkspaceModelType['state'];
-//   dispatch: any;
-// }
-
 const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
   workspaceModel: workspace,
 }));
