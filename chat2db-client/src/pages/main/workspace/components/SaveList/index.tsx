@@ -85,11 +85,11 @@ const SaveList = dvaModel((props: any) => {
   }
 
   function openConsole(data: IConsole) {
-    let p: any = {
+    const params: any = {
       id: data.id,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
     };
-    historyServer.updateSavedConsole(p).then((res) => {
+    historyServer.updateSavedConsole(params).then((res) => {
       dispatch({
         type: 'workspace/setCreateConsoleIntro',
         payload: {
@@ -103,24 +103,11 @@ const SaveList = dvaModel((props: any) => {
   }
 
   function deleteSaved(data: IConsole) {
-    let p: any = {
+    const params: any = {
       id: data.id,
+      status: ConsoleStatus.DRAFT,
     };
-    historyServer.deleteSavedConsole(p).then((res) => {
-      // dispatch({
-      //   type: 'workspace/fetchGetSavedConsole',
-      //   payload: {
-      //     orderByDesc: true,
-      //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      //     ...curWorkspaceParams
-      //   },
-      //   callback: (res: any) => {
-      //     dispatch({
-      //       type: 'workspace/setOpenConsoleList',
-      //       payload: res.data,
-      //     })
-      //   }
-      // })
+    historyServer.updateSavedConsole(params).then((res) => {
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
@@ -168,7 +155,7 @@ const SaveList = dvaModel((props: any) => {
         )}
       </div>
       <div ref={saveBoxListRef} className={styles.saveBoxList}>
-        <LoadingContent data={consoleList} handleEmpty>
+        <LoadingContent className={styles.loadingContent} data={consoleList} handleEmpty>
           {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
               <div

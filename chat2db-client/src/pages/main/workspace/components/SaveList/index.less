@@ -45,7 +45,10 @@
 .saveBoxList {
   padding: 0px 10px;
   height: calc(26px * 3 + 6px);
-  overflow-y: auto;
+  overflow-y: hidden;
+  &:hover {
+    overflow-y: auto;
+  }
 }
 
 .leftModuleTitleShadow {

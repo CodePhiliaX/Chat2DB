@@ -2,11 +2,12 @@
 
 .tableBox {
   height: calc(100% - 26px);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   :global {
-    .hGEOgo {
+    .art-table {
       --header-bgcolor: #fafafa;
       --header-color: #000;
       table colgroup col {
@@ -14,6 +15,10 @@
       }
       table colgroup col:nth-of-type(1) {
         min-width: 60px;
+      }
+      th,
+      td {
+        overflow: hidden;
       }
       .fnWppk {
         // word-break: break-all;
