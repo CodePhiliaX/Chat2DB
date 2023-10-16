@@ -110,9 +110,6 @@ public class OauthController {
         if (loginUser == null) {
             return null;
         }
-        if (RoleCodeEnum.DESKTOP.getCode().equals(loginUser.getRoleCode())) {
-            return null;
-        }
         return loginUser;
     }
 
