@@ -140,7 +140,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         onSave?.(value || '');
       });
 
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
         const value = getCurrentSelectContent();
         onExecute?.(value);
       });

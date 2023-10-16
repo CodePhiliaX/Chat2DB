@@ -31,7 +31,7 @@ interface IProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 const Iconfont = (props: IProps) => {
-  console.log(active);
+  // console.log(active);
   const { box, boxSize = 32, size = 14, className, classNameBox, active, ...args } = props;
   return box ? (
     <div
