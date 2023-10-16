@@ -85,37 +85,41 @@ function AppContainer() {
   const [serviceFail, setServiceFail] = useState(false);
   const [isLogin, setIsLogin] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    const date = new Date('2030-12-30 12:30:00').toUTCString();
-    document.cookie = `CHAT2DB.LOCALE=${getLang()};Expires=${date}`;
-    indexedDB.createDB('chat2db', 1).then((db) => {
-      window._indexedDB = {
-        chat2db: db,
-      };
-    });
-    getUser().then((res) => {
-      if (!res) {
-        navigate('/login');
-      }
-      // 向cookie中写入当前用户id
-      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
-      setIsLogin(!!res);
-    });
+  useLayoutEffect(() => {
+    collectInitApp();
   }, []);
 
   useEffect(() => {
     injectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
   }, [token]);
 
-  useLayoutEffect(() => {
-    collectInitApp();
-  }, []);
+  function handelGetUserInfo() {
+    getUser().then((res) => {
+      if (!res) {
+        navigate('/login');
+      }
+      // 向cookie中写入当前用户id
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
+      setIsLogin(!!res);
+    });
+  }
 
   // 初始化app
   function collectInitApp() {
     monitorOsTheme();
     initLang();
+    initIndexedDB();
     setInitEnd(true);
+  }
+
+  // 初始化indexedDB
+  function initIndexedDB() {
+    indexedDB.createDB('chat2db', 1).then((db) => {
+      window._indexedDB = {
+        chat2db: db,
+      };
+    });
   }
 
   // 监听系统(OS)主题变化
@@ -136,9 +140,12 @@ function AppContainer() {
 
   // 初始化语言
   function initLang() {
-    if (!getLang()) {
+    const lang = getLang();
+    if (!lang) {
       setLang(LangType.EN_US);
       document.documentElement.setAttribute('lang', LangType.EN_US);
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.LOCALE=${lang};Expires=${date}`;
     }
   }
 
@@ -155,6 +162,7 @@ function AppContainer() {
         .then(() => {
           clearInterval(time);
           setStartSchedule(2);
+          handelGetUserInfo();
           flag++;
         })
         .catch(() => {

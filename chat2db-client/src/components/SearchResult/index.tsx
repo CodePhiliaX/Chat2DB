@@ -48,7 +48,7 @@ export default memo<IProps>((props) => {
           <div className={styles.statusBar}>
             <span>{`【${i18n('common.text.result')}】${queryResultData.description}.`}</span>
             <span>{`【${i18n('common.text.timeConsuming')}】${queryResultData.duration}ms.`}</span>
-            {queryResultData?.dataList?.length && (
+            {!!queryResultData?.dataList?.length && (
               <span>{`【${i18n('common.text.searchRow')}】${queryResultData?.dataList?.length} ${i18n(
                 'common.text.row',
               )}.`}</span>
