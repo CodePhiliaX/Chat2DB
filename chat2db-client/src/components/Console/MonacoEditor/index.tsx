@@ -145,6 +145,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         onExecute?.(value);
       });
 
+      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
+        const value = getCurrentSelectContent();
+        onExecute?.(value);
+      });
+
       // 注册快捷键command+shift+L新建console
       editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
         // onShortcutKeyCallback?.(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, keyCode: 76 }));
@@ -211,8 +216,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   const createAction = (editor: IEditorIns) => {
     // 用于控制切换该菜单键的显示
-    // const shouldShowSqlRunnerAction = editor.createContextKey('shouldShowSqlRunnerAction', true);
-
+    editor.createContextKey('shouldShowSqlRunnerAction', true);
     if (!props.addAction || !props.addAction.length) {
       return;
     }
