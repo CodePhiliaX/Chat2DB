@@ -49,7 +49,8 @@ const registerAppMenu = (mainWindow) => {
       submenu: [
         {
           label: '刷新',
-          accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
+          // accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
+          accelerator: 'CmdOrCtrl+Shift+X',
           click() {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
