@@ -18,9 +18,14 @@ const setAiSystemConfig = createRequest<IAiConfig, void>('/api/config/system_con
   method: 'post',
 });
 
+const getAiWhiteAccess = createRequest<{ apiKey: string }, boolean>('/api/ai/embedding/white/check', {
+  method: 'get',
+});
+
 export default {
   getSystemConfig,
   setSystemConfig,
   getAiSystemConfig,
   setAiSystemConfig,
+  getAiWhiteAccess
 };

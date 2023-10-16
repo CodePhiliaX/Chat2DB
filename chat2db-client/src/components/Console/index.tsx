@@ -3,7 +3,7 @@ import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
-import ChatInput from './ChatInput';
+import ChatInput, { SyncModelType } from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import historyServer from '@/service/history';
 import aiServer from '@/service/ai';
@@ -21,7 +21,7 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
-import ImportBlock from '../ImportBlock';
+import { isEmpty } from 'lodash';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -411,8 +411,6 @@ function Console(props: IProps) {
     setPopularizeModal(true);
   };
 
-  const handleImportSQL = () => {};
-
   /**
    * 格式化sql
    */
@@ -426,6 +424,20 @@ function Console(props: IProps) {
     formatSql(sql, executeParams.type!).then((res) => {
       editorRef?.current?.setValue(res, setValueType);
     });
+  };
+
+  const handleSelectTableSyncModel = () => {
+    const syncModel: SyncModelType | null = Number(localStorage.getItem('syncTableModel')) ?? null;
+    const hasAiAccess = aiModel.hasWhite;
+
+    if (!hasAiAccess) {
+      return SyncModelType.MANUAL;
+    }
+
+    if (isEmpty(syncModel)) {
+      return SyncModelType.MANUAL;
+    }
+    return syncModel;
   };
 
   return (
@@ -453,7 +465,11 @@ function Console(props: IProps) {
             }}
             onClickRemainBtn={handleClickRemainBtn}
             syncTableModel={syncTableModel}
-            onSelectTableSyncModel={(model: number) => setSyncTableModel(model)}
+            defaultSelectedSyncModel={handleSelectTableSyncModel()}
+            onSelectTableSyncModel={(model: number) => {
+              setSyncTableModel(model);
+              localStorage.setItem('syncTableModel', String(model));
+            }}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}

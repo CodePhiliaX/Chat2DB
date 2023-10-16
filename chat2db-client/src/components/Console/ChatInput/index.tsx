@@ -8,6 +8,11 @@ import { WarningOutlined } from '@ant-design/icons';
 import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
 
+export const enum SyncModelType {
+  AUTO = 0,
+  MANUAL = 1,
+}
+
 interface IProps {
   value?: string;
   result?: string;
@@ -18,6 +23,7 @@ interface IProps {
   aiType: AiSqlSourceType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
+  defaultSelectedSyncModel?: SyncModelType;
   onPressEnter: (value: string) => void;
   onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
@@ -44,13 +50,14 @@ const ChatInput = (props: IProps) => {
     return (
       <div className={styles.aiSelectedTable}>
         <Radio.Group
+          defaultValue={props.defaultSelectedSyncModel ?? SyncModelType.MANUAL}
           onChange={(v) => onSelectTableSyncModel(v.target.value)}
           value={syncTableModel}
           style={{ marginBottom: '8px' }}
         >
           <Space direction="horizontal">
-            <Radio value={0}>自动</Radio>
-            <Radio value={1}>手动</Radio>
+            <Radio value={SyncModelType.AUTO}>自动</Radio>
+            <Radio value={SyncModelType.MANUAL}>手动</Radio>
           </Space>
         </Radio.Group>
         {syncTableModel === 0 ? (
