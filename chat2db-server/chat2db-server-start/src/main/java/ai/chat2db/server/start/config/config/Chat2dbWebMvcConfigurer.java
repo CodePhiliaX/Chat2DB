@@ -56,7 +56,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
      * 全局放行的url
      */
     private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**",
-        "/api/system"};
+        "/api/system", "/login"};
 
     @Resource
     private UserService userService;
@@ -138,6 +138,9 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         log.info("访问{},{}需要登录", buildHeaderString(request), SaHolder.getRequest().getUrl());
 
                         String path = SaHolder.getRequest().getRequestPath();
+//                        if(path.startsWith("/login")){
+//                            return true;
+//                        }
                         if (path.startsWith(API_PREFIX)) {
                             response.getWriter().println(JSON.toJSONString(
                                 ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"),
@@ -145,7 +148,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                             return false;
                         } else {
                             throw new RedirectBusinessException(
-                                "/login-a#/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(),
+                                "/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(),
                                     request.getQueryString()));
                         }
                     }
