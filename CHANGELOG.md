@@ -4,14 +4,16 @@
 ## Changelog
 - ⭐【New Features】Support the feature of importing Navicat/DBever data source links
 - ⭐【New Features】Support importing SQL files.
-- ⚡️【Optimize】Optimize Editor Autocompletion
+- ⚡️【Optimize】Optimize Editor Intellisense 
 - ⚡️【Optimize】Optimize AI Input
+- ⚡️【Optimize】`Cmd/Ctrl + R` Run SQL， `Cmd/Ctrl + Shift + R` Refresh Page
 - 🐞 解决XXXX
 ## 更新日志
 - ⭐【新功能】支持导入Navciat/DBeaver数据源链接的功能
 - ⭐【新功能】支持导入sql文件
 - ⚡️【优化】优化编辑器提示功能
 - ⚡️【优化】优化AI输入
+- ⚡️【优化】`Cmd/Ctrl + R` 运行SQL， `Cmd/Ctrl + Shift + R` 刷新页面
 - 🐞 解决XXXX
 
 # 2.2.0
