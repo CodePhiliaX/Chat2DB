@@ -19,7 +19,7 @@ import { IAIState } from '@/models/ai';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import { v4 as uuidV4 } from 'uuid';
 import { IWorkspaceTab } from '@/typings';
-import { Button, Popover } from 'antd';
+import { Button } from 'antd';
 import {
   registerIntelliSenseField,
   registerIntelliSenseKeyword,
@@ -37,7 +37,7 @@ interface IProps {
 const WorkspaceRight = memo<IProps>((props: IProps) => {
   const { className, workspaceModel, dispatch } = props;
   // 活跃的TabID
-  const [activeConsoleId, setActiveConsoleId] = useState<number | string>();
+  const [activeConsoleId, setActiveConsoleId] = useState<number | string | null>(null);
   // 工作台tab列表
   const [workspaceTabList, setWorkspaceTabList] = useState<IWorkspaceTab[]>([]);
 
@@ -45,6 +45,10 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     workspaceModel;
 
   const tableList = useRef<Array<string>>([]);
+
+  useEffect(() => {
+    setActiveConsoleId(null);
+  }, [curWorkspaceParams]);
 
   // 根据保存的console列表生成tab列表
   useEffect(() => {
@@ -57,7 +61,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       };
     });
     setWorkspaceTabList(newTabList || []);
-    setActiveConsoleId(newTabList[0]?.id);
+    if (!activeConsoleId) {
+      setActiveConsoleId(newTabList[0]?.id);
+    }
   }, [openConsoleList]);
 
   // 注册快捷键command+shift+L新建console
@@ -402,7 +408,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   }
 
   // 切换tab
-  function onTabChange(key: string | number | undefined) {
+  function onTabChange(key: string | number | null) {
     setActiveConsoleId(key);
   }
 
