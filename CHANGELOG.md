@@ -2,6 +2,9 @@
 
 `2023-10-17`
 ## Changelog
+- ⭐【New Features】Support for team collaboration mode
+- ⭐【New Features】Support for visual table structure creation, editing, and deletion
+- ⭐【New Features】Support for editing, adding, and deleting query data results
 - ⭐【New Features】Support the feature of importing Navicat/DBever data source links
 - ⭐【New Features】Support importing SQL files.
 - ⚡️【Optimize】Optimize Editor Intellisense 
@@ -9,6 +12,9 @@
 - ⚡️【Optimize】`Cmd/Ctrl + R` Run SQL， `Cmd/Ctrl + Shift + R` Refresh Page
 - 🐞 解决XXXX
 ## 更新日志
+- ⭐【新功能】支持团队协作模式
+- ⭐【新功能】支持可视化表结构新增、编辑、删除
+- ⭐【新功能】支持查询数据结果编辑、新增、删除
 - ⭐【新功能】支持导入Navciat/DBeaver数据源链接的功能
 - ⭐【新功能】支持导入sql文件
 - ⚡️【优化】优化编辑器提示功能
