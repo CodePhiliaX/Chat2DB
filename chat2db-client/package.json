@@ -22,9 +22,10 @@
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:main:prod": "cross-env NODE_ENV=production electron .",
-    "start:web": "cross-env UMI_ENV=local HMR=none cross-env APP_VERSION=${npm_config_app_version} umi dev"
+    "start:web": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
   },
   "dependencies": {
+    "@dnd-kit/modifiers": "^6.0.1",
     "ahooks": "^3.7.7",
     "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
