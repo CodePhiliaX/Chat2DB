@@ -26,6 +26,7 @@ export default {
   'connection.text.tryAgainDownload': 'Try again download',
   'connection.text.downloading': 'Downloading...',
   'connection.label.private': 'Private',
-  'connection.label.shared': 'Shared',
-
+  'connection.button.shared': 'Shared',
+  'connection.button.createConnection': 'Create connection',
+  'connection.tips.noConnection': 'You have not created any connections yet',
 };

@@ -1,12 +1,11 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import i18n, { isEn } from '@/i18n';
-import { Outlet, useNavigate } from 'umi';
+import { Outlet } from 'umi';
 import { ConfigProvider, theme, Spin } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig, injectThemeVar } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
-import { getUser } from '@/service/user';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
@@ -77,13 +76,11 @@ export default function Layout() {
 const restartCount = 200;
 
 function AppContainer() {
-  const navigate = useNavigate();
   const { token } = useToken();
   const [initEnd, setInitEnd] = useState(false);
   const [appTheme, setAppTheme] = useTheme();
   const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
-  const [isLogin, setIsLogin] = useState<boolean | null>(null);
 
   useLayoutEffect(() => {
     collectInitApp();
@@ -92,18 +89,6 @@ function AppContainer() {
   useEffect(() => {
     injectThemeVar(token as any, appTheme.backgroundColor, appTheme.primaryColor);
   }, [token]);
-
-  function handelGetUserInfo() {
-    getUser().then((res) => {
-      if (!res) {
-        navigate('/login');
-      }
-      // 向cookie中写入当前用户id
-      const date = new Date('2030-12-30 12:30:00').toUTCString();
-      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
-      setIsLogin(!!res);
-    });
-  }
 
   // 初始化app
   function collectInitApp() {
@@ -162,7 +147,6 @@ function AppContainer() {
         .then(() => {
           clearInterval(time);
           setStartSchedule(2);
-          handelGetUserInfo();
           flag++;
         })
         .catch(() => {
@@ -181,7 +165,7 @@ function AppContainer() {
       {initEnd && (
         <div className={styles.app}>
           {/* 服务启动中 */}
-          {(startSchedule < 2 || isLogin === null) && (
+          {startSchedule < 2 && (
             <div className={styles.loadingBox}>
               <Spin spinning={!serviceFail} size="large" />
               {/* 状态等于1时，说明没服务起来需要轮训接口，这时可能服务配置又问题，需要设置来修改 */}
@@ -211,7 +195,7 @@ function AppContainer() {
             </div>
           )}
           {/* 服务启动完成 */}
-          {startSchedule === 2 && isLogin !== null && <Outlet />}
+          {startSchedule === 2 && <Outlet />}
         </div>
       )}
       {/* 全局的弹窗 */}

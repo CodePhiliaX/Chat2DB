@@ -6,11 +6,12 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Button, Tag } from 'antd';
+import { Cascader, Spin, Modal, Tag } from 'antd';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
+import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
@@ -71,6 +72,9 @@ const WorkspaceHeader = memo<IProps>((props) => {
       setIsRefresh(false);
     }
     // connectionList转换成可用的ConnectionOptions
+    // if (!connectionList.length) {
+    //   setNoConnectionModal(true);
+    // }
     setConnectionOptions(
       connectionList?.map((t) => {
         return {
@@ -308,18 +312,11 @@ const WorkspaceHeader = memo<IProps>((props) => {
         </div>
       )}
 
-      <Modal
-        open={noConnectionModal}
-        closeIcon={<></>}
-        keyboard={false}
-        maskClosable={false}
-        title="温馨提示"
-        footer={[]}
-      >
+      <Modal open={noConnectionModal} closeIcon={<></>} keyboard={false} maskClosable={false} footer={false}>
         <div className={styles.noConnectionModal}>
-          <div className={styles.mainText}>您当前还没有创建任何连接</div>
-          <Button
-            type="primary"
+          <div className={styles.mainText}>{i18n('connection.tips.noConnection')}</div>
+          <Iconfont className={styles.icon} code="&#xe638;" />
+          <div
             className={styles.createButton}
             onClick={() => {
               setNoConnectionModal(false);
@@ -329,8 +326,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
               });
             }}
           >
-            创建连接
-          </Button>
+            {i18n('connection.button.createConnection')}
+          </div>
         </div>
       </Modal>
     </>

@@ -27,4 +27,6 @@ export default {
   'connection.text.downloading': '下载中...',
   'connection.label.private': '私有',
   'connection.label.shared': '共享',
+  'connection.button.createConnection': '创建连接',
+  'connection.tips.noConnection': '您当前还没有创建任何连接',
 }
