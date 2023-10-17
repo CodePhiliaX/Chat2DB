@@ -1,3 +1,21 @@
+# 2.2.0
+
+## ⭐ New Features
+
+## 🐞 Bug Fixes
+
+- 
+
+## ⭐ 新特性
+
+- 🔥新增**表结构**编辑功能
+- 🔥新增**表数据**编辑功能
+- 
+
+
+## 🐞 问题修复
+
+
 # 2.1.0
 
 ## ⭐ New Features
@@ -6,6 +24,13 @@
   password, solving the security issue of enterprise database accounts. It is recommended to directly deploy the team
   function using 'docker'
 - Added support for environment selection, better distinguishing between online and daily
+
+## ⭐ 新特性
+
+-🔥新推出团队功能，支持团队协作。研发不需要知道在线数据库 
+密码，解决企业数据库帐号的安全问题。建议直接部署团队 
+使用'docker'的函数 
+-增加了环境选择的支持，更好地区分在线和日常
 
 # 2.0.14
 
