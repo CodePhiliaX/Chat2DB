@@ -255,7 +255,7 @@ function Connections(props: IProps) {
         </div>
         <div className={styles.layoutRight}>
           {Object.keys(curConnection).length ? (
-            curConnection.environmentId === 2 ? (
+            (curConnection.kind === ConnectionKind.Private && curConnection.id) || !curConnection.id ? (
               <div
                 className={classnames(styles.createConnections, {
                   [styles.showCreateConnections]: Object.keys(curConnection).length,
