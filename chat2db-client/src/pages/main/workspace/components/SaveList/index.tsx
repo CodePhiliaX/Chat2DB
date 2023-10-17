@@ -6,7 +6,7 @@ import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
-import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType } from '@/constants';
+import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
@@ -166,7 +166,10 @@ const SaveList = dvaModel((props: any) => {
                 className={styles.saveItem}
               >
                 <div className={styles.saveItemText}>
-                  <span dangerouslySetInnerHTML={{ __html: t.name }} />
+                  <div className={styles.iconBox}>
+                    <Iconfont code={workspaceTabConfig[t.operationType]?.icon} />
+                  </div>
+                  <div className={styles.itemName} dangerouslySetInnerHTML={{ __html: t.name }} />
                 </div>
                 <Dropdown
                   menu={{

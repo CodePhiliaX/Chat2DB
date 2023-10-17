@@ -8,7 +8,6 @@ import SearchResult from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
 import { IManageResultData, IResultConfig } from '@/typings';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
-import historyServer, { ISaveBasicInfo } from '@/service/history';
 import { IAIState } from '@/models/ai';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';

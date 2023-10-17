@@ -344,7 +344,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
           registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
         });
-      console.log('getAllTable Before:', window._BaseURL);
     }
   }, [curWorkspaceParams.databaseType, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
@@ -453,7 +452,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           uniqueData: newConsole,
         },
       ];
-      console.log(newList);
       setWorkspaceTabList(newList);
       setActiveConsoleId(res);
     });

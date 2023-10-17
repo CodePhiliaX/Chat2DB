@@ -63,7 +63,6 @@ function SQLEditor({ id, dataSource, database }) {
 
   useEffect(() => {
     //
-    console.log('dataSource', dataSource);
     providerKeyword.dispose();
     providerKeyword = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems: (model, position) => {

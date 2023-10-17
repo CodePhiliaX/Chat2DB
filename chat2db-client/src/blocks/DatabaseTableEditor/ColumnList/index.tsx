@@ -107,14 +107,9 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       form.setFieldsValue({ ...record });
       setEditingData(record);
       // 根据当前字段类型，设置编辑配置
-      console.log(databaseSupportField.columnTypes, record.columnType);
       databaseSupportField.columnTypes.forEach((i) => {
         if (i.typeName === record.columnType) {
           setEditingConfig({
-            ...i,
-            editKey: record.key!,
-          });
-          console.log({
             ...i,
             editKey: record.key!,
           });
@@ -161,6 +156,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       title: i18n('editTable.label.columnName'),
       dataIndex: 'name',
       width: '160px',
+      fixed: 'left',
       render: (text: string, record: IColumnItemNew) => {
         const editable = isEditing(record);
         return (
@@ -319,7 +315,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       }
       return item;
     });
-    console.log(newData);
     setDataSource(newData);
   };
 

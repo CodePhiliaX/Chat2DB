@@ -211,7 +211,6 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           }, delayTime);
         })
         .catch((error) => {
-          console.log('catch error', error);
           delayTimeFn(() => {
             errorHandler(error, errorLevel);
             reject(error);
