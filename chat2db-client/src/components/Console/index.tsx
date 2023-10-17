@@ -452,13 +452,12 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const handleSelectTableSyncModel = () => {
     const syncModel: SyncModelType | null = Number(localStorage.getItem('syncTableModel')) ?? null;
     const hasAiAccess = aiModel.hasWhite;
-
-    if (!hasAiAccess || isEmpty(syncModel)) {
-      setSyncTableModel(SyncModelType.MANUAL);
+    if (syncModel !== null) {
+      setSyncTableModel(syncModel);
       return;
     }
 
-    setSyncTableModel(syncModel);
+    setSyncTableModel(hasAiAccess ? SyncModelType.AUTO : SyncModelType.MANUAL);
   };
 
   return (
