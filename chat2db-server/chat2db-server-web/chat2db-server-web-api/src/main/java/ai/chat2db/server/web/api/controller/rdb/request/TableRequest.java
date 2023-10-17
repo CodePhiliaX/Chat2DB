@@ -4,6 +4,7 @@ import java.util.List;
 
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,17 @@ public class TableRequest {
      * 索引
      */
     private List<TableIndex> indexList;
+
+
+    /**
+     * 空间名
+     */
+    private String schemaName;
+
+    /**
+     * 数据库名
+     */
+    private String databaseName;
 
 
     private String engine;
