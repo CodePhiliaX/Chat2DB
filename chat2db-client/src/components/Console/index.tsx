@@ -343,12 +343,14 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
         setIsLoading(false);
         setIsAiDrawerLoading(false);
         setIsStream(false);
+        closeEventSource.current();
       }
     };
 
     const handleError = (error: any) => {
       console.error('Error:', error);
       setIsLoading(false);
+      closeEventSource.current();
     };
 
     closeEventSource.current = connectToEventSource({

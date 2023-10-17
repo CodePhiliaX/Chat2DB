@@ -79,8 +79,8 @@ public interface GatewayClientService {
      * @param searchVectors
      * @return
      */
-    @Get("/api/client/milvus/knowledge/search")
-    DataResult<KnowledgeResponse> knowledgeVectorSearch(@Query KnowledgeRequest searchVectors);
+    @Post(url = "/api/client/milvus/knowledge/search", contentType = "application/json")
+    DataResult<KnowledgeResponse> knowledgeVectorSearch(@Body KnowledgeRequest searchVectors);
 
     /**
      * save table schema vector
@@ -88,8 +88,8 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Get("/api/client/milvus/schema/search")
-    DataResult<TableSchemaResponse> schemaVectorSearch(@Query TableSchemaRequest request);
+    @Post(url = "/api/client/milvus/schema/search", contentType = "application/json")
+    DataResult<TableSchemaResponse> schemaVectorSearch(@Body TableSchemaRequest request);
 
     /**
      * check in white list
