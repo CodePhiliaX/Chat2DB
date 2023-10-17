@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.model.DataSource;
+import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
@@ -444,22 +445,39 @@ public class ChatController {
      * @param tableNames
      * @return
      */
-    private Map<String, List<TableColumn>> buildTableColumn(TableQueryParam tableQueryParam,
+    private String buildTableColumn(TableQueryParam tableQueryParam,
         List<String> tableNames) {
         if (CollectionUtils.isEmpty(tableNames)) {
-            return Maps.newHashMap();
+            return "";
         }
-        List<TableColumn> tableColumns = Lists.newArrayList();
+        List<String> schemaContent = Lists.newArrayList();
         try {
-            tableColumns = tableService.queryColumns(tableQueryParam);
+             schemaContent = tableNames.stream().map(tableName -> {
+                tableQueryParam.setTableName(tableName);
+                return queryTableDdl(tableName, tableQueryParam);
+            }).collect(Collectors.toList());
         } catch (Exception exception) {
             log.error("query table error, do nothing");
         }
-        if (CollectionUtils.isEmpty(tableColumns)) {
-            return Maps.newHashMap();
-        }
-        return tableColumns.stream().filter(tableColumn -> tableNames.contains(tableColumn.getTableName())).collect(
-            Collectors.groupingBy(TableColumn::getTableName, Collectors.toList()));
+
+        return JSON.toJSONString(schemaContent);
+    }
+
+    /**
+     * query table schema
+     *
+     * @param tableName
+     * @param request
+     * @return
+     */
+    private String queryTableDdl(String tableName, TableQueryParam request) {
+        ShowCreateTableParam param = new ShowCreateTableParam();
+        param.setTableName(tableName);
+        param.setDataSourceId(request.getDataSourceId());
+        param.setDatabaseName(request.getDatabaseName());
+        param.setSchemaName(request.getSchemaName());
+        DataResult<String> tableSchema = tableService.showCreateTable(param);
+        return tableSchema.getData();
     }
 
     /**
@@ -478,12 +496,7 @@ public class ChatController {
         String properties = "";
         if (CollectionUtils.isNotEmpty(queryRequest.getTableNames())) {
             TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
-            Map<String, List<TableColumn>> tableColumns = buildTableColumn(queryParam, queryRequest.getTableNames());
-            List<String> tableSchemas = tableColumns.entrySet().stream().map(
-                    entry -> String.format("%s(%s)", entry.getKey(),
-                            entry.getValue().stream().map(TableColumn::getName).collect(
-                                    Collectors.joining(", ")))).collect(Collectors.toList());
-            properties = String.join("\n#", tableSchemas);
+            properties = buildTableColumn(queryParam, queryRequest.getTableNames());
         } else {
             properties = queryDatabaseSchema(queryRequest);
         }
@@ -542,20 +555,27 @@ public class ChatController {
         TableSchemaRequest tableSchemaRequest = new TableSchemaRequest();
         tableSchemaRequest.setSchemaVector(contentVector);
         tableSchemaRequest.setDataSourceId(queryRequest.getDataSourceId());
-        String databaseName = StringUtils.isNotBlank(queryRequest.getDatabaseName()) ? queryRequest.getDatabaseName() : queryRequest.getSchemaName();
-        if (Objects.isNull(databaseName)) {
-            databaseName = "";
+        tableSchemaRequest.setDatabaseName(queryRequest.getDatabaseName());
+        tableSchemaRequest.setDataSourceSchema(queryRequest.getSchemaName());
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
+        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
+            return "";
         }
-        tableSchemaRequest.setDatabaseName(databaseName);
-        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
-
-        List<String> schemas = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
-            for(TableSchema data: result.getData().getTableSchemas()){
-                schemas.add(data.getTableSchema());
+        tableSchemaRequest.setApiKey(keyConfig.getContent());
+        try {
+            DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
+            List<String> schemas = Lists.newArrayList();
+            if (Objects.nonNull(result.getData()) && CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
+                for(TableSchema data: result.getData().getTableSchemas()){
+                    schemas.add(data.getTableSchema());
+                }
             }
+            return JSON.toJSONString(schemas);
+        } catch (Exception exception) {
+            log.error("query table error, do nothing");
+            return "";
         }
-        return JSON.toJSONString(schemas);
     }
 
     /**
