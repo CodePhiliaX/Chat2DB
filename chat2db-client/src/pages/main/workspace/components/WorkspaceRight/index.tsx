@@ -329,23 +329,20 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   }, [curWorkspaceParams.databaseType]);
 
   // 更新表名提示
-  useEffect(() => {
+  useUpdateEffect(() => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
-
-    if (databaseName || schemaName) {
-      sqlService
-        .getAllTableList({
-          dataSourceId,
-          databaseName,
-          schemaName,
-        })
-        .then((data) => {
-          tableList.current = (data || []).map((item: any) => item.name);
-          registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
-          registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
-        });
-    }
-  }, [curWorkspaceParams.databaseType, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
+    sqlService
+      .getAllTableList({
+        dataSourceId,
+        databaseName,
+        schemaName,
+      })
+      .then((data) => {
+        tableList.current = (data || []).map((item: any) => item.name);
+        registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
+        registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
+      });
+  }, [workspaceModel.curTableList]); //当curTableList变化时（比如手动刷新，切换databaseName、schemaName），重新注册表名提示
 
   function createConsole(params: {
     doubleClickTreeNodeData: any;

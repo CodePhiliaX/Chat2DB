@@ -21,9 +21,9 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         }
         String schemaName = connectInfo.getSchemaName();
         try {
-            SQLExecutor.getInstance().execute(connection, "ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\";");
+            SQLExecutor.getInstance().execute(connection, "ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
         } catch (SQLException e) {
-
+            e.printStackTrace();
         }
     }
 

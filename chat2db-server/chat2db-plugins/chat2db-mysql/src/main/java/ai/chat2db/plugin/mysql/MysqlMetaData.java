@@ -253,7 +253,12 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         tableIndexColumn.setCollation(resultSet.getString("Collation"));
         tableIndexColumn.setCardinality(resultSet.getLong("Cardinality"));
         tableIndexColumn.setSubPart(resultSet.getLong("Sub_part"));
-        tableIndexColumn.setAscOrDesc(resultSet.getString("Collation"));
+        String collation = resultSet.getString("Collation");
+        if ("a".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("ASC");
+        } else if ("d".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("DESC");
+        }
         return tableIndexColumn;
     }
 
