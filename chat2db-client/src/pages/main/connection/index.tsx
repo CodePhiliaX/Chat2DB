@@ -297,7 +297,17 @@ function Connections(props: IProps) {
                 );
               })}
               <Button key="importBtn" className={styles.databaseItem} onClick={() => setIsFileUploadModalOpen(true)}>
-                导入链接
+                <div className={styles.databaseItemMain}>
+                  <div className={styles.databaseItemLeft}>
+                    <div className={styles.logoBox}>
+                      <Iconfont code="&#xe653;" />
+                    </div>
+                    {i18n('connection.title.importConnection')}
+                  </div>
+                  <div className={styles.databaseItemRight}>
+                    <Iconfont code="&#xe631;" />
+                  </div>
+                </div>
               </Button>
             </div>
           )}
