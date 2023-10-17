@@ -336,12 +336,14 @@ function Console(props: IProps) {
         setIsLoading(false);
         setIsAiDrawerLoading(false);
         setIsStream(false);
+        closeEventSource.current();
       }
     };
 
     const handleError = (error: any) => {
       console.error('Error:', error);
       setIsLoading(false);
+      closeEventSource.current();
     };
 
     closeEventSource.current = connectToEventSource({
@@ -482,7 +484,7 @@ function Console(props: IProps) {
               localStorage.setItem('syncTableModel', String(model));
             }}
             onCancelStream={() => {
-              closeEventSource.current()
+              closeEventSource.current();
               setIsStream(false);
               setIsLoading(false);
             }}
