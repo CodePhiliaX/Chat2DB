@@ -577,6 +577,7 @@ export default function TableBox(props: ITableProps) {
 
     return sqlService.executeSql(executeSQLParams).then((res) => {
       setQueryResultData(res?.[0]);
+      setUpdateData([]);
     });
   };
   // 不同状态下的表格行样式
@@ -617,7 +618,6 @@ export default function TableBox(props: ITableProps) {
     getTableData().then(() => {
       setViewUpdateDataSqlModal(false);
       message.success(i18n('common.text.successfulExecution'));
-      setUpdateData([]);
     });
   };
 
