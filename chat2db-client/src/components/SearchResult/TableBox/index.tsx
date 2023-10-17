@@ -700,7 +700,7 @@ export default function TableBox(props: ITableProps) {
                       [styles.disableBar]: !updateData.length,
                     })}
                   >
-                    <Iconfont code="&#xe651;" />
+                    <Iconfont code="&#xe654;" />
                   </div>
                 </Popover>
                 <Popover content={i18n('editTableData.tips.submit')} trigger="hover">

@@ -65,6 +65,9 @@ public class EmbeddingController extends ChatController {
     @GetMapping("/white/check")
     public DataResult<Boolean> checkInWhite(WhiteListRequest request) {
         request.setWhiteType(WhiteListTypeEnum.VECTOR.getCode());
+        if (StringUtils.isBlank(request.getApiKey())) {
+            return DataResult.of(false);
+        }
         return gatewayClientService.checkInWhite(request);
     }
 

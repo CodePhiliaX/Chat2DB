@@ -133,14 +133,14 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
           <Form.Item name="ascOrDesc" style={{ margin: 0 }}>
             <Select
               options={[
-                { label: 'ASC', value: 'A' },
-                { label: 'DESC', value: 'D' },
+                { label: 'ASC', value: 'ASC' },
+                { label: 'DESC', value: 'DESC' },
               ]}
             />
           </Form.Item>
         ) : (
           <div className={styles.editableCell} onClick={() => edit(record)}>
-            {text === 'A' ? 'ASC' : text === 'D' ? 'DESC' : null}
+            {text}
           </div>
         );
       },
