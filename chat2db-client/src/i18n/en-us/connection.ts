@@ -2,6 +2,7 @@ export default {
   'connection.title.connections': 'Connections',
   'connection.title.createConnection': 'New Connection',
   'connection.title.editConnection': 'Edit Connection',
+  'connection.title.importConnection': 'Import Connection',
   'connection.label.name': 'name',
   'connection.label.host': 'host',
   'connection.label.authentication': 'authentication',
