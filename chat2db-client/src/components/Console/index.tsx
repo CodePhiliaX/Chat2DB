@@ -102,9 +102,11 @@ function Console(props: IProps) {
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
+  const [isStream, setIsStream] = useState(false);
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
   const initializeSuccessful = useRef(false);
+  const closeEventSource = useRef<any>();
 
   /**
    * 当前选择的AI类型是Chat2DBAI
@@ -269,7 +271,8 @@ function Console(props: IProps) {
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
-          closeEventSource();
+          closeEventSource.current();
+          setIsStream(false);
           if (isChat2DBAI) {
             dispatch({
               type: 'ai/fetchRemainingUse',
@@ -303,14 +306,14 @@ function Console(props: IProps) {
         });
 
         if (hasKeyLimitedOrExpired) {
-          closeEventSource();
+          closeEventSource.current();
           setIsLoading(false);
           handlePopUp();
           return;
         }
 
         if (hasErrorToLogin) {
-          closeEventSource();
+          closeEventSource.current();
           setIsLoading(false);
           hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
           // hasErrorToInvite && handleClickRemainBtn();
@@ -332,6 +335,7 @@ function Console(props: IProps) {
       } catch (error) {
         setIsLoading(false);
         setIsAiDrawerLoading(false);
+        setIsStream(false);
       }
     };
 
@@ -340,9 +344,12 @@ function Console(props: IProps) {
       setIsLoading(false);
     };
 
-    const closeEventSource = connectToEventSource({
+    closeEventSource.current = connectToEventSource({
       url: `/api/ai/chat?${params}`,
       uid,
+      onOpen: () => {
+        setIsStream(true);
+      },
       onMessage: handleMessage,
       onError: handleError,
     });
@@ -449,6 +456,7 @@ function Console(props: IProps) {
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
+            isStream={isStream}
             disabled={isLoading}
             aiType={aiModel.aiConfig?.aiSqlSource}
             remainingUse={aiModel.remainingUse}
@@ -472,6 +480,11 @@ function Console(props: IProps) {
             onSelectTableSyncModel={(model: number) => {
               setSyncTableModel(model);
               localStorage.setItem('syncTableModel', String(model));
+            }}
+            onCancelStream={() => {
+              closeEventSource.current()
+              setIsStream(false);
+              setIsLoading(false);
             }}
           />
         )}
