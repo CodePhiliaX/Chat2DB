@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -22,7 +23,9 @@ import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasySqlUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,6 +70,7 @@ public class OperationLogServiceImpl implements OperationLogService {
         Integer offset = param.getPageSize();
         Page<OperationLogDO> page = new Page<>(start, offset);
         page.setOptimizeCountSql(false);
+        page.setOrders(Arrays.asList(OrderItem.desc("gmt_create")));
         IPage<OperationLogDO> executedDdlDOIPage = operationLogMapper.selectPage(page, queryWrapper);
         List<OperationLog> executedDdlDTOS = operationLogConverter.do2dto(executedDdlDOIPage.getRecords());
         if (CollectionUtils.isEmpty(executedDdlDTOS)) {
