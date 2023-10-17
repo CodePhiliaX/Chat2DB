@@ -118,6 +118,29 @@
   justify-content: center;
   align-items: center;
   position: relative;
+  .notPermission {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .notPermissionIconTips {
+    color: var(--color-text-tertiary);
+    text-align: center;
+    width: 340px;
+  }
+  .notPermissionIconBox,
+  .connectButtonBox {
+    display: flex;
+    justify-content: center;
+  }
+  .notPermissionIcon {
+    font-size: 200px;
+    color: var(--color-text-quaternary);
+    margin: 20px 0px;
+  }
+  .connectButton {
+    margin-top: 20px;
+  }
 }
 
 .dataBaseList {
@@ -131,10 +154,9 @@
 }
 @media (max-width: 1000px) {
   .dataBaseList {
-      grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
-
 
 .databaseItem {
   min-width: 220px;
