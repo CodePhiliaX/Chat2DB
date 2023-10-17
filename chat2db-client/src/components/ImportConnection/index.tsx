@@ -42,7 +42,6 @@ const ImportConnection: React.FC<IImportConnectionProps> = ({ open, onClose, onC
     formData.append('file', selectedFile);
 
     const fileExtension = selectedFile.name.split('.').pop() || '';
-    console.log('fileExtension', fileExtension);
 
     const { uploadUrl } = uploadFileType[fileExtension] || {};
 

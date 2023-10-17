@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useMemo, useRef, useState } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
@@ -11,7 +11,7 @@ import mysqlServer from '@/service/sql';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
 import { ICurWorkspaceParams } from '@/models/workspace';
-import MonacoEditor from '@/components/Console/MonacoEditor';
+import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
 
 export type IProps = {
   className?: string;
@@ -36,10 +36,10 @@ function TreeNodeRightClick(props: IProps) {
   const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
   const { getChildren, operationColumn } = treeNodeConfig;
   const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
-  const [monacoDefaultValue, setMonacoDefaultValue] = useState('');
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
     return t.type === data.extraParams?.databaseType;
   })!;
+  const monacoEditorRef = useRef<IExportRefFunction>(null);
   const OperationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
     [OperationColumn.Refresh]: (data) => {
       return {
@@ -70,7 +70,7 @@ function TreeNodeRightClick(props: IProps) {
               tableName: data.key,
             } as any)
             .then((res) => {
-              setMonacoDefaultValue(res);
+              monacoEditorRef.current?.setValue(res);
               setMonacoVerifyDialog(true);
             });
         },
@@ -81,8 +81,8 @@ function TreeNodeRightClick(props: IProps) {
         text: '移出',
         icon: '\ue62a',
         handle: () => {
-          connectionServer.remove({ id: +data.key }).then((res) => {
-            treeConfig[TreeNodeType.DATA_SOURCES]?.getChildren!({} as any).then((res) => {
+          connectionServer.remove({ id: +data.key }).then(() => {
+            treeConfig[TreeNodeType.DATA_SOURCES]?.getChildren!({} as any).then(() => {
               // setTreeData(res);
             });
           });
@@ -163,7 +163,7 @@ function TreeNodeRightClick(props: IProps) {
     mysqlServer[api]({
       ...curWorkspaceParams,
       tableName: data.key,
-    } as any).then((res) => {
+    } as any).then(() => {
       dispatch({
         type: 'workspace/fetchGetCurTableList',
         payload: {
@@ -208,11 +208,11 @@ function TreeNodeRightClick(props: IProps) {
 
   function handleOk() {
     if (verifyTableName === data.key) {
-      let p: any = {
+      const p: any = {
         ...data.extraParams,
         tableName: data.key,
       };
-      mysqlServer.deleteTable(p).then((res) => {
+      mysqlServer.deleteTable(p).then(() => {
         // notificationApi.success(
         //   {
         //     message: i18n('common.text.successfullyDelete'),
@@ -278,6 +278,9 @@ function TreeNodeRightClick(props: IProps) {
       {notificationDom}
       {!!dropdowns.length && (
         <Dropdown
+          overlayStyle={{
+            zIndex: 1080,
+          }}
           className={className}
           menu={{
             items: dropdowns,
@@ -319,13 +322,7 @@ function TreeNodeRightClick(props: IProps) {
           footer={false}
         >
           <div className={styles.monacoEditorBox}>
-            <MonacoEditor
-              id="edit-dialog"
-              appendValue={{
-                text: monacoDefaultValue,
-                range: 'reset',
-              }}
-            />
+            <MonacoEditor id="edit-dialog" ref={monacoEditorRef} />
           </div>
         </Modal>
       )}

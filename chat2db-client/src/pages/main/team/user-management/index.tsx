@@ -30,7 +30,7 @@ function UserManagement() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type?: AffiliationType; id?: number }>({
     open: false,
-  })
+  });
 
   const columns = useMemo(
     () => [
@@ -56,29 +56,38 @@ function UserManagement() {
         width: 260,
         render: (_: any, record: IUserVO) => (
           <>
-            <Button type='link' onClick={() => {
-              handleEdit(record)
-            }}>
+            <Button
+              type="link"
+              onClick={() => {
+                handleEdit(record);
+              }}
+            >
               {i18n('common.button.edit')}
             </Button>
-            <Button type='link' onClick={() => {
-              setDrawerInfo({
-                ...drawerInfo,
-                open: true,
-                type: AffiliationType.USER_TEAM,
-                id: record.id,
-              })
-            }}>
+            <Button
+              type="link"
+              onClick={() => {
+                setDrawerInfo({
+                  ...drawerInfo,
+                  open: true,
+                  type: AffiliationType.USER_TEAM,
+                  id: record.id,
+                });
+              }}
+            >
               {i18n('team.action.affiliation.team')}
             </Button>
-            <Button type='link' onClick={() => {
-              setDrawerInfo({
-                ...drawerInfo,
-                open: true,
-                type: AffiliationType.USER_DATASOURCE,
-                id: record.id,
-              })
-            }}>
+            <Button
+              type="link"
+              onClick={() => {
+                setDrawerInfo({
+                  ...drawerInfo,
+                  open: true,
+                  type: AffiliationType.USER_DATASOURCE,
+                  id: record.id,
+                });
+              }}
+            >
               {i18n('team.action.affiliation.datasource')}
             </Button>
             <Popconfirm
@@ -133,23 +142,20 @@ function UserManagement() {
   };
 
   const handleEdit = (record: IUserVO) => {
-    form.setFieldsValue(record)
-    setIsModalVisible(true)
-  }
+    form.setFieldsValue(record);
+    setIsModalVisible(true);
+  };
 
   const handleDelete = async (id: number) => {
-    await deleteUser({ id })
-    message.success(i18n('common.text.successfullyDelete'))
-    queryUserList()
-  }
-
+    await deleteUser({ id });
+    message.success(i18n('common.text.successfullyDelete'));
+    queryUserList();
+  };
 
   const isEditing = useMemo(() => {
     return form.getFieldValue('id') !== undefined;
-  }, [form.getFieldValue('id')])
+  }, [form.getFieldValue('id')]);
 
-
-  console.log('form', form.getFieldsValue(true))
   return (
     <div>
       <div className={styles.tableTop}>
@@ -160,10 +166,14 @@ function UserManagement() {
           onSearch={handleSearch}
           enterButton={<SearchOutlined />}
         />
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-          form.resetFields();
-          setIsModalVisible(true)
-        }}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => {
+            form.resetFields();
+            setIsModalVisible(true);
+          }}
+        >
           {i18n('team.action.addUser')}
         </Button>
       </div>
@@ -193,7 +203,7 @@ function UserManagement() {
             })
             .finally(() => {
               form.resetFields();
-            })
+            });
         }}
         onCancel={() => {
           form.resetFields();
@@ -210,19 +220,26 @@ function UserManagement() {
           }}
         >
           <Form.Item label={i18n('team.user.addForm.userName')} name="userName" rules={[requireRule]}>
-            <Input maxLength={50} showCount autoComplete='off' />
+            <Input maxLength={50} showCount autoComplete="off" />
           </Form.Item>
           <Form.Item label={i18n('team.user.addForm.nickName')} name="nickName" rules={[requireRule]}>
             <Input maxLength={100} showCount />
           </Form.Item>
-          <Form.Item label={i18n('team.user.addForm.email')} name="email" rules={[requireRule, {
-            type: 'email',
-            message: i18n('common.form.error.email')
-          }]}>
-            <Input autoComplete='off' />
+          <Form.Item
+            label={i18n('team.user.addForm.email')}
+            name="email"
+            rules={[
+              requireRule,
+              {
+                type: 'email',
+                message: i18n('common.form.error.email'),
+              },
+            ]}
+          >
+            <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={i18n('team.user.addForm.password')} name="password" rules={[requireRule]}>
-            <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete='fake-password' />
+            <Input.Password maxLength={30} placeholder={isEditing ? '******' : ''} autoComplete="fake-password" />
           </Form.Item>
           <Form.Item label={i18n('team.user.addForm.roleCode')} name="roleCode" rules={[requireRule]}>
             <Radio.Group>
@@ -245,8 +262,8 @@ function UserManagement() {
         onClose={() => {
           setDrawerInfo({
             ...drawerInfo,
-            open: false
-          })
+            open: false,
+          });
         }}
       />
     </div>

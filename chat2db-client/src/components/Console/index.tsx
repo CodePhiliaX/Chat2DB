@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
@@ -21,7 +21,7 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
-import { isEmpty, set } from 'lodash';
+import { isEmpty } from 'lodash';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -79,7 +79,11 @@ interface IProps {
   tables: any[];
 }
 
-function Console(props: IProps) {
+export interface IConsoleRef {
+  editorRef: IExportRefFunction | undefined;
+}
+
+function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const {
     hasAiChat = true,
     executeParams,
@@ -125,6 +129,10 @@ function Console(props: IProps) {
       editorRef?.current?.setValue(appendValue.text, appendValue.range);
     }
   }, [appendValue]);
+
+  useImperativeHandle(ref, () => ({
+    editorRef: editorRef?.current,
+  }));
 
   useEffect(() => {
     indexedDB
@@ -265,7 +273,6 @@ function Console(props: IProps) {
     });
 
     const handleMessage = (message: string) => {
-      // console.log('message', message);
       setIsLoading(false);
       setIsAiDrawerLoading(false);
       try {
@@ -282,10 +289,10 @@ function Console(props: IProps) {
             });
           }
           if (isNL2SQL) {
-            editorRef?.current?.setValue('\n\n\n');
+            editorRef?.current?.setValue('\n');
           } else {
             setIsAiDrawerLoading(false);
-            chatResult.current += '\n\n\n';
+            chatResult.current += '\n';
             setAiContent(chatResult.current);
             chatResult.current = '';
           }
@@ -448,13 +455,14 @@ function Console(props: IProps) {
 
     if (!hasAiAccess || isEmpty(syncModel)) {
       setSyncTableModel(SyncModelType.MANUAL);
+      return;
     }
 
     setSyncTableModel(syncModel);
   };
 
   return (
-    <div className={styles.console}>
+    <div className={styles.console} ref={ref as any}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
@@ -465,6 +473,7 @@ function Console(props: IProps) {
             remainingBtnLoading={props.remainingBtnLoading}
             tables={tableListName}
             onPressEnter={(value: string) => {
+              // editorRef?.current?.toFocus();
               handleAiChat(value, IPromptType.NL_2_SQL);
             }}
             selectedTables={selectedTables}
@@ -552,4 +561,4 @@ const dvaModel = connect(({ ai, loading }: { ai: IAIState; loading: any }) => ({
   aiModel: ai,
   remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
 }));
-export default dvaModel(Console);
+export default dvaModel(forwardRef(Console));

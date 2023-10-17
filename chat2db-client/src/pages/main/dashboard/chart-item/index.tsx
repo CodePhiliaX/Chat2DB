@@ -104,7 +104,6 @@ function ChartItem(props: IChartItemProps) {
     if (!curConnection) {
       return;
     }
-    console.log(chartData);
     setChartData({
       ...chartData,
       dataSourceId: curConnection.id,
@@ -384,8 +383,7 @@ function ChartItem(props: IChartItemProps) {
               value={cascaderValue}
               loadData={loadData}
               onChange={(value, selectedOptions) => {
-                console.log('onChange', value, selectedOptions);
-                let p: any = {
+                const p: any = {
                   dataSourceId: '',
                 };
                 //包含了dataSourceId、databaseName、schemaName

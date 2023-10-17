@@ -180,6 +180,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         key: 'sort',
         width: '40px',
         align: 'center',
+        fixed: 'left',
       },
       // {
       //   title: i18n('editTable.label.index'),
@@ -193,6 +194,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         title: i18n('editTable.label.indexName'),
         dataIndex: 'name',
         width: '180px',
+        fixed: 'left',
         render: (text: string, record: IIndexItem) => {
           const editable = isEditing(record);
           return editable ? (
@@ -207,7 +209,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       {
         title: i18n('editTable.label.indexType'),
         dataIndex: 'type',
-        width: '180px',
+        width: '100px',
         render: (text: string, record: IIndexItem) => {
           const editable = isEditing(record);
           return editable ? (
@@ -289,7 +291,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
       _columns.splice(3, 0, {
         title: i18n('editTable.label.indexMethod'),
         dataIndex: 'method',
-        width: '180px',
+        width: '120px',
         render: (text: string, record: IIndexItem) => {
           const editable = isEditing(record);
           return editable ? (

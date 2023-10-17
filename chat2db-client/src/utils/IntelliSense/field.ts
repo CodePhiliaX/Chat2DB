@@ -64,7 +64,6 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
       let word;
       if (match) {
         word = match[1];
-        console.log(word); // 输出: text
       }
 
       if (!word) {
