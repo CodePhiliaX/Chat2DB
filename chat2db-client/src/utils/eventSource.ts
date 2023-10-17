@@ -27,7 +27,6 @@ const connectToEventSource = (params: {
   };
 
   eventSource.onmessage = (event) => {
-    // console.log('onmessage', event);
     onMessage(event.data);
   };
 

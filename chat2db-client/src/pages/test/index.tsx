@@ -17,8 +17,7 @@ function Test() {
         language={'sql'}
         // value={value}
         onChange={(v, e) => {
-          console.log('onChange', v);
-          setValue(v)
+          setValue(v);
         }}
       />
     </>

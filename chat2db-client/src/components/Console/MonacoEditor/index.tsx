@@ -297,6 +297,15 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
       newRange = new monaco.Range(lastLine, lastLineLength, lastLine, lastLineLength);
       newText = `${text}`;
       break;
+    // 在光标处添加内容
+    case 'cursor':
+      {
+        const position = editor.getPosition();
+        if (position) {
+          newRange = new monaco.Range(position.lineNumber, position.column, position.lineNumber, position.column);
+        }
+      }
+      break;
     default:
       break;
   }
@@ -309,10 +318,14 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   // decorations?: IModelDeltaDecoration[]: 一个数组类型的参数，用于指定插入的文本的装饰。可以用来设置文本的样式、颜色、背景色等。如果不需要设置装饰，可以忽略此参数。
   const decorations = [{}]; // 解决新增的文本默认背景色为灰色
   editor.executeEdits('setValue', [op], decorations);
+  const addedLastLine = editor.getModel().getLineCount();
+  const addedLastLineLength = editor.getModel().getLineMaxColumn(lastLine);
+
   if (range === 'end') {
     setTimeout(() => {
-      editor.revealLine(lastLine + 1);
-      editor.setPosition({ lineNumber: lastLine, column: 1 });
+      editor.revealLine(addedLastLine + 1);
+      editor.setPosition({ lineNumber: addedLastLine, column: addedLastLineLength });
+      editor.focus();
     }, 0);
   }
 };

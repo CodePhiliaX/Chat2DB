@@ -87,7 +87,6 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
   const addData = () => {
     const newData = createInitialData();
     setDataSource([...dataSource, newData]);
-    console.log([...dataSource, newData]);
     edit(newData);
     setTimeout(() => {
       tableRef.current?.scrollTo(0, tableRef.current?.scrollHeight + 100);

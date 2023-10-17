@@ -169,20 +169,20 @@ const WorkspaceModel: IWorkspaceModelType = {
       }
     },
     // 获取当前连接下的表列表
-    *fetchGetCurTableList({ payload, callback }, { put, call }) {
+    *fetchGetCurTableList({ payload, callback }, { put }) {
       try {
         const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
           pageNo: 1,
           pageSize: 999,
           ...payload,
-        })) as ITreeNode[];
+        })) as any;
         // 异步操作完成后调用回调函数
         if (callback && typeof callback === 'function') {
-          callback(res);
+          callback(res.data);
         }
         yield put({
           type: 'setCurTableList',
-          payload: res,
+          payload: res.data,
         });
       }
       catch {
