@@ -72,10 +72,10 @@ const AIModel: IAIModelType = {
         payload: res,
       });
       if (res?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
-        yield put({
-          type: 'fetchRemainingUse',
-          payload: { apiKey: res.apiKey },
-        });
+        // yield put({
+        //   type: 'fetchRemainingUse',
+        //   payload: { apiKey: res.apiKey },
+        // });
         yield put({
           type: 'updateAiWithWhite',
           payload: { apiKey: res.apiKey },
@@ -93,10 +93,10 @@ const AIModel: IAIModelType = {
           payload: aiConfig,
         });
 
-        yield put({
-          type: 'fetchRemainingUse',
-          payload: { apiKey: aiConfig?.apiKey },
-        });
+        // yield put({
+        //   type: 'fetchRemainingUse',
+        //   payload: { apiKey: aiConfig?.apiKey },
+        // });
 
         if (aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
           yield put({
