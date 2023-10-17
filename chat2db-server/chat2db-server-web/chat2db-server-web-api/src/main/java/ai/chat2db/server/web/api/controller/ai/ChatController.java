@@ -542,20 +542,27 @@ public class ChatController {
         TableSchemaRequest tableSchemaRequest = new TableSchemaRequest();
         tableSchemaRequest.setSchemaVector(contentVector);
         tableSchemaRequest.setDataSourceId(queryRequest.getDataSourceId());
-        String databaseName = StringUtils.isNotBlank(queryRequest.getDatabaseName()) ? queryRequest.getDatabaseName() : queryRequest.getSchemaName();
-        if (Objects.isNull(databaseName)) {
-            databaseName = "";
+        tableSchemaRequest.setDatabaseName(queryRequest.getDatabaseName());
+        tableSchemaRequest.setDataSourceSchema(queryRequest.getSchemaName());
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
+        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
+            return "";
         }
-        tableSchemaRequest.setDatabaseName(databaseName);
-        DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
-
-        List<String> schemas = Lists.newArrayList();
-        if (CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
-            for(TableSchema data: result.getData().getTableSchemas()){
-                schemas.add(data.getTableSchema());
+        tableSchemaRequest.setApiKey(keyConfig.getContent());
+        try {
+            DataResult<TableSchemaResponse> result = gatewayClientService.schemaVectorSearch(tableSchemaRequest);
+            List<String> schemas = Lists.newArrayList();
+            if (Objects.nonNull(result.getData()) && CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
+                for(TableSchema data: result.getData().getTableSchemas()){
+                    schemas.add(data.getTableSchema());
+                }
             }
+            return JSON.toJSONString(schemas);
+        } catch (Exception exception) {
+            log.error("query table error, do nothing");
+            return "";
         }
-        return JSON.toJSONString(schemas);
     }
 
     /**
