@@ -81,7 +81,7 @@ public enum OracleIndexTypeEnum {
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if (StringUtils.isNotBlank(column.getColumnName())) {
                 script.append("\"").append(column.getColumnName()).append("\"");
-                if (!StringUtils.isBlank(column.getAscOrDesc())) {
+                if (!StringUtils.isBlank(column.getAscOrDesc()) && !PRIMARY_KEY.equals(this)) {
                     script.append(" ").append(column.getAscOrDesc());
                 }
                 script.append(",");
@@ -111,7 +111,8 @@ public enum OracleIndexTypeEnum {
 
     private String buildDropIndex(TableIndex tableIndex) {
         if (OracleIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
-            return StringUtils.join("DROP PRIMARY KEY");
+            String tableName = "\"" + tableIndex.getSchemaName() + "\"." + "\"" + tableIndex.getTableName() + "\"";
+            return StringUtils.join("ALTER TABLE ",tableName," DROP PRIMARY KEY");
         }
         StringBuilder script = new StringBuilder();
         script.append("DROP INDEX ");

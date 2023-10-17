@@ -30,4 +30,5 @@ export default {
   'connection.label.shared': '共享',
   'connection.button.createConnection': '创建连接',
   'connection.tips.noConnection': '您当前还没有创建任何连接',
+  'connection.tips.noConnectionTips': '无权限查看该连接详情，但你可以直接连接该连接',
 };

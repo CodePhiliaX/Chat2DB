@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dropdown, Input, MenuProps, message, Modal, Space, Popover } from 'antd';
+import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
@@ -725,6 +725,7 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
+            // <Spin className={styles.tableSpin}>
             <SupportBaseTable
               className={classnames('supportBaseTable', props.className, styles.table)}
               components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
@@ -741,6 +742,7 @@ export default function TableBox(props: ITableProps) {
               }}
               {...pipeline.getProps()}
             />
+            // </Spin>
           )}
           {/* {bottomStatus} */}
         </>
