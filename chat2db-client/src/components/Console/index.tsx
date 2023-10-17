@@ -289,10 +289,10 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             });
           }
           if (isNL2SQL) {
-            editorRef?.current?.setValue('\n\n');
+            editorRef?.current?.setValue('\n');
           } else {
             setIsAiDrawerLoading(false);
-            chatResult.current += '\n\n\n';
+            chatResult.current += '\n';
             setAiContent(chatResult.current);
             chatResult.current = '';
           }
