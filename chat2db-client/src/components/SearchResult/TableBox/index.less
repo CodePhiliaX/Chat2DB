@@ -1,15 +1,13 @@
 @import '../../../styles/var.less';
 
 .tableBox {
-  height: calc(100% - 26px);
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   :global {
     .art-table {
-      --header-bgcolor: #fafafa;
-      --header-color: #000;
       table colgroup col {
         min-width: 120px;
       }
@@ -120,7 +118,12 @@
   }
 }
 
+.tableSpin {
+  flex: 1;
+}
+
 .table {
+  // height: 100%;
   flex: 1;
 }
 
