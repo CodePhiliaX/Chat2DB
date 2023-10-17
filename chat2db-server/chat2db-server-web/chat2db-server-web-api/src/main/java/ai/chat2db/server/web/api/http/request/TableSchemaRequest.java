@@ -26,5 +26,5 @@ public class TableSchemaRequest {
 
     private List<String> schemaList;
 
-    private Boolean deleteBeforeInsert;
+    private Boolean deleteBeforeInsert = false;
 }
