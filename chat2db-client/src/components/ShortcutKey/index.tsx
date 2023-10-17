@@ -36,12 +36,12 @@ const shortcutsList = [
     keys: [keyboardKey.command, 'Enter'],
   },
   {
-    title: i18n('common.text.saveConsole'),
-    keys: [keyboardKey.command, 'S'],
+    title: i18n('common.text.executeSelectedSQL'),
+    keys: [keyboardKey.command, 'R'],
   },
   {
-    title: i18n('common.text.refreshPage'),
-    keys: [keyboardKey.command, 'R'],
+    title: i18n('common.text.saveConsole'),
+    keys: [keyboardKey.command, 'S'],
   },
   {
     title: i18n('common.button.createConsole'),

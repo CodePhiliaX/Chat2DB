@@ -138,6 +138,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       key: 'sort',
       width: '40px',
       align: 'center',
+      fixed: 'left',
     },
     // {
     //   title: 'O T',
@@ -481,6 +482,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                 pagination={false}
                 rowKey="key"
                 columns={columns as any}
+                scroll={{ x: '100%' }}
                 dataSource={dataSource.filter((i) => i.editStatus !== EditColumnOperationType.Delete)}
               />
             </SortableContext>
