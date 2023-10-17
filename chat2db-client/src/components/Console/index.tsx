@@ -455,6 +455,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
     if (!hasAiAccess || isEmpty(syncModel)) {
       setSyncTableModel(SyncModelType.MANUAL);
+      return;
     }
 
     setSyncTableModel(syncModel);
@@ -472,6 +473,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             remainingBtnLoading={props.remainingBtnLoading}
             tables={tableListName}
             onPressEnter={(value: string) => {
+              // editorRef?.current?.toFocus();
               handleAiChat(value, IPromptType.NL_2_SQL);
             }}
             selectedTables={selectedTables}
