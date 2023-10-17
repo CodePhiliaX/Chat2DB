@@ -95,9 +95,10 @@ public class MysqlSqlBuilder implements SqlBuilder {
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
             }
         }
-
-        script = new StringBuilder(script.substring(0, script.length() - 2));
-        script.append(";");
+        if(script.length()>2) {
+            script = new StringBuilder(script.substring(0, script.length() - 2));
+            script.append(";");
+        }
 
         return script.toString();
     }
