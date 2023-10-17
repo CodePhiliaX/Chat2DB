@@ -23,10 +23,12 @@ interface IProps {
   aiType: AiSqlSourceType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
+  isStream?: boolean;
   onPressEnter: (value: string) => void;
   onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
   onClickRemainBtn: Function;
+  onCancelStream: () => void;
 }
 
 const ChatInput = (props: IProps) => {
@@ -85,17 +87,27 @@ const ChatInput = (props: IProps) => {
     const hasBubble = localStorage.getItem('syncTableBubble');
     return (
       <div className={styles.suffixBlock}>
-        <Button
-          type="primary"
-          className={styles.enter}
-          onClick={() => {
-            if (value) {
-              props.onPressEnter && props.onPressEnter(value);
-            }
-          }}
-        >
-          <Iconfont code="&#xe643;" className={styles.enterIcon} />
-        </Button>
+        {props.isStream ? (
+          <Iconfont
+            onClick={() => {
+              props.onCancelStream && props.onCancelStream();
+            }}
+            code="&#xe652;"
+            className={styles.stop}
+          />
+        ) : (
+          <Button
+            type="primary"
+            className={styles.enter}
+            onClick={() => {
+              if (value) {
+                props.onPressEnter && props.onPressEnter(value);
+              }
+            }}
+          >
+            <Iconfont code="&#xe643;" className={styles.enterIcon} />
+          </Button>
+        )}
         <Tooltip
           title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
           defaultOpen={!hasBubble}

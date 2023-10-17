@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "10933419",
+      "name": "终止",
+      "font_class": "zhongzhi",
+      "unicode": "e652",
+      "unicode_decimal": 58962
+    },
+    {
       "icon_id": "29570629",
       "name": "退出",
       "font_class": "tuichu",
