@@ -1,7 +1,13 @@
 import { EventSourcePolyfill } from 'event-source-polyfill';
 
-const connectToEventSource = (params: { url: string; uid: string; onMessage: Function; onError: Function }) => {
-  const { url, uid, onMessage, onError } = params;
+const connectToEventSource = (params: {
+  url: string;
+  uid: string;
+  onOpen: Function;
+  onMessage: Function;
+  onError: Function;
+}) => {
+  const { url, uid, onOpen, onMessage, onError } = params;
 
   if (!url || !onMessage || !onError) {
     throw new Error('url, onMessage, and onError are required');
@@ -15,7 +21,10 @@ const connectToEventSource = (params: { url: string; uid: string; onMessage: Fun
     },
   };
   const eventSource = new EventSourcePolyfill(`${window._BaseURL}${url}`, p);
-  // const eventSource = new EventSource(`${window._BaseURL}${url}`, p)
+
+  eventSource.onopen = () => {
+    onOpen();
+  };
 
   eventSource.onmessage = (event) => {
     // console.log('onmessage', event);
