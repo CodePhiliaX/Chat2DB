@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "12694416",
+      "name": "角色权限",
+      "font_class": "jiaosequanxian",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "1462912",
+      "name": "preview",
+      "font_class": "preview1",
+      "unicode": "e654",
+      "unicode_decimal": 58964
+    },
+    {
       "icon_id": "11399566",
       "name": "导入",
       "font_class": "daoru",

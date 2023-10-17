@@ -254,29 +254,50 @@ function Connections(props: IProps) {
           )}
         </div>
         <div className={styles.layoutRight}>
-          {curConnection && Object.keys(curConnection).length ? (
-            <div
-              className={classnames(styles.createConnections, {
-                [styles.showCreateConnections]: Object.keys(curConnection).length,
-              })}
-            >
-              {
-                <ConnectionEdit
-                  connectionData={curConnection as any}
-                  closeCreateConnection={() => {
-                    setCurConnection({});
-                  }}
-                  submitCallback={() => {
-                    dispatch({
-                      type: 'connection/fetchConnectionList',
-                      callback: (res: any) => {
-                        setCurConnection(res.data[res.data?.length - 1]);
-                      },
-                    });
-                  }}
-                />
-              }
-            </div>
+          {Object.keys(curConnection).length ? (
+            curConnection.environmentId === 2 ? (
+              <div
+                className={classnames(styles.createConnections, {
+                  [styles.showCreateConnections]: Object.keys(curConnection).length,
+                })}
+              >
+                {
+                  <ConnectionEdit
+                    connectionData={curConnection as any}
+                    closeCreateConnection={() => {
+                      setCurConnection({});
+                    }}
+                    submitCallback={() => {
+                      dispatch({
+                        type: 'connection/fetchConnectionList',
+                        callback: (res: any) => {
+                          setCurConnection(res.data[res.data?.length - 1]);
+                        },
+                      });
+                    }}
+                  />
+                }
+              </div>
+            ) : (
+              <div className={styles.notPermission}>
+                <div className={styles.notPermissionIconBox}>
+                  <Iconfont className={styles.notPermissionIcon} code="&#xe658;" />
+                </div>
+                <div className={styles.notPermissionIconTips}>{i18n('connection.tips.noConnectionTips')}</div>
+                <div className={styles.connectButtonBox}>
+                  <Button
+                    type="primary"
+                    className={styles.connectButton}
+                    icon={<Iconfont code="&#xec57;" />}
+                    onClick={() => {
+                      handleMenuItemDoubleClick({ meta: curConnection });
+                    }}
+                  >
+                    {i18n('connection.button.connect')}
+                  </Button>
+                </div>
+              </div>
+            )
           ) : (
             <div className={styles.dataBaseList}>
               {databaseTypeList.map((t) => {

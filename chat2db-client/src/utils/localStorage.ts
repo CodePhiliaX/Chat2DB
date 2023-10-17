@@ -54,7 +54,7 @@ export function getCurrentWorkspaceDatabase(): ICurWorkspaceParams {
 export function getCurConnection() {
   const curConnection = localStorage.getItem(`cur-connection`);
   if (curConnection) {
-    return JSON.parse(curConnection);
+    return JSON.parse(curConnection || '{}');
   }
   return undefined;
 }

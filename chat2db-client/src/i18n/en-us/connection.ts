@@ -27,7 +27,8 @@ export default {
   'connection.text.tryAgainDownload': 'Try again download',
   'connection.text.downloading': 'Downloading...',
   'connection.label.private': 'Private',
-  'connection.button.shared': 'Shared',
+  'connection.label.shared': 'Shared',
   'connection.button.createConnection': 'Create connection',
   'connection.tips.noConnection': 'You have not created any connections yet',
+  'connection.tips.noConnectionTips': 'You do not have permission to view the connection details, but you can connect to the connection directly',
 };
