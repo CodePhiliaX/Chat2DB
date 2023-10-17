@@ -1,152 +1,143 @@
-import React, { memo, useEffect, useState, useMemo, Fragment, useCallback } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import classnames from 'classnames';
-import Tabs, { IOption } from '@/components/Tabs';
+import TabsNew from '@/components/TabsNew';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
-import { Spin, Popover } from 'antd';
-import { IManageResultData, IResultConfig } from '@/typings';
-import i18n from '@/i18n';
+import Output from '@/components/Output';
+import { IManageResultData } from '@/typings';
 import TableBox from './TableBox';
-import EmptyImg from '@/assets/img/empty.svg';
-import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import styles from './index.less';
+import EmptyImg from '@/assets/img/empty.svg';
+import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
-  manageResultDataList?: IManageResultData[];
-  resultConfig: IResultConfig[];
-  onExecute: (sql: string, config: IResultConfig, index: number) => void;
-  onExport: (sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => Promise<void>;
-  onTabEdit: (type: 'add' | 'remove', value?: number | string) => void;
-  onSearchTotal: (index: number) => Promise<number>;
-  isLoading?: boolean;
+  queryResultDataList?: IManageResultData[];
+  executeSqlParams: any;
 }
 
-interface DataType {
-  [key: string]: any;
-}
-
-const handleTabs = (result: IManageResultData[]) => {
-  return (result || []).map((item, index) => {
-    return {
-      label: (
-        <Popover content={item.originalSql}>
-          <Iconfont
-            key={index}
-            className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
-            code={item.success ? '\ue605' : '\ue87c'}
-          />
-          {`${i18n('common.text.executionResult')}-${index + 1}`}
-        </Popover>
-      ),
-      value: item.uuid!,
-    };
-  });
-};
-
-export default memo<IProps>(function SearchResult(props) {
-  const { className, manageResultDataList = [], isLoading, onExecute, onExport } = props;
+export default memo<IProps>((props) => {
+  const { className, queryResultDataList = [] } = props;
   const [currentTab, setCurrentTab] = useState<string | number | undefined>();
-  const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
-  const [resultConfig, setResultConfig] = useState<IResultConfig[]>([]);
-  const [tabs, setTabs] = useState<IOption[]>([]);
+  const [resultDataList, setResultDataList] = useState<IManageResultData[]>(queryResultDataList);
 
   useEffect(() => {
-    setResultConfig(props.resultConfig);
-  }, [props.resultConfig]);
+    setCurrentTab(queryResultDataList[0]?.uuid);
+  }, [queryResultDataList]);
 
-  useEffect(() => {
-    if (!manageResultDataList.length) {
-      return;
+  const onChange = useCallback(() => {
+    // setCurrentTab(uuid);
+  }, []);
+
+  const renderResult = (queryResultData) => {
+    function renderSuccessResult() {
+      const needTable = queryResultData?.headerList?.length > 1;
+      return (
+        <div className={styles.successResult}>
+          <div className={styles.successResultContent}>
+            {needTable ? (
+              <TableBox
+                key={queryResultData.uuid}
+                outerQueryResultData={queryResultData}
+                executeSqlParams={props.executeSqlParams}
+              />
+            ) : (
+              <div className={styles.updateCount}>{i18n('common.text.affectedRows', queryResultData.updateCount)}</div>
+            )}
+          </div>
+          <div className={styles.statusBar}>
+            <span>{`【${i18n('common.text.result')}】${queryResultData.description}.`}</span>
+            <span>{`【${i18n('common.text.timeConsuming')}】${queryResultData.duration}ms.`}</span>
+            {!!queryResultData?.dataList?.length && (
+              <span>{`【${i18n('common.text.searchRow')}】${queryResultData?.dataList?.length} ${i18n(
+                'common.text.row',
+              )}.`}</span>
+            )}
+          </div>
+        </div>
+      );
     }
-
-    if (!currentTab || !manageResultDataList.find((d) => d.uuid === currentTab)) {
-      setCurrentTab(manageResultDataList[0].uuid);
-    }
-
-    setResultDataList([...manageResultDataList]);
-    setTabs(handleTabs(manageResultDataList));
-  }, [manageResultDataList]);
-
-  function onChange(uuid: string | number) {
-    setCurrentTab(uuid);
-  }
-
-  function onEdit(type: 'add' | 'remove', value?: number | string) {
-    props.onTabEdit && props.onTabEdit(type, value);
-  }
-
-  const renderEmpty = () => {
     return (
-      <div className={styles.noData}>
-        <img src={EmptyImg} />
-        <p>{i18n('common.text.noData')}</p>
-      </div>
+      <>
+        {queryResultData.success ? (
+          renderSuccessResult()
+        ) : (
+          <StateIndicator
+            className={styles.stateIndicator}
+            key={queryResultData.uuid}
+            state="error"
+            text={queryResultData.message}
+          />
+        )}
+      </>
     );
   };
 
-  const renderTable = () => {
-    if (!tabs || !tabs.length) {
-      return renderEmpty();
-    }
-    if (!resultDataList || !resultDataList.length) {
-      return renderEmpty();
-    }
+  const tabsList = useMemo(() => {
+    return resultDataList.map((queryResultData, index) => {
+      return {
+        prefixIcon: (
+          <Iconfont
+            key={index}
+            className={classnames(styles[queryResultData.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
+            code={queryResultData.success ? '\ue605' : '\ue87c'}
+          />
+        ),
+        popover: queryResultData.originalSql,
+        label: queryResultData.originalSql,
+        key: queryResultData.uuid!,
+        children: renderResult(queryResultData),
+      };
+    });
+  }, [resultDataList]);
 
-    return renderTableContent;
-  };
+  const onEdit = useCallback(
+    (type: 'add' | 'remove', value) => {
+      if (type === 'remove') {
+        const newResultDataList = resultDataList.filter((d) => d.uuid !== value.key);
+        setResultDataList(newResultDataList);
+      }
+    },
+    [resultDataList],
+  );
 
-  const renderTableContent = (resultDataList || []).map((item, index: number) => {
-    if (item.success) {
-      return (
-        <TableBox
-          key={item.uuid!}
-          className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
-          data={item}
-          config={resultConfig?.[index]}
-          onConfigChange={(config: IResultConfig) => {
-            onExecute && onExecute(item.originalSql, config, index);
-          }}
-          onSearchTotal={async () => {
-            if (props.onSearchTotal) {
-              return await props.onSearchTotal(index);
-            }
-          }}
-          onExport={(sql: string, originalSql: string, exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
-            onExport && onExport(sql, originalSql, exportType, exportSize);
-          }}
-        />
-      );
-    } else {
-      return (
-        <StateIndicator
-          key={item.uuid}
-          className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })}
-          state="error"
-          text={item.message}
-        />
-      );
-    }
-  });
+  const outputTabAndTabsList = useMemo(() => {
+    const params = {
+      pageNo: 1,
+      pageSize: 10,
+    };
+
+    return [
+      {
+        prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
+        label: 'Output',
+        key: 'output',
+        children: <Output params={params} />,
+        styles: { width: '80px' },
+        canClosed: false,
+      },
+      ...tabsList,
+    ];
+  }, [tabsList]);
 
   return (
-    <div className={classnames(className, styles.box)}>
-      {tabs.length ? (
-        <div className={styles.resultHeader}>
-          <Tabs
-            hideAdd
-            type="line"
-            onEdit={onEdit}
-            onChange={onChange}
-            tabs={tabs}
-            className={styles.tabs}
-            activeTab={currentTab}
-          />
+    <div className={classnames(className, styles.searchResult)}>
+      {tabsList.length ? (
+        <TabsNew
+          hideAdd
+          // concealTabHeader={outputTabAndTabsList?.length === 1}
+          className={styles.tabs}
+          onChange={onChange as any}
+          activeKey={currentTab}
+          onEdit={onEdit as any}
+          items={tabsList}
+        />
+      ) : (
+        <div className={styles.noData}>
+          <img src={EmptyImg} />
+          <p>{i18n('common.text.noData')}</p>
         </div>
-      ) : null}
-      <Spin spinning={isLoading} wrapperClassName={styles.resultContentWrapper}>
-        {renderTable()}
-      </Spin>
+      )}
     </div>
   );
 });

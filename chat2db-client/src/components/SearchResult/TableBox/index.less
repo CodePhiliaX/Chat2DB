@@ -1,21 +1,33 @@
 @import '../../../styles/var.less';
 
 .tableBox {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: none;
-  overflow: auto;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
   :global {
-    // .hGEOgo td {
-    //   border-bottom: 0;
-    //   // height: 400px !important;
-    // }
-    .hGEOgo {
-      --header-bgcolor: #fafafa;
-      --header-color: #000;
+    .art-table {
+      table colgroup col {
+        min-width: 120px;
+      }
+      table colgroup col:nth-of-type(1) {
+        min-width: 60px;
+      }
+      th,
+      td {
+        overflow: hidden;
+      }
+      .fnWppk {
+        // word-break: break-all;
+        // display: -webkit-box;
+        // -webkit-box-orient: vertical;
+        // box-orient: vertical;
+        // -webkit-line-clamp: 1;
+        // line-clamp: 1;
+        // text-overflow: ellipsis;
+        overflow: hidden;
+      }
       th {
         font-weight: bold;
       }
@@ -29,9 +41,11 @@
         border-top: 0;
       }
     }
-
     .art-table-cell {
       position: relative;
+    }
+    .art-sticky-scroll {
+      display: none !important;
     }
     .art-sticky-scroll.art-horizontal-scroll-container {
       position: sticky;
@@ -48,8 +62,8 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--color-border-secondary);
-  background-color: var(--color-bg-elevated);
-  padding: 0 16px;
+  background-color: var(--color-bg-subtle);
+  padding: 0px 4px 0px 0px;
   height: 30px;
 }
 .toolBarItem {
@@ -63,61 +77,96 @@
   }
 }
 
-.table {
+.toolBarRight {
+  flex: 1;
+  display: flex;
+  justify-content: end;
+  .exportBar {
+    cursor: pointer;
+  }
+}
+
+.editTableDataBar {
+  padding: 0px 4px;
+  i {
+    color: var(--color-text-disabled);
+  }
+  .editTableDataBarItem {
+    width: 24px;
+    box-sizing: border-box;
+    padding: 4px 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    i {
+      color: var(--color-primary);
+    }
+    // &:hover i {
+    // }
+  }
+  .disableBar {
+    cursor: default;
+    i {
+      color: var(--color-text-disabled);
+    }
+  }
+  .viewSqlBar {
+    i {
+      font-size: 15px;
+    }
+  }
+}
+
+.tableSpin {
   flex: 1;
 }
 
-.statusBar {
-  position: sticky;
-  bottom: 0;
-  z-index: 30;
-  padding: 4px 8px;
-  font-size: 12px;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  border-top: 1px solid var(--color-border-secondary);
-  background-color: var(--color-bg-elevated);
-
-  & > span {
-    margin-right: 16px;
-  }
+.table {
+  // height: 100%;
+  flex: 1;
 }
 
 .tableItem {
-  width: 100%;
+  width: calc(100% + 8px);
   height: 100%;
-  // cursor: pointer;
-  // display: flex;
-  // align-items: center;
-  // justify-content: space-between;
-
-  // height: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0px 4px;
+  margin: 0px -4px;
   max-height: 120px;
   overflow-y: auto;
-
-  // &::-webkit-scrollbar {
-  //   display: none;
-  // }
+  user-select: none;
 
   &:hover .tableHoverBox {
-    // display: flex !important;
     display: block;
   }
+
+  input {
+    background: none;
+  }
+}
+
+.tableItemEdit {
+  background-color: var(--color-success-bg);
+}
+
+.tableItemNo {
+  width: 100%;
+  text-align: center;
 }
 
 .tableHoverBox {
   position: absolute;
-  top: 0px;
+  top: 50%;
   right: 0px;
   width: 40px;
   display: none;
   align-items: center;
-  // position: absolute;
-  background-color: var(--color-bg-elevated);
-  // top: 0;
-  // right: 0;
-  // bottom: 0;
+  transform: translateY(-50%);
   cursor: pointer;
 
   i {
@@ -126,7 +175,7 @@
   }
 
   i:hover {
-    color: var(--custom-primary-color);
+    color: var(--color-primary);
   }
 }
 
@@ -149,5 +198,12 @@
 }
 
 .monacoEditor {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
   height: 60vh;
+}
+
+.errorDetail {
+  white-space: normal;
 }

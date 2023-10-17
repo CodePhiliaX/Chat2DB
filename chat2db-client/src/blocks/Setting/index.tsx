@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import { Modal } from 'antd';
@@ -17,24 +17,27 @@ import styles from './index.less';
 interface IProps {
   aiConfig: IAiConfig;
   className?: string;
-  text?: string;
-  dispatch: Function;
+  render?: ReactNode;
+  dispatch: (params: any) => void;
+  noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
 }
 
 function Setting(props: IProps) {
-  const { className, text, dispatch } = props;
+  const { className, dispatch, noLogin = false } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [currentMenu, setCurrentMenu] = useState(0);
 
   useEffect(() => {
-    if (isModalVisible) {
+    if (isModalVisible && !noLogin) {
       getAiSystemConfig();
     }
   }, [isModalVisible]);
 
   useEffect(() => {
-    getAiSystemConfig();
+    if (!noLogin) {
+      getAiSystemConfig();
+    }
   }, []);
 
   const getAiSystemConfig = () => {
@@ -93,11 +96,7 @@ function Setting(props: IProps) {
   return (
     <>
       <div className={classnames(className, styles.box)} onClick={showModal}>
-        {text ? (
-          <span className={styles.setText}>{text}</span>
-        ) : (
-          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )}
+        {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
       </div>
       <TestVersion />
       <Modal
@@ -112,6 +111,10 @@ function Setting(props: IProps) {
           <div className={styles.menus}>
             <div className={classnames(styles.menusTitle)}>{i18n('setting.title.setting')}</div>
             {menusList.map((t, index) => {
+              // 如果是没有登录的页面，不显示ai设置等需要登录的功能
+              if (noLogin && index === 1) {
+                return false;
+              }
               return (
                 <div
                   key={index}

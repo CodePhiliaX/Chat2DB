@@ -1,0 +1,98 @@
+@import '../../styles/var.less';
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.dataBaseList {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 800px;
+}
+
+.databaseItem {
+  flex-grow: 1;
+  border-radius: 4px;
+  height: 50px;
+  width: 210px;
+  margin: 10px 20px;
+  padding: 0px 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border);
+
+  .databaseItemMain {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50px;
+    border-radius: 8px;
+  }
+
+  .databaseItemLeft {
+    display: flex;
+    align-items: center;
+  }
+
+  .databaseItemRight {
+    display: none;
+
+    i {
+      font-size: 16px;
+    }
+  }
+
+  &:hover {
+    background-color: var(--color-bg-medium);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    cursor: pointer;
+
+    .databaseItemRight {
+      display: block;
+
+      i {
+        color: var(--color-primary);
+      }
+    }
+  }
+
+  .logoBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 28px;
+    width: 28px;
+    border-radius: 8px;
+    margin-right: 16px;
+
+    i {
+      font-size: 16px;
+    }
+  }
+}
+
+.databaseItemSpacer {
+  flex-grow: 1;
+  width: 210px;
+  margin: 0px 20px;
+  padding: 0px 16px;
+  box-sizing: border-box;
+}
+
+.createConnections {
+  background-color: var(--color-bg);
+  overflow-y: auto;
+  transform: scale(0.2);
+  transition: 0.1s ease-in-out;
+}
+
+.showCreateConnections {
+  transform: scale(1);
+  transition: transform 0.3s ease-in-out;
+}

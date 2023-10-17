@@ -1,15 +1,16 @@
-import React, { memo, useRef, useEffect, useMemo, useState } from 'react';
+import React, { memo, useRef, useEffect } from 'react';
 import { connect } from 'umi';
-import styles from './index.less';
 import DraggableContainer from '@/components/DraggableContainer';
+import WorkspaceHeader from './components/WorkspaceHeader';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
-import WorkspaceHeader from './components/WorkspaceHeader';
+import LoadingContent from '@/components/Loading/LoadingContent';
+
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import { ConsoleOpenedStatus } from '@/constants';
-import Iconfont from '@/components/Iconfont';
+
+import styles from './index.less';
 
 interface IProps {
   className?: string;
@@ -20,34 +21,22 @@ interface IProps {
 }
 
 const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
+  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
     connectionModel: connection,
     workspaceModel: workspace,
-    pageLoading: loading.effects['workspace/fetchDatabaseAndSchemaLoading'] || loading.effects['workspace/fetchGetSavedConsoleLoading'],
   }),
 );
 
-interface Option {
-  value: string;
-  label: string;
-  children?: Option[];
-}
-
-const workspace = memo<IProps>((props) => {
+const workspacePage = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
-  const { workspaceModel, connectionModel, dispatch, pageLoading } = props;
+  const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
-  const [loading, setLoading] = useState(true);
-  const isReady = curWorkspaceParams?.dataSourceId && ((curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName) || (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName == null))
-
-  useEffect(() => {
-    if (pageLoading === true) {
-      setLoading(true);
-    } else {
-      setLoading(false);
-    }
-  }, [pageLoading])
+  const isReady =
+    curWorkspaceParams?.dataSourceId &&
+    (curWorkspaceParams?.databaseName ||
+      curWorkspaceParams?.schemaName ||
+      (curWorkspaceParams?.databaseName === null && curWorkspaceParams?.schemaName === null));
 
   useEffect(() => {
     clearData();
@@ -60,26 +49,26 @@ const workspace = memo<IProps>((props) => {
   }, [curWorkspaceParams]);
 
   function clearData() {
-    dispatch(({
+    dispatch({
       type: 'workspace/setOpenConsoleList',
       payload: [],
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setConsoleList',
       payload: [],
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setDatabaseAndSchema',
       payload: undefined,
-    }))
-    dispatch(({
+    });
+    dispatch({
       type: 'workspace/setCurTableList',
       payload: [],
-    }))
+    });
   }
 
   function getConsoleList() {
-    let p: any = {
+    const p = {
       pageNo: 1,
       pageSize: 999,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
@@ -100,8 +89,8 @@ const workspace = memo<IProps>((props) => {
 
   return (
     <div className={styles.workspace}>
-      <WorkspaceHeader></WorkspaceHeader>
-      <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={loading}>
+      <WorkspaceHeader />
+      <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={false}>
         <DraggableContainer className={styles.workspaceMain}>
           <div ref={draggableRef} className={styles.boxLeft}>
             <WorkspaceLeft />
@@ -110,9 +99,9 @@ const workspace = memo<IProps>((props) => {
             <WorkspaceRight />
           </div>
         </DraggableContainer>
-      </LoadingContent >
+      </LoadingContent>
     </div>
   );
 });
 
-export default dvaModel(workspace)
+export default dvaModel(workspacePage);

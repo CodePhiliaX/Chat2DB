@@ -1,13 +1,13 @@
 package ai.chat2db.server.web.api.http;
 
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
-import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
-import ai.chat2db.server.web.api.http.response.QrCodeResponse;
-import com.dtflys.forest.annotation.BaseRequest;
-import com.dtflys.forest.annotation.Get;
-import com.dtflys.forest.annotation.Query;
-import com.dtflys.forest.annotation.Var;
+import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
+import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.request.WhiteListRequest;
+import ai.chat2db.server.web.api.http.response.*;
+import com.dtflys.forest.annotation.*;
+
 
 /**
  * Gateway 的http 服务
@@ -53,5 +53,51 @@ public interface GatewayClientService {
      */
     @Get("/api/client/inviteQrCode")
     DataResult<InviteQrCodeResponse> getInviteQrCode(@Query("apiKey") String apiKey);
+
+
+    /**
+     * save knowledge vector
+     *
+     * @param request
+     * @return
+     */
+    @Post(url = "/api/client/milvus/knowledge/save", contentType = "application/json")
+    ActionResult knowledgeVectorSave(@Body KnowledgeRequest request);
+
+    /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Post(url = "/api/client/milvus/schema/save", contentType = "application/json")
+    ActionResult schemaVectorSave(@Body TableSchemaRequest request);
+
+    /**
+     * save knowledge vector
+     *
+     * @param searchVectors
+     * @return
+     */
+    @Post(url = "/api/client/milvus/knowledge/search", contentType = "application/json")
+    DataResult<KnowledgeResponse> knowledgeVectorSearch(@Body KnowledgeRequest searchVectors);
+
+    /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Post(url = "/api/client/milvus/schema/search", contentType = "application/json")
+    DataResult<TableSchemaResponse> schemaVectorSearch(@Body TableSchemaRequest request);
+
+    /**
+     * check in white list
+     *
+     * @param whiteListRequest
+     * @return
+     */
+    @Get("/api/client/whitelist/check")
+    DataResult<Boolean> checkInWhite(@Query WhiteListRequest whiteListRequest);
 
 }

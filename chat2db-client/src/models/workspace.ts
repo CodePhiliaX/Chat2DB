@@ -1,9 +1,9 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history';
-import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
+import { DatabaseTypeCode, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode, IConsole, IPageResponse } from '@/typings';
+import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro, IWorkspaceTab } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
@@ -25,7 +25,10 @@ export interface IWorkspaceModelState {
   curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
-  curViewList: ITreeNode[];
+  // 触发tab编辑表或打开表
+  createTabIntro: ICreateTabIntro | undefined;
+  // 触发新增console
+  createConsoleIntro: IWorkspaceTab | undefined;   
 }
 
 export interface IWorkspaceModelType {
@@ -40,11 +43,10 @@ export interface IWorkspaceModelType {
     setOpenConsoleList: Reducer<IWorkspaceModelState>;
     setCurConsoleId: Reducer<IWorkspaceModelState>;
     setCurTableList: Reducer<IWorkspaceModelState>;
-    setCurViewList: Reducer<IWorkspaceModelState>;
+    setCreateTabIntro: Reducer<IWorkspaceModelState>;
+    setCreateConsoleIntro: Reducer<IWorkspaceModelState>;
   };
   effects: {
-    fetchDatabaseAndSchema: Effect;
-    fetchDatabaseAndSchemaLoading: Effect;
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
@@ -61,8 +63,9 @@ const WorkspaceModel: IWorkspaceModelType = {
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
-    curViewList: [],
-    curConsoleId: null
+    curConsoleId: null,
+    createTabIntro: undefined,
+    createConsoleIntro: undefined,
   },
 
   reducers: {
@@ -117,46 +120,24 @@ const WorkspaceModel: IWorkspaceModelType = {
         curTableList: payload,
       };
     },
-
-    // 视图列表
-    setCurViewList(state, { payload }) {
+    // 创建tab的引子
+    setCreateTabIntro(state, { payload }) {
       return {
         ...state,
-        curViewList: payload,
+        createTabIntro: payload,
       };
     },
+    // 创建console的引子
+    setCreateConsoleIntro(state, { payload }) { 
+      return {
+        ...state,
+        createConsoleIntro: payload,
+      };
+    }
+    
   },
 
   effects: {
-    // 获取当前连接下的及联databaseAndSchema数据
-    *fetchDatabaseAndSchema({ payload, callback }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-        if (callback && typeof callback === 'function') {
-          callback(res);
-        }
-      }
-      catch {
-
-      }
-    },
-    // 获取当前连接下的及联databaseAndSchema数据Loading
-    *fetchDatabaseAndSchemaLoading({ payload }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-      }
-      catch {
-
-      }
-    },
     // 获取保存的控制台列表
     *fetchGetSavedConsole({ payload, callback }, { put }) {
       try {
@@ -188,20 +169,20 @@ const WorkspaceModel: IWorkspaceModelType = {
       }
     },
     // 获取当前连接下的表列表
-    *fetchGetCurTableList({ payload, callback }, { put, call }) {
+    *fetchGetCurTableList({ payload, callback }, { put }) {
       try {
         const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
           pageNo: 1,
           pageSize: 999,
           ...payload,
-        })) as ITreeNode[];
+        })) as any;
         // 异步操作完成后调用回调函数
         if (callback && typeof callback === 'function') {
-          callback(res);
+          callback(res.data);
         }
         yield put({
           type: 'setCurTableList',
-          payload: res,
+          payload: res.data,
         });
       }
       catch {

@@ -1,8 +1,14 @@
 package ai.chat2db.server.web.api.http.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class QrCodeResponse {
     /**
      * When logging in for the first time, the token will be returned, and subsequent services need to poll the token to

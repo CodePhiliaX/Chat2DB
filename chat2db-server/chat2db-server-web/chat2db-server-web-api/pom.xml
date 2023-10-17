@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-server-common-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-domain-core</artifactId>
         </dependency>
         <dependency>
@@ -55,6 +59,28 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
+        </dependency>
+        <!--poi-tl-->
+        <dependency>
+            <groupId>com.deepoove</groupId>
+            <artifactId>poi-tl</artifactId>
+        </dependency>
+        <!--pdf-->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-spi</artifactId>
         </dependency>
     </dependencies>
 

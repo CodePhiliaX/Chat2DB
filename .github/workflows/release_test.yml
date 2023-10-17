@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - "release_test"
+      - "release_test_2"
+      - "release_test_3"
 
 # Workflow's jobs
 # 一共需要3台电脑运行
@@ -266,7 +268,7 @@ jobs:
           endpoint: "oss-accelerate.aliyuncs.com"
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          ossutil-version: "latest"
+          ossutil-version: "1.7.16"
       - name: Upload to oss
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
@@ -294,7 +296,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ github.run_id }}/chat2db-server-start.zip) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知

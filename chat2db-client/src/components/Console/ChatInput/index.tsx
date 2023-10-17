@@ -1,28 +1,37 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin } from 'antd';
+import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Tooltip, Radio, Space } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
 import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
 import { WECHAT_MP_URL } from '@/constants/social';
 
+export const enum SyncModelType {
+  AUTO = 0,
+  MANUAL = 1,
+}
+
 interface IProps {
   value?: string;
   result?: string;
   tables?: string[];
+  syncTableModel: number;
   selectedTables?: string[];
   remainingUse?: IRemainingUse;
   aiType: AiSqlSourceType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
+  isStream?: boolean;
   onPressEnter: (value: string) => void;
+  onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
   onClickRemainBtn: Function;
+  onCancelStream: () => void;
 }
 
-function ChatInput(props: IProps) {
+const ChatInput = (props: IProps) => {
   const [value, setValue] = useState(props.value);
 
   const onPressEnter = (e: any) => {
@@ -37,50 +46,85 @@ function ChatInput(props: IProps) {
   };
 
   const renderSelectTable = () => {
-    const { tables, selectedTables, onSelectTables } = props;
+    const { tables, syncTableModel, onSelectTableSyncModel, selectedTables, onSelectTables } = props;
     const options = (tables || []).map((t) => ({ value: t, label: t }));
     return (
       <div className={styles.aiSelectedTable}>
-        <span className={styles.aiSelectedTableTips}>
-          {/* <WarningOutlined style={{color: 'yellow'}}/> */}
-          {i18n('chat.input.remain.tooltip')}
-        </span>
-        <Select
-          showSearch
-          mode="multiple"
-          allowClear
-          options={options}
-          placeholder={i18n('chat.input.tableSelect.placeholder')}
-          value={selectedTables}
-          onChange={(v) => {
-            onSelectTables && onSelectTables(v);
-          }}
-        />
+        <Radio.Group
+          onChange={(v) => onSelectTableSyncModel(v.target.value)}
+          value={syncTableModel}
+          style={{ marginBottom: '8px' }}
+        >
+          <Space direction="horizontal">
+            <Radio value={SyncModelType.AUTO}>自动</Radio>
+            <Radio value={SyncModelType.MANUAL}>手动</Radio>
+          </Space>
+        </Radio.Group>
+        {syncTableModel === 0 ? (
+          i18n('chat.input.syncTable.tips')
+        ) : (
+          <>
+            <span className={styles.aiSelectedTableTips}>{i18n('chat.input.remain.tooltip')}</span>
+            <Select
+              showSearch
+              mode="multiple"
+              allowClear
+              options={options}
+              placeholder={i18n('chat.input.tableSelect.placeholder')}
+              value={selectedTables}
+              onChange={(v) => {
+                onSelectTables && onSelectTables(v);
+              }}
+            />
+          </>
+        )}
       </div>
     );
   };
 
   const renderSuffix = () => {
-    const remainCnt = props?.remainingUse?.remainingUses ?? '-';
+    // const remainCnt = props?.remainingUse?.remainingUses ?? '-';
+    const hasBubble = localStorage.getItem('syncTableBubble');
     return (
       <div className={styles.suffixBlock}>
-        <Button
-          type="primary"
-          className={styles.enter}
-          onClick={() => {
-            if (value) {
-              props.onPressEnter && props.onPressEnter(value);
-            }
+        {props.isStream ? (
+          <Iconfont
+            onClick={() => {
+              props.onCancelStream && props.onCancelStream();
+            }}
+            code="&#xe652;"
+            className={styles.stop}
+          />
+        ) : (
+          <Button
+            type="primary"
+            className={styles.enter}
+            onClick={() => {
+              if (value) {
+                props.onPressEnter && props.onPressEnter(value);
+              }
+            }}
+          >
+            <Iconfont code="&#xe643;" className={styles.enterIcon} />
+          </Button>
+        )}
+        <Tooltip
+          title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
+          defaultOpen={!hasBubble}
+          color={window._AppThemePack.colorBgBase}
+          trigger={'contextMenu'}
+          onOpenChange={() => {
+            localStorage.setItem('syncTableBubble', 'true');
           }}
         >
-          <Iconfont code="&#xe643;" className={styles.enterIcon} />
-        </Button>
-        <div className={styles.tableSelectBlock}>
-          <Popover content={renderSelectTable()} placement="bottom">
-            <Iconfont code="&#xe618;" />
-          </Popover>
-        </div>
-        {props.aiType === AiSqlSourceType.CHAT2DBAI && (
+          <div className={styles.tableSelectBlock}>
+            <Popover content={renderSelectTable()} placement="bottom">
+              <Iconfont code="&#xe618;" />
+            </Popover>
+          </div>
+        </Tooltip>
+
+        {/* {props.aiType === AiSqlSourceType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
             <div
               className={styles.remainBlock}
@@ -91,7 +135,7 @@ function ChatInput(props: IProps) {
               {i18n('chat.input.remain', remainCnt)}
             </div>
           </Spin>
-        )}
+        )} */}
       </div>
     );
   };
@@ -110,6 +154,6 @@ function ChatInput(props: IProps) {
       />
     </div>
   );
-}
+};
 
 export default ChatInput;

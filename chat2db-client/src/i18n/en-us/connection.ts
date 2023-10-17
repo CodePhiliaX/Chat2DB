@@ -2,6 +2,7 @@ export default {
   'connection.title.connections': 'Connections',
   'connection.title.createConnection': 'New Connection',
   'connection.title.editConnection': 'Edit Connection',
+  'connection.title.importConnection': 'Import Connection',
   'connection.label.name': 'name',
   'connection.label.host': 'host',
   'connection.label.authentication': 'authentication',
@@ -25,5 +26,9 @@ export default {
   'connection.text.downloadSuccess': 'Download Success',
   'connection.text.tryAgainDownload': 'Try again download',
   'connection.text.downloading': 'Downloading...',
-
+  'connection.label.private': 'Private',
+  'connection.label.shared': 'Shared',
+  'connection.button.createConnection': 'Create connection',
+  'connection.tips.noConnection': 'You have not created any connections yet',
+  'connection.tips.noConnectionTips': 'You do not have permission to view the connection details, but you can connect to the connection directly',
 };

@@ -11,8 +11,6 @@ import ai.chat2db.server.tools.base.wrapper.Result;
 import ai.chat2db.server.tools.base.wrapper.param.PageQueryParam;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult.Page;
-
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
@@ -225,6 +223,15 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
+     * 判断是否存在数据
+     *
+     * @return 是否存在数据
+     */
+    public boolean hasData() {
+        return hasData(this);
+    }
+
+    /**
      * 返回查询异常信息
      *
      * @param errorCode    错误编码
@@ -271,6 +278,25 @@ public class PageResult<T> implements Serializable, Result<List<T>> {
         pageResult.setTotal(getTotal());
         pageResult.setTraceId(getTraceId());
         return pageResult;
+    }
+
+    /**
+     * 将当前的类型转换成另外一个类型
+     *
+     * @param mapper 转换的方法
+     * @param <R>    返回的类型
+     * @return 分页返回对象
+     */
+    public <R> ListResult<R> mapToList(Function<T, R> mapper) {
+        List<R> returnData = hasData(this) ? getData().stream().map(mapper).collect(Collectors.toList())
+            : Collections.emptyList();
+        ListResult<R> result = new ListResult<>();
+        result.setSuccess(getSuccess());
+        result.setErrorCode(getErrorCode());
+        result.setErrorMessage(getErrorMessage());
+        result.setTraceId(getTraceId());
+        result.setData(returnData);
+        return result;
     }
 
     /**

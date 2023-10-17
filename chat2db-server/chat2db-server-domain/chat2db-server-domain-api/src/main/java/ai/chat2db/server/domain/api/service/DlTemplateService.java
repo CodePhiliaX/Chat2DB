@@ -2,6 +2,7 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.DlCountParam;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
+import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 
@@ -24,6 +25,15 @@ public interface DlTemplateService {
      */
     ListResult<ExecuteResult> execute(DlExecuteParam param);
 
+
+    /**
+     * 数据源执行update
+     *
+     * @param param
+     * @return
+     */
+    DataResult<ExecuteResult> executeUpdate(DlExecuteParam param);
+
     /**
      * 执行统计sql
      *
@@ -31,5 +41,13 @@ public interface DlTemplateService {
      * @return
      */
     DataResult<Long> count(DlCountParam param);
+
+
+    /**
+     * 更新查询结果
+     * @param param
+     * @return
+     */
+    DataResult<String> updateSelectResult(UpdateSelectResultParam param);
 
 }

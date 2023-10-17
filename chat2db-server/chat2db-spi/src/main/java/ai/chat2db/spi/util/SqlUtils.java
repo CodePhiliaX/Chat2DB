@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.tools.common.util.EasyIntegerUtils;
+import ai.chat2db.spi.enums.DataTypeEnum;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
@@ -56,6 +58,10 @@ import ai.chat2db.spi.model.TableIndexColumn;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,6 +73,31 @@ import org.apache.commons.lang3.StringUtils;
 public class SqlUtils {
 
     public static final String DEFAULT_TABLE_NAME = "table1";
+
+
+    public static boolean canEdit(String sql) {
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Select) {
+                Select select = (Select) statement;
+                PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+                if (plainSelect.getJoins() == null && plainSelect.getFromItem() != null) {
+                    for (SelectItem item : plainSelect.getSelectItems()) {
+                        if (item instanceof SelectExpressionItem) {
+                            SelectExpressionItem expressionItem = (SelectExpressionItem) item;
+                            if (expressionItem.getAlias() != null) {
+                                return false; // 找到了一个别名
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
 
     public static List<Sql> buildSql(Table oldTable, Table newTable) {
         List<Sql> sqlList = new ArrayList<>();
@@ -85,7 +116,7 @@ public class SqlUtils {
                     mySqlCreateTableStatement.addColumn(sqlColumnDefinition);
                     sqlColumnDefinition.setName(tableColumn.getName());
                     sqlColumnDefinition.setDataType(new SQLDataTypeImpl(tableColumn.getColumnType()));
-                    if (BooleanUtils.isNotFalse(tableColumn.getNullable())) {
+                    if (tableColumn.getNullable() == 1) {
                         sqlColumnDefinition.addConstraint(new SQLNullConstraint());
                     } else {
                         sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
@@ -129,7 +160,7 @@ public class SqlUtils {
                                 SQLSelectOrderByItem sqlSelectOrderByItem = new SQLSelectOrderByItem();
                                 sqlSelectOrderByItem.setExpr(new SQLIdentifierExpr(tableIndexColumn.getColumnName()));
                                 CollationEnum collation = EasyEnumUtils.getEnum(CollationEnum.class,
-                                    tableIndexColumn.getCollation());
+                                        tableIndexColumn.getCollation());
                                 if (collation != null) {
                                     sqlSelectOrderByItem.setType(collation.getSqlOrderingSpecification());
                                 }
@@ -146,7 +177,7 @@ public class SqlUtils {
                                 SQLSelectOrderByItem sqlSelectOrderByItem = new SQLSelectOrderByItem();
                                 sqlSelectOrderByItem.setExpr(new SQLIdentifierExpr(tableIndexColumn.getColumnName()));
                                 CollationEnum collation = EasyEnumUtils.getEnum(CollationEnum.class,
-                                    tableIndexColumn.getCollation());
+                                        tableIndexColumn.getCollation());
                                 if (collation != null) {
                                     sqlSelectOrderByItem.setType(collation.getSqlOrderingSpecification());
                                 }
@@ -192,19 +223,19 @@ public class SqlUtils {
 
     private static void modifyColumn(List<Sql> sqlList, Table oldTable, Table newTable) {
         Map<String, TableColumn> oldColumnMap = EasyCollectionUtils.toIdentityMap(oldTable.getColumnList(),
-            tableColumn -> {
-                if (tableColumn.getOldName() != null) {
-                    return tableColumn.getOldName();
-                }
-                return tableColumn.getName();
-            });
+                tableColumn -> {
+                    if (tableColumn.getOldName() != null) {
+                        return tableColumn.getOldName();
+                    }
+                    return tableColumn.getName();
+                });
         Map<String, TableColumn> newColumnMap = EasyCollectionUtils.toIdentityMap(newTable.getColumnList(),
-            tableColumn -> {
-                if (tableColumn.getOldName() != null) {
-                    return tableColumn.getOldName();
-                }
-                return tableColumn.getName();
-            });
+                tableColumn -> {
+                    if (tableColumn.getOldName() != null) {
+                        return tableColumn.getOldName();
+                    }
+                    return tableColumn.getName();
+                });
 
         SQLAlterTableStatement sqlAlterTableStatement = new SQLAlterTableStatement();
         sqlAlterTableStatement.setDbType(DbType.mysql);
@@ -221,7 +252,7 @@ public class SqlUtils {
                 sqlAlterTableAddColumn.addColumn(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable() != 1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {
@@ -235,12 +266,12 @@ public class SqlUtils {
             }
             // 代表可能修改字段 或者没变
             boolean hasChange = !StringUtils.equals(oldTableColumn.getName(), newTableColumn.getName())
-                || !StringUtils.equals(oldTableColumn.getColumnType(), newTableColumn.getColumnType())
-                || !EasyBooleanUtils.equals(oldTableColumn.getNullable(), newTableColumn.getNullable(), Boolean.TRUE)
-                || !StringUtils.equals(oldTableColumn.getDefaultValue(), newTableColumn.getDefaultValue())
-                || !EasyBooleanUtils.equals(oldTableColumn.getAutoIncrement(), newTableColumn.getAutoIncrement(),
-                Boolean.FALSE)
-                || !StringUtils.equals(oldTableColumn.getComment(), newTableColumn.getComment());
+                    || !StringUtils.equals(oldTableColumn.getColumnType(), newTableColumn.getColumnType())
+                    || !EasyIntegerUtils.equals(oldTableColumn.getNullable(), newTableColumn.getNullable(), 1)
+                    || !StringUtils.equals(oldTableColumn.getDefaultValue(), newTableColumn.getDefaultValue())
+                    || !EasyBooleanUtils.equals(oldTableColumn.getAutoIncrement(), newTableColumn.getAutoIncrement(),
+                    Boolean.FALSE)
+                    || !StringUtils.equals(oldTableColumn.getComment(), newTableColumn.getComment());
 
             // 没有修改字段
             if (!hasChange) {
@@ -256,7 +287,7 @@ public class SqlUtils {
                 mySqlAlterTableChangeColumn.setNewColumnDefinition(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable() != 1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {
@@ -274,7 +305,7 @@ public class SqlUtils {
                 mySqlAlterTableModifyColumn.setNewColumnDefinition(sqlColumnDefinition);
                 sqlColumnDefinition.setName(newTableColumn.getName());
                 sqlColumnDefinition.setDataType(new SQLDataTypeImpl(newTableColumn.getColumnType()));
-                if (BooleanUtils.isNotTrue(newTableColumn.getNullable())) {
+                if (newTableColumn.getNullable() != 1) {
                     sqlColumnDefinition.addConstraint(new SQLNotNullConstraint());
                 }
                 if (!Objects.isNull(newTableColumn.getDefaultValue())) {
@@ -300,17 +331,17 @@ public class SqlUtils {
         // 比较主键是否有修改
         // 主键
         Set<String> oldPrimaryKeySet = EasyCollectionUtils.stream(oldTable.getColumnList())
-            .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
-            .map(TableColumn::getName)
-            .collect(Collectors.toSet());
+                .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
+                .map(TableColumn::getName)
+                .collect(Collectors.toSet());
         Set<String> newPrimaryKeySet = EasyCollectionUtils.stream(newTable.getColumnList())
-            .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
-            .map(TableColumn::getName)
-            .collect(Collectors.toSet());
+                .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
+                .map(TableColumn::getName)
+                .collect(Collectors.toSet());
         boolean primaryKeyChange = oldPrimaryKeySet.stream()
-            .anyMatch(oldPrimaryKey -> !newPrimaryKeySet.contains(oldPrimaryKey))
-            || newPrimaryKeySet.stream()
-            .anyMatch(newPrimaryKey -> !oldPrimaryKeySet.contains(newPrimaryKey));
+                .anyMatch(oldPrimaryKey -> !newPrimaryKeySet.contains(oldPrimaryKey))
+                || newPrimaryKeySet.stream()
+                .anyMatch(newPrimaryKey -> !oldPrimaryKeySet.contains(newPrimaryKey));
         if (primaryKeyChange) {
             sqlAlterTableStatement.addItem(new SQLAlterTableDropPrimaryKey());
             SQLAlterTableAddConstraint sqlAlterTableAddConstraint = new SQLAlterTableAddConstraint();
@@ -320,10 +351,10 @@ public class SqlUtils {
             mySqlPrimaryKey.setIndexType("PRIMARY");
             // 排序
             EasyCollectionUtils.stream(newTable.getColumnList())
-                .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
-                .map(TableColumn::getName)
-                .forEach(tableColumnName -> mySqlPrimaryKey.addColumn(
-                    new SQLSelectOrderByItem(new SQLIdentifierExpr(tableColumnName))));
+                    .filter(tableColumn -> BooleanUtils.isTrue(tableColumn.getPrimaryKey()))
+                    .map(TableColumn::getName)
+                    .forEach(tableColumnName -> mySqlPrimaryKey.addColumn(
+                            new SQLSelectOrderByItem(new SQLIdentifierExpr(tableColumnName))));
         }
 
         if (CollectionUtils.isNotEmpty(sqlAlterTableStatement.getItems())) {
@@ -333,9 +364,9 @@ public class SqlUtils {
 
     private static void modifyIndex(List<Sql> sqlList, Table oldTable, Table newTable) {
         Map<String, TableIndex> oldIndexMap = EasyCollectionUtils.toIdentityMap(oldTable.getIndexList(),
-            TableIndex::getName);
+                TableIndex::getName);
         Map<String, TableIndex> newIndexMap = EasyCollectionUtils.toIdentityMap(newTable.getIndexList(),
-            TableIndex::getName);
+                TableIndex::getName);
         newIndexMap.forEach((newTableIndexName, newTableIndex) -> {
             TableIndex oldTableIndex = oldIndexMap.get(newTableIndexName);
             // 代表新增索引
@@ -351,7 +382,7 @@ public class SqlUtils {
                         SQLSelectOrderByItem sqlSelectOrderByItem = new SQLSelectOrderByItem();
                         sqlSelectOrderByItem.setExpr(new SQLIdentifierExpr(tableIndexColumn.getColumnName()));
                         CollationEnum collation = EasyEnumUtils.getEnum(CollationEnum.class,
-                            tableIndexColumn.getCollation());
+                                tableIndexColumn.getCollation());
                         if (collation != null) {
                             sqlSelectOrderByItem.setType(collation.getSqlOrderingSpecification());
                         }
@@ -363,34 +394,34 @@ public class SqlUtils {
             }
             // 代表可能修改索引 或者没变
             boolean hasChange = !StringUtils.equals(oldTableIndex.getName(), newTableIndex.getName())
-                || !StringUtils.equals(oldTableIndex.getComment(), newTableIndex.getComment())
-                || !Objects.equals(oldTableIndex.getUnique(), newTableIndex.getUnique());
+                    || !StringUtils.equals(oldTableIndex.getComment(), newTableIndex.getComment())
+                    || !Objects.equals(oldTableIndex.getUnique(), newTableIndex.getUnique());
             if (!hasChange) {
                 Map<String, TableIndexColumn> oldTableIndexColumnMap = EasyCollectionUtils.toIdentityMap(
-                    oldTableIndex.getColumnList(), TableIndexColumn::getColumnName);
+                        oldTableIndex.getColumnList(), TableIndexColumn::getColumnName);
                 Map<String, TableIndexColumn> newTableIndexColumnMap = EasyCollectionUtils.toIdentityMap(
-                    newTableIndex.getColumnList(), TableIndexColumn::getColumnName);
+                        newTableIndex.getColumnList(), TableIndexColumn::getColumnName);
                 hasChange = oldTableIndexColumnMap.entrySet()
-                    .stream()
-                    .anyMatch(oldTableIndexColumnEntry -> {
-                        TableIndexColumn newTableIndexColumn = newTableIndexColumnMap.get(
-                            oldTableIndexColumnEntry.getKey());
-                        if (newTableIndexColumn == null) {
-                            return true;
-                        }
-                        TableIndexColumn oldTableIndexColumn = oldTableIndexColumnEntry.getValue();
-                        return !StringUtils.equals(oldTableIndexColumn.getColumnName(),
-                            newTableIndexColumn.getColumnName())
-                            || !CollationEnum.equals(oldTableIndexColumn.getCollation(),
-                            newTableIndexColumn.getCollation());
-                    })
-                    || newTableIndexColumnMap.entrySet()
-                    .stream()
-                    .anyMatch(newTableIndexColumnEntry -> {
-                        TableIndexColumn oldTableIndexColumn = oldTableIndexColumnMap.get(
-                            newTableIndexColumnEntry.getKey());
-                        return oldTableIndexColumn == null;
-                    });
+                        .stream()
+                        .anyMatch(oldTableIndexColumnEntry -> {
+                            TableIndexColumn newTableIndexColumn = newTableIndexColumnMap.get(
+                                    oldTableIndexColumnEntry.getKey());
+                            if (newTableIndexColumn == null) {
+                                return true;
+                            }
+                            TableIndexColumn oldTableIndexColumn = oldTableIndexColumnEntry.getValue();
+                            return !StringUtils.equals(oldTableIndexColumn.getColumnName(),
+                                    newTableIndexColumn.getColumnName())
+                                    || !CollationEnum.equals(oldTableIndexColumn.getCollation(),
+                                    newTableIndexColumn.getCollation());
+                        })
+                        || newTableIndexColumnMap.entrySet()
+                        .stream()
+                        .anyMatch(newTableIndexColumnEntry -> {
+                            TableIndexColumn oldTableIndexColumn = oldTableIndexColumnMap.get(
+                                    newTableIndexColumnEntry.getKey());
+                            return oldTableIndexColumn == null;
+                        });
             }
 
             // 没有修改索引
@@ -416,7 +447,7 @@ public class SqlUtils {
                     SQLSelectOrderByItem sqlSelectOrderByItem = new SQLSelectOrderByItem();
                     sqlSelectOrderByItem.setExpr(new SQLIdentifierExpr(tableIndexColumn.getColumnName()));
                     CollationEnum collation = EasyEnumUtils.getEnum(CollationEnum.class,
-                        tableIndexColumn.getCollation());
+                            tableIndexColumn.getCollation());
                     if (collation != null) {
                         sqlSelectOrderByItem.setType(collation.getSqlOrderingSpecification());
                     }
@@ -448,8 +479,8 @@ public class SqlUtils {
         if (!(sqlStatement instanceof SQLSelectStatement sqlSelectStatement)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
-        SQLExprTableSource sqlExprTableSource = (SQLExprTableSource)getSQLExprTableSource(
-            sqlSelectStatement.getSelect().getFirstQueryBlock().getFrom());
+        SQLExprTableSource sqlExprTableSource = (SQLExprTableSource) getSQLExprTableSource(
+                sqlSelectStatement.getSelect().getFirstQueryBlock().getFrom());
         if (sqlExprTableSource == null) {
             return DEFAULT_TABLE_NAME;
         }
@@ -465,7 +496,7 @@ public class SqlUtils {
         return null;
     }
 
-    public static List<String> parse(String sql,DbType dbType) {
+    public static List<String> parse(String sql, DbType dbType) {
         List<String> list = new ArrayList<>();
         try {
             Statements statements = CCJSqlParserUtil.parseStatements(sql);
@@ -479,4 +510,11 @@ public class SqlUtils {
         return list;
     }
 
+    public static String getSqlValue(String value, String dataType) {
+        if(value == null){
+            return null;
+        }
+        DataTypeEnum dataTypeEnum = DataTypeEnum.getByCode(dataType);
+        return dataTypeEnum.getSqlValue(value);
+    }
 }

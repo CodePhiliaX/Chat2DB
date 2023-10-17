@@ -1,6 +1,6 @@
 @import '../../../../../styles/var.less';
 
-.box {
+.workspaceRight {
   position: absolute;
   top: 0;
   left: 0;
@@ -14,22 +14,25 @@
   }
 }
 
-.tabs {
+.workspaceRightMain {
+  display: flex;
 }
 
-.consoleBox {
-  position: absolute;
-  top: 32px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: none;
+.workspaceExtend {
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border);
+  display: flex;
+}
+
+.tabs {
+  height: 100%;
+  width: 100%;
 }
 
 .tabBox {
-  height: 32px;
-  background-color: var(--color-bg-base);
-  border-bottom: 1px solid var(--color-border);
+  flex: 1;
+  width: 0px;
+  height: 100%;
 }
 
 .activeConsoleBox {
@@ -48,7 +51,18 @@
   overflow: hidden;
 }
 
-.tab-item{
+.tab-item {
   display: flex;
   align-items: center;
+}
+
+.createButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  i {
+    margin-right: 10px;
+  }
 }

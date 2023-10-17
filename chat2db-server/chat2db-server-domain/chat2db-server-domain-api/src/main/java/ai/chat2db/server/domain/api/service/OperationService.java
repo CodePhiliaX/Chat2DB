@@ -1,14 +1,14 @@
 package ai.chat2db.server.domain.api.service;
 
-import jakarta.validation.constraints.NotNull;
-
 import ai.chat2db.server.domain.api.model.Operation;
-import ai.chat2db.server.domain.api.param.OperationPageQueryParam;
-import ai.chat2db.server.domain.api.param.OperationSavedParam;
-import ai.chat2db.server.domain.api.param.OperationUpdateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
+import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * 用户保存ddl
@@ -25,7 +25,7 @@ public interface OperationService {
      * @param param
      * @return
      */
-    DataResult<Long> create(OperationSavedParam param);
+    DataResult<Long> createWithPermission(OperationSavedParam param);
 
     /**
      * 更新用户的ddl
@@ -33,7 +33,7 @@ public interface OperationService {
      * @param param
      * @return
      */
-    ActionResult update(OperationUpdateParam param);
+    ActionResult updateWithPermission(OperationUpdateParam param);
 
     /**
      * 根据id查询
@@ -44,12 +44,26 @@ public interface OperationService {
     DataResult<Operation> find(@NotNull Long id);
 
     /**
+     * 根据id查询
+     *
+     * @param id
+     * @return
+     */
+    DataResult<Operation> queryExistent(@NotNull Long id);
+    /**
+     * 查询一条数据
+     *
+     * @param param
+     * @return
+     */
+    DataResult<Operation> queryExistent(@NotNull OperationQueryParam param);
+    /**
      * 删除
      *
      * @param id
      * @return
      */
-    ActionResult delete(@NotNull Long id);
+    ActionResult deleteWithPermission(@NotNull Long id);
 
     /**
      * 查询用户执行的ddl记录
