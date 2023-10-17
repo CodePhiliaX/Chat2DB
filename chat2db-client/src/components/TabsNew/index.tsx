@@ -23,8 +23,8 @@ export interface IOnchangeProps {
 interface IProps {
   className?: string;
   items?: ITabItem[];
-  activeKey?: number | string;
-  onChange?: (key: string | number | undefined) => void;
+  activeKey?: number | string | null;
+  onChange?: (key: string | number | null) => void;
   onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
   hideAdd?: boolean;
   type?: 'line';
@@ -48,7 +48,7 @@ export default memo<IProps>((props) => {
     concealTabHeader,
   } = props;
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
-  const [internalActiveTab, setInternalActiveTab] = useState<number | string | undefined>();
+  const [internalActiveTab, setInternalActiveTab] = useState<number | string | null>(null);
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export default memo<IProps>((props) => {
     onEdit?.('remove', data, newInternalTabs);
   }
 
-  function changeTab(key: string | number | undefined) {
+  function changeTab(key: string | number | null) {
     setInternalActiveTab(key);
   }
 

@@ -61,8 +61,8 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post("/api/client/milvus/knowledge/save")
-    ActionResult knowledgeVectorSave(@Query KnowledgeRequest request);
+    @Post(url = "/api/client/milvus/knowledge/save", contentType = "application/json")
+    ActionResult knowledgeVectorSave(@Body KnowledgeRequest request);
 
     /**
      * save table schema vector
@@ -70,8 +70,8 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post("/api/client/milvus/schema/save")
-    ActionResult schemaVectorSave(@Query TableSchemaRequest request);
+    @Post(url = "/api/client/milvus/schema/save", contentType = "application/json")
+    ActionResult schemaVectorSave(@Body TableSchemaRequest request);
 
     /**
      * save knowledge vector

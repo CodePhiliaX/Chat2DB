@@ -157,10 +157,6 @@ public class EmbeddingController extends ChatController {
         if (StringUtils.isBlank(vectorParam.getDatabase()) && StringUtils.isBlank(vectorParam.getSchema())) {
             return;
         }
-        DataResult<Boolean> result = tableService.checkTableVector(vectorParam);
-        if (result.getData()) {
-            return;
-        }
 
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
@@ -177,6 +173,12 @@ public class EmbeddingController extends ChatController {
         TableMilvusQueryRequest request = rdbWebConverter.request2request(param);
         String apiKey = keyConfig.getContent();
         request.setApikey(apiKey);
+
+        vectorParam.setApiKey(apiKey);
+        DataResult<Boolean> result = tableService.checkTableVector(vectorParam);
+        if (result.getData()) {
+            return;
+        }
 
         // check if in white list
         boolean res = gatewayClientService.checkInWhite(new WhiteListRequest(apiKey, WhiteListTypeEnum.VECTOR.getCode())).getData();

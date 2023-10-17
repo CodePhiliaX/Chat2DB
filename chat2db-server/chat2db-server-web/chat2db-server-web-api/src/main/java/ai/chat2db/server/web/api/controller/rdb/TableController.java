@@ -10,6 +10,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.EmbeddingController;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
@@ -17,17 +18,23 @@ import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.*;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Slf4j
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/table")
 @RestController
-public class TableController {
+public class TableController extends EmbeddingController {
 
     @Autowired
     private TableService tableService;
@@ -41,6 +48,7 @@ public class TableController {
     @Autowired
     private DatabaseService databaseService;
 
+    public static ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
     /**
      * 查询当前DB下的表列表
@@ -56,6 +64,18 @@ public class TableController {
         tableSelector.setIndexList(false);
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
+        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+        singleThreadExecutor.submit(() -> {
+            try {
+                Chat2DBContext.putContext(connectInfo);
+                syncTableVector(request);
+            } catch (Exception e) {
+                log.error("sync table vector error", e);
+            } finally {
+                Chat2DBContext.removeContext();
+            }
+            log.info("sync table vector finish");
+        });
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
                 request.getPageSize());
     }
