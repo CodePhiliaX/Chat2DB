@@ -7,9 +7,9 @@
 - 🔥【New Features】Support for editing, adding, and deleting query data results
 - ⭐【New Features】Support the feature of importing Navicat/DBever data source links
 - ⭐【New Features】Support export table structure
-- ⭐【New Features】Support importing SQL files.
-- ⭐【New Features】Support the connection supports adding an environment
-- ⚡️【Optimize】Optimize Editor Intellisense 
+- ⭐【New Features】Support importing SQL files
+- ⭐【New Features】Support the connection supports adding an environment,better distinguishing between online and daily
+- ⚡️【Optimize】Optimize Editor Intellisense
 - ⚡️【Optimize】Optimize AI Input
 - ⚡️【Optimize】Sql query support is stopped
 - ⚡️【Optimize】Sql execution supports viewing the number of affected rows
@@ -24,7 +24,7 @@
 - ⭐【新功能】支持导入Navicat/DBeaver数据源链接的功能
 - ⭐【新功能】支持导出表结构
 - ⭐【新功能】支持导入sql文件
-- ⭐【新功能】连接支持添加环境标识
+- ⭐【新功能】连接支持添加环境标识，更好地区分在线和日常
 - ⚡️【优化】优化编辑器提示功能
 - ⚡️【优化】优化AI输入
 - ⚡️【优化】sql查询支持停止
