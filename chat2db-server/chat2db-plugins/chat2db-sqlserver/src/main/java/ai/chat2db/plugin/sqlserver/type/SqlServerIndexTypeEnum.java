@@ -92,7 +92,7 @@ public enum SqlServerIndexTypeEnum {
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if (StringUtils.isNotBlank(column.getColumnName())) {
                 script.append("[").append(column.getColumnName()).append("]");
-                if (!StringUtils.isBlank(column.getAscOrDesc())) {
+                if (!StringUtils.isBlank(column.getAscOrDesc()) && !PRIMARY_KEY.equals(this)) {
                     script.append(" ").append(column.getAscOrDesc());
                 }
                 script.append(",");
