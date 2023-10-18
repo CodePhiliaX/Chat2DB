@@ -1,19 +1,15 @@
 package ai.chat2db.server.tools.common.util;
 
-import ai.chat2db.server.tools.common.config.GlobalDict;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.DigestUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
