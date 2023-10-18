@@ -1,20 +1,40 @@
-# 2.2.0
+# 3.0.0
+`2023-10-17`
 
-## ⭐ New Features
-
-## 🐞 Bug Fixes
-
-- 
-
-## ⭐ 新特性
-
-- 🔥新增**表结构**编辑功能
-- 🔥新增**表数据**编辑功能
-- 
-
-
-## 🐞 问题修复
-
+## Changelog
+- 🔥【New Features】Support for team collaboration mode
+- 🔥【New Features】Support for visual table structure creation, editing, and deletion
+- 🔥【New Features】Support for editing, adding, and deleting query data results
+- ⭐【New Features】Support the feature of importing Navicat/DBever data source links
+- ⭐【New Features】Support for AI automatic sync table structure。
+- ⭐【New Features】Support export table structure
+- ⭐【New Features】Support importing SQL files
+- ⭐【New Features】Support the connection supports adding an environment,better distinguishing between online and daily
+- ⚡️【Optimize】Optimize Editor Intellisense
+- ⚡️【Optimize】Optimize AI Input
+- ⚡️【Optimize】Sql query support is stopped
+- ⚡️【Optimize】Sql execution supports viewing the number of affected rows
+- ⚡️【Optimize】Reclaiming non-administrator permissions to edit shared connections
+- ⚡️【Optimize】`Cmd/Ctrl + R` Run SQL， `Cmd/Ctrl + Shift + R` Refresh Page
+- 🐞【Fixed】Table operation columns are overridden by table comments
+- 🐞【Fixed】The last Tab in the query result cannot be closed
+## 更新日志
+- 🔥【新功能】支持团队协作模式
+- 🔥【新功能】支持可视化表结构新增、编辑、删除
+- 🔥【新功能】支持查询数据结果编辑、新增、删除
+- ⭐【新功能】支持导入Navicat/DBeaver数据源链接的功能
+- ⭐【新功能】支持AI自动同步表结构
+- ⭐【新功能】支持导出表结构
+- ⭐【新功能】支持导入sql文件
+- ⭐【新功能】连接支持添加环境标识，更好地区分在线和日常
+- ⚡️【优化】优化编辑器提示功能
+- ⚡️【优化】优化AI输入
+- ⚡️【优化】sql查询支持停止
+- ⚡️【优化】sql执行支持查看影响行数
+- ⚡️【优化】回收非管理员编辑共享连接权限
+- ⚡️【优化】`Cmd/Ctrl + R` 运行SQL， `Cmd/Ctrl + Shift + R` 刷新页面
+- 🐞【修复】表操作列被表注释覆盖问题
+- 🐞【修复】查询结果最后一个Tab无法关闭问题
 
 # 2.1.0
 
@@ -27,10 +47,9 @@
 
 ## ⭐ 新特性
 
--🔥新推出团队功能，支持团队协作。研发不需要知道在线数据库 
-密码，解决企业数据库帐号的安全问题。建议直接部署团队 
-使用'docker'的函数 
--增加了环境选择的支持，更好地区分在线和日常
+-🔥 新推出团队功能，支持团队协作。研发不需要知道在线数据库
+密码，解决企业数据库帐号的安全问题。建议直接部署团队
+使用'docker'的函数 -增加了环境选择的支持，更好地区分在线和日常
 
 # 2.0.14
 
@@ -41,13 +60,13 @@
 
 ## ⭐ 新特性
 
-- 🔥团队功能全新上线，支持团队协作，研发无需知道线上数据库密码，解决企业数据库账号安全问题,团队功能建议直接使用 `docker` 部署
+- 🔥 团队功能全新上线，支持团队协作，研发无需知道线上数据库密码，解决企业数据库账号安全问题,团队功能建议直接使用 `docker` 部署
 - 新增支持环境选择，更好的区分线上、日常环境
 
 ## 🐞 问题修复
 
 - 修复 `Oracle` 查询 `Blob` 报错的问题
-- 修改分页逻辑，修复部分SQL无法查询
+- 修改分页逻辑，修复部分 SQL 无法查询
 
 # 2.0.13
 
@@ -62,6 +81,7 @@
 - Fixed a bug where sql formatting was not selected
 - Fixed open view lag issue
 - Solve the white screen problem of connected non-relational databases (non-relational databases are not supported)
+
 ## ⭐ 新特性
 
 ## 🐞 问题修复

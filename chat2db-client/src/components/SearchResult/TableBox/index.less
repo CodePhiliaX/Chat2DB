@@ -1,15 +1,13 @@
 @import '../../../styles/var.less';
 
 .tableBox {
-  height: calc(100% - 26px);
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   :global {
     .art-table {
-      --header-bgcolor: #fafafa;
-      --header-color: #000;
       table colgroup col {
         min-width: 120px;
       }
@@ -53,6 +51,25 @@
       position: sticky;
       bottom: 26px !important;
     }
+    .art-loading-wrapper,.art-loading-content-wrapper,.art-table{
+      height: 100%;
+    }
+    .art-table-body{
+      height: calc(100% - 32px);
+      overflow-y: auto !important;
+    }
+    .art-table-row{
+      height: 32px;
+    }
+    .art-table-header-cell{
+      padding: 0px 4px;
+    }
+  }
+}
+
+.noDataTableBox{
+  table {
+    height: 100%;
   }
 }
 
@@ -67,6 +84,7 @@
   background-color: var(--color-bg-subtle);
   padding: 0px 4px 0px 0px;
   height: 30px;
+  flex-shrink: 0;
 }
 .toolBarItem {
   margin: 4px 0;
@@ -125,26 +143,31 @@
 }
 
 .table {
-  // height: 100%;
+  height: 0px;
   flex: 1;
 }
 
 .tableItem {
-  width: calc(100% + 8px);
   height: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-  padding: 0px 4px;
-  margin: 0px -4px;
-  max-height: 120px;
-  overflow-y: auto;
+  padding-left: 4px;
+  overflow: hidden;
   user-select: none;
+  background-color: var(--color-bg-base);
 
-  &:hover .tableHoverBox {
-    display: block;
+  &:hover {
+    .tableHoverBox{
+      display: flex;
+    }
+    overflow: auto;
+  }
+
+  .cellValueNull{
+    color: var(--color-text-tertiary);
   }
 
   input {
@@ -154,6 +177,27 @@
 
 .tableItemEdit {
   background-color: var(--color-success-bg);
+  .tableHoverBox{
+    background-color: var(--color-success-bg);
+  }
+}
+.tableItemEditing {
+  background-color: var(--color-primary-bg-hover);
+  .tableHoverBox{
+    background-color: var(--color-primary-bg-hover);
+  }
+}
+.tableItemSuccess {
+  background-color: var(--color-success-bg);
+  .tableHoverBox{
+    background-color: var(--color-success-bg);
+  }
+}
+.tableItemError{
+  background-color: var(--color-error-bg);
+  .tableHoverBox{
+    background-color: var(--color-error-bg);
+  }
 }
 
 .tableItemNo {
@@ -162,14 +206,15 @@
 }
 
 .tableHoverBox {
-  position: absolute;
-  top: 50%;
+  position: sticky;
+  top: 0px;
+  bottom: 0px;
   right: 0px;
   width: 40px;
   display: none;
   align-items: center;
-  transform: translateY(-50%);
   cursor: pointer;
+  background-color: var(--color-bg-base);
 
   i {
     font-size: 15px;
@@ -204,6 +249,7 @@
   border-radius: 4px;
   overflow: hidden;
   height: 60vh;
+  margin-top: -15px;
 }
 
 .errorDetail {

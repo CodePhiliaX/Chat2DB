@@ -1,16 +1,15 @@
 package ai.chat2db.server.tools.common.util;
 
-import ai.chat2db.server.tools.common.config.GlobalDict;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.DigestUtils;
 
 import java.io.File;
-import java.util.Collections;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -28,6 +27,10 @@ public class ConfigUtils {
     public static File versionFile = null;
     public static File configFile;
     private static ConfigJson config = null;
+    /**
+     * 模板文件
+     **/
+    public static final List<String> TEMPLATE_FILE = Arrays.asList("template.html", "template_diy.docx", "sub_template_diy.docx");
 
     static {
         String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
@@ -96,29 +99,35 @@ public class ConfigUtils {
     }
 
     public static void copyTemplateFile() {
-        try {
-            ClassPathResource resourceFolder = new ClassPathResource("template");
-            // 复制文件夹到目标路径
-            if (!getMD5(resourceFolder.getFile().getPath()).equals(getMD5(GlobalDict.templateDir))) {
-                File targetFolder = new File(CONFIG_BASE_PATH);
-                FileUtil.copy(resourceFolder.getFile(), targetFolder, true);
-            }
-        } catch (Exception e) {
-            log.error("copy error", e);
+        String templateDir = CONFIG_BASE_PATH + File.separator + "template";
+        File file = new File(templateDir);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        for (String template : TEMPLATE_FILE) {
+            saveFile(templateDir, template, true);
         }
     }
 
-    public static String getMD5(String folderPath) {
-        File folder = new File(folderPath);
-        List<File> files = FileUtil.loopFiles(folder);
-        // 对文件列表进行排序
-        Collections.sort(files);
-        // 拼接文件内容
-        StringBuilder stringBuilder = new StringBuilder();
-        for (File file : files) {
-            stringBuilder.append(FileUtil.readUtf8String(file));
+    public static void saveFile(String dir, String path, boolean isOverride) {
+        if (!isOverride) {
+            File file = new File(dir + File.separator + path);
+            if (file.exists()) {
+                return;
+            }
         }
-        // 计算 MD5 值
-        return DigestUtils.md5DigestAsHex(stringBuilder.toString().getBytes());
+        try (// 模板文件输入输出地址 读取resources下文件
+             FileOutputStream outputStream = new FileOutputStream(dir + File.separator + path);
+             //返回读取指定资源的输入流
+             InputStream inputStream = ConfigUtils.class.getClassLoader().getResourceAsStream("template" + File.separator + path)) {
+            byte[] buffer = new byte[4096];
+            int n = 0;
+            while (-1 != (n = inputStream.read(buffer))) {
+                outputStream.write(buffer, 0, n);
+            }
+            outputStream.flush();
+        } catch (Exception e) {
+            log.error("saveFile error", e);
+        }
     }
 }

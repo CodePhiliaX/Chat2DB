@@ -79,6 +79,7 @@ const Row = ({ children, ...props }: RowProps) => {
 const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) => {
   const { databaseSupportField, tableDetails, databaseType } = useContext(Context);
   const [dataSource, setDataSource] = useState<IIndexItem[]>([createInitialData()]);
+  const [oldDataSource, setOldDataSource] = useState<IIndexItem[]>([]); // 用于记录上一次的数据，用于对比是否有变化
   const [form] = Form.useForm();
   const [editingData, setEditingData] = useState<IIndexItem | null>(null);
   const [includeColModalOpen, setIncludeColModalOpen] = useState(false);
@@ -96,13 +97,16 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
 
   useEffect(() => {
     const data = tableDetails.indexList?.map((i) => {
+      const key = uuidv4();
       return {
         ...i,
         oldName: i.name,
-        key: uuidv4(),
+        key,
       };
     });
-    setDataSource(data || []);
+
+    setOldDataSource(lodash.cloneDeep(data) || []);
+    setDataSource(lodash.cloneDeep(data) || []);
   }, [tableDetails]);
 
   const addData = () => {
@@ -115,19 +119,22 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
   };
 
   const deleteData = (record) => {
-    setDataSource(dataSource.filter((i) => i.key !== record?.key));
-    setDataSource(
-      dataSource.map((i) => {
+    const newList: any[] = dataSource
+      ?.map((i) => {
         if (i.key === record?.key) {
           setEditingData(null);
+          if (i.editStatus === EditColumnOperationType.Add) {
+            return null;
+          }
           return {
             ...i,
             editStatus: EditColumnOperationType.Delete,
           };
         }
         return i;
-      }),
-    );
+      })
+      ?.filter((i) => i);
+    setDataSource(newList || []);
   };
 
   const handelFieldsChange = (field: any) => {
@@ -321,8 +328,18 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     setDataSource(
       dataSource.map((i) => {
         const columnList = includeColRef.current?.getIncludeColInfo();
+        // 对比新老的IncludeColInfo有没有变化
         if (i.key === editingData?.key && columnList) {
           i.columnList = columnList;
+          oldDataSource.map((old) => {
+            if (old.key === editingData?.key) {
+              if (!lodash.isEqual(old.columnList, columnList)) {
+                i.editStatus = EditColumnOperationType.Modify;
+              } else {
+                i.editStatus = null;
+              }
+            }
+          });
         }
         return i;
       }),
