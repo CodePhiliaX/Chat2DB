@@ -51,9 +51,9 @@ export default defineConfig({
   //   href: 'manifest.json',
   // }],
   headScripts: [
-    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
       localStorage.clear();
-      localStorage.setItem('app-local-storage-versions', 'v2');
+      localStorage.setItem('app-local-storage-versions', 'v3');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {
