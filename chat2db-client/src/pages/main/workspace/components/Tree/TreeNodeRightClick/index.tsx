@@ -72,7 +72,7 @@ function TreeNodeRightClick(props: IProps) {
             .then((res) => {
               setMonacoVerifyDialog(true);
               setTimeout(() => {
-                monacoEditorRef.current?.setValue(res);
+                monacoEditorRef.current?.setValue(res,'cover');
               }, 0);
             });
         },
@@ -317,7 +317,7 @@ function TreeNodeRightClick(props: IProps) {
           maskClosable={false}
           title={`${data.key}-DDL`}
           open={monacoVerifyDialog}
-          width="600px"
+          width="650px"
           onCancel={() => {
             setMonacoVerifyDialog(false);
           }}

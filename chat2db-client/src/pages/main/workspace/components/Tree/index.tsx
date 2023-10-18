@@ -81,6 +81,23 @@ const TreeNode = (props: TreeNodeIProps) => {
   const [showChildren, setShowChildren] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
+  const [openTooltipComment, setOpenTooltipComment] = useState(false);
+  const contentTextRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if(!data.comment){
+      return 
+    }
+    if (contentTextRef.current) {
+      const contentTextRefDom = contentTextRef.current;
+      contentTextRefDom.addEventListener('mouseenter', () => {
+        setOpenTooltipComment(true);
+      });
+      contentTextRefDom.addEventListener('mouseleave', () => {
+        setOpenTooltipComment(false);
+      });
+    }
+  }, [contentTextRef]);
 
   function loadData(data: ITreeNode) {
     const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
@@ -177,7 +194,7 @@ const TreeNode = (props: TreeNodeIProps) => {
 
   return show ? (
     <>
-      <Tooltip placement="right" color={window._AppThemePack.colorPrimary} title={data.comment}>
+      <Tooltip open={openTooltipComment} placement="right" color={window._AppThemePack.colorPrimary} title={data.comment}>
         <div className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}>
           <div className={styles.left}>
             {indentArr.map((item, i) => {
@@ -206,12 +223,12 @@ const TreeNode = (props: TreeNodeIProps) => {
               <div className={styles.typeIcon}>
                 <Iconfont code={recognizeIcon(data.treeNodeType)!} />
               </div>
-              <div className={styles.contentText}>
+              <div className={styles.contentText} ref={contentTextRef}>
                 <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }} />
                 {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
               </div>
             </div>
-            <div className="moreBox">
+            <div className={styles.moreBox}>
               <TreeNodeRightClick
                 setIsLoading={setIsLoading}
                 dispatch={dispatch}

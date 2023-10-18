@@ -1,11 +1,12 @@
 # 3.0.0
-
 `2023-10-17`
+
 ## Changelog
 - 🔥【New Features】Support for team collaboration mode
 - 🔥【New Features】Support for visual table structure creation, editing, and deletion
 - 🔥【New Features】Support for editing, adding, and deleting query data results
 - ⭐【New Features】Support the feature of importing Navicat/DBever data source links
+- ⭐【New Features】Support for AI automatic sync table structure。
 - ⭐【New Features】Support export table structure
 - ⭐【New Features】Support importing SQL files
 - ⭐【New Features】Support the connection supports adding an environment,better distinguishing between online and daily
@@ -22,6 +23,7 @@
 - 🔥【新功能】支持可视化表结构新增、编辑、删除
 - 🔥【新功能】支持查询数据结果编辑、新增、删除
 - ⭐【新功能】支持导入Navicat/DBeaver数据源链接的功能
+- ⭐【新功能】支持AI自动同步表结构
 - ⭐【新功能】支持导出表结构
 - ⭐【新功能】支持导入sql文件
 - ⭐【新功能】连接支持添加环境标识，更好地区分在线和日常
