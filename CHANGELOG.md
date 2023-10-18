@@ -1,7 +1,7 @@
 # 3.0.0
 `2023-10-17`
 
-## Changelog
+**Changelog**
 - 🔥【New Features】Support for team collaboration mode
 - 🔥【New Features】Support for visual table structure creation, editing, and deletion
 - 🔥【New Features】Support for editing, adding, and deleting query data results
@@ -18,7 +18,8 @@
 - ⚡️【Optimize】`Cmd/Ctrl + R` Run SQL， `Cmd/Ctrl + Shift + R` Refresh Page
 - 🐞【Fixed】Table operation columns are overridden by table comments
 - 🐞【Fixed】The last Tab in the query result cannot be closed
-## 更新日志
+
+**更新日志**
 - 🔥【新功能】支持团队协作模式
 - 🔥【新功能】支持可视化表结构新增、编辑、删除
 - 🔥【新功能】支持查询数据结果编辑、新增、删除
