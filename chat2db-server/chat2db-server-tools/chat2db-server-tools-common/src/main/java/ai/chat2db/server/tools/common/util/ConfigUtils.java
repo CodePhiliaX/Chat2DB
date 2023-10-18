@@ -127,7 +127,7 @@ public class ConfigUtils {
             }
             outputStream.flush();
         } catch (Exception e) {
-            log.error("getAppPath error", e);
+            log.error("saveFile error", e);
         }
     }
 }
