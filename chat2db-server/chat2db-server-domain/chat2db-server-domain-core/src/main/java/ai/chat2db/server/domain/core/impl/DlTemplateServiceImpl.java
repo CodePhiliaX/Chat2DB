@@ -151,9 +151,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
         try {
-            executeResult.setCanEdit(SqlUtils.canEdit(originalSql));
-            executeResult.setTableName(SqlUtils.getTableName(originalSql, dbType));
+            SqlUtils.buildCanEditResult(originalSql, dbType,executeResult);
         } catch (Exception e) {
+
         }
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
@@ -258,8 +258,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
         StringBuilder script = new StringBuilder();
-        script.append("DELETE FROM ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
-                .append("");
+        script.append("DELETE FROM ").append( param.getTableName()).append("");
 
         script.append(buildWhere(param.getHeaderList(), row, metaSchema));
         return script.toString();
@@ -292,7 +291,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return "";
         }
         StringBuilder script = new StringBuilder();
-        script.append("INSERT INTO ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
+        script.append("INSERT INTO ").append( param.getTableName())
                 .append(" (");
         for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
@@ -319,8 +318,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         if (CollectionUtils.isEmpty(row) || CollectionUtils.isEmpty(odlRow)) {
             return "";
         }
-        script.append("UPDATE ").append(metaSchema.getMetaDataName(param.getDatabaseName(), param.getSchemaName(), param.getTableName()))
-                .append(" set ");
+        script.append("UPDATE ").append(param.getTableName()).append(" set ");
         for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             String oldValue = odlRow.get(i);
