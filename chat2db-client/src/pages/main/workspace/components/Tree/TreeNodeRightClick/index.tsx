@@ -70,8 +70,10 @@ function TreeNodeRightClick(props: IProps) {
               tableName: data.key,
             } as any)
             .then((res) => {
-              monacoEditorRef.current?.setValue(res);
               setMonacoVerifyDialog(true);
+              setTimeout(() => {
+                monacoEditorRef.current?.setValue(res);
+              }, 0);
             });
         },
       };
