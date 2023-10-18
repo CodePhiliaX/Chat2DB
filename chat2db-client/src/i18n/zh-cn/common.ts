@@ -90,4 +90,6 @@ export default {
   'common.button.executionError': '执行错误',
   'common.text.affectedRows': '受影响行：{1}',
   'common.text.selectFile' : '选择文件',
+  'common.text.noTableFoundUp' : '当前库没有查询到表',
+  'common.text.noTableFoundDown' : '你可以在顶部切换数据库'
 };
