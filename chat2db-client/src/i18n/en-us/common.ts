@@ -1,6 +1,6 @@
 export default {
-  'common.text.no': 'is',
-  'common.text.is': 'no',
+  'common.text.no': 'no',
+  'common.text.is': 'is',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
   'common.button.modify': 'Modify',
