@@ -12,6 +12,7 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
+  config.output.filename(`[name].${yarn_config.app_version || new Date().getTime()}.js`);
 };
 
 export default defineConfig({
@@ -50,10 +51,17 @@ export default defineConfig({
   //   rel: 'manifest',
   //   href: 'manifest.json',
   // }],
+  links: [
+    {   rel:"icon",
+    type:"image/ico",
+    sizes:"32x32",
+    href:"/static/front/logo.ico" 
+  }
+  ],
   headScripts: [
-    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
       localStorage.clear();
-      localStorage.setItem('app-local-storage-versions', 'v2');
+      localStorage.setItem('app-local-storage-versions', 'v3');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {
