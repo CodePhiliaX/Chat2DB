@@ -1,5 +1,5 @@
 # 3.0.0
-`2023-10-17`
+`2023-10-19`
 
 **Changelog**
 - ⚡️【Optimize】Search result scroll bar
