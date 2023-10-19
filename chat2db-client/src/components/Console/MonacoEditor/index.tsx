@@ -256,14 +256,15 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         contextMenuOrder: 1.5,
         // 点击该菜单键后运行
         run: (ed: IEditorIns) => {
+          const selectedText = editor.getModel()?.getValueInRange(editor.getSelection()!) || '';
           if (_id === 'changeSQL') {
             ed.trigger('', quickInputCommand.current, (quickInput) => {
               quickInput.pick(databaseTypeList).then((selected) => {
                 console.log(selected);
+                runFn(selectedText, selected?.label);
               });
             });
           } else {
-            const selectedText = editor.getModel()?.getValueInRange(editor.getSelection()!) || '';
             runFn(selectedText);
           }
         },
