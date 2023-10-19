@@ -120,6 +120,25 @@ export default function TableBox(props: ITableProps) {
     });
   }, [queryResultData]);
 
+  // 判断art-table-body是否出现了滚动条
+  // useEffect(() => {
+  //   const tableBody = document.querySelector('.art-table-body');
+  //   const tableHeader = document.querySelector('.art-table-header');
+  //   if (!tableBody) {
+  //     return;
+  //   }
+  //   const tableBodyHeight = tableBody.clientHeight;
+  //   const tableBoxHeight = tableBoxRef.current?.clientHeight || 0;
+  //   if(!tableHeader){
+  //     return;
+  //   }
+  //   if (tableBodyHeight > tableBoxHeight) {
+  //     tableHeader.classList.add('art-table-body-scroll');
+  //   } else {
+  //     tableHeader.classList.remove('art-table-body-scroll');
+  //   }
+  // }, [tableData]);
+
   useEffect(() => {
     // 每次dataList变化，都需要重新计算tableData
     if (!columns?.length) {
@@ -374,7 +393,9 @@ export default function TableBox(props: ITableProps) {
                 />
               ) : (
                 <>
-                  {renderTableCellValue(value)}
+                  <div className={styles.tableItemContent}>
+                    {renderTableCellValue(value)}
+                  </div>
                   <div className={styles.tableHoverBox}>
                     <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
                     <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
@@ -401,7 +422,11 @@ export default function TableBox(props: ITableProps) {
         // sorts,
         // onChangeSorts,
       }),
-    );
+    )
+    .use(features.columnResize({
+      fallbackSize: 120,
+      handleActiveBackground: `var(--color-primary-bg-hover)`,
+    }));
   // .use(
   //   features.columnResize({
   //     fallbackSize: 120,

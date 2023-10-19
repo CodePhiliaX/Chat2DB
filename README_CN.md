@@ -16,9 +16,13 @@
 <div align="center">
 
   Languages： 中文 [English](README.md)
-  
-如果觉得 Chat2DB 对您有帮助的话，请帮忙<a target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
-的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+
+  官网：[Chat2DB](https://sqlgpt.cn/zh)
+
+  <div style="display: flex; align-items: center;">
+    如果觉得 Chat2DB 对您有帮助的话，请帮忙<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
+    的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+  </div>
 </div>
 
 
@@ -50,9 +54,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 [GitHub下载安装包](https://github.com/chat2db/Chat2DB/releases) 
 
-或
-
-[官网下载安装包](https://sqlgpt.cn/docs/guides/download) 
+[官网下载安装包](https://sqlgpt.cn) 
 
 ## 🚀 支持的数据库
 
@@ -62,7 +64,7 @@ Chat2DB 支持的数据库连接有:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
 - ClickHouseare
 - DM
@@ -72,7 +74,7 @@ Chat2DB 支持的数据库连接有:
 - Hive
 - KingBase
 
-Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
+Redis和MongoDB得到部分支持，Hbase、Elasticsearch、openGauss、TiDB、InfluxDB将在未来得到支持。
 
 
 ## 🌰 使用 Demo
@@ -85,31 +87,17 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 
 <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/d5634953-9fe5-4a03-8024-3aa4774b2955.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
 
-### SQL 控制台 及 AI 智能助手
+### SQL 控制台
 
-#### 使用前需要配置 OpenAI 的 Api Key 及本地代理配置
+<a><img width="1720" alt="2" src="https://github.com/chat2db/Chat2DB/assets/22975773/5d0332ca-8a65-4ed9-95fb-b12fae9209f3"></a>
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/f1a111bd-38cf-42d2-bfd3-f1d7f57aec3c.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/16e3c632-f896-45c3-a7a2-91c338e82f73.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+### AI 智能助手
 
-## 🔥 AI 配置
+![image](https://github.com/chat2db/Chat2DB/assets/22975773/2dfc4aaa-c5a3-42c3-bc61-28ebc237a27b)
 
-### 使用 ChatGPT
+## 🔥 AI
 
-方式一（推荐）：使用 OPENAI 的 ChatSql 功能需要满足两个条件
-
-- 1、需要有一个 openAI 的 key：OPENAI_API_KEY
-- 2、客户端网络可以连接到 OPENAI 官网，国内需要科学上网。注意：如果本地 VPN 未能全局生效，可以通过在客户端中设置网络代理 HOST 和 PORT 来保证网络连通性
-- <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/0218daf0-7d93-43c5-a5f7-decd104c0847.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
-
-方式二（推荐）：使用我们提供了一个统一的代理服务。
-
-- 1、不需要 openAI 的 key
-- 2、不需要代理，不需要 VPN 只要可以联网即可使用。
-
-为了方便大家更快速的使用 AI 的能力，可以关注微信公众号，回复"AI" 获得我们的自定义 API_KEY，申请完成之后参考下图进行配置即可进行使用
-
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/5ee43d26-05bb-4b12-b705-2b263f167975.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+### 使用Chat2DB AI 上手即用
 
 ### 使用自定义大模型
 - [参考这里部署本地ChatGLM-6B模型](https://github.com/chat2db/chat2db-chatglm-6b-deploy/blob/main/README_CN.md)
@@ -163,9 +151,15 @@ $ cd chat2db-server/chat2db-server-start/target/
 $ java -jar -Dloader.path=./lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # 需要安装java 17以上版本，启动应用 chatgpt.apiKey 需要输入ChatGPT的key,如果不输入无法使用AIGC功能
 ```
 
+- 如果你需要独立部署 
+```bash
+$ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front / cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+# 再打包后端服务
+```
+
 ## 📑 文档
 
-- <a href="https://chat2db.opensource.alibaba.com">官方文档</a>
+- <a href="https://doc.sqlgpt.cn/zh/">官方文档</a>
 - <a href="https://github.com/chat2db/Chat2DB/issues">Issue</a>
 
 ## 常见问题

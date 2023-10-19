@@ -2,7 +2,9 @@ import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
+import { DatabaseTypeCode, editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
+import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
+
 import styles from './index.less';
 
 export type IEditorIns = monaco.editor.IStandaloneCodeEditor;
@@ -14,6 +16,12 @@ export type IAppendValue = {
   range?: IRangeType;
 };
 
+const databaseTypeList = Object.keys(DatabaseTypeCode).map((d) => ({
+  type: d,
+  id: d,
+  label: d,
+}));
+
 interface IProps {
   id: string;
   isActive?: boolean;
@@ -21,7 +29,7 @@ interface IProps {
   className?: string;
   options?: IEditorOptions;
   needDestroy?: boolean;
-  addAction?: Array<{ id: string; label: string; action: (selectedText: string) => void }>;
+  addAction?: Array<{ id: string; label: string; action: (selectedText: string, ext?: string) => void }>;
   defaultValue?: string;
   appendValue?: IAppendValue;
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
@@ -51,6 +59,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     appendValue,
   } = props;
   const editorRef = useRef<IEditorIns>();
+  const quickInputCommand = useRef<any>();
   const [appTheme] = useTheme();
 
   // init
@@ -64,6 +73,13 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     });
     editorRef.current = editorIns;
     didMount && didMount(editorIns);
+
+    // Add a new command, for getting an accessor.
+    quickInputCommand.current = editorIns.addCommand(0, (accessor, func) => {
+      // a hacker way to get the input service
+      const quickInputService = accessor.get(IQuickInputService);
+      func(quickInputService);
+    });
 
     const { colorPrimary } = window._AppThemePack;
     const colors = {
@@ -239,9 +255,18 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         contextMenuGroupId: 'navigation',
         contextMenuOrder: 1.5,
         // 点击该菜单键后运行
-        run: () => {
+        run: (ed: IEditorIns) => {
           const selectedText = editor.getModel()?.getValueInRange(editor.getSelection()!) || '';
-          runFn(selectedText);
+          if (_id === 'changeSQL') {
+            ed.trigger('', quickInputCommand.current, (quickInput) => {
+              quickInput.pick(databaseTypeList).then((selected) => {
+                console.log(selected);
+                runFn(selectedText, selected?.label);
+              });
+            });
+          } else {
+            runFn(selectedText);
+          }
         },
       });
     });

@@ -25,6 +25,12 @@ An intelligent and versatile general-purpose SQL client and reporting tool for d
 
 Languages： English | [中文](README_CN.md)
 
+Official website：[Chat2DB](https://sqlgpt.cn/en)
+
+<div style="display: flex; align-items: center;">
+  If you find Chat2DB helpful, please help<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>Click ⭐ Star and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get bette
+</div>
+
 </div>
 
 ## DEMO
@@ -49,7 +55,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 [Downloading installation package from GitHub](https://github.com/chat2db/Chat2DB/releases) 
 
 
-[Downloading installation package from official website](https://sqlgpt.cn/docs/guides/download) 
+[Downloading installation package from official website](https://sqlgpt.cn) 
 
 
 
@@ -61,7 +67,7 @@ Chat2DB supports connecting to the following databases:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
 - ClickHouseare
 - DM
@@ -94,25 +100,7 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 
 ## 🔥 AI Configuration
 
-### CONFIGURE OPENAI
-
-Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions must be met:
-
-- You need an OPENAI_API_KEY.
-- The client's network can connect to the OPENAI website, and for users in China, a VPN is required. Note: If the local VPN is not fully effective, the network connectivity can be ensured by setting the network proxy HOST and PORT in the client.
-
-<img width="1717" alt="3" src="https://github.com/chat2db/Chat2DB/assets/22975773/95c8a766-cc6b-4767-90e6-a8b616a89bc7">
-
-
-Option 2 (recommended): We provide a unified proxy service.
-
-- No OPENAI_API_KEY is required.
-- No proxy or VPN is required, as long as the network is connected.
-
-To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY.
-
-<img width="1726" alt="4" src="https://github.com/chat2db/Chat2DB/assets/22975773/9236ff01-e49f-4e45-96b0-201e85fcd756">
-
+### Use Chat2DB AI to get started
 
 ### CONFIGURE CUSTOM AI
 
@@ -147,7 +135,7 @@ Note: If local debugging is required
 - git clone to local
 
 ```bash
-$ git clone git@github.com:alibaba/Chat2DB.git
+$ git clone git@github.com:chat2db/Chat2DB.git
 ```
 
 - Front-End debug
@@ -169,10 +157,17 @@ $ cd chat2db-server/chat2db-server-start/target/
 $ java -jar  -Dloader.path=./lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  #java 17 or later must be installed, To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
 ```
 
+- If you need to deploy independently
+
+```bash
+$ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front / cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+# Repackage the back-end services
+```
+
 ## 📑 Documentation
 
-- <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-- <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+- <a href="https://doc.sqlgpt.cn/">Official website document</a>
+- <a href="https://github.com/chat2db/Chat2DB/issues">Issue </a>
 
 ## Stargazers
 

@@ -21,7 +21,6 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
-import { isEmpty } from 'lodash';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -134,20 +133,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     editorRef: editorRef?.current,
   }));
 
-  useEffect(() => {
-    indexedDB
-      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
-        consoleId: executeParams.consoleId!,
-        userId: getCookie('CHAT2DB.USER_ID'),
-      })
-      .then((res: any) => {
-        const value = res?.[0]?.ddl || '';
-        if (value) {
-          editorRef?.current?.setValue(value, 'reset');
-          initializeSuccessful.current = true;
-        }
-      });
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     if (source !== 'workspace') {
@@ -166,7 +152,19 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       }
     } else {
       // 活跃时自动保存
-      timingAutoSave();
+      indexedDB
+        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+          consoleId: executeParams.consoleId!,
+          userId: getCookie('CHAT2DB.USER_ID'),
+        })
+        .then((res: any) => {
+          const value = res?.[0]?.ddl || '';
+          if (value) {
+            editorRef?.current?.setValue(value, 'reset');
+            initializeSuccessful.current = true;
+            timingAutoSave();
+          }
+        });
     }
     return () => {
       if (timerRef.current) {
@@ -176,10 +174,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   }, [isActive]);
 
   function timingAutoSave() {
-    // 如果没有初始化那就不自动保存
-    if (!initializeSuccessful.current) {
-      return;
-    }
     timerRef.current = setInterval(() => {
       indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
         consoleId: executeParams.consoleId!,
@@ -242,12 +236,12 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     }
   };
 
-  const handleAIChatInEditor = async (content: string, promptType: IPromptType) => {
+  const handleAIChatInEditor = async (content: string, promptType: IPromptType, ext?: string) => {
     const aiConfig = await configService.getAiSystemConfig({});
-    handleAiChat(content, promptType, aiConfig);
+    handleAiChat(content, promptType, aiConfig, ext);
   };
 
-  const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig) => {
+  const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig, ext?: string) => {
     const { apiKey } = aiConfig || props.aiModel?.aiConfig || {};
     if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);
@@ -270,6 +264,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       databaseName,
       schemaName,
       tableNames: syncTableModel ? selectedTables : null,
+      ext,
     });
 
     const handleMessage = (message: string) => {
@@ -402,7 +397,9 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     {
       id: 'changeSQL',
       label: i18n('common.text.conversionSQL'),
-      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_2_SQL),
+      action: (selectedText: string, ext?: string) => {
+        handleAIChatInEditor(selectedText, IPromptType.SQL_2_SQL, ext);
+      },
     },
   ];
 
