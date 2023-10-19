@@ -88,7 +88,11 @@ public enum MysqlIndexTypeEnum {
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if(StringUtils.isNotBlank(column.getColumnName())) {
-                script.append("`").append(column.getColumnName()).append("`").append(",");
+                script.append("`").append(column.getColumnName()).append("`");
+                if (!StringUtils.isBlank(column.getAscOrDesc()) && !PRIMARY_KEY.equals(this)) {
+                    script.append(" ").append(column.getAscOrDesc());
+                }
+                script.append(",");
             }
         }
         script.deleteCharAt(script.length() - 1);

@@ -1,6 +1,6 @@
 export default {
-  'common.text.no': 'is',
-  'common.text.is': 'no',
+  'common.text.no': 'no',
+  'common.text.is': 'is',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
   'common.button.modify': 'Modify',
@@ -92,4 +92,6 @@ export default {
   'common.button.executionError': 'Execution Error',
   'common.text.affectedRows': 'Affected rows: {1}',
   'common.text.selectFile' : 'Select File',
+  'common.text.noTableFoundUp' : 'No tables in this database',
+  'common.text.noTableFoundDown' : 'Switch databases at the top'
 };

@@ -439,7 +439,15 @@ const TableList = dvaModel((props: any) => {
 
       <div ref={treeBoxRef} className={styles.treeBox}>
         <LoadingContent isLoading={tableLoading}>
-          <Tree initialData={searchedTableList || curList} />
+          {
+            (curType.value === TreeNodeType.TABLES && !curList.length) ? 
+            <div className={styles.emptyBox}>
+              <div>{i18n('common.text.noTableFoundUp')}</div>
+              <div>{i18n('common.text.noTableFoundDown')}</div>
+             </div>
+            :
+            <Tree initialData={searchedTableList || curList} />
+          }
         </LoadingContent>
       </div>
 

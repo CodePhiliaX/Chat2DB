@@ -51,7 +51,7 @@ const SupportBaseTable: any = styled(BaseTable)`
     --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
     --border-color: var(--color-border-secondary);
-    --cell-padding: 0px 4px;
+    --cell-padding: 0px;
     --row-height: 32px;
   }
 `;
@@ -119,6 +119,25 @@ export default function TableBox(props: ITableProps) {
       hasNextPage: queryResultData.hasNextPage,
     });
   }, [queryResultData]);
+
+  // 判断art-table-body是否出现了滚动条
+  // useEffect(() => {
+  //   const tableBody = document.querySelector('.art-table-body');
+  //   const tableHeader = document.querySelector('.art-table-header');
+  //   if (!tableBody) {
+  //     return;
+  //   }
+  //   const tableBodyHeight = tableBody.clientHeight;
+  //   const tableBoxHeight = tableBoxRef.current?.clientHeight || 0;
+  //   if(!tableHeader){
+  //     return;
+  //   }
+  //   if (tableBodyHeight > tableBoxHeight) {
+  //     tableHeader.classList.add('art-table-body-scroll');
+  //   } else {
+  //     tableHeader.classList.remove('art-table-body-scroll');
+  //   }
+  // }, [tableData]);
 
   useEffect(() => {
     // 每次dataList变化，都需要重新计算tableData
@@ -270,7 +289,10 @@ export default function TableBox(props: ITableProps) {
   // 渲染单元格的值
   const renderTableCellValue = (value) => {
     if (value === null) {
-      return '<null>';
+      return <span className={styles.cellValueNull}>{'<null>'}</span>
+    } else if (!value) {
+      // 如果为空需要展位
+      return <span />
     } else {
       return value;
     }
@@ -280,11 +302,25 @@ export default function TableBox(props: ITableProps) {
   const tableCellStyle = (value, colIndex, rowNo) => {
     // 单元格的基础样式
     const styleList = [styles.tableItem];
-    // 如果当前单元格所在的行被选中了，则需要把单元格的背景色设置为透明
-    if (curOperationRowNo === rowNo) {
+    // 当前单元格所在的行被选中了
+    if (rowNo === curOperationRowNo) {
+      styleList.push(styles.tableItemEditing);
       return classnames(...styleList);
     }
-
+    // 新添加的行
+    const index2 = updateData.findIndex((item) => {
+      return item.rowNo === rowNo && item.type === CRUD.CREATE;
+    });
+    if (index2 !== -1) {
+      styleList.push(styles.tableItemSuccess);
+      return classnames(...styleList);
+    }
+    // 如果是删除过的行
+    const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.DELETE);
+    if (index !== -1) {
+      styleList.push(styles.tableItemError);
+      return classnames(...styleList);
+    }
     // 编辑过的单元格的样式
     let oldValue = '';
     oldDataList.forEach((item) => {
@@ -325,9 +361,10 @@ export default function TableBox(props: ITableProps) {
           lock: true,
           width: 60,
           features: { sortable: compareStrings },
-          render: (value: any) => {
+          render: (value: any, rowData) => {
+            const rowNo = rowData[`${preCode}0No.`];
             return (
-              <div className={styles.tableItem}>
+              <div className={tableCellStyle(value, colIndex, rowNo)}>
                 <div className={styles.tableItemNo}>{value}</div>
               </div>
             );
@@ -581,37 +618,37 @@ export default function TableBox(props: ITableProps) {
     });
   };
   // 不同状态下的表格行样式
-  const tableRowStyle = (rowNo: string) => {
-    // 如果是当前操作的行
-    if (rowNo === curOperationRowNo) {
-      return {
-        '--hover-bgcolor': 'transparent',
-        '--bgcolor': 'transparent',
-        background: 'var(--color-primary-bg-hover)',
-      };
-    }
-    // 如果是删除过的行
-    const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.DELETE);
-    if (index !== -1) {
-      return {
-        '--hover-bgcolor': 'transparent',
-        '--bgcolor': 'transparent',
-        background: 'var(--color-error-bg)',
-      };
-    }
-    // 如果是新增的行
-    const index2 = updateData.findIndex((item) => {
-      return item.rowNo === rowNo && item.type === CRUD.CREATE;
-    });
-    if (index2 !== -1) {
-      return {
-        '--hover-bgcolor': 'transparent',
-        '--bgcolor': 'transparent',
-        background: 'var(--color-success-bg)',
-      };
-    }
-    return {};
-  };
+  // const tableRowStyle = (rowNo: string) => {
+  //   // 如果是当前操作的行
+  //   if (rowNo === curOperationRowNo) {
+  //     return {
+  //       '--hover-bgcolor': 'transparent',
+  //       '--bgcolor': 'transparent',
+  //       background: 'var(--color-primary-bg-hover)',
+  //     };
+  //   }
+  //   // 如果是删除过的行
+  //   const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.DELETE);
+  //   if (index !== -1) {
+  //     return {
+  //       '--hover-bgcolor': 'transparent',
+  //       '--bgcolor': 'transparent',
+  //       background: 'var(--color-error-bg)',
+  //     };
+  //   }
+  //   // 如果是新增的行
+  //   const index2 = updateData.findIndex((item) => {
+  //     return item.rowNo === rowNo && item.type === CRUD.CREATE;
+  //   });
+  //   if (index2 !== -1) {
+  //     return {
+  //       '--hover-bgcolor': 'transparent',
+  //       '--bgcolor': 'transparent',
+  //       background: 'var(--color-success-bg)',
+  //     };
+  //   }
+  //   return {};
+  // };
 
   // sql执行成功后的回调
   const executeSuccessCallBack = () => {
@@ -734,7 +771,7 @@ export default function TableBox(props: ITableProps) {
               getRowProps={(record) => {
                 const rowNo = record[`${preCode}0No.`];
                 return {
-                  style: tableRowStyle(rowNo),
+                  // style: tableRowStyle(rowNo),
                   onClick() {
                     setCurOperationRowNo(rowNo);
                   },
@@ -751,7 +788,14 @@ export default function TableBox(props: ITableProps) {
   };
 
   return (
-    <div ref={tableBoxRef} className={classnames(className, styles.tableBox)}>
+    <div
+      ref={tableBoxRef}
+      className={classnames(
+        className,
+        styles.tableBox,
+        { [styles.noDataTableBox]: !tableData.length },
+      )}
+    >
       {renderContent()}
       <Modal
         title={viewTableCellData?.name}
@@ -769,6 +813,7 @@ export default function TableBox(props: ITableProps) {
               range: 'reset',
             }}
             options={{
+              lineNumbers: 'off',
               readOnly: true,
             }}
           />

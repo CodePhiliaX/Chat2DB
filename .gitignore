@@ -18,6 +18,7 @@ package-lock.json
 ### Mac
 .DS_Store
 /chat2db-server/ali-dbhub-server-start/src/main/resources/static/front/*
+/chat2db-server/ali-dbhub-server-start/src/main/resources/thymeleaf
 
 ### docker 数据不用上传
 /docker/redis/data/*

@@ -10,7 +10,7 @@
 .leftModuleTitle {
   flex-shrink: 0;
   margin-bottom: 4px;
-  padding: 0px 10px;
+  padding: 4px 10px;
   .leftModuleTitleText {
     // 下阴影
     display: flex;
@@ -60,6 +60,22 @@
 .leftModuleTitleShadow {
   // 地步加一点模糊
   box-shadow: 0px 1px 2px 0px var(--color-border);
+}
+
+.emptyBox{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 80%;
+  margin: 0 auto;
+  padding-top: 40px;
+  box-sizing: border-box;
+  color: var(--color-text-quaternary);
+  >div{
+    text-align: center;
+    line-height: 20px;
+  }
 }
 
 .treeBox {

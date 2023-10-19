@@ -21,7 +21,6 @@ import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
 import styles from './index.less';
 import indexedDB from '@/indexedDB';
-import { isEmpty } from 'lodash';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -135,18 +134,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   }));
 
   useEffect(() => {
-    indexedDB
-      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
-        consoleId: executeParams.consoleId!,
-        userId: getCookie('CHAT2DB.USER_ID'),
-      })
-      .then((res: any) => {
-        const value = res?.[0]?.ddl || '';
-        if (value) {
-          editorRef?.current?.setValue(value, 'reset');
-          initializeSuccessful.current = true;
-        }
-      });
+
   }, []);
 
   useEffect(() => {
@@ -166,7 +154,19 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       }
     } else {
       // 活跃时自动保存
-      timingAutoSave();
+      indexedDB
+      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        userId: getCookie('CHAT2DB.USER_ID'),
+      })
+      .then((res: any) => {
+        const value = res?.[0]?.ddl || '';
+        if (value) {
+          editorRef?.current?.setValue(value, 'reset');
+          initializeSuccessful.current = true;
+          timingAutoSave();
+        }
+      });
     }
     return () => {
       if (timerRef.current) {
@@ -176,10 +176,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   }, [isActive]);
 
   function timingAutoSave() {
-    // 如果没有初始化那就不自动保存
-    if (!initializeSuccessful.current) {
-      return;
-    }
     timerRef.current = setInterval(() => {
       indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
         consoleId: executeParams.consoleId!,
