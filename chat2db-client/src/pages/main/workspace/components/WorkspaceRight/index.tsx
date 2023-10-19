@@ -3,7 +3,7 @@ import { connect } from 'umi';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, OSType, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import TabsNew, { ITabItem } from '@/components/TabsNew';
@@ -26,6 +26,7 @@ import {
   registerIntelliSenseTable,
 } from '@/utils/IntelliSense';
 import indexedDB from '@/indexedDB';
+import { osNow } from '@/utils';
 
 interface IProps {
   className?: string;
@@ -69,8 +70,15 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 注册快捷键command+shift+L新建console
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey && e.shiftKey && e.code === 'KeyL') {
-        addConsole();
+      // 如果是mac系统
+      if(osNow().isMac){
+        if (e.metaKey && e.shiftKey && e.code === 'KeyL') {
+          addConsole();
+        }
+      }else{
+        if (e.ctrlKey && e.shiftKey && e.code === 'KeyL') {
+          addConsole();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
