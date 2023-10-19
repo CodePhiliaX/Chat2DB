@@ -2,6 +2,17 @@
 `2023-10-17`
 
 **Changelog**
+- ⚡️【Optimize】Search result scroll bar
+- ⚡️【Fixed】Oracle update result data bug
+
+**更新日志**
+- ⚡️【优化】查询结果滚动条
+- 🐞【修复】Oracle更新结果数据错误
+
+# 3.0.0
+`2023-10-17`
+
+**Changelog**
 - 🔥【New Features】Support for team collaboration mode
 - 🔥【New Features】Support for visual table structure creation, editing, and deletion
 - 🔥【New Features】Support for editing, adding, and deleting query data results
