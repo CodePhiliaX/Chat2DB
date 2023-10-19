@@ -67,7 +67,7 @@ Chat2DB supports connecting to the following databases:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
 - ClickHouseare
 - DM
@@ -135,7 +135,7 @@ Note: If local debugging is required
 - git clone to local
 
 ```bash
-$ git clone git@github.com:alibaba/Chat2DB.git
+$ git clone git@github.com:chat2db/Chat2DB.git
 ```
 
 - Front-End debug
@@ -166,8 +166,8 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ## 📑 Documentation
 
-- <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-- <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+- <a href="https://doc.sqlgpt.cn/">Official website document</a>
+- <a href="https://github.com/chat2db/Chat2DB/issues">Issue </a>
 
 ## Stargazers
 

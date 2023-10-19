@@ -6,7 +6,6 @@ import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
 import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
-import { WECHAT_MP_URL } from '@/constants/social';
 
 export const enum SyncModelType {
   AUTO = 0,

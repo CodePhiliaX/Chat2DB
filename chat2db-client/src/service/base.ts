@@ -40,7 +40,7 @@ enum ErrorCode {
 const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
 
 // yapi mock地址
-const mockUrl = 'https://yapi.alibaba.com/mock/1000160';
+const mockUrl = 'https://yapi.com/mock/1000160';
 
 // 桌面端的服务器地址
 const desktopServiceUrl = `http://127.0.0.1:${__APP_PORT__ || '10824'}`;
