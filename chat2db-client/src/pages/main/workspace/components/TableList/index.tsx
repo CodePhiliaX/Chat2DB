@@ -235,6 +235,7 @@ const TableList = dvaModel((props: any) => {
 
   useEffect(() => {
     setCurList([]);
+    setPagingData(defaultPaddingData);
     if (isReady) {
       setCurType({ ...optionsList[0] });
     }
@@ -367,6 +368,7 @@ const TableList = dvaModel((props: any) => {
   const handleChangePageSize = (value: number) => {
     setPagingData({
       ...pagingData,
+      pageNo: 1,
       pageSize: value,
     });
   };
