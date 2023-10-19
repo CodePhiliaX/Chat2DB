@@ -63,6 +63,7 @@
     }
     .art-table-header {
       background: transparent !important;
+      overflow: hidden !important; 
     }
     .art-table-body-scroll{
       padding-right: 6px;
@@ -154,22 +155,32 @@
 }
 
 .tableItem {
-  height: 100%;
+  height: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
   padding-left: 4px;
-  overflow: hidden;
   user-select: none;
   background-color: var(--color-bg-base);
+
+
+  .tableItemContent{
+    overflow: hidden;
+    max-height: 30px;
+    line-height: 30px;
+    flex: 1;
+    &:hover{
+      overflow: auto;
+      line-height: 16px;
+    }
+  }
 
   &:hover {
     .tableHoverBox{
       display: flex;
     }
-    overflow: auto;
   }
 
   .cellValueNull{

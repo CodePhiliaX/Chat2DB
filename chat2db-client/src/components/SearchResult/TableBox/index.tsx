@@ -393,7 +393,9 @@ export default function TableBox(props: ITableProps) {
                 />
               ) : (
                 <>
-                  {renderTableCellValue(value)}
+                  <div className={styles.tableItemContent}>
+                    {renderTableCellValue(value)}
+                  </div>
                   <div className={styles.tableHoverBox}>
                     <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
                     <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
@@ -420,7 +422,11 @@ export default function TableBox(props: ITableProps) {
         // sorts,
         // onChangeSorts,
       }),
-    );
+    )
+    .use(features.columnResize({
+      fallbackSize: 120,
+      handleActiveBackground: `var(--color-primary-bg-hover)`,
+    }));
   // .use(
   //   features.columnResize({
   //     fallbackSize: 120,

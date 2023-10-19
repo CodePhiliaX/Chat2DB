@@ -33,10 +33,6 @@ const shortcutsList = [
   },
   {
     title: i18n('common.text.executeSelectedSQL'),
-    keys: [keyboardKey.command, 'Enter'],
-  },
-  {
-    title: i18n('common.text.executeSelectedSQL'),
     keys: [keyboardKey.command, 'R'],
   },
   {
