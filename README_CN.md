@@ -64,7 +64,7 @@ Chat2DB 支持的数据库连接有:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
 - ClickHouseare
 - DM
@@ -159,7 +159,7 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ## 📑 文档
 
-- <a href="https://chat2db.opensource.alibaba.com">官方文档</a>
+- <a href="https://doc.sqlgpt.cn/zh/">官方文档</a>
 - <a href="https://github.com/chat2db/Chat2DB/issues">Issue</a>
 
 ## 常见问题
