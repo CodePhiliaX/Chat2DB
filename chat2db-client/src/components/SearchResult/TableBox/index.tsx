@@ -53,6 +53,7 @@ const SupportBaseTable: any = styled(BaseTable)`
     --border-color: var(--color-border-secondary);
     --cell-padding: 0px;
     --row-height: 32px;
+    --lock-shadow: 0px 1px 2px 0px var(--color-border);
   }
 `;
 
@@ -289,10 +290,10 @@ export default function TableBox(props: ITableProps) {
   // 渲染单元格的值
   const renderTableCellValue = (value) => {
     if (value === null) {
-      return <span className={styles.cellValueNull}>{'<null>'}</span>
+      return <span className={styles.cellValueNull}>{'<null>'}</span>;
     } else if (!value) {
       // 如果为空需要展位
-      return <span />
+      return <span />;
     } else {
       return value;
     }
@@ -393,9 +394,7 @@ export default function TableBox(props: ITableProps) {
                 />
               ) : (
                 <>
-                  <div className={styles.tableItemContent}>
-                    {renderTableCellValue(value)}
-                  </div>
+                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
                   <div className={styles.tableHoverBox}>
                     <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
                     <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
@@ -423,10 +422,12 @@ export default function TableBox(props: ITableProps) {
         // onChangeSorts,
       }),
     )
-    .use(features.columnResize({
-      fallbackSize: 120,
-      handleActiveBackground: `var(--color-primary-bg-hover)`,
-    }));
+    .use(
+      features.columnResize({
+        fallbackSize: 120,
+        handleActiveBackground: `var(--color-primary-bg-hover)`,
+      }),
+    );
   // .use(
   //   features.columnResize({
   //     fallbackSize: 120,
@@ -768,24 +769,24 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
-            // <Spin className={styles.tableSpin}>
-            <SupportBaseTable
-              className={classnames('supportBaseTable', props.className, styles.table)}
-              components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-              isStickyHead
-              stickyTop={31}
-              getRowProps={(record) => {
-                const rowNo = record[`${preCode}0No.`];
-                return {
-                  // style: tableRowStyle(rowNo),
-                  onClick() {
-                    setCurOperationRowNo(rowNo);
-                  },
-                };
-              }}
-              {...pipeline.getProps()}
-            />
-            // </Spin>
+            <div className={styles.supportBaseTableBox}>
+              <SupportBaseTable
+                className={classnames('supportBaseTable', props.className, styles.table)}
+                components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+                isStickyHead
+                stickyTop={31}
+                getRowProps={(record) => {
+                  const rowNo = record[`${preCode}0No.`];
+                  return {
+                    // style: tableRowStyle(rowNo),
+                    onClick() {
+                      setCurOperationRowNo(rowNo);
+                    },
+                  };
+                }}
+                {...pipeline.getProps()}
+              />
+            </div>
           )}
           {/* {bottomStatus} */}
         </>
@@ -796,11 +797,7 @@ export default function TableBox(props: ITableProps) {
   return (
     <div
       ref={tableBoxRef}
-      className={classnames(
-        className,
-        styles.tableBox,
-        { [styles.noDataTableBox]: !tableData.length },
-      )}
+      className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}
     >
       {renderContent()}
       <Modal
