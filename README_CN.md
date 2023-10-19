@@ -16,9 +16,13 @@
 <div align="center">
 
   Languages： 中文 [English](README.md)
-  
-如果觉得 Chat2DB 对您有帮助的话，请帮忙<a target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
-的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+
+  官网：[Chat2DB](https://sqlgpt.cn/zh)
+
+  <div style="display: flex; align-items: center;">
+    如果觉得 Chat2DB 对您有帮助的话，请帮忙<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>
+    的右上角点个⭐ Star 和 Fork，您的支持是 Chat2DB 变得更好最大的动力
+  </div>
 </div>
 
 
@@ -49,8 +53,6 @@ https://github.com/chat2db/Chat2DB/assets/22975773/b58db908-5768-4a71-aa30-135d2
 
 
 [GitHub下载安装包](https://github.com/chat2db/Chat2DB/releases) 
-
-或
 
 [官网下载安装包](https://sqlgpt.cn) 
 
