@@ -53,6 +53,7 @@ const SupportBaseTable: any = styled(BaseTable)`
     --border-color: var(--color-border-secondary);
     --cell-padding: 0px;
     --row-height: 32px;
+    --lock-shadow: 0px 1px 2px 0px var(--color-border);
   }
 `;
 
@@ -289,10 +290,10 @@ export default function TableBox(props: ITableProps) {
   // 渲染单元格的值
   const renderTableCellValue = (value) => {
     if (value === null) {
-      return <span className={styles.cellValueNull}>{'<null>'}</span>
+      return <span className={styles.cellValueNull}>{'<null>'}</span>;
     } else if (!value) {
       // 如果为空需要展位
-      return <span />
+      return <span />;
     } else {
       return value;
     }
@@ -393,9 +394,7 @@ export default function TableBox(props: ITableProps) {
                 />
               ) : (
                 <>
-                  <div className={styles.tableItemContent}>
-                    {renderTableCellValue(value)}
-                  </div>
+                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
                   <div className={styles.tableHoverBox}>
                     <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
                     <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
@@ -423,10 +422,12 @@ export default function TableBox(props: ITableProps) {
         // onChangeSorts,
       }),
     )
-    .use(features.columnResize({
-      fallbackSize: 120,
-      handleActiveBackground: `var(--color-primary-bg-hover)`,
-    }));
+    .use(
+      features.columnResize({
+        fallbackSize: 120,
+        handleActiveBackground: `var(--color-primary-bg-hover)`,
+      }),
+    );
   // .use(
   //   features.columnResize({
   //     fallbackSize: 120,
@@ -467,7 +468,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 处理创建数据
-  const handelCreateData = () => {
+  const handleCreateData = () => {
     // 如果加的这行数据是删除过的，则恢复
     const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.DELETE);
     if (index !== -1) {
@@ -503,7 +504,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 处理删除数据
-  const handelDeleteData = () => {
+  const handleDeleteData = () => {
     if (curOperationRowNo === null) {
       return;
     }
@@ -544,7 +545,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 查看更新数据的sql
-  const handelViewSql = () => {
+  const handleViewSql = () => {
     if (!updateData.length) {
       return;
     }
@@ -555,7 +556,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 更新数据的sql
-  const handelUpdateSubmit = () => {
+  const handleUpdateSubmit = () => {
     if (!updateData.length) {
       return;
     }
@@ -619,6 +620,7 @@ export default function TableBox(props: ITableProps) {
     };
 
     return sqlService.executeSql(executeSQLParams).then((res) => {
+      debugger;
       setQueryResultData(res?.[0]);
       setUpdateData([]);
     });
@@ -710,7 +712,7 @@ export default function TableBox(props: ITableProps) {
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
                 <Popover content={i18n('editTableData.tips.addRow')} trigger="hover">
                   <div
-                    onClick={handelCreateData}
+                    onClick={handleCreateData}
                     className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
                   >
                     <Iconfont code="&#xe61b;" />
@@ -718,7 +720,7 @@ export default function TableBox(props: ITableProps) {
                 </Popover>
                 <Popover content={i18n('editTableData.tips.deleteRow')} trigger="hover">
                   <div
-                    onClick={handelDeleteData}
+                    onClick={handleDeleteData}
                     className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
                       [styles.disableBar]: curOperationRowNo === null,
                     })}
@@ -738,7 +740,7 @@ export default function TableBox(props: ITableProps) {
                 </Popover>
                 <Popover content={i18n('editTableData.tips.previewPendingChanges')} trigger="hover">
                   <div
-                    onClick={handelViewSql}
+                    onClick={handleViewSql}
                     className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
                       [styles.disableBar]: !updateData.length,
                     })}
@@ -748,7 +750,7 @@ export default function TableBox(props: ITableProps) {
                 </Popover>
                 <Popover content={i18n('editTableData.tips.submit')} trigger="hover">
                   <div
-                    onClick={handelUpdateSubmit}
+                    onClick={handleUpdateSubmit}
                     className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
                       [styles.disableBar]: !updateData.length,
                     })}
@@ -768,24 +770,24 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
-            // <Spin className={styles.tableSpin}>
-            <SupportBaseTable
-              className={classnames('supportBaseTable', props.className, styles.table)}
-              components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-              isStickyHead
-              stickyTop={31}
-              getRowProps={(record) => {
-                const rowNo = record[`${preCode}0No.`];
-                return {
-                  // style: tableRowStyle(rowNo),
-                  onClick() {
-                    setCurOperationRowNo(rowNo);
-                  },
-                };
-              }}
-              {...pipeline.getProps()}
-            />
-            // </Spin>
+            <div className={styles.supportBaseTableBox}>
+              <SupportBaseTable
+                className={classnames('supportBaseTable', props.className, styles.table)}
+                components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+                isStickyHead
+                stickyTop={31}
+                getRowProps={(record) => {
+                  const rowNo = record[`${preCode}0No.`];
+                  return {
+                    // style: tableRowStyle(rowNo),
+                    onClick() {
+                      setCurOperationRowNo(rowNo);
+                    },
+                  };
+                }}
+                {...pipeline.getProps()}
+              />
+            </div>
           )}
           {/* {bottomStatus} */}
         </>
@@ -796,11 +798,7 @@ export default function TableBox(props: ITableProps) {
   return (
     <div
       ref={tableBoxRef}
-      className={classnames(
-        className,
-        styles.tableBox,
-        { [styles.noDataTableBox]: !tableData.length },
-      )}
+      className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}
     >
       {renderContent()}
       <Modal
