@@ -245,7 +245,9 @@ jobs:
           cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
           cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
-          cd chat2db-client/versions/99.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
+          cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
+          cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
