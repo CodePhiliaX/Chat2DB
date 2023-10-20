@@ -67,7 +67,7 @@ public class SystemController {
         String user = "";
         DataResult<Config> dataResult = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
         if(dataResult.getData() != null){
-            user = dataResult.getData().getCode();
+            user = dataResult.getData().getContent();
         }
         AppVersionVO appVersionVO = SystemUtils.getLatestVersion(currentVersion, "manual", user);
         if(appVersionVO == null){

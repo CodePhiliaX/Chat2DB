@@ -12,29 +12,19 @@ public class AppVersionVO {
     private Long id;
 
     /**
-     * 创建时间
-     */
-    private LocalDateTime gmtCreate;
-
-    /**
-     * 修改时间
-     */
-    private LocalDateTime gmtModified;
-
-    /**
      * 新版本
      */
     private String version;
 
-    /**
-     * 哪些版本可以升级到该版本
-     */
-    private String versionUse;
+//    /**
+//     * 哪些版本可以升级到该版本
+//     */
+//    private String versionUse;
 
-    /**
-     * 状态
-     */
-    private String status;
+//    /**
+//     * 状态
+//     */
+//    private String status;
 
     /**
      * 下载地址
@@ -46,10 +36,10 @@ public class AppVersionVO {
      */
     private String type;
 
-    /**
-     * 白名单，用于测试
-     */
-    private String whiteList;
+//    /**
+//     * 白名单，用于测试
+//     */
+//    private String whiteList;
 
     /**
      * 热更新包地址
