@@ -2,8 +2,7 @@
 
 .tableBox {
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   :global {
@@ -44,45 +43,51 @@
     .art-table-cell {
       position: relative;
     }
-    .art-sticky-scroll {
-      display: none !important;
-    }
-    .art-sticky-scroll.art-horizontal-scroll-container {
-      position: sticky;
-      bottom: 26px !important;
-    }
-    .art-loading-wrapper,.art-loading-content-wrapper,.art-table{
-      height: 100%;
-    }
-    .art-table-body{
-      height: calc(100% - 32px);
-      overflow-y: auto !important;
-    }
-    .art-table-row{
+    // .art-sticky-scroll {
+    //   display: none !important;
+    // }
+
+    .art-table-row {
       height: 32px;
     }
     .art-table-header {
       background: transparent !important;
-      overflow: hidden !important; 
+      overflow: hidden !important;
+      top: 0px !important;
     }
-    .art-table-body-scroll{
+    .art-table-body {
+      // 隐藏滚动条
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    }
+    .art-table-body-scroll {
       padding-right: 6px;
     }
-    .art-table-header-cell{
+    .art-table-header-cell {
       padding: 0px 4px;
     }
   }
 }
 
-.noDataTableBox{
+.noDataTableBox {
+  :global {
+    .art-loading-wrapper,
+    .art-loading-content-wrapper,
+    .art-table {
+      height: 100%;
+    }
+    .art-table-body {
+      height: calc(100% - 32px);
+      overflow-y: auto !important;
+    }
+  }
   table {
     height: 100%;
   }
 }
 
 .toolBar {
-  position: sticky;
-  top: 0;
   z-index: 30;
   display: flex;
   justify-content: space-between;
@@ -145,13 +150,14 @@
   }
 }
 
-.tableSpin {
+.supportBaseTableBox {
   flex: 1;
+  overflow-y: auto;
+  height: 0px;
 }
 
 .table {
-  height: 0px;
-  flex: 1;
+  height: 100%;
 }
 
 .tableItem {
@@ -165,25 +171,24 @@
   user-select: none;
   background-color: var(--color-bg-base);
 
-
-  .tableItemContent{
+  .tableItemContent {
     overflow: hidden;
     max-height: 30px;
     line-height: 30px;
     flex: 1;
-    &:hover{
+    &:hover {
       overflow: auto;
       line-height: 16px;
     }
   }
 
   &:hover {
-    .tableHoverBox{
+    .tableHoverBox {
       display: flex;
     }
   }
 
-  .cellValueNull{
+  .cellValueNull {
     color: var(--color-text-tertiary);
   }
 
@@ -194,25 +199,25 @@
 
 .tableItemEdit {
   background-color: var(--color-success-bg);
-  .tableHoverBox{
+  .tableHoverBox {
     background-color: var(--color-success-bg);
   }
 }
 .tableItemEditing {
   background-color: var(--color-primary-bg-hover);
-  .tableHoverBox{
+  .tableHoverBox {
     background-color: var(--color-primary-bg-hover);
   }
 }
 .tableItemSuccess {
   background-color: var(--color-success-bg);
-  .tableHoverBox{
+  .tableHoverBox {
     background-color: var(--color-success-bg);
   }
 }
-.tableItemError{
+.tableItemError {
   background-color: var(--color-error-bg);
-  .tableHoverBox{
+  .tableHoverBox {
     background-color: var(--color-error-bg);
   }
 }
