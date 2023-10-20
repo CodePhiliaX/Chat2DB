@@ -1,7 +1,6 @@
 package ai.chat2db.server.start.config.listener;
 
-import ai.chat2db.server.start.config.util.SystemUtils;
-
+import ai.chat2db.server.web.api.controller.system.util.SystemUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.connector.Connector;
