@@ -1,3 +1,12 @@
+# 3.0.4
+`2023-10-20`
+
+**Changelog**
+- 🐞【Fixed】Bugs are displayed when more than 100 data items are queried
+
+**更新日志**
+- 🐞【修复】查询数据超过100条时显示bug
+
 # 3.0.1
 `2023-10-19`
 
