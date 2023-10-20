@@ -8,9 +8,9 @@ interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivEle
   size?: number;
 }
 
-export default memo<IProps>(function BrandLogo({ className, size = 48, ...res }) {
+export default memo<IProps>(({ className, size = 48, ...res }) => {
   return (
-    <div {...res} className={classnames(className, styles.box)} style={{ height: `${size}px` }}>
+    <div {...res} className={classnames(className, styles.box)} style={{ height: `${size}px`, width: `${size}px` }}>
       <img src={logo} alt="" />
     </div>
   );
