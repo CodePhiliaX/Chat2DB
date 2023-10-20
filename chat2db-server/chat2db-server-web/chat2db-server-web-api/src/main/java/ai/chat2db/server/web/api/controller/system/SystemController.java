@@ -73,6 +73,7 @@ public class SystemController {
         if(appVersionVO == null){
             appVersionVO = new AppVersionVO();
             appVersionVO.setVersion(currentVersion);
+            appVersionVO.setType("manual");
         }
         DataResult<Config> updateType = configService.find(UPDATE_TYPE);
         if(updateType.getData() != null){
