@@ -1,16 +1,55 @@
 .aboutUs {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
+  .versionsInfo {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 10px;
+  }
+  .brandLogo {
+    margin-right: 15px;
+  }
+  .currentVersion {
+    font-size: 20px;
+    line-height: 24px;
+    .appName {
+      margin-right: 10px;
+    }
+  }
+  .newVersion {
+    color: var(--color-text-tertiary);
+    font-size: 14px;
+    margin-top: 2px;
+  }
+  .updateButton {
+    margin-top: 10px;
+    button:nth-of-type(1) {
+      margin-right: 20px;
+    }
+  }
+  .updateRule {
+    .updateRuleTitle {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .updateRuleGroup {
+      display: flex;
+      flex-direction: column;
+      .updateRuleRadioContent {
+        display: flex;
+        align-items: center;
+        i {
+          margin-left: 4px;
+          color: var(--color-text-tertiary);
+          font-size: 12px;
+        }
+      }
+    }
+  }
   .brief {
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    .appName {
-      font-size: 20px;
-    }
 
     .env,
     .version {
