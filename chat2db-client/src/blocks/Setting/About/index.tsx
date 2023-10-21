@@ -9,7 +9,6 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
 import Iconfont from '@/components/Iconfont';
-
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
   updateDetectionRef: React.MutableRefObject<IUpdateDetectionRef> | null;
