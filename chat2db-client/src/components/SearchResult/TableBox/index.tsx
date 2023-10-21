@@ -620,7 +620,6 @@ export default function TableBox(props: ITableProps) {
     };
 
     return sqlService.executeSql(executeSQLParams).then((res) => {
-      debugger;
       setQueryResultData(res?.[0]);
       setUpdateData([]);
     });
