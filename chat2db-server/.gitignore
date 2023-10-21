@@ -27,3 +27,4 @@ nbdist/
 
 ## 前端打包生成的代码 不用提交到github,
 /chat2db-server-start/src/main/resources/static/front/
+/chat2db-server-start/src/main/resources/thymeleaf/

@@ -153,7 +153,11 @@ $ java -jar -Dloader.path=./lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar 
 
 - 如果你需要独立部署 
 ```bash
-$ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front / cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+# chat2db-client
+$ npm run build:web:prod 
+$ cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front 
+$ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+
 # 再打包后端服务
 ```
 
