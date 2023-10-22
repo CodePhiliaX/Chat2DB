@@ -62,9 +62,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         uniqueData: t,
       };
     });
-    if (!workspaceTabList.length) {
-      setWorkspaceTabList(newTabList || []);
-    }
+    setWorkspaceTabList(newTabList || []);
     if (!activeConsoleId) {
       setActiveConsoleId(newTabList[0]?.id);
     }
