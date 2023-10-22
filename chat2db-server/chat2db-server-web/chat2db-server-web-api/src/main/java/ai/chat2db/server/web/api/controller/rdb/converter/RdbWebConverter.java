@@ -12,6 +12,7 @@ import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.MetaSchema;
@@ -232,4 +233,8 @@ public abstract class RdbWebConverter {
             @Mapping(source = "schemaName", target = "schema"),
     })
     public abstract TableVectorParam param2param(TableBriefQueryRequest request);
+
+    public abstract EsTableSchemaRequest req2req(TableBriefQueryRequest request);
+
+    public abstract TablePageQueryParam schemaReq2page(EsTableSchemaRequest request);
 }
