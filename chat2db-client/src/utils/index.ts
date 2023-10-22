@@ -1,4 +1,4 @@
-import { ThemeType, OSType, DatabaseTypeCode, ConsoleStatus } from '@/constants';
+import { ThemeType, DatabaseTypeCode } from '@/constants';
 import { ITreeNode } from '@/typings';
 import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
@@ -219,7 +219,7 @@ export function osNow(): {
 
 // 格式化sql
 export function formatSql(sql: string, dbType: DatabaseTypeCode) {
-  return new Promise((r: (sql: string) => void, j) => {
+  return new Promise((r: (sql: string) => void) => {
     let formatRes = '';
     try {
       formatRes = format(sql || '');
