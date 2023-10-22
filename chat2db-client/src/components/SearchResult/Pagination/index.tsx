@@ -11,17 +11,17 @@ interface IProps {
   onPageSizeChange?: (pageSize: number) => void;
   onPageNoChange?: (pageNo: number) => void;
   onClickTotalBtn?: () => Promise<number | undefined>;
-  data?: IResultConfig | null;
+  paginationConfig: IResultConfig;
 }
 type IIconType = 'pre' | 'next' | 'first' | 'last';
 export default function Pagination(props: IProps) {
-  const { onPageNoChange, onPageSizeChange, data } = props;
+  const { onPageNoChange, onPageSizeChange, paginationConfig } = props;
   const [inputValue, setInputValue] = useState<number | null>(1);
   const [totalLoading, setTotalLoading] = useState(false);
 
   useEffect(() => {
-    setInputValue(data?.pageNo ?? 1);
-  }, [data?.pageNo]);
+    setInputValue(paginationConfig?.pageNo ?? 1);
+  }, [paginationConfig?.pageNo]);
 
   const onInputNumberChange = (value: number | null) => {
     setInputValue(value);
@@ -40,30 +40,32 @@ export default function Pagination(props: IProps) {
     if (!props.onClickTotalBtn) return;
     setTotalLoading(true);
 
-    let res = await props.onClickTotalBtn();
+    const res = await props.onClickTotalBtn();
     setTotalLoading(false);
     return res;
   };
 
   const handleClickIcon = async (type: IIconType) => {
-    if (!onPageNoChange || !data) return;
+    if (!onPageNoChange || !paginationConfig) return;
     if (handleIsDisabled(type)) return;
     switch (type) {
       case 'first':
         onPageNoChange(1);
         break;
       case 'last':
-        let total = await handleClickTotalBtn();
-        const { pageSize } = data || {};
-        if (_.isNumber(total) && _.isNumber(pageSize)) {
-          props.onPageNoChange && props.onPageNoChange(Math.ceil(total / pageSize));
+        {
+          const total = await handleClickTotalBtn();
+          const { pageSize } = paginationConfig || {};
+          if (_.isNumber(total) && _.isNumber(pageSize)) {
+            props.onPageNoChange && props.onPageNoChange(Math.ceil(total / pageSize));
+          }
         }
         break;
       case 'pre':
-        onPageNoChange(data?.pageNo - 1);
+        onPageNoChange(paginationConfig?.pageNo - 1);
         break;
       case 'next':
-        onPageNoChange(data?.pageNo + 1);
+        onPageNoChange(paginationConfig?.pageNo + 1);
         break;
       default:
         break;
@@ -71,30 +73,30 @@ export default function Pagination(props: IProps) {
   };
 
   const handleIsDisabled = (type: IIconType) => {
-    if (!data) {
+    if (!paginationConfig) {
       return false;
     }
     if (type === 'first') {
-      return data?.pageNo === 1;
+      return paginationConfig?.pageNo === 1;
     }
     if (type === 'pre') {
-      return data?.pageNo === 1;
+      return paginationConfig?.pageNo === 1;
     }
 
-    const isNumber = _.isNumber(data.total);
-    const totalShow = data.pageNo * data.pageSize;
-    if (type === 'next' || 'last') {
+    const isNumber = _.isNumber(paginationConfig.total);
+    const totalShow = paginationConfig.pageNo * paginationConfig.pageSize;
+    if (type === 'next' || type === 'last') {
       if (isNumber) {
-        return totalShow > (data.total as number);
+        return totalShow > (paginationConfig.total as number);
       }
-      return !data?.hasNextPage;
+      return !paginationConfig?.hasNextPage;
     }
 
     // if (type === 'last') {
     //   if (isNumber) {
-    //     return totalShow > (data.total as number);
+    //     return totalShow > (paginationConfig.total as number);
     //   }
-    //   return return !data?.hasNextPage;;
+    //   return return !paginationConfig?.hasNextPage;;
     // }
 
     return true;
@@ -141,7 +143,7 @@ export default function Pagination(props: IProps) {
       <Select
         popupMatchSelectWidth={false}
         size="small"
-        value={data?.pageSize ?? 200}
+        value={paginationConfig?.pageSize ?? 200}
         onChange={onPageSizeChange}
         options={[
           { label: 10, value: 10 },
@@ -155,7 +157,7 @@ export default function Pagination(props: IProps) {
 
       <Popover content={i18n('workspace.table.total.tip')}>
         <Button type="link" loading={totalLoading} onClick={handleClickTotalBtn}>
-          {i18n('workspace.table.total')}：{data?.total}
+          {i18n('workspace.table.total')}：{paginationConfig?.total}
         </Button>
       </Popover>
     </div>
