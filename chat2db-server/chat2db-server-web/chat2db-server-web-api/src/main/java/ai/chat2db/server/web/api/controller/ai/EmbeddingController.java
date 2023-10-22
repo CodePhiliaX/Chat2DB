@@ -69,7 +69,12 @@ public class EmbeddingController extends ChatController {
         if (StringUtils.isBlank(request.getApiKey())) {
             return DataResult.of(false);
         }
-        return gatewayClientService.checkInWhite(request);
+        try {
+            DataResult<Boolean> res = gatewayClientService.checkInWhite(request);
+        } catch (Exception ex) {
+            log.error("checkInWhite error", ex);
+        }
+        return DataResult.of(false);
     }
 
     /**
