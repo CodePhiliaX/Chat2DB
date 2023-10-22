@@ -137,7 +137,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
     setDataSource(newList || []);
   };
 
-  const handelFieldsChange = (field: any) => {
+  const handleFieldsChange = (field: any) => {
     let { value } = field[0];
     const { name: nameList } = field[0];
     const name = nameList[0];
@@ -376,7 +376,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
         <Button onClick={moveData.bind(null, 'up')}>上移</Button>
         <Button onClick={moveData.bind(null, 'down')}>下移</Button>
       </div> */}
-      <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
+      <Form className={styles.formBox} form={form} onFieldsChange={handleFieldsChange}>
         <div className={styles.tableBox}>
           <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
             <SortableContext items={dataSource.map((i) => i.key!)} strategy={verticalListSortingStrategy}>

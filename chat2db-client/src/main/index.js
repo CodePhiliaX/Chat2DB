@@ -52,7 +52,7 @@ app.commandLine.appendSwitch('--disable-gpu-sandbox');
 
 app.on('ready', () => {
   createWindow();
-  registerAppMenu();
+  registerAppMenu(mainWindow);
   registerAnalysis();
 
   app.on('activate', function () {
@@ -68,20 +68,21 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', (event) => {
+app.on('before-quit', () => {
   mainWindow.webContents.send('before-quit-app');
 });
 
-ipcMain.handle('get-product-name', (event) => {
+ipcMain.handle('get-product-name', () => {
   const exePath = app.getPath('exe');
   const { name } = path.parse(exePath);
   return name;
 });
 
 // 注册退出应用事件
-ipcMain.on('quit-app', (event) => {
+ipcMain.on('quit-app', () => {
   app.quit();
 });
 
-
-
+ipcMain.on('register-app-menu', (event, orgs) => {
+  registerAppMenu(mainWindow, orgs);
+});
