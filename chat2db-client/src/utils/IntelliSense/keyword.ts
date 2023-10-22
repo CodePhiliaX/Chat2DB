@@ -1,6 +1,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DatabaseTypeCode } from '@/constants';
 import intelliSense from '@/constants/IntelliSense';
+import i18n from '@/i18n';
 
 /** 关键词 */
 const getSQLKeywords = (keywords: string[]) => {
@@ -8,7 +9,7 @@ const getSQLKeywords = (keywords: string[]) => {
     label: {
       label: key,
       detail: '',
-      description: '关键词',
+      description: i18n('sqlEditor.text.keyword'),
     },
     kind: monaco.languages.CompletionItemKind.Text,
     insertText: key,
@@ -22,7 +23,7 @@ const getSQLFunctions = (functions: string[]) => {
     label: {
       label: key,
       detail: '',
-      description: '函数',
+      description: i18n('sqlEditor.text.function'),
       sortText: '09',
     },
     // kind: monaco.languages.CompletionItemKind.Method,

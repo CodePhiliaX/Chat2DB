@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import { Modal } from 'antd';
+import { Modal, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import BaseSetting from './BaseSetting';
 import AISetting from './AiSetting';
@@ -9,10 +9,10 @@ import ProxySetting from './ProxySetting';
 import About from './About';
 import { connect } from 'umi';
 import { IAIState } from '@/models/ai';
-import TestVersion from '@/components/TestVersion';
 import { IAiConfig } from '@/typings';
-
 import styles from './index.less';
+import { ILatestVersion } from '@/service/config';
+import UpdateDetection,{IUpdateDetectionRef,UpdatedStatusEnum} from '@/blocks/Setting/UpdateDetection';
 
 interface IProps {
   aiConfig: IAiConfig;
@@ -20,13 +20,26 @@ interface IProps {
   render?: ReactNode;
   dispatch: (params: any) => void;
   noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
+  defaultArouse?: boolean; // 是否默认弹出
+  defaultMenu?: number; // 默认选中的菜单
+}
+export interface IUpdateDetectionData extends ILatestVersion {
+  updatedStatusEnum: UpdatedStatusEnum;
+  needUpdate: boolean;
 }
 
 function Setting(props: IProps) {
-  const { className, dispatch, noLogin = false } = props;
+  const { className, dispatch, noLogin = false, defaultArouse, defaultMenu = 0 } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
+  const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
+  const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
 
-  const [currentMenu, setCurrentMenu] = useState(0);
+  useEffect(() => {
+    if (defaultArouse) {
+      showModal();
+    }
+  }, []);
 
   useEffect(() => {
     if (isModalVisible && !noLogin) {
@@ -47,7 +60,8 @@ function Setting(props: IProps) {
     });
   };
 
-  const showModal = () => {
+  const showModal = (_currentMenu: number = 0) => {
+    setCurrentMenu(_currentMenu);
     setIsModalVisible(true);
   };
 
@@ -75,30 +89,51 @@ function Setting(props: IProps) {
       label: i18n('setting.nav.basic'),
       icon: '\ue795',
       body: <BaseSetting />,
+      code: 'basic',
     },
     {
       label: i18n('setting.nav.customAi'),
       icon: '\ue646',
       body: <AISetting aiConfig={props.aiConfig} handleApplyAiConfig={handleApplyAiConfig} />,
+      code: 'ai',
     },
     {
       label: i18n('setting.nav.proxy'),
       icon: '\ue63f',
       body: <ProxySetting />,
+      code: 'proxy',
     },
     {
       label: i18n('setting.nav.aboutUs'),
-      icon: '\ue60c',
-      body: <About />,
+      icon: '\ue65c',
+      rightSlot: updateDetectionData?.needUpdate && (
+        <div className={classnames(styles.rightSlot, styles.rightSlotAbout)}>
+          <Tooltip title={`发现新版本v${updateDetectionData?.version}`}>
+            <Iconfont code="&#xe69c;" />
+          </Tooltip>
+        </div>
+      ),
+      body: <About updateDetectionRef={updateDetectionRef as any} updateDetectionData={updateDetectionData} />,
+      code: 'about',
     },
   ];
 
   return (
     <>
-      <div className={classnames(className, styles.box)} onClick={showModal}>
+      <div
+        className={classnames(className, styles.box)}
+        onClick={() => {
+          showModal();
+        }}
+      >
         {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
       </div>
-      <TestVersion />
+      <UpdateDetection
+        setUpdateDetectionData={setUpdateDetectionData}
+        updateDetectionData={updateDetectionData}
+        openSettingModal={showModal}
+        ref={updateDetectionRef}
+      />
       <Modal
         open={isModalVisible}
         onOk={handleOk}
@@ -123,8 +158,9 @@ function Setting(props: IProps) {
                     [styles.activeMenu]: t.label === menusList[currentMenu].label,
                   })}
                 >
-                  <Iconfont code={t.icon} />
+                  <Iconfont className={styles.prefixIcon} code={t.icon} />
                   {t.label}
+                  {t.rightSlot}
                 </div>
               );
             })}

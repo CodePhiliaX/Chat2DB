@@ -5,8 +5,10 @@
 package ai.chat2db.server.web.api.controller.system;
 
 import ai.chat2db.server.domain.api.model.Config;
+import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.core.cache.CacheManage;
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.tools.common.enums.ModeEnum;
@@ -42,6 +44,9 @@ public class SystemController {
     @Autowired
     private Chat2dbProperties chat2dbProperties;
 
+    @Autowired
+    private ConfigService configService;
+
     /**
      * 检测是否成功
      *
@@ -55,12 +60,26 @@ public class SystemController {
                 .build());
     }
 
+    private static final String UPDATE_TYPE = "client_update_type";
 
     @GetMapping("/get_latest_version")
     public DataResult<AppVersionVO> getLatestVersion(String currentVersion) {
-        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
-        AppVersionVO appVersionVO = SystemUtils.getLatestVersion(currentVersion, "manual", keyConfig.getContent());
+        String user = "";
+        DataResult<Config> dataResult = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
+        if(dataResult.getData() != null){
+            user = dataResult.getData().getContent();
+        }
+        AppVersionVO appVersionVO = SystemUtils.getLatestVersion(currentVersion, "manual", user);
+        if(appVersionVO == null){
+            appVersionVO = new AppVersionVO();
+            appVersionVO.setVersion(currentVersion);
+            appVersionVO.setType("manual");
+        }
+        DataResult<Config> updateType = configService.find(UPDATE_TYPE);
+        if(updateType.getData() != null){
+            appVersionVO.setType(updateType.getData().getContent());
+        }
+
         ModeEnum mode = EasyEnumUtils.getEnum(ModeEnum.class, System.getProperty("chat2db.mode"));
         if (mode == ModeEnum.DESKTOP) {
             // In this mode, no user login is required, so only local access is available
@@ -85,7 +104,15 @@ public class SystemController {
         }
         return DataResult.of(localVersion.equals(version));
     }
-
+    @PostMapping("/set_update_type")
+    public ActionResult setUpdateType(@RequestBody String updateType) {
+        SystemConfigParam systemConfigParam = new SystemConfigParam();
+        systemConfigParam.setCode(UPDATE_TYPE);
+        systemConfigParam.setContent(updateType);
+        systemConfigParam.setSummary("client update type");
+        configService.createOrUpdate(systemConfigParam);
+        return ActionResult.isSuccess();
+    }
 
     /**
      * 获取当前版本号

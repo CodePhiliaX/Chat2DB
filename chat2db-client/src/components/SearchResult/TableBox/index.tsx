@@ -16,6 +16,7 @@ import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
+import StatusBar from '../StatusBar';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
@@ -114,31 +115,27 @@ export default function TableBox(props: ITableProps) {
   };
 
   useEffect(() => {
+    let total: any = queryResultData.fuzzyTotal;
+
+    // 如果total是数字，且不为0，则还是使用原先的total
+    if (lodash.isNumber(paginationConfig.total) && paginationConfig.total !== 0) {
+      total = paginationConfig.total;
+    }
+
+    if (!lodash.isNumber(paginationConfig.total)) {
+      const oldTotal = Number(paginationConfig.total.split('+')[0]);
+      const newTotal = Number(queryResultData.fuzzyTotal.split('+')[0]);
+      if (oldTotal > newTotal) {
+        total = paginationConfig.total;
+      }
+    }
+
     setPaginationConfig({
       ...paginationConfig,
-      total: queryResultData.fuzzyTotal,
+      total,
       hasNextPage: queryResultData.hasNextPage,
     });
   }, [queryResultData]);
-
-  // 判断art-table-body是否出现了滚动条
-  // useEffect(() => {
-  //   const tableBody = document.querySelector('.art-table-body');
-  //   const tableHeader = document.querySelector('.art-table-header');
-  //   if (!tableBody) {
-  //     return;
-  //   }
-  //   const tableBodyHeight = tableBody.clientHeight;
-  //   const tableBoxHeight = tableBoxRef.current?.clientHeight || 0;
-  //   if(!tableHeader){
-  //     return;
-  //   }
-  //   if (tableBodyHeight > tableBoxHeight) {
-  //     tableHeader.classList.add('art-table-body-scroll');
-  //   } else {
-  //     tableHeader.classList.remove('art-table-body-scroll');
-  //   }
-  // }, [tableData]);
 
   useEffect(() => {
     // 每次dataList变化，都需要重新计算tableData
@@ -449,10 +446,12 @@ export default function TableBox(props: ITableProps) {
   };
 
   const onClickTotalBtn = async () => {
-    return sqlService.getDMLCount({
+    const res = await sqlService.getDMLCount({
       sql: queryResultData.sql,
       ...(props.executeSqlParams || {}),
     });
+    setPaginationConfig({ ...paginationConfig, total: res });
+    return res;
   };
 
   // 处理撤销
@@ -620,7 +619,6 @@ export default function TableBox(props: ITableProps) {
     };
 
     return sqlService.executeSql(executeSQLParams).then((res) => {
-      debugger;
       setQueryResultData(res?.[0]);
       setUpdateData([]);
     });
@@ -702,7 +700,7 @@ export default function TableBox(props: ITableProps) {
           <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
               <MyPagination
-                data={paginationConfig}
+                paginationConfig={paginationConfig}
                 onPageNoChange={onPageNoChange}
                 onPageSizeChange={onPageSizeChange}
                 onClickTotalBtn={onClickTotalBtn}
@@ -770,7 +768,7 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
-            <div className={styles.supportBaseTableBox}>
+            <div ref={tableBoxRef} className={styles.supportBaseTableBox}>
               <SupportBaseTable
                 className={classnames('supportBaseTable', props.className, styles.table)}
                 components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
@@ -789,17 +787,18 @@ export default function TableBox(props: ITableProps) {
               />
             </div>
           )}
-          {/* {bottomStatus} */}
+          <StatusBar
+            description={queryResultData.description}
+            duration={queryResultData.duration}
+            dataLength={tableData.length}
+          />
         </>
       );
     }
   };
 
   return (
-    <div
-      ref={tableBoxRef}
-      className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}
-    >
+    <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
       {renderContent()}
       <Modal
         title={viewTableCellData?.name}

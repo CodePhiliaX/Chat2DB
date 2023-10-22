@@ -76,7 +76,7 @@ public class SystemUtils {
         }
     }
 
-    private static final String LATEST_VERSION_URL = "https://test.sqlgpt.cn/api/client/version/check/v3?version=%s&type=wechat&userId=%s";
+    private static final String LATEST_VERSION_URL = "http://test.sqlgpt.cn/gateway/api/client/version/check/v3?version=%s&type=%s&userId=%s";
 
     public static AppVersionVO getLatestVersion(String version, String type, String userId) {
         String url = String.format(LATEST_VERSION_URL, version, type, userId);
