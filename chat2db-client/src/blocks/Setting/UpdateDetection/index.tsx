@@ -213,9 +213,9 @@ const UpdateDetection = memo(
       const key = `open${Date.now()}`;
       notificationApi.open({
         duration: 6,
-        message: i18n('setting.text.UpdatedLatestVersion',__APP_VERSION__),
+        message: i18n('setting.text.UpdatedLatestVersion', `v${__APP_VERSION__}`),
         style:{
-          width: 260
+          width: 310
         },
         btn: null,
         key,

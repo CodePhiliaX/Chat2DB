@@ -45,8 +45,8 @@ export default {
   'setting.text.autoUpdate': 'The new version automatically downloads and installs updates',
   'setting.text.manualUpdate': 'Only alert me when a new version is released',
   'setting.button.iSee': 'I see',
-  'setting.text.newEditionIsReady': 'New version to download complete',
-  'setting.text.RestartingInstall': 'Restarting the software will install the new version',
+  'setting.text.newEditionIsReady': 'New version is ready',
+  'setting.text.RestartingInstall': 'Restart to install the new version',
   'setting.button.goToUpdate': 'Go to update',
   'setting.text.UpdatedLatestVersion': 'Updated to the latest version {1}',
 };
