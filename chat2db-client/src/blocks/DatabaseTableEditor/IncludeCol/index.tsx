@@ -207,7 +207,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
     });
   }
 
-  const handelFieldsChange = (field: any) => {
+  const handleFieldsChange = (field: any) => {
     const { value } = field[0];
     const { name: nameList } = field[0];
     const name = nameList[0];
@@ -241,7 +241,7 @@ const IncludeCol = forwardRef((props: IProps, ref: ForwardedRef<IIncludeColRef>)
         <Button onClick={addData}>{i18n('editTable.button.add')}</Button>
         {/* <Button onClick={deleteData}>{i18n('editTable.button.delete')}</Button> */}
       </div>
-      <Form className={styles.formBox} form={form} onFieldsChange={handelFieldsChange}>
+      <Form className={styles.formBox} form={form} onFieldsChange={handleFieldsChange}>
         <Table
           ref={tableRef}
           style={{

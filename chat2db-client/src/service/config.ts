@@ -78,6 +78,11 @@ const setAppUpdateType = createRequest<ILatestVersion['type'], boolean>('/api/sy
   method: 'post',
 });
 
+// 退出electron时关闭后端服务
+const stopJavaService = createRequest<void, void>('/api/system/stop', {
+  method: 'post',
+});
+
 export default {
   getSystemConfig,
   setSystemConfig,
@@ -87,5 +92,6 @@ export default {
   getLatestVersion,
   isUpdateSuccess,
   updateDesktopVersion,
-  setAppUpdateType
+  setAppUpdateType,
+  stopJavaService
 };
