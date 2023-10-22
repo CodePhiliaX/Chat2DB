@@ -77,7 +77,7 @@ public class RdbDdlController extends EmbeddingController {
         singleThreadExecutor.submit(() -> {
             try {
                 Chat2DBContext.putContext(connectInfo);
-                syncTableVector(request);
+                syncTableEs(request);
             } catch (Exception e) {
                 log.error("sync table vector error", e);
             } finally {
