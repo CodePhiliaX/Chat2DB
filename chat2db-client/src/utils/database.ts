@@ -1,3 +1,4 @@
+import { DatabaseTypeCode } from '@/constants/common';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { Option } from '@/typings/common';
 
@@ -35,4 +36,33 @@ export function handleDatabaseAndSchema(databaseAndSchema: IWorkspaceModelType['
     });
   }
   return newCascaderOptions;
+}
+
+/**
+ * 兼容处理数据库名称
+ * @param databaseName
+ * @param databaseType
+ * @returns
+ */
+export function compatibleDataBaseName(databaseName: string, databaseType: DatabaseTypeCode) {
+  //""  oracele  sqlite postgrsql  h2 dm
+  // ` MYSQL clickhouse MariaDB
+  // [ sqlserver
+  if (
+    [
+      DatabaseTypeCode.ORACLE,
+      DatabaseTypeCode.SQLITE,
+      DatabaseTypeCode.POSTGRESQL,
+      DatabaseTypeCode.H2,
+      DatabaseTypeCode.DB2,
+    ].includes(databaseType)
+  ) {
+    return `"${databaseName}"`;
+  } else if ([DatabaseTypeCode.SQLSERVER].includes(databaseType)) {
+    return `[${databaseName}]`;
+  } else if ([DatabaseTypeCode.MYSQL, DatabaseTypeCode.CLICKHOUSE, DatabaseTypeCode.MARIADB].includes(databaseType)) {
+    return `\`${databaseName}\``;
+  } else {
+    return `${databaseName}`;
+  }
 }
