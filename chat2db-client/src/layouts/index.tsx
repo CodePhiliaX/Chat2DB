@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig, injectThemeVar } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
+import configService from '@/service/config';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
@@ -30,6 +31,12 @@ declare global {
     _appGatewayParams: IVersionResponse;
     _notificationApi: any;
     _indexedDB: any;
+    electronApi?: {
+      startServerForSpawn: () => void;
+      quitApp: () => void;
+      beforeQuitApp: (fn: () => void) => void;
+      registerAppMenu: (data:any) => void;
+    };
   }
   const __APP_VERSION__: string;
   const __BUILD_TIME__: string;
@@ -92,10 +99,22 @@ function AppContainer() {
 
   // 初始化app
   function collectInitApp() {
+    registerElectronApi();
     monitorOsTheme();
     initLang();
     initIndexedDB();
     setInitEnd(true);
+  }
+
+  // 注册Electron关闭时，关闭服务
+  function registerElectronApi() {
+    window.electronApi?.registerAppMenu({
+      version: __APP_VERSION__,
+    })
+    
+    window.electronApi?.beforeQuitApp(()=>{
+      configService.stopJavaService()
+    })
   }
 
   // 初始化indexedDB
