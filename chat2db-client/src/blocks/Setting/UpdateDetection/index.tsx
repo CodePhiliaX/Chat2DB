@@ -1,10 +1,11 @@
 import React, { memo, useEffect, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import configService from '@/service/config';
+import styles from './index.less';
 import { notification, Button, Space } from 'antd';
-// import i18n from '@/i18n';
 import { compareVersion } from '@/utils';
 import { IUpdateDetectionData } from '../index';
-import i18n from '@/i18n';
+import i18n, { i18nElement } from '@/i18n';
+import Iconfont from '@/components/Iconfont';
 
 export enum UpdatedStatusEnum {
   // 未更新
@@ -26,11 +27,11 @@ interface IProps {
 }
 
 export interface IUpdateDetectionRef {
-  openDownload: () => void;
+  openDownload: (data: IUpdateDetectionData) => void;
 }
 
 // 轮训间隔时间
-const INTERVAL_TIME = 10000;
+const INTERVAL_TIME = 5000;
 // 最大轮训次数
 const MAX_TIMES = 200;
 
@@ -39,6 +40,7 @@ const UpdateDetection = memo(
     const { openSettingModal, updateDetectionData, setUpdateDetectionData } = props;
     const [notificationApi, notificationDom] = notification.useNotification();
     const timesRef = React.useRef(0);
+    console.log(updateDetectionData);
 
     useEffect(() => {
       checkUpdate();
@@ -58,14 +60,22 @@ const UpdateDetection = memo(
             return;
           }
 
+          const _updateDetectionData = {
+            ...res,
+            needUpdate: compareVersion(res.version, __APP_VERSION__) === 1,
+            updatedStatusEnum: UpdatedStatusEnum.NOT_UPDATED,
+          };
+
+          setUpdateDetectionData(_updateDetectionData);
+
           // 如果监测到localStorage里面有存的老版本，那么就提示首次更新
-          const lastLatestVersion = localStorage.getItem('last-latest-version')
-          if(lastLatestVersion && compareVersion(lastLatestVersion, __APP_VERSION__) === -1){
+          const lastLatestVersion = localStorage.getItem('last-latest-version');
+          if (lastLatestVersion && compareVersion(lastLatestVersion, __APP_VERSION__) === -1) {
             openNotificationUpdated();
           }
 
           // 最新版本存入localStorage
-          localStorage.setItem('last-latest-version',__APP_VERSION__) 
+          localStorage.setItem('last-latest-version', __APP_VERSION__);
 
           // 如果是最新版本，那么就不用更新
           if (compareVersion(res.version, __APP_VERSION__) !== 1) {
@@ -73,83 +83,76 @@ const UpdateDetection = memo(
           }
 
           // 如果用户点过知道那么，就不用提示更新
-          if (localStorage.getItem('i-see-latest-version') === res.version) {
+          if (localStorage.getItem('i-see-latest-version') === res.version && res.type === 'manual') {
             return;
           }
 
-          const _updateDetectionData = {
-            ...res,
-            needUpdate: compareVersion(res.version, __APP_VERSION__) === 1,
-            updatedStatusEnum: UpdatedStatusEnum.NOT_UPDATED,
-          }
-          
-          setUpdateDetectionData(_updateDetectionData);
           // 如果是自动更新那么就轮询调后端接口，判断是否更新完成
           if (res.type === 'auto') {
-            timesRef.current = 0
-            isUpdateSuccess();
-            setUpdateDetectionData({
-              ..._updateDetectionData,
-              updatedStatusEnum: UpdatedStatusEnum.UPDATING,
-
-            })
+            timesRef.current = 0;
+            openDownload(_updateDetectionData);
           } else {
             // 如果是手动更新，那么就提示下载
             if (res.version) {
-              openNotificationManual(res.version);
+              openNotificationManual(res);
             }
           }
         });
     }
 
-    function isUpdateSuccess() {
+    function isUpdateSuccess(_updateDetectionData) {
       if (timesRef.current > MAX_TIMES) {
         setUpdateDetectionData({
-          ...updateDetectionData!,
+          ..._updateDetectionData!,
           updatedStatusEnum: UpdatedStatusEnum.TIMEOUT,
         });
         return;
       }
-      timesRef.current = timesRef.current + 1
-
-      if (!updateDetectionData?.version) {
+      timesRef.current = timesRef.current + 1;
+      if (!_updateDetectionData?.version) {
         return;
       }
       configService
         .isUpdateSuccess({
-          version: updateDetectionData.version,
+          version: _updateDetectionData.version,
         })
         .then((res) => {
           if (res) {
             setUpdateDetectionData({
-              ...updateDetectionData!,
+              ..._updateDetectionData!,
               updatedStatusEnum: UpdatedStatusEnum.UPDATED,
             });
-            openNotificationAuto();
+            openNotificationAuto(_updateDetectionData);
           } else {
             setTimeout(() => {
-              isUpdateSuccess();
+              isUpdateSuccess(_updateDetectionData);
             }, INTERVAL_TIME);
           }
         });
     }
 
-    function go() {
-      // window.open(responseText.downloadLink);
-      notificationApi.destroy();
-    }
+    // function go() {
+    //   // window.open(responseText.downloadLink);
+    //   notificationApi.destroy();
+    // }
 
-    const handleISee = () => {
+    const handleISee = (_updateDetectionData) => {
       // 存入localStorage
-      localStorage.setItem('i-see-latest-version', updateDetectionData?.version || '');
+      localStorage.setItem('i-see-latest-version', _updateDetectionData?.version || '');
       notificationApi.destroy();
     };
 
-    const openNotificationAuto = () => {
+    const openNotificationAuto = (_updateDetectionData) => {
       const key = `open${Date.now()}`;
       const btn = (
         <Space>
-          <Button type="link" size="small" onClick={handleISee}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              handleISee(_updateDetectionData);
+            }}
+          >
             {i18n('setting.button.iSee')}
           </Button>
           {/* <Button
@@ -164,11 +167,20 @@ const UpdateDetection = memo(
         </Space>
       );
       notificationApi.open({
+        className: styles.notification,
         duration: null,
-        message: i18n('setting.text.newEditionIsReady'),
-        description: i18n('setting.text.RestartingInstall'),
-        style:{
-          width: 260
+        message: (
+          <div className={styles.updateReminder}>
+            <div className={styles.bell}>
+              <Iconfont code="&#xe661;" />
+            </div>
+            {i18n('common.text.updateReminder')}
+          </div>
+        ),
+        description: i18n('setting.text.newEditionIsReady'),
+        style: {
+          width: 260,
+          backgroundColor: 'var(--color-bg-subtle)',
         },
         btn,
         key,
@@ -176,15 +188,21 @@ const UpdateDetection = memo(
       });
     };
 
-    const openNotificationManual = (version) => {
+    const openNotificationManual = (_updateDetectionData) => {
       const key = `open${Date.now()}`;
       const btn = (
-        <Space>
-          <Button type="link" size="small" onClick={handleISee}>
+        <div className={styles.notificationBtnBox}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              handleISee(_updateDetectionData);
+            }}
+          >
             {i18n('setting.button.iSee')}
           </Button>
           <Button
-            type="primary"
+            type="link"
             size="small"
             onClick={() => {
               openSettingModal(3);
@@ -193,14 +211,26 @@ const UpdateDetection = memo(
           >
             {i18n('setting.button.goToUpdate')}
           </Button>
-        </Space>
+        </div>
       );
       notificationApi.open({
         duration: null,
-        message: i18n('setting.text.discoverNewVersion',version),
-        // description: version,
-        style:{
-          width: 260
+        className: styles.notification,
+        message: (
+          <div className={styles.updateReminder}>
+            <div className={styles.bell}>
+              <Iconfont code="&#xe661;" />
+            </div>
+            {i18n('common.text.updateReminder')}
+          </div>
+        ),
+        description: i18nElement(
+          'setting.text.discoverNewVersion',
+          <span className={styles.versionText}>v{_updateDetectionData.version}</span>,
+        ),
+        style: {
+          width: 260,
+          backgroundColor: 'var(--color-bg-subtle)',
         },
         btn,
         key,
@@ -212,10 +242,20 @@ const UpdateDetection = memo(
     const openNotificationUpdated = () => {
       const key = `open${Date.now()}`;
       notificationApi.open({
+        className: styles.notification,
         duration: 6,
-        message: i18n('setting.text.UpdatedLatestVersion', `v${__APP_VERSION__}`),
-        style:{
-          width: 310
+        message: (
+          <div className={styles.updateReminder}>
+            <div className={styles.bell}>
+              <Iconfont code="&#xe661;" />
+            </div>
+            {i18n('common.text.updateReminder')}
+          </div>
+        ),
+        description: i18n('setting.text.UpdatedLatestVersion', `v${__APP_VERSION__}`),
+        style: {
+          width: 310,
+          backgroundColor: 'var(--color-bg-subtle)',
         },
         btn: null,
         key,
@@ -223,15 +263,15 @@ const UpdateDetection = memo(
       });
     };
 
-    const openDownload = () => {
-      if (!updateDetectionData) {
+    const openDownload = (_updateDetectionData: IUpdateDetectionData) => {
+      if (!_updateDetectionData) {
         return;
       }
-      configService.updateDesktopVersion({ ...updateDetectionData }).then(() => {
-        timesRef.current = 0
-        isUpdateSuccess();
+      configService.updateDesktopVersion(_updateDetectionData).then(() => {
+        timesRef.current = 0;
+        isUpdateSuccess(_updateDetectionData);
         setUpdateDetectionData({
-          ...updateDetectionData,
+          ..._updateDetectionData,
           updatedStatusEnum: UpdatedStatusEnum.UPDATING,
         });
       });
@@ -239,7 +279,7 @@ const UpdateDetection = memo(
 
     useImperativeHandle(ref, () => ({
       openDownload,
-    }))
+    }));
 
     return <>{notificationDom}</>;
   }),
