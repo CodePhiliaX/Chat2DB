@@ -35,6 +35,7 @@ declare global {
       startServerForSpawn: () => void;
       quitApp: () => void;
       beforeQuitApp: (fn: () => void) => void;
+      registerAppMenu: (data:any) => void;
     };
   }
   const __APP_VERSION__: string;
@@ -107,8 +108,12 @@ function AppContainer() {
 
   // 注册Electron关闭时，关闭服务
   function registerElectronApi() {
+    window.electronApi?.registerAppMenu({
+      version: __APP_VERSION__,
+    })
+    
     window.electronApi?.beforeQuitApp(()=>{
-      configService.stopJavaService();
+      configService.stopJavaService()
     })
   }
 
