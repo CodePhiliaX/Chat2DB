@@ -822,7 +822,10 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
-            <div ref={tableBoxRef} className={classnames(styles.supportBaseTableBox, styles.supportBaseTableBoxHidden)}>
+            <div
+              ref={tableBoxRef}
+              className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
+            >
               {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
               <SupportBaseTable
                 className={classnames('supportBaseTable', props.className, styles.table)}
