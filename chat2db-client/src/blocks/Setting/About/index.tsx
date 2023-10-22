@@ -8,6 +8,7 @@ import configService from '@/service/config';
 import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
+import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
@@ -32,6 +33,11 @@ export default function AboutUs(props: IProps) {
   const jumpDoc = () => {
     window.open(WEBSITE_DOC, '_blank');
   };
+
+  const restartApp = () => {
+    console.log(window.electronApi)
+    window.electronApi?.quitApp();
+  }
 
   const updateButton = useMemo(() => {
     if (!updateDetectionData?.needUpdate) {
@@ -68,12 +74,12 @@ export default function AboutUs(props: IProps) {
             {i18n('setting.button.redownload')}
           </Button>
         );
-      // case UpdatedStatusEnum.UPDATED:
-      //   return (
-      //     <Button icon={<RedoOutlined />} type="primary">
-      //       {i18n('setting.button.restart')}
-      //     </Button>
-      //   );
+      case UpdatedStatusEnum.UPDATED:
+        return (
+          <Button icon={<Iconfont code="&#xe662;" />} type="primary" onClick={restartApp}>
+            {i18n('setting.button.restart')}
+          </Button>
+        );
       default:
         return false;
     }

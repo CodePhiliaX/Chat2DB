@@ -4,7 +4,7 @@ const { JAVA_APP_NAME, JAVA_PATH } = require('./constants');
 const path = require('path');
 const { readVersion } = require('./utils');
 
-contextBridge.exposeInMainWorld('myAPI', {
+contextBridge.exposeInMainWorld('electronApi', {
   startServerForSpawn: async () => {
     const javaPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/${JAVA_APP_NAME}`);
     const libPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, './static/lib');
@@ -40,4 +40,14 @@ contextBridge.exposeInMainWorld('myAPI', {
       console.log(`child process exited with code ${code}`);
     });
   },
+  quitApp: () => {
+    ipcRenderer.send('quit-app');
+  },
+
+  beforeQuitAPP: (callback)=>{
+    ipcRenderer.on('before-quit-app', () => {
+      callback();
+    });
+  }
 });
+
