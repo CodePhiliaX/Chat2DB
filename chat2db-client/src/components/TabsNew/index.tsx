@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import styles from './index.less';
@@ -50,6 +50,7 @@ export default memo<IProps>((props) => {
   const [internalTabs, setInternalTabs] = useState<ITabItem[]>([]);
   const [internalActiveTab, setInternalActiveTab] = useState<number | string | null>(null);
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
+  const tabListBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (activeKey !== null && activeKey !== undefined) {
@@ -59,12 +60,20 @@ export default memo<IProps>((props) => {
 
   useEffect(() => {
     setInternalTabs(items || []);
-    if (items?.length && internalActiveTab === undefined) {
+    if (items?.length && (internalActiveTab === undefined || internalActiveTab === null)) {
       setInternalActiveTab(items[0]?.key);
     }
   }, [items]);
 
   useEffect(() => {
+    // 聚焦的时候，聚焦的tab要在第一个
+    if (tabListBoxRef.current) {
+      const activeTab = tabListBoxRef.current.querySelector(`.${styles.activeTab}`);
+      if (activeTab) {
+        activeTab.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
     onChange?.(internalActiveTab);
   }, [internalActiveTab]);
 
@@ -171,7 +180,7 @@ export default memo<IProps>((props) => {
       {!concealTabHeader && (
         <div className={styles.tabsNav}>
           {!!internalTabs?.length && (
-            <div className={styles.tabList}>
+            <div className={styles.tabList} ref={tabListBoxRef}>
               {internalTabs.map((t, index) => {
                 return renderTabItem(t, index);
               })}

@@ -45,8 +45,11 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
+import ai.chat2db.server.web.api.http.model.EsTableSchema;
 import ai.chat2db.server.web.api.http.model.TableSchema;
+import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
+import ai.chat2db.server.web.api.http.response.EsTableSchemaResponse;
 import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -498,7 +501,7 @@ public class ChatController {
             TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
             properties = buildTableColumn(queryParam, queryRequest.getTableNames());
         } else {
-            properties = queryDatabaseSchema(queryRequest);
+            properties = querySchemaByEs(queryRequest);
         }
         String prompt = queryRequest.getMessage();
         String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
@@ -574,6 +577,41 @@ public class ChatController {
             return JSON.toJSONString(schemas);
         } catch (Exception exception) {
             log.error("query table error, do nothing");
+            return "";
+        }
+    }
+
+    /**
+     * query database schema
+     *
+     * @param queryRequest
+     * @return
+     * @throws IOException
+     */
+    public String querySchemaByEs(ChatQueryRequest queryRequest) {
+        // search embedding
+        EsTableSchemaRequest tableSchemaRequest = new EsTableSchemaRequest();
+        tableSchemaRequest.setSearchKey(queryRequest.getMessage());
+        tableSchemaRequest.setDataSourceId(queryRequest.getDataSourceId());
+        tableSchemaRequest.setDatabaseName(queryRequest.getDatabaseName());
+        tableSchemaRequest.setSchemaName(queryRequest.getSchemaName());
+        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
+        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
+            return "";
+        }
+        tableSchemaRequest.setApiKey(keyConfig.getContent());
+        try {
+            DataResult<EsTableSchemaResponse> result = gatewayClientService.schemaEsSearch(tableSchemaRequest);
+            List<String> schemas = Lists.newArrayList();
+            if (Objects.nonNull(result.getData()) && CollectionUtils.isNotEmpty(result.getData().getTableSchemas())) {
+                for(EsTableSchema data: result.getData().getTableSchemas()){
+                    schemas.add(data.getTableSchemaContent());
+                }
+            }
+            return JSON.toJSONString(schemas);
+        } catch (Exception exception) {
+            log.error("query es table error, do nothing");
             return "";
         }
     }
