@@ -97,7 +97,7 @@ export default defineConfig({
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
-    __APP_VERSION__: yarn_config.app_version || '0.0.0',
+    __APP_VERSION__: yarn_config.app_version || '9.9.9',
     __APP_PORT__: yarn_config.app_port,
   },
   esbuildMinifyIIFE: true
