@@ -4,6 +4,7 @@ import { notification, Button, Space } from 'antd';
 // import i18n from '@/i18n';
 import { compareVersion } from '@/utils';
 import { IUpdateDetectionData } from '../index';
+import i18n from '@/i18n';
 
 export enum UpdatedStatusEnum {
   // 未更新
@@ -57,6 +58,15 @@ const UpdateDetection = memo(
             return;
           }
 
+          // 如果监测到localStorage里面有存的老版本，那么就提示首次更新
+          const lastLatestVersion = localStorage.getItem('last-latest-version')
+          if(lastLatestVersion && compareVersion(lastLatestVersion, __APP_VERSION__) === -1){
+            openNotificationUpdated();
+          }
+
+          // 最新版本存入localStorage
+          localStorage.setItem('last-latest-version',__APP_VERSION__) 
+
           // 如果是最新版本，那么就不用更新
           if (compareVersion(res.version, __APP_VERSION__) !== 1) {
             return;
@@ -86,7 +96,7 @@ const UpdateDetection = memo(
           } else {
             // 如果是手动更新，那么就提示下载
             if (res.version) {
-              openNotificationManual();
+              openNotificationManual(res.version);
             }
           }
         });
@@ -127,7 +137,6 @@ const UpdateDetection = memo(
     function go() {
       // window.open(responseText.downloadLink);
       notificationApi.destroy();
-      alert('重启APP');
     }
 
     const handleISee = () => {
@@ -141,35 +150,38 @@ const UpdateDetection = memo(
       const btn = (
         <Space>
           <Button type="link" size="small" onClick={handleISee}>
-            我知道了
+            {i18n('setting.button.iSee')}
           </Button>
-          <Button
+          {/* <Button
             type="primary"
             size="small"
             onClick={() => {
               go();
             }}
           >
-            立即重启
-          </Button>
+            {i18n('setting.button.restart')}
+          </Button> */}
         </Space>
       );
       notificationApi.open({
         duration: null,
-        message: '新版本以下载完成',
-        description: '重启软件将会安装新版本',
+        message: i18n('setting.text.newEditionIsReady'),
+        description: i18n('setting.text.RestartingInstall'),
+        style:{
+          width: 260
+        },
         btn,
         key,
         onClose: close,
       });
     };
 
-    const openNotificationManual = () => {
+    const openNotificationManual = (version) => {
       const key = `open${Date.now()}`;
       const btn = (
         <Space>
           <Button type="link" size="small" onClick={handleISee}>
-            我知道了
+            {i18n('setting.button.iSee')}
           </Button>
           <Button
             type="primary"
@@ -179,14 +191,17 @@ const UpdateDetection = memo(
               notificationApi.destroy();
             }}
           >
-            前往更新
+            {i18n('setting.button.goToUpdate')}
           </Button>
         </Space>
       );
       notificationApi.open({
         duration: null,
-        message: '发现新的版本',
-        description: updateDetectionData?.version || 'latestVersion?.version',
+        message: i18n('setting.text.discoverNewVersion',version),
+        // description: version,
+        style:{
+          width: 260
+        },
         btn,
         key,
         onClose: close,
@@ -198,7 +213,10 @@ const UpdateDetection = memo(
       const key = `open${Date.now()}`;
       notificationApi.open({
         duration: 6,
-        message: `已更新到最新版本${updateDetectionData?.version}`,
+        message: i18n('setting.text.UpdatedLatestVersion',__APP_VERSION__),
+        style:{
+          width: 260
+        },
         btn: null,
         key,
         onClose: close,

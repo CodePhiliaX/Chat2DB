@@ -6,9 +6,10 @@ import { APP_NAME, WEBSITE_DOC } from '@/constants/appConfig';
 // import { formatDate, getUserTimezoneTimestamp } from '@/utils/date';
 import { Button, Radio, Space } from 'antd';
 import configService from '@/service/config';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined,RedoOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
+import i18n from '@/i18n';
 
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
@@ -48,13 +49,13 @@ export default function AboutUs(props: IProps) {
             icon={<DownloadOutlined />}
             type="primary"
           >
-            开始下载
+            {i18n('setting.button.startDownloading')}
           </Button>
         );
       case UpdatedStatusEnum.UPDATING:
         return (
           <Button type="primary" loading>
-            下载中
+            {i18n('setting.button.beDownloading')}
           </Button>
         );
       // 超时后端如何处理 TODO:
@@ -68,15 +69,15 @@ export default function AboutUs(props: IProps) {
             type="primary"
             loading
           >
-            超时重新下载
+            {i18n('setting.button.redownload')}
           </Button>
         );
-      case UpdatedStatusEnum.UPDATED:
-        return (
-          <Button icon={<DownloadOutlined />} type="primary">
-            立即重启
-          </Button>
-        );
+      // case UpdatedStatusEnum.UPDATED:
+      //   return (
+      //     <Button icon={<RedoOutlined />} type="primary">
+      //       {i18n('setting.button.restart')}
+      //     </Button>
+      //   );
       default:
         return false;
     }
@@ -93,28 +94,31 @@ export default function AboutUs(props: IProps) {
           </div>
           <div className={styles.newVersion}>
             {updateDetectionData?.needUpdate ? (
-              <span>发现新版本{updateDetectionData?.version}</span>
+              UpdatedStatusEnum.UPDATED === updateDetectionData?.updatedStatusEnum ?
+              <span>{i18n('setting.text.RestartingInstall')}</span>
+              :
+              <span>{i18n('setting.text.discoverNewVersion', updateDetectionData?.version)}</span>
             ) : (
-              <span>已是最新版本</span>
+              <span>{i18n('setting.text.isLatestVersion')}</span>
             )}
           </div>
           {updateDetectionData?.desktop && (
             <div className={styles.updateButton}>
               {updateButton}
-              <Button onClick={jumpDoc}>查看更新日志</Button>
+              <Button onClick={jumpDoc}>{i18n('setting.button.changeLog')}</Button>
             </div>
           )}
         </div>
       </div>
       <div className={styles.updateRule}>
-        <div className={styles.updateRuleTitle}>软件更新</div>
+        <div className={styles.updateRuleTitle}>{i18n('setting.title.updateRule')}</div>
         <Radio.Group className={styles.updateRuleGroup} onChange={onChangeUpdateRul} value={updateRule}>
           <Space direction="vertical">
             <Radio className={styles.updateRuleRadio} value="auto">
-              新版自动下载并安装更新
+              {i18n('setting.text.autoUpdate')}
             </Radio>
             <Radio className={styles.updateRuleRadio} value="manual">
-              仅在新版本发布时提醒我
+              {i18n('setting.text.manualUpdate')}
             </Radio>
           </Space>
         </Radio.Group>
