@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import { Modal } from 'antd';
+import { Modal, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import BaseSetting from './BaseSetting';
 import AISetting from './AiSetting';
@@ -89,6 +89,13 @@ function Setting(props: IProps) {
     {
       label: i18n('setting.nav.aboutUs'),
       icon: '\ue60c',
+      rightSlot: (
+        <div className={classnames(styles.rightSlot, styles.rightSlotAbout)}>
+          <Tooltip title="发现新版本v3.0.3">
+            <Iconfont code="&#xe67d;" />
+          </Tooltip>
+        </div>
+      ),
       body: <About />,
     },
   ];
@@ -123,8 +130,9 @@ function Setting(props: IProps) {
                     [styles.activeMenu]: t.label === menusList[currentMenu].label,
                   })}
                 >
-                  <Iconfont code={t.icon} />
+                  <Iconfont className={styles.prefixIcon} code={t.icon} />
                   {t.label}
+                  {t.rightSlot}
                 </div>
               );
             })}
