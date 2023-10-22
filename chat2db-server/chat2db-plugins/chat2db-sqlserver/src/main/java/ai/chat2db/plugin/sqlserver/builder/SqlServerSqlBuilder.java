@@ -6,6 +6,7 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
 public class SqlServerSqlBuilder implements SqlBuilder {
@@ -80,9 +81,9 @@ public class SqlServerSqlBuilder implements SqlBuilder {
             script.append(buildRenameTable(oldTable, newTable));
         }
         if (!StringUtils.equalsIgnoreCase(oldTable.getComment(), newTable.getComment())) {
-            if(oldTable.getComment() == null){
+            if (oldTable.getComment() == null) {
                 script.append("\n").append(buildTableComment(newTable));
-            }else {
+            } else {
                 script.append("\n").append(buildUpdateTableComment(newTable));
             }
         }
@@ -110,8 +111,8 @@ public class SqlServerSqlBuilder implements SqlBuilder {
         return script.toString();
     }
 
-
     private static String UPDATE_TABLE_COMMENT_SCRIPT = "exec sp_updateextendedproperty 'MS_Description','%s','SCHEMA','%s','TABLE','%s' \ngo";
+
     private String buildUpdateTableComment(Table newTable) {
         return String.format(UPDATE_TABLE_COMMENT_SCRIPT, newTable.getComment(), newTable.getSchemaName(), newTable.getName());
     }
@@ -120,5 +121,25 @@ public class SqlServerSqlBuilder implements SqlBuilder {
 
     private String buildRenameTable(Table oldTable, Table newTable) {
         return String.format(RENAME_TABLE_SCRIPT, oldTable.getName(), newTable.getName());
+    }
+
+    @Override
+    public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
+        String version = Chat2DBContext.getDbVersion();
+        if (StringUtils.isNotBlank(version)) {
+            String[] versions = version.split("\\.");
+            if (versions.length > 0 && Integer.parseInt(versions[0]) >= 11) {
+                StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
+                sqlBuilder.append(sql);
+                sqlBuilder.append("\n OFFSET ");
+                sqlBuilder.append(offset);
+                sqlBuilder.append(" ROWS ");
+                sqlBuilder.append(" FETCH NEXT ");
+                sqlBuilder.append(pageSize);
+                sqlBuilder.append(" ROWS ONLY");
+                return sqlBuilder.toString();
+            }
+        }
+        return "";
     }
 }

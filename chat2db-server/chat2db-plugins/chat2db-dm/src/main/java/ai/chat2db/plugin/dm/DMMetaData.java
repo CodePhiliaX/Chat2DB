@@ -3,19 +3,26 @@ package ai.chat2db.plugin.dm;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Function;
-import ai.chat2db.spi.model.Procedure;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.SortUtils;
 import ai.chat2db.spi.util.SqlUtils;
 import jakarta.validation.constraints.NotEmpty;
 
 public class DMMetaData extends DefaultMetaService implements MetaData {
+
+    private List<String> systemSchemas = Arrays.asList("CTISYS", "SYS","SYSDBA","SYSSSO","SYSAUDITOR");
+
+    @Override
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        return SortUtils.sortSchema(schemas, systemSchemas);
+    }
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         String selectObjectDDLSQL = String.format(
             "select dbms_metadata.get_ddl(%s, %s, %s) AS \"sql\" from dual",
