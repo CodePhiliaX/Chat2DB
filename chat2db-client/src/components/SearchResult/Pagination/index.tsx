@@ -155,7 +155,7 @@ export default function Pagination(props: IProps) {
         ]}
       />
 
-      <Popover content={i18n('workspace.table.total.tip')}>
+      <Popover mouseEnterDelay={0.8} content={i18n('workspace.table.total.tip')}>
         <Button type="link" loading={totalLoading} onClick={handleClickTotalBtn}>
           {i18n('workspace.table.total')}：{paginationConfig?.total}
         </Button>

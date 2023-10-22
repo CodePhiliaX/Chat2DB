@@ -121,7 +121,7 @@ export default memo<IProps>((props) => {
     }
 
     return (
-      <Popover content={t.popover} key={t.key}>
+      <Popover mouseEnterDelay={0.8} content={t.popover} key={t.key}>
         <div
           onDoubleClick={() => {
             onDoubleClick(t);

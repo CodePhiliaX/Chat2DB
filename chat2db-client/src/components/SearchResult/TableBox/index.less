@@ -154,6 +154,23 @@
   flex: 1;
   overflow-y: auto;
   height: 0px;
+  position: relative;
+  .supportBaseTableSpin {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    background-color: var(--color-fill-quaternary);
+  }
+}
+
+.supportBaseTableBoxHidden {
+  overflow: hidden;
 }
 
 .table {
@@ -272,6 +289,8 @@
   overflow: hidden;
   height: 60vh;
   margin-top: -15px;
+  .modifyButton {
+  }
 }
 
 .errorDetail {
