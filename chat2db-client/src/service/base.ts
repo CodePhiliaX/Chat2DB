@@ -1,8 +1,6 @@
-import { extend, ResponseError } from 'umi-request';
-import { message, notification } from 'antd';
-import { getLang } from '@/utils/localStorage';
-import ErrorNotification from '@/components/MyNotification';
-const path = require('path');
+import { extend, ResponseError, type RequestOptionsInit } from 'umi-request';
+import { message } from 'antd';
+import { navigate } from '@/utils';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -12,7 +10,7 @@ export interface IOptions {
   delayTime?: number | true;
   outside?: boolean;
   isFullPath?: boolean;
-  dynamicUrl?: boolean; 
+  dynamicUrl?: boolean;
 }
 
 // TODO:
@@ -42,7 +40,7 @@ enum ErrorCode {
 const noNeedToastErrorCode = [ErrorCode.NEED_LOGGED_IN];
 
 // yapi mock地址
-const mockUrl = 'https://yapi.alibaba.com/mock/1000160';
+const mockUrl = 'https://yapi.com/mock/1000160';
 
 // 桌面端的服务器地址
 const desktopServiceUrl = `http://127.0.0.1:${__APP_PORT__ || '10824'}`;
@@ -109,7 +107,7 @@ request.interceptors.request.use((url, options) => {
   };
 });
 
-request.interceptors.response.use(async (response, options) => {
+request.interceptors.response.use(async (response) => {
   const res = await response.clone().json();
   if (__ENV__ === 'desktop') {
     const Chat2db = response.headers.get('Chat2db') || '';
@@ -117,21 +115,34 @@ request.interceptors.response.use(async (response, options) => {
       localStorage.setItem('Chat2db', Chat2db);
     }
   }
-  const { errorCode, codeMessage } = res;
+  const { errorCode } = res;
   if (errorCode === ErrorCode.NEED_LOGGED_IN) {
-    const callback = window.location.hash.substr(1).split('?')[0];
-    window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
+    navigate('/login');
+    // const callback = window.location.hash.substr(1).split('?')[0];
+    // window.location.href = '#/login' + (callback === '/login' ? '' : `?callback=${callback}`);
   }
 
   return response;
 });
 
 export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
-  const { method = 'get', mock = false, errorLevel = 'toast', delayTime, outside, isFullPath, dynamicUrl } = options || {};
+  // 路由跳转
+  const {
+    method = 'get',
+    mock = false,
+    errorLevel = 'toast',
+    delayTime,
+    outside,
+    isFullPath,
+    dynamicUrl,
+  } = options || {};
 
-  // 是否需要mock
-  let _baseURL = (mock ? mockUrl : baseURL) || '';
-  return function (params: P) {
+  return function (params: P, restParams?: RequestOptionsInit) {
+    // 是否需要mock
+    const _baseURL = (mock ? mockUrl : baseURL) || '';
+    // if (url === '/api/rdb/ddl/list') {
+    //   debugger;
+    // }
     // 在url上按照定义规则拼接params
     const paramsInUrl: string[] = [];
 
@@ -162,17 +173,20 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
         case 'put':
           dataName = 'data';
           break;
+        default:
+          dataName = 'params';
+          break;
       }
 
       let eventualUrl = outside ? `${outsideUrlPrefix}${_url}` : `${_baseURL}${_url}`;
       eventualUrl = isFullPath ? url : eventualUrl;
 
       // 动态的url
-      if(dynamicUrl){
+      if (dynamicUrl) {
         eventualUrl = params as string;
       }
 
-      request[method](eventualUrl, { [dataName]: params })
+      request[method](eventualUrl, { [dataName]: params, ...restParams })
         .then((res) => {
           if (!res) return;
           const { success, errorCode, errorMessage, errorDetail, solutionLink, data } = res;
@@ -197,7 +211,6 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
           }, delayTime);
         })
         .catch((error) => {
-          console.log('catch error', error);
           delayTimeFn(() => {
             errorHandler(error, errorLevel);
             reject(error);
@@ -208,7 +221,7 @@ export default function createRequest<P = void, R = {}>(url: string, options?: I
 }
 
 // 简单的延时函数
-function delayTimeFn(callback: Function, time: number | true | undefined) {
+function delayTimeFn(callback: () => void, time: number | true | undefined) {
   if (time) {
     const timer = setTimeout(() => {
       callback();

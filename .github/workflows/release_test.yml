@@ -134,6 +134,7 @@ jobs:
           yarn install 
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
 
       # 编译服务端java版本
       - name: Build Java
@@ -244,7 +245,9 @@ jobs:
           cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
           cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
-          cd chat2db-client/versions/99.0.${{ github.run_id }}/static/ && zip -r chat2db-server-start.zip ./ 
+          cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
+          cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
+          cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       # 准备要需要的数据 MacOS arm64
@@ -268,7 +271,7 @@ jobs:
           endpoint: "oss-accelerate.aliyuncs.com"
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          ossutil-version: "latest"
+          ossutil-version: "1.7.16"
       - name: Upload to oss
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/

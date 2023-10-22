@@ -125,7 +125,7 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = String.format(SELECT_TABLE_COLUMNS,  databaseName,  tableName);
+        String sql = String.format(SELECT_TABLE_COLUMNS, databaseName, tableName);
         List<TableColumn> tableColumns = new ArrayList<>();
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
@@ -146,34 +146,36 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
                 column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
                 column.setCollationName(resultSet.getString("COLLATION_NAME"));
-                setColumnSize(column,resultSet.getString("COLUMN_TYPE"));
+                setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
                 tableColumns.add(column);
             }
             return tableColumns;
         });
     }
 
-    private void setColumnSize(TableColumn column,String columnType){
+    private void setColumnSize(TableColumn column, String columnType) {
         try {
             if (columnType.contains("(")) {
                 String size = columnType.substring(columnType.indexOf("(") + 1, columnType.indexOf(")"));
-                if (size.contains(",")) {
-                    String[] sizes = size.split(",");
-                    if (StringUtils.isNotBlank(sizes[0])) {
-                        column.setColumnSize(Integer.parseInt(sizes[0]));
-                    }
-                    if (StringUtils.isNotBlank(sizes[1])) {
-                        column.setDecimalDigits(Integer.parseInt(sizes[1]));
-                    }
+                if ("SET".equalsIgnoreCase(column.getColumnType()) || "ENUM".equalsIgnoreCase(column.getColumnType())) {
+                    column.setValue(size);
                 } else {
-                    column.setColumnSize(Integer.parseInt(size));
+                    if (size.contains(",")) {
+                        String[] sizes = size.split(",");
+                        if (StringUtils.isNotBlank(sizes[0])) {
+                            column.setColumnSize(Integer.parseInt(sizes[0]));
+                        }
+                        if (StringUtils.isNotBlank(sizes[1])) {
+                            column.setDecimalDigits(Integer.parseInt(sizes[1]));
+                        }
+                    } else {
+                        column.setColumnSize(Integer.parseInt(size));
+                    }
                 }
             }
-        }catch (Exception e){
-
+        } catch (Exception e) {
         }
     }
-
 
 
     private static String VIEW_SQL
@@ -251,7 +253,12 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         tableIndexColumn.setCollation(resultSet.getString("Collation"));
         tableIndexColumn.setCardinality(resultSet.getLong("Cardinality"));
         tableIndexColumn.setSubPart(resultSet.getLong("Sub_part"));
-        tableIndexColumn.setAscOrDesc(resultSet.getString("Collation"));
+        String collation = resultSet.getString("Collation");
+        if ("a".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("ASC");
+        } else if ("d".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("DESC");
+        }
         return tableIndexColumn;
     }
 
@@ -266,6 +273,12 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 .columnTypes(MysqlColumnTypeEnum.getTypes())
                 .charsets(MysqlCharsetEnum.getCharsets())
                 .collations(MysqlCollationEnum.getCollations())
+                .indexTypes(MysqlIndexTypeEnum.getIndexTypes())
                 .build();
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "`" + name + "`").collect(Collectors.joining("."));
     }
 }

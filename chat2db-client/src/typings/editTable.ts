@@ -3,7 +3,10 @@ import { IndexesType, EditColumnOperationType } from '@/constants';
 // 编辑表时表的基础数据
 export interface IBaseInfo {
   name: string;
-  comment?: string;
+  comment?: string | null;
+  charset: string | null; // 字符集
+  engine: string | null; // 引擎
+  incrementValue: string | null; // 自增值
 }
 
 export interface IColumnItemNew {
@@ -34,14 +37,15 @@ export interface IColumnItemNew {
   ordinalPosition: number| null; // 位置
   nullable: 0 | 1 | null; //是否为空
   generatedColumn: string | null; // 是否生成列
+
+  charSetName: string | null; // 字符集名
+  collationName: string | null; // 排序规则名
+  value: string | null; // 值
 }
 
 // 
-export interface IIndexIncludeColumnItem extends IColumnItemNew {
-}
-
-// 后端给的索引内列的数据结构
-export interface IAfterEndIndexIncludeColumnItem {
+export interface IIndexIncludeColumnItem {
+  key?: string; // 前端添加的唯一标识
   ascOrDesc: string | null; // 升序还是降序
   cardinality: number | null; // 基数
   collation: string | null; // 排序规则

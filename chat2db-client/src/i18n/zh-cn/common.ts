@@ -25,6 +25,7 @@ export default {
   'common.button.open': '打开',
   'common.button.refresh': '刷新',
   'common.button.execute': '执行',
+  "common.button.import": '导入SQL',
   'common.button.format': '格式化',
   'common.message.successfulConfig': '配置成功',
   'common.text.successful': '成功',
@@ -84,5 +85,12 @@ export default {
   'common.tips.createSuccess': '创建成功',
   'common.text.action': '操作',
   'common.button.add': '添加',
-  
+  'common.text.errorMessage': '错误信息',
+  'common.button.cancelRequest': '取消请求',
+  'common.button.executionError': '执行错误',
+  'common.text.affectedRows': '受影响行：{1}',
+  'common.text.selectFile' : '选择文件',
+  'common.text.noTableFoundUp' : '当前库没有查询到表',
+  'common.text.noTableFoundDown' : '你可以在顶部切换数据库',
+  'common.text.updateNow' : '立即更新',
 };

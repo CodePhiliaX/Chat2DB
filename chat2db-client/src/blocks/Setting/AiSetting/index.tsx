@@ -19,11 +19,14 @@ export default function SettingAI(props: IProps) {
   const [aiConfig, setAiConfig] = useState<IAiConfig>();
   const [userInfo, setUserInfo] = useState<ILoginUser>();
   const [loading, setLoading] = useState(false);
-  
+
   const queryUserInfo = async () => {
     setLoading(true);
     try {
       const res = await getUser();
+      // 向cookie中写入当前用户id
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
       setUserInfo(res);
     } finally {
       setLoading(false);
@@ -89,6 +92,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.chat2dbApiKey')}
               value={aiConfig.apiKey}
               onChange={(e) => {
@@ -103,6 +107,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.apiKey')}
               value={aiConfig.apiKey}
               onChange={(e) => {
@@ -113,6 +118,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>Api Host</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.apiHost')}
               value={aiConfig.apiHost}
               onChange={(e) => {
@@ -123,6 +129,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>HTTP Proxy Host</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.httpsProxy', 'host')}
               value={aiConfig.httpProxyHost}
               onChange={(e) => {
@@ -136,6 +143,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>HTTP Proxy Port</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.httpsProxy', 'port')}
               value={aiConfig.httpProxyPort}
               onChange={(e) => {
@@ -153,6 +161,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.azureOpenAIKey')}
               value={aiConfig.apiKey}
               onChange={(e) => {
@@ -163,6 +172,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>Endpoint</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.azureEndpoint')}
               value={aiConfig.apiHost}
               onChange={(e) => {
@@ -173,6 +183,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>DeploymentId</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.azureDeployment')}
               value={aiConfig.model}
               onChange={(e) => {
@@ -190,6 +201,7 @@ export default function SettingAI(props: IProps) {
           <div className={styles.title}>{i18n('setting.label.customAiUrl')}</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
             <Input
+              autoComplete="off"
               placeholder={i18n('setting.placeholder.customUrl')}
               value={aiConfig.apiHost}
               onChange={(e) => {

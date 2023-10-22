@@ -75,6 +75,14 @@ public interface TableService {
      */
     PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
 
+
+    /**
+     * 查询表信息
+     * @param param
+     * @return
+     */
+    ListResult<SimpleTable> queryTables(TablePageQueryParam param);
+
     /**
      * 查询表包含的字段
      *
@@ -105,4 +113,20 @@ public interface TableService {
      * @return
      */
     TableMeta queryTableMeta(TypeQueryParam param);
+
+    /**
+     * save table vector
+     *
+     * @param param
+     * @return
+     */
+    ActionResult saveTableVector(TableVectorParam param);
+
+    /**
+     * check if table vector saved status
+     *
+     * @param param
+     * @return
+     */
+    DataResult<Boolean> checkTableVector(TableVectorParam param);
 }

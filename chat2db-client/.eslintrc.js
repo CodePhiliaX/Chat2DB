@@ -58,7 +58,7 @@ module.exports = {
     // ],
     'no-duplicate-imports': [2], // 禁止重复 import
     'newline-per-chained-call': 2, // 链式调用必须换行
-    'no-underscore-dangle': 2, // 禁止标识符中有悬空下划线
+    // 'no-underscore-dangle': 2, // 禁止标识符中有悬空下划线
     'eol-last': 2, // 文件以单一的换行符结束
     'no-useless-rename': 2, // 禁止无用的重命名
     'no-undef': 0, // 禁止使用未定义的变量

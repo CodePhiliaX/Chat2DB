@@ -1,17 +1,12 @@
 package ai.chat2db.server.tools.common.util;
 
-import ai.chat2db.server.tools.common.config.GlobalDict;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.DigestUtils;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Configure information on the user side
@@ -43,8 +38,6 @@ public class ConfigUtils {
         if (!configFile.exists()) {
             FileUtil.writeUtf8String(JSON.toJSONString(new ConfigJson()), configFile);
         }
-        //复制模板
-        copyTemplateFile();
     }
 
     public static void updateVersion(String version) {
@@ -93,32 +86,5 @@ public class ConfigUtils {
             log.error("getAppPath error", e);
             return null;
         }
-    }
-
-    public static void copyTemplateFile() {
-        try {
-            ClassPathResource resourceFolder = new ClassPathResource("template");
-            // 复制文件夹到目标路径
-            if (!getMD5(resourceFolder.getFile().getPath()).equals(getMD5(GlobalDict.templateDir))) {
-                File targetFolder = new File(CONFIG_BASE_PATH);
-                FileUtil.copy(resourceFolder.getFile(), targetFolder, true);
-            }
-        } catch (Exception e) {
-            log.error("copy error", e);
-        }
-    }
-
-    public static String getMD5(String folderPath) {
-        File folder = new File(folderPath);
-        List<File> files = FileUtil.loopFiles(folder);
-        // 对文件列表进行排序
-        Collections.sort(files);
-        // 拼接文件内容
-        StringBuilder stringBuilder = new StringBuilder();
-        for (File file : files) {
-            stringBuilder.append(FileUtil.readUtf8String(file));
-        }
-        // 计算 MD5 值
-        return DigestUtils.md5DigestAsHex(stringBuilder.toString().getBytes());
     }
 }

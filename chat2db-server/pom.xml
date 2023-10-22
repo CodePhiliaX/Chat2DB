@@ -264,6 +264,31 @@
                 <artifactId>easyexcel</artifactId>
                 <version>3.3.2</version>
             </dependency>
+
+            <!--poi-tl-->
+            <dependency>
+                <groupId>com.deepoove</groupId>
+                <artifactId>poi-tl</artifactId>
+                <version>1.10.5</version>
+            </dependency>
+            <!--pdf-->
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itext-asian</artifactId>
+                <version>5.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itextpdf</artifactId>
+                <version>5.5.13</version>
+            </dependency>
+
+            <!--    pdf解析    -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>2.0.24</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -1,21 +1,25 @@
 package ai.chat2db.plugin.mysql.type;
 
 import ai.chat2db.spi.enums.EditStatus;
+import ai.chat2db.spi.model.IndexType;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableIndexColumn;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 public enum MysqlIndexTypeEnum {
 
     PRIMARY_KEY("Primary", "PRIMARY KEY"),
 
-    NORMAL("Normal", "KEY"),
+    NORMAL("Normal", "INDEX"),
 
-    UNIQUE("Unique", "UNIQUE KEY"),
+    UNIQUE("Unique", "UNIQUE INDEX"),
 
-    FULLTEXT("Fulltext", "FULLTEXT KEY"),
+    FULLTEXT("Fulltext", "FULLTEXT INDEX"),
 
-    SPATIAL("Spatial", "SPATIAL KEY");
+    SPATIAL("Spatial", "SPATIAL INDEX");
 
     public String getName() {
         return name;
@@ -30,15 +34,26 @@ public enum MysqlIndexTypeEnum {
 
     private String keyword;
 
+    public IndexType getIndexType() {
+        return indexType;
+    }
+
+    public void setIndexType(IndexType indexType) {
+        this.indexType = indexType;
+    }
+
+    private IndexType indexType;
+
     MysqlIndexTypeEnum(String name, String keyword) {
         this.name = name;
         this.keyword = keyword;
+        this.indexType = new IndexType(name);
     }
 
 
     public static MysqlIndexTypeEnum getByType(String type) {
         for (MysqlIndexTypeEnum value : MysqlIndexTypeEnum.values()) {
-            if (value.name.equals(type)) {
+            if (value.name.equalsIgnoreCase(type)) {
                 return value;
             }
         }
@@ -72,7 +87,13 @@ public enum MysqlIndexTypeEnum {
         StringBuilder script = new StringBuilder();
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
-            script.append("`").append(column.getColumnName()).append("`").append(",");
+            if(StringUtils.isNotBlank(column.getColumnName())) {
+                script.append("`").append(column.getColumnName()).append("`");
+                if (!StringUtils.isBlank(column.getAscOrDesc()) && !PRIMARY_KEY.equals(this)) {
+                    script.append(" ").append(column.getAscOrDesc());
+                }
+                script.append(",");
+            }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(")");
@@ -104,6 +125,9 @@ public enum MysqlIndexTypeEnum {
         if (MysqlIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
             return StringUtils.join("DROP PRIMARY KEY");
         }
-        return StringUtils.join("DROP KEY `", tableIndex.getOldName());
+        return StringUtils.join("DROP INDEX `", tableIndex.getOldName(),"`");
+    }
+    public static List<IndexType> getIndexTypes() {
+        return Arrays.asList(MysqlIndexTypeEnum.values()).stream().map(MysqlIndexTypeEnum::getIndexType).collect(java.util.stream.Collectors.toList());
     }
 }

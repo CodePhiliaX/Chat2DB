@@ -3,8 +3,8 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 import java.util.List;
 
 import ai.chat2db.spi.enums.IndexTypeEnum;
-import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 
+import ai.chat2db.spi.model.TableIndexColumn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,5 +41,9 @@ public class IndexRequest {
     /**
      * 索引包含的列
      */
-    private List<ColumnVO> columnList;
+    private List<TableIndexColumn> columnList;
+
+
+    private String editStatus;
+
 }

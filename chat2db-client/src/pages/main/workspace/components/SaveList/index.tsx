@@ -1,40 +1,47 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
-import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
 import { Input, Dropdown } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
-import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType } from '@/constants';
+import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
 
-interface IProps {
-  className?: string;
-  workspaceModel: IWorkspaceModelType['state'],
-  dispatch: any;
-}
+const dvaModel = connect(({ workspace }: { workspace: IWorkspaceModelType }) => ({
+  workspaceModel: workspace,
+}));
 
-const dvaModel = connect(
-  ({ workspace }: { workspace: IWorkspaceModelType }) => ({
-    workspaceModel: workspace,
-  }),
-);
-
-const SaveList = dvaModel(function (props: any) {
+const SaveList = dvaModel((props: any) => {
   const { workspaceModel, dispatch } = props;
   const { curWorkspaceParams, consoleList } = workspaceModel;
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
+  const leftModuleTitleRef = useRef<any>(null);
+  const saveBoxListRef = useRef<any>(null);
+
+  // 监听saveBoxListRef滚动时，给leftModuleTitle添加下阴影
+  useEffect(() => {
+    const saveBoxList = saveBoxListRef.current;
+    const leftModuleTitle = leftModuleTitleRef.current;
+    if (saveBoxList && leftModuleTitle) {
+      saveBoxList.addEventListener('scroll', () => {
+        if (saveBoxList.scrollTop > 0) {
+          leftModuleTitle.classList.add(styles.leftModuleTitleShadow);
+        } else {
+          leftModuleTitle.classList.remove(styles.leftModuleTitleShadow);
+        }
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (!curWorkspaceParams.dataSourceId || !(curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
-      return
+      return;
     }
     dispatch({
       type: 'workspace/fetchGetSavedConsole',
@@ -49,8 +56,8 @@ const SaveList = dvaModel(function (props: any) {
         dispatch({
           type: 'workspace/setConsoleList',
           payload: res.data,
-        })
-      }
+        });
+      },
     });
   }, [curWorkspaceParams]);
 
@@ -60,8 +67,7 @@ const SaveList = dvaModel(function (props: any) {
         cursor: 'start',
       });
     }
-  }, [searching])
-
+  }, [searching]);
 
   function openSearch() {
     setSearching(true);
@@ -75,15 +81,15 @@ const SaveList = dvaModel(function (props: any) {
   }
 
   function onChange(value: string) {
-    setSearchedList(approximateList(consoleList, value,))
+    setSearchedList(approximateList(consoleList, value));
   }
 
   function openConsole(data: IConsole) {
-    let p: any = {
+    const params: any = {
       id: data.id,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
     };
-    historyServer.updateSavedConsole(p).then((res) => {
+    historyServer.updateSavedConsole(params).then((res) => {
       dispatch({
         type: 'workspace/setCreateConsoleIntro',
         payload: {
@@ -92,89 +98,78 @@ const SaveList = dvaModel(function (props: any) {
           title: data.name,
           uniqueData: data,
         },
-      })
+      });
     });
   }
 
   function deleteSaved(data: IConsole) {
-    let p: any = {
+    const params: any = {
       id: data.id,
+      status: ConsoleStatus.DRAFT,
     };
-    historyServer.deleteSavedConsole(p).then((res) => {
-      // dispatch({
-      //   type: 'workspace/fetchGetSavedConsole',
-      //   payload: {
-      //     orderByDesc: true,
-      //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      //     ...curWorkspaceParams
-      //   },
-      //   callback: (res: any) => {
-      //     dispatch({
-      //       type: 'workspace/setOpenConsoleList',
-      //       payload: res.data,
-      //     })
-      //   }
-      // })
+    historyServer.updateSavedConsole(params).then((res) => {
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
           orderByDesc: true,
           status: ConsoleStatus.RELEASE,
-          ...curWorkspaceParams
+          ...curWorkspaceParams,
         },
         callback: (res: any) => {
           dispatch({
             type: 'workspace/setConsoleList',
             payload: res.data,
-          })
-        }
-      })
+          });
+        },
+      });
     });
   }
 
   return (
     <div className={styles.saveModule}>
-      <div className={styles.leftModuleTitle}>
-        {
-          searching ?
-            <div className={styles.leftModuleTitleSearch}>
-              <Input
-                ref={inputRef}
-                size="small"
-                placeholder={i18n('common.text.search')}
-                prefix={<Iconfont code="&#xe600;" />}
-                onBlur={onBlur}
-                onChange={(e) => onChange(e.target.value)}
-                allowClear
-              />
-            </div>
-            :
-            <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
-              <div className={styles.iconBox} >
-                {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
+      <div ref={leftModuleTitleRef} className={styles.leftModuleTitle}>
+        {searching ? (
+          <div className={styles.leftModuleTitleSearch}>
+            <Input
+              ref={inputRef}
+              size="small"
+              placeholder={i18n('common.text.search')}
+              prefix={<Iconfont code="&#xe600;" />}
+              onBlur={onBlur}
+              onChange={(e) => onChange(e.target.value)}
+              allowClear
+            />
+          </div>
+        ) : (
+          <div className={styles.leftModuleTitleText}>
+            <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
+            <div className={styles.iconBox}>
+              {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
                   <Iconfont code="&#xec08;" />
                 </div> */}
-                <div className={styles.searchIcon} onClick={() => openSearch()}>
-                  <Iconfont code="&#xe600;" />
-                </div>
+              <div className={styles.searchIcon} onClick={() => openSearch()}>
+                <Iconfont code="&#xe600;" />
               </div>
             </div>
-        }
+          </div>
+        )}
       </div>
-      <div className={styles.saveBoxList}>
-        <LoadingContent data={consoleList} handleEmpty>
+      <div ref={saveBoxListRef} className={styles.saveBoxList}>
+        <LoadingContent className={styles.loadingContent} data={consoleList} handleEmpty>
           {(searchedList || consoleList)?.map((t: IConsole) => {
             return (
               <div
                 onDoubleClick={() => {
-                  openConsole(t)
+                  openConsole(t);
                 }}
                 key={t.id}
                 className={styles.saveItem}
               >
                 <div className={styles.saveItemText}>
-                  <span dangerouslySetInnerHTML={{ __html: t.name }} />
+                  <div className={styles.iconBox}>
+                    <Iconfont code={workspaceTabConfig[t.operationType]?.icon} />
+                  </div>
+                  <div className={styles.itemName} dangerouslySetInnerHTML={{ __html: t.name }} />
                 </div>
                 <Dropdown
                   menu={{
@@ -183,30 +178,29 @@ const SaveList = dvaModel(function (props: any) {
                         key: 'open',
                         label: i18n('common.button.open'),
                         onClick: () => {
-                          openConsole(t)
-                        }
+                          openConsole(t);
+                        },
                       },
                       {
                         key: 'delete',
                         label: i18n('common.button.delete'),
                         onClick: () => {
-                          deleteSaved(t)
+                          deleteSaved(t);
                         },
                       },
                     ],
                   }}
                 >
                   <div className={styles.moreButton}>
-                    <Iconfont code="&#xe601;"></Iconfont>
+                    <Iconfont code="&#xe601;" />
                   </div>
                 </Dropdown>
-
               </div>
             );
           })}
         </LoadingContent>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 });
 

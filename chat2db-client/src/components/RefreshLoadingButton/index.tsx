@@ -9,10 +9,12 @@ interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivEle
   loading: boolean;
 }
 
-export default memo<IProps>(function RefreshLoadingButton(props) {
-  const { className, loading, ...res } = props
-  return <div {...res} className={classnames(styles.box, className)}>
-    {loading && <Spin size='small' />}
-    {!loading && <Iconfont code="&#xec08;" />}
-  </div>
-})
+export default memo<IProps>((props) => {
+  const { className, loading, ...res } = props;
+  return (
+    <div {...res} className={classnames(styles.box, className)}>
+      {loading && <Spin size="small" />}
+      {!loading && <Iconfont code="&#xec08;" />}
+    </div>
+  );
+});

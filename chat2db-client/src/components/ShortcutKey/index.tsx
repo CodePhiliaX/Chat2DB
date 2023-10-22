@@ -2,97 +2,74 @@ import React, { memo, Fragment } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { OSnow } from '@/utils'
+import { osNow } from '@/utils';
 
 interface IProps {
   className?: string;
+  slot: any;
 }
 
 const keyboardKey = (function () {
-  if (OSnow().isMac) {
+  if (osNow().isMac) {
     return {
-      command: 'Cmd'
-    }
+      command: 'Cmd',
+      Shift: 'Shift',
+    };
   }
   return {
-    command: 'Ctrl'
-  }
-}())
+    command: 'Ctrl',
+    Shift: 'Shift',
+  };
+})();
 
 const shortcutsList = [
   {
     title: i18n('common.text.textToSQL'),
-    keys: [
-      'Enter'
-    ]
+    keys: ['Enter'],
   },
   {
     title: i18n('common.text.optimizeSQL'),
-    keys: [
-      i18n('common.text.editorRightClick')
-    ]
+    keys: [i18n('common.text.editorRightClick')],
   },
   {
     title: i18n('common.text.executeSelectedSQL'),
-    keys: [
-      keyboardKey.command,
-      'Enter'
-    ]
+    keys: [keyboardKey.command, 'R'],
   },
   {
     title: i18n('common.text.saveConsole'),
-    keys: [
-      keyboardKey.command,
-      'S'
-    ]
+    keys: [keyboardKey.command, 'S'],
   },
   {
-    title: i18n('common.text.refreshPage'),
-    keys: [
-      keyboardKey.command,
-      'R'
-    ]
+    title: i18n('common.button.createConsole'),
+    keys: [keyboardKey.command, keyboardKey.Shift, 'L'],
   },
-  // {
-  //   title: i18n('common.button.createConsole'),
-  //   keys: [
-  //     keyboardKey.command,
-  //     'T'
-  //   ]
-  // },
-]
+];
 
-export default memo<IProps>(function ShortcutKey(props) {
-  const { className } = props;
-  return <div className={classnames(styles.box, className)}>
-    <div className={styles.letterpress}>
-      Chat2DB
-    </div>
-    <div className={styles.shortcuts}>
-      {
-        shortcutsList.map((t, i) => {
-          return <div key={i} className={styles.shortcutsItem}>
-            <div className={styles.title}>
-              {t.title}
+export default memo<IProps>((props) => {
+  const { className, slot } = props;
+  return (
+    <div className={classnames(styles.box, className)}>
+      <div className={styles.letterpress}>Chat2DB</div>
+      <div className={styles.shortcuts}>
+        {shortcutsList.map((t, i) => {
+          return (
+            <div key={i} className={styles.shortcutsItem}>
+              <div className={styles.title}>{t.title}</div>
+              <div className={styles.plusSignBox}>
+                {t.keys.map((item, index) => {
+                  return (
+                    <Fragment key={index}>
+                      <span>{item}</span>
+                      {index + 1 < t.keys.length && <span className={styles.plusSign}>+</span>}
+                    </Fragment>
+                  );
+                })}
+              </div>
             </div>
-            <div className={styles.plusSignBox}>
-              {t.keys.map((item, i) => {
-                return <Fragment key={i}>
-                  <span>
-                    {item}
-                  </span>
-                  {
-                    i + 1 < t.keys.length &&
-                    <span className={styles.plusSign}>
-                      +
-                    </span>
-                  }
-                </Fragment>
-              })}
-            </div>
-          </div>
-        })
-      }
+          );
+        })}
+      </div>
+      <div className={styles.slot}>{slot()}</div>
     </div>
-  </div>
-})
+  );
+});

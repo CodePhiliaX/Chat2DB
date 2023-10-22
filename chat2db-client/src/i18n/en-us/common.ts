@@ -1,6 +1,6 @@
 export default {
-  'common.text.no': 'is',
-  'common.text.is': 'no',
+  'common.text.no': 'no',
+  'common.text.is': 'is',
   'common.button.affirm': 'Affirm',
   'common.button.edit': 'Edit',
   'common.button.modify': 'Modify',
@@ -25,6 +25,7 @@ export default {
   'common.button.open': 'Open',
   'common.button.refresh': 'Refresh',
   'common.button.execute': 'Run',
+  "common.button.import": 'Import SQL',
   'common.button.format': 'Format',
   'common.message.successfulConfig': 'Successful configuration',
   'common.text.successful': 'successful',
@@ -86,5 +87,11 @@ export default {
   'common.tips.createSuccess': 'Create Successfully',
   'common.text.action': 'Action',
   'common.button.add': 'Add',
-
+  'common.text.errorMessage': 'Error Message',
+  'common.button.cancelRequest': 'Cancel Request',
+  'common.button.executionError': 'Execution Error',
+  'common.text.affectedRows': 'Affected rows: {1}',
+  'common.text.selectFile' : 'Select File',
+  'common.text.noTableFoundUp' : 'No tables in this database',
+  'common.text.noTableFoundDown' : 'Switch databases at the top'
 };

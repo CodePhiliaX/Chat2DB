@@ -1,7 +1,7 @@
 @import '../../../../../styles/var.less';
 
-.box {
-  padding: 0px 0px 20px 0px;
+.treeBox {
+  padding: 0px 6px 6px;
 }
 
 .treeNode {
@@ -14,7 +14,7 @@
   cursor: pointer;
   transition: opacity 0.05s ease-in, height 0.1s ease-in;
   user-select: none;
-
+  
   &:hover {
     background-color: var(--color-hover-bg);
     .right {
@@ -39,17 +39,32 @@
   display: flex;
   align-items: center;
   height: 100%;
-  padding: 0px 10px;
+  padding-left: 10px;
   border-radius: 2px;
   // color: var(--color-text-secondary);
+  .moreBox{
+    width: 22px;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
   .moreButton {
     flex-shrink: 0;
-    display: none;
     transform: rotate(90deg);
   }
 
   &:hover {
     background-color: var(--color-hover-bg);
+    .moreBox{
+      width: 22px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
     .moreButton {
       display: block;
     }
@@ -65,6 +80,10 @@
   transform: rotate(0deg);
   transition: transform 0.2s ease-in;
   display: none;
+}
+
+.loadingArrows {
+  display: flex;
 }
 
 .arrowsIcon {
@@ -117,7 +136,7 @@
   opacity: 0.8;
 }
 
-.describe{
+.describe {
   flex: 1;
   font-size: 10px;
   margin-left: 20px;

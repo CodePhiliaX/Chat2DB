@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import { connect } from 'umi';
 import lodash from 'lodash';
@@ -6,11 +6,12 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Button, Tag } from 'antd';
+import { Cascader, Spin, Modal, Tag } from 'antd';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
+import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
@@ -21,12 +22,12 @@ interface IProps {
 }
 
 interface IOption {
-  label: string;
+  label: string | React.ReactNode;
   value: number | string;
 }
 
 const WorkspaceHeader = memo<IProps>((props) => {
-  const { className, connectionModel, workspaceModel, mainPageModel, dispatch } = props;
+  const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
   const { connectionList, curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
   const { curPage } = mainPageModel;
@@ -71,11 +72,19 @@ const WorkspaceHeader = memo<IProps>((props) => {
       setIsRefresh(false);
     }
     // connectionList转换成可用的ConnectionOptions
+    // if (!connectionList.length) {
+    //   setNoConnectionModal(true);
+    // }
     setConnectionOptions(
       connectionList?.map((t) => {
         return {
           value: t.id,
-          label: t.alias,
+          label: (
+            <div style={{ display: 'flex' }}>
+              <Iconfont className={styles.databaseTypeIcon} code={databaseMap[t.type]?.icon} />
+              <div className={styles.text}>{t.alias}</div>
+            </div>
+          ),
         };
       }),
     );
@@ -205,7 +214,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   };
 
   // 连接切换
-  function connectionChange(id: any, data: any) {
+  function connectionChange(id: any) {
     connectionList.map((t) => {
       if (t.id === id[0] && curWorkspaceParams.dataSourceId !== id[0]) {
         dispatch({
@@ -230,7 +239,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
     }
   }
 
-  function handelRefresh() {
+  function handleRefresh() {
     getConnectionList();
   }
 
@@ -244,21 +253,26 @@ const WorkspaceHeader = memo<IProps>((props) => {
               options={connectionOptions}
               onChange={connectionChange}
               bordered={false}
-              defaultValue={[curConnection?.id || '']}
+              value={[curConnection?.id || '']}
             >
               <div className={styles.crumbsItem}>
-                <Iconfont className={styles.databaseTypeIcon} code={databaseMap[curWorkspaceParams.databaseType]?.icon} />
+                <Iconfont
+                  className={styles.databaseTypeIcon}
+                  code={databaseMap[curWorkspaceParams.databaseType]?.icon}
+                />
                 <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
               </div>
             </Cascader>
-            <Iconfont className={styles.arrow} code="&#xe641;" />
+
+            {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />}
+
             {!!curDBOptions?.length && (
               <Cascader
                 popupClassName={styles.cascaderPopup}
                 options={curDBOptions}
                 onChange={databaseChange}
                 bordered={false}
-                defaultValue={[curWorkspaceParams?.databaseName || '']}
+                value={[curWorkspaceParams?.databaseName || '']}
               >
                 <div className={styles.crumbsItem}>
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
@@ -272,14 +286,14 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 options={curSchemaOptions}
                 onChange={schemaChange}
                 bordered={false}
-                defaultValue={[curWorkspaceParams?.schemaName || '']}
+                value={[curWorkspaceParams?.schemaName || '']}
               >
                 <div className={styles.crumbsItem}>
                   <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
                 </div>
               </Cascader>
             )}
-            <div className={styles.refreshBox} onClick={handelRefresh}>
+            <div className={styles.refreshBox} onClick={handleRefresh}>
               {cascaderLoading ? (
                 <Spin className={styles.spin} />
               ) : (
@@ -287,28 +301,22 @@ const WorkspaceHeader = memo<IProps>((props) => {
               )}
             </div>
           </div>
-          <div className={classnames(styles.connectionTag,styles.workspaceHeaderCenter)}>
+          <div className={classnames(styles.connectionTag, styles.workspaceHeaderCenter)}>
             {curConnection?.id && curConnection?.environment?.shortName && (
               <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>
                 {curConnection?.environment?.shortName}
               </Tag>
             )}
           </div>
-          <div className={styles.workspaceHeaderRight}></div>
+          <div className={styles.workspaceHeaderRight} />
         </div>
       )}
-      <Modal
-        open={noConnectionModal}
-        closeIcon={<></>}
-        keyboard={false}
-        maskClosable={false}
-        title="温馨提示"
-        footer={[]}
-      >
+
+      <Modal open={noConnectionModal} closeIcon={<></>} keyboard={false} maskClosable={false} footer={false}>
         <div className={styles.noConnectionModal}>
-          <div className={styles.mainText}>您当前还没有创建任何连接</div>
-          <Button
-            type="primary"
+          <div className={styles.mainText}>{i18n('connection.tips.noConnection')}</div>
+          <Iconfont className={styles.icon} code="&#xe638;" />
+          <div
             className={styles.createButton}
             onClick={() => {
               setNoConnectionModal(false);
@@ -318,8 +326,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
               });
             }}
           >
-            创建连接
-          </Button>
+            {i18n('connection.button.createConnection')}
+          </div>
         </div>
       </Modal>
     </>

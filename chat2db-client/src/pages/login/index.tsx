@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button, Form, Input, Tooltip } from 'antd';
-import { getUser, userLogin } from '@/service/user';
-import { history } from 'umi';
+import { userLogin, getUser } from '@/service/user';
 import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
 import Iconfont from '@/components/Iconfont';
 import i18n from '@/i18n';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
+import { logoutClearSomeLocalStorage, navigate } from '@/utils';
 
 interface IFormData {
   userName: string;
   password: string;
 }
 
-const App: React.FC = () => {
-  const navigate = useNavigate();
-  const handleLogin = async (formData: { userName: string; password: string }) => {
-    let res = await userLogin(formData);
-    if (res) {
-      navigate('/');
-    }
+const Login: React.FC = () => {
+  useEffect(() => {
+    logoutClearSomeLocalStorage();
+  }, []);
+
+  // const navigate = useNavigate();
+  const handleLogin = async (formData: IFormData) => {
+    const token = await userLogin(formData);
+    getUser().then((res) => {
+      // 向cookie中写入当前用户id
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
+      if (token && res) {
+        navigate('/');
+      }
+    });
   };
 
   return (
@@ -63,6 +72,7 @@ const App: React.FC = () => {
 
       <Setting
         className={styles.setting}
+        noLogin
         render={
           <Button
             type="text"
@@ -77,4 +87,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default Login;

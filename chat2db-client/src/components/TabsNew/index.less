@@ -26,6 +26,7 @@
   display: flex;
   overflow: auto;
   height: 32px;
+  flex-shrink: 0;
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border);
   &::-webkit-scrollbar {
@@ -35,10 +36,12 @@
 
 .tabsContent {
   flex: 1;
+  height: 0px;
   .tabsContentItem {
     height: 100%;
     width: 100%;
     display: none;
+    position: relative;
   }
   .tabsContentItemActive {
     display: block;
@@ -180,6 +183,7 @@
   font-size: 12px;
   font-weight: 400;
   background-color: var(--color-bg-subtle);
+  color: var(--color-text);
   input:focus {
     outline: none;
   }

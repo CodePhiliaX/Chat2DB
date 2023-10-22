@@ -148,6 +148,23 @@ public class SQLExecutor {
         return execute(sql, connection, true, null, null);
     }
 
+    public ExecuteResult executeUpdate(final String sql, Connection connection, int n)
+            throws SQLException {
+        Assert.notNull(sql, "SQL must not be null");
+        log.info("execute:{}", sql);
+        // connection.setAutoCommit(false);
+        ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
+        try (Statement stmt = connection.createStatement()) {
+            int affectedRows = stmt.executeUpdate(sql);
+            if (affectedRows != n) {
+                executeResult.setSuccess(false);
+                executeResult.setMessage("Update error "+ sql +" update affectedRows = " + affectedRows + ", Each SQL statement should update no more than one record. Please use a unique key for updates.");
+                connection.rollback();
+            }
+        }
+        return executeResult;
+    }
+
     /**
      * 执行sql
      *
@@ -316,7 +333,8 @@ public class SQLExecutor {
      * @param columnName
      * @return
      */
-    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName,
+    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String
+            tableName,
                                      String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
                 columnName)) {

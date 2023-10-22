@@ -67,7 +67,7 @@ public class DefaultDBManage implements DBManage {
         }
         connectInfo.setSession(session);
         connectInfo.setConnection(connection);
-        if (StringUtils.isNotBlank(connectInfo.getDatabaseName())) {
+        if (StringUtils.isNotBlank(connectInfo.getDatabaseName()) || StringUtils.isNotBlank(connectInfo.getSchemaName())) {
             connectDatabase(connection, connectInfo.getDatabaseName());
         }
         return connection;

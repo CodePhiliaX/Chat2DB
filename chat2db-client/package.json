@@ -22,7 +22,8 @@
     "start": "concurrently \"npm run start:web\" \"npm run start:main\"",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:main:prod": "cross-env NODE_ENV=production electron .",
-    "start:web": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
+    "start:web": "cross-env UMI_ENV=local HMR=none cross-env APP_VERSION=${npm_config_app_version} umi dev",
+    "start:web:hot": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
   },
   "dependencies": {
     "@dnd-kit/modifiers": "^6.0.1",
@@ -40,12 +41,14 @@
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "node-machine-id": "^1.1.12",
+    "react-monaco-editor": "^0.54.0",
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",
     "umi": "^4.0.70",
     "umi-request": "^1.4.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "highlight.js": "^11.9.0"
   },
   "devDependencies": {
     "@types/event-source-polyfill": "^1.0.1",
@@ -58,6 +61,7 @@
     "@umijs/plugins": "^4.0.55",
     "concurrently": "^8.1.0",
     "cross-env": "^7.0.3",
+    "electron": "^22.3.0",
     "electron-builder": "^23.6.0",
     "electron-debug": "^3.2.0",
     "electron-reload": "^2.0.0-alpha.1",

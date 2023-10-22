@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1694247177080') format('woff2'),
-       url('iconfont.woff?t=1694247177080') format('woff'),
-       url('iconfont.ttf?t=1694247177080') format('truetype');
+  src: url('iconfont.woff2?t=1697546898824') format('woff2'),
+       url('iconfont.woff?t=1697546898824') format('woff'),
+       url('iconfont.ttf?t=1697546898824') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,94 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-jiaosequanxian:before {
+  content: "\e658";
+}
+
+.icon-preview1:before {
+  content: "\e654";
+}
+
+.icon-daoru:before {
+  content: "\e653";
+}
+
+.icon-zhongzhi:before {
+  content: "\e652";
+}
+
+.icon-tuichu:before {
+  content: "\e6b2";
+}
+
+.icon-kongzhuangzhongduan:before {
+  content: "\e6bb";
+}
+
+.icon-chexiao1:before {
+  content: "\e6e2";
+}
+
+.icon-xiangshang:before {
+  content: "\e650";
+}
+
+.icon-chakan-copy:before {
+  content: "\e651";
+}
+
+.icon-jurassic_edit-data:before {
+  content: "\e6f2";
+}
+
+.icon-jurassic_edit-table:before {
+  content: "\e6f3";
+}
+
+.icon-baobiaoshujuluru:before {
+  content: "\e7b5";
+}
+
+.icon-bofang5:before {
+  content: "\e656";
+}
+
+.icon-a-qingkong3x:before {
+  content: "\e64f";
+}
+
+.icon-shanchu:before {
+  content: "\e64e";
+}
+
+.icon-newdocumentworksheet:before {
+  content: "\e792";
+}
+
+.icon-file-excel:before {
+  content: "\e7b7";
+}
+
+.icon-file-markdown:before {
+  content: "\e7b8";
+}
+
+.icon-file-word:before {
+  content: "\e7ba";
+}
+
+.icon-HTML:before {
+  content: "\e87d";
+}
+
+.icon-HTML1:before {
+  content: "\e64d";
+}
+
+.icon-pdf:before {
+  content: "\e67a";
 }
 
 .icon-gerenyonghu:before {

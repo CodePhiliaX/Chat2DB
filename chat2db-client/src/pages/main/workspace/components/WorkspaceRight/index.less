@@ -1,0 +1,68 @@
+@import '../../../../../styles/var.less';
+
+.workspaceRight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  :global {
+    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--color-text) !important;
+      font-weight: 400;
+    }
+  }
+}
+
+.workspaceRightMain {
+  display: flex;
+}
+
+.workspaceExtend {
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border);
+  display: flex;
+}
+
+.tabs {
+  height: 100%;
+  width: 100%;
+}
+
+.tabBox {
+  flex: 1;
+  width: 0px;
+  height: 100%;
+}
+
+.activeConsoleBox {
+  display: block;
+}
+
+.ears {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+}
+
+.createButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  i {
+    margin-right: 10px;
+  }
+}

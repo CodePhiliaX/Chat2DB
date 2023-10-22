@@ -16,12 +16,9 @@ const chainWebpack = (config: any, { webpack }: any) => {
 
 export default defineConfig({
   title: 'Chat2DB',
-  history: {
-    type: 'hash',
-  },
   base: '/',
   publicPath: '/',
-  hash: false,
+  hash: true,
   routes: [
     { path: '/demo', component: '@/pages/demo' },
     { path: '/connections', component: 'main' },
@@ -49,12 +46,39 @@ export default defineConfig({
   targets: {
     chrome: 80,
   },
+  // links: [{
+  //   rel: 'manifest',
+  //   href: 'manifest.json',
+  // }],
+  links: [
+    {   rel:"icon",
+    type:"image/ico",
+    sizes:"32x32",
+    href:"/static/front/logo.ico" 
+  }
+  ],
   headScripts: [
-    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
       localStorage.clear();
-      localStorage.setItem('app-local-storage-versions', 'v2');
+      localStorage.setItem('app-local-storage-versions', 'v3');
     }`,
     `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    // `if ("serviceWorker" in navigator) {
+    //   window.addEventListener("load", function () {
+    //     navigator.serviceWorker
+    //       .register("sw.js")
+    //       .then(res => console.log("service worker registered"))
+    //       .catch(err => console.log("service worker not registered", err));
+    //   })
+    // }`,
+    // `var deferredPrompt = null;
+    // window.addEventListener("beforeinstallprompt", e => {
+    //   e.preventDefault();
+    //   deferredPrompt = e;
+    // });
+    // window.addEventListener("appinstalled", () => {
+    //   deferredPrompt = null;
+    // })`,
     {
       src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61',
       async: true,
@@ -73,7 +97,8 @@ export default defineConfig({
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
-    __APP_VERSION__: yarn_config.app_version || '0.0.0',
+    __APP_VERSION__: yarn_config.app_version || '9.9.9',
     __APP_PORT__: yarn_config.app_port,
   },
+  esbuildMinifyIIFE: true
 });

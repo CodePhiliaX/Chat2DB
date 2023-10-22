@@ -5,20 +5,24 @@ import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
 import ColumnList, { IColumnListRef } from './ColumnList';
 import BaseInfo, { IBaseInfoRef } from './BaseInfo';
-import sqlService, { IModifyTableSqlParams, IExecuteSqlParams } from '@/service/sql';
-import MonacoEditor from '@/components/Console/MonacoEditor';
-import { IEditTableInfo } from '@/typings';
+import sqlService, { IModifyTableSqlParams } from '@/service/sql';
+import ExecuteSQL from '@/components/ExecuteSQL';
+import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
+import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
 import lodash from 'lodash';
-
 interface IProps {
   dataSourceId: number;
   databaseName: string;
-  schemaName: string | undefined;
+  schemaName?: string | null;
   tableName?: string;
+  databaseType: DatabaseTypeCode;
+  changeTabDetails: (data: IWorkspaceTab) => void;
+  tabDetails: IWorkspaceTab;
 }
 
 interface ITabItem {
+  index: number;
   title: string;
   key: string;
   component: any; // TODO: 组件的Ts是什么
@@ -29,31 +33,53 @@ interface IContext extends IProps {
   baseInfoRef: React.RefObject<IBaseInfoRef>;
   columnListRef: React.RefObject<IColumnListRef>;
   indexListRef: React.RefObject<IIndexListRef>;
+  databaseSupportField: IDatabaseSupportField;
 }
 
 export const Context = createContext<IContext>({} as any);
 
+interface IOption {
+  label: string;
+  value: string | number | null;
+}
+
+// 列字段类型，select组件的options需要的数据结构
+interface IColumnTypesOption extends IColumnTypes {
+  label: string;
+  value: string | number | null;
+}
+export interface IDatabaseSupportField {
+  columnTypes: IColumnTypesOption[];
+  charsets: IOption[];
+  collations: IOption[];
+  indexTypes: IOption[];
+}
+
 export default memo((props: IProps) => {
-  const { databaseName, dataSourceId, tableName, schemaName } = props;
+  const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails, databaseType } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
-  const [viewSqlModal, setViewSqlModal] = useState<string | false>(false);
+  const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
+  const [appendValue, setAppendValue] = useState<string>('');
   const tabList = useMemo(() => {
     return [
       {
+        index: 0,
         title: i18n('editTable.tab.basicInfo'),
         key: 'basic',
         component: <BaseInfo ref={baseInfoRef} />,
       },
       {
+        index: 1,
         title: i18n('editTable.tab.columnInfo'),
         key: 'column',
         component: <ColumnList ref={columnListRef} />,
       },
       {
+        index: 2,
         title: i18n('editTable.tab.indexInfo'),
         key: 'index',
         component: <IndexList ref={indexListRef} />,
@@ -61,6 +87,12 @@ export default memo((props: IProps) => {
     ];
   }, []);
   const [currentTab, setCurrentTab] = useState<ITabItem>(tabList[0]);
+  const [databaseSupportField, setDatabaseSupportField] = useState<IDatabaseSupportField>({
+    columnTypes: [],
+    charsets: [],
+    collations: [],
+    indexTypes: [],
+  });
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item);
@@ -68,32 +100,79 @@ export default memo((props: IProps) => {
 
   useEffect(() => {
     if (tableName) {
+      getTableDetails();
+    }
+    getDatabaseFieldTypeList();
+  }, []);
+
+  // 获取数据库字段类型列表
+  const getDatabaseFieldTypeList = () => {
+    sqlService
+      .getDatabaseFieldTypeList({
+        dataSourceId,
+        databaseName,
+      })
+      .then((res) => {
+        const columnTypes =
+          res?.columnTypes?.map((i) => {
+            return {
+              ...i,
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        const charsets =
+          res?.charsets?.map((i) => {
+            return {
+              value: i.charsetName,
+              label: i.charsetName,
+            };
+          }) || [];
+
+        const collations =
+          res?.collations?.map((i) => {
+            return {
+              value: i.collationName,
+              label: i.collationName,
+            };
+          }) || [];
+
+        const indexTypes =
+          res?.indexTypes?.map((i) => {
+            return {
+              value: i.typeName,
+              label: i.typeName,
+            };
+          }) || [];
+
+        setDatabaseSupportField({
+          columnTypes,
+          charsets,
+          collations,
+          indexTypes,
+        });
+      });
+  };
+
+  const getTableDetails = (myParams?: { tableNameProps?: string }) => {
+    const { tableNameProps } = myParams || {};
+    const myTableName = tableNameProps || tableName;
+    if (myTableName) {
       const params = {
         databaseName,
         dataSourceId,
-        tableName,
+        tableName: myTableName,
         schemaName,
         refresh: true,
       };
       sqlService.getTableDetails(params).then((res) => {
         const newTableDetails = lodash.cloneDeep(res);
-        newTableDetails.indexList.forEach((i) => {
-          i.columnList = i.columnList.map((j: any) => {
-            let newColumn: any = {};
-            newTableDetails.columnList.forEach((k: any) => {
-              if (j.columnName === k.name) {
-                newColumn = k;
-              }
-            });
-            return newColumn;
-          });
-        });
-        console.log(newTableDetails);
         setTableDetails(newTableDetails || {});
         setOldTableDetails(res);
       });
     }
-  }, []);
+  };
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
@@ -113,28 +192,32 @@ export default memo((props: IProps) => {
       };
 
       if (tableName) {
-        params.tableName = tableName;
+        // params.tableName = tableName;
         params.oldTable = oldTableDetails;
       }
       sqlService.getModifyTableSql(params).then((res) => {
-        setViewSqlModal(res?.[0].sql);
+        setViewSqlModal(true);
+        setAppendValue(res?.[0].sql);
       });
     }
   }
 
-  const executeSql = () => {
-    const executeSQLParams: IExecuteSqlParams = {
-      sql: viewSqlModal || '',
-      dataSourceId,
-      databaseName,
-      schemaName,
-    };
-
-    // 获取当前SQL的查询结果
-    sqlService.executeSql(executeSQLParams).then((res) => {
-      message.success('修改成功');
-      setViewSqlModal(false);
-    });
+  const executeSuccessCallBack = () => {
+    setViewSqlModal(false);
+    message.success(i18n('common.text.successfulExecution'));
+    const newTableName = baseInfoRef.current?.getBaseInfo().name;
+    getTableDetails({ tableNameProps: newTableName });
+    if (!tableName) {
+      changeTabDetails({
+        ...tabDetails,
+        title: `${newTableName}`,
+        type: WorkspaceTabType.EditTable,
+        uniqueData: {
+          ...(tabDetails.uniqueData || {}),
+          tableName: newTableName,
+        },
+      });
+    }
   };
 
   return (
@@ -145,11 +228,13 @@ export default memo((props: IProps) => {
         baseInfoRef,
         columnListRef,
         indexListRef,
+        databaseSupportField,
+        databaseType,
       }}
     >
       <div className={classnames(styles.box)}>
         <div className={styles.header}>
-          <div className={styles.tabList}>
+          <div className={styles.tabList} style={{ '--i': currentTab.index } as any}>
             {tabList.map((item) => {
               return (
                 <div
@@ -179,25 +264,25 @@ export default memo((props: IProps) => {
         </div>
       </div>
       <Modal
-        title="sql预览"
+        title={i18n('editTable.title.sqlPreview')}
         open={!!viewSqlModal}
         onCancel={() => {
           setViewSqlModal(false);
         }}
-        okText="执行"
-        onOk={executeSql}
         width="60vw"
         maskClosable={false}
+        footer={false}
+        destroyOnClose={true}
       >
-        <div className={styles.monacoEditor}>
-          <MonacoEditor
-            id="view_sql"
-            appendValue={{
-              text: viewSqlModal,
-              range: 'reset',
-            }}
-          />
-        </div>
+        <ExecuteSQL
+          initSql={appendValue}
+          databaseName={databaseName}
+          dataSourceId={dataSourceId}
+          tableName={tableName}
+          schemaName={schemaName}
+          databaseType={databaseType}
+          executeSuccessCallBack={executeSuccessCallBack}
+        />
       </Modal>
     </Context.Provider>
   );

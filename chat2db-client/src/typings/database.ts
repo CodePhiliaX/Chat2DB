@@ -25,6 +25,9 @@ export interface IManageResultData {
   fuzzyTotal: string;
   hasNextPage: boolean;
   sqlType: 'SELECT' | 'UNKNOWN';
+  updateCount?: number; // 如果是修改的话。后端会返回修改的条数
+  canEdit?: boolean; // 返回的数据是否可以编辑
+  tableName?: string; // 如果可以编辑的话。后端会返回表名称。修改需要给后端传递表名
 }
 
 /** 查询结果 配置属性 */
@@ -40,6 +43,7 @@ export interface IDatabaseSupportField {
   columnTypes: IColumnTypes[];
   charsets: ICharset[];
   collations: ICollation[];
+  indexTypes: IIndexTypes[];
 }
 
 /** 字段所对应的 字符集*/
@@ -51,6 +55,11 @@ export interface ICharset {
 /** 排列规则*/
 export interface ICollation {
   collationName: string;
+}
+
+/** 索引的类型*/
+export interface IIndexTypes {
+  typeName: string;
 }
 
 /** 不同数据库支持的列字段类型  以及支持调整的选项*/
@@ -65,4 +74,6 @@ export interface IColumnTypes {
   supportLength: boolean; // 是否支持长度
   supportNullable: boolean; // 是否支持为空
   supportScale: boolean; // 是否支持小数位
+  supportValue: boolean; // 是否支持值
+  supportUnit: boolean; // 是否支持单位
 }

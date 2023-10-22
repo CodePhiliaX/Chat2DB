@@ -79,8 +79,8 @@ function Chart(props: IProps) {
   };
 
   const initCreateChart = async (dashboard?: IDashboardItem) => {
-    if(!dashboard) return;
-    
+    if (!dashboard) return;
+
     let chartId = await createChart({});
     const newDashboard = {
       ...dashboard,
@@ -242,7 +242,6 @@ function Chart(props: IProps) {
     );
   };
 
-  // console.log('form', form);
   return (
     <>
       <DraggableContainer className={cs(styles.box, className)}>
@@ -264,7 +263,6 @@ function Chart(props: IProps) {
         onOk={async () => {
           try {
             const values = await form.validateFields();
-            console.log('Success:', values);
             const formValue = form.getFieldsValue(true);
             const { id } = formValue;
 
@@ -278,7 +276,6 @@ function Chart(props: IProps) {
             form.resetFields();
           } catch (errorInfo) {
             form.resetFields();
-            console.log('Failed:', errorInfo);
           }
         }}
         onCancel={() => {

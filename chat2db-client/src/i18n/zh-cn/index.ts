@@ -9,6 +9,8 @@ import chat from './chat';
 import team from './team'
 import login from './login';
 import editTable from './editTable';
+import editTableData from './editTableData';
+import sqlEditor from './sqlEditor'
 
 export default {
   lang: LangType.ZH_CN,
@@ -22,5 +24,7 @@ export default {
   ...chat,
   ...team,
   ...login,
-  ...editTable
+  ...editTable,
+  ...editTableData,
+  ...sqlEditor
 };

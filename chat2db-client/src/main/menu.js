@@ -49,7 +49,8 @@ const registerAppMenu = (mainWindow) => {
       submenu: [
         {
           label: '刷新',
-          accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
+          // accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
+          accelerator: 'CmdOrCtrl+Shift+R',
           click() {
             const focusedWindow = BrowserWindow.getFocusedWindow();
             if (focusedWindow) {
@@ -83,7 +84,7 @@ const registerAppMenu = (mainWindow) => {
       submenu: [
         {
           label: '打开日志',
-          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
           click() {
             const fileName = '.chat2db/logs/application.log';
             const url = path.join(os.homedir(), fileName);
@@ -101,7 +102,21 @@ const registerAppMenu = (mainWindow) => {
         {
           label: '访问官网',
           click() {
-            const url = 'https://chat2db.opensource.alibaba.com/';
+            const url = 'https://chat2db.ai/';
+            shell.openExternal(url);
+          },
+        },
+        {
+          label: '查看文档',
+          click() {
+            const url = 'https://doc.chat2db.ai/';
+            shell.openExternal(url);
+          },
+        },
+        {
+          label: '查看更新日志',
+          click() {
+            const url = 'https://doc.chat2db.ai/changelog/';
             shell.openExternal(url);
           },
         },

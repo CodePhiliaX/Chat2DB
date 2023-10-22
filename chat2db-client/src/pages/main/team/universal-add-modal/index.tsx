@@ -7,7 +7,7 @@ import {
 import { IDataSourceVO, ITeamAndUserVO, ITeamVO, IUserVO, ManagementType, SearchType } from '@/typings/team';
 import { Modal, Select, Spin } from 'antd';
 import debounce from 'lodash/debounce';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styles from './index.less';
 import i18n from '@/i18n';
 
@@ -72,6 +72,10 @@ function UniversalAddModal(props: IProps) {
       return addAuthMap[type];
     }
   }, [type]);
+
+  useEffect(() => {
+    loadOptions('');
+  }, []);
 
   const loadOptions = (value: string) => {
     setOptions([]);
