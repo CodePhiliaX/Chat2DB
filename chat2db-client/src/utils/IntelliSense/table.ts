@@ -1,6 +1,7 @@
 import { DatabaseTypeCode } from '@/constants';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { addIntelliSenseField } from './field';
+import i18n from '@/i18n';
 
 /** 当前库下的表 */
 let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
@@ -72,7 +73,7 @@ const registerIntelliSenseTable = (
             label: {
               label: tableName.name,
               detail: databaseName ? `(${databaseName})` : null,
-              description: '表名',
+              description: i18n('sqlEditor.text.tableName'),
             },
             kind: monaco.languages.CompletionItemKind.Folder,
             insertText: handleInsertText(tableName.name, databaseCode),
