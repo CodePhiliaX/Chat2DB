@@ -85,8 +85,8 @@ const TreeNode = (props: TreeNodeIProps) => {
   const contentTextRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if(!data.comment){
-      return 
+    if (!data.comment) {
+      return;
     }
     if (contentTextRef.current) {
       const contentTextRefDom = contentTextRef.current;
@@ -194,7 +194,12 @@ const TreeNode = (props: TreeNodeIProps) => {
 
   return show ? (
     <>
-      <Tooltip open={openTooltipComment} placement="right" color={window._AppThemePack.colorPrimary} title={data.comment}>
+      <Tooltip
+        open={openTooltipComment}
+        placement="right"
+        color={window._AppThemePack.colorPrimary}
+        title={data.comment}
+      >
         <div className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}>
           <div className={styles.left}>
             {indentArr.map((item, i) => {

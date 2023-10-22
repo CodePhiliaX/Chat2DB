@@ -3,16 +3,16 @@ import { connect } from 'umi';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { ConsoleOpenedStatus, ConsoleStatus, OSType, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
+import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import TabsNew, { ITabItem } from '@/components/TabsNew';
-import WorkspaceExtend from '../WorkspaceExtend';
+// import WorkspaceExtend from '../WorkspaceExtend';
+import SearchResult from '@/components/SearchResult';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
-import EditTableData from '@/blocks/EditTableData';
 import SQLExecute from '@/blocks/SQLExecute';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
@@ -27,6 +27,7 @@ import {
 } from '@/utils/IntelliSense';
 import indexedDB from '@/indexedDB';
 import { osNow } from '@/utils';
+import { compatibleDataBaseName } from '@/utils/database';
 
 interface IProps {
   className?: string;
@@ -71,11 +72,11 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // 如果是mac系统
-      if(osNow().isMac){
+      if (osNow().isMac) {
         if (e.metaKey && e.shiftKey && e.code === 'KeyL') {
           addConsole();
         }
-      }else{
+      } else {
         if (e.ctrlKey && e.shiftKey && e.code === 'KeyL') {
           addConsole();
         }
@@ -290,29 +291,23 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     }
 
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
-      // 如果workspaceTabList没有可以添加select * from table的地方那么才需要创建
-      const flag = workspaceTabList.some((t) =>
-        [
-          WorkspaceTabType.CONSOLE,
-          WorkspaceTabType.FUNCTION,
-          WorkspaceTabType.PROCEDURE,
-          WorkspaceTabType.TRIGGER,
-          WorkspaceTabType.VIEW,
-        ].includes(t.type),
-      );
-      if (flag) {
-        return;
-      }
       const { extraParams } = doubleClickTreeNodeData;
-      const { databaseName, schemaName, tableName } = extraParams || {};
-      const ddl = `SELECT * FROM ${tableName};\n`;
-      const name = [databaseName, schemaName, 'console'].filter((t) => t).join('-');
-      createConsole({
-        doubleClickTreeNodeData,
-        workSpaceTabType: WorkspaceTabType.CONSOLE,
-        name,
-        ddl,
-      });
+      const { tableName } = extraParams || {};
+      const sql = `SELECT * FROM ${compatibleDataBaseName(tableName!, curWorkspaceParams.databaseType)};\n`;
+      const title = tableName!;
+      const id = uuidV4();
+      setWorkspaceTabList([
+        ...(workspaceTabList || []),
+        {
+          id,
+          title,
+          type: WorkspaceTabType.EditTableData,
+          uniqueData: {
+            sql,
+          },
+        },
+      ]);
+      setActiveConsoleId(id);
     }
 
     dispatch({
@@ -570,13 +565,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               />
             )}
             {t.type === WorkspaceTabType.EditTableData && (
-              <EditTableData
-                dataSourceId={curWorkspaceParams.dataSourceId}
-                databaseName={curWorkspaceParams.databaseName!}
-                databaseType={curWorkspaceParams?.databaseType}
-                schemaName={curWorkspaceParams?.schemaName}
-                tableName={uniqueData.tableName}
-              />
+              <SearchResult sql={uniqueData.sql} executeSqlParams={curWorkspaceParams} />
             )}
           </Fragment>
         ),

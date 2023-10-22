@@ -6,6 +6,83 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "29290564",
+      "name": "发送",
+      "font_class": "fasong",
+      "unicode": "100bd",
+      "unicode_decimal": 65725
+    },
+    {
+      "icon_id": "8765142",
+      "name": "重启",
+      "font_class": "zhongqi",
+      "unicode": "e662",
+      "unicode_decimal": 58978
+    },
+    {
+      "icon_id": "673801",
+      "name": "提醒",
+      "font_class": "tixing2",
+      "unicode": "e6cc",
+      "unicode_decimal": 59084
+    },
+    {
+      "icon_id": "13646873",
+      "name": "提醒",
+      "font_class": "tixing3",
+      "unicode": "e661",
+      "unicode_decimal": 58977
+    },
+    {
+      "icon_id": "3457210",
+      "name": "提醒",
+      "font_class": "tixing1",
+      "unicode": "e716",
+      "unicode_decimal": 59158
+    },
+    {
+      "icon_id": "3814162",
+      "name": "升级",
+      "font_class": "shengji",
+      "unicode": "e69c",
+      "unicode_decimal": 59036
+    },
+    {
+      "icon_id": "12437192",
+      "name": "快速升级",
+      "font_class": "kuaisushengjix",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "3141572",
+      "name": "全局_升级",
+      "font_class": "quanju_shengji",
+      "unicode": "e659",
+      "unicode_decimal": 58969
+    },
+    {
+      "icon_id": "4171088",
+      "name": "关于我们",
+      "font_class": "guanyuwomen1",
+      "unicode": "e65c",
+      "unicode_decimal": 58972
+    },
+    {
+      "icon_id": "1285185",
+      "name": "ico版本更新",
+      "font_class": "icobanbengengxin",
+      "unicode": "e67d",
+      "unicode_decimal": 59005
+    },
+    {
+      "icon_id": "5203239",
+      "name": "对话气泡",
+      "font_class": "duihuaqipao",
+      "unicode": "e657",
+      "unicode_decimal": 58967
+    },
+    {
       "icon_id": "12694416",
       "name": "角色权限",
       "font_class": "jiaosequanxian",

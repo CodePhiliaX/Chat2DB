@@ -55,11 +55,8 @@
       overflow: hidden !important;
       top: 0px !important;
     }
-    .art-table-body {
-      // 隐藏滚动条
-      ::-webkit-scrollbar {
-        display: none;
-      }
+    .art-table-body::-webkit-scrollbar {
+      display: none;
     }
     .art-table-body-scroll {
       padding-right: 6px;
@@ -189,13 +186,15 @@
   background-color: var(--color-bg-base);
 
   .tableItemContent {
-    overflow: hidden;
     max-height: 30px;
     line-height: 30px;
     flex: 1;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
     &:hover {
-      overflow: auto;
-      line-height: 16px;
+      overflow-x: auto;
+      // line-height: 14px;
     }
   }
 
