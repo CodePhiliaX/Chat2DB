@@ -1,4 +1,4 @@
-import { ThemeType, OSType, DatabaseTypeCode } from '@/constants';
+import { ThemeType, OSType, DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { ITreeNode } from '@/typings';
 import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
@@ -257,4 +257,18 @@ export function getCookie(name: string) {
     return decodeURIComponent(arr[2]);
   }
   return null;
+}
+
+// 注释出参的含义
+export function compareVersion(version1: string, version2: string) {
+  const version1Arr = version1.split('.');
+  const version2Arr = version2.split('.');
+    const v1 = Number(version1Arr.join('')) ;
+    const v2 =  Number(version2Arr.join(''));
+    if (v1 > v2) {
+      return 1;
+    } else if (v1 < v2) {
+      return -1;
+    }
+  return 0;
 }

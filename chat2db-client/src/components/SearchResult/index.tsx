@@ -6,6 +6,7 @@ import StateIndicator from '@/components/StateIndicator';
 import Output from '@/components/Output';
 import { IManageResultData } from '@/typings';
 import TableBox from './TableBox';
+import StatusBar from './StatusBar';
 import styles from './index.less';
 import EmptyImg from '@/assets/img/empty.svg';
 import i18n from '@/i18n';
@@ -42,16 +43,16 @@ export default memo<IProps>((props) => {
                 executeSqlParams={props.executeSqlParams}
               />
             ) : (
-              <div className={styles.updateCount}>{i18n('common.text.affectedRows', queryResultData.updateCount)}</div>
-            )}
-          </div>
-          <div className={styles.statusBar}>
-            <span>{`【${i18n('common.text.result')}】${queryResultData.description}.`}</span>
-            <span>{`【${i18n('common.text.timeConsuming')}】${queryResultData.duration}ms.`}</span>
-            {!!queryResultData?.dataList?.length && (
-              <span>{`【${i18n('common.text.searchRow')}】${queryResultData?.dataList?.length} ${i18n(
-                'common.text.row',
-              )}.`}</span>
+              <div className={styles.updateCountBox}>
+                <div className={styles.updateCount}>
+                  {i18n('common.text.affectedRows', queryResultData.updateCount)}
+                </div>
+                <StatusBar
+                  dataLength={queryResultData?.dataList?.length}
+                  duration={queryResultData.duration}
+                  description={queryResultData.description}
+                />
+              </div>
             )}
           </div>
         </div>
