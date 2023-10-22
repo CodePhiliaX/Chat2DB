@@ -1,5 +1,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import sqlService from '@/service/sql';
+import i18n from '@/i18n';
 
 let fieldList: Record<string, Array<{ name: string; tableName: string }>> = {};
 
@@ -48,7 +49,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
   intelliSenseField.dispose();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', ',','.', '('],
+    triggerCharacters: [' ', ',', '.', '('],
     provideCompletionItems: async (model, position) => {
       // 获取到当前行文本
       const textUntilPosition = model.getValueInRange({
@@ -84,7 +85,7 @@ const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseNa
           label: {
             label: fieldObj.name,
             detail: `(${fieldObj.tableName})`,
-            description: '字段名',
+            description: i18n('sqlEditor.text.fieldName'),
           },
           kind: monaco.languages.CompletionItemKind.Field,
           insertText: fieldObj.name,
