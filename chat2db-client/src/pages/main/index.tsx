@@ -177,6 +177,7 @@ function MainPage(props: IProps) {
           ],
         }}
         placement="bottomRight"
+        trigger={['click']}
       >
         <div className={styles.userBox}>
           <Iconfont code="&#xe64c;" className={styles.questionIcon} />
