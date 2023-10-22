@@ -1,15 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 import styles from './index.less';
-// import i18n from '@/i18n';
+import i18n from '@/i18n';
 import BrandLogo from '@/components/BrandLogo';
 import { APP_NAME, WEBSITE_DOC } from '@/constants/appConfig';
-// import { formatDate, getUserTimezoneTimestamp } from '@/utils/date';
 import { Button, Radio, Space } from 'antd';
 import configService from '@/service/config';
-import { DownloadOutlined,RedoOutlined } from '@ant-design/icons';
+import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
-import i18n from '@/i18n';
 
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
@@ -44,7 +42,7 @@ export default function AboutUs(props: IProps) {
         return (
           <Button
             onClick={() => {
-              updateDetectionRef?.current?.openDownload();
+              updateDetectionRef?.current?.openDownload(updateDetectionData);
             }}
             icon={<DownloadOutlined />}
             type="primary"
@@ -58,16 +56,14 @@ export default function AboutUs(props: IProps) {
             {i18n('setting.button.beDownloading')}
           </Button>
         );
-      // 超时后端如何处理 TODO:
       case UpdatedStatusEnum.TIMEOUT:
         return (
           <Button
             onClick={() => {
-              updateDetectionRef?.current?.openDownload();
+              updateDetectionRef?.current?.openDownload(updateDetectionData);
             }}
             icon={<DownloadOutlined />}
             type="primary"
-            loading
           >
             {i18n('setting.button.redownload')}
           </Button>
@@ -95,7 +91,7 @@ export default function AboutUs(props: IProps) {
           <div className={styles.newVersion}>
             {updateDetectionData?.needUpdate ? (
               UpdatedStatusEnum.UPDATED === updateDetectionData?.updatedStatusEnum ?
-              <span>{i18n('setting.text.RestartingInstall')}</span>
+              <span>{i18n('setting.text.newEditionIsReady')}</span>
               :
               <span>{i18n('setting.text.discoverNewVersion', updateDetectionData?.version)}</span>
             ) : (

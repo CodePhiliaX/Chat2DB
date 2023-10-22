@@ -132,7 +132,7 @@ jobs:
         run: |
           cd chat2db-client
           yarn install 
-          yarn run build:web:prod --app_version=99.1.${{ github.run_id }} --app_port=10822
+          yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
 
@@ -145,23 +145,23 @@ jobs:
         run: |
           cd chat2db-client
           mkdir versions
-          mkdir versions/99.1.${{ github.run_id }}
-          mkdir versions/99.1.${{ github.run_id }}/static
+          mkdir versions/99.0.${{ github.run_id }}
+          mkdir versions/99.0.${{ github.run_id }}/static
           touch version
-          echo -n 99.1.${{ github.run_id }} > version
+          echo -n 99.0.${{ github.run_id }} > version
           cp -r version ./versions/
 
       # 复制服务端java 到指定位置
       - name: Copy App
         run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.1.${{ github.run_id }}/static/
-          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/99.1.${{ github.run_id }}/static/lib
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
+          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/99.0.${{ github.run_id }}/static/lib
 
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
-          yarn run build:web:desktop --app_version=99.1.${{ github.run_id }} --app_port=10822
-          cp -r dist ./versions/99.1.${{ github.run_id }}/
+          yarn run build:web:desktop --app_version=99.0.${{ github.run_id }} --app_port=10822
+          cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
       # windows
@@ -174,7 +174,7 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.win.publisherName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.1.${{ github.run_id }}-Test --win --x64"
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.win.publisherName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --win --x64"
 
       # macos amd64
       - name: Build/release Electron app for MacOS X64
@@ -186,13 +186,13 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.1.${{ github.run_id }}-Test --mac --x64"
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --mac --x64"
 
       # amd64 notarization
       - name: Notarization amd64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
-          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.1.${{ github.run_id }}-Test.dmg
+          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg
 
       # macos arm64
       - name: Build/release Electron app for MacOS arm64
@@ -204,13 +204,13 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_password }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.1.${{ github.run_id }}-Test --mac --arm64"
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --mac --arm64"
 
       # arm notarization
       - name: Notarization arm64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
-          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.1.${{ github.run_id }}-Test-arm64.dmg
+          xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg
 
       # Linux
       - name: Delete File
@@ -228,7 +228,7 @@ jobs:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.1.${{ github.run_id }}-Test --linux"
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --linux"
 
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
@@ -242,11 +242,11 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'amd64' }}
         run: |
           mkdir oss_temp_file
-          cp chat2db-client/versions/99.1.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
+          cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
-          cp -r chat2db-client/versions/99.1.${{ github.run_id }}/dist ./oss_temp_file/dist
-          cd chat2db-client/versions/99.1.${{ github.run_id }}/ && zip -r 99.1.${{ github.run_id }}.zip ./
-          cp -r 99.1.${{ github.run_id }}.zip ../../../oss_temp_file
+          cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
+          cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
+          cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
           cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
@@ -274,7 +274,7 @@ jobs:
           ossutil-version: "1.7.16"
       - name: Upload to oss
         run: |
-          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.1.${{ github.run_id }}/
+          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
 
       # 构建完成通知
       - name: Send dingtalk message for Windows
@@ -286,7 +286,7 @@ jobs:
           content: |
             {
               "title": "Windows-test-打包完成通知",
-              "text": "# Windows-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.1.${{ github.run_id }}-Test.exe](https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.1.${{ github.run_id }}-Test.exe) "
+              "text": "# Windows-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
             }
 
       # 构建完成通知
@@ -299,7 +299,7 @@ jobs:
           content: |
             {
               "title": "MacOS-amd64-test-构建完成通知",
-              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test.dmg](https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/chat2db-server-start.zip) "
+              "text": "# MacOS-amd64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
             }
 
       # 构建完成通知
@@ -312,7 +312,7 @@ jobs:
           content: |
             {
               "title": "MacOS-arm64-test-构建完成通知",
-              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test-arm64.dmg](https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test-arm64.dmg) "
+              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
             }
 
       # 构建完成通知
@@ -325,5 +325,5 @@ jobs:
           content: |
             {
               "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test.AppImage](https://oss.sqlgpt.cn/test/99.1.${{ github.run_id }}/Chat2DB-Test-99.1.${{ github.run_id }}-Test.AppImage) "
+              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
             }
