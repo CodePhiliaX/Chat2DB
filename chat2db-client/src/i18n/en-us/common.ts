@@ -100,4 +100,5 @@ export default {
   'common.Button.addSchema': 'Add schema',
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
+  'common.title.create': 'Create',
 };

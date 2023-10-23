@@ -42,7 +42,7 @@ const UpdateDetection = memo(
     const timesRef = React.useRef(0);
 
     useEffect(() => {
-      // checkUpdate();
+      checkUpdate();
     }, []);
 
     const close = () => {};
