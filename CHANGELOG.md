@@ -9,7 +9,7 @@
 - ⚡️【Optimize】The queried data supports editing and modification in the large popup window of the view
 - ⚡️【Optimize】Example Query the page loading effect of data
 - ⚡️【Optimize】Keep the top focused tab always in the viewable area
-- ⚡️【Optimize】Query data cell does not have the problem of rolling nail bar
+- ⚡️【Optimize】Query data cell does not have scroll bar problem
 
 **更新日志**
 - ⭐【新功能】支持可视化创建数据库
@@ -20,7 +20,7 @@
 - ⚡️【优化】查询的数据支持在查看的大的弹窗中编辑修改
 - ⚡️【优化】查询数据翻页loading效果
 - ⚡️【优化】保持顶部聚焦的tab永远在可视区域内
-- ⚡️【优化】查询数据单元格没有滚钉条问题
+- ⚡️【优化】查询数据单元格没有滚动条问题
 
 
 # 3.0.4
