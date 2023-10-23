@@ -355,6 +355,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 更新表名提示
   useUpdateEffect(() => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    if (dataSourceId === null || dataSourceId === undefined) {
+      return;
+    }
     sqlService
       .getAllTableList({
         dataSourceId,
