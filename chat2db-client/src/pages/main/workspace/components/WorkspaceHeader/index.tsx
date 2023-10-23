@@ -7,7 +7,7 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
 import { Cascader, Spin, Modal, Tag, Divider } from 'antd';
-import { databaseMap, TreeNodeType } from '@/constants';
+import { databaseMap, TreeNodeType, DatabaseTypeCode } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
@@ -26,6 +26,12 @@ interface IOption {
   label: string | React.ReactNode;
   value: number | string;
 }
+
+// 不支持创建数据库的数据库类型
+const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
+
+// 不支持创建schema的数据库类型
+const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
 
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
@@ -291,15 +297,20 @@ const WorkspaceHeader = memo<IProps>((props) => {
                     <div>
                       {menu}
                       <Divider style={{ margin: 0 }} />
-                      <div
-                        className={styles.dropdownFooter}
-                        onClick={() => {
-                          createDatabaseRef.current?.setOpen(true);
-                        }}
-                      >
-                        <Iconfont code="&#xe631;" />
-                        添加数据库
-                      </div>
+                      {
+                        // 不支持创建数据库的数据库类型
+                        !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
+                          <div
+                            className={styles.dropdownFooter}
+                            onClick={() => {
+                              createDatabaseRef.current?.setOpen(true, 'database');
+                            }}
+                          >
+                            <Iconfont code="&#xe631;" />
+                            {i18n('common.Button.addDatabase')}
+                          </div>
+                        )
+                      }
                     </div>
                   );
                 }}
@@ -334,15 +345,20 @@ const WorkspaceHeader = memo<IProps>((props) => {
                     <div>
                       {menu}
                       <Divider style={{ margin: 0 }} />
-                      <div
-                        className={styles.dropdownFooter}
-                        onClick={() => {
-                          createDatabaseRef.current?.setOpen(true, 'datasource');
-                        }}
-                      >
-                        <Iconfont code="&#xe631;" />
-                        添加Schema
-                      </div>
+                      {
+                        // 不支持创建schema的数据库类型
+                        !notSupportCreateSchemaType.includes(curWorkspaceParams?.databaseType) && (
+                          <div
+                            className={styles.dropdownFooter}
+                            onClick={() => {
+                              createDatabaseRef.current?.setOpen(true, 'schema');
+                            }}
+                          >
+                            <Iconfont code="&#xe631;" />
+                            {i18n('common.Button.addSchema')}
+                          </div>
+                        )
+                      }
                     </div>
                   );
                 }}

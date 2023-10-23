@@ -40,10 +40,9 @@ const UpdateDetection = memo(
     const { openSettingModal, updateDetectionData, setUpdateDetectionData } = props;
     const [notificationApi, notificationDom] = notification.useNotification();
     const timesRef = React.useRef(0);
-    console.log(updateDetectionData);
 
     useEffect(() => {
-      checkUpdate();
+      // checkUpdate();
     }, []);
 
     const close = () => {};
