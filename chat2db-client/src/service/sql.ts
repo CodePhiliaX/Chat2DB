@@ -298,7 +298,7 @@ const getCreateDatabaseSql = createRequest<{
 const getCreateSchemaSql = createRequest<{
   dataSourceId: number;
   databaseName?: string;
-  schemaName: string;
+  schemaName?: string;
 }, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
 
 export default {

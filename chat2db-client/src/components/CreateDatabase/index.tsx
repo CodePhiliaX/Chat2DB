@@ -1,10 +1,12 @@
-import React, { forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input, Modal } from 'antd';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
 import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
+import i18n from '@/i18n';
+import { debounce } from 'lodash';
 
 interface IProps {
   className?: string;
@@ -12,20 +14,21 @@ interface IProps {
   executedCallback?: () => void;
 }
 
-type CreateType = 'database' | 'datasource';
+export type CreateType = 'database' | 'schema';
 
 export interface ICreateDatabaseRef {
   setOpen: (open: boolean, type?: CreateType) => void;
 }
 
 export interface ICreateDatabase {
-  databaseName: string;
+  databaseName?: string;
+  schemaName?: string;
   comment?: string;
 }
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
   const { className, curWorkspaceParams, executedCallback } = props;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<ICreateDatabase>();
   const monacoEditorUuid = useMemo(() => uuid(), []);
   const monacoEditorRef = React.useRef<IExportRefFunction>(null);
   const [open, setOpen] = useState(false);
@@ -46,12 +49,12 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
   const config = useMemo(() => {
     return createType === 'database'
       ? {
-          title: 'Create Database',
+          title: `${i18n('common.title.create')} Database`,
           api: sqlService.getCreateDatabaseSql,
           formName: 'databaseName',
         }
       : {
-          title: 'Create Schema',
+          title: `${i18n('common.title.create')} Schema`,
           api: sqlService.getCreateSchemaSql,
           formName: 'schemaName',
         };
@@ -68,18 +71,28 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
 
   const labelCol = { flex: '70px' };
 
-  const handleFieldsChange = () => {
-    const params = {
-      databaseType: curWorkspaceParams.databaseType,
-      dataSourceId: curWorkspaceParams.dataSourceId,
-      databaseName: curWorkspaceParams.databaseName,
-      ...form.getFieldsValue(),
-    };
-    config.api(params).then((res) => {
-      const { sql } = res;
-      monacoEditorRef.current?.setValue(sql, 'cover');
-    });
-  };
+  const handleFieldsChange = useCallback(
+    debounce(() => {
+      const formData: ICreateDatabase = form.getFieldsValue();
+      if (!formData.databaseName && createType === 'database') {
+        return;
+      }
+      if (!formData.schemaName && createType === 'schema') {
+        return;
+      }
+      const params = {
+        databaseType: curWorkspaceParams.databaseType,
+        dataSourceId: curWorkspaceParams.dataSourceId,
+        databaseName: curWorkspaceParams.databaseName,
+        ...formData,
+      };
+      config.api(params).then((res) => {
+        const { sql } = res;
+        monacoEditorRef.current?.setValue(sql, 'cover');
+      });
+    }, 500),
+    [],
+  );
 
   const executeUpdateDataSql = (sql: string) => {
     const params: any = {
@@ -95,7 +108,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
       .then((res) => {
         if (res.success) {
           setOpen(false);
-          executedCallback();
+          executedCallback?.();
         } else {
           setErrorMessage(res);
         }
@@ -123,15 +136,15 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
     >
       <div className={classnames(styles.box, className)}>
         <Form labelAlign="left" form={form} labelCol={labelCol} onFieldsChange={handleFieldsChange} name="create">
-          <Form.Item label="Name" name={config.formName}>
+          <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
           </Form.Item>
-          <Form.Item label="Comment" name="comment">
+          <Form.Item label={i18n('common.label.comment')} name="comment">
             <Input autoComplete="off" />
           </Form.Item>
         </Form>
         <div className={styles.previewBox}>
-          <div className={styles.previewText}>Preview</div>
+          <div className={styles.previewText}>{i18n('common.title.preview')}</div>
           <div className={styles.previewLine} />
         </div>
         <div className={styles.monacoEditorBox}>
@@ -146,7 +159,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         {errorMessage && (
           <>
             <div className={classnames(styles.previewBox, styles.errorBox)}>
-              <div className={styles.previewText}>Error</div>
+              <div className={styles.previewText}>{i18n('common.title.errorMessage')}</div>
               <div className={styles.previewLine} />
             </div>
             <div>{errorMessage.message}</div>
