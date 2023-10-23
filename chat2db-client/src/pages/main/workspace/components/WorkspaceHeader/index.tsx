@@ -7,7 +7,7 @@ import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
 import { Cascader, Spin, Modal, Tag, Divider } from 'antd';
-import { databaseMap, TreeNodeType } from '@/constants';
+import { databaseMap, TreeNodeType, DatabaseTypeCode } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
@@ -27,6 +27,12 @@ interface IOption {
   value: number | string;
 }
 
+// 不支持创建数据库的数据库类型
+const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
+
+// 不支持创建schema的数据库类型
+const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
+
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
   const { connectionList, curConnection } = connectionModel;
@@ -38,21 +44,18 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
   const [isRefresh, setIsRefresh] = useState(false);
-  const databaseNameRef = React.useRef<HTMLDivElement>(null);
-  const [openDBCascaderDropdown, setOpenDBCascaderDropdown] = useState(false);
-  const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState(false);
+  const [openDBCascaderDropdown, setOpenDBCascaderDropdown] = useState<false | undefined>(undefined);
+  const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState<false | undefined>(undefined);
   const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
 
   useEffect(() => {
-    const handleClick = () => {
-      setOpenDBCascaderDropdown(false);
-      setOpenSchemaCascaderDropdown(false);
-    };
-    document.addEventListener('click', handleClick);
-    return () => {
-      document.removeEventListener('click', handleClick);
-    };
-  }, [databaseNameRef.current]);
+    if (openDBCascaderDropdown === false) {
+      setOpenDBCascaderDropdown(undefined);
+    }
+    if (openSchemaCascaderDropdown === false) {
+      setOpenSchemaCascaderDropdown(undefined);
+    }
+  }, [openDBCascaderDropdown, openSchemaCascaderDropdown]);
 
   useEffect(() => {
     if (curPage !== 'workspace') {
@@ -60,7 +63,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
     }
     // 如果没有curConnection默认选第一个
     if (!curConnection?.id && connectionList.length) {
-      connectionChange([connectionList[0].id], [connectionList[0]]);
+      connectionChange([connectionList[0].id]);
       return;
     }
     // 如果都有的话
@@ -68,7 +71,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
       // 如果curConnection不再connectionList里，也是默认选第一个
       const flag = connectionList.findIndex((t: any) => t.id === curConnection?.id);
       if (flag === -1) {
-        connectionChange([connectionList[0].id], [connectionList[0]]);
+        connectionChange([connectionList[0].id]);
         return;
       }
 
@@ -134,7 +137,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           dataSourceName: curConnection.name,
         },
       })
-      .then((res) => {
+      .then((res: any) => {
         const dbList =
           res?.map((t) => {
             return {
@@ -171,7 +174,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           dataSourceName: curConnection.name,
         },
       })
-      .then((res) => {
+      .then((res: any) => {
         const schemaList =
           res?.map((t) => {
             return {
@@ -291,15 +294,21 @@ const WorkspaceHeader = memo<IProps>((props) => {
                     <div>
                       {menu}
                       <Divider style={{ margin: 0 }} />
-                      <div
-                        className={styles.dropdownFooter}
-                        onClick={() => {
-                          createDatabaseRef.current?.setOpen(true);
-                        }}
-                      >
-                        <Iconfont code="&#xe631;" />
-                        添加数据库
-                      </div>
+                      {
+                        // 不支持创建数据库的数据库类型
+                        !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
+                          <div
+                            className={styles.dropdownFooter}
+                            onClick={() => {
+                              setOpenDBCascaderDropdown(false);
+                              createDatabaseRef.current?.setOpen(true, 'database');
+                            }}
+                          >
+                            <Iconfont code="&#xe631;" />
+                            {i18n('common.Button.addDatabase')}
+                          </div>
+                        )
+                      }
                     </div>
                   );
                 }}
@@ -307,15 +316,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 bordered={false}
                 value={[curWorkspaceParams?.databaseName || '']}
               >
-                <div
-                  className={styles.crumbsItem}
-                  onClick={() => {
-                    // 这里我拿不到这个div的ref，无法在document的的点击事件里过滤掉 ，所以用了setTimeout
-                    setTimeout(() => {
-                      setOpenDBCascaderDropdown(!openDBCascaderDropdown);
-                    }, 0);
-                  }}
-                >
+                <div className={styles.crumbsItem}>
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
                 </div>
               </Cascader>
@@ -334,28 +335,26 @@ const WorkspaceHeader = memo<IProps>((props) => {
                     <div>
                       {menu}
                       <Divider style={{ margin: 0 }} />
-                      <div
-                        className={styles.dropdownFooter}
-                        onClick={() => {
-                          createDatabaseRef.current?.setOpen(true, 'datasource');
-                        }}
-                      >
-                        <Iconfont code="&#xe631;" />
-                        添加Schema
-                      </div>
+                      {
+                        // 不支持创建schema的数据库类型
+                        !notSupportCreateSchemaType.includes(curWorkspaceParams?.databaseType) && (
+                          <div
+                            className={styles.dropdownFooter}
+                            onClick={() => {
+                              setOpenDBCascaderDropdown(false);
+                              createDatabaseRef.current?.setOpen(true, 'schema');
+                            }}
+                          >
+                            <Iconfont code="&#xe631;" />
+                            {i18n('common.Button.addSchema')}
+                          </div>
+                        )
+                      }
                     </div>
                   );
                 }}
               >
-                <div
-                  className={styles.crumbsItem}
-                  onClick={() => {
-                    // 这里我拿不到这个div的ref，无法在document的的点击事件里过滤掉 ，所以用了setTimeout
-                    setTimeout(() => {
-                      setOpenSchemaCascaderDropdown(!openDBCascaderDropdown);
-                    }, 0);
-                  }}
-                >
+                <div className={styles.crumbsItem}>
                   <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
                 </div>
               </Cascader>
