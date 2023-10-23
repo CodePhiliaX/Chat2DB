@@ -1,4 +1,4 @@
-import React, { forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input, Modal } from 'antd';
@@ -6,6 +6,7 @@ import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEdi
 import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';
+import { debounce } from 'lodash';
 
 interface IProps {
   className?: string;
@@ -20,13 +21,14 @@ export interface ICreateDatabaseRef {
 }
 
 export interface ICreateDatabase {
-  databaseName: string;
+  databaseName?: string;
+  schemaName?: string;
   comment?: string;
 }
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
   const { className, curWorkspaceParams, executedCallback } = props;
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<ICreateDatabase>();
   const monacoEditorUuid = useMemo(() => uuid(), []);
   const monacoEditorRef = React.useRef<IExportRefFunction>(null);
   const [open, setOpen] = useState(false);
@@ -47,12 +49,12 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
   const config = useMemo(() => {
     return createType === 'database'
       ? {
-          title: 'Create Database',
+          title: `${i18n('common.title.create')} Database`,
           api: sqlService.getCreateDatabaseSql,
           formName: 'databaseName',
         }
       : {
-          title: 'Create Schema',
+          title: `${i18n('common.title.create')} Schema`,
           api: sqlService.getCreateSchemaSql,
           formName: 'schemaName',
         };
@@ -69,18 +71,28 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
 
   const labelCol = { flex: '70px' };
 
-  const handleFieldsChange = () => {
-    const params = {
-      databaseType: curWorkspaceParams.databaseType,
-      dataSourceId: curWorkspaceParams.dataSourceId,
-      databaseName: curWorkspaceParams.databaseName,
-      ...form.getFieldsValue(),
-    };
-    config.api(params).then((res) => {
-      const { sql } = res;
-      monacoEditorRef.current?.setValue(sql, 'cover');
-    });
-  };
+  const handleFieldsChange = useCallback(
+    debounce(() => {
+      const formData: ICreateDatabase = form.getFieldsValue();
+      if (!formData.databaseName && createType === 'database') {
+        return;
+      }
+      if (!formData.schemaName && createType === 'schema') {
+        return;
+      }
+      const params = {
+        databaseType: curWorkspaceParams.databaseType,
+        dataSourceId: curWorkspaceParams.dataSourceId,
+        databaseName: curWorkspaceParams.databaseName,
+        ...formData,
+      };
+      config.api(params).then((res) => {
+        const { sql } = res;
+        monacoEditorRef.current?.setValue(sql, 'cover');
+      });
+    }, 500),
+    [],
+  );
 
   const executeUpdateDataSql = (sql: string) => {
     const params: any = {

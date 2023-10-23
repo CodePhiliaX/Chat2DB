@@ -99,4 +99,5 @@ export default {
   'common.Button.addSchema': '添加Schema',
   'common.label.comment': '备注',
   'common.label.name': '名称',
+  'common.title.create': '创建',
 };
