@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import classnames from 'classnames';
-import TabsNew from '@/components/TabsNew';
+import Tabs from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 // import Output from '@/components/Output';
@@ -181,7 +181,7 @@ export default memo<IProps>((props) => {
       ) : (
         <>
           {tabsList?.length ? (
-            <TabsNew
+            <Tabs
               hideAdd
               // concealTabHeader={outputTabAndTabsList?.length === 1}
               className={styles.tabs}

@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
-import TabsNew, { ITabItem } from '@/components/TabsNew';
+import Tabs, { ITabItem } from '@/components/Tabs';
 // import WorkspaceExtend from '../WorkspaceExtend';
 import SearchResult from '@/components/SearchResult';
 import Iconfont from '@/components/Iconfont';
@@ -28,6 +28,7 @@ import {
 import indexedDB from '@/indexedDB';
 import { osNow } from '@/utils';
 import { compatibleDataBaseName } from '@/utils/database';
+import lodash from 'lodash';
 
 interface IProps {
   className?: string;
@@ -50,6 +51,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
 
   useEffect(() => {
     setActiveConsoleId(null);
+    setWorkspaceTabList([]);
   }, [curWorkspaceParams]);
 
   // 根据保存的console列表生成tab列表
@@ -62,7 +64,26 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         uniqueData: t,
       };
     });
-    setWorkspaceTabList(newTabList || []);
+    console.log(workspaceTabList, newTabList);
+    if (workspaceTabList.length) {
+      const newWorkspaceTabList = lodash.cloneDeep(workspaceTabList);
+      const newAddList: any = [];
+      newTabList.forEach((t) => {
+        let flag = false;
+        workspaceTabList.forEach((item, index) => {
+          if (item.id === t.id) {
+            flag = true;
+            newWorkspaceTabList[index] = t;
+          }
+        });
+        if (!flag) {
+          newAddList.push(t);
+        }
+      });
+      setWorkspaceTabList([...newWorkspaceTabList, ...newAddList]);
+    } else {
+      setWorkspaceTabList(newTabList || []);
+    }
     if (!activeConsoleId) {
       setActiveConsoleId(newTabList[0]?.id);
     }
@@ -577,7 +598,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     <div className={classnames(styles.workspaceRight, className)}>
       <LoadingContent className={styles.workspaceRightMain} data={workspaceTabList} handleEmpty empty={renderEmpty()}>
         <div className={styles.tabBox}>
-          <TabsNew
+          <Tabs
             className={styles.tabs}
             onChange={onTabChange}
             onEdit={onEdit as any}

@@ -21,6 +21,7 @@ import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
 import lodash from 'lodash';
+import { v4 as uuid } from 'uuid';
 
 interface ITableProps {
   className?: string;
@@ -864,6 +865,7 @@ export default function TableBox(props: ITableProps) {
         onCancel={handleCancel}
         width="60vw"
         maskClosable={false}
+        destroyOnClose={true}
         footer={[
           <Button key="1" type="primary" onClick={monacoEditorEditData}>
             {i18n('common.button.modify')}
@@ -874,7 +876,7 @@ export default function TableBox(props: ITableProps) {
           <div className={styles.monacoEditor}>
             <MonacoEditor
               ref={monacoEditorRef}
-              id="view_table-Cell_data"
+              id={`view_table-Cell_data-${uuid()}`}
               appendValue={{
                 text: viewTableCellData?.value,
                 range: 'reset',
