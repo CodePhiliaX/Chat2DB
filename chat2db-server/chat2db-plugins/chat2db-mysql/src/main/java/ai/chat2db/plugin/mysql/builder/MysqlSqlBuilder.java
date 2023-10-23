@@ -129,7 +129,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateDatabaseSql(Database database) {
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("CREATE DATABASE "+database.getName());
+        sqlBuilder.append("CREATE DATABASE `"+database.getName()+"`");
         if (StringUtils.isNotBlank(database.getCharset())) {
             sqlBuilder.append(" DEFAULT CHARACTER SET=").append(database.getCharset());
         }
