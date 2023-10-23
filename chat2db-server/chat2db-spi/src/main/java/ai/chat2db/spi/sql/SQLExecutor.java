@@ -17,6 +17,7 @@ import ai.chat2db.spi.util.ResultSetUtils;
 import cn.hutool.core.date.TimeInterval;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
@@ -158,7 +159,7 @@ public class SQLExecutor {
             int affectedRows = stmt.executeUpdate(sql);
             if (affectedRows != n) {
                 executeResult.setSuccess(false);
-                executeResult.setMessage("Update error "+ sql +" update affectedRows = " + affectedRows + ", Each SQL statement should update no more than one record. Please use a unique key for updates.");
+                executeResult.setMessage("Update error " + sql + " update affectedRows = " + affectedRows + ", Each SQL statement should update no more than one record. Please use a unique key for updates.");
                 connection.rollback();
             }
         }
@@ -185,6 +186,11 @@ public class SQLExecutor {
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
+            stmt.setQueryTimeout(30);
+            if (offset != null && count != null) {
+                stmt.setMaxRows(offset + count);
+            }
+
             TimeInterval timeInterval = new TimeInterval();
             boolean query = stmt.execute(sql);
             executeResult.setDescription(I18nUtils.getMessage("sqlResult.success"));
@@ -200,11 +206,19 @@ public class SQLExecutor {
                     // 获取header信息
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     executeResult.setHeaderList(headerList);
+                    int chat2dbAutoRowIdIndex = -1;// chat2db自动生成的行分页ID
+
                     for (int i = 1; i <= col; i++) {
+                        String name = ResultSetUtils.getColumnName(resultSetMetaData, i);
+                        if ("CAHT2DB_AUTO_ROW_ID".equals(name)) {
+                            chat2dbAutoRowIdIndex = i;
+                            continue;
+                        }
+                        String dataType = ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode();
                         headerList.add(Header.builder()
-                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
-                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                                .dataType(dataType)
+                                .name(name)
                                 .build());
                     }
 
@@ -224,6 +238,9 @@ public class SQLExecutor {
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         dataList.add(row);
                         for (int i = 1; i <= col; i++) {
+                            if (chat2dbAutoRowIdIndex == i) {
+                                continue;
+                            }
                             row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitRowSize));
                         }
                         if (count != null && count > 0 && rowCount++ >= count) {
@@ -263,7 +280,11 @@ public class SQLExecutor {
      */
     public List<Database> databases(Connection connection) {
         try (ResultSet resultSet = connection.getMetaData().getCatalogs();) {
-            return ResultSetUtils.toObjectList(resultSet, Database.class);
+            List<Database> databases = ResultSetUtils.toObjectList(resultSet, Database.class);
+            if (CollectionUtils.isEmpty(databases)) {
+                return databases;
+            }
+            return databases.stream().filter(database -> database.getName() != null).collect(Collectors.toList());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -426,6 +447,17 @@ public class SQLExecutor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getDbVersion(Connection connection) {
+        try {
+            String dbVersion = connection.getMetaData().getDatabaseProductVersion();
+            return dbVersion;
+        } catch (Exception e) {
+            log.error("get db version error", e);
+            //throw new RuntimeException(e);
+        }
+        return "";
     }
 
 }

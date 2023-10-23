@@ -51,33 +51,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     private List<Database> getDatabases(String dbType, Connection connection) {
-        MetaData metaData = Chat2DBContext.getMetaData(dbType);
-        List<Database> databases = metaData.databases(connection);
-        sortDatabases(databases,connection);
-        return databases;
-    }
-
-    private void sortDatabases(List<Database> databases,Connection connection) {
-        if (CollectionUtils.isEmpty(databases)) {
-            return;
-        }
-        String ulr = null;
-        try {
-            ulr = connection.getMetaData().getURL();
-        } catch (SQLException e) {
-            log.error("get url error", e);
-        }
-        // If the database name contains the name of the current database, the current database is placed in the first place
-        int num = -1;
-        for (int i = 0; i < databases.size(); i++) {
-            if (StringUtils.isNotBlank(ulr) && StringUtils.isNotBlank(databases.get(i).getName())&& ulr.contains(databases.get(i).getName())) {
-                num = i;
-                break;
-            }
-        }
-        if (num != -1 && num != 0) {
-            Collections.swap(databases, num, 0);
-        }
+        return Chat2DBContext.getMetaData(dbType).databases(connection);
     }
 
     @Override

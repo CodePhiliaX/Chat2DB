@@ -17,22 +17,23 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
-import com.alibaba.druid.sql.visitor.functions.If;
-import com.alibaba.fastjson2.JSON;
+import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.FUNCTION_SQL;
+import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     private static final String SELECT_KEY_INDEX = "SELECT ccu.table_schema AS Foreign_schema_name, ccu.table_name AS Foreign_table_name, ccu.column_name AS Foreign_column_name, constraint_type AS Constraint_type, tc.CONSTRAINT_NAME AS Key_name, tc.TABLE_NAME, kcu.Column_name, tc.is_deferrable, tc.initially_deferred FROM information_schema.table_constraints AS tc JOIN information_schema.key_column_usage AS kcu ON tc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name WHERE tc.TABLE_SCHEMA = '%s'  AND tc.TABLE_NAME = '%s';";
 
+
+    private List<String> systemDatabases = Arrays.asList("postgres");
     @Override
     public List<Database> databases(Connection connection) {
-        return SQLExecutor.getInstance().executeSql(connection, "SELECT datname FROM pg_database;", resultSet -> {
+        List<Database> list = SQLExecutor.getInstance().executeSql(connection, "SELECT datname FROM pg_database;", resultSet -> {
             List<Database> databases = new ArrayList<>();
             try {
                 while (resultSet.next()) {
@@ -49,8 +50,30 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
             }
             return databases;
         });
-
+        return sortDatabase(list, systemDatabases,connection);
     }
+
+    private List<String> systemSchemas = Arrays.asList("pg_toast","pg_temp_1","pg_toast_temp_1","pg_catalog","information_schema");
+
+    @Override
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().execute(connection,
+                "SELECT catalog_name, schema_name FROM information_schema.schemata;", resultSet -> {
+                    List<Schema> databases = new ArrayList<>();
+                    while (resultSet.next()) {
+                        Schema schema = new Schema();
+                        String name = resultSet.getString("schema_name");
+                        String catalogName = resultSet.getString("catalog_name");
+                        schema.setName(name);
+                        schema.setDatabaseName(catalogName);
+                        databases.add(schema);
+                    }
+                    return databases;
+                });
+        return SortUtils.sortSchema(schemas, systemSchemas);
+    }
+
+
     private static final String SELECT_TABLE_INDEX = "SELECT tmp.INDISPRIMARY AS Index_primary, tmp.TABLE_SCHEM, tmp.TABLE_NAME, tmp.NON_UNIQUE, tmp.INDEX_QUALIFIER, tmp.INDEX_NAME AS Key_name, tmp.indisclustered, tmp.ORDINAL_POSITION AS Seq_in_index, TRIM ( BOTH '\"' FROM pg_get_indexdef ( tmp.CI_OID, tmp.ORDINAL_POSITION, FALSE ) ) AS Column_name,CASE  tmp.AM_NAME   WHEN 'btree' THEN CASE   tmp.I_INDOPTION [ tmp.ORDINAL_POSITION - 1 ] & 1 :: SMALLINT   WHEN 1 THEN  'D' ELSE'A'  END ELSE NULL  END AS Collation, tmp.CARDINALITY, tmp.PAGES, tmp.FILTER_CONDITION , tmp.AM_NAME AS Index_method, tmp.DESCRIPTION AS Index_comment FROM ( SELECT  n.nspname AS TABLE_SCHEM,  ct.relname AS TABLE_NAME,  NOT i.indisunique AS NON_UNIQUE, NULL AS INDEX_QUALIFIER,  ci.relname AS INDEX_NAME,i.INDISPRIMARY , i.indisclustered ,  ( information_schema._pg_expandarray ( i.indkey ) ).n AS ORDINAL_POSITION,  ci.reltuples AS CARDINALITY,   ci.relpages AS PAGES,  pg_get_expr ( i.indpred, i.indrelid ) AS FILTER_CONDITION,  ci.OID AS CI_OID, i.indoption AS I_INDOPTION,  am.amname AS AM_NAME , d.description  FROM   pg_class ct   JOIN pg_namespace n ON ( ct.relnamespace = n.OID )   JOIN pg_index i ON ( ct.OID = i.indrelid )   JOIN pg_class ci ON ( ci.OID = i.indexrelid )  JOIN pg_am am ON ( ci.relam = am.OID )      left outer join pg_description d on i.indexrelid = d.objoid  WHERE  n.nspname = '%s'   AND ct.relname = '%s'   ) AS tmp ;";
     private static String ROUTINES_SQL
             = " SELECT p.proname, p.prokind, pg_catalog.pg_get_functiondef(p.oid) as \"code\" FROM pg_catalog.pg_proc p "
@@ -99,22 +122,6 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    @Override
-    public List<Schema> schemas(Connection connection, String databaseName) {
-        return SQLExecutor.getInstance().execute(connection,
-                "SELECT catalog_name, schema_name FROM information_schema.schemata;", resultSet -> {
-                    List<Schema> databases = new ArrayList<>();
-                    while (resultSet.next()) {
-                        Schema schema = new Schema();
-                        String name = resultSet.getString("schema_name");
-                        String catalogName = resultSet.getString("catalog_name");
-                        schema.setName(name);
-                        schema.setDatabaseName(catalogName);
-                        databases.add(schema);
-                    }
-                    return databases;
-                });
-    }
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,

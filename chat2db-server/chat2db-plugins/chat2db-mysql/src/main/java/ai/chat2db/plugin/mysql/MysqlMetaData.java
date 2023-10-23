@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
 import ai.chat2db.plugin.mysql.type.MysqlCharsetEnum;
@@ -17,9 +18,21 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import static ai.chat2db.spi.util.SortUtils.sortDatabase;
+
 public class MysqlMetaData extends DefaultMetaService implements MetaData {
+
+    private List<String> systemDatabases = Arrays.asList("information_schema", "performance_schema", "mysql", "sys");
+    @Override
+    public List<Database> databases(Connection connection) {
+        List<Database> databases = SQLExecutor.getInstance().databases(connection);
+        return sortDatabase(databases,systemDatabases,connection);
+    }
+
+
     @Override
     public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                            @NotEmpty String tableName) {

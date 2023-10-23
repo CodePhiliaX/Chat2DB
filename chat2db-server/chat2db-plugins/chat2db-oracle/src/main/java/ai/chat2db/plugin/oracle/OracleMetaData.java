@@ -14,6 +14,7 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 public class OracleMetaData extends DefaultMetaService implements MetaData {
 
     private static final String TABLE_DDL_SQL = "select dbms_metadata.get_ddl('TABLE','%s','%s') as sql from dual";
+
+    private List<String> systemSchemas = Arrays.asList("ANONYMOUS","APEX_030200","APEX_PUBLIC_USER","APPQOSSYS","BI","CTXSYS","DBSNMP","DIP","EXFSYS","FLOWS_FILES","HR","IX","MDDATA","MDSYS","MGMT_VIEW","OE","OLAPSYS","ORACLE_OCM","ORDDATA","ORDPLUGINS","ORDSYS","OUTLN","OWBSYS","OWBSYS_AUDIT","PM","SCOTT","SH","SI_INFORMTN_SCHEMA","SPATIAL_CSW_ADMIN_USR","SPATIAL_WFS_ADMIN_USR","SYS","SYSMAN","SYSTEM","WMSYS","XDB","XS$NULL");
+
+
+    @Override
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        return SortUtils.sortSchema(schemas, systemSchemas);
+    }
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
