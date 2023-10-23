@@ -1,6 +1,6 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
-import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
@@ -10,12 +10,17 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
+import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
+import ai.chat2db.server.web.api.controller.rdb.request.DatabaseCreateRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateDatabaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
+import ai.chat2db.spi.model.Sql;
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +40,9 @@ public class DatabaseController {
 
     @Autowired
     private DatabaseService databaseService;
+
+    @Autowired
+    public DatabaseConverter databaseConverter;
 
     /**
      * 查询数据库里包含的database_schema_list
@@ -69,7 +77,7 @@ public class DatabaseController {
      */
     @PostMapping("/delete_database")
     public ActionResult deleteDatabase(@Valid @RequestBody DataSourceBaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName()).build();
+        DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName()).build();
         return databaseService.deleteDatabase(param);
     }
 
@@ -79,10 +87,13 @@ public class DatabaseController {
      * @param request
      * @return
      */
-    @PostMapping("/create_database")
-    public ActionResult createDatabase(@Valid @RequestBody DataSourceBaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName()).build();
-        return databaseService.createDatabase(param);
+    @PostMapping("/create_database_sql")
+    public DataResult<Sql> createDatabase(@Valid @RequestBody DatabaseCreateRequest request) {
+        if(StringUtils.isBlank(request.getName())){
+            request.setName(request.getDatabaseName());
+        }
+        Database database = databaseConverter.request2param(request);
+        return databaseService.createDatabase(database);
     }
 
     /**
@@ -93,8 +104,8 @@ public class DatabaseController {
      */
     @PostMapping("/modify_database")
     public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName())
-            .newDatabaseName(request.getNewDatabaseName()).build();
+        DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName())
+            .name(request.getNewDatabaseName()).build();
         return databaseService.modifyDatabase(param);
     }
 }

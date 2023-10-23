@@ -3,13 +3,14 @@ package ai.chat2db.plugin.sqlite.builder;
 import ai.chat2db.plugin.sqlite.type.SqliteColumnTypeEnum;
 import ai.chat2db.plugin.sqlite.type.SqliteIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class SqliteBuilder implements SqlBuilder {
+public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

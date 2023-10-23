@@ -31,4 +31,10 @@ public class Schema implements Serializable {
      */
     @JsonAlias({"TABLE_SCHEM"})
     private String name;
+
+
+    private String comment;
+
+
+    private String owner;
 }

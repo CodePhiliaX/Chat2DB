@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.param.*;
-import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
@@ -117,83 +117,6 @@ public class RdbDdlController extends EmbeddingController {
         MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
         return DataResult.of(schemaDto2vo);
     }
-
-    /**
-     * 删除数据库
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/delete_database")
-    public ActionResult deleteDatabase(@Valid @RequestBody DataSourceBaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName()).build();
-        return databaseService.deleteDatabase(param);
-    }
-
-    /**
-     * 创建database
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/create_database")
-    public ActionResult createDatabase(@Valid @RequestBody DataSourceBaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName()).build();
-        return databaseService.createDatabase(param);
-    }
-
-    /**
-     * 创建database
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/modify_database")
-    public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
-        DatabaseOperationParam param = DatabaseOperationParam.builder().databaseName(request.getDatabaseName())
-            .newDatabaseName(request.getNewDatabaseName()).build();
-        return databaseService.modifyDatabase(param);
-    }
-
-    /**
-     * 删除schema
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/delete_schema")
-    public ActionResult deleteSchema(@Valid @RequestBody DataSourceBaseRequest request) {
-        SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).build();
-        return databaseService.deleteSchema(param);
-    }
-
-    /**
-     * 创建schema
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/create_schema")
-    public ActionResult createSchema(@Valid @RequestBody DataSourceBaseRequest request) {
-        SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).build();
-        return databaseService.createSchema(param);
-    }
-
-    /**
-     * 创建database
-     *
-     * @param request
-     * @return
-     */
-    @PostMapping("/modify_schema")
-    public ActionResult modifySchema(@Valid @RequestBody UpdateSchemaRequest request) {
-        SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
-            .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
-        return databaseService.modifySchema(param);
-    }
-
 
 
     /**

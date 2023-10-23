@@ -3,13 +3,12 @@ package ai.chat2db.plugin.sqlserver.builder;
 import ai.chat2db.plugin.sqlserver.type.SqlServerColumnTypeEnum;
 import ai.chat2db.plugin.sqlserver.type.SqlServerIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
-public class SqlServerSqlBuilder implements SqlBuilder {
+public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
@@ -141,5 +140,34 @@ public class SqlServerSqlBuilder implements SqlBuilder {
             }
         }
         return "";
+    }
+
+
+    @Override
+    public String buildCreateDatabaseSql(Database database) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE DATABASE [" + database.getName() + "]");
+        if (StringUtils.isNotBlank(database.getCollation())) {
+            sqlBuilder.append(" COLLATE ").append(database.getCollation());
+        }
+        sqlBuilder.append("\ngo\n");
+        if (StringUtils.isNotBlank(database.getComment())) {
+            sqlBuilder.append("exec [" + database.getName() + "].sys. sp_addextendedproperty 'MS_Description','")
+                    .append(database.getComment()).append("'").append("'\ngo\n");
+        }
+        return sqlBuilder.toString();
+    }
+
+
+    @Override
+    public String buildCreateSchemaSql(Schema schema) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE SCHEMA [" + schema.getName() + "] \ngo\n");
+        if (StringUtils.isNotBlank(schema.getComment())) {
+            sqlBuilder.append("exec sp_addextendedproperty 'MS_Description','")
+                    .append(schema.getComment()).append("'").append(",'SCHEMA'")
+                    .append(",'").append(schema.getName()).append("'").append("'\ngo\n");
+        }
+        return sqlBuilder.toString();
     }
 }
