@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
+import { DatabaseTypeCode } from '@/constants';
 
 interface IProps {
   className?: string;
@@ -25,6 +26,9 @@ export interface ICreateDatabase {
   schemaName?: string;
   comment?: string;
 }
+
+// 创建database不支持注释的数据库
+const noCommentDatabase = [DatabaseTypeCode.MYSQL];
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
   const { className, curWorkspaceParams, executedCallback } = props;
@@ -91,7 +95,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         monacoEditorRef.current?.setValue(sql, 'cover');
       });
     }, 500),
-    [],
+    [curWorkspaceParams, createType, monacoEditorRef, config],
   );
 
   const executeUpdateDataSql = (sql: string) => {
@@ -139,9 +143,11 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
           <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
           </Form.Item>
-          <Form.Item label={i18n('common.label.comment')} name="comment">
-            <Input autoComplete="off" />
-          </Form.Item>
+          {noCommentDatabase.includes(curWorkspaceParams.databaseType) ? null : (
+            <Form.Item label={i18n('common.label.comment')} name="comment">
+              <Input autoComplete="off" />
+            </Form.Item>
+          )}
         </Form>
         <div className={styles.previewBox}>
           <div className={styles.previewText}>{i18n('common.title.preview')}</div>
