@@ -146,14 +146,24 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         } catch (ParserException e) {
             log.warn("解析sql失败:{}", originalSql, e);
         }
+        ExecuteResult executeResult = null;
+        if (SqlTypeEnum.SELECT.getCode().equals(sqlType) && !SqlUtils.hasPageLimit(originalSql,dbType)) {
+            String pageLimit = Chat2DBContext.getSqlBuilder().pageLimit(originalSql, offset, pageNo, pageSize);
+            if(StringUtils.isNotBlank(pageLimit)) {
+                executeResult = execute(pageLimit, 0, count);
+            }
+        }
+        if (executeResult == null || !executeResult.getSuccess()) {
+            executeResult = execute(originalSql, offset, count);
+        }
 
-        ExecuteResult executeResult = execute(originalSql, offset, count);
+
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
         try {
-            SqlUtils.buildCanEditResult(originalSql, dbType,executeResult);
+            SqlUtils.buildCanEditResult(originalSql, dbType, executeResult);
         } catch (Exception e) {
-
+            log.warn("buildCanEditResult error", e);
         }
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
@@ -258,7 +268,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
         StringBuilder script = new StringBuilder();
-        script.append("DELETE FROM ").append( param.getTableName()).append("");
+        script.append("DELETE FROM ").append(param.getTableName()).append("");
 
         script.append(buildWhere(param.getHeaderList(), row, metaSchema));
         return script.toString();
@@ -291,7 +301,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return "";
         }
         StringBuilder script = new StringBuilder();
-        script.append("INSERT INTO ").append( param.getTableName())
+        script.append("INSERT INTO ").append(param.getTableName())
                 .append(" (");
         for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
@@ -366,7 +376,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             createParam.setSchemaName(connectInfo.getSchemaName());
             createParam.setUseTime(executeResult.getDuration());
             createParam.setType(connectInfo.getDbType());
-            createParam.setOperationRows(executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()):null);
+            createParam.setOperationRows(executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()) : null);
             operationLogService.create(createParam);
         } catch (Exception e) {
             log.error("addOperationLog error:", e);

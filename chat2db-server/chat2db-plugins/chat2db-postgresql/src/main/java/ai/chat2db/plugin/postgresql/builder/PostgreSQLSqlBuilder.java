@@ -156,5 +156,20 @@ public class PostgreSQLSqlBuilder implements SqlBuilder {
         return script.toString();
     }
 
+    @Override
+    public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
+        StringBuilder sqlStr = new StringBuilder(sql.length() + 17);
+        sqlStr.append(sql);
+        if (offset == 0) {
+            sqlStr.append(" LIMIT ");
+            sqlStr.append(pageSize);
+        } else {
+            sqlStr.append(" LIMIT ");
+            sqlStr.append(pageSize);
+            sqlStr.append(" OFFSET ");
+            sqlStr.append(offset);
+        }
+        return sqlStr.toString();
+    }
 
 }

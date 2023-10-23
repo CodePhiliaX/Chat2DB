@@ -14,4 +14,9 @@ public class DefaultSqlBuilder implements SqlBuilder {
     public String buildModifyTaleSql(Table oldTable, Table newTable) {
         return null;
     }
+
+    @Override
+    public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
+        return null;
+    }
 }
