@@ -8,7 +8,7 @@ import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import Tabs, { ITabItem } from '@/components/Tabs';
 // import WorkspaceExtend from '../WorkspaceExtend';
-import SearchResult from '@/components/SearchResult';
+import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import ShortcutKey from '@/components/ShortcutKey';
