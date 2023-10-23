@@ -1,4 +1,13 @@
-import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+} from 'react';
 import classnames from 'classnames';
 import Tabs from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
@@ -27,7 +36,11 @@ const defaultResultConfig: IResultConfig = {
   hasNextPage: true,
 };
 
-export default memo<IProps>((props) => {
+export interface ISearchResultRef {
+  handleExecuteSQL: (sql: string) => void;
+}
+
+export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
   const { className, sql, executeSqlParams } = props;
   // const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
@@ -39,6 +52,10 @@ export default memo<IProps>((props) => {
       handleExecuteSQL(sql);
     }
   }, [sql]);
+
+  useImperativeHandle(ref, () => ({
+    handleExecuteSQL,
+  }));
 
   /**
    * 执行SQL

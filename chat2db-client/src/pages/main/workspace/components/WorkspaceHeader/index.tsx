@@ -6,12 +6,13 @@ import Iconfont from '@/components/Iconfont';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Tag } from 'antd';
+import { Cascader, Spin, Modal, Tag, Divider } from 'antd';
 import { databaseMap, TreeNodeType } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
 import i18n from '@/i18n';
+import CreateDatabase, { ICreateDatabaseRef } from '@/components/CreateDatabase';
 
 interface IProps {
   className?: string;
@@ -37,6 +38,21 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [curDBOptions, setCurDBOptions] = useState<IOption[]>([]);
   const [curSchemaOptions, setCurSchemaOptions] = useState<IOption[]>([]);
   const [isRefresh, setIsRefresh] = useState(false);
+  const databaseNameRef = React.useRef<HTMLDivElement>(null);
+  const [openDBCascaderDropdown, setOpenDBCascaderDropdown] = useState(false);
+  const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState(false);
+  const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
+
+  useEffect(() => {
+    const handleClick = () => {
+      setOpenDBCascaderDropdown(false);
+      setOpenSchemaCascaderDropdown(false);
+    };
+    document.addEventListener('click', handleClick);
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, [databaseNameRef.current]);
 
   useEffect(() => {
     if (curPage !== 'workspace') {
@@ -134,7 +150,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
             : curWorkspaceParams.databaseName || dbList[0]?.label;
         getSchemaList(databaseName, refresh);
       })
-      .catch((error) => {
+      .catch(() => {
         setCascaderLoading(false);
       });
   }
@@ -265,16 +281,41 @@ const WorkspaceHeader = memo<IProps>((props) => {
             </Cascader>
 
             {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />}
-
             {!!curDBOptions?.length && (
               <Cascader
                 popupClassName={styles.cascaderPopup}
                 options={curDBOptions}
+                open={openDBCascaderDropdown}
+                dropdownRender={(menu) => {
+                  return (
+                    <div>
+                      {menu}
+                      <Divider style={{ margin: 0 }} />
+                      <div
+                        className={styles.dropdownFooter}
+                        onClick={() => {
+                          createDatabaseRef.current?.setOpen(true);
+                        }}
+                      >
+                        <Iconfont code="&#xe631;" />
+                        添加数据库
+                      </div>
+                    </div>
+                  );
+                }}
                 onChange={databaseChange}
                 bordered={false}
                 value={[curWorkspaceParams?.databaseName || '']}
               >
-                <div className={styles.crumbsItem}>
+                <div
+                  className={styles.crumbsItem}
+                  onClick={() => {
+                    // 这里我拿不到这个div的ref，无法在document的的点击事件里过滤掉 ，所以用了setTimeout
+                    setTimeout(() => {
+                      setOpenDBCascaderDropdown(!openDBCascaderDropdown);
+                    }, 0);
+                  }}
+                >
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
                 </div>
               </Cascader>
@@ -286,9 +327,35 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 options={curSchemaOptions}
                 onChange={schemaChange}
                 bordered={false}
+                open={openSchemaCascaderDropdown}
                 value={[curWorkspaceParams?.schemaName || '']}
+                dropdownRender={(menu) => {
+                  return (
+                    <div>
+                      {menu}
+                      <Divider style={{ margin: 0 }} />
+                      <div
+                        className={styles.dropdownFooter}
+                        onClick={() => {
+                          createDatabaseRef.current?.setOpen(true, 'datasource');
+                        }}
+                      >
+                        <Iconfont code="&#xe631;" />
+                        添加Schema
+                      </div>
+                    </div>
+                  );
+                }}
               >
-                <div className={styles.crumbsItem}>
+                <div
+                  className={styles.crumbsItem}
+                  onClick={() => {
+                    // 这里我拿不到这个div的ref，无法在document的的点击事件里过滤掉 ，所以用了setTimeout
+                    setTimeout(() => {
+                      setOpenSchemaCascaderDropdown(!openDBCascaderDropdown);
+                    }, 0);
+                  }}
+                >
                   <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
                 </div>
               </Cascader>
@@ -330,6 +397,11 @@ const WorkspaceHeader = memo<IProps>((props) => {
           </div>
         </div>
       </Modal>
+      <CreateDatabase
+        executedCallback={handleRefresh}
+        curWorkspaceParams={curWorkspaceParams}
+        ref={createDatabaseRef}
+      />
     </>
   );
 });

@@ -6,9 +6,7 @@ interface IProps {
   className?: string;
 }
 
-export default memo<IProps>(function XXXX_FN(props) {
-  const { className } = props
-  return <div className={classnames(styles.box, className)}>
-
-  </div>
-})
+export default memo<IProps>((props) => {
+  const { className } = props;
+  return <div className={classnames(styles.box, className)}>demo</div>;
+});

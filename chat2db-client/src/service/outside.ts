@@ -1,10 +1,4 @@
 import createRequest from './base';
-import { IVersionResponse } from '@/typings';
-
-const checkVersion = createRequest<void, IVersionResponse>('/api/client/version/check/v2', {
-  errorLevel: false,
-  outside: true,
-});
 
 const dynamicUrl = createRequest<string, void>('', {
   dynamicUrl: true,
@@ -12,5 +6,4 @@ const dynamicUrl = createRequest<string, void>('', {
 
 export default {
   dynamicUrl,
-  checkVersion,
 };

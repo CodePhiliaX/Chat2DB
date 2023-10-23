@@ -1,0 +1,158 @@
+import React, { forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import styles from './index.less';
+import classnames from 'classnames';
+import { Form, Input, Modal } from 'antd';
+import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
+import { v4 as uuid } from 'uuid';
+import sqlService from '@/service/sql';
+
+interface IProps {
+  className?: string;
+  curWorkspaceParams: any;
+  executedCallback?: () => void;
+}
+
+type CreateType = 'database' | 'datasource';
+
+export interface ICreateDatabaseRef {
+  setOpen: (open: boolean, type?: CreateType) => void;
+}
+
+export interface ICreateDatabase {
+  databaseName: string;
+  comment?: string;
+}
+
+export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
+  const { className, curWorkspaceParams, executedCallback } = props;
+  const [form] = Form.useForm();
+  const monacoEditorUuid = useMemo(() => uuid(), []);
+  const monacoEditorRef = React.useRef<IExportRefFunction>(null);
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<{ success: boolean; message: string; originalSql: string } | null>(
+    null,
+  );
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [createType, setCreateType] = useState<CreateType>('database');
+
+  useEffect(() => {
+    if (!open) {
+      setErrorMessage(null);
+      form.resetFields();
+      monacoEditorRef.current?.setValue('', 'cover');
+    }
+  }, [open]);
+
+  const config = useMemo(() => {
+    return createType === 'database'
+      ? {
+          title: 'Create Database',
+          api: sqlService.getCreateDatabaseSql,
+          formName: 'databaseName',
+        }
+      : {
+          title: 'Create Schema',
+          api: sqlService.getCreateSchemaSql,
+          formName: 'schemaName',
+        };
+  }, [createType]);
+
+  const exposedSetOpen = (_open: boolean, type?: CreateType) => {
+    setOpen(_open);
+    setCreateType(type || 'database');
+  };
+
+  useImperativeHandle(ref, () => ({
+    setOpen: exposedSetOpen,
+  }));
+
+  const labelCol = { flex: '70px' };
+
+  const handleFieldsChange = () => {
+    const params = {
+      databaseType: curWorkspaceParams.databaseType,
+      dataSourceId: curWorkspaceParams.dataSourceId,
+      databaseName: curWorkspaceParams.databaseName,
+      ...form.getFieldsValue(),
+    };
+    config.api(params).then((res) => {
+      const { sql } = res;
+      monacoEditorRef.current?.setValue(sql, 'cover');
+    });
+  };
+
+  const executeUpdateDataSql = (sql: string) => {
+    const params: any = {
+      dataSourceId: curWorkspaceParams.dataSourceId,
+      databaseType: curWorkspaceParams.databaseType,
+      databaseName: curWorkspaceParams.databaseName,
+      sql,
+    };
+    setConfirmLoading(true);
+    setErrorMessage(null);
+    return sqlService
+      .executeDDL(params)
+      .then((res) => {
+        if (res.success) {
+          setOpen(false);
+          executedCallback();
+        } else {
+          setErrorMessage(res);
+        }
+      })
+      .finally(() => {
+        setConfirmLoading(false);
+      });
+  };
+
+  const onOk = () => {
+    const sql = monacoEditorRef.current?.getAllContent() || '';
+    executeUpdateDataSql(sql);
+  };
+
+  return (
+    <Modal
+      onCancel={() => {
+        setOpen(false);
+      }}
+      title={config.title}
+      destroyOnClose
+      confirmLoading={confirmLoading}
+      open={open}
+      onOk={onOk}
+    >
+      <div className={classnames(styles.box, className)}>
+        <Form labelAlign="left" form={form} labelCol={labelCol} onFieldsChange={handleFieldsChange} name="create">
+          <Form.Item label="Name" name={config.formName}>
+            <Input autoComplete="off" />
+          </Form.Item>
+          <Form.Item label="Comment" name="comment">
+            <Input autoComplete="off" />
+          </Form.Item>
+        </Form>
+        <div className={styles.previewBox}>
+          <div className={styles.previewText}>Preview</div>
+          <div className={styles.previewLine} />
+        </div>
+        <div className={styles.monacoEditorBox}>
+          <MonacoEditor
+            ref={monacoEditorRef}
+            options={{
+              lineNumbers: 'off',
+            }}
+            id={monacoEditorUuid}
+          />
+        </div>
+        {errorMessage && (
+          <>
+            <div className={classnames(styles.previewBox, styles.errorBox)}>
+              <div className={styles.previewText}>Error</div>
+              <div className={styles.previewLine} />
+            </div>
+            <div>{errorMessage.message}</div>
+          </>
+        )}
+      </div>
+    </Modal>
+  );
+});
