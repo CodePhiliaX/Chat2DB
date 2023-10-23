@@ -180,21 +180,21 @@ public class TableServiceImpl implements TableService {
             }
             total = versionDO.getTableCount();
         }
-        LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
-        query.eq(TableCacheDO::getVersion, version);
-        query.eq(TableCacheDO::getDataSourceId, param.getDataSourceId());
-        if (StringUtils.isNotBlank(param.getDatabaseName())) {
-            query.eq(TableCacheDO::getDatabaseName, param.getDatabaseName());
-        }
-        if (StringUtils.isNotBlank(param.getSchemaName())) {
-            query.eq(TableCacheDO::getSchemaName, param.getSchemaName());
-        }
-        if (StringUtils.isNotBlank(param.getSearchKey())) {
-            query.like(TableCacheDO::getTableName, param.getSearchKey());
-        }
+//        LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
+//        query.eq(TableCacheDO::getVersion, version);
+//        query.eq(TableCacheDO::getDataSourceId, param.getDataSourceId());
+//        if (StringUtils.isNotBlank(param.getDatabaseName())) {
+//            query.eq(TableCacheDO::getDatabaseName, param.getDatabaseName());
+//        }
+//        if (StringUtils.isNotBlank(param.getSchemaName())) {
+//            query.eq(TableCacheDO::getSchemaName, param.getSchemaName());
+//        }
+//        if (StringUtils.isNotBlank(param.getSearchKey())) {
+//            query.like(TableCacheDO::getTableName, param.getSearchKey());
+//        }
         Page<TableCacheDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         // page.setSearchCount(param.getEnableReturnCount());
-        IPage<TableCacheDO> iPage = tableCacheMapper.selectPage(page, query);
+        IPage<TableCacheDO> iPage = tableCacheMapper.pageQuery(page, param.getDataSourceId(),param.getDatabaseName(),param.getSchemaName(),param.getSearchKey());
         List<Table> tables = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
             for (TableCacheDO tableCacheDO : iPage.getRecords()) {

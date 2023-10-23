@@ -62,7 +62,7 @@ export default defineConfig({
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v3');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    `if (window.electronApi) { window.electronApi.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {
     //   window.addEventListener("load", function () {
     //     navigator.serviceWorker

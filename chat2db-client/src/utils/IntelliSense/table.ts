@@ -13,7 +13,7 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
 });
 
 /** 根据不同的数据库，插入不同的表名  */
-const handleInsertText = (text, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
+const handleInsertText = (text: string, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
   if (
     [DatabaseTypeCode.POSTGRESQL, DatabaseTypeCode.ORACLE, DatabaseTypeCode.DB2, DatabaseTypeCode.SQLITE].includes(
       databaseCode,

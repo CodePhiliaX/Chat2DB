@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1697546898824') format('woff2'),
-       url('iconfont.woff?t=1697546898824') format('woff'),
-       url('iconfont.ttf?t=1697546898824') format('truetype');
+  src: url('iconfont.woff2?t=1697982809195') format('woff2'),
+       url('iconfont.woff?t=1697982809195') format('woff'),
+       url('iconfont.ttf?t=1697982809195') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,50 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-fasong:before {
+  content: "\100bd";
+}
+
+.icon-zhongqi:before {
+  content: "\e662";
+}
+
+.icon-tixing2:before {
+  content: "\e6cc";
+}
+
+.icon-tixing3:before {
+  content: "\e661";
+}
+
+.icon-tixing1:before {
+  content: "\e716";
+}
+
+.icon-shengji:before {
+  content: "\e69c";
+}
+
+.icon-kuaisushengjix:before {
+  content: "\e65d";
+}
+
+.icon-quanju_shengji:before {
+  content: "\e659";
+}
+
+.icon-guanyuwomen1:before {
+  content: "\e65c";
+}
+
+.icon-icobanbengengxin:before {
+  content: "\e67d";
+}
+
+.icon-duihuaqipao:before {
+  content: "\e657";
 }
 
 .icon-jiaosequanxian:before {

@@ -155,12 +155,12 @@ function TreeNodeRightClick(props: IProps) {
       return {
         text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
-        handle: handelTop,
+        handle: handleTop,
       };
     },
   };
 
-  function handelTop() {
+  function handleTop() {
     const api = data.pinned ? 'deleteTablePin' : 'addTablePin';
     mysqlServer[api]({
       ...curWorkspaceParams,

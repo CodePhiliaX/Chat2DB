@@ -4,6 +4,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .tabs {
@@ -67,6 +68,10 @@
   margin: 0 auto;
 }
 
+.updateCountBox {
+  height: 100%;
+}
+
 .successResult {
   height: 100%;
   .successResultContent {
@@ -74,9 +79,31 @@
   }
 
   .updateCount {
-    height: 100%;
+    height: calc(100% - 26px);
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+}
+
+.tableLoading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  // height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // background-color: var(--color-fill);
+  .stopExecuteSql {
+    cursor: pointer;
+    margin-top: 30px;
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 }

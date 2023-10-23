@@ -1,19 +1,14 @@
-import React, { memo, useRef, useState, useEffect } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
-import SearchResult from '@/components/SearchResult';
-import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
-import { IManageResultData, IResultConfig } from '@/typings';
+import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
-import sqlServer, { IExecuteSqlParams } from '@/service/sql';
-import { v4 as uuidV4 } from 'uuid';
-import { Spin } from 'antd';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
-import i18n from '@/i18n';
 interface IProps {
   className?: string;
   isActive: boolean;
@@ -31,77 +26,35 @@ interface IProps {
   };
 }
 
-const defaultResultConfig: IResultConfig = {
-  pageNo: 1,
-  pageSize: 200,
-  total: 0,
-  hasNextPage: true,
-};
-
 const SQLExecute = memo<IProps>((props) => {
   const { data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>();
-  const [resultData, setResultData] = useState<IManageResultData[]>([]);
-  const { doubleClickTreeNodeData, curTableList, curWorkspaceParams } = workspaceModel;
-  const [tableLoading, setTableLoading] = useState(false);
-  const controllerRef = useRef<AbortController>();
+  const { curTableList, curWorkspaceParams } = workspaceModel;
+  // const [sql, setSql] = useState<string>('');
+  const searchResultRef = useRef<ISearchResultRef>(null);
 
-  useEffect(() => {
-    if (!doubleClickTreeNodeData) {
-      return;
-    }
-    if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
-      const { extraParams } = doubleClickTreeNodeData;
-      const { tableName } = extraParams || {};
-      const ddl = `SELECT * FROM ${tableName};\n`;
-      if (isActive) {
-        setAppendValue({ text: ddl });
-      }
-    }
-    dispatch({
-      type: 'workspace/setDoubleClickTreeNodeData',
-      payload: '',
-    });
-  }, [doubleClickTreeNodeData]);
+  // useEffect(() => {
+  //   if (!doubleClickTreeNodeData) {
+  //     return;
+  //   }
+  //   if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
+  //     const { extraParams } = doubleClickTreeNodeData;
+  //     const { tableName } = extraParams || {};
+  //     const ddl = `SELECT * FROM ${tableName};\n`;
+  //     if (isActive) {
+  //       setAppendValue({ text: ddl });
+  //     }
+  //   }
+  //   dispatch({
+  //     type: 'workspace/setDoubleClickTreeNodeData',
+  //     payload: '',
+  //   });
+  // }, [doubleClickTreeNodeData]);
 
   useUpdateEffect(() => {
     setAppendValue({ text: data.initDDL });
   }, [data.initDDL]);
-
-  /**
-   * 执行SQL
-   * @param sql
-   */
-  const handleExecuteSQL = async (sql: string) => {
-    setTableLoading(true);
-
-    const executeSQLParams: IExecuteSqlParams = {
-      sql,
-      ...defaultResultConfig,
-      ...data,
-    };
-
-    controllerRef.current = new AbortController();
-    // 获取当前SQL的查询结果
-    let sqlResult = await sqlServer.executeSql(executeSQLParams, {
-      signal: controllerRef.current.signal,
-    });
-
-    sqlResult = sqlResult.map((res) => ({
-      ...res,
-      uuid: uuidV4(),
-    }));
-
-    setResultData(sqlResult);
-    setTableLoading(false);
-  };
-
-  const stopExecuteSql = () => {
-    controllerRef.current && controllerRef.current.abort();
-    setResultData([]);
-    setTableLoading(false);
-  };
 
   return (
     <div className={classnames(styles.box)}>
@@ -115,7 +68,9 @@ const SQLExecute = memo<IProps>((props) => {
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
-            onExecuteSQL={handleExecuteSQL}
+            onExecuteSQL={(sql) => {
+              searchResultRef.current?.handleExecuteSQL(sql);
+            }}
             onConsoleSave={() => {
               dispatch({
                 type: 'workspace/fetchGetSavedConsole',
@@ -137,16 +92,7 @@ const SQLExecute = memo<IProps>((props) => {
           />
         </div>
         <div className={styles.boxRightResult}>
-          {tableLoading ? (
-            <div className={styles.tableLoading}>
-              <Spin />
-              <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
-                {i18n('common.button.cancelRequest')}
-              </div>
-            </div>
-          ) : (
-            <SearchResult executeSqlParams={data} queryResultDataList={resultData} />
-          )}
+          <SearchResult ref={searchResultRef} executeSqlParams={data} />
         </div>
       </DraggableContainer>
     </div>
