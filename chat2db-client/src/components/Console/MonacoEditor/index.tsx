@@ -2,7 +2,8 @@ import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DatabaseTypeCode, editorDefaultOptions, EditorThemeType, ThemeType } from '@/constants';
+import { DatabaseTypeCode, EditorThemeType, ThemeType } from '@/constants';
+import { editorDefaultOptions } from './monacoEditorConfig';
 import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
 
 import styles from './index.less';
@@ -88,6 +89,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       // 'editorLineNumber.foreground': colorPrimary, // 行号颜色
       'editorLineNumber.activeForeground': colorPrimary, // 当前行号颜色
       // 'editorCursor.foreground': colorPrimary, // 光标颜色
+      'editorRuler.foreground': colorPrimary + '15',
     };
     monaco.editor.defineTheme(ThemeType.Light, {
       base: 'vs',

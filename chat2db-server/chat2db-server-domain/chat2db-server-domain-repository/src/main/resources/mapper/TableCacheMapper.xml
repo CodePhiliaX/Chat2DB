@@ -10,4 +10,23 @@
             (#{item.dataSourceId},#{item.databaseName},#{item.schemaName},#{item.tableName},#{item.key},#{item.version},#{item.columns},#{item.extendInfo})
         </foreach>
     </insert>
+
+    <select id="pageQuery" resultType="ai.chat2db.server.domain.repository.entity.TableCacheDO">
+        select *
+        from TABLE_CACHE tc
+        <where>
+            <if test="dataSourceId != null ">
+                and tc.data_source_id = #{dataSourceId}
+            </if>
+            <if test="databaseName != null and databaseName != '' ">
+                and tc.database_name = #{databaseName}
+            </if>
+            <if test="schemaName != null and schemaName != '' ">
+                and tc.schema_name = #{schemaName}
+            </if>
+            <if test="searchKey != null and searchKey != '' ">
+                and LOWER(tc.table_name) like LOWER(concat('%',#{searchKey},'%'))
+            </if>
+        </where>
+    </select>
 </mapper>

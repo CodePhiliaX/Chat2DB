@@ -46,7 +46,7 @@ export interface IConnectConsoleParams {
 
 const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/table/list', { method: 'get' });
 
-const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post' });
+const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post', delayTime: 10 });
 
 const connectConsole = createRequest<IConnectConsoleParams, void>('/api/connection/console/connect', { method: 'get' });
 
@@ -288,7 +288,22 @@ const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean
 /** 获取修改表数据的接口 */
 const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/get_update_sql', { method: 'post' });
 
+/** 创建数据库  */ 
+const getCreateDatabaseSql = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+}, { sql: string }>('/api/rdb/database/create_database_sql', { method: 'post' });
+
+/** 创建schema  */ 
+const getCreateSchemaSql = createRequest<{
+  dataSourceId: number;
+  databaseName?: string;
+  schemaName?: string;
+}, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
+
 export default {
+  getCreateSchemaSql,
+  getCreateDatabaseSql,
   executeUpdateDataSql,
   executeDDL,
   getExecuteUpdateSql,

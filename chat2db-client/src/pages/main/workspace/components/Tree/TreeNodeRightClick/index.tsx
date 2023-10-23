@@ -41,7 +41,7 @@ function TreeNodeRightClick(props: IProps) {
   })!;
   const monacoEditorRef = useRef<IExportRefFunction>(null);
   const OperationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
-    [OperationColumn.Refresh]: (data) => {
+    [OperationColumn.Refresh]: () => {
       return {
         text: i18n('common.button.refresh'),
         icon: '\uec08',
@@ -50,7 +50,7 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.EditTableData]: (data) => {
+    [OperationColumn.EditTableData]: () => {
       return {
         text: i18n('workspace.menu.editTableData'),
         icon: '\ue7b5',
@@ -59,7 +59,7 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.ExportDDL]: (data) => {
+    [OperationColumn.ExportDDL]: () => {
       return {
         text: i18n('workspace.menu.exportDDL'),
         icon: '\ue613',
@@ -104,14 +104,14 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.CreateConsole]: (data) => {
+    [OperationColumn.CreateConsole]: () => {
       return {
         text: '新建查询',
         icon: '\ue619',
         handle: () => {},
       };
     },
-    [OperationColumn.DeleteTable]: (data) => {
+    [OperationColumn.DeleteTable]: () => {
       return {
         text: i18n('workspace.menu.deleteTable'),
         icon: '\ue6a7',
@@ -139,7 +139,7 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.EditSource]: (data) => {
+    [OperationColumn.EditSource]: () => {
       return {
         text: '编辑数据源',
         icon: '\ue623',
@@ -155,12 +155,12 @@ function TreeNodeRightClick(props: IProps) {
       return {
         text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: data.pinned ? '\ue61d' : '\ue627',
-        handle: handelTop,
+        handle: handleTop,
       };
     },
   };
 
-  function handelTop() {
+  function handleTop() {
     const api = data.pinned ? 'deleteTablePin' : 'addTablePin';
     mysqlServer[api]({
       ...curWorkspaceParams,

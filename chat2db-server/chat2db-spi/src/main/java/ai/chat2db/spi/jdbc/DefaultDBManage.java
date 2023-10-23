@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DefaultDBManage implements DBManage {
 
+
+
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {
         Connection connection = connectInfo.getConnection();

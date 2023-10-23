@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import ai.chat2db.server.domain.api.param.datasource.DatabaseOperationParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
@@ -17,9 +17,11 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.Sql;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -51,33 +53,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     private List<Database> getDatabases(String dbType, Connection connection) {
-        MetaData metaData = Chat2DBContext.getMetaData(dbType);
-        List<Database> databases = metaData.databases(connection);
-        sortDatabases(databases,connection);
-        return databases;
-    }
-
-    private void sortDatabases(List<Database> databases,Connection connection) {
-        if (CollectionUtils.isEmpty(databases)) {
-            return;
-        }
-        String ulr = null;
-        try {
-            ulr = connection.getMetaData().getURL();
-        } catch (SQLException e) {
-            log.error("get url error", e);
-        }
-        // If the database name contains the name of the current database, the current database is placed in the first place
-        int num = -1;
-        for (int i = 0; i < databases.size(); i++) {
-            if (StringUtils.isNotBlank(ulr) && StringUtils.isNotBlank(databases.get(i).getName())&& ulr.contains(databases.get(i).getName())) {
-                num = i;
-                break;
-            }
-        }
-        if (num != -1 && num != 0) {
-            Collections.swap(databases, num, 0);
-        }
+        return Chat2DBContext.getMetaData(dbType).databases(connection);
     }
 
     @Override
@@ -95,12 +71,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     private List<Schema> getSchemaList(String databaseName, Connection connection) {
         MetaData metaData = Chat2DBContext.getMetaData();
-        List<Schema> schemas = metaData.schemas(connection,databaseName);
-        sortSchema(schemas,connection);
+        List<Schema> schemas = metaData.schemas(connection, databaseName);
+        sortSchema(schemas, connection);
         return schemas;
     }
 
-    private void sortSchema(List<Schema> schemas,Connection connection) {
+    private void sortSchema(List<Schema> schemas, Connection connection) {
         if (CollectionUtils.isEmpty(schemas)) {
             return;
         }
@@ -161,21 +137,21 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public ActionResult deleteDatabase(DatabaseOperationParam param) {
-        Chat2DBContext.getDBManage().dropDatabase(Chat2DBContext.getConnection(), param.getDatabaseName());
+    public ActionResult deleteDatabase(DatabaseCreateParam param) {
+        Chat2DBContext.getDBManage().dropDatabase(Chat2DBContext.getConnection(), param.getName());
         return ActionResult.isSuccess();
     }
 
     @Override
-    public ActionResult createDatabase(DatabaseOperationParam param) {
-        Chat2DBContext.getDBManage().createDatabase(Chat2DBContext.getConnection(), param.getDatabaseName());
-        return ActionResult.isSuccess();
+    public DataResult<Sql> createDatabase(Database database) {
+        String sql = Chat2DBContext.getSqlBuilder().buildCreateDatabaseSql(database);
+        return DataResult.of(Sql.builder().sql(sql).build());
     }
 
     @Override
-    public ActionResult modifyDatabase(DatabaseOperationParam param) {
-        Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getDatabaseName(),
-                param.getNewDatabaseName());
+    public ActionResult modifyDatabase(DatabaseCreateParam param) {
+        Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getName(),
+                param.getName());
         return ActionResult.isSuccess();
     }
 
@@ -187,10 +163,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public ActionResult createSchema(SchemaOperationParam param) {
-        Chat2DBContext.getDBManage().createSchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
-                param.getSchemaName());
-        return ActionResult.isSuccess();
+    public DataResult<Sql> createSchema(Schema schema) {
+        String sql = Chat2DBContext.getSqlBuilder().buildCreateSchemaSql(schema);
+        return DataResult.of(Sql.builder().sql(sql).build());
     }
 
     @Override

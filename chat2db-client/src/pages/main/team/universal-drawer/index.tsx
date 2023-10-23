@@ -338,7 +338,7 @@ function UniversalDrawer(props: IProps) {
     if (!requestApi || !isNumber(props.byId)) {
       return;
     }
-    let res = await requestApi({
+    const res = await requestApi({
       searchKey: searchKey || pagination.searchKey,
       pageNo,
       pageSize,

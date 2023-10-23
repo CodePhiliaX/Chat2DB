@@ -1,6 +1,7 @@
 import { DatabaseTypeCode } from '@/constants';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { addIntelliSenseField } from './field';
+import i18n from '@/i18n';
 
 /** 当前库下的表 */
 let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
@@ -12,7 +13,7 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
 });
 
 /** 根据不同的数据库，插入不同的表名  */
-const handleInsertText = (text, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
+const handleInsertText = (text: string, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
   if (
     [DatabaseTypeCode.POSTGRESQL, DatabaseTypeCode.ORACLE, DatabaseTypeCode.DB2, DatabaseTypeCode.SQLITE].includes(
       databaseCode,
@@ -72,7 +73,7 @@ const registerIntelliSenseTable = (
             label: {
               label: tableName.name,
               detail: databaseName ? `(${databaseName})` : null,
-              description: '表名',
+              description: i18n('sqlEditor.text.tableName'),
             },
             kind: monaco.languages.CompletionItemKind.Folder,
             insertText: handleInsertText(tableName.name, databaseCode),

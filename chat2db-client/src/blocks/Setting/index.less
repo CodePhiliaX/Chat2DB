@@ -23,7 +23,6 @@
 .title {
   font-size: 14px;
   margin-bottom: 10px;
-
   i {
     margin-left: 10px;
     color: var(--color-primary);
@@ -44,8 +43,8 @@
 
 .menus {
   width: 200px;
-  // background-color: var(--color-bg-subtle);
-  padding: 20px;
+  background-color: var(--color-bg-subtle);
+  padding: 20px 10px 0px 10px;
   position: sticky;
   top: 0;
 
@@ -56,16 +55,26 @@
 
   .menuItem {
     margin: 10px 0px;
-    padding: 10px 20px;
+    padding: 10px 10px 10px 20px;
     cursor: pointer;
     border-radius: 4px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-
-    i {
+    .prefixIcon {
       font-size: 16px;
       margin-right: 10px;
+    }
+    .rightSlot {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .rightSlotAbout {
+      i {
+        font-size: 18px;
+        color: var(--color-error);
+      }
     }
   }
 

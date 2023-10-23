@@ -12,14 +12,13 @@ const chainWebpack = (config: any, { webpack }: any) => {
       languages: ['mysql', 'pgsql', 'sql'],
     },
   ]);
-  config.output.filename(`[name].${yarn_config.app_version || new Date().getTime()}.js`);
 };
 
 export default defineConfig({
   title: 'Chat2DB',
   base: '/',
   publicPath: '/',
-  hash: false,
+  hash: true,
   routes: [
     { path: '/demo', component: '@/pages/demo' },
     { path: '/connections', component: 'main' },
@@ -63,7 +62,7 @@ export default defineConfig({
       localStorage.clear();
       localStorage.setItem('app-local-storage-versions', 'v3');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`,
+    `if (window.electronApi) { window.electronApi.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {
     //   window.addEventListener("load", function () {
     //     navigator.serviceWorker
@@ -98,7 +97,7 @@ export default defineConfig({
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
-    __APP_VERSION__: yarn_config.app_version || '0.0.0',
+    __APP_VERSION__: yarn_config.app_version || '9.9.9',
     __APP_PORT__: yarn_config.app_port,
   },
   esbuildMinifyIIFE: true

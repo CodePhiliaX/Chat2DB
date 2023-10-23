@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin } from 'antd';
+import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin, Button } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
@@ -16,10 +16,12 @@ import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
+import StatusBar from '../StatusBar';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
 import lodash from 'lodash';
+import { v4 as uuid } from 'uuid';
 
 interface ITableProps {
   className?: string;
@@ -30,6 +32,8 @@ interface ITableProps {
 interface IViewTableCellData {
   name: string;
   value: any;
+  colIndex: number;
+  rowNo: string;
 }
 
 interface IUpdateData {
@@ -81,7 +85,7 @@ export default function TableBox(props: ITableProps) {
   // DataList不带列标识的表数据
   // 保存原始的表数据，用于对比新老数据看是否有变化
   const [oldDataList, setOldDataList] = useState<string[][]>([]);
-  // 正在标记的单元格的坐标
+  // 正在编辑的单元格的坐标
   const [editingCell, setEditingCell] = useState<[string, string] | null>(null);
   // input受控的正在编辑的数据
   const [editingData, setEditingData] = useState<string>('');
@@ -101,6 +105,10 @@ export default function TableBox(props: ITableProps) {
   const [allDataReady, setAllDataReady] = useState<boolean>(false);
   // 编辑数据的inputRef
   const editDataInputRef = React.useRef<any>(null);
+  // monacoEditorRef
+  const monacoEditorRef = React.useRef<any>(null);
+  // 表格loading
+  const [tableLoading, setTableLoading] = useState<boolean>(false);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -114,31 +122,27 @@ export default function TableBox(props: ITableProps) {
   };
 
   useEffect(() => {
+    let total: any = queryResultData.fuzzyTotal;
+
+    // 如果total是数字，且不为0，则还是使用原先的total
+    if (lodash.isNumber(paginationConfig.total) && paginationConfig.total !== 0) {
+      total = paginationConfig.total;
+    }
+
+    if (!lodash.isNumber(paginationConfig.total)) {
+      const oldTotal = Number(paginationConfig.total.split('+')[0]);
+      const newTotal = Number(queryResultData.fuzzyTotal.split('+')[0]);
+      if (oldTotal > newTotal) {
+        total = paginationConfig.total;
+      }
+    }
+
     setPaginationConfig({
       ...paginationConfig,
-      total: queryResultData.fuzzyTotal,
+      total,
       hasNextPage: queryResultData.hasNextPage,
     });
   }, [queryResultData]);
-
-  // 判断art-table-body是否出现了滚动条
-  // useEffect(() => {
-  //   const tableBody = document.querySelector('.art-table-body');
-  //   const tableHeader = document.querySelector('.art-table-header');
-  //   if (!tableBody) {
-  //     return;
-  //   }
-  //   const tableBodyHeight = tableBody.clientHeight;
-  //   const tableBoxHeight = tableBoxRef.current?.clientHeight || 0;
-  //   if(!tableHeader){
-  //     return;
-  //   }
-  //   if (tableBodyHeight > tableBoxHeight) {
-  //     tableHeader.classList.add('art-table-body-scroll');
-  //   } else {
-  //     tableHeader.classList.remove('art-table-body-scroll');
-  //   }
-  // }, [tableData]);
 
   useEffect(() => {
     // 每次dataList变化，都需要重新计算tableData
@@ -213,6 +217,42 @@ export default function TableBox(props: ITableProps) {
     messageApi.success(i18n('common.button.copySuccessfully'));
   }
 
+  function monacoEditorEditData() {
+    const editorData = monacoEditorRef?.current?.getAllContent();
+    // 获取原始的该单元格的数据
+    // let _oldData = '';
+    const { rowNo, colIndex } = viewTableCellData as any;
+    oldDataList.forEach((item) => {
+      if (item[0] === rowNo) {
+        if (item[colIndex] !== editorData) {
+          const newTableData = lodash.cloneDeep(tableData);
+          let newRowDataList: any = [];
+          newTableData.forEach((i) => {
+            if (i[`${preCode}0No.`] === rowNo) {
+              i[`${preCode}${colIndex}${columns[colIndex].name}`] = editorData;
+              newRowDataList = Object.keys(i).map((_i) => i[_i]);
+            }
+          });
+          setTableData(newTableData);
+          console.log(newTableData);
+
+          // 添加更新记录
+          setUpdateData([
+            ...updateData,
+            {
+              type: CRUD.UPDATE,
+              oldDataList: item,
+              dataList: newRowDataList,
+              rowNo,
+            },
+          ]);
+        }
+        return;
+      }
+    });
+    setViewTableCellData(null);
+  }
+
   function handleCancel() {
     setViewTableCellData(null);
   }
@@ -233,9 +273,9 @@ export default function TableBox(props: ITableProps) {
     setEditingCell(null);
     setEditingData('');
     const [colIndex, rowNo] = editingCell!;
-    const newTableData = lodash.cloneDeep(tableData);
     let oldRowDataList: string[] = [];
     let newRowDataList: string[] = [];
+    const newTableData = lodash.cloneDeep(tableData);
     newTableData.forEach((item) => {
       if (item[`${preCode}0No.`] === rowNo) {
         item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
@@ -396,8 +436,14 @@ export default function TableBox(props: ITableProps) {
                 <>
                   <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
                   <div className={styles.tableHoverBox}>
-                    <Iconfont code="&#xe606;" onClick={viewTableCell.bind(null, { name: item.name, value })} />
-                    <Iconfont code="&#xeb4e;" onClick={copyTableCell.bind(null, { name: item.name, value })} />
+                    <Iconfont
+                      code="&#xe606;"
+                      onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
+                    <Iconfont
+                      code="&#xeb4e;"
+                      onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
                   </div>
                 </>
               )}
@@ -449,10 +495,12 @@ export default function TableBox(props: ITableProps) {
   };
 
   const onClickTotalBtn = async () => {
-    return sqlService.getDMLCount({
-      sql: queryResultData.sql,
+    const res = await sqlService.getDMLCount({
+      sql: queryResultData.originalSql,
       ...(props.executeSqlParams || {}),
     });
+    setPaginationConfig({ ...paginationConfig, total: res });
+    return res;
   };
 
   // 处理撤销
@@ -609,8 +657,9 @@ export default function TableBox(props: ITableProps) {
 
   // 获取表格数据 接受一个参数params 包含IExecuteSqlParams中的一个或多个
   const getTableData = (params?: Partial<IExecuteSqlParams>) => {
+    setTableLoading(true);
     const executeSQLParams: IExecuteSqlParams = {
-      sql: queryResultData.sql,
+      sql: queryResultData.originalSql,
       dataSourceId: props.executeSqlParams?.dataSourceId,
       databaseName: props.executeSqlParams?.databaseName,
       schemaName: props.executeSqlParams?.schemaName,
@@ -620,6 +669,7 @@ export default function TableBox(props: ITableProps) {
     };
 
     return sqlService.executeSql(executeSQLParams).then((res) => {
+      setTableLoading(false);
       setQueryResultData(res?.[0]);
       setUpdateData([]);
     });
@@ -701,7 +751,7 @@ export default function TableBox(props: ITableProps) {
           <div className={styles.toolBar}>
             <div className={styles.toolBarItem}>
               <MyPagination
-                data={paginationConfig}
+                paginationConfig={paginationConfig}
                 onPageNoChange={onPageNoChange}
                 onPageSizeChange={onPageSizeChange}
                 onClickTotalBtn={onClickTotalBtn}
@@ -709,7 +759,7 @@ export default function TableBox(props: ITableProps) {
             </div>
             {queryResultData.canEdit && (
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
-                <Popover content={i18n('editTableData.tips.addRow')} trigger="hover">
+                <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.addRow')} trigger="hover">
                   <div
                     onClick={handleCreateData}
                     className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
@@ -717,7 +767,7 @@ export default function TableBox(props: ITableProps) {
                     <Iconfont code="&#xe61b;" />
                   </div>
                 </Popover>
-                <Popover content={i18n('editTableData.tips.deleteRow')} trigger="hover">
+                <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.deleteRow')} trigger="hover">
                   <div
                     onClick={handleDeleteData}
                     className={classnames(styles.deleteDataBar, styles.editTableDataBarItem, {
@@ -727,7 +777,7 @@ export default function TableBox(props: ITableProps) {
                     <Iconfont code="&#xe644;" />
                   </div>
                 </Popover>
-                <Popover content={i18n('editTableData.tips.revert')} trigger="hover">
+                <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.revert')} trigger="hover">
                   <div
                     onClick={handleRevoke}
                     className={classnames(styles.revokeBar, styles.editTableDataBarItem, {
@@ -737,7 +787,11 @@ export default function TableBox(props: ITableProps) {
                     <Iconfont code="&#xe6e2;" />
                   </div>
                 </Popover>
-                <Popover content={i18n('editTableData.tips.previewPendingChanges')} trigger="hover">
+                <Popover
+                  mouseEnterDelay={0.8}
+                  content={i18n('editTableData.tips.previewPendingChanges')}
+                  trigger="hover"
+                >
                   <div
                     onClick={handleViewSql}
                     className={classnames(styles.viewSqlBar, styles.editTableDataBarItem, {
@@ -747,7 +801,7 @@ export default function TableBox(props: ITableProps) {
                     <Iconfont code="&#xe654;" />
                   </div>
                 </Popover>
-                <Popover content={i18n('editTableData.tips.submit')} trigger="hover">
+                <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.submit')} trigger="hover">
                   <div
                     onClick={handleUpdateSubmit}
                     className={classnames(styles.updateSubmitBar, styles.editTableDataBarItem, {
@@ -769,7 +823,11 @@ export default function TableBox(props: ITableProps) {
             </div>
           </div>
           {allDataReady && (
-            <div className={styles.supportBaseTableBox}>
+            <div
+              ref={tableBoxRef}
+              className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
+            >
+              {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
               <SupportBaseTable
                 className={classnames('supportBaseTable', props.className, styles.table)}
                 components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
@@ -788,17 +846,18 @@ export default function TableBox(props: ITableProps) {
               />
             </div>
           )}
-          {/* {bottomStatus} */}
+          <StatusBar
+            description={queryResultData.description}
+            duration={queryResultData.duration}
+            dataLength={tableData.length}
+          />
         </>
       );
     }
   };
 
   return (
-    <div
-      ref={tableBoxRef}
-      className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}
-    >
+    <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
       {renderContent()}
       <Modal
         title={viewTableCellData?.name}
@@ -806,21 +865,28 @@ export default function TableBox(props: ITableProps) {
         onCancel={handleCancel}
         width="60vw"
         maskClosable={false}
-        footer={false}
+        destroyOnClose={true}
+        footer={[
+          <Button key="1" type="primary" onClick={monacoEditorEditData}>
+            {i18n('common.button.modify')}
+          </Button>,
+        ]}
       >
-        <div className={styles.monacoEditor}>
-          <MonacoEditor
-            id="view_table-Cell_data"
-            appendValue={{
-              text: viewTableCellData?.value,
-              range: 'reset',
-            }}
-            options={{
-              lineNumbers: 'off',
-              readOnly: true,
-            }}
-          />
-        </div>
+        <>
+          <div className={styles.monacoEditor}>
+            <MonacoEditor
+              ref={monacoEditorRef}
+              id={`view_table-Cell_data-${uuid()}`}
+              appendValue={{
+                text: viewTableCellData?.value,
+                range: 'reset',
+              }}
+              options={{
+                lineNumbers: 'off',
+              }}
+            />
+          </div>
+        </>
       </Modal>
       <Modal
         width="60vw"

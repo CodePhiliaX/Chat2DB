@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.http;
 
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.WhiteListRequest;
@@ -74,6 +75,15 @@ public interface GatewayClientService {
     ActionResult schemaVectorSave(@Body TableSchemaRequest request);
 
     /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Post(url = "/api/client/es/schema/save", contentType = "application/json")
+    ActionResult schemaEsSave(@Body EsTableSchemaRequest request);
+
+    /**
      * save knowledge vector
      *
      * @param searchVectors
@@ -90,6 +100,15 @@ public interface GatewayClientService {
      */
     @Post(url = "/api/client/milvus/schema/search", contentType = "application/json")
     DataResult<TableSchemaResponse> schemaVectorSearch(@Body TableSchemaRequest request);
+
+    /**
+     * save table schema vector
+     *
+     * @param request
+     * @return
+     */
+    @Post(url = "/api/client/es/schema/search", contentType = "application/json")
+    DataResult<EsTableSchemaResponse> schemaEsSearch(@Body EsTableSchemaRequest request);
 
     /**
      * check in white list
