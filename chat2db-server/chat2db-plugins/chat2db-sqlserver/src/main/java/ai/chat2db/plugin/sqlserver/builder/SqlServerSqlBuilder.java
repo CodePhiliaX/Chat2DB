@@ -153,7 +153,7 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         sqlBuilder.append("\ngo\n");
         if (StringUtils.isNotBlank(database.getComment())) {
             sqlBuilder.append("exec [" + database.getName() + "].sys. sp_addextendedproperty 'MS_Description','")
-                    .append(database.getComment()).append("'").append("'\ngo\n");
+                    .append(database.getComment()).append("'").append("\ngo\n");
         }
         return sqlBuilder.toString();
     }
@@ -166,7 +166,7 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         if (StringUtils.isNotBlank(schema.getComment())) {
             sqlBuilder.append("exec sp_addextendedproperty 'MS_Description','")
                     .append(schema.getComment()).append("'").append(",'SCHEMA'")
-                    .append(",'").append(schema.getName()).append("'").append("'\ngo\n");
+                    .append(",'").append(schema.getName()).append("'").append("\ngo\n");
         }
         return sqlBuilder.toString();
     }
