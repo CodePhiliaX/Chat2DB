@@ -3,13 +3,15 @@ package ai.chat2db.plugin.oracle.builder;
 import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
+import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
-public class OracleSqlBuilder implements SqlBuilder {
+public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
@@ -124,7 +126,18 @@ public class OracleSqlBuilder implements SqlBuilder {
             sqlBuilder.append(startRow);
         }
         return sqlBuilder.toString();
-
-
     }
+
+//    @Override
+//    public String buildCreateSchemaSql(Schema schema){
+//        StringBuilder sqlBuilder = new StringBuilder();
+//        sqlBuilder.append("CREATE SCHEMA \""+schema.getName()+"\"");
+//        if(StringUtils.isNotBlank(schema.getOwner())){
+//            sqlBuilder.append(" AUTHORIZATION ").append(schema.getOwner());
+//        }
+//        if(StringUtils.isNotBlank(schema.getComment())){
+//            sqlBuilder.append("; COMMENT ON SCHEMA \"").append(schema.getName()).append("\" IS '").append(schema.getComment()).append("';");
+//        }
+//        return sqlBuilder.toString();
+//    }
 }

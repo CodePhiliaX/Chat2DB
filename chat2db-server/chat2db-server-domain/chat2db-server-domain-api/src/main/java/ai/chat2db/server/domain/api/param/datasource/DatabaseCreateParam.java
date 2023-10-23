@@ -14,9 +14,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @NoArgsConstructor
-public class DatabaseOperationParam {
+public class DatabaseCreateParam {
 
-    private String databaseName;
+    private Long dataSourceId;
 
-    private String newDatabaseName;
+    private String name;
+
+    private String comment;
+
+    private String charset;
+
+    private String collation;
+
 }

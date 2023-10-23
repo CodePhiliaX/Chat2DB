@@ -3,13 +3,15 @@ package ai.chat2db.plugin.mysql.builder;
 import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
 import ai.chat2db.plugin.mysql.type.MysqlIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
+import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class MysqlSqlBuilder implements SqlBuilder {
+public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
@@ -121,5 +123,20 @@ public class MysqlSqlBuilder implements SqlBuilder {
         return sqlBuilder.toString();
     }
 
+
+
+
+    @Override
+    public String buildCreateDatabaseSql(Database database) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE DATABASE "+database.getName());
+        if (StringUtils.isNotBlank(database.getCharset())) {
+            sqlBuilder.append(" DEFAULT CHARACTER SET=").append(database.getCharset());
+        }
+        if (StringUtils.isNotBlank(database.getCollation())) {
+            sqlBuilder.append(" COLLATE=").append(database.getCollation());
+        }
+        return sqlBuilder.toString();
+    }
 
 }
