@@ -43,13 +43,12 @@ contextBridge.exposeInMainWorld('electronApi', {
   quitApp: () => {
     ipcRenderer.send('quit-app');
   },
-  beforeQuitApp: (callback)=>{
+  beforeQuitApp: (callback) => {
     ipcRenderer.on('before-quit-app', () => {
       callback();
     });
   },
-  registerAppMenu: (menuProps)=>{
+  registerAppMenu: (menuProps) => {
     ipcRenderer.send('register-app-menu', menuProps);
-  }
+  },
 });
-

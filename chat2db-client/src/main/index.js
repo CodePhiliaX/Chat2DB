@@ -31,7 +31,7 @@ function createWindow() {
   // 关闭window时触发下列事件.
   mainWindow.on('closed', function (event) {
     event.preventDefault();
-    mainWindow = null;
+    // mainWindow = null;
   });
 
   // 监听打开新窗口事件 用默认浏览器打开
@@ -56,9 +56,9 @@ app.on('ready', () => {
   registerAnalysis();
 
   app.on('activate', function () {
-    if (mainWindow === null) {
-      createWindow();
-    }
+    // if (mainWindow === null) {
+    // }
+    createWindow();
   });
 });
 
@@ -69,7 +69,8 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  mainWindow.webContents.send('before-quit-app');
+  // 退出应用前触发before-quit-app
+  // mainWindow.webContents.send('before-quit-app');
 });
 
 ipcMain.handle('get-product-name', () => {
