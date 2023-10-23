@@ -44,7 +44,7 @@ export const workspaceTabConfig: {
     icon: '\ue6b6'
   },
   [WorkspaceTabType.EditTableData]: {
-    icon: '\ue7b5'
+    icon: '\ue618'
   }
 }
 

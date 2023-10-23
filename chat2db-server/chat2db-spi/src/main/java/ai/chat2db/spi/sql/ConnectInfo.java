@@ -129,11 +129,22 @@ public class ConnectInfo {
 
     public Connection connection;
 
-
+    /**
+     * Database version used for different database
+     */
+    private String dbVersion;
 
     
     private DriverConfig driverConfig;
 
+
+    public String getDbVersion() {
+        return dbVersion;
+    }
+
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = dbVersion;
+    }
 
     public DriverConfig getDriverConfig() {
         return driverConfig;

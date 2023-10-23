@@ -14,10 +14,33 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.SortUtils;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
+import static ai.chat2db.spi.util.SortUtils.sortDatabase;
+
 public class SqlServerMetaData extends DefaultMetaService implements MetaData {
+
+
+
+    private List<String> systemDatabases = Arrays.asList("master", "model", "msdb", "tempdb");
+    @Override
+    public List<Database> databases(Connection connection) {
+        List<Database> databases = SQLExecutor.getInstance().databases(connection);
+        return sortDatabase(databases,systemDatabases,connection);
+    }
+
+    private List<String> systemSchemas = Arrays.asList("guest", "INFORMATION_SCHEMA", "sys", "db_owner",
+            "db_accessadmin", "db_securityadmin", "db_ddladmin", "db_backupoperator", "db_datareader", "db_datawriter",
+            "db_denydatareader", "db_denydatawriter");
+
+    @Override
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        return SortUtils.sortSchema(schemas, systemSchemas);
+    }
+
     private String functionSQL
             = "CREATE FUNCTION tableSchema.ufn_GetCreateTableScript( @schema_name NVARCHAR(128), @table_name NVARCHAR"
             + "(128)) RETURNS NVARCHAR(MAX) AS BEGIN DECLARE @CreateTableScript NVARCHAR(MAX); DECLARE @IndexScripts "
@@ -49,7 +72,6 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         try {
-            System.out.println(functionSQL);
             SQLExecutor.getInstance().executeSql(connection, functionSQL.replace("tableSchema", schemaName),
                     resultSet -> null);
         } catch (Exception e) {

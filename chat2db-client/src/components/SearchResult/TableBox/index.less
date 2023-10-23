@@ -55,11 +55,8 @@
       overflow: hidden !important;
       top: 0px !important;
     }
-    .art-table-body {
-      // 隐藏滚动条
-      ::-webkit-scrollbar {
-        display: none;
-      }
+    .art-table-body::-webkit-scrollbar {
+      display: none;
     }
     .art-table-body-scroll {
       padding-right: 6px;
@@ -154,6 +151,23 @@
   flex: 1;
   overflow-y: auto;
   height: 0px;
+  position: relative;
+  .supportBaseTableSpin {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    background-color: var(--color-fill-quaternary);
+  }
+}
+
+.supportBaseTableBoxHidden {
+  overflow: hidden;
 }
 
 .table {
@@ -172,13 +186,15 @@
   background-color: var(--color-bg-base);
 
   .tableItemContent {
-    overflow: hidden;
     max-height: 30px;
     line-height: 30px;
     flex: 1;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
     &:hover {
-      overflow: auto;
-      line-height: 16px;
+      overflow-x: auto;
+      // line-height: 14px;
     }
   }
 
@@ -272,6 +288,8 @@
   overflow: hidden;
   height: 60vh;
   margin-top: -15px;
+  .modifyButton {
+  }
 }
 
 .errorDetail {

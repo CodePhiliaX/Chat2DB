@@ -12,13 +12,12 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -47,7 +46,18 @@ public class SqlUtils {
                             if (expressionItem.getAlias() != null) {
                                 //canEdit = false; // 找到了一个别名
                                 executeResult.setCanEdit(false);
-                                return ;
+                                return;
+                            }
+                            if (item instanceof SelectExpressionItem) {
+                                SelectExpressionItem selectExpressionItem = (SelectExpressionItem) item;
+                                // 如果表达式是一个函数
+                                if (selectExpressionItem.getExpression() instanceof Function) {
+                                    Function function = (Function) selectExpressionItem.getExpression();
+                                    // 检查函数是否为 "COUNT"
+                                    if ("COUNT".equalsIgnoreCase(function.getName())) {
+                                        executeResult.setCanEdit(false);
+                                        return;                                    }
+                                }
                             }
                         }
                     }
@@ -58,6 +68,8 @@ public class SqlUtils {
                                 sqlSelectStatement.getSelect().getFirstQueryBlock().getFrom());
                         executeResult.setTableName(getMetaDataTableName(sqlExprTableSource.getCatalog(), sqlExprTableSource.getSchema(), sqlExprTableSource.getTableName()));
                     }
+                }else {
+                    executeResult.setCanEdit(false);
                 }
             }
         } catch (Exception e) {
@@ -66,7 +78,7 @@ public class SqlUtils {
     }
 
     private static String getMetaDataTableName(String... names) {
-        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name ->  name ).collect(Collectors.joining("."));
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> name).collect(Collectors.joining("."));
     }
 
     public static String formatSQLString(Object para) {
@@ -116,4 +128,29 @@ public class SqlUtils {
         DataTypeEnum dataTypeEnum = DataTypeEnum.getByCode(dataType);
         return dataTypeEnum.getSqlValue(value);
     }
+
+    public static boolean hasPageLimit(String sql, DbType dbType) {
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Select) {
+                Select selectStatement = (Select) statement;
+                SelectBody selectBody = selectStatement.getSelectBody();
+                // 检查常见的分页方法
+                if (selectBody instanceof PlainSelect) {
+                    PlainSelect plainSelect = (PlainSelect) selectBody;
+                    // 检查 LIMIT
+                    if (plainSelect.getLimit() != null || plainSelect.getOffset() != null || plainSelect.getTop() != null || plainSelect.getFetch() != null) {
+                        return true;
+                    }
+                    if (DbType.oracle.equals(dbType)) {
+                        return sql.contains("ROWNUM") || sql.contains("rownum");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return false;
+    }
+
 }

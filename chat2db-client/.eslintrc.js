@@ -28,6 +28,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
+  ignorePatterns: ['src/main'],
   rules: {
     'func-names': 0, // 函数表达式必须有名字
     'one-var': [1, 'never'], // 连续声明

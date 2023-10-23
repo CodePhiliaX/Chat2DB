@@ -3,9 +3,8 @@ package ai.chat2db.plugin.postgresql.builder;
 import ai.chat2db.plugin.postgresql.type.PostgreSQLColumnTypeEnum;
 import ai.chat2db.plugin.postgresql.type.PostgreSQLIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
+import ai.chat2db.spi.model.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -16,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public class PostgreSQLSqlBuilder implements SqlBuilder {
+public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
@@ -156,5 +155,51 @@ public class PostgreSQLSqlBuilder implements SqlBuilder {
         return script.toString();
     }
 
+    @Override
+    public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
+        StringBuilder sqlStr = new StringBuilder(sql.length() + 17);
+        sqlStr.append(sql);
+        if (offset == 0) {
+            sqlStr.append(" LIMIT ");
+            sqlStr.append(pageSize);
+        } else {
+            sqlStr.append(" LIMIT ");
+            sqlStr.append(pageSize);
+            sqlStr.append(" OFFSET ");
+            sqlStr.append(offset);
+        }
+        return sqlStr.toString();
+    }
 
+    @Override
+    public String buildCreateDatabaseSql(Database database) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE DATABASE \""+database.getName()+"\"");
+        sqlBuilder.append("\nWITH ");
+        if(StringUtils.isNotBlank(database.getCharset())){
+            sqlBuilder.append("\n LC_CTYPE = '").append(database.getCharset()).append("' ");
+        }
+        if(StringUtils.isNotBlank(database.getCollation())){
+            sqlBuilder.append("\n LC_COLLATE = '").append(database.getCollation()).append("' ");
+        }
+
+        if(StringUtils.isNotBlank(database.getComment())){
+            sqlBuilder.append("; COMMENT ON DATABASE \"").append(database.getName()).append("\" IS '").append(database.getComment()).append("';");
+        }
+        return sqlBuilder.toString();
+    }
+
+
+    @Override
+    public String buildCreateSchemaSql(Schema schema){
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("CREATE SCHEMA \""+schema.getName()+"\"");
+        if(StringUtils.isNotBlank(schema.getOwner())){
+            sqlBuilder.append(" AUTHORIZATION ").append(schema.getOwner());
+        }
+        if(StringUtils.isNotBlank(schema.getComment())){
+            sqlBuilder.append("; COMMENT ON SCHEMA \"").append(schema.getName()).append("\" IS '").append(schema.getComment()).append("';");
+        }
+        return sqlBuilder.toString();
+    }
 }

@@ -1,30 +1,89 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+} from 'react';
 import classnames from 'classnames';
-import TabsNew from '@/components/TabsNew';
+import Tabs from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
-import Output from '@/components/Output';
-import { IManageResultData } from '@/typings';
+// import Output from '@/components/Output';
+import { IManageResultData, IResultConfig } from '@/typings';
 import TableBox from './TableBox';
 import StatusBar from './StatusBar';
 import styles from './index.less';
 import EmptyImg from '@/assets/img/empty.svg';
 import i18n from '@/i18n';
+import sqlServer, { IExecuteSqlParams } from '@/service/sql';
+import { v4 as uuidV4 } from 'uuid';
+import { Spin } from 'antd';
 
 interface IProps {
   className?: string;
-  queryResultDataList?: IManageResultData[];
+  sql?: string;
   executeSqlParams: any;
 }
 
-export default memo<IProps>((props) => {
-  const { className, queryResultDataList = [] } = props;
-  const [currentTab, setCurrentTab] = useState<string | number | undefined>();
-  const [resultDataList, setResultDataList] = useState<IManageResultData[]>(queryResultDataList);
+const defaultResultConfig: IResultConfig = {
+  pageNo: 1,
+  pageSize: 200,
+  total: 0,
+  hasNextPage: true,
+};
+
+export interface ISearchResultRef {
+  handleExecuteSQL: (sql: string) => void;
+}
+
+export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
+  const { className, sql, executeSqlParams } = props;
+  // const [currentTab, setCurrentTab] = useState<string | number | undefined>();
+  const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
+  const [tableLoading, setTableLoading] = useState(false);
+  const controllerRef = useRef<AbortController>();
 
   useEffect(() => {
-    setCurrentTab(queryResultDataList[0]?.uuid);
-  }, [queryResultDataList]);
+    if (sql) {
+      handleExecuteSQL(sql);
+    }
+  }, [sql]);
+
+  useImperativeHandle(ref, () => ({
+    handleExecuteSQL,
+  }));
+
+  /**
+   * 执行SQL
+   * @param sql
+   */
+  const handleExecuteSQL = async (_sql: string) => {
+    setTableLoading(true);
+
+    const executeSQLParams: IExecuteSqlParams = {
+      sql: _sql,
+      ...defaultResultConfig,
+      ...executeSqlParams,
+    };
+
+    controllerRef.current = new AbortController();
+    // 获取当前SQL的查询结果
+    let sqlResult = await sqlServer.executeSql(executeSQLParams, {
+      signal: controllerRef.current.signal,
+    });
+
+    sqlResult = sqlResult.map((res) => ({
+      ...res,
+      uuid: uuidV4(),
+    }));
+
+    setResultDataList(sqlResult);
+    setTableLoading(false);
+  };
 
   const onChange = useCallback(() => {
     // setCurrentTab(uuid);
@@ -75,7 +134,7 @@ export default memo<IProps>((props) => {
   };
 
   const tabsList = useMemo(() => {
-    return resultDataList.map((queryResultData, index) => {
+    return resultDataList?.map((queryResultData, index) => {
       return {
         prefixIcon: (
           <Iconfont
@@ -95,49 +154,67 @@ export default memo<IProps>((props) => {
   const onEdit = useCallback(
     (type: 'add' | 'remove', value) => {
       if (type === 'remove') {
-        const newResultDataList = resultDataList.filter((d) => d.uuid !== value.key);
+        const newResultDataList = resultDataList?.filter((d) => d.uuid !== value.key);
         setResultDataList(newResultDataList);
       }
     },
     [resultDataList],
   );
 
-  const outputTabAndTabsList = useMemo(() => {
-    const params = {
-      pageNo: 1,
-      pageSize: 10,
-    };
+  // const outputTabAndTabsList = useMemo(() => {
+  //   const params = {
+  //     pageNo: 1,
+  //     pageSize: 10,
+  //   };
 
-    return [
-      {
-        prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
-        label: 'Output',
-        key: 'output',
-        children: <Output params={params} />,
-        styles: { width: '80px' },
-        canClosed: false,
-      },
-      ...tabsList,
-    ];
-  }, [tabsList]);
+  //   return [
+  //     {
+  //       prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
+  //       label: 'Output',
+  //       key: 'output',
+  //       children: <Output params={params} />,
+  //       styles: { width: '80px' },
+  //       canClosed: false,
+  //     },
+  //     ...tabsList,
+  //   ];
+  // }, [tabsList]);
+
+  const stopExecuteSql = () => {
+    controllerRef.current && controllerRef.current.abort();
+    setResultDataList([]);
+    setTableLoading(false);
+  };
 
   return (
     <div className={classnames(className, styles.searchResult)}>
-      {tabsList.length ? (
-        <TabsNew
-          hideAdd
-          // concealTabHeader={outputTabAndTabsList?.length === 1}
-          className={styles.tabs}
-          onChange={onChange as any}
-          activeKey={currentTab}
-          onEdit={onEdit as any}
-          items={tabsList}
-        />
-      ) : (
-        <div className={styles.noData}>
-          <img src={EmptyImg} />
-          <p>{i18n('common.text.noData')}</p>
+      {tableLoading ? (
+        <div className={styles.tableLoading}>
+          <Spin />
+          <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
+            {i18n('common.button.cancelRequest')}
+          </div>
         </div>
+      ) : (
+        <>
+          {tabsList?.length ? (
+            <Tabs
+              hideAdd
+              // concealTabHeader={outputTabAndTabsList?.length === 1}
+              className={styles.tabs}
+              onChange={onChange as any}
+              // activeKey={currentTab}
+              onEdit={onEdit as any}
+              items={tabsList}
+              concealTabHeader={tabsList.length === 1}
+            />
+          ) : (
+            <div className={styles.noData}>
+              <img src={EmptyImg} />
+              <p>{i18n('common.text.noData')}</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

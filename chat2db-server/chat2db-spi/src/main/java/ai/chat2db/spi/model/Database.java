@@ -31,4 +31,11 @@ public class Database implements Serializable {
      * schema name
      */
     private List<Schema> schemas;
+
+
+    private String comment;
+
+    private String charset;
+
+    private String collation;
 }
