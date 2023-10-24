@@ -341,7 +341,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                           <div
                             className={styles.dropdownFooter}
                             onClick={() => {
-                              setOpenDBCascaderDropdown(false);
+                              setOpenSchemaCascaderDropdown(false);
                               createDatabaseRef.current?.setOpen(true, 'schema');
                             }}
                           >
