@@ -4,17 +4,22 @@ import java.sql.Connection;
 
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
+import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
+import org.apache.commons.lang3.StringUtils;
 
 public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void connectDatabase(Connection connection, String database) {
-        //try {
-        //    SQLExecutor.getInstance().execute(connection,"SELECT pg_database_size('"+database+"');");
-        //} catch (SQLException e) {
-        //    throw new RuntimeException(e);
-        //}
+        try {
+            ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+            if (!StringUtils.isEmpty(connectInfo.getSchemaName())) {
+                SQLExecutor.getInstance().execute(connection, "SET search_path TO \"" + connectInfo.getSchemaName() + "\"");
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     @Override
@@ -26,7 +31,7 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         }
         connectInfo.setUrl(url);
 
-       return super.getConnection(connectInfo);
+        return super.getConnection(connectInfo);
     }
 
 
@@ -53,8 +58,8 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "DROP TABLE "+ tableName;
-        SQLExecutor.getInstance().executeSql(connection,sql, resultSet -> null);
+        String sql = "DROP TABLE " + tableName;
+        SQLExecutor.getInstance().executeSql(connection, sql, resultSet -> null);
     }
 
 }

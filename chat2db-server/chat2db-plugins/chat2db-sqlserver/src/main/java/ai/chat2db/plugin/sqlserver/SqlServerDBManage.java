@@ -11,7 +11,7 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void connectDatabase(Connection connection, String database) {
         try {
-            SQLExecutor.getInstance().execute(connection,"use [" + database + "];");
+            SQLExecutor.getInstance().execute(connection, "use [" + database + "];");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
