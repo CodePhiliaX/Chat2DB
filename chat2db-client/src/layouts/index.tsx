@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig, injectThemeVar } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
-import configService from '@/service/config';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
@@ -34,7 +33,7 @@ declare global {
     electronApi?: {
       startServerForSpawn: () => void;
       quitApp: () => void;
-      beforeQuitApp: (fn: () => void) => void;
+      setBaseURL: (baseUrl:string) => void;
       registerAppMenu: (data:any) => void;
     };
   }
@@ -111,10 +110,9 @@ function AppContainer() {
     window.electronApi?.registerAppMenu({
       version: __APP_VERSION__,
     })
-    
-    window.electronApi?.beforeQuitApp(()=>{
-      configService.stopJavaService()
-    })
+    // 把关闭java服务的的方法传给electron
+    window.electronApi?.setBaseURL?.(window._BaseURL)
+    // console.log(window.electronApi)
   }
 
   // 初始化indexedDB

@@ -13,6 +13,7 @@ import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
 import i18n from '@/i18n';
 import CreateDatabase, { ICreateDatabaseRef } from '@/components/CreateDatabase';
+import { getCurrentWorkspaceDatabase } from '@/utils/localStorage';
 
 interface IProps {
   className?: string;
@@ -32,6 +33,8 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 
 // 不支持创建schema的数据库类型
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
+
+const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
@@ -63,6 +66,13 @@ const WorkspaceHeader = memo<IProps>((props) => {
     }
     // 如果没有curConnection默认选第一个
     if (!curConnection?.id && connectionList.length) {
+      if (
+        localStorageWorkspaceDatabase.dataSourceId &&
+        connectionList.find((t: any) => Number(t.id)  === Number(localStorageWorkspaceDatabase.dataSourceId))
+      ) {
+        connectionChange([localStorageWorkspaceDatabase.dataSourceId]);
+        return;
+      }
       connectionChange([connectionList[0].id]);
       return;
     }
@@ -71,6 +81,11 @@ const WorkspaceHeader = memo<IProps>((props) => {
       // 如果curConnection不再connectionList里，也是默认选第一个
       const flag = connectionList.findIndex((t: any) => t.id === curConnection?.id);
       if (flag === -1) {
+        if (localStorageWorkspaceDatabase.dataSourceId  &&
+          connectionList.find((t: any) => Number(t.id)  === Number(localStorageWorkspaceDatabase.dataSourceId))) {
+          connectionChange([localStorageWorkspaceDatabase.dataSourceId]);
+          return;
+        }
         connectionChange([connectionList[0].id]);
         return;
       }
@@ -90,10 +105,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
       getDatabaseList(isRefresh);
       setIsRefresh(false);
     }
-    // connectionList转换成可用的ConnectionOptions
-    // if (!connectionList.length) {
-    //   setNoConnectionModal(true);
-    // }
     setConnectionOptions(
       connectionList?.map((t) => {
         return {
@@ -146,12 +157,18 @@ const WorkspaceHeader = memo<IProps>((props) => {
             };
           }) || [];
         setCurDBOptions(dbList);
-        // 如果是切换那么就默认取列表的第一个database， 如果不是切换那么就取缓存的，如果缓存没有还是取列表第一个（这里是兜底，如果原先他并没有database，后来他加了database，如果还是取缓存的空就不对了）
-        const databaseName =
-          curWorkspaceParams.dataSourceId !== curConnection?.id
-            ? dbList[0]?.label
-            : curWorkspaceParams.databaseName || dbList[0]?.label;
-        getSchemaList(databaseName, refresh);
+        let databaseName = '';
+        if(dbList.find((t: any) => t.value === localStorageWorkspaceDatabase.databaseName)){
+          databaseName = localStorageWorkspaceDatabase.databaseName!;
+        }else{
+          // 如果是切换那么就默认取列表的第一个database， 如果不是切换那么就取缓存的，如果缓存没有还是取列表第一个（这里是兜底，如果原先他并没有database，后来他加了database，如果还是取缓存的空就不对了）
+          databaseName =
+            curWorkspaceParams.dataSourceId !== curConnection?.id
+              ? dbList[0]?.label
+              : curWorkspaceParams.databaseName || dbList[0]?.label;
+        }
+        databaseChange([databaseName], [{ label: databaseName }],refresh);
+        // getSchemaList(databaseName, refresh);
       })
       .catch(() => {
         setCascaderLoading(false);
@@ -183,10 +200,17 @@ const WorkspaceHeader = memo<IProps>((props) => {
             };
           }) || [];
         setCurSchemaOptions(schemaList);
-        const schemaName =
-          curWorkspaceParams.dataSourceId !== curConnection?.id
-            ? schemaList[0]?.label
-            : curWorkspaceParams.schemaName || schemaList[0]?.label;
+
+        let schemaName = '';
+        if(schemaList.find((t: any) => t.value === localStorageWorkspaceDatabase.schemaName)){
+          schemaName = localStorageWorkspaceDatabase.schemaName!;
+        }else{
+          schemaName =
+            curWorkspaceParams.dataSourceId !== curConnection?.id
+              ? schemaList[0]?.label
+              : curWorkspaceParams.schemaName || schemaList[0]?.label;
+        }
+        // schemaChange([schemaName], [{ label: schemaName }]);
         const data: any = {
           dataSourceId: curConnection.id,
           dataSourceName: curConnection.alias,
@@ -245,17 +269,17 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }
 
   // 数据库切换
-  function databaseChange(valueArr: any, selectedOptions: any) {
-    if (selectedOptions[0].label !== curWorkspaceParams.databaseName) {
-      getSchemaList(selectedOptions[0].label);
-    }
+  function databaseChange(valueArr: any, selectedOptions: any,refresh) {
+    // if (selectedOptions[0].label !== curWorkspaceParams.databaseName) {
+      getSchemaList(selectedOptions[0].label,refresh);
+    // }
   }
 
   // schema切换
   function schemaChange(valueArr: any, selectedOptions: any) {
-    if (selectedOptions[0].label !== curWorkspaceParams.schemaName) {
+    // if (selectedOptions[0].label !== curWorkspaceParams.schemaName) {
       setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value });
-    }
+    // }
   }
 
   function handleRefresh() {
@@ -341,7 +365,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                           <div
                             className={styles.dropdownFooter}
                             onClick={() => {
-                              setOpenDBCascaderDropdown(false);
+                              setOpenSchemaCascaderDropdown(false);
                               createDatabaseRef.current?.setOpen(true, 'schema');
                             }}
                           >

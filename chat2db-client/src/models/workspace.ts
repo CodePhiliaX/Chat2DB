@@ -58,7 +58,7 @@ const WorkspaceModel: IWorkspaceModelType = {
 
   state: {
     databaseAndSchema: undefined,
-    curWorkspaceParams: getCurrentWorkspaceDatabase(),
+    curWorkspaceParams: {} as any,
     doubleClickTreeNodeData: undefined,
     consoleList: [],
     openConsoleList: [],
