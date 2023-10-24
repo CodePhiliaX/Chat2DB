@@ -319,7 +319,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       const id = uuidV4();
       let flag = false;
       workspaceTabList.forEach((t) => {
-        console.log(t.uniqueData?.sql === sql)
         if (t.uniqueData?.sql === sql) {
           setActiveConsoleId(t.id);
           flag = true

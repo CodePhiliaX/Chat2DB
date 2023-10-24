@@ -158,7 +158,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       .then((res: any) => {
         const value = defaultValue || res?.[0]?.ddl || '';
         const oldValue = editorRef?.current?.getAllContent();
-        console.log(value !== oldValue)
         if(value !== oldValue){
           editorRef?.current?.setValue(value, 'reset');
         }

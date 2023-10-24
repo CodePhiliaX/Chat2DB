@@ -39,7 +39,6 @@ const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
   const { connectionList, curConnection } = connectionModel;
-  console.log(connectionList);
   const { curWorkspaceParams } = workspaceModel;
   const { curPage } = mainPageModel;
   const [cascaderLoading, setCascaderLoading] = useState(false);
