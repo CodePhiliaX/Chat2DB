@@ -78,6 +78,12 @@ export default function AboutUs(props: IProps) {
             {i18n('setting.button.restart')}
           </Button>
         );
+      // case UpdatedStatusEnum.UPDATED:
+      //   return (
+      //     <Button icon={<RedoOutlined />} type="primary">
+      //       {i18n('setting.button.restart')}
+      //     </Button>
+      //   );
       default:
         return false;
     }
