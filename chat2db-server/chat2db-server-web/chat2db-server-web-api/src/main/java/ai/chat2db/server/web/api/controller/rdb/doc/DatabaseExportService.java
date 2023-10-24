@@ -108,7 +108,7 @@ public class DatabaseExportService {
         try {
             export(outputStream, exportOptions);
         } catch (Exception e) {
-            throw new RuntimeException("导出失败！请联系开发者，邮箱：963565242@qq.com" + e);
+            throw new RuntimeException("导出失败！请联系开发者" + e);
         }
         init();
     }
