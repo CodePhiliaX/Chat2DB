@@ -40,7 +40,7 @@ export default {
   'setting.button.restart': 'Restart',
   'setting.text.discoverNewVersion': 'Discover new version {1}',
   'setting.text.isLatestVersion': 'This is the latest version',
-  'setting.button.changeLog': 'ChangeLog',
+  'setting.button.changeLog': 'Changelog',
   'setting.title.updateRule': 'Update rule',
   'setting.text.autoUpdate': 'The new version automatically downloads and installs updates',
   'setting.text.manualUpdate': 'Only alert me when a new version is released',
