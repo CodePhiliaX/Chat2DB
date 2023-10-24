@@ -35,7 +35,6 @@ export default function AboutUs(props: IProps) {
   };
 
   const restartApp = () => {
-    console.log(window.electronApi)
     window.electronApi?.quitApp();
   }
 

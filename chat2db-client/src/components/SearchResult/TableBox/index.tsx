@@ -234,7 +234,6 @@ export default function TableBox(props: ITableProps) {
             }
           });
           setTableData(newTableData);
-          console.log(newTableData);
 
           // 添加更新记录
           setUpdateData([
