@@ -9,7 +9,6 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
 import Iconfont from '@/components/Iconfont';
-
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
   updateDetectionRef: React.MutableRefObject<IUpdateDetectionRef> | null;
@@ -79,6 +78,12 @@ export default function AboutUs(props: IProps) {
             {i18n('setting.button.restart')}
           </Button>
         );
+      // case UpdatedStatusEnum.UPDATED:
+      //   return (
+      //     <Button icon={<RedoOutlined />} type="primary">
+      //       {i18n('setting.button.restart')}
+      //     </Button>
+      //   );
       default:
         return false;
     }
