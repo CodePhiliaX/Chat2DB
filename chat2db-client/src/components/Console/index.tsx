@@ -171,9 +171,12 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     };
   }, [isActive]);
 
-  function timingAutoSave() {
+  function timingAutoSave(status?: ConsoleStatus) {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     timerRef.current = setInterval(() => {
-      if (executeParams.status === ConsoleStatus.RELEASE) {
+      if (executeParams.status === ConsoleStatus.RELEASE || status === ConsoleStatus.RELEASE) {
         const p: any = {
           id: executeParams.consoleId,
           ddl: editorRef?.current?.getAllContent(),
@@ -186,7 +189,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           userId: getCookie('CHAT2DB.USER_ID'),
         });
       }
-    }, 2000);
+    }, 5000);
   }
 
   const tableListName = useMemo(() => {
@@ -386,6 +389,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
+      timingAutoSave(ConsoleStatus.RELEASE);
     });
   };
 
