@@ -10,6 +10,8 @@ const { loadMainResource } = require('./utils');
 
 let mainWindow = null;
 
+let baseUrl = null;
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     minWidth: 1080,
@@ -31,7 +33,7 @@ function createWindow() {
   // 关闭window时触发下列事件.
   mainWindow.on('closed', function (event) {
     event.preventDefault();
-    // mainWindow = null;
+    mainWindow = null;
   });
 
   // 监听打开新窗口事件 用默认浏览器打开
@@ -56,9 +58,9 @@ app.on('ready', () => {
   registerAnalysis();
 
   app.on('activate', function () {
-    // if (mainWindow === null) {
-    // }
-    createWindow();
+    if (mainWindow === null) {
+      createWindow();
+    }
   });
 });
 
@@ -69,8 +71,18 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  // 退出应用前触发before-quit-app
-  // mainWindow.webContents.send('before-quit-app');
+  if(baseUrl){
+    try {
+      const request = net.request({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        url: `${baseUrl}/api/system/stop`,
+      });
+      request.end();
+    } catch (error) {}
+  }
 });
 
 ipcMain.handle('get-product-name', () => {
@@ -87,3 +99,9 @@ ipcMain.on('quit-app', () => {
 ipcMain.on('register-app-menu', (event, orgs) => {
   registerAppMenu(mainWindow, orgs);
 });
+
+ipcMain.on('set-base-url',(event,_baseUrl)=>{
+  baseUrl = _baseUrl;
+})
+
+
