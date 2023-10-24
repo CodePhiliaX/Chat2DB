@@ -65,6 +65,7 @@ interface IProps {
     consoleId?: number;
     schemaName?: string;
     consoleName?: string;
+    status?: ConsoleStatus;
   };
   tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
@@ -108,7 +109,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [isStream, setIsStream] = useState(false);
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
-  const initializeSuccessful = useRef(false);
   const closeEventSource = useRef<any>();
 
   /**
@@ -140,31 +140,32 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       return;
     }
     // 离开时保存
-    if (!isActive) {
+    if (!isActive && timerRef.current) {
       // 离开时清除定时器
       indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
         consoleId: executeParams.consoleId!,
         ddl: editorRef?.current?.getAllContent(),
         userId: getCookie('CHAT2DB.USER_ID'),
       });
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      clearInterval(timerRef.current);
     } else {
       // 活跃时自动保存
       indexedDB
-        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
-          consoleId: executeParams.consoleId!,
-          userId: getCookie('CHAT2DB.USER_ID'),
-        })
-        .then((res: any) => {
-          const value = res?.[0]?.ddl || '';
-          if (value) {
-            editorRef?.current?.setValue(value, 'reset');
-            initializeSuccessful.current = true;
-            timingAutoSave();
-          }
-        });
+      .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+        consoleId: executeParams.consoleId!,
+        userId: getCookie('CHAT2DB.USER_ID'),
+      })
+      .then((res: any) => {
+        const value = defaultValue || res?.[0]?.ddl || '';
+        const oldValue = editorRef?.current?.getAllContent();
+        console.log(value !== oldValue)
+        if(value !== oldValue){
+          editorRef?.current?.setValue(value, 'reset');
+        }
+        setTimeout(() => {
+          timingAutoSave();
+        }, 0);
+      });
     }
     return () => {
       if (timerRef.current) {
@@ -175,12 +176,20 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
   function timingAutoSave() {
     timerRef.current = setInterval(() => {
-      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
-        consoleId: executeParams.consoleId!,
-        ddl: editorRef?.current?.getAllContent(),
-        userId: getCookie('CHAT2DB.USER_ID'),
-      });
-    }, 3000);
+      if(executeParams.status === ConsoleStatus.RELEASE){
+        const p: any = {
+          id: executeParams.consoleId,
+          ddl: editorRef?.current?.getAllContent(),
+        };
+        historyServer.updateSavedConsole(p)
+      }else{
+        indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+          consoleId: executeParams.consoleId!,
+          ddl: editorRef?.current?.getAllContent(),
+          userId: getCookie('CHAT2DB.USER_ID'),
+        });
+      }
+    }, 2000);
   }
 
   const tableListName = useMemo(() => {
