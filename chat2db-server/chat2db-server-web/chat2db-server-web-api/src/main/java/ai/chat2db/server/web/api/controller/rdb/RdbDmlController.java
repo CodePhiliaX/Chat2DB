@@ -93,7 +93,7 @@ public class RdbDmlController {
             try {
                 boolean flag = true;
                 ExecuteResultVO executeResult = null;
-                connection.setAutoCommit(false);
+                //connection.setAutoCommit(false);
                 ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
                 List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
                 if (!CollectionUtils.isEmpty(resultVOS)) {
@@ -107,7 +107,7 @@ public class RdbDmlController {
                     }
                 }
                 if (flag) {
-                    connection.commit();
+                    //connection.commit();
                     return DataResult.of(resultVOS.get(0));
                 }else {
                     connection.rollback();
