@@ -30,13 +30,13 @@ enum IPromptType {
   ChatRobot = 'ChatRobot',
 }
 
-enum IPromptTypeText {
-  NL_2_SQL = '自然语言转换',
-  SQL_EXPLAIN = '解释SQL',
-  SQL_OPTIMIZER = 'SQL优化',
-  SQL_2_SQL = 'SQL转换',
-  ChatRobot = 'Chat机器人',
-}
+// enum IPromptTypeText {
+//   NL_2_SQL = '自然语言转换',
+//   SQL_EXPLAIN = '解释SQL',
+//   SQL_OPTIMIZER = 'SQL优化',
+//   SQL_2_SQL = 'SQL转换',
+//   ChatRobot = 'Chat机器人',
+// }
 
 export type IAppendValue = {
   text: any;
@@ -70,7 +70,7 @@ interface IProps {
   tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
-  dispatch: Function;
+  dispatch: any;
   remainingBtnLoading: boolean;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
@@ -379,7 +379,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
   const saveConsole = (value?: string) => {
     // const a = editorRef.current?.getAllContent();
-    let p: any = {
+    const p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
       ddl: value,
