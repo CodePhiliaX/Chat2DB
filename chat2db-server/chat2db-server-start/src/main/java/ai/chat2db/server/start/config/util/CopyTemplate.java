@@ -21,14 +21,9 @@ public class CopyTemplate {
     /**
      * 模板文件
      **/
-    public static final List<String> TEMPLATE_FILE = Arrays.asList("template.html", "template_diy.docx", "sub_template_diy.docx");
+    private static final List<String> TEMPLATE_FILE = Arrays.asList("template.html", "template_diy.docx", "sub_template_diy.docx");
 
-    static {
-        //复制模板
-        copyTemplateFile();
-    }
-
-    public static void copyTemplateFile() {
+    public void copyTemplateFile() {
         String templateDir = ConfigUtils.CONFIG_BASE_PATH + File.separator + "template";
         File file = new File(templateDir);
         if (!file.exists()) {
@@ -39,7 +34,7 @@ public class CopyTemplate {
         }
     }
 
-    public static void saveFile(String dir, String path, boolean isOverride) {
+    public void saveFile(String dir, String path, boolean isOverride) {
         if (!isOverride) {
             File file = new File(dir + File.separator + path);
             if (file.exists()) {
