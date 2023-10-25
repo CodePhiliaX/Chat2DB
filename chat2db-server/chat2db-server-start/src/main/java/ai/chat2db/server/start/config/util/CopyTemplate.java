@@ -49,7 +49,7 @@ public class CopyTemplate {
         try (// 模板文件输入输出地址 读取resources下文件
              FileOutputStream outputStream = new FileOutputStream(dir + File.separator + path);
              //返回读取指定资源的输入流
-             InputStream inputStream = ConfigUtils.class.getClassLoader().getResourceAsStream("template" + File.separator + path)) {
+             InputStream inputStream = CopyTemplate.class.getClassLoader().getResourceAsStream("template/" + path)) {
             byte[] buffer = new byte[4096];
             int n = 0;
             while (-1 != (n = inputStream.read(buffer))) {
