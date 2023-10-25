@@ -37,7 +37,7 @@ const MAX_TIMES = 200;
 
 const UpdateDetection = memo(
   forwardRef((props: IProps, ref: ForwardedRef<IUpdateDetectionRef>) => {
-    const { openSettingModal, updateDetectionData, setUpdateDetectionData } = props;
+    const { openSettingModal, setUpdateDetectionData } = props;
     const [notificationApi, notificationDom] = notification.useNotification();
     const timesRef = React.useRef(0);
 

@@ -110,6 +110,8 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
+  // 上一次同步的console数据
+  const lastSyncConsole = useRef<any>(defaultValue);
 
   /**
    * 当前选择的AI类型是Chat2DBAI
@@ -176,16 +178,21 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       clearInterval(timerRef.current);
     }
     timerRef.current = setInterval(() => {
+      const ddl = editorRef?.current?.getAllContent();
+      if (ddl === lastSyncConsole.current) {
+        return;
+      }
+      lastSyncConsole.current = ddl;
       if (executeParams.status === ConsoleStatus.RELEASE || status === ConsoleStatus.RELEASE) {
         const p: any = {
           id: executeParams.consoleId,
-          ddl: editorRef?.current?.getAllContent(),
+          ddl,
         };
         historyServer.updateSavedConsole(p);
       } else {
         indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
           consoleId: executeParams.consoleId!,
-          ddl: editorRef?.current?.getAllContent(),
+          ddl,
           userId: getCookie('CHAT2DB.USER_ID'),
         });
       }

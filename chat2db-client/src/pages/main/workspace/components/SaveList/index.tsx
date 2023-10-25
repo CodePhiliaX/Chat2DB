@@ -107,7 +107,7 @@ const SaveList = dvaModel((props: any) => {
       id: data.id,
       status: ConsoleStatus.DRAFT,
     };
-    historyServer.updateSavedConsole(params).then((res) => {
+    historyServer.updateSavedConsole(params).then(() => {
       dispatch({
         type: 'workspace/fetchGetSavedConsole',
         payload: {
@@ -115,10 +115,10 @@ const SaveList = dvaModel((props: any) => {
           status: ConsoleStatus.RELEASE,
           ...curWorkspaceParams,
         },
-        callback: (res: any) => {
+        callback: (_res: any) => {
           dispatch({
             type: 'workspace/setConsoleList',
-            payload: res.data,
+            payload: _res.data,
           });
         },
       });
