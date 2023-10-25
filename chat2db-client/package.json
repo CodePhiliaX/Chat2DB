@@ -129,7 +129,7 @@
         }
       ],
       "publisherName": "Chat2DB",
-      "icon": "src/assets/logo/logo.png"
+      "icon": "src/assets/logo/logo.ico"
     },
     "linux": {
       "maintainer": "Chat2DB, huanyueyaoqin@qq.com",
