@@ -242,20 +242,12 @@ public class EmbeddingController extends ChatController {
             return;
         }
 
-        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
-        // only sync for chat2db ai
-        if (Objects.isNull(config) || !aiSqlSource.equals(config.getContent())) {
-            return;
-        }
-        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
-        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
+        String apiKey = getApiKey();
+        if (StringUtils.isBlank(apiKey)) {
             return;
         }
 
         TableMilvusQueryRequest request = rdbWebConverter.request2request(param);
-        String apiKey = keyConfig.getContent();
         request.setApikey(apiKey);
 
         vectorParam.setApiKey(apiKey);
@@ -318,29 +310,13 @@ public class EmbeddingController extends ChatController {
             return;
         }
 
-        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-        Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
-        String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
-        // only sync for chat2db ai
-        if (Objects.isNull(config) || !aiSqlSource.equals(config.getContent())) {
-            return;
-        }
-        Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
-        if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
-            return;
-        }
-
-        String apiKey = keyConfig.getContent();
-        TableVectorParam vectorParam = rdbWebConverter.param2param(param);
-        vectorParam.setApiKey(apiKey);
-        DataResult<Boolean> result = tableService.checkTableVector(vectorParam);
-        if (result.getData()) {
+        String apiKey = getApiKey();
+        if (StringUtils.isBlank(apiKey)) {
             return;
         }
 
         esParam.setApiKey(apiKey);
         es(esParam);
-        tableService.saveTableVector(vectorParam);
     }
 
     /**

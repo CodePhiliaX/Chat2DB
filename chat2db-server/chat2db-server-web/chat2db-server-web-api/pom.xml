@@ -82,6 +82,13 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-spi</artifactId>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.ansj</groupId>
+            <artifactId>ansj_seg</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
