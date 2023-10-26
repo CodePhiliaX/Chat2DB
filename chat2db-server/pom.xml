@@ -289,6 +289,13 @@
                 <artifactId>pdfbox</artifactId>
                 <version>2.0.24</version>
             </dependency>
+
+
+            <dependency>
+                <groupId>org.ansj</groupId>
+                <artifactId>ansj_seg</artifactId>
+                <version>5.1.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

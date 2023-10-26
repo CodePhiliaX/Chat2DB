@@ -68,7 +68,7 @@ public class TableController extends EmbeddingController {
         singleThreadExecutor.submit(() -> {
             try {
                 Chat2DBContext.putContext(connectInfo);
-                syncTableEs(request);
+                syncTableVector(request);
             } catch (Exception e) {
                 log.error("sync table vector error", e);
             } finally {
