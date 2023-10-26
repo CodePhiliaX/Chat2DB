@@ -491,13 +491,7 @@ public class ChatController {
             TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
             properties = buildTableColumn(queryParam, queryRequest.getTableNames());
         } else {
-            String apiKey = getApiKey();
-            if (StringUtils.isNotBlank(apiKey)) {
-                boolean res = gatewayClientService.checkInWhite(new WhiteListRequest(apiKey, WhiteListTypeEnum.VECTOR.getCode())).getData();
-                if (res) {
-                    properties = queryDatabaseSchema(queryRequest);
-                }
-            }
+            properties = mappingDatabaseSchema(queryRequest);
         }
         String prompt = queryRequest.getMessage();
         String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
@@ -525,7 +519,7 @@ public class ChatController {
      *
      * @return
      */
-    private String getApiKey() {
+    public String getApiKey() {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config config = configService.find(RestAIClient.AI_SQL_SOURCE).getData();
         String aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
@@ -556,6 +550,19 @@ public class ChatController {
         return dataSourceType;
     }
 
+    public String mappingDatabaseSchema(ChatQueryRequest queryRequest) {
+        String properties = "";
+        String apiKey = getApiKey();
+        if (StringUtils.isNotBlank(apiKey)) {
+            boolean res = gatewayClientService.checkInWhite(new WhiteListRequest(apiKey, WhiteListTypeEnum.VECTOR.getCode())).getData();
+            if (res) {
+                properties = queryDatabaseSchema(queryRequest) + querySchemaByEs(queryRequest);
+            }
+        } else {
+            properties = querySchemaByEs(queryRequest);
+        }
+        return properties;
+    }
 
     /**
      * query database schema
@@ -629,7 +636,9 @@ public class ChatController {
                     schemas.add(data.getTableSchemaContent());
                 }
             }
-            return JSON.toJSONString(schemas);
+            String res = JSON.toJSONString(schemas);
+            log.info("search es result:{}", res);
+            return res;
         } catch (Exception exception) {
             log.error("query es table error, do nothing");
             return "";
