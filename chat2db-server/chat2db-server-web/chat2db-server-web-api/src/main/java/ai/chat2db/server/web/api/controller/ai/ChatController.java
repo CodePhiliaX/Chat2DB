@@ -599,6 +599,9 @@ public class ChatController {
                     schemas.add(data.getTableSchema());
                 }
             }
+            if (CollectionUtils.isEmpty(schemas)) {
+                return "";
+            }
             String res = JSON.toJSONString(schemas);
             log.info("search vector result:{}", res);
             return res;
@@ -635,6 +638,9 @@ public class ChatController {
                 for(EsTableSchema data: result.getData().getTableSchemas()){
                     schemas.add(data.getTableSchemaContent());
                 }
+            }
+            if (CollectionUtils.isEmpty(schemas)) {
+                return "";
             }
             String res = JSON.toJSONString(schemas);
             log.info("search es result:{}", res);
