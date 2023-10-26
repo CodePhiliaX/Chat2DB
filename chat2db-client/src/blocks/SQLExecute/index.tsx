@@ -4,7 +4,7 @@ import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import Console, { IAppendValue } from '@/components/Console';
-import SearchResult from '@/components/SearchResult';
+import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
 import { IAIState } from '@/models/ai';
@@ -31,7 +31,8 @@ const SQLExecute = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const [appendValue, setAppendValue] = useState<IAppendValue>();
   const { curTableList, curWorkspaceParams } = workspaceModel;
-  const [sql, setSql] = useState<string>('');
+  // const [sql, setSql] = useState<string>('');
+  const searchResultRef = useRef<ISearchResultRef>(null);
 
   // useEffect(() => {
   //   if (!doubleClickTreeNodeData) {
@@ -67,7 +68,9 @@ const SQLExecute = memo<IProps>((props) => {
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
-            onExecuteSQL={setSql}
+            onExecuteSQL={(sql) => {
+              searchResultRef.current?.handleExecuteSQL(sql);
+            }}
             onConsoleSave={() => {
               dispatch({
                 type: 'workspace/fetchGetSavedConsole',
@@ -89,7 +92,7 @@ const SQLExecute = memo<IProps>((props) => {
           />
         </div>
         <div className={styles.boxRightResult}>
-          <SearchResult executeSqlParams={data} sql={sql} />
+          <SearchResult ref={searchResultRef} executeSqlParams={data} />
         </div>
       </DraggableContainer>
     </div>

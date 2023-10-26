@@ -64,7 +64,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         uniqueData: t,
       };
     });
-    console.log(workspaceTabList, newTabList);
     if (workspaceTabList.length) {
       const newWorkspaceTabList = lodash.cloneDeep(workspaceTabList);
       const newAddList: any = [];
@@ -312,11 +311,23 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     }
 
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
+
       const { extraParams } = doubleClickTreeNodeData;
       const { tableName } = extraParams || {};
       const sql = `SELECT * FROM ${compatibleDataBaseName(tableName!, curWorkspaceParams.databaseType)};\n`;
       const title = tableName!;
       const id = uuidV4();
+      let flag = false;
+      workspaceTabList.forEach((t) => {
+        if (t.uniqueData?.sql === sql) {
+          setActiveConsoleId(t.id);
+          flag = true
+          return;
+        }
+      })
+      if(flag){
+        return
+      }
       setWorkspaceTabList([
         ...(workspaceTabList || []),
         {
@@ -355,6 +366,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 更新表名提示
   useUpdateEffect(() => {
     const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    if (dataSourceId === null || dataSourceId === undefined) {
+      return;
+    }
     sqlService
       .getAllTableList({
         dataSourceId,
@@ -571,6 +585,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
                   schemaName: curWorkspaceParams?.schemaName,
                   consoleId: t.id as number,
                   consoleName: uniqueData.name,
+                  status: uniqueData.status,
                 }}
               />
             )}

@@ -10,6 +10,8 @@ const { loadMainResource } = require('./utils');
 
 let mainWindow = null;
 
+let baseUrl = null;
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     minWidth: 1080,
@@ -69,7 +71,18 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  mainWindow.webContents.send('before-quit-app');
+  if(baseUrl){
+    try {
+      const request = net.request({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        url: `${baseUrl}/api/system/stop`,
+      });
+      request.end();
+    } catch (error) {}
+  }
 });
 
 ipcMain.handle('get-product-name', () => {
@@ -86,3 +99,9 @@ ipcMain.on('quit-app', () => {
 ipcMain.on('register-app-menu', (event, orgs) => {
   registerAppMenu(mainWindow, orgs);
 });
+
+ipcMain.on('set-base-url',(event,_baseUrl)=>{
+  baseUrl = _baseUrl;
+})
+
+

@@ -1,3 +1,28 @@
+# 3.0.5
+`2023-10-23`
+**Changelog**
+- ⭐【New Features】Supports visual database creation
+- ⭐【New Features】Support hot update
+- ⭐【New Features】Double-click the table to open it directly
+- ⚡️【Optimize】The search table supports size fuzzy matching
+- ⚡️【Optimize】Sort Database and Schema at the top
+- ⚡️【Optimize】The queried data supports editing and modification in the large popup window of the view
+- ⚡️【Optimize】Example Query the page loading effect of data
+- ⚡️【Optimize】Keep the top focused tab always in the viewable area
+- ⚡️【Optimize】Query data cell does not have scroll bar problem
+
+**更新日志**
+- ⭐【新功能】支持可视化创建数据库
+- ⭐【新功能】支持热更新
+- ⭐【新功能】双击表直接打开表
+- ⚡️【优化】搜索表支持大小模糊匹配
+- ⚡️【优化】Database 和 Schema 排序
+- ⚡️【优化】查询的数据支持在查看的大的弹窗中编辑修改
+- ⚡️【优化】查询数据翻页loading效果
+- ⚡️【优化】保持顶部聚焦的tab永远在可视区域内
+- ⚡️【优化】查询数据单元格没有滚动条问题
+
+
 # 3.0.4
 `2023-10-20`
 

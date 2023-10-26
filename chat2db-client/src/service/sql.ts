@@ -288,7 +288,22 @@ const executeUpdateDataSql = createRequest<IExecuteSqlParams, { success: boolean
 /** 获取修改表数据的接口 */
 const getExecuteUpdateSql = createRequest<any, string>('/api/rdb/dml/get_update_sql', { method: 'post' });
 
+/** 创建数据库  */ 
+const getCreateDatabaseSql = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+}, { sql: string }>('/api/rdb/database/create_database_sql', { method: 'post' });
+
+/** 创建schema  */ 
+const getCreateSchemaSql = createRequest<{
+  dataSourceId: number;
+  databaseName?: string;
+  schemaName?: string;
+}, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
+
 export default {
+  getCreateSchemaSql,
+  getCreateDatabaseSql,
   executeUpdateDataSql,
   executeDDL,
   getExecuteUpdateSql,

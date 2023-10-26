@@ -30,13 +30,13 @@ enum IPromptType {
   ChatRobot = 'ChatRobot',
 }
 
-enum IPromptTypeText {
-  NL_2_SQL = '自然语言转换',
-  SQL_EXPLAIN = '解释SQL',
-  SQL_OPTIMIZER = 'SQL优化',
-  SQL_2_SQL = 'SQL转换',
-  ChatRobot = 'Chat机器人',
-}
+// enum IPromptTypeText {
+//   NL_2_SQL = '自然语言转换',
+//   SQL_EXPLAIN = '解释SQL',
+//   SQL_OPTIMIZER = 'SQL优化',
+//   SQL_2_SQL = 'SQL转换',
+//   ChatRobot = 'Chat机器人',
+// }
 
 export type IAppendValue = {
   text: any;
@@ -65,11 +65,12 @@ interface IProps {
     consoleId?: number;
     schemaName?: string;
     consoleName?: string;
+    status?: ConsoleStatus;
   };
   tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
-  dispatch: Function;
+  dispatch: any;
   remainingBtnLoading: boolean;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
@@ -108,8 +109,9 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [isStream, setIsStream] = useState(false);
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
-  const initializeSuccessful = useRef(false);
   const closeEventSource = useRef<any>();
+  // 上一次同步的console数据
+  const lastSyncConsole = useRef<any>(defaultValue);
 
   /**
    * 当前选择的AI类型是Chat2DBAI
@@ -133,23 +135,19 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     editorRef: editorRef?.current,
   }));
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (source !== 'workspace') {
       return;
     }
     // 离开时保存
-    if (!isActive) {
+    if (!isActive && timerRef.current) {
       // 离开时清除定时器
       indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
         consoleId: executeParams.consoleId!,
         ddl: editorRef?.current?.getAllContent(),
         userId: getCookie('CHAT2DB.USER_ID'),
       });
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      clearInterval(timerRef.current);
     } else {
       // 活跃时自动保存
       indexedDB
@@ -158,12 +156,14 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           userId: getCookie('CHAT2DB.USER_ID'),
         })
         .then((res: any) => {
-          const value = res?.[0]?.ddl || '';
-          if (value) {
+          const value = defaultValue || res?.[0]?.ddl || '';
+          const oldValue = editorRef?.current?.getAllContent();
+          if (value !== oldValue) {
             editorRef?.current?.setValue(value, 'reset');
-            initializeSuccessful.current = true;
-            timingAutoSave();
           }
+          setTimeout(() => {
+            timingAutoSave();
+          }, 0);
         });
     }
     return () => {
@@ -173,14 +173,30 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     };
   }, [isActive]);
 
-  function timingAutoSave() {
+  function timingAutoSave(status?: ConsoleStatus) {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     timerRef.current = setInterval(() => {
-      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
-        consoleId: executeParams.consoleId!,
-        ddl: editorRef?.current?.getAllContent(),
-        userId: getCookie('CHAT2DB.USER_ID'),
-      });
-    }, 3000);
+      const ddl = editorRef?.current?.getAllContent();
+      if (ddl === lastSyncConsole.current) {
+        return;
+      }
+      lastSyncConsole.current = ddl;
+      if (executeParams.status === ConsoleStatus.RELEASE || status === ConsoleStatus.RELEASE) {
+        const p: any = {
+          id: executeParams.consoleId,
+          ddl,
+        };
+        historyServer.updateSavedConsole(p);
+      } else {
+        indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
+          consoleId: executeParams.consoleId!,
+          ddl,
+          userId: getCookie('CHAT2DB.USER_ID'),
+        });
+      }
+    }, 5000);
   }
 
   const tableListName = useMemo(() => {
@@ -370,7 +386,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
   const saveConsole = (value?: string) => {
     // const a = editorRef.current?.getAllContent();
-    let p: any = {
+    const p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
       ddl: value,
@@ -380,6 +396,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
+      timingAutoSave(ConsoleStatus.RELEASE);
     });
   };
 
@@ -447,10 +464,10 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   };
 
   const handleSelectTableSyncModel = () => {
-    const syncModel: SyncModelType | null = Number(localStorage.getItem('syncTableModel')) ?? null;
+    const syncModel = localStorage.getItem('syncTableModel');
     const hasAiAccess = aiModel.hasWhite;
     if (syncModel !== null) {
-      setSyncTableModel(syncModel);
+      setSyncTableModel(Number(syncModel));
       return;
     }
 
