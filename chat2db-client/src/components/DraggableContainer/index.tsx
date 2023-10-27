@@ -1,4 +1,4 @@
-import React, { memo, useRef, useEffect, useState, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
@@ -7,18 +7,12 @@ interface IProps {
   children: any; //TODO: TS，约定接受一个数组，第一项child需要携带ref
   min?: number;
   layout?: 'row' | 'column';
-  callback?: Function;
+  callback?: (data: any) => void;
   showLine?: boolean;
 }
 
-export default memo<IProps>(function DraggableContainer({
-  children,
-  showLine = true,
-  callback,
-  min,
-  className,
-  layout = 'row',
-}) {
+export default memo<IProps>((props: IProps) => {
+  const { children, showLine = true, callback, min, className, layout = 'row' } = props;
   const volatileRef = children[0]?.ref;
 
   const DividerRef = useRef<HTMLDivElement | null>(null);
@@ -31,31 +25,17 @@ export default memo<IProps>(function DraggableContainer({
     if (!DividerRef.current) {
       return;
     }
-    // DividerRef.current.onmouseover = (e) => {
-    //   setDragging(true);
-    // };
-    // DividerRef.current.onmouseout = (e) => {
-    //   setDragging(false);
-    // };
 
     DividerRef.current.onmousedown = (e) => {
       if (!volatileRef?.current) return;
-
       e.preventDefault();
       setDragging(true);
       const clientStart = isRow ? e.clientX : e.clientY;
-      const volatileBoxXY = isRow
-        ? volatileRef.current.offsetWidth
-        : volatileRef.current.offsetHeight;
-      document.onmousemove = (e) => {
-        moveHandle(
-          isRow ? e.clientX : e.clientY,
-          volatileRef.current,
-          clientStart,
-          volatileBoxXY,
-        );
+      const volatileBoxXY = isRow ? volatileRef.current.offsetWidth : volatileRef.current.offsetHeight;
+      document.onmousemove = (_e) => {
+        moveHandle(isRow ? _e.clientX : _e.clientY, volatileRef.current, clientStart, volatileBoxXY);
       };
-      document.onmouseup = (e) => {
+      document.onmouseup = () => {
         setDragging(false);
         document.onmouseup = null;
         document.onmousemove = null;
@@ -63,13 +43,8 @@ export default memo<IProps>(function DraggableContainer({
     };
   }, []);
 
-  const moveHandle = (
-    nowClientXY: any,
-    leftDom: any,
-    clientStart: any,
-    volatileBoxXY: any,
-  ) => {
-    let computedXY = nowClientXY - clientStart;
+  const moveHandle = (nowClientXY: any, leftDom: any, clientStart: any, volatileBoxXY: any) => {
+    const computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 
     finalXY = volatileBoxXY + computedXY;
@@ -92,18 +67,9 @@ export default memo<IProps>(function DraggableContainer({
         <div
           style={{ display: showLine ? 'block' : 'none' }}
           ref={DividerLine}
-          className={classnames(
-            styles.divider,
-            { [styles.displayDivider]: !children[1] },
-          )}
+          className={classnames(styles.divider, { [styles.displayDivider]: !children[1] })}
         >
-          <div
-            ref={DividerRef}
-            className={classnames(
-              styles.dividerCenter,
-              { [styles.dragging]: dragging },
-            )}
-          />
+          <div ref={DividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
         </div>
       }
       {children[1]}

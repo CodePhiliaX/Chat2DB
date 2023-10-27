@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { connect } from 'umi';
 import lodash from 'lodash';
 import Iconfont from '@/components/Iconfont';
+import CustomLayout from '@/components/CustomLayout';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
@@ -68,7 +69,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
     if (!curConnection?.id && connectionList.length) {
       if (
         localStorageWorkspaceDatabase.dataSourceId &&
-        connectionList.find((t: any) => Number(t.id)  === Number(localStorageWorkspaceDatabase.dataSourceId))
+        connectionList.find((t: any) => Number(t.id) === Number(localStorageWorkspaceDatabase.dataSourceId))
       ) {
         connectionChange([localStorageWorkspaceDatabase.dataSourceId]);
         return;
@@ -81,8 +82,10 @@ const WorkspaceHeader = memo<IProps>((props) => {
       // 如果curConnection不再connectionList里，也是默认选第一个
       const flag = connectionList.findIndex((t: any) => t.id === curConnection?.id);
       if (flag === -1) {
-        if (localStorageWorkspaceDatabase.dataSourceId  &&
-          connectionList.find((t: any) => Number(t.id)  === Number(localStorageWorkspaceDatabase.dataSourceId))) {
+        if (
+          localStorageWorkspaceDatabase.dataSourceId &&
+          connectionList.find((t: any) => Number(t.id) === Number(localStorageWorkspaceDatabase.dataSourceId))
+        ) {
           connectionChange([localStorageWorkspaceDatabase.dataSourceId]);
           return;
         }
@@ -158,16 +161,16 @@ const WorkspaceHeader = memo<IProps>((props) => {
           }) || [];
         setCurDBOptions(dbList);
         let databaseName = '';
-        if(dbList.find((t: any) => t.value === localStorageWorkspaceDatabase.databaseName)){
+        if (dbList.find((t: any) => t.value === localStorageWorkspaceDatabase.databaseName)) {
           databaseName = localStorageWorkspaceDatabase.databaseName!;
-        }else{
+        } else {
           // 如果是切换那么就默认取列表的第一个database， 如果不是切换那么就取缓存的，如果缓存没有还是取列表第一个（这里是兜底，如果原先他并没有database，后来他加了database，如果还是取缓存的空就不对了）
           databaseName =
             curWorkspaceParams.dataSourceId !== curConnection?.id
               ? dbList[0]?.label
               : curWorkspaceParams.databaseName || dbList[0]?.label;
         }
-        databaseChange([databaseName], [{ label: databaseName }],refresh);
+        databaseChange([databaseName], [{ label: databaseName }], refresh);
         // getSchemaList(databaseName, refresh);
       })
       .catch(() => {
@@ -202,9 +205,9 @@ const WorkspaceHeader = memo<IProps>((props) => {
         setCurSchemaOptions(schemaList);
 
         let schemaName = '';
-        if(schemaList.find((t: any) => t.value === localStorageWorkspaceDatabase.schemaName)){
+        if (schemaList.find((t: any) => t.value === localStorageWorkspaceDatabase.schemaName)) {
           schemaName = localStorageWorkspaceDatabase.schemaName!;
-        }else{
+        } else {
           schemaName =
             curWorkspaceParams.dataSourceId !== curConnection?.id
               ? schemaList[0]?.label
@@ -269,16 +272,16 @@ const WorkspaceHeader = memo<IProps>((props) => {
   }
 
   // 数据库切换
-  function databaseChange(valueArr: any, selectedOptions: any,refresh) {
+  function databaseChange(valueArr: any, selectedOptions: any, refresh) {
     // if (selectedOptions[0].label !== curWorkspaceParams.databaseName) {
-      getSchemaList(selectedOptions[0].label,refresh);
+    getSchemaList(selectedOptions[0].label, refresh);
     // }
   }
 
   // schema切换
   function schemaChange(valueArr: any, selectedOptions: any) {
     // if (selectedOptions[0].label !== curWorkspaceParams.schemaName) {
-      setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value });
+    setCurWorkspaceParams({ ...curWorkspaceParams, schemaName: selectedOptions[0].value });
     // }
   }
 
@@ -398,7 +401,9 @@ const WorkspaceHeader = memo<IProps>((props) => {
               </Tag>
             )}
           </div>
-          <div className={styles.workspaceHeaderRight} />
+          <div className={styles.workspaceHeaderRight}>
+            <CustomLayout />
+          </div>
         </div>
       )}
 

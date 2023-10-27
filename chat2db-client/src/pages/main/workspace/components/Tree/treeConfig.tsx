@@ -68,7 +68,10 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
 
 export interface ITreeConfigItem {
   icon?: string;
-  getChildren?: (params: any) => Promise<
+  getChildren?: (
+    params: any,
+    options?: any,
+  ) => Promise<
     | ITreeNode[]
     | ({
         data: ITreeNode[];
@@ -191,10 +194,10 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TABLES]: {
     icon: '\ueac5',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       return new Promise((r, j) => {
         mysqlServer
-          .getTableList(params)
+          .getTableList(params, options)
           .then((res) => {
             const tableList: ITreeNode[] = res.data?.map((t: any) => {
               return {

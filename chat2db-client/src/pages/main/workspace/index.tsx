@@ -1,14 +1,17 @@
 import React, { memo, useRef, useEffect } from 'react';
 import { connect } from 'umi';
+import classnames from 'classnames';
+
+import { IConnectionModelType } from '@/models/connection';
+import { IWorkspaceModelType } from '@/models/workspace';
+import { ConsoleOpenedStatus } from '@/constants';
+import { useWorkspaceStore } from '@/store/workspace';
+
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceHeader from './components/WorkspaceHeader';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
 import LoadingContent from '@/components/Loading/LoadingContent';
-
-import { IConnectionModelType } from '@/models/connection';
-import { IWorkspaceModelType } from '@/models/workspace';
-import { ConsoleOpenedStatus } from '@/constants';
 
 import styles from './index.less';
 
@@ -32,6 +35,8 @@ const workspacePage = memo<IProps>((props) => {
   const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
+  const { panelLeft, panelLeftWidth } = useWorkspaceStore((state) => state.layout);
+
   const isReady =
     curWorkspaceParams?.dataSourceId &&
     (curWorkspaceParams?.databaseName ||
@@ -92,7 +97,11 @@ const workspacePage = memo<IProps>((props) => {
       <WorkspaceHeader />
       <LoadingContent className={styles.loadingContent} coverLoading={true} isLoading={false}>
         <DraggableContainer className={styles.workspaceMain}>
-          <div ref={draggableRef} className={styles.boxLeft}>
+          <div
+            ref={draggableRef}
+            style={{ '--panel-left-width': `${panelLeftWidth}px` } as any}
+            className={classnames({ [styles.hiddenPanelLeft]: !panelLeft }, styles.boxLeft)}
+          >
             <WorkspaceLeft />
           </div>
           <div className={styles.boxRight}>
