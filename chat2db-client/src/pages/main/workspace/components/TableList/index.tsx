@@ -20,7 +20,6 @@ import { debounce } from 'lodash';
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import styles from './index.less';
 import ImportBlock from '@/components/ImportBlock';
-import { useRequest } from 'ahooks';
 
 interface IOption {
   value: TreeNodeType;
@@ -70,8 +69,6 @@ const TableList = dvaModel((props: any) => {
   const leftModuleTitleRef = useRef<any>(null);
   const treeBoxRef = useRef<any>(null);
   const controllerRef = useRef<AbortController>();
-
-  const useRequestRes = useRequest();
 
   // 导出表结构
   const handleExport = (exportType: ExportTypeEnum) => {

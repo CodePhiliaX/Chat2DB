@@ -16,8 +16,8 @@ import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
-import Iconfont from '@/components/Iconfont';
-import Setting from '@/blocks/Setting';
+// import Iconfont from '@/components/Iconfont';
+// import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
 
 declare global {
