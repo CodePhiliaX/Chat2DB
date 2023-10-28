@@ -1,8 +1,7 @@
-package ai.chat2db.server.start.config.util;
+package ai.chat2db.server.web.api.controller.rdb.factory;
 
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +14,6 @@ import java.util.List;
  *
  * @author lzy
  **/
-@Component
 @Slf4j
 public class CopyTemplate {
     /**
@@ -23,7 +21,7 @@ public class CopyTemplate {
      **/
     private static final List<String> TEMPLATE_FILE = Arrays.asList("template.html", "template_diy.docx", "sub_template_diy.docx");
 
-    public void copyTemplateFile() {
+    public static void copyTemplateFile() {
         String templateDir = ConfigUtils.CONFIG_BASE_PATH + File.separator + "template";
         File file = new File(templateDir);
         if (!file.exists()) {
@@ -34,7 +32,7 @@ public class CopyTemplate {
         }
     }
 
-    public void saveFile(String dir, String path, boolean isOverride) {
+    private static void saveFile(String dir, String path, boolean isOverride) {
         if (!isOverride) {
             File file = new File(dir + File.separator + path);
             if (file.exists()) {
