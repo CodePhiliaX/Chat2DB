@@ -50,8 +50,6 @@ public class RdbDocController {
     @Autowired
     private RdbWebConverter rdbWebConverter;
 
-    @Autowired
-    private ApplicationContext applicationContext;
 
     /**
      * export data
@@ -61,7 +59,6 @@ public class RdbDocController {
     @PostMapping("/export")
     public void export(@Valid @RequestBody DataExportRequest request, HttpServletResponse response) throws Exception {
         //复制模板
-        applicationContext.publishEvent(new TemplateEvent("copy"));
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(
