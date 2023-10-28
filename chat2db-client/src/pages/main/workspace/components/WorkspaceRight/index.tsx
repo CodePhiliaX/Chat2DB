@@ -311,7 +311,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     }
 
     if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
-
       const { extraParams } = doubleClickTreeNodeData;
       const { tableName } = extraParams || {};
       const sql = `SELECT * FROM ${compatibleDataBaseName(tableName!, curWorkspaceParams.databaseType)};\n`;
@@ -321,25 +320,24 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       workspaceTabList.forEach((t) => {
         if (t.uniqueData?.sql === sql) {
           setActiveConsoleId(t.id);
-          flag = true
+          flag = true;
           return;
         }
-      })
-      if(flag){
-        return
-      }
-      setWorkspaceTabList([
-        ...(workspaceTabList || []),
-        {
-          id,
-          title,
-          type: WorkspaceTabType.EditTableData,
-          uniqueData: {
-            sql,
+      });
+      if (!flag) {
+        setWorkspaceTabList([
+          ...(workspaceTabList || []),
+          {
+            id,
+            title,
+            type: WorkspaceTabType.EditTableData,
+            uniqueData: {
+              sql,
+            },
           },
-        },
-      ]);
-      setActiveConsoleId(id);
+        ]);
+        setActiveConsoleId(id);
+      }
     }
 
     dispatch({
