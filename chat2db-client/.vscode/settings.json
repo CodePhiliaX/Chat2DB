@@ -62,6 +62,7 @@
     "OPENAI",
     "packagejson",
     "Parens",
+    "partialize",
     "pgsql",
     "plusplus",
     "pnpm",
@@ -87,7 +88,8 @@
     "webp",
     "wireframe",
     "Wppk",
-    "yapi"
+    "yapi",
+    "zustand"
   ],
   "typescript.tsdk": "/Users/wangjiaqi/Desktop/Chat2DB/chat2db-client/node_modules/typescript/lib"
 }
