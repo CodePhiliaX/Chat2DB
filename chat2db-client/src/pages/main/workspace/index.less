@@ -17,7 +17,7 @@
 }
 
 .boxLeft {
-  width: 220px;
+  width: var(--panel-left-width);
   height: 100%;
   overflow: hidden;
   border-right: 1px solid var(--color-border-secondary);
@@ -86,4 +86,8 @@
       font-weight: 400 !important;
     }
   }
+}
+
+.hiddenPanelLeft {
+  display: none;
 }

@@ -11,6 +11,7 @@
 *.iws
 *.iml
 *.ipr
+.out
 
 ### Visual Studio Code ###
 package-lock.json
@@ -27,3 +28,4 @@ package-lock.json
 /chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/src/main/resources/lib/*
 /chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/lib/*
 /lib
+/out/*

@@ -68,6 +68,7 @@ const TableList = dvaModel((props: any) => {
   const [searchKey, setSearchKey] = useState<string>('');
   const leftModuleTitleRef = useRef<any>(null);
   const treeBoxRef = useRef<any>(null);
+  const controllerRef = useRef<AbortController>();
 
   // 导出表结构
   const handleExport = (exportType: ExportTypeEnum) => {
@@ -219,7 +220,6 @@ const TableList = dvaModel((props: any) => {
   }, [curWorkspaceParams]);
 
   useUpdateEffect(() => {
-    setCurList([]);
     getList();
   }, [curType]);
 
@@ -299,8 +299,19 @@ const TableList = dvaModel((props: any) => {
   };
 
   function getList(params?: { refresh?: boolean }) {
+    // 在每一getList之前，都要把上一次的请求abort掉
+    controllerRef.current && controllerRef.current.abort('abortRequest');
+
+    // 为每一次请求创建一个新的AbortController
+    controllerRef.current = new AbortController();
+
+    // abort会触发上一次请求的setTableLoading(false); 所以这里要延迟触发
+    setTimeout(() => {
+      setTableLoading(true);
+    }, 0);
+
+    setCurList([]);
     const { refresh = false } = params || {};
-    setTableLoading(true);
     const p = {
       refresh,
       ...curWorkspaceParams,
@@ -311,7 +322,11 @@ const TableList = dvaModel((props: any) => {
       p.pageNo = pagingData.pageNo;
       p.pageSize = pagingData.pageSize;
     }
-    treeConfig[curType.value].getChildren!(p)
+
+    // 发送请求
+    treeConfig[curType.value].getChildren!(p, {
+      signal: controllerRef.current.signal,
+    })
       .then((res: any) => {
         // 表的处理
         if (curType.value === TreeNodeType.TABLES) {
@@ -346,8 +361,7 @@ const TableList = dvaModel((props: any) => {
   }
 
   function refreshTableList() {
-    if (isReady) {
-      setCurList([]);
+    if (isReady && !tableLoading) {
       getList({
         refresh: true,
       });
@@ -441,15 +455,14 @@ const TableList = dvaModel((props: any) => {
 
       <div ref={treeBoxRef} className={styles.treeBox}>
         <LoadingContent isLoading={tableLoading}>
-          {
-            (curType.value === TreeNodeType.TABLES && !curList.length) ? 
+          {curType.value === TreeNodeType.TABLES && !curList.length ? (
             <div className={styles.emptyBox}>
               <div>{i18n('common.text.noTableFoundUp')}</div>
               <div>{i18n('common.text.noTableFoundDown')}</div>
-             </div>
-            :
+            </div>
+          ) : (
             <Tree initialData={searchedTableList || curList} />
-          }
+          )}
         </LoadingContent>
       </div>
 

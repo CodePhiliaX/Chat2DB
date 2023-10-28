@@ -16,8 +16,8 @@ import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
-import Iconfont from '@/components/Iconfont';
-import Setting from '@/blocks/Setting';
+// import Iconfont from '@/components/Iconfont';
+// import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
 
 declare global {
@@ -33,8 +33,8 @@ declare global {
     electronApi?: {
       startServerForSpawn: () => void;
       quitApp: () => void;
-      setBaseURL: (baseUrl:string) => void;
-      registerAppMenu: (data:any) => void;
+      setBaseURL: (baseUrl: string) => void;
+      registerAppMenu: (data: any) => void;
     };
   }
   const __APP_VERSION__: string;
@@ -109,9 +109,9 @@ function AppContainer() {
   function registerElectronApi() {
     window.electronApi?.registerAppMenu({
       version: __APP_VERSION__,
-    })
+    });
     // 把关闭java服务的的方法传给electron
-    window.electronApi?.setBaseURL?.(window._BaseURL)
+    window.electronApi?.setBaseURL?.(window._BaseURL);
     // console.log(window.electronApi)
   }
 
@@ -186,7 +186,7 @@ function AppContainer() {
             <div className={styles.loadingBox}>
               <Spin spinning={!serviceFail} size="large" />
               {/* 状态等于1时，说明没服务起来需要轮训接口，这时可能服务配置又问题，需要设置来修改 */}
-              {startSchedule === 1 && (
+              {/* {startSchedule === 1 && (
                 <Setting
                   render={
                     <div className={styles.settingBox}>
@@ -195,7 +195,7 @@ function AppContainer() {
                   }
                   noLogin
                 />
-              )}
+              )} */}
               {serviceFail && (
                 <>
                   <div className={styles.github}>
