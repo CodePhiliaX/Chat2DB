@@ -56,7 +56,10 @@ public class DataSourceUpdateRequest {
      */
     private String envType;
 
-
+    /**
+     * 环境id
+     */
+    private Integer environmentId;
 
     /**
      * host
