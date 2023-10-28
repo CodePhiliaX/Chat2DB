@@ -45,7 +45,6 @@ import ai.chat2db.server.web.api.http.request.WhiteListRequest;
 import ai.chat2db.server.web.api.http.response.EsTableSchemaResponse;
 import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
-import ai.chat2db.server.web.api.util.SegmentUtils;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
@@ -556,10 +555,9 @@ public class ChatController {
         if (StringUtils.isNotBlank(apiKey)) {
             boolean res = gatewayClientService.checkInWhite(new WhiteListRequest(apiKey, WhiteListTypeEnum.VECTOR.getCode())).getData();
             if (res) {
-                properties = queryDatabaseSchema(queryRequest) + querySchemaByEs(queryRequest);
+//                properties = queryDatabaseSchema(queryRequest) + querySchemaByEs(queryRequest);
+                properties = queryDatabaseSchema(queryRequest);
             }
-        } else {
-            properties = querySchemaByEs(queryRequest);
         }
         return properties;
     }
@@ -573,10 +571,11 @@ public class ChatController {
      */
     public String queryDatabaseSchema(ChatQueryRequest queryRequest) {
         // request embedding
-        String input = SegmentUtils.baseAnalysis(queryRequest.getMessage());
-        log.info("search message:{}", input);
-        FastChatEmbeddingResponse response = distributeAIEmbedding(input);
+        FastChatEmbeddingResponse response = distributeAIEmbedding(queryRequest.getMessage());
         List<List<BigDecimal>> contentVector = new ArrayList<>();
+        if (Objects.isNull(response) || CollectionUtils.isEmpty(response.getData())) {
+            return "";
+        }
         contentVector.add(response.getData().get(0).getEmbedding());
 
         // search embedding

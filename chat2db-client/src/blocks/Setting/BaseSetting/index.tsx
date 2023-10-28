@@ -105,6 +105,9 @@ export default function BaseSetting() {
 
   function changeLang(e: any) {
     setLangLocalStorage(e.target.value);
+    //切换语言时，需要设置cookie，用来改变后台服务的Locale
+    const date = new Date('2030-12-30 12:30:00').toUTCString();
+    document.cookie = `CHAT2DB.LOCALE=${e.target.value};Expires=${date}`;
     location.reload();
   }
 
