@@ -14,7 +14,7 @@ public class DBConfigBuilder {
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("ojdbc8-19.3.0.0.jar,orai18n-19.3.0.0.jar");
         driverConfig.setJdbcDriverClass("oracle.jdbc.driver.OracleDriver");
-        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/ojdbc8-19.3.0.0.jar", "https://oss-chat2db.alibaba.com/lib/orai18n-19.3.0.0.jar"));
+        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss.sqlgpt.cn/lib/ojdbc8-19.3.0.0.jar", "https://oss.sqlgpt.cn/lib/orai18n-19.3.0.0.jar"));
         dbConfig.setDefaultDriverConfig(driverConfig);
 
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));

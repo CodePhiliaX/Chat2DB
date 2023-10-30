@@ -14,7 +14,7 @@ public class DBConfigBuilder {
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("h2-2.1.214.jar");
         driverConfig.setJdbcDriverClass("org.h2.Driver");
-        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/h2-2.1.214.jar"));
+        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss.sqlgpt.cn/lib/h2-2.1.214.jar"));
         dbConfig.setDefaultDriverConfig(driverConfig);
 
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));

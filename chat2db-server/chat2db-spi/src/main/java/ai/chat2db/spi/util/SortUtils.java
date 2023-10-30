@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,19 +19,20 @@ public class SortUtils {
         if (CollectionUtils.isEmpty(databases)) {
             return databases;
         }
+        List<Database> databaseList = new ArrayList<>();
         List<Database> systemDatabases = databases.stream()
                 .filter(database -> list.contains(database.getName())).collect(Collectors.toList());
         List<Database> userDatabases = databases.stream()
                 .filter(database -> !list.contains(database.getName())).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(userDatabases)) {
-            return databases;
+            databaseList = databases;
+        }else if (CollectionUtils.isEmpty(systemDatabases)) {
+            databaseList = userDatabases;
+        }else {
+            databaseList = Stream.concat(userDatabases.stream(), systemDatabases.stream())
+                    .collect(Collectors.toList());
         }
-        if (CollectionUtils.isEmpty(systemDatabases)) {
-            return userDatabases;
-        }
-        List<Database> databaseList = Stream.concat(userDatabases.stream(), systemDatabases.stream())
-                .collect(Collectors.toList());
         // If the database name contains the name of the current database, the current database is placed in the first place
 
         String ulr;
