@@ -2,12 +2,12 @@
 `2023-10-31`
 
 **Changelog**
-- ⭐【New Features】
+- ⭐【New Features】Query results can be refreshed
 - ⚡️【Optimize】Console Tabs adaptive width
 - 🐞【Fixed】
 
 **更新日志**
-- ⭐【新功能】
+- ⭐【新功能】查询结果支持刷新
 - ⚡️【优化】控制台Tabs自适应宽度
 - 🐞【修复】
 
