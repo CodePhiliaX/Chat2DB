@@ -17,6 +17,8 @@ import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatRole;
+import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
+import ai.chat2db.server.web.api.controller.ai.baichuan.listener.BaichuanChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.claude.client.ClaudeAIClient;
 import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSourceListener;
@@ -361,16 +363,7 @@ public class ChatController {
      */
     private SseEmitter chatWithFastChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = buildPrompt(queryRequest);
-        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
-        if (CollectionUtils.isNotEmpty(messages)) {
-            if (messages.size() >= contextLength) {
-                messages = messages.subList(1, contextLength);
-            }
-        } else {
-            messages = Lists.newArrayList();
-        }
-        FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
-        messages.add(currentMessage);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
 
@@ -381,7 +374,7 @@ public class ChatController {
     }
 
     /**
-     * chat with fast chat openai
+     * chat with baichuan chat openai
      *
      * @param queryRequest
      * @param sseEmitter
@@ -389,8 +382,26 @@ public class ChatController {
      * @return
      * @throws IOException
      */
-    private SseEmitter chatWithWenxinAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+    private SseEmitter chatWithBaichuanAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        BaichuanChatAIEventSourceListener sourceListener = new BaichuanChatAIEventSourceListener(sseEmitter);
+        BaichuanAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
+     * get fast chat message
+     *
+     * @param uid
+     * @param prompt
+     * @return
+     */
+    private List<FastChatMessage> getFastChatMessage(String uid, String prompt) {
         List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
@@ -401,6 +412,21 @@ public class ChatController {
         }
         FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
+        return messages;
+    }
+
+    /**
+     * chat with wenxin chat openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithWenxinAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
 
