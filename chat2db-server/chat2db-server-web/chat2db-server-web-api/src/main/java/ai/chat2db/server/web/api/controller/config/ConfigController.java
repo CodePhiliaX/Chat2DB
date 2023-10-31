@@ -19,6 +19,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
+import ai.chat2db.server.web.api.controller.ai.zhipu.client.ZhipuChatAIClient;
 import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -193,6 +194,24 @@ public class ConfigController {
     }
 
     /**
+     * save common zhipu chat ai config
+     *
+     * @param request
+     */
+    private void saveZhipuChatAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_API_KEY)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
+        FastChatAIClient.refresh();
+    }
+
+    /**
      * save common tongyi chat ai config
      *
      * @param request
@@ -339,6 +358,14 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(tongyiApiKey.getData()) ? tongyiApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(tongyiApiHost.getData()) ? tongyiApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(tongyiModel.getData()) ? tongyiModel.getData().getContent() : "");
+                break;
+            case ZHIPUAI:
+                DataResult<Config> zhipuApiKey = configService.find(ZhipuChatAIClient.ZHIPU_API_KEY);
+                DataResult<Config> zhipuApiHost = configService.find(ZhipuChatAIClient.ZHIPU_HOST);
+                DataResult<Config> zhipuModel = configService.find(ZhipuChatAIClient.ZHIPU_MODEL);
+                config.setApiKey(Objects.nonNull(zhipuApiKey.getData()) ? zhipuApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(zhipuApiHost.getData()) ? zhipuApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(zhipuModel.getData()) ? zhipuModel.getData().getContent() : "");
                 break;
             default:
                 break;
