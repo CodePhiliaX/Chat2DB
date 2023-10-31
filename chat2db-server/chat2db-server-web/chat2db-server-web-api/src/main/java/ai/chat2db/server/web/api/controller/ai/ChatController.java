@@ -38,6 +38,8 @@ import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.listener.RestAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.tongyi.listener.TongyiChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.listener.WenxinAIEventSourceListener;
 import ai.chat2db.server.web.api.http.GatewayClientService;
@@ -238,6 +240,10 @@ public class ChatController {
                 return chatWithClaudeAi(queryRequest, sseEmitter, uid);
             case WENXINAI:
                 return chatWithWenxinAi(queryRequest, sseEmitter, uid);
+            case BAICHUANAI:
+                return chatWithBaichuanAi(queryRequest, sseEmitter, uid);
+            case TONGYIQIANWENAI:
+                return chatWithTongyiChatAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -369,6 +375,27 @@ public class ChatController {
 
         FastChatAIEventSourceListener sourceListener = new FastChatAIEventSourceListener(sseEmitter);
         FastChatAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
+     * chat with tongyi chat openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithTongyiChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        TongyiChatAIEventSourceListener sourceListener = new TongyiChatAIEventSourceListener(sseEmitter);
+        TongyiChatAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }

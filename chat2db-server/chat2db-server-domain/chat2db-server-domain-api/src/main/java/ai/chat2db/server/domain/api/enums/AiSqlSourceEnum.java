@@ -53,9 +53,9 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
     ZHIPUAI("ZHIPU AI"),
 
     /**
-     * QIANWEN AI
+     * TONGYIQIANWEN AI
      */
-    QIANWENAI("QIANWEN AI"),
+    TONGYIQIANWENAI("TONGYIQIANWEN AI"),
 
     /**
      * FAST CHAT AI
