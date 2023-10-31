@@ -756,6 +756,16 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
+            <div className={classnames(styles.toolBarItem,styles.refreshBar)}>
+              <Popover mouseEnterDelay={0.8} content={i18n('common.button.refresh')} trigger="hover">
+                <div
+                  onClick={()=>{getTableData()} }
+                  className={classnames(styles.refreshIconBox)}
+                >
+                  <Iconfont code="&#xe62d;" />
+                </div>
+              </Popover>
+            </div>
             {queryResultData.canEdit && (
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
                 <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.addRow')} trigger="hover">
@@ -821,30 +831,32 @@ export default function TableBox(props: ITableProps) {
               </Dropdown>
             </div>
           </div>
-          {allDataReady && (
-            <div
-              ref={tableBoxRef}
-              className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
-            >
-              {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
-              <SupportBaseTable
-                className={classnames('supportBaseTable', props.className, styles.table)}
-                components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-                isStickyHead
-                stickyTop={31}
-                getRowProps={(record) => {
-                  const rowNo = record[`${preCode}0No.`];
-                  return {
-                    // style: tableRowStyle(rowNo),
-                    onClick() {
-                      setCurOperationRowNo(rowNo);
-                    },
-                  };
-                }}
-                {...pipeline.getProps()}
-              />
-            </div>
-          )}
+          <div
+            ref={tableBoxRef}
+            className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
+          >
+            {allDataReady && (
+              <>
+                {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
+                <SupportBaseTable
+                  className={classnames('supportBaseTable', props.className, styles.table)}
+                  components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+                  isStickyHead
+                  stickyTop={31}
+                  getRowProps={(record) => {
+                    const rowNo = record[`${preCode}0No.`];
+                    return {
+                      // style: tableRowStyle(rowNo),
+                      onClick() {
+                        setCurOperationRowNo(rowNo);
+                      },
+                    };
+                  }}
+                  {...pipeline.getProps()}
+                />
+              </>
+            )}
+          </div>
           <StatusBar
             description={queryResultData.description}
             duration={queryResultData.duration}

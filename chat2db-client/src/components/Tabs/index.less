@@ -3,9 +3,9 @@
 .tab-focus() {
   background-color: var(--color-bg-subtle);
   // 添加内阴影
-  border-bottom: 1px solid var(--color-primary);
+  box-shadow: inset 0px -1px 0px var(--color-primary);
   .icon {
-    display: flex;
+    opacity: 1;
   }
 }
 
@@ -107,10 +107,6 @@
 
 .activeTab {
   .tab-focus();
-}
-
-.activeTabLine {
-  .tab-focus-line();
 }
 
 .rightBox {
