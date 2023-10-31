@@ -27,7 +27,6 @@ interface IProps {
   onChange?: (key: string | number | null) => void;
   onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
   hideAdd?: boolean;
-  type?: 'line';
   editableNameOnBlur?: (option: ITabItem) => void;
   concealTabHeader?: boolean;
   // 最后一个tab不能关闭
@@ -42,7 +41,6 @@ export default memo<IProps>((props) => {
     onEdit,
     activeKey,
     hideAdd,
-    type,
     lastTabCannotClosed,
     editableNameOnBlur,
     concealTabHeader,
@@ -137,10 +135,8 @@ export default memo<IProps>((props) => {
           }}
           style={t.styles}
           className={classnames(
-            { [styles.tabItem]: type !== 'line' },
-            { [styles.tabItemLine]: type === 'line' },
-            { [styles.activeTabLine]: t.key === internalActiveTab && type === 'line' },
-            { [styles.activeTab]: t.key === internalActiveTab && type !== 'line' },
+            styles.tabItem,
+            { [styles.activeTab]: t.key === internalActiveTab },
           )}
         >
           {t.key === editingTab ? (
