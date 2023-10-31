@@ -618,7 +618,6 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             activeKey={activeConsoleId}
             editableNameOnBlur={editableNameOnBlur}
             items={tabsList}
-            // lastTabCannotClosed
           />
         </div>
         {/* <WorkspaceExtend className={styles.workspaceExtend} /> */}
