@@ -16,6 +16,7 @@ import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
+import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
 import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -86,6 +87,9 @@ public class ConfigController {
                 break;
             case FASTCHATAI:
                 saveFastChatAIConfig(request);
+                break;
+            case WENXINAI:
+                saveWenxinAIConfig(request);
                 break;
         }
         return ActionResult.isSuccess();
@@ -181,6 +185,21 @@ public class ConfigController {
         FastChatAIClient.refresh();
     }
 
+    /**
+     * save common fast chat ai config
+     *
+     * @param request
+     */
+    private void saveWenxinAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(WenxinAIClient.WENXIN_ACCESS_TOKEN)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(WenxinAIClient.WENXIN_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        WenxinAIClient.refresh();
+    }
+
     @GetMapping("/system_config/{code}")
     public DataResult<Config> getSystemConfig(@PathVariable("code") String code) {
         DataResult<Config> result = configService.find(code);
@@ -250,6 +269,12 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(fastChatApiKey.getData()) ? fastChatApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(fastChatApiHost.getData()) ? fastChatApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(fastChatModel.getData()) ? fastChatModel.getData().getContent() : "");
+                break;
+            case WENXINAI:
+                DataResult<Config> wenxinAccessToken = configService.find(WenxinAIClient.WENXIN_ACCESS_TOKEN);
+                DataResult<Config> wenxinApiHost = configService.find(WenxinAIClient.WENXIN_HOST);
+                config.setApiKey(Objects.nonNull(wenxinAccessToken.getData()) ? wenxinAccessToken.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(wenxinApiHost.getData()) ? wenxinApiHost.getData().getContent() : "");
                 break;
             default:
                 break;
