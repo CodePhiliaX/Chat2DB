@@ -4,27 +4,27 @@
 
     <select id="selectPageWithPermission" resultType="ai.chat2db.server.domain.repository.entity.DataSourceDO">
         select ds.*
-        from DATA_SOURCE ds
+        from data_source ds
         <where>
             <choose>
                 <when test="kind == 'PRIVATE'">
-                    and ds.USER_ID = #{userId}
+                    and ds.user_id = #{userId}
                 </when>
                 <otherwise>
-                    and (ds.USER_ID = #{userId}
+                    and (ds.user_id = #{userId}
                     or exists(
-                    select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER'
-                    and dsa.ACCESS_OBJECT_ID = #{userId}
-                    and dsa.DATA_SOURCE_ID = ds.ID
+                    select 1 from data_source_access dsa where dsa.access_object_type = 'USER'
+                    and dsa.access_object_id = #{userId}
+                    and dsa.data_source_id = ds.ID
                     )
                     or exists (
                     select 1
-                    from DATA_SOURCE_ACCESS dsa
-                    LEFT JOIN TEAM_USER tu on tu.TEAM_ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
-                    left join TEAM t on t.id = tu.TEAM_ID
-                    where tu.USER_ID = #{userId}
-                    and dsa.DATA_SOURCE_ID = ds.ID
-                    and t.STATUS = 'VALID'
+                    from data_source_access dsa
+                    left join team_user tu on tu.team_id = dsa.access_object_id and dsa.access_object_type = 'TEAM'
+                    left join team t on t.id = tu.team_id
+                    where tu.user_id = #{userId}
+                    and dsa.data_source_id = ds.id
+                    and t.status = 'VALID'
                     )
                     )
                 </otherwise>

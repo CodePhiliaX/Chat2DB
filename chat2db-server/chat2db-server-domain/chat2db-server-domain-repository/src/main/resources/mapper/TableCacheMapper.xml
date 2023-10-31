@@ -3,7 +3,7 @@
 <mapper namespace="ai.chat2db.server.domain.repository.mapper.TableCacheMapper">
 
     <insert id="batchInsert" parameterType="java.util.List">
-        insert into TABLE_CACHE
+        insert into table_cache
         (data_source_id,database_name,schema_name,table_name,`key`,version,columns,extend_info)
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -13,7 +13,7 @@
 
     <select id="pageQuery" resultType="ai.chat2db.server.domain.repository.entity.TableCacheDO">
         select *
-        from TABLE_CACHE tc
+        from table_cache tc
         <where>
             <if test="dataSourceId != null ">
                 and tc.data_source_id = #{dataSourceId}

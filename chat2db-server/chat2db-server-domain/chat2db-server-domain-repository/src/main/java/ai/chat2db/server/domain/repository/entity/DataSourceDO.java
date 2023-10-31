@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.repository.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
@@ -18,7 +19,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@TableName("DATA_SOURCE")
+@TableName("data_source")
 public class DataSourceDO implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -26,7 +27,7 @@ public class DataSourceDO implements Serializable {
     /**
      * 主键
      */
-    @TableId(value = "ID", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
@@ -92,6 +93,7 @@ public class DataSourceDO implements Serializable {
     /**
      * ssl配置信息json
      */
+    @TableField(value = "`ssl`")
     private String ssl;
 
     /**
