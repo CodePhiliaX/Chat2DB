@@ -99,6 +99,10 @@ public class ConfigController {
                 break;
             case BAICHUANAI:
                 saveBaichuanAIConfig(request);
+                break;
+            case ZHIPUAI:
+                saveZhipuChatAIConfig(request);
+                break;
         }
         return ActionResult.isSuccess();
     }
@@ -208,7 +212,7 @@ public class ConfigController {
         SystemConfigParam modelParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_MODEL)
                 .content(request.getModel()).build();
         configService.createOrUpdate(modelParam);
-        FastChatAIClient.refresh();
+        ZhipuChatAIClient.refresh();
     }
 
     /**

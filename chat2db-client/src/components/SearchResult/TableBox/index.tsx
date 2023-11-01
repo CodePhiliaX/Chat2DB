@@ -756,10 +756,12 @@ export default function TableBox(props: ITableProps) {
                 onClickTotalBtn={onClickTotalBtn}
               />
             </div>
-            <div className={classnames(styles.toolBarItem,styles.refreshBar)}>
+            <div className={classnames(styles.toolBarItem, styles.refreshBar)}>
               <Popover mouseEnterDelay={0.8} content={i18n('common.button.refresh')} trigger="hover">
                 <div
-                  onClick={()=>{getTableData()} }
+                  onClick={() => {
+                    getTableData();
+                  }}
                   className={classnames(styles.refreshIconBox)}
                 >
                   <Iconfont code="&#xe62d;" />
@@ -823,7 +825,7 @@ export default function TableBox(props: ITableProps) {
               </div>
             )}
             <div className={styles.toolBarRight}>
-              <Dropdown menu={{ items: exportDropdownItems }}>
+              <Dropdown menu={{ items: exportDropdownItems }} trigger={["click"]}>
                 <Space className={styles.exportBar}>
                   {i18n('common.text.export')}
                   <DownOutlined />

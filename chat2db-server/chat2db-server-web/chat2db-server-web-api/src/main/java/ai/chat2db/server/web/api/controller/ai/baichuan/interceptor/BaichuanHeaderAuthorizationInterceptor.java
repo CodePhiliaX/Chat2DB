@@ -5,6 +5,7 @@ import cn.hutool.http.Header;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import okio.Buffer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,24 +40,48 @@ public class BaichuanHeaderAuthorizationInterceptor implements Interceptor {
         // 获取当前的时间戳（UTC标准时间戳）
         long timestamp = System.currentTimeMillis() / 1000;
 
-        // 构造 HTTP-Body，这里需要根据实际情况构造你的请求体
-        // 这里示例构造一个空的请求体
-        RequestBody requestBody = RequestBody.create("", MediaType.parse("text/plain"));
+        // 获取原始的HTTP-Body
+        RequestBody originalRequestBody = originalRequest.body();
+        Buffer buffer = new Buffer();
+        if (originalRequestBody != null) {
+            originalRequestBody.writeTo(buffer);
+        }
+        String httpBody = buffer.readUtf8();
 
         // 计算 X-BC-Signature
-        String signature = calculateSignature(secretKey, requestBody, timestamp);
+        String signature = calculateSignature(secretKey, httpBody, timestamp);
 
         // 创建新的请求，并添加自定义请求头
         Request newRequest = originalRequest.newBuilder()
-                .addHeader(Header.AUTHORIZATION.getValue(), "Bearer " + apiKey)
-                .addHeader(Header.CONTENT_TYPE.getValue(), ContentType.JSON.getValue())
+                .addHeader("Authorization", "Bearer " + apiKey)
+                .addHeader("Content-Type", "application/json")
                 .addHeader("X-BC-Sign-Algo", "MD5")
                 .addHeader("X-BC-Timestamp", String.valueOf(timestamp))
                 .addHeader("X-BC-Signature", signature)
-                .method(originalRequest.method(), originalRequest.body())
+                .method(originalRequest.method(), RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), httpBody))
                 .build();
 
         return chain.proceed(newRequest);
+    }
+
+    private String calculateSignature(String secretKey, String httpBody, long timestamp) {
+        String toHash = secretKey + httpBody + timestamp;
+        return md5(toHash);
+    }
+
+    private String md5(String s) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] result = digest.digest(s.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : result) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (Exception e) {
+            log.error("baichuan secret key md5 error", e);
+            return "";
+        }
     }
 
     private String calculateSignature(String secretKey, RequestBody body, long timestamp) {

@@ -29,6 +29,7 @@
     "favicons",
     "fulltext",
     "ghostoy",
+    "hljs",
     "iconfont",
     "jdbc",
     "macos",
@@ -41,6 +42,7 @@
     "nsis",
     "OPENAI",
     "ossutil",
+    "partialize",
     "pgsql",
     "pnpm",
     "Popconfirm",
@@ -49,6 +51,7 @@
     "remaininguses",
     "RESTAI",
     "samuelmeuli",
+    "scroller",
     "Sercurity",
     "sortablejs",
     "temurin",
@@ -66,6 +69,7 @@
     "Wppk",
     "xcrun",
     "yapi",
-    "yizhoumo"
+    "yizhoumo",
+    "zustand"
   ]
 }

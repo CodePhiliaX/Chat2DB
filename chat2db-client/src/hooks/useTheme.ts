@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
 import { getOsTheme } from '@/utils';
 import { ITheme } from '@/typings';
@@ -37,7 +37,7 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
   // const isDark = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
   useEffect(() => {
-    const uuid = addColorSchemeListener(setAppTheme);
+    const uuid = addColorSchemeListener(setAppTheme as any);
     return () => {
       delete colorSchemeListeners[uuid];
     };
@@ -47,7 +47,7 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
     if (theme.backgroundColor === ThemeType.FollowOs) {
       theme.backgroundColor =
         window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? ThemeType.Dark
+          ? ThemeType.DarkDimmed
           : ThemeType.Light;
     }
     Object.keys(colorSchemeListeners)?.forEach((t) => {

@@ -9,10 +9,12 @@ interface IProps {
 
 export default memo<IProps>((props) => {
   const { className } = props;
-  const { panelLeft, togglePanelLeft } = useWorkspaceStore((state) => {
+  const { panelLeft, panelRight, togglePanelLeft, togglePanelRight } = useWorkspaceStore((state) => {
     return {
       togglePanelLeft: state.togglePanelLeft,
+      togglePanelRight: state.togglePanelRight,
       panelLeft: state.layout.panelLeft,
+      panelRight: state.layout.panelRight,
     };
   });
 
@@ -22,7 +24,10 @@ export default memo<IProps>((props) => {
         className={classnames(styles.iconPanelLeft, styles.iconPanel, { [styles.iconPanelLeftHidden]: !panelLeft })}
         onClick={togglePanelLeft}
       />
-      {/* <div className={classnames(styles.iconPanelRight, styles.iconPanel, { [styles.iconPanelRightHidden]: false })} /> */}
+      <div
+        className={classnames(styles.iconPanelRight, styles.iconPanel, { [styles.iconPanelRightHidden]: !panelRight })}
+        onClick={togglePanelRight}
+      />
     </div>
   );
 });
