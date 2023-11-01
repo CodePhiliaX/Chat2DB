@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.ai.baichuan.client;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.baichuan.interceptor.BaichuanHeaderAuthorizationInterceptor;
+import ai.chat2db.server.web.api.controller.ai.baichuan.model.BaichuanChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
@@ -190,9 +191,9 @@ public class BaichuanAIStreamClient {
         log.info("Baichuan AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
 
-            FastChatCompletionsOptions chatCompletionsOptions = new FastChatCompletionsOptions(chatMessages);
-            chatCompletionsOptions.setStream(true);
+            BaichuanChatCompletionsOptions chatCompletionsOptions = new BaichuanChatCompletionsOptions();
             chatCompletionsOptions.setModel(this.model);
+            chatCompletionsOptions.setMessages(chatMessages);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
