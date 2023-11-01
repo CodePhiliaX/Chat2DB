@@ -396,6 +396,7 @@ const IndexList = forwardRef((props: IProps, ref: ForwardedRef<IIndexListRef>) =
                 pagination={false}
                 rowKey="key"
                 columns={columns as any}
+                scroll={{ x: '100%' }}
                 dataSource={dataSource.filter((i) => i.editStatus !== EditColumnOperationType.Delete)}
               />
             </SortableContext>
