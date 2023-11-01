@@ -5,7 +5,7 @@ import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Toolti
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
-import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
+import { AIType, IRemainingUse } from '@/typings/ai';
 
 export const enum SyncModelType {
   AUTO = 0,
@@ -19,7 +19,7 @@ interface IProps {
   syncTableModel: number;
   selectedTables?: string[];
   remainingUse?: IRemainingUse;
-  aiType: AiSqlSourceType;
+  aiType: AIType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
   isStream?: boolean;
@@ -123,7 +123,7 @@ const ChatInput = (props: IProps) => {
           </div>
         </Tooltip>
 
-        {/* {props.aiType === AiSqlSourceType.CHAT2DBAI && (
+        {/* {props.aiType === AIType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
             <div
               className={styles.remainBlock}

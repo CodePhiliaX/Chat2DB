@@ -1,7 +1,7 @@
 import aiService from '@/service/ai';
 import configService from '@/service/config';
 import { IAiConfig } from '@/typings/setting';
-import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
+import { AIType, IRemainingUse } from '@/typings/ai';
 import { Effect, EffectsCommandMap, Reducer } from 'umi';
 import { message } from 'antd';
 import i18n from '@/i18n';
@@ -33,7 +33,7 @@ const AIModel: IAIModelType = {
   state: {
     remainingUse: undefined,
     aiConfig: {
-      aiSqlSource: AiSqlSourceType.CHAT2DBAI,
+      aiSqlSource: AIType.CHAT2DBAI,
     },
     hasWhite: false,
   },
@@ -71,7 +71,7 @@ const AIModel: IAIModelType = {
         type: 'setAiConfig',
         payload: res,
       });
-      if (res?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+      if (res?.aiSqlSource === AIType.CHAT2DBAI) {
         // yield put({
         //   type: 'fetchRemainingUse',
         //   payload: { apiKey: res.apiKey },
@@ -98,7 +98,7 @@ const AIModel: IAIModelType = {
         //   payload: { apiKey: aiConfig?.apiKey },
         // });
 
-        if (aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI) {
+        if (aiConfig?.aiSqlSource === AIType.CHAT2DBAI) {
           yield put({
             type: 'updateAiWithWhite',
             payload: { apiKey: aiConfig?.apiKey },
@@ -116,7 +116,7 @@ const AIModel: IAIModelType = {
       const currentState = (yield select((state: any) => state.ai)) as IAIState;
       const { apiKey } = payload || {};
       try {
-        if (!apiKey || currentState.aiConfig.aiSqlSource !== AiSqlSourceType.CHAT2DBAI) {
+        if (!apiKey || currentState.aiConfig.aiSqlSource !== AIType.CHAT2DBAI) {
           yield put({
             type: 'setRemainUse',
             payload: undefined,

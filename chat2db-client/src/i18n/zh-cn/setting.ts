@@ -16,6 +16,8 @@ export default {
   'setting.title.language': '语言',
   'setting.title.aiSource': 'AI 来源',
   'setting.tab.custom': '自定义',
+  'setting.tab.aiType.zhipu': '智谱AI',
+  'setting.tab.aiType.baichuan': '百川AI',
   'setting.label.serviceAddress': '服务地址',
   'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',

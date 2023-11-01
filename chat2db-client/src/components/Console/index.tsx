@@ -15,7 +15,7 @@ import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import { formatSql, getCookie } from '@/utils';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
-import { AiSqlSourceType } from '@/typings/ai';
+import { AIType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
@@ -118,7 +118,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
    * 当前选择的AI类型是Chat2DBAI
    */
   const isChat2DBAI = useMemo(
-    () => aiModel.aiConfig?.aiSqlSource === AiSqlSourceType.CHAT2DBAI,
+    () => aiModel.aiConfig?.aiSqlSource === AIType.CHAT2DBAI,
     [aiModel.aiConfig?.aiSqlSource],
   );
 
