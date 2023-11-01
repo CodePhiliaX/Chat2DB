@@ -104,8 +104,8 @@ export default function SettingAI(props: IProps) {
       </div>
 
       <Form layout="vertical">
-        {Object.keys(formConfig[aiConfig?.aiSqlSource]).map((key: IAiConfigKeys) => (
-          <Form.Item label={capitalizeFirstLetter(key)} className={styles.title}>
+        {Object.keys(formConfig[aiConfig?.aiSqlSource]).map((key: string) => (
+          <Form.Item key={key} label={capitalizeFirstLetter(key)} className={styles.title}>
             <Input
               autoComplete="off"
               value={aiConfig[key]}
