@@ -112,8 +112,13 @@ public class BaichuanChatAIEventSourceListener extends EventSourceListener {
             String bodyString = Objects.nonNull(t) ? t.getMessage() : "";
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                if (StringUtils.isBlank(bodyString) && Objects.nonNull(t)) {
-                    bodyString = t.getMessage();
+                if (StringUtils.isBlank(bodyString)) {
+                    if (Objects.nonNull(t)) {
+                        bodyString = t.getMessage();
+                    } else {
+                        bodyString = String.valueOf(response.code());
+                    }
+
                 }
                 log.error("Baichuan Chat AI sse response：{}", bodyString);
             } else {
