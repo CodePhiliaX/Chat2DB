@@ -212,7 +212,7 @@ jobs:
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
           xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
-          xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
+          xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg --keychain-profile "Chat2DB"
 
       # Linux
       - name: Delete File
