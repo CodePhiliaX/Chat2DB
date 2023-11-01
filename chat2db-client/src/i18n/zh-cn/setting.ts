@@ -20,7 +20,7 @@ export default {
   'setting.tab.aiType.baichuan': '百川',
   'setting.tab.aiType.wenxin': '文心一言',
   'setting.tab.aiType.tongyiqianwen': '通义千问',
-  'setting.tab.aiType.custom.tips': "返回保持为OpenAI一致",
+  'setting.tab.aiType.custom.tips': "接口格式与OpenAI接口格式一致",
   'setting.label.serviceAddress': '服务地址',
   'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',
