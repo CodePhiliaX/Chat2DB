@@ -122,5 +122,12 @@
         display: none;
       }
     }
+    // antd无法设置最小宽度，所以在这里设置最小列宽为100px
+    colgroup col:nth-last-child(2) {
+      min-width: 100px;
+    }
+    // colgroup col:nth-last-child(3) {
+    //   min-width: 100px;
+    // }
   }
 }
