@@ -1,16 +1,17 @@
 # 3.0.9
-`2023-10-31`
+`2023-11-01`
 
 **Changelog**
 - ⭐【New Features】Query results can be refreshed
 - ⚡️【Optimize】Console Tabs adaptive width
 - 🐞【Fixed】console save bug
+- 🐞【Fixed】sqlite can only retrieve one piece of data
 
 **更新日志**
 - ⭐【新功能】查询结果支持刷新
 - ⚡️【优化】控制台Tabs自适应宽度
 - 🐞【修复】console保存bug
-
+- 🐞【修复】sqlite只能查到一条数据问题
 
 # 3.0.5
 `2023-10-23`
