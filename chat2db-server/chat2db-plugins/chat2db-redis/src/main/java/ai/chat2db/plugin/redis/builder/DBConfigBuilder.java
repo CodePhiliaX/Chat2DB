@@ -12,7 +12,7 @@ public class DBConfigBuilder {
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("redis-jdbc-driver-1.3.jar");
         driverConfig.setJdbcDriverClass("jdbc.RedisDriver");
-        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/redis-jdbc-driver-1.3.jar"));
+        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss.sqlgpt.cn/lib/redis-jdbc-driver-1.3.jar"));
         dbConfig.setDefaultDriverConfig(driverConfig);
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));
         return dbConfig;

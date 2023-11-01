@@ -144,7 +144,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
           />
         ),
         popover: queryResultData.originalSql,
-        label: queryResultData.originalSql,
+        label: i18n('common.text.executionResult', index + 1),
         key: queryResultData.uuid!,
         children: renderResult(queryResultData),
       };

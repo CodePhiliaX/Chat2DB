@@ -112,6 +112,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const closeEventSource = useRef<any>();
   // 上一次同步的console数据
   const lastSyncConsole = useRef<any>(defaultValue);
+  const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(executeParams.status || ConsoleStatus.DRAFT);
 
   /**
    * 当前选择的AI类型是Chat2DBAI
@@ -131,40 +132,43 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     }
   }, [appendValue]);
 
-  useImperativeHandle(ref, () => ({
-    editorRef: editorRef?.current,
-  }));
+  useImperativeHandle(
+    ref,
+    () => ({
+      editorRef: editorRef?.current,
+    }),
+    [editorRef?.current],
+  );
 
   useEffect(() => {
     if (source !== 'workspace') {
       return;
     }
     // 离开时保存
-    if (!isActive && timerRef.current) {
+    if (!isActive) {
       // 离开时清除定时器
-      indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
-        consoleId: executeParams.consoleId!,
-        ddl: editorRef?.current?.getAllContent(),
-        userId: getCookie('CHAT2DB.USER_ID'),
-      });
-      clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      const curValue = editorRef?.current?.getAllContent();
+      if (curValue === lastSyncConsole.current) {
+        return;
+      }
+      if (saveStatus === ConsoleStatus.RELEASE) {
+        saveConsole(curValue, true);
+      } else {
+        indexedDB
+          .updateData('chat2db', 'workspaceConsoleDDL', {
+            consoleId: executeParams.consoleId!,
+            ddl: curValue,
+            userId: getCookie('CHAT2DB.USER_ID'),
+          })
+          .then(() => {
+            lastSyncConsole.current = curValue;
+          });
+      }
     } else {
-      // 活跃时自动保存
-      indexedDB
-        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
-          consoleId: executeParams.consoleId!,
-          userId: getCookie('CHAT2DB.USER_ID'),
-        })
-        .then((res: any) => {
-          const value = defaultValue || res?.[0]?.ddl || '';
-          const oldValue = editorRef?.current?.getAllContent();
-          if (value !== oldValue) {
-            editorRef?.current?.setValue(value, 'reset');
-          }
-          setTimeout(() => {
-            timingAutoSave();
-          }, 0);
-        });
+      timingAutoSave();
     }
     return () => {
       if (timerRef.current) {
@@ -173,28 +177,46 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     };
   }, [isActive]);
 
-  function timingAutoSave(status?: ConsoleStatus) {
+  useEffect(() => {
+    if (saveStatus === ConsoleStatus.RELEASE) {
+      editorRef?.current?.setValue(defaultValue, 'cover');
+    } else {
+      indexedDB
+        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+          consoleId: executeParams.consoleId!,
+          userId: getCookie('CHAT2DB.USER_ID'),
+        })
+        .then((res: any) => {
+          // oldValue是为了处理函数视图等，他们是带着值来的，不需要去数据库取值
+          const oldValue = editorRef?.current?.getAllContent();
+          if (!oldValue) {
+            editorRef?.current?.setValue(res?.[0]?.ddl || '', 'cover');
+          }
+        });
+    }
+  }, []);
+
+  function timingAutoSave(_status?: ConsoleStatus) {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     timerRef.current = setInterval(() => {
-      const ddl = editorRef?.current?.getAllContent();
-      if (ddl === lastSyncConsole.current) {
+      const curValue = editorRef?.current?.getAllContent();
+      if (curValue === lastSyncConsole.current) {
         return;
       }
-      lastSyncConsole.current = ddl;
-      if (executeParams.status === ConsoleStatus.RELEASE || status === ConsoleStatus.RELEASE) {
-        const p: any = {
-          id: executeParams.consoleId,
-          ddl,
-        };
-        historyServer.updateSavedConsole(p);
+      if (saveStatus === ConsoleStatus.RELEASE || _status === ConsoleStatus.RELEASE) {
+        saveConsole(curValue, true);
       } else {
-        indexedDB.updateData('chat2db', 'workspaceConsoleDDL', {
-          consoleId: executeParams.consoleId!,
-          ddl,
-          userId: getCookie('CHAT2DB.USER_ID'),
-        });
+        indexedDB
+          .updateData('chat2db', 'workspaceConsoleDDL', {
+            consoleId: executeParams.consoleId!,
+            ddl: curValue,
+            userId: getCookie('CHAT2DB.USER_ID'),
+          })
+          .then(() => {
+            lastSyncConsole.current = curValue;
+          });
       }
     }, 5000);
   }
@@ -384,8 +406,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     props.onExecuteSQL && props.onExecuteSQL(sqlContent);
   };
 
-  const saveConsole = (value?: string) => {
-    // const a = editorRef.current?.getAllContent();
+  const saveConsole = (value?: string, noPrompting?: boolean) => {
     const p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
@@ -394,6 +415,11 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
     historyServer.updateSavedConsole(p).then(() => {
       indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
+      lastSyncConsole.current = value;
+      setSaveStatus(ConsoleStatus.RELEASE);
+      if (noPrompting) {
+        return;
+      }
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
       timingAutoSave(ConsoleStatus.RELEASE);
@@ -570,8 +596,16 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   );
 }
 
-const dvaModel = connect(({ ai, loading }: { ai: IAIState; loading: any }) => ({
-  aiModel: ai,
-  remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
-}));
+const dvaModel = connect(
+  ({ ai, loading }: { ai: IAIState; loading: any }) => {
+    return {
+      aiModel: ai,
+      remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
+    };
+  },
+  null,
+  null,
+  { forwardRef: true },
+);
+
 export default dvaModel(forwardRef(Console));

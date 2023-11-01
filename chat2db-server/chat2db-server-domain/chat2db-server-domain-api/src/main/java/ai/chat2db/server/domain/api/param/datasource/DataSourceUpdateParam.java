@@ -53,7 +53,10 @@ public class DataSourceUpdateParam {
      */
     private String envType;
 
-
+    /**
+     * 环境id
+     */
+    private Integer environmentId;
 
     /**
      * host

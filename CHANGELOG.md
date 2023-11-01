@@ -1,3 +1,17 @@
+# 3.0.9
+`2023-10-31`
+
+**Changelog**
+- ⭐【New Features】Query results can be refreshed
+- ⚡️【Optimize】Console Tabs adaptive width
+- 🐞【Fixed】console save bug
+
+**更新日志**
+- ⭐【新功能】查询结果支持刷新
+- ⚡️【优化】控制台Tabs自适应宽度
+- 🐞【修复】console保存bug
+
+
 # 3.0.5
 `2023-10-23`
 **Changelog**
@@ -431,3 +445,21 @@ Chat2DB 的 1.0.0 正式版来啦 🎉🎉🎉🎉🎉🎉🎉🎉🎉
 - 🔌 强大的扩展能力，目前已经支持 Mysql、PostgreSQL、Oracle、SQLServer、ClickHouse、Oceanbase、H2、SQLite 等等，未来会支持更多的数据库
 - 🛡 前端使用 Electron 开发，提供 Windows、Mac、Linux 客户端、网页版本一体化的解决方案
 - 🎁 支持环境隔离、线上、日常数据权限分离
+
+
+# 0.0.0
+`2023--`
+
+**Changelog**
+- ⭐【New Features】
+- ⚡️【Optimize】
+- 🐞【Fixed】
+
+
+**更新日志**
+- ⭐【新功能】
+- ⚡️【优化】
+- 🐞【修复】
+
+
+
