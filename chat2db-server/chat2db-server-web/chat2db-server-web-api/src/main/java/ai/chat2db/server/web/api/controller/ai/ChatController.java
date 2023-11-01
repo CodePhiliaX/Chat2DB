@@ -42,6 +42,8 @@ import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.tongyi.listener.TongyiChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.listener.WenxinAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.zhipu.client.ZhipuChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.zhipu.listener.ZhipuChatAIEventSourceListener;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.model.EsTableSchema;
 import ai.chat2db.server.web.api.http.model.TableSchema;
@@ -244,6 +246,8 @@ public class ChatController {
                 return chatWithBaichuanAi(queryRequest, sseEmitter, uid);
             case TONGYIQIANWENAI:
                 return chatWithTongyiChatAi(queryRequest, sseEmitter, uid);
+            case ZHIPUAI:
+                return chatWithZhipuChatAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -375,6 +379,27 @@ public class ChatController {
 
         FastChatAIEventSourceListener sourceListener = new FastChatAIEventSourceListener(sseEmitter);
         FastChatAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
+     * chat with zhipu chat openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithZhipuChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        ZhipuChatAIEventSourceListener sourceListener = new ZhipuChatAIEventSourceListener(sseEmitter);
+        ZhipuChatAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
