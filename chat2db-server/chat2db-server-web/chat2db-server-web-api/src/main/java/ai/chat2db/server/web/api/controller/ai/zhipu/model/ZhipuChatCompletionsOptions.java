@@ -5,12 +5,9 @@ package ai.chat2db.server.web.api.controller.ai.zhipu.model;
 
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhipu.oapi.service.v3.ModelConstants;
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The configuration information for a chat completions request. Completions support a wide variety of tasks and

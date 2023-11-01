@@ -2,18 +2,19 @@ package ai.chat2db.server.web.api.controller.ai.zhipu.util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class ZhipuUtils {
 
     private static final String tokenV3KeyPrefix = "zhipu_oapi_token_v3";
 
 
     public static String getToken(String key, String secret) {
-        String tokenCacheKey = genTokenCacheKey(key);
         String newToken = createJwt(key, secret);
         return newToken;
     }
@@ -23,7 +24,7 @@ public class ZhipuUtils {
         try {
             alg = Algorithm.HMAC256(secret.getBytes("utf-8"));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("create jwt error", e);
             return null;
         }
 
@@ -36,9 +37,5 @@ public class ZhipuUtils {
         headerClaims.put("sign_type", "SIGN");
         String token = JWT.create().withPayload(payload).withHeader(headerClaims).sign(alg);
         return token;
-    }
-
-    private static String genTokenCacheKey(String apiKey) {
-        return String.format("%s-%s", tokenV3KeyPrefix, apiKey);
     }
 }
