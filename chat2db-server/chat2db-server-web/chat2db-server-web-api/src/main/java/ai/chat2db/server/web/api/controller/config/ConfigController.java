@@ -99,6 +99,10 @@ public class ConfigController {
                 break;
             case BAICHUANAI:
                 saveBaichuanAIConfig(request);
+                break;
+            case ZHIPUAI:
+                saveZhipuChatAIConfig(request);
+                break;
         }
         return ActionResult.isSuccess();
     }
