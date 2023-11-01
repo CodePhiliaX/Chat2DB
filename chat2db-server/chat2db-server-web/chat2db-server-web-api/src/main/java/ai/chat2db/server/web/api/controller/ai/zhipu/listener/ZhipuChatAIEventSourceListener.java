@@ -60,10 +60,12 @@ public class ZhipuChatAIEventSourceListener extends EventSourceListener {
         }
 
         ZhipuChatCompletions chatCompletions = mapper.readValue(data, ZhipuChatCompletions.class);
-        String text = "";
-        for (FastChatMessage message : chatCompletions.getBody().getChoices()) {
-            if (message != null && message.getContent() != null) {
-                text = message.getContent();
+        String text = chatCompletions.getData();
+        if (Objects.isNull(text)) {
+            for (FastChatMessage message : chatCompletions.getBody().getChoices()) {
+                if (message != null && message.getContent() != null) {
+                    text = message.getContent();
+                }
             }
         }
 

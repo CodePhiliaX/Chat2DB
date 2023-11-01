@@ -14,6 +14,8 @@ public class ZhipuChatCompletions {
 
     private int statusCode;
 
+    private String data;
+
     /*
      * The collection of completions choices associated with this completions response.
      * Generally, `n` choices are generated per provided prompt with a default value of 1.

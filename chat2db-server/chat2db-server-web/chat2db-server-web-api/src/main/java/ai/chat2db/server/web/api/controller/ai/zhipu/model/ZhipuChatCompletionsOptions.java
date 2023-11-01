@@ -16,10 +16,6 @@ import java.util.List;
 @Data
 public final class ZhipuChatCompletionsOptions {
 
-    // path variables
-    @JsonProperty(value = "")
-    private String invokeMethod = "sse-invoke";
-
     @JsonProperty(value = "request_id")
     private String requestId;
 

@@ -211,7 +211,7 @@ public class ZhipuChatAIStreamClient {
                 .build();
             //创建事件
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
-            log.info("finish invoking fast chat ai");
+            log.info("finish invoking zhipu chat ai");
         } catch (Exception e) {
             log.error("fast chat ai error", e);
             eventSourceListener.onFailure(null, e, null);
