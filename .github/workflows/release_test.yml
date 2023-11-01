@@ -192,9 +192,9 @@ jobs:
       - name: Notarization x86_64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         run: |
-          # xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg
           xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
           xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
+      
       # macos arm64
       - name: Build/release Electron app for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
@@ -211,7 +211,6 @@ jobs:
       - name: Notarization arm64 App
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
-          # xcrun altool --notarize-app --primary-bundle-id "${{secrets.MAC_PRIMARY_BUNDLE_ID}}" --username "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --asc-provider "${{secrets.MAC_ASC_PROVIDER}}" -t osx --file chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg
           xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
           xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
 
