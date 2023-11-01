@@ -6,9 +6,6 @@ import ai.chat2db.server.web.api.controller.ai.zhipu.interceptor.ZhipuChatHeader
 import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.zhipu.oapi.core.response.RawResponse;
-import com.zhipu.oapi.service.v3.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
