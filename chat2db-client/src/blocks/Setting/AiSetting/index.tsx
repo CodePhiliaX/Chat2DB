@@ -8,10 +8,16 @@ import { IAiConfig } from '@/typings/setting';
 import styles from './index.less';
 import { getUser } from '@/service/user';
 import { ILoginUser, IRole } from '@/typings/user';
+import { formConfig } from './aiTypeConfig';
 
 interface IProps {
   handleApplyAiConfig: (aiConfig: IAiConfig) => void;
   aiConfig: IAiConfig;
+}
+type IAiConfigKeys = keyof IAiConfig;
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 const AITypeName = {
@@ -97,19 +103,22 @@ export default function SettingAI(props: IProps) {
         </Radio.Group>
       </div>
 
-      {/* <Form layout='vertical'>
-        <Form.Item  label={'Api Key'} className={styles.title}>
-          <Input
-            autoComplete="off"
-            value={aiConfig.apiKey}
-            onChange={(e) => {
-              setAiConfig({ ...aiConfig, apiKey: e.target.value });
-            }}
-          />
-        </Form.Item>
-      </Form> */}
+      <Form layout="vertical">
+        {Object.keys(formConfig[aiConfig?.aiSqlSource]).map((key: IAiConfigKeys) => (
+          <Form.Item label={capitalizeFirstLetter(key)} className={styles.title}>
+            <Input
+              autoComplete="off"
+              value={aiConfig[key]}
+              defaultValue={formConfig[aiConfig?.aiSqlSource]?.[key]}
+              onChange={(e) => {
+                setAiConfig({ ...aiConfig, [key]: e.target.value });
+              }}
+            />
+          </Form.Item>
+        ))}
+      </Form>
 
-      {aiConfig?.aiSqlSource === AIType.CHAT2DBAI && (
+      {/* {aiConfig?.aiSqlSource === AIType.CHAT2DBAI && (
         <div>
           <div className={styles.title}>Api Key</div>
           <div className={classnames(styles.content, styles.chatGPTKey)}>
@@ -348,25 +357,10 @@ export default function SettingAI(props: IProps) {
               }}
             />
           </div>
-          <div className={styles.title}>{i18n('setting.label.isStreamOutput')}</div>
-          <div className={classnames(styles.content)}>
-            <Radio.Group
-              onChange={(e) => {
-                setAiConfig({
-                  ...aiConfig,
-                  stream: e.target.value,
-                });
-              }}
-              value={aiConfig.stream}
-            >
-              <Radio value={true}>{i18n('common.text.is')}</Radio>
-              <Radio value={false}>{i18n('common.text.no')}</Radio>
-            </Radio.Group>
-          </div>
 
-          <div style={{ marginTop: '32px', fontSize: '12px', opacity: '0.5' }}>tips: 输出格式参考OpenAI</div>
+          <div style={{ marginTop: '32px', fontSize: '12px', opacity: '0.5' }}>{}</div>
         </div>
-      )}
+      )} */}
       <div className={styles.bottomButton}>
         <Button type="primary" onClick={handleApplyAiConfig}>
           {i18n('setting.button.apply')}

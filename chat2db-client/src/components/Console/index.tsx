@@ -225,7 +225,8 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     const tableList = (props.tables || []).map((t) => t.name);
 
     // 默认选中前八个
-    setSelectedTables(tableList.slice(0, 8));
+    // setSelectedTables(tableList.slice(0, 8));
+    setSelectedTables(tableList.slice(0, 1));
 
     return tableList;
   }, [props.tables]);

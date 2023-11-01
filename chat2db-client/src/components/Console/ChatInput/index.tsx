@@ -51,11 +51,12 @@ const ChatInput = (props: IProps) => {
       <div className={styles.aiSelectedTable}>
         <Radio.Group
           onChange={(v) => onSelectTableSyncModel(v.target.value)}
-          value={syncTableModel}
+          // value={syncTableModel}
+          value={SyncModelType.MANUAL}
           style={{ marginBottom: '8px' }}
         >
           <Space direction="horizontal">
-            <Radio value={SyncModelType.AUTO}>自动</Radio>
+            {/* <Radio value={SyncModelType.AUTO}>自动</Radio> */}
             <Radio value={SyncModelType.MANUAL}>手动</Radio>
           </Space>
         </Radio.Group>
@@ -117,7 +118,7 @@ const ChatInput = (props: IProps) => {
           }}
         >
           <div className={styles.tableSelectBlock}>
-            <Popover content={renderSelectTable()} placement="bottom">
+            <Popover content={renderSelectTable()} placement="bottomLeft">
               <Iconfont code="&#xe618;" />
             </Popover>
           </div>
