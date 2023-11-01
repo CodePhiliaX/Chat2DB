@@ -620,7 +620,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             items={tabsList}
           />
         </div>
-        {/* <WorkspaceExtend curWorkspaceParams={curWorkspaceParams} className={styles.workspaceExtend} /> */}
+        <WorkspaceExtend curWorkspaceParams={curWorkspaceParams} className={styles.workspaceExtend} />
       </LoadingContent>
     </div>
   );
