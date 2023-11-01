@@ -13,6 +13,7 @@ export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
         ...configStore(set),
         ...demoStore(set),
       }),
+      // persist config
       {
         name: 'workspace-store',
         getStorage: () => localStorage,

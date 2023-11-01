@@ -101,4 +101,5 @@ export default {
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
   'common.title.create': 'Create',
+  'common.title.executiveLogging': 'Executive logging',
 };

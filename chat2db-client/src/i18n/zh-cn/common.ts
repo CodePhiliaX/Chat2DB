@@ -100,4 +100,5 @@ export default {
   'common.label.comment': '备注',
   'common.label.name': '名称',
   'common.title.create': '创建',
+  'common.title.executiveLogging': '执行记录',
 };

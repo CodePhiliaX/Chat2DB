@@ -7,7 +7,7 @@ import { ConsoleOpenedStatus, ConsoleStatus, TreeNodeType, WorkspaceTabType, wor
 import historyService from '@/service/history';
 import sqlService from '@/service/sql';
 import Tabs, { ITabItem } from '@/components/Tabs';
-// import WorkspaceExtend from '../WorkspaceExtend';
+import WorkspaceExtend from '../WorkspaceExtend';
 import SearchResult from '@/components/SearchResult';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
@@ -620,7 +620,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             items={tabsList}
           />
         </div>
-        {/* <WorkspaceExtend className={styles.workspaceExtend} /> */}
+        <WorkspaceExtend curWorkspaceParams={curWorkspaceParams} className={styles.workspaceExtend} />
       </LoadingContent>
     </div>
   );

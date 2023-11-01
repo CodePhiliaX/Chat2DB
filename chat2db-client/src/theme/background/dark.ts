@@ -40,14 +40,14 @@ const antDarkTheme = {
   antdPrimaryColor,
   token: {
     ...commonToken,
-    colorTextBase: 'rgb(241, 241, 244)',
+    colorTextBase: '#f1f1f4',
     colorBgBase: '#0a0b0c',
     colorHoverBg: 'hsla(0, 0%, 100%, 0.03)',
     colorBgContainer: '#0a0b0c',
     colorBgSubtle: '#131418',
     colorBgElevated: '#0a0b0c',
-    colorBorder: 'rgba(54, 55, 58,0.4)',
-    colorBorderSecondary: 'rgba(54, 55, 58,0.4)',
+    colorBorder: '#36373a66',
+    colorBorderSecondary: '#36373a66',
   },
 };
 
