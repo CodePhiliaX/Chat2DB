@@ -212,7 +212,7 @@ public class ConfigController {
         SystemConfigParam modelParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_MODEL)
                 .content(request.getModel()).build();
         configService.createOrUpdate(modelParam);
-        FastChatAIClient.refresh();
+        ZhipuChatAIClient.refresh();
     }
 
     /**

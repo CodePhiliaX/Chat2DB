@@ -81,6 +81,7 @@ export default function SettingAI(props: IProps) {
         <div className={styles.aiSqlSourceTitle}>{i18n('setting.title.aiSource')}:</div>
         <Radio.Group onChange={handleAiTypeChange} value={aiConfig?.aiSqlSource}>
           <Radio value={AiSqlSourceType.CHAT2DBAI}>Chat2DB AI</Radio>
+          <Radio value={AiSqlSourceType.ZHIPUAI}>智普AI</Radio>
           <Radio value={AiSqlSourceType.OPENAI}>Open AI</Radio>
           <Radio value={AiSqlSourceType.AZUREAI}>Azure AI</Radio>
           <Radio value={AiSqlSourceType.RESTAI}>{i18n('setting.tab.custom')}</Radio>
@@ -97,6 +98,45 @@ export default function SettingAI(props: IProps) {
               value={aiConfig.apiKey}
               onChange={(e) => {
                 setAiConfig({ ...aiConfig, apiKey: e.target.value });
+              }}
+            />
+          </div>
+        </div>
+      )}
+      {aiConfig?.aiSqlSource === AiSqlSourceType.ZHIPUAI && (
+        <div>
+          <div className={styles.title}>Api Key</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              autoComplete="off"
+              // placeholder={i18n('setting.placeholder.chat2dbApiHost')}
+              value={aiConfig.apiKey}
+              onChange={(e) => {
+                setAiConfig({ ...aiConfig, apiKey: e.target.value });
+              }}
+            />
+          </div>
+          <div className={styles.title}>Host</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              autoComplete="off"
+              // placeholder={i18n('setting.placeholder.apiHost')}
+              defaultValue={'https://open.bigmodel.cn/api/paas/v3/model-api/'}
+              value={aiConfig.apiHost}
+              onChange={(e) => {
+                setAiConfig({ ...aiConfig, apiHost: e.target.value });
+              }}
+            />
+          </div>
+          <div className={styles.title}>Model</div>
+          <div className={classnames(styles.content, styles.chatGPTKey)}>
+            <Input
+              autoComplete="off"
+              // placeholder={i18n('setting.placeholder.azureEndpoint')}
+              defaultValue={'chatglm_turbo'}
+              value={aiConfig.model}
+              onChange={(e) => {
+                setAiConfig({ ...aiConfig, model: e.target.value });
               }}
             />
           </div>

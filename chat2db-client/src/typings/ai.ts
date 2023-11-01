@@ -1,5 +1,6 @@
 export enum AiSqlSourceType {
   CHAT2DBAI = 'CHAT2DBAI',
+  ZHIPUAI = 'ZHIPUAI',
   OPENAI = 'OPENAI',
   AZUREAI = 'AZUREAI',
   RESTAI = 'RESTAI',
