@@ -34,7 +34,7 @@ export default {
   'common.message.addedSuccessfully': '添加成功',
   'common.text.custom': '自定义',
   'common.button.delete': '删除',
-  'common.text.executionResult': '执行结果',
+  'common.text.executionResult': '结果 {1}',
   'common.tips.deleteTable': '你确定好删除这张表吗？',
   'common.text.tableName': '表名称',
   'common.text.submittedSuccessfully': 'Successfully submitted',
@@ -100,4 +100,5 @@ export default {
   'common.label.comment': '备注',
   'common.label.name': '名称',
   'common.title.create': '创建',
+  'common.title.executiveLogging': '执行记录',
 };

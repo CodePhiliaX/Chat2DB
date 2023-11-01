@@ -13,7 +13,7 @@ public class DBConfigBuilder {
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("clickhouse-jdbc-0.3.2-patch8-http.jar");
         driverConfig.setJdbcDriverClass("com.clickhouse.jdbc.ClickHouseDriver");
-        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar"));
+        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss.sqlgpt.cn/lib/clickhouse-jdbc-0.3.2-patch8-http.jar"));
         dbConfig.setDefaultDriverConfig(driverConfig);
 
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));

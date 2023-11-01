@@ -78,6 +78,6 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
     @Override
     public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
-        return "select * from(" + sql + ") t LIMIT " + pageNo + " OFFSET " + offset + "";
+        return "select * from(" + sql + ") t LIMIT " + pageSize + " OFFSET " + offset + "";
     }
 }

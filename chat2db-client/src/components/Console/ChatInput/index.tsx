@@ -5,7 +5,7 @@ import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Toolti
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
 import { WarningOutlined } from '@ant-design/icons';
-import { AiSqlSourceType, IRemainingUse } from '@/typings/ai';
+import { AIType, IRemainingUse } from '@/typings/ai';
 
 export const enum SyncModelType {
   AUTO = 0,
@@ -19,7 +19,7 @@ interface IProps {
   syncTableModel: number;
   selectedTables?: string[];
   remainingUse?: IRemainingUse;
-  aiType: AiSqlSourceType;
+  aiType: AIType;
   remainingBtnLoading: boolean;
   disabled?: boolean;
   isStream?: boolean;
@@ -51,11 +51,12 @@ const ChatInput = (props: IProps) => {
       <div className={styles.aiSelectedTable}>
         <Radio.Group
           onChange={(v) => onSelectTableSyncModel(v.target.value)}
-          value={syncTableModel}
+          // value={syncTableModel}
+          value={SyncModelType.MANUAL}
           style={{ marginBottom: '8px' }}
         >
           <Space direction="horizontal">
-            <Radio value={SyncModelType.AUTO}>自动</Radio>
+            {/* <Radio value={SyncModelType.AUTO}>自动</Radio> */}
             <Radio value={SyncModelType.MANUAL}>手动</Radio>
           </Space>
         </Radio.Group>
@@ -117,13 +118,13 @@ const ChatInput = (props: IProps) => {
           }}
         >
           <div className={styles.tableSelectBlock}>
-            <Popover content={renderSelectTable()} placement="bottom">
+            <Popover content={renderSelectTable()} placement="bottomLeft">
               <Iconfont code="&#xe618;" />
             </Popover>
           </div>
         </Tooltip>
 
-        {/* {props.aiType === AiSqlSourceType.CHAT2DBAI && (
+        {/* {props.aiType === AIType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
             <div
               className={styles.remainBlock}

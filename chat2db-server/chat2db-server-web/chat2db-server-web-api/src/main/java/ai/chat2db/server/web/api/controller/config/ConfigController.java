@@ -13,9 +13,13 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
+import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
+import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
+import ai.chat2db.server.web.api.controller.ai.zhipu.client.ZhipuChatAIClient;
 import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest;
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -86,6 +90,18 @@ public class ConfigController {
                 break;
             case FASTCHATAI:
                 saveFastChatAIConfig(request);
+                break;
+            case TONGYIQIANWENAI:
+                saveTongyiChatAIConfig(request);
+                break;
+            case WENXINAI:
+                saveWenxinAIConfig(request);
+                break;
+            case BAICHUANAI:
+                saveBaichuanAIConfig(request);
+                break;
+            case ZHIPUAI:
+                saveZhipuChatAIConfig(request);
                 break;
         }
         return ActionResult.isSuccess();
@@ -181,6 +197,78 @@ public class ConfigController {
         FastChatAIClient.refresh();
     }
 
+    /**
+     * save common zhipu chat ai config
+     *
+     * @param request
+     */
+    private void saveZhipuChatAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_API_KEY)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(ZhipuChatAIClient.ZHIPU_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
+        ZhipuChatAIClient.refresh();
+    }
+
+    /**
+     * save common tongyi chat ai config
+     *
+     * @param request
+     */
+    private void saveTongyiChatAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(TongyiChatAIClient.TONGYI_API_KEY)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(TongyiChatAIClient.TONGYI_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(TongyiChatAIClient.TONGYI_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
+        TongyiChatAIClient.refresh();
+    }
+
+    /**
+     * save common wenxin chat ai config
+     *
+     * @param request
+     */
+    private void saveWenxinAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(WenxinAIClient.WENXIN_ACCESS_TOKEN)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(WenxinAIClient.WENXIN_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        WenxinAIClient.refresh();
+    }
+
+    /**
+     * save common fast chat ai config
+     *
+     * @param request
+     */
+    private void saveBaichuanAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(BaichuanAIClient.BAICHUAN_API_KEY)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam secretKeyParam = SystemConfigParam.builder().code(BaichuanAIClient.BAICHUAN_SECRET_KEY)
+                .content(request.getSecretKey()).build();
+        configService.createOrUpdate(secretKeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(BaichuanAIClient.BAICHUAN_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(BaichuanAIClient.BAICHUAN_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
+        BaichuanAIClient.refresh();
+    }
+
     @GetMapping("/system_config/{code}")
     public DataResult<Config> getSystemConfig(@PathVariable("code") String code) {
         DataResult<Config> result = configService.find(code);
@@ -250,6 +338,38 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(fastChatApiKey.getData()) ? fastChatApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(fastChatApiHost.getData()) ? fastChatApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(fastChatModel.getData()) ? fastChatModel.getData().getContent() : "");
+                break;
+            case WENXINAI:
+                DataResult<Config> wenxinAccessToken = configService.find(WenxinAIClient.WENXIN_ACCESS_TOKEN);
+                DataResult<Config> wenxinApiHost = configService.find(WenxinAIClient.WENXIN_HOST);
+                config.setApiKey(Objects.nonNull(wenxinAccessToken.getData()) ? wenxinAccessToken.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(wenxinApiHost.getData()) ? wenxinApiHost.getData().getContent() : "");
+                break;
+            case BAICHUANAI:
+                DataResult<Config> baichuanApiKey = configService.find(BaichuanAIClient.BAICHUAN_API_KEY);
+                DataResult<Config> baichuanSecretKey = configService.find(BaichuanAIClient.BAICHUAN_SECRET_KEY);
+                DataResult<Config> baichuanApiHost = configService.find(BaichuanAIClient.BAICHUAN_HOST);
+                DataResult<Config> baichuanModel = configService.find(BaichuanAIClient.BAICHUAN_MODEL);
+                config.setApiKey(Objects.nonNull(baichuanApiKey.getData()) ? baichuanApiKey.getData().getContent() : "");
+                config.setSecretKey(Objects.nonNull(baichuanSecretKey.getData()) ? baichuanSecretKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(baichuanApiHost.getData()) ? baichuanApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(baichuanModel.getData()) ? baichuanModel.getData().getContent() : "");
+                break;
+            case TONGYIQIANWENAI:
+                DataResult<Config> tongyiApiKey = configService.find(TongyiChatAIClient.TONGYI_API_KEY);
+                DataResult<Config> tongyiApiHost = configService.find(TongyiChatAIClient.TONGYI_HOST);
+                DataResult<Config> tongyiModel = configService.find(TongyiChatAIClient.TONGYI_MODEL);
+                config.setApiKey(Objects.nonNull(tongyiApiKey.getData()) ? tongyiApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(tongyiApiHost.getData()) ? tongyiApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(tongyiModel.getData()) ? tongyiModel.getData().getContent() : "");
+                break;
+            case ZHIPUAI:
+                DataResult<Config> zhipuApiKey = configService.find(ZhipuChatAIClient.ZHIPU_API_KEY);
+                DataResult<Config> zhipuApiHost = configService.find(ZhipuChatAIClient.ZHIPU_HOST);
+                DataResult<Config> zhipuModel = configService.find(ZhipuChatAIClient.ZHIPU_MODEL);
+                config.setApiKey(Objects.nonNull(zhipuApiKey.getData()) ? zhipuApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(zhipuApiHost.getData()) ? zhipuApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(zhipuModel.getData()) ? zhipuModel.getData().getContent() : "");
                 break;
             default:
                 break;
