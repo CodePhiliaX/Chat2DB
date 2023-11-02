@@ -33,9 +33,19 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
         if (connectParams.startsWith("/")) {
             // 删除连接参数中的 /
             connectParams = connectParams.substring(1);
-            if(connectParams.startsWith(databaseName)){
+            if (connectParams.startsWith(databaseName)) {
                 // 删除连接参数中的数据库名
                 connectParams = connectParams.substring(databaseName.length());
+            } else {
+                // 是否有连接参数
+                int beginIndex = connectParams.indexOf("?");
+                // 无连接参数直接设置 ""
+                if (beginIndex == -1) {
+                    connectParams = "";
+                } else {
+                    // 删除连接参数前的数据库名
+                    connectParams = connectParams.substring(beginIndex);
+                }
             }
         }
         // 添加数据库名
