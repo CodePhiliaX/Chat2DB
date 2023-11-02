@@ -1,8 +1,9 @@
 import React, { memo, useMemo, useRef, useState } from 'react';
+import { message, Modal, Input, Dropdown, notification } from 'antd';
+import classnames from 'classnames';
 import i18n from '@/i18n';
 import styles from './index.less';
 import Iconfont from '@/components/Iconfont';
-import { message, Modal, Input, Dropdown, notification } from 'antd';
 import { TreeNodeType, CreateTabIntroType, WorkspaceTabType, OperationColumn } from '@/constants';
 import { ITreeConfigItem, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
@@ -59,10 +60,10 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.ExportDDL]: () => {
+    [OperationColumn.ViewDDL]: () => {
       return {
-        text: i18n('workspace.menu.exportDDL'),
-        icon: '\ue613',
+        text: i18n('workspace.menu.ViewDDL'),
+        icon: '\ue665',
         handle: () => {
           mysqlServer
             .exportCreateTableSql({
@@ -151,11 +152,20 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.Top]: (data) => {
+    [OperationColumn.Top]: (_data) => {
       return {
-        text: data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
-        icon: data.pinned ? '\ue61d' : '\ue627',
+        text: _data.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
+        icon: _data.pinned ? '\ue61d' : '\ue627',
         handle: handleTop,
+      };
+    },
+    [OperationColumn.CopyName]: (_data) => {
+      return {
+        text: i18n('common.button.copy'),
+        icon: '\uec7a',
+        handle: ()=>{
+          navigator.clipboard.writeText(_data.key.toString())
+        },
       };
     },
   };
@@ -262,7 +272,7 @@ function TreeNodeRightClick(props: IProps) {
         return {
           key: i,
           label: (
-            <div className={styles.operationItem}>
+            <div className={classnames(styles.operationItem)}>
               <Iconfont className={styles.operationIcon} code={concrete?.icon} />
               <div className={styles.operationTitle}>{concrete.text}</div>
             </div>
