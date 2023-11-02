@@ -29,10 +29,14 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
 
         String connectAddress = connectInfo.getHost() + ":" + connectInfo.getPort();
         String[] addressSplit = url.split(connectAddress);
-        String connectParams = addressSplit[1];
+        String connectParams = addressSplit.length == 2 ? addressSplit[1] : "";
         if (connectParams.startsWith("/")) {
             // 删除连接参数中的 /
             connectParams = connectParams.substring(1);
+            if(connectParams.startsWith(databaseName)){
+                // 删除连接参数中的数据库名
+                connectParams = connectParams.substring(databaseName.length());
+            }
         }
         // 添加数据库名
         return addressSplit[0] + connectAddress + "/" + databaseName + connectParams;
