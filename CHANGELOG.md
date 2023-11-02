@@ -3,14 +3,16 @@
 **Changelog**
 - ⭐【New Features】The tree node operation menu supports right-clicking
 - ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
+- ⭐【New Features】Edit table structure supports setting primary keys in columns
 - ⚡️【Optimize】
-- 🐞【Fixed】
+- 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
 
 **更新日志**
 - ⭐【新功能】树节点操作菜单支持右键唤出
 - ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
+- ⭐【新功能】编辑表结构支持在列中设置主键
 - ⚡️【优化】
-- 🐞【修复】
+- 🐞【修复】修复表结构编辑浮点数小数位设置显示异常
 
 
 # 3.0.9
