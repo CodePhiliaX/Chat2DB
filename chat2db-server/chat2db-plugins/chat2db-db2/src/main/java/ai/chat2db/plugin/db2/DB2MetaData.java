@@ -1,18 +1,25 @@
 package ai.chat2db.plugin.db2;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.db2.builder.DB2SqlBuilder;
+import ai.chat2db.plugin.db2.type.DB2ColumnTypeEnum;
+import ai.chat2db.plugin.db2.type.DB2IndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.TableIndexColumn;
+import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import com.google.common.collect.Lists;
 
 public class DB2MetaData extends DefaultMetaService implements MetaData {
 
@@ -75,6 +82,77 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
     @Override
     public SqlBuilder getSqlBuilder() {
         return new DB2SqlBuilder();
+    }
+
+    private static String IDX_SQL = "SELECT i.INDNAME, i.UNIQUERULE, i.REMARKS, ic.COLNAME, ic.COLSEQ, ic.COLORDER FROM SYSCAT.INDEXES i JOIN SYSCAT.INDEXCOLUSE ic ON i.INDNAME = ic.INDNAME AND i.INDSCHEMA = ic.INDSCHEMA WHERE i.TABNAME = '%s' AND i.INDSCHEMA = '%s' ORDER BY i.INDNAME, ic.COLSEQ";
+
+    @Override
+    public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = String.format(IDX_SQL, tableName, schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
+            while (resultSet.next()) {
+                String keyName = resultSet.getString("INDNAME");
+                TableIndex tableIndex = map.get(keyName);
+                if (tableIndex != null) {
+                    List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                    columnList.add(getTableIndexColumn(resultSet));
+                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
+                            .collect(Collectors.toList());
+                    tableIndex.setColumnList(columnList);
+                } else {
+                    TableIndex index = new TableIndex();
+                    index.setDatabaseName(databaseName);
+                    index.setSchemaName(schemaName);
+                    index.setTableName(tableName);
+                    index.setName(keyName);
+                    index.setComment(resultSet.getString("REMARKS"));
+                    List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
+                    tableIndexColumns.add(getTableIndexColumn(resultSet));
+                    index.setColumnList(tableIndexColumns);
+                    String uniquerule = resultSet.getString("UNIQUERULE");
+                    if("P".equalsIgnoreCase(uniquerule)) {
+                        index.setType(DB2IndexTypeEnum.PRIMARY_KEY.getName());
+                        index.setUnique(true);
+                    }else if("U".equalsIgnoreCase(uniquerule)){
+                        index.setType(DB2IndexTypeEnum.UNIQUE.getName());
+                        index.setUnique(true);
+                    }else {
+                        index.setType(DB2IndexTypeEnum.NORMAL.getName());
+                        index.setUnique(false);
+                    }
+                    map.put(keyName, index);
+                }
+            }
+            return map.values().stream().collect(Collectors.toList());
+        });
+
+    }
+
+    private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
+        TableIndexColumn tableIndexColumn = new TableIndexColumn();
+        tableIndexColumn.setColumnName(resultSet.getString("COLNAME"));
+        tableIndexColumn.setOrdinalPosition(resultSet.getShort("COLSEQ"));
+//        tableIndexColumn.setCollation(resultSet.getString("Collation"));
+//        tableIndexColumn.setCardinality(resultSet.getLong("Cardinality"));
+//        tableIndexColumn.setSubPart(resultSet.getLong("Sub_part"));
+        String collation = resultSet.getString("COLORDER");
+        if ("A".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("ASC");
+        } else if ("D".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("DESC");
+        }
+        return tableIndexColumn;
+    }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .columnTypes(DB2ColumnTypeEnum.getTypes())
+                .charsets(Lists.newArrayList())
+                .collations(Lists.newArrayList())
+                .indexTypes(DB2IndexTypeEnum.getIndexTypes())
+                .build();
     }
 
 }

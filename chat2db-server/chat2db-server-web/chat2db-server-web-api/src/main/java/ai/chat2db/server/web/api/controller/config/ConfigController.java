@@ -119,6 +119,9 @@ public class ConfigController {
         SystemConfigParam hostParam = SystemConfigParam.builder().code(Chat2dbAIClient.CHAT2DB_OPENAI_HOST).content(
             request.getApiHost()).build();
         configService.createOrUpdate(hostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL).content(
+                request.getModel()).build();
+        configService.createOrUpdate(modelParam);
         Chat2dbAIClient.refresh();
     }
 
@@ -312,9 +315,11 @@ public class ConfigController {
             case CHAT2DBAI:
                 DataResult<Config> chat2dbApiKey = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
                 DataResult<Config> chat2dbApiHost = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_HOST);
+                DataResult<Config> chat2dbModel = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL);
                 config.setApiKey(Objects.nonNull(chat2dbApiKey.getData()) ? chat2dbApiKey.getData().getContent() : "");
                 config.setApiHost(
                     Objects.nonNull(chat2dbApiHost.getData()) ? chat2dbApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(chat2dbModel.getData()) ? chat2dbModel.getData().getContent() : "");
                 break;
             case AZUREAI:
                 DataResult<Config> azureApiKey = configService.find(AzureOpenAIClient.AZURE_CHATGPT_API_KEY);
