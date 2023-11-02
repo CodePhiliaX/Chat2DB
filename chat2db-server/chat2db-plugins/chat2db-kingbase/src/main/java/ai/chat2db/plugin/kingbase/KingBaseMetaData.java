@@ -185,4 +185,8 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
                 .indexTypes(KingBaseIndexTypeEnum.getIndexTypes())
                 .build();
     }
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
 }

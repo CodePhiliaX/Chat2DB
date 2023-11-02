@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.api.service.OperationLogService;
+import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.sql.ConnectInfo;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
@@ -37,6 +40,7 @@ import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +56,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     @Autowired
     private OperationLogService operationLogService;
+
+    @Autowired
+    private TableService tableService;
 
     @Override
     public ListResult<ExecuteResult> execute(DlExecuteParam param) {
@@ -246,19 +253,20 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
         StringBuilder stringBuilder = new StringBuilder();
         MetaData metaSchema = Chat2DBContext.getMetaData();
+        List<String> keyColumns = getPrimaryColumns(param);
         for (int i = 0; i < param.getOperations().size(); i++) {
             SelectResultOperation operation = param.getOperations().get(i);
-
             List<String> row = operation.getDataList();
             List<String> odlRow = operation.getOldDataList();
             String sql = "";
             if ("UPDATE".equalsIgnoreCase(operation.getType())) {
-                sql = getUpdateSql(param, row, odlRow, metaSchema);
+                sql = getUpdateSql(param, row, odlRow, metaSchema,keyColumns,false);
             } else if ("CREATE".equalsIgnoreCase(operation.getType())) {
                 sql = getInsertSql(param, row, metaSchema);
-
             } else if ("DELETE".equalsIgnoreCase(operation.getType())) {
-                sql = getDeleteSql(param, odlRow, metaSchema);
+                sql = getDeleteSql(param, odlRow, metaSchema,keyColumns);
+            } else if ("UPDATE_COPY".equalsIgnoreCase(operation.getType())) {
+                sql = getUpdateSql(param, row, row, metaSchema,keyColumns,true);
             }
 
             stringBuilder.append(sql + ";\n");
@@ -266,38 +274,76 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return DataResult.of(stringBuilder.toString());
     }
 
-    private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
+    private List<String> getPrimaryColumns(UpdateSelectResultParam param){
+        TableQueryParam tableQueryParam = new TableQueryParam();
+        tableQueryParam.setTableName(param.getTableName());
+        tableQueryParam.setSchemaName(param.getSchemaName());
+        tableQueryParam.setDatabaseName(param.getDatabaseName());
+        List<TableIndex> tableIndices = tableService.queryIndexes(tableQueryParam);
+        if(!CollectionUtils.isEmpty(tableIndices)) {
+            return tableIndices.stream()
+                    .filter(tableIndex -> "PRIMARY".equalsIgnoreCase(tableIndex.getType()))
+                    .map(tableIndex -> {
+                        if(!CollectionUtils.isEmpty(tableIndex.getColumnList())) {
+                            return tableIndex.getColumnList().get(0).getColumnName();
+                        }
+                        return null;
+                    }).collect(Collectors.toList());
+        }
+        return Lists.newArrayList();
+    }
+
+    private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema,List<String> keyColumns) {
         StringBuilder script = new StringBuilder();
         script.append("DELETE FROM ").append(param.getTableName()).append("");
 
-        script.append(buildWhere(param.getHeaderList(), row, metaSchema));
+        script.append(buildWhere(param.getHeaderList(), row, metaSchema,keyColumns));
         return script.toString();
     }
 
-    private String buildWhere(List<Header> headerList, List<String> row, MetaData metaSchema) {
+    private String buildWhere(List<Header> headerList, List<String> row, MetaData metaSchema,List<String> keyColumns) {
         StringBuilder script = new StringBuilder();
         script.append(" where ");
-        for (int i = 1; i < row.size(); i++) {
-            String oldValue = row.get(i);
-            Header header = headerList.get(i);
-            String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
-            if (value == null) {
-                script.append(metaSchema.getMetaDataName(header.getName()))
-                        .append(" is null and ");
-            } else {
-                script.append(metaSchema.getMetaDataName(header.getName()))
-                        .append(" = ")
-                        .append(value)
-                        .append(" and ");
+        if(CollectionUtils.isEmpty(keyColumns)) {
+            for (int i = 1; i < row.size(); i++) {
+                String oldValue = row.get(i);
+                Header header = headerList.get(i);
+                String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
+                if (value == null) {
+                    script.append(metaSchema.getMetaDataName(header.getName()))
+                            .append(" is null and ");
+                } else {
+                    script.append(metaSchema.getMetaDataName(header.getName()))
+                            .append(" = ")
+                            .append(value)
+                            .append(" and ");
+                }
+            }
+        }else{
+            for (int i = 1; i < row.size(); i++) {
+                String oldValue = row.get(i);
+                Header header = headerList.get(i);
+                String columnName = header.getName();
+                if(keyColumns.contains(columnName)) {
+                    String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
+                    if (value == null) {
+                        script.append(metaSchema.getMetaDataName(columnName))
+                                .append(" is null and ");
+                    } else {
+                        script.append(metaSchema.getMetaDataName(columnName))
+                                .append(" = ")
+                                .append(value)
+                                .append(" and ");
+                    }
+                }
             }
         }
-
         script.delete(script.length() - 4, script.length());
         return script.toString();
     }
 
     private String getInsertSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema) {
-        if (CollectionUtils.isEmpty(row)) {
+        if (CollectionUtils.isEmpty(row) || ObjectUtils.allNull(row.toArray())) {
             return "";
         }
         StringBuilder script = new StringBuilder();
@@ -305,16 +351,21 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 .append(" (");
         for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
-            script.append(metaSchema.getMetaDataName(header.getName()))
-                    .append(",");
+            String newValue = row.get(i);
+            if(newValue!=null) {
+                script.append(metaSchema.getMetaDataName(header.getName()))
+                        .append(",");
+            }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(") VALUES (");
         for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
-            Header header = param.getHeaderList().get(i);
-            script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
-                    .append(",");
+            if(newValue!=null) {
+                Header header = param.getHeaderList().get(i);
+                script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
+                        .append(",");
+            }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(")");
@@ -323,7 +374,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     }
 
 
-    private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema) {
+    private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema,
+                                List<String> keyColumns,boolean copy){
         StringBuilder script = new StringBuilder();
         if (CollectionUtils.isEmpty(row) || CollectionUtils.isEmpty(odlRow)) {
             return "";
@@ -332,7 +384,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             String oldValue = odlRow.get(i);
-            if (StringUtils.equals(newValue, oldValue)) {
+            if (StringUtils.equals(newValue, oldValue) && !copy) {
                 continue;
             }
             Header header = param.getHeaderList().get(i);
@@ -343,7 +395,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     .append(",");
         }
         script.deleteCharAt(script.length() - 1);
-        script.append(buildWhere(param.getHeaderList(), odlRow, metaSchema));
+        script.append(buildWhere(param.getHeaderList(), odlRow, metaSchema,keyColumns));
         return script.toString();
     }
 
