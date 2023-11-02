@@ -25,7 +25,7 @@ export interface IColumnItemNew {
   defaultValue: string | null; // 默认值
   autoIncrement: string | null; // 是否自增
   comment: string | null; // 注释
-  primaryKey: string | null; // 是否主键
+  primaryKey: boolean | null; // 是否主键
   typeName: string | null; // 类型名
   columnSize: number | null; // 列的长度
   bufferLength: number | null; // 缓冲区长度

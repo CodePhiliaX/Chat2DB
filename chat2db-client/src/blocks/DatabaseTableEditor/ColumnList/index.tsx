@@ -227,6 +227,23 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       },
     },
     {
+      title: i18n('editTable.label.primaryKey'),
+      dataIndex: 'primaryKey',
+      width: '50px',
+      render: (primaryKey: boolean, record: IColumnItemNew) => {
+        return (
+          <div>
+            <div className={styles.keyBox} onClick={()=>{handelPrimaryKey(record)} }>
+              {
+                primaryKey &&
+                <Iconfont code="&#xe775;" />
+              }
+            </div>
+          </div>
+        );
+      },
+    },
+    {
       title: i18n('editTable.label.comment'),
       dataIndex: 'comment',
       render: (text: string, record: IColumnItemNew) => {
@@ -262,6 +279,26 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       },
     },
   ];
+
+  const handelPrimaryKey = (_data: IColumnItemNew)=>{
+    const newData = dataSource.map((item) => {
+      if (item.key === _data?.key) {
+        // 判断当前数据是新增的数据还是编辑后的数据
+        let editStatus = item.editStatus;
+        if (editStatus !== EditColumnOperationType.Add) {
+          editStatus = EditColumnOperationType.Modify;
+        }
+        const editingDataItem = {
+          ...item,
+          primaryKey: !item.primaryKey,
+          editStatus,
+        };
+        return editingDataItem;
+      }
+      return item;
+    });
+    setDataSource(newData);
+  }
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (active.id !== over?.id) {
