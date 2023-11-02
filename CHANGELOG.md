@@ -2,11 +2,13 @@
 `2023-11-05`
 **Changelog**
 - ⭐【New Features】The tree node operation menu supports right-clicking
+- ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
 - ⚡️【Optimize】
 - 🐞【Fixed】
 
 **更新日志**
 - ⭐【新功能】树节点操作菜单支持右键唤出
+- ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
 - ⚡️【优化】
 - 🐞【修复】
 
