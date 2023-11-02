@@ -191,7 +191,7 @@
 }
 
 .tableItem {
-  height: 30px;
+  height: 31px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -202,8 +202,8 @@
   background-color: var(--color-bg-base);
 
   .tableItemContent {
-    max-height: 30px;
-    line-height: 30px;
+    max-height: 31px;
+    line-height: 31px;
     flex: 1;
     width: 100%;
     overflow: hidden;
@@ -235,10 +235,17 @@
     background-color: var(--color-success-bg);
   }
 }
-.tableItemEditing {
-  background-color: var(--color-primary-bg-hover);
+.tableItemHighlight {
+  background-color: var(--color-bg-subtle);
   .tableHoverBox {
-    background-color: var(--color-primary-bg-hover);
+    background-color: var(--color-bg-subtle);
+  }
+}
+.tableItemFocus {
+  background-color: var(--color-primary-hover);
+  color: var(--color-bg-base);
+  .tableHoverBox {
+    background-color: var(--color-primary-hover);
   }
 }
 .tableItemSuccess {
@@ -261,6 +268,7 @@
 
 .tableHoverBox {
   position: sticky;
+  height: 31px;
   top: 0px;
   bottom: 0px;
   right: 0px;
@@ -273,10 +281,6 @@
   i {
     font-size: 15px;
     margin: 0px 2px;
-  }
-
-  i:hover {
-    color: var(--color-primary);
   }
 }
 

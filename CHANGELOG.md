@@ -4,6 +4,7 @@
 - ⭐【New Features】The tree node operation menu supports right-clicking
 - ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
 - ⭐【New Features】Edit table structure supports setting primary keys in columns
+- ⭐【New Features】Edit data to support cell-level undo changes
 - ⚡️【Optimize】
 - 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
 
@@ -11,6 +12,7 @@
 - ⭐【新功能】树节点操作菜单支持右键唤出
 - ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
 - ⭐【新功能】编辑表结构支持在列中设置主键
+- ⭐【新功能】编辑数据支持单元格级别撤销修改
 - ⚡️【优化】
 - 🐞【修复】修复表结构编辑浮点数小数位设置显示异常
 
