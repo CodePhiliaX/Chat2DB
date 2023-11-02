@@ -3,13 +3,14 @@
 .output {
   width: 100%;
   height: 100%;
-  overflow-y: auto;
   position: relative;
+  display: flex;
+  flex-direction: column;
   .outputTitle {
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--color-bg-base);
+    background-color: var(--color-bg-subtle);
     border-bottom: 1px solid var(--color-border);
     line-height: 32px;
     display: flex;
@@ -21,12 +22,17 @@
     }
   }
   .outputContent {
-    padding: 0px 10px 10px;
-    box-sizing: border-box;
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+    height: 0px;
     .outputItem {
       .timeBox {
         display: flex;
         align-items: center;
+      }
+      .timeSpan{
+        margin-right: 4px;
       }
       .iconBox {
         transform: rotate(90deg);
@@ -35,8 +41,19 @@
           color: var(--color-success);
         }
       }
+      .failureIconBox{
+        i {
+          color: var(--color-error);
+        }
+      }
       > div {
-        line-height: 20px;
+        line-height: 22px;
+      }
+      .sqlPlace{
+        color: var(--color-warning-text);
+      }
+      .sqlPlace,.sqlBox{
+        padding-left: 18px;
       }
       padding: 2px 0px;
     }

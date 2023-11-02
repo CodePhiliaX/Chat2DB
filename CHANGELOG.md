@@ -1,3 +1,34 @@
+# 3.0.10
+`2023-11-05`
+**Changelog**
+- ⭐【New Features】The tree node operation menu supports right-clicking
+- ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
+- ⭐【New Features】Edit table structure supports setting primary keys in columns
+- ⚡️【Optimize】
+- 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
+
+**更新日志**
+- ⭐【新功能】树节点操作菜单支持右键唤出
+- ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
+- ⭐【新功能】编辑表结构支持在列中设置主键
+- ⚡️【优化】
+- 🐞【修复】修复表结构编辑浮点数小数位设置显示异常
+
+
+# 3.0.9
+`2023-11-01`
+**Changelog**
+- ⭐【New Features】Query results can be refreshed
+- ⚡️【Optimize】Console Tabs adaptive width
+- 🐞【Fixed】console save bug
+- 🐞【Fixed】sqlite can only retrieve one piece of data
+
+**更新日志**
+- ⭐【新功能】查询结果支持刷新
+- ⚡️【优化】控制台Tabs自适应宽度
+- 🐞【修复】console保存bug
+- 🐞【修复】sqlite只能查到一条数据问题
+
 # 3.0.5
 `2023-10-23`
 **Changelog**
@@ -431,3 +462,21 @@ Chat2DB 的 1.0.0 正式版来啦 🎉🎉🎉🎉🎉🎉🎉🎉🎉
 - 🔌 强大的扩展能力，目前已经支持 Mysql、PostgreSQL、Oracle、SQLServer、ClickHouse、Oceanbase、H2、SQLite 等等，未来会支持更多的数据库
 - 🛡 前端使用 Electron 开发，提供 Windows、Mac、Linux 客户端、网页版本一体化的解决方案
 - 🎁 支持环境隔离、线上、日常数据权限分离
+
+
+# 0.0.0
+`2023--`
+
+**Changelog**
+- ⭐【New Features】
+- ⚡️【Optimize】
+- 🐞【Fixed】
+
+
+**更新日志**
+- ⭐【新功能】
+- ⚡️【优化】
+- 🐞【修复】
+
+
+

@@ -1,6 +1,8 @@
 @import '../../../../../styles/var.less';
 
 .workspaceExtend {
+  display: none;
+  background-color: var(--color-bg-subtle);
   .workspaceExtendBar {
     flex-shrink: 0;
     width: 38px;
@@ -14,4 +16,8 @@
     width: 400px;
     border-right: 1px solid var(--color-border);
   }
+}
+
+.workspaceExtendActive{
+  display: flex;
 }

@@ -18,6 +18,11 @@ public class AIConfig {
     private String apiKey = "";
 
     /**
+     * SECRETKEY
+     */
+    private String secretKey = "";
+
+    /**
      * APIHOST
      */
     private String apiHost = "";

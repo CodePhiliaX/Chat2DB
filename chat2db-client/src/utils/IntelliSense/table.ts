@@ -14,6 +14,12 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
 
 /** 根据不同的数据库，插入不同的表名  */
 const handleInsertText = (text: string, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
+  const regFirstWord = /^[a-zA-Z].*/;
+  // 检测到第一个字符是字母，不需要加引号
+  if (regFirstWord.test(text)) {
+    return `${text}`;
+  }
+
   if (
     [DatabaseTypeCode.POSTGRESQL, DatabaseTypeCode.ORACLE, DatabaseTypeCode.DB2, DatabaseTypeCode.SQLITE].includes(
       databaseCode,

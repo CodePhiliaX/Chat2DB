@@ -4,13 +4,13 @@ import { ConsoleOpenedStatus, DatabaseTypeCode, ConsoleStatus } from '@/constant
 import { ICreateConsole, IConsole, IPageResponse, IPageParams } from '@/typings';
 
 export interface IGetSavedListParams extends IPageParams {
-  dataSourceId?: string;
+  dataSourceId?: number;
   databaseName?: string;
   tabOpened?: ConsoleOpenedStatus;
   status?: ConsoleStatus
 }
 export interface IGetHistoryListParams extends IPageParams { 
-  dataSourceId?: string;
+  dataSourceId?: number;
   databaseName?: string;
 }
 export interface ISaveBasicInfo {

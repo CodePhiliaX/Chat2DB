@@ -34,7 +34,7 @@ export default {
   'common.message.addedSuccessfully': 'successfully added',
   'common.text.custom': 'custom',
   'common.button.delete': 'Delete',
-  'common.text.executionResult': 'Result',
+  'common.text.executionResult': 'Result {1}',
   'common.tips.deleteTable': 'Are you sure delete this Table？',
   'common.text.tableName': 'Table Name',
   'common.text.submittedSuccessfully': 'Successfully submitted',
@@ -101,4 +101,5 @@ export default {
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
   'common.title.create': 'Create',
+  'common.title.executiveLogging': 'Executive logging',
 };

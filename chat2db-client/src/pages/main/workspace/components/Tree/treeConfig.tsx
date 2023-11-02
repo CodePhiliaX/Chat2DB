@@ -60,7 +60,7 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
 //   CreateTable = 'createTable',
 //   CreateConsole = 'createConsole',
 //   DeleteTable = 'deleteTable',
-//   ExportDDL = 'exportDDL',
+//   ViewDDL = 'viewDDL',
 //   EditSource = 'editSource',
 //   Top = 'top',
 //   EditTable = 'editTable',
@@ -256,10 +256,10 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
     operationColumn: [
-      // OperationColumn.EditTableData,
       OperationColumn.Top,
-      OperationColumn.ExportDDL,
+      OperationColumn.ViewDDL,
       OperationColumn.EditTable,
+      OperationColumn.CopyName,
       OperationColumn.DeleteTable,
     ],
   },
@@ -325,6 +325,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.FUNCTION]: {
     icon: '\ue76a',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 
   [TreeNodeType.PROCEDURES]: {
@@ -359,6 +362,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.PROCEDURE]: {
     icon: '\ue73c',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 
   [TreeNodeType.TRIGGERS]: {
@@ -393,6 +399,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 
   [TreeNodeType.VIEW]: {
@@ -410,6 +419,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(list);
       });
     },
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 
   [TreeNodeType.VIEWCOLUMNS]: {
@@ -442,11 +454,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.VIEWCOLUMN]: {
     icon: '\ue647',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 
   [TreeNodeType.COLUMNS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getColumnList(params)
@@ -459,6 +474,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 isLeaf: true,
                 columnType: item.columnType,
                 comment: item.comment,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
@@ -472,10 +488,13 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getKeyList(params)
@@ -486,6 +505,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.KEY,
                 key: item.name,
                 isLeaf: true,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
@@ -498,10 +518,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.KEY]: {
     icon: '\ue775',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
+    
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getIndexList(params)
@@ -512,6 +536,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.INDEX,
                 key: item.name,
                 isLeaf: true,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
@@ -524,5 +549,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
+    operationColumn: [
+      OperationColumn.CopyName
+    ],
   },
 };

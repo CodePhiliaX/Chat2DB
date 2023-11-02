@@ -1,9 +1,9 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useRef } from 'react';
 import { connect } from 'umi';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
-import Console, { IAppendValue } from '@/components/Console';
+import Console, { IConsoleRef } from '@/components/Console';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
@@ -23,16 +23,17 @@ interface IProps {
     consoleId: number;
     consoleName: string;
     initDDL: string;
+    status?: ConsoleStatus;
   };
 }
 
 const SQLExecute = memo<IProps>((props) => {
   const { data, workspaceModel, aiModel, isActive, dispatch } = props;
   const draggableRef = useRef<any>();
-  const [appendValue, setAppendValue] = useState<IAppendValue>();
   const { curTableList, curWorkspaceParams } = workspaceModel;
   // const [sql, setSql] = useState<string>('');
   const searchResultRef = useRef<ISearchResultRef>(null);
+  const consoleRef = useRef<IConsoleRef>(null);
 
   // useEffect(() => {
   //   if (!doubleClickTreeNodeData) {
@@ -53,7 +54,7 @@ const SQLExecute = memo<IProps>((props) => {
   // }, [doubleClickTreeNodeData]);
 
   useUpdateEffect(() => {
-    setAppendValue({ text: data.initDDL });
+    consoleRef.current?.editorRef?.setValue(data.initDDL, 'cover');
   }, [data.initDDL]);
 
   return (
@@ -61,10 +62,10 @@ const SQLExecute = memo<IProps>((props) => {
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
         <div ref={draggableRef} className={styles.boxRightConsole}>
           <Console
+            ref={consoleRef}
             source="workspace"
             defaultValue={data.initDDL}
             isActive={isActive}
-            appendValue={appendValue}
             executeParams={{ ...data }}
             hasAiChat={true}
             hasAi2Lang={true}
