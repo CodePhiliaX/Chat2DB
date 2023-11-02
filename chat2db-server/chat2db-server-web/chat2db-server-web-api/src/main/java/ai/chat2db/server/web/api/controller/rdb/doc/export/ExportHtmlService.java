@@ -14,7 +14,7 @@ import lombok.SneakyThrows;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -86,8 +86,7 @@ public class ExportHtmlService extends DatabaseExportService {
             }
             catalogue.append("</li>");
 
-            String filePath = GlobalDict.templateDir + GlobalDict.TEMPLATE_FILE.get(0);
-            try (FileInputStream inputStream = new FileInputStream(filePath);
+            try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("template/" + GlobalDict.TEMPLATE_FILE.get(0));
                  ByteArrayOutputStream result = new ByteArrayOutputStream()) {
                 byte[] buffer = new byte[1024];
                 int length;
