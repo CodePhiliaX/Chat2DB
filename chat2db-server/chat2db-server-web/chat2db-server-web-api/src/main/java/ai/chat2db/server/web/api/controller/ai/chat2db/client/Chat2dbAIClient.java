@@ -25,6 +25,11 @@ public class Chat2dbAIClient {
     public static final String CHAT2DB_OPENAI_HOST = "chat2db.apiHost";
 
     /**
+     * OPENAI模型
+     */
+    public static final String CHAT2DB_OPENAI_MODEL = "chat2db.model";
+
+    /**
      * FASTCHAT OPENAI embedding model
      */
     public static final String CHAT2DB_EMBEDDING_MODEL= "fastchat.embedding.model";
@@ -68,9 +73,11 @@ public class Chat2dbAIClient {
         } else {
             apikey = ApplicationContextUtil.getProperty(CHAT2DB_OPENAI_KEY);
         }
+        Config modelConfig = configService.find(CHAT2DB_OPENAI_MODEL).getData();
+        String model = modelConfig.getContent();
         log.info("refresh chat2db apikey:{}", maskApiKey(apikey));
-        CHAT2DB_AI_STREAM_CLIENT = Chat2DBAIStreamClient.builder().apiHost(apiHost).apiKey(
-            apikey).build();
+        CHAT2DB_AI_STREAM_CLIENT = Chat2DBAIStreamClient.builder().apiHost(apiHost)
+                .apiKey(apikey).model(model).build();
     }
 
     private static String maskApiKey(String input) {
