@@ -20,6 +20,8 @@ export type IProps = {
   data: ITreeNode;
   dispatch: any;
   curWorkspaceParams: ICurWorkspaceParams;
+  children?: any;
+  trigger?: any;
 };
 
 export interface IOperationColumnConfigItem {
@@ -29,7 +31,7 @@ export interface IOperationColumnConfigItem {
 }
 
 function TreeNodeRightClick(props: IProps) {
-  const { className, data, setIsLoading, dispatch, curWorkspaceParams } = props;
+  const { className, data, setIsLoading, dispatch, curWorkspaceParams, children } = props;
   const [verifyDialog, setVerifyDialog] = useState<boolean>();
   const [verifyTableName, setVerifyTableName] = useState<string>('');
   const [modalApi, modelDom] = Modal.useModal();
@@ -73,7 +75,7 @@ function TreeNodeRightClick(props: IProps) {
             .then((res) => {
               setMonacoVerifyDialog(true);
               setTimeout(() => {
-                monacoEditorRef.current?.setValue(res,'cover');
+                monacoEditorRef.current?.setValue(res, 'cover');
               }, 0);
             });
         },
@@ -163,8 +165,8 @@ function TreeNodeRightClick(props: IProps) {
       return {
         text: i18n('common.button.copy'),
         icon: '\uec7a',
-        handle: ()=>{
-          navigator.clipboard.writeText(_data.key.toString())
+        handle: () => {
+          navigator.clipboard.writeText(_data.key.toString());
         },
       };
     },
@@ -297,10 +299,13 @@ function TreeNodeRightClick(props: IProps) {
           menu={{
             items: dropdowns,
           }}
+          trigger={props.trigger || ['hover']}
         >
-          <div>
-            <Iconfont code="&#xe601;" />
-          </div>
+          {children || (
+            <div>
+              <Iconfont code="&#xe601;" />
+            </div>
+          )}
         </Dropdown>
       )}
       <Modal

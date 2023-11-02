@@ -1,3 +1,16 @@
+# 3.0.10
+`2023-11-05`
+**Changelog**
+- ⭐【New Features】The tree node operation menu supports right-clicking
+- ⚡️【Optimize】
+- 🐞【Fixed】
+
+**更新日志**
+- ⭐【新功能】树节点操作菜单支持右键唤出
+- ⚡️【优化】
+- 🐞【修复】
+
+
 # 3.0.9
 `2023-11-01`
 **Changelog**

@@ -461,7 +461,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.COLUMNS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getColumnList(params)
@@ -474,6 +474,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 isLeaf: true,
                 columnType: item.columnType,
                 comment: item.comment,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
@@ -493,7 +494,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getKeyList(params)
@@ -504,6 +505,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.KEY,
                 key: item.name,
                 isLeaf: true,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
@@ -523,7 +525,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getIndexList(params)
@@ -534,6 +536,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.INDEX,
                 key: item.name,
                 isLeaf: true,
+                extraParams: params.extraParams,
               };
             });
             r(tableList);
