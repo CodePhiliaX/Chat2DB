@@ -35,7 +35,6 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 // 不支持创建schema的数据库类型
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
 
-const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
@@ -51,6 +50,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [openDBCascaderDropdown, setOpenDBCascaderDropdown] = useState<false | undefined>(undefined);
   const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState<false | undefined>(undefined);
   const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
+  const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 
   useEffect(() => {
     if (openDBCascaderDropdown === false) {
