@@ -6,3 +6,11 @@ export enum EditColumnOperationType {
   // 删除
   Delete = 'DELETE',
 }
+
+// nullable
+export enum NullableType {
+  // 不可为空
+  NotNull = 0,
+  // 可为空
+  Null = 1,
+}
