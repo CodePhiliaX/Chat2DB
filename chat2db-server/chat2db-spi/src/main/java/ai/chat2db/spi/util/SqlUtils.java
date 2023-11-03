@@ -121,9 +121,14 @@ public class SqlUtils {
         return list;
     }
 
+    private static final String  DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
+
     public static String getSqlValue(String value, String dataType) {
         if (value == null) {
             return null;
+        }
+        if(DEFAULT_VALUE.equals(value)){
+            return "DEFAULT";
         }
         DataTypeEnum dataTypeEnum = DataTypeEnum.getByCode(dataType);
         return dataTypeEnum.getSqlValue(value);
