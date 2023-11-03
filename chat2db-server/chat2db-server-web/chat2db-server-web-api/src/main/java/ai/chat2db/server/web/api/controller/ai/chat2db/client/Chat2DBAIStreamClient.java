@@ -1,13 +1,17 @@
 package ai.chat2db.server.web.api.controller.ai.chat2db.client;
 
+import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
+import ai.chat2db.server.domain.api.model.Config;
+import ai.chat2db.server.domain.api.service.ConfigService;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.chat2db.interceptor.Chat2dbHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatOpenAiApi;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbedding;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
+import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
 import com.unfbx.chatgpt.interceptor.HeaderAuthorizationInterceptor;
@@ -198,6 +202,20 @@ public class Chat2DBAIStreamClient {
                     .messages(chatMessages)
                     .stream(true)
                     .build();
+            ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+            DataResult<Config> chat2dbModel = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL);
+            String model = Objects.nonNull(chat2dbModel.getData()) && StringUtils.isNotBlank(chat2dbModel.getData().getContent()) ? chat2dbModel.getData().getContent() : AiSqlSourceEnum.OPENAI.getCode();
+            AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(model);
+            switch (aiSqlSourceEnum) {
+                case BAICHUANAI:
+                    chatCompletion = ChatCompletion.builder().messages(chatMessages).model("Baichuan2-53B").build();
+                    break;
+                case ZHIPUAI:
+                    chatCompletion = ChatCompletion.builder().messages(chatMessages).model("chatglm_turbo").build();
+                    break;
+                default:
+                    break;
+            }
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();

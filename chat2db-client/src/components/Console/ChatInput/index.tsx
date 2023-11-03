@@ -60,24 +60,24 @@ const ChatInput = (props: IProps) => {
             <Radio value={SyncModelType.MANUAL}>手动</Radio>
           </Space>
         </Radio.Group>
-        {syncTableModel === 0 ? (
+        {/* {syncTableModel === 0 ? (
           i18n('chat.input.syncTable.tips')
         ) : (
-          <>
-            <span className={styles.aiSelectedTableTips}>{i18n('chat.input.remain.tooltip')}</span>
-            <Select
-              showSearch
-              mode="multiple"
-              allowClear
-              options={options}
-              placeholder={i18n('chat.input.tableSelect.placeholder')}
-              value={selectedTables}
-              onChange={(v) => {
-                onSelectTables && onSelectTables(v);
-              }}
-            />
-          </>
-        )}
+        )} */}
+        <>
+          <span className={styles.aiSelectedTableTips}>{i18n('chat.input.remain.tooltip')}</span>
+          <Select
+            showSearch
+            mode="multiple"
+            allowClear
+            options={options}
+            placeholder={i18n('chat.input.tableSelect.placeholder')}
+            value={selectedTables}
+            onChange={(v) => {
+              onSelectTables && onSelectTables(v);
+            }}
+          />
+        </>
       </div>
     );
   };
@@ -108,7 +108,7 @@ const ChatInput = (props: IProps) => {
             <Iconfont code="&#xe643;" className={styles.enterIcon} />
           </Button>
         )}
-        <Tooltip
+        {/* <Tooltip
           title={<span style={{ color: window._AppThemePack.colorText }}>{i18n('chat.input.syncTable.tempTips')}</span>}
           defaultOpen={!hasBubble}
           color={window._AppThemePack.colorBgBase}
@@ -117,12 +117,13 @@ const ChatInput = (props: IProps) => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
         >
-          <div className={styles.tableSelectBlock}>
-            <Popover content={renderSelectTable()} placement="bottomLeft">
-              <Iconfont code="&#xe618;" />
-            </Popover>
-          </div>
-        </Tooltip>
+        
+        </Tooltip> */}
+        <div className={styles.tableSelectBlock}>
+          <Popover content={renderSelectTable()} placement="bottomLeft">
+            <Iconfont code="&#xe618;" />
+          </Popover>
+        </div>
 
         {/* {props.aiType === AIType.CHAT2DBAI && (
           <Spin spinning={!!props.remainingBtnLoading} size="small">
