@@ -61,7 +61,7 @@ export default memo<IProps>((props) => {
       ]
     },
     [AllSupportedMenusType.CloneRow]: {
-      label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.cloneRow')} />,
+      label: <MenuLabel icon="&#xe8db;" label={i18n('common.button.cloneRow')} />,
       key: AllSupportedMenusType.CloneRow,
     },
     [AllSupportedMenusType.DeleteRow]: {
