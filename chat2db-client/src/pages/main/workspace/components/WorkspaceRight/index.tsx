@@ -29,6 +29,7 @@ import indexedDB from '@/indexedDB';
 import { osNow } from '@/utils';
 import { compatibleDataBaseName } from '@/utils/database';
 import lodash from 'lodash';
+import { registerIntelliSenseView } from '@/utils/IntelliSense/view';
 
 interface IProps {
   className?: string;
@@ -48,6 +49,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     workspaceModel;
 
   const tableList = useRef<Array<string>>([]);
+  const viewList = useRef<Array<string>>([]);
 
   useEffect(() => {
     setActiveConsoleId(null);
@@ -379,6 +381,26 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
       });
   }, [workspaceModel.curTableList]); //当curTableList变化时（比如手动刷新，切换databaseName、schemaName），重新注册表名提示
+
+  useEffect(() => {
+    const { dataSourceId, dataSourceName, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    // debugger
+    if (!dataSourceId || !(databaseName || schemaName)) {
+      return;
+    }
+    sqlService
+      .getViewList({
+        dataSourceId,
+        dataSourceName,
+        databaseName,
+        schemaName,
+        databaseType,
+      })
+      .then((res) => {
+        viewList.current = (res.data || []).map((item: any) => item.name);
+        registerIntelliSenseView(viewList.current, databaseName);
+      });
+  }, [curWorkspaceParams.dataSourceId, curWorkspaceParams.dataSourceName, curWorkspaceParams.schemaName]);
 
   function createConsole(params: {
     doubleClickTreeNodeData: any;

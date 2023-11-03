@@ -13,7 +13,7 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
   },
 });
 
-function checkTableContext(text) {
+const checkTableContext = (text) => {
   const normalizedText = text.trim().toUpperCase();
   const tableKeywords = ['FROM', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UPDATE'];
 
@@ -24,7 +24,7 @@ function checkTableContext(text) {
   }
 
   return false;
-}
+};
 
 const handleInsertText = (keyword: string, tableName: string, databaseCode: DatabaseTypeCode) => {
   console.log('test', /^[\"\`\[]/.test(keyword));
