@@ -3,6 +3,8 @@ package ai.chat2db.server.web.api.controller.operation.log.vo;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * @author moji
  * @version DdlVO.java, v 0.1 2022年09月18日 11:06 moji Exp $
@@ -15,6 +17,16 @@ public class OperationLogVO {
      * 主键
      */
     private Long id;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime gmtCreate;
+
+    /**
+     * 修改时间
+     */
+    private LocalDateTime gmtModified;
 
     /**
      * 文件别名
