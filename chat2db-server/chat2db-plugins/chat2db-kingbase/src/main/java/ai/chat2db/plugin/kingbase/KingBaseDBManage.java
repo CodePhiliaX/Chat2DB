@@ -19,6 +19,7 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
                 SQLExecutor.getInstance().execute(connection, "SET search_path TO \"" + connectInfo.getSchemaName() + "\"");
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

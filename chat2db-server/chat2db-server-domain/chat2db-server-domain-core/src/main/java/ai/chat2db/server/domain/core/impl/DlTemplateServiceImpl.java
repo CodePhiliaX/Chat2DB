@@ -9,6 +9,7 @@ import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.domain.core.util.MetaNameUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -180,7 +181,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
 
         List<Header> headers = executeResult.getHeaderList();
-        if (executeResult.isCanEdit()) {
+        if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)){
             headers = setColumnInfo(headers, executeResult.getTableName(), param.getSchemaName(), param.getDatabaseName());
         }
         Header rowNumberHeader = Header.builder()
@@ -188,7 +189,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
                         .getCode()).build();
 
-        executeResult.setHeaderList(ListUtils.union(Arrays.asList(rowNumberHeader), headers));
+        executeResult.setHeaderList(EasyCollectionUtils.union(Arrays.asList(rowNumberHeader), headers));
         if (executeResult.getDataList() != null) {
             int rowNumberIncrement = 1 + Math.max(pageNo - 1, 0) * pageSize;
             for (int i = 0; i < executeResult.getDataList().size(); i++) {
@@ -392,7 +393,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     private List<Header> setColumnInfo(List<Header> headers, String tableName, String schemaName, String databaseName) {
         TableQueryParam tableQueryParam = new TableQueryParam();
-        tableQueryParam.setTableName(tableName);
+        tableQueryParam.setTableName(MetaNameUtils.getMetaName(tableName));
         tableQueryParam.setSchemaName(schemaName);
         tableQueryParam.setDatabaseName(databaseName);
         List<TableColumn> columns = tableService.queryColumns(tableQueryParam);
