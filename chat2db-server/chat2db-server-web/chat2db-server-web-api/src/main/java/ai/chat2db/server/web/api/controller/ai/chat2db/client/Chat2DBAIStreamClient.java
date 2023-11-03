@@ -196,6 +196,7 @@ public class Chat2DBAIStreamClient {
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder()
                     .messages(chatMessages)
+                    .model(this.model)
                     .stream(true)
                     .build();
 
