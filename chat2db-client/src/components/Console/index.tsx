@@ -19,8 +19,9 @@ import { AIType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
 // import NewEditor from './NewMonacoEditor';
-import styles from './index.less';
+import sqlService from '@/service/sql';
 import indexedDB from '@/indexedDB';
+import styles from './index.less';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -60,14 +61,13 @@ interface IProps {
   value?: string;
   executeParams: {
     databaseName?: string;
-    dataSourceId?: number;
+    dataSourceId: number;
     type?: DatabaseTypeCode;
     consoleId?: number;
     schemaName?: string;
     consoleName?: string;
     status?: ConsoleStatus;
   };
-  tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
   dispatch: any;
@@ -110,6 +110,8 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
+  const [tableNameList, setTableNameList] = useState<string[]>([]);
+
   // 上一次同步的console数据
   const lastSyncConsole = useRef<any>(defaultValue);
   const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(executeParams.status || ConsoleStatus.DRAFT);
@@ -196,6 +198,37 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     }
   }, []);
 
+  // TODO: 暂时写在这里，后续去掉
+  useEffect(() => {
+    if (!props.executeParams) {
+      return;
+    }
+
+    if(!props.tables || props.tables.length === 0) {
+      setTableNameList([]);
+      setSelectedTables([]);
+      return 
+    }
+
+
+    const { dataSourceId, databaseName, schemaName } = props.executeParams;
+    sqlService
+      .getAllTableList({
+        dataSourceId,
+        databaseName,
+        schemaName,
+      })
+      .then((data) => {
+        const tableNameListTemp = data.map((t) => t.name);
+        setTableNameList(tableNameListTemp);
+
+        if (selectedTables.length === 0) {
+          setSelectedTables(tableNameListTemp.slice(0, 1));
+        }
+      });
+    // debugger
+  }, [props.tables]);
+
   function timingAutoSave(_status?: ConsoleStatus) {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -220,16 +253,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       }
     }, 5000);
   }
-
-  const tableListName = useMemo(() => {
-    const tableList = (props.tables || []).map((t) => t.name);
-
-    // 默认选中前八个
-    // setSelectedTables(tableList.slice(0, 8));
-    setSelectedTables(tableList.slice(0, 1));
-
-    return tableList;
-  }, [props.tables]);
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
     setIsLoading(true);
@@ -512,7 +535,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             aiType={aiModel.aiConfig?.aiSqlSource}
             remainingUse={aiModel.remainingUse}
             remainingBtnLoading={props.remainingBtnLoading}
-            tables={tableListName}
+            tables={tableNameList}
             onPressEnter={(value: string) => {
               // editorRef?.current?.toFocus();
               handleAiChat(value, IPromptType.NL_2_SQL);
