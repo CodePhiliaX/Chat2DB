@@ -400,7 +400,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         viewList.current = (res.data || []).map((item: any) => item.name);
         registerIntelliSenseView(viewList.current, databaseName);
       });
-  }, [curWorkspaceParams.dataSourceId, curWorkspaceParams.dataSourceName, curWorkspaceParams.schemaName]);
+  }, [curWorkspaceParams.dataSourceId, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
   function createConsole(params: {
     doubleClickTreeNodeData: any;
