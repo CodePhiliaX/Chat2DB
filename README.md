@@ -69,7 +69,7 @@ Chat2DB supports connecting to the following databases:
 - SQLServer
 - SQLite
 - MariaDB
-- ClickHouseare
+- ClickHouse
 - DM
 - Presto
 - DB2
