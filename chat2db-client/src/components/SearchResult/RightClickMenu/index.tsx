@@ -25,6 +25,7 @@ export enum AllSupportedMenusType  {
   DeleteRow = 'delete-row',
   SetDefault = 'set-default',
   SetNull = 'set-null',
+  ViewData = 'view-data',
 }
 
 export default memo<IProps>((props) => {
@@ -75,6 +76,10 @@ export default memo<IProps>((props) => {
     [AllSupportedMenusType.SetNull]: {
       label: <MenuLabel label={i18n('common.button.setNull')} />,
       key: AllSupportedMenusType.SetNull,
+    },
+    [AllSupportedMenusType.ViewData]: {
+      label: <MenuLabel icon="&#xe788;" label={i18n('common.button.viewData')} />,
+      key: AllSupportedMenusType.ViewData,
     },
   }
 

@@ -112,5 +112,6 @@ export default {
   'common.button.deleteRow': '删除行',
   'common.button.setNull': '设置为NULL',
   'common.button.setDefault': '设置为默认值',
+  'common.button.viewData': '查看/修改数据',
 
 };

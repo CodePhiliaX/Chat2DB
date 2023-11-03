@@ -287,10 +287,10 @@ export default function TableBox(props: ITableProps) {
 
   // 编辑数据失焦
   const editDataOnBlur = (type: 'blur' | 'set', _editingData?: string | null) => {
-    if (type === 'blur') {
-      setEditingCell(null);
-      setEditingData('');
-    }
+    // if (type === 'blur') {
+    //   setEditingCell(null);
+    //   setEditingData('');
+    // }
     // 写入的数据
     const value: any = type === 'blur' ? editingData : _editingData;
     const [colIndex, rowNo] = editingCell!;
@@ -795,6 +795,18 @@ export default function TableBox(props: ITableProps) {
     },
   };
 
+  const viewData = {
+    key: AllSupportedMenusType.ViewData,
+    callback: () => {
+      setViewTableCellData({
+        name: columns[editingCell![0]].name,
+        value: editingData,
+        colIndex: editingCell![0],
+        rowNo: editingCell![1],
+      });
+    },
+  }
+
   // 表格的列配置
   const columns: ArtColumn[] = useMemo(() => {
     return (queryResultData.headerList || []).map((item, colIndex) => {
@@ -848,7 +860,7 @@ export default function TableBox(props: ITableProps) {
         // title: <div>{name}</div>,
         render: (value: any, rowData) => {
           const rowNo = rowData[`${preCode}0No.`];
-          let cellRightClickMenu = [copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
+          let cellRightClickMenu = [viewData, copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
           // 判断是否有默认值,如果没有默认值，则不显示设置默认值的菜单
           const hasDefaultValue = queryResultData.headerList.find((i) => i.name === name)?.defaultValue !== null;
           if (!hasDefaultValue) {
@@ -885,7 +897,7 @@ export default function TableBox(props: ITableProps) {
                 ) : (
                   <>
                     <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
-                    <div className={styles.tableHoverBox}>
+                    {/* <div className={styles.tableHoverBox}>
                       <Iconfont
                         code="&#xe606;"
                         onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
@@ -894,7 +906,7 @@ export default function TableBox(props: ITableProps) {
                         code="&#xeb4e;"
                         onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
                       />
-                    </div>
+                    </div> */}
                   </>
                 )}
               </div>
@@ -1098,7 +1110,7 @@ export default function TableBox(props: ITableProps) {
         width="60vw"
         maskClosable={false}
         destroyOnClose={true}
-        footer={[
+        footer={queryResultData.canEdit && [
           <Button key="1" type="primary" onClick={monacoEditorEditData}>
             {i18n('common.button.modify')}
           </Button>,
@@ -1115,7 +1127,9 @@ export default function TableBox(props: ITableProps) {
               }}
               options={{
                 lineNumbers: 'off',
+                readOnly: !queryResultData.canEdit,
               }}
+
             />
           </div>
         </>

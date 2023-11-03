@@ -113,4 +113,5 @@ export default {
   'common.button.deleteRow': 'Delete row',
   'common.button.setNull': 'Set NULL',
   'common.button.setDefault': 'Set DEFAULT',
+  'common.button.viewData': 'View/Edit Data',
 };  
