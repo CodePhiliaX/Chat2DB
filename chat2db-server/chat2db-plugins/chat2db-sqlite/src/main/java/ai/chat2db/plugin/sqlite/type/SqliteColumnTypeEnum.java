@@ -92,7 +92,7 @@ public enum SqliteColumnTypeEnum implements ColumnBuilder {
     }
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn) {
+    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
 
 //        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
 //            return StringUtils.join("DROP COLUMN \"", tableColumn.getName() + "\"");
