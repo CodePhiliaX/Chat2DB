@@ -45,7 +45,7 @@ interface IUpdateData {
 }
 
 enum USER_FILLED_VALUE {
-  DEFAULT = 'CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT'
+  DEFAULT = 'CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT',
 }
 
 const SupportBaseTable: any = styled(BaseTable)`
@@ -53,9 +53,9 @@ const SupportBaseTable: any = styled(BaseTable)`
     --bgcolor: var(--color-bg-base);
     --header-bgcolor: var(--color-bg-subtle);
     --hover-bgcolor: transparent;
-    --header-hover-bgcolor: var(--color-hover-bg);
+    --header-hover-bgcolor: var(--color-bg-subtle);
     --highlight-bgcolor: transparent;
-    --header-highlight-bgcolor: var(--color-hover-bg);
+    --header-highlight-bgcolor: var(--color-bg-subtle);
     --color: var(--color-text);
     --header-color: var(--color-text);
     --lock-shadow: rgb(37 37 37 / 0.5) 0 0 6px 2px;
@@ -286,16 +286,20 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 编辑数据失焦
-  const editDataOnBlur = () => {
-    setEditingCell(null);
-    setEditingData('');
+  const editDataOnBlur = (type: 'blur' | 'set', _editingData?: string | null) => {
+    if (type === 'blur') {
+      setEditingCell(null);
+      setEditingData('');
+    }
+    // 写入的数据
+    const value: any = type === 'blur' ? editingData : _editingData;
     const [colIndex, rowNo] = editingCell!;
     let oldRowDataList: string[] = [];
     let newRowDataList: string[] = [];
     const newTableData = lodash.cloneDeep(tableData);
     newTableData.forEach((item) => {
       if (item[`${preCode}0No.`] === rowNo) {
-        item[`${preCode}${colIndex}${columns[colIndex].name}`] = editingData;
+        item[`${preCode}${colIndex}${columns[colIndex].name}`] = value;
         newRowDataList = Object.keys(item).map((i) => item[i]);
       }
     });
@@ -688,85 +692,108 @@ export default function TableBox(props: ITableProps) {
     return true;
   }, [curOperationRowNo, updateData, editingCell]);
 
-  const rowRightClickMenu = [
-    {
-      key: AllSupportedMenusType.CopyRow,
-      children: [
-        {
-          callback: () => {
-            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-            const _updateData = {
-              type: CRUD.CREATE,
-              dataList: newRowDataList,
-              rowNo: (tableData.length + 1).toString(),
-            };
-            getExecuteUpdateSql([_updateData]).then((res) => {
-              copy(res);
-            });
-          },
+  const copyRow = {
+    key: AllSupportedMenusType.CopyRow,
+    children: [
+      {
+        callback: () => {
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          const _updateData = {
+            type: CRUD.CREATE,
+            dataList: newRowDataList,
+            rowNo: (tableData.length + 1).toString(),
+          };
+          getExecuteUpdateSql([_updateData]).then((res) => {
+            copy(res);
+          });
         },
-        {
-          callback: () => {
-            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-            const _updateData = {
-              type: CRUD.UPDATE_COPY,
-              dataList: newRowDataList,
-              rowNo: (tableData.length + 1).toString(),
-            };
-            getExecuteUpdateSql([_updateData]).then((res) => {
-              copy(res);
-            });
-          },
-        },
-        // 复制当前行的数据
-        {
-          callback: () => {
-            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-            // 去掉No列
-            newRowDataList.splice(0, 1);
-            tableCopy([newRowDataList]);
-          },
-        },
-        // 复制表头
-        {
-          callback: () => {
-            const headerList = queryResultData.headerList.map((item) => item.name);
-            // 去掉No列
-            headerList.splice(0, 1);
-            tableCopy([headerList]);
-          },
-        },
-        // 复制表头和当前行的数据
-        {
-          callback: () => {
-            const headerList = queryResultData.headerList.map((item) => item.name);
-            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-            // 去掉No列
-            headerList.splice(0, 1);
-            const array2D = [headerList, newRowDataList];
-            tableCopy(array2D);
-          },
-        },
-      ],
-    },
-    {
-      key: AllSupportedMenusType.CloneRow,
-      callback: () => {
-        const newTableData = lodash.cloneDeep(tableData);
-        const newRowData = newTableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-        newRowData[`${preCode}0No.`] = (newTableData.length + 1).toString();
-        handleCreateData(newRowData);
+        hide: !queryResultData.canEdit,
       },
+      {
+        callback: () => {
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          const _updateData = {
+            type: CRUD.UPDATE_COPY,
+            dataList: newRowDataList,
+            rowNo: (tableData.length + 1).toString(),
+          };
+          getExecuteUpdateSql([_updateData]).then((res) => {
+            copy(res);
+          });
+        },
+        hide: !queryResultData.canEdit,
+      },
+      // 复制当前行的数据
+      {
+        callback: () => {
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          // 去掉No列
+          newRowDataList.splice(0, 1);
+          tableCopy([newRowDataList]);
+        },
+      },
+      // 复制表头
+      {
+        callback: () => {
+          const headerList = queryResultData.headerList.map((item) => item.name);
+          // 去掉No列
+          headerList.splice(0, 1);
+          tableCopy([headerList]);
+        },
+      },
+      // 复制表头和当前行的数据
+      {
+        callback: () => {
+          const headerList = queryResultData.headerList.map((item) => item.name);
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          // 去掉No列
+          headerList.splice(0, 1);
+          const array2D = [headerList, newRowDataList];
+          tableCopy(array2D);
+        },
+      },
+    ],
+  };
+
+  const cloneRow = {
+    key: AllSupportedMenusType.CloneRow,
+    callback: () => {
+      const newTableData = lodash.cloneDeep(tableData);
+      const newRowData = newTableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+      newRowData[`${preCode}0No.`] = (newTableData.length + 1).toString();
+      handleCreateData(newRowData);
     },
-    {
-      key: AllSupportedMenusType.DeleteRow,
-      callback: handleDeleteData,
+  };
+
+  const deleteRow = {
+    key: AllSupportedMenusType.DeleteRow,
+    callback: handleDeleteData,
+  };
+
+  const copyCell = {
+    key: AllSupportedMenusType.CopyCell,
+    callback: () => {
+      copy(editingData);
     },
-  ];
+  };
+
+  const setDefault = {
+    key: AllSupportedMenusType.SetDefault,
+    callback: () => {
+      editDataOnBlur('set', USER_FILLED_VALUE.DEFAULT);
+    },
+  };
+
+  const setNull = {
+    key: AllSupportedMenusType.SetNull,
+    callback: () => {
+      editDataOnBlur('set', null);
+    },
+  };
 
   // 表格的列配置
   const columns: ArtColumn[] = useMemo(() => {
@@ -778,11 +805,20 @@ export default function TableBox(props: ITableProps) {
         return {
           code: `${preCode}${colIndex}No.`,
           name: 'No.',
+          title: <div />,
           key: name,
           lock: true,
-          features: { sortable: compareStrings },
+          // features: { sortable: compareStrings },
           render: (value: any, rowData) => {
+            console.log(value, rowData);
             const rowNo = rowData[`${preCode}0No.`];
+            let rowRightClickMenu = [copyRow, cloneRow, deleteRow];
+            // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
+            if (!queryResultData.canEdit) {
+              rowRightClickMenu = rowRightClickMenu.filter(
+                (i) => i.key !== AllSupportedMenusType.CloneRow && i.key !== AllSupportedMenusType.DeleteRow,
+              );
+            }
             return (
               <RightClickMenu menuList={rowRightClickMenu}>
                 <div
@@ -804,43 +840,65 @@ export default function TableBox(props: ITableProps) {
           },
         };
       }
+
       return {
         code: `${preCode}${colIndex}${name}`,
         name: name,
         key: name,
+        // title: <div>{name}</div>,
         render: (value: any, rowData) => {
           const rowNo = rowData[`${preCode}0No.`];
+          let cellRightClickMenu = [copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
+          // 判断是否有默认值,如果没有默认值，则不显示设置默认值的菜单
+          const hasDefaultValue = queryResultData.headerList.find((i) => i.name === name)?.defaultValue !== null;
+          if (!hasDefaultValue) {
+            cellRightClickMenu = cellRightClickMenu.filter((i) => i.key !== AllSupportedMenusType.SetDefault);
+          }
+          // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
+          if (!queryResultData.canEdit) {
+            cellRightClickMenu = cellRightClickMenu.filter(
+              (i) =>
+                i.key !== AllSupportedMenusType.CloneRow &&
+                i.key !== AllSupportedMenusType.DeleteRow &&
+                i.key !== AllSupportedMenusType.SetNull,
+            );
+          }
           return (
-            <div
-              className={tableCellStyle(value, colIndex, rowNo)}
-              onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
-              onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
-            >
-              {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
-                <Input
-                  ref={editDataInputRef}
-                  value={editingData}
-                  onChange={(e) => {
-                    setEditingData(e.target.value);
-                  }}
-                  onBlur={editDataOnBlur}
-                />
-              ) : (
-                <>
-                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
-                  <div className={styles.tableHoverBox}>
-                    <Iconfont
-                      code="&#xe606;"
-                      onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                    />
-                    <Iconfont
-                      code="&#xeb4e;"
-                      onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+            <RightClickMenu menuList={cellRightClickMenu}>
+              <div
+                className={tableCellStyle(value, colIndex, rowNo)}
+                onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
+                onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
+                onContextMenu={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
+              >
+                {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
+                  <Input
+                    ref={editDataInputRef}
+                    value={editingData}
+                    onChange={(e) => {
+                      setEditingData(e.target.value);
+                    }}
+                    onBlur={() => {
+                      editDataOnBlur('blur');
+                    }}
+                  />
+                ) : (
+                  <>
+                    <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
+                    <div className={styles.tableHoverBox}>
+                      <Iconfont
+                        code="&#xe606;"
+                        onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                      />
+                      <Iconfont
+                        code="&#xeb4e;"
+                        onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </RightClickMenu>
           );
         },
         // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
@@ -981,6 +1039,7 @@ export default function TableBox(props: ITableProps) {
                     <Iconfont code="&#xe654;" />
                   </div>
                 </Popover>
+                {/* 提交 */}
                 <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.submit')} trigger="hover">
                   <div
                     onClick={handleUpdateSubmit}
@@ -988,7 +1047,7 @@ export default function TableBox(props: ITableProps) {
                       [styles.disableBar]: !updateData.length,
                     })}
                   >
-                    <Iconfont code="&#xe650;" />
+                    <Iconfont code="&#xe687;" />
                   </div>
                 </Popover>
               </div>

@@ -102,4 +102,15 @@ export default {
   'common.label.name': 'Name',
   'common.title.create': 'Create',
   'common.title.executiveLogging': 'Executive logging',
-};
+  'common.text.executionTime': 'Affected in {1} ms',
+  'common.button.copyRowAs': 'Copy the row as',
+  'common.button.insertSql': 'Insert SQL',
+  'common.button.updateSql': 'Update SQL',
+  'common.button.tabularSeparatedValues': 'TAB delimited (data)',
+  'common.button.tabularSeparatedValuesFieldName': 'TAB delimited (field name)',
+  'common.button.tabularSeparatedValuesFieldNameAndData': 'Tab-separated (field names and data)',
+  'common.button.cloneRow': 'Clone row',
+  'common.button.deleteRow': 'Delete row',
+  'common.button.setNull': 'Set NULL',
+  'common.button.setDefault': 'Set DEFAULT',
+};  
