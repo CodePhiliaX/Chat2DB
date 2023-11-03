@@ -5,8 +5,14 @@
 - ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
 - ⭐【New Features】Edit table structure supports setting primary keys in columns
 - ⭐【New Features】Edit data to support cell-level undo changes
-- ⭐【New Features】Query data supports single-row replication of Insert, Update, table header, and row data
-- ⚡️【Optimize】
+- ⭐【New Features】 Edit data support right click operation 
+  1. Supports single-row replication of Insert, Update, table header fields, and row data 
+  2. Clone the selected row 
+  3. Replication of cell data is supported 
+  4. You can set the cell to Null or Default 
+  5. Row deletion is supported
+- ⭐【New Features】History is added to the foldable panel on the right
+- ⚡️【Optimize】Edit the table structure to add loading
 - 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
 
 **更新日志**
@@ -14,8 +20,14 @@
 - ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
 - ⭐【新功能】编辑表结构支持在列中设置主键
 - ⭐【新功能】编辑数据支持单元格级别撤销修改
-- ⭐【新功能】查询数据支持单行复制Insert、Update、表头、行数据
-- ⚡️【优化】
+- ⭐【新功能】编辑数据支持右键操作
+  1. 支持单行复制 Insert、Update、表头字段、行数据
+  2. 支持克隆选中行
+  3. 支持复制单元格数据
+  4. 支持设置单元格为Null和Default
+  5. 支持删除行
+- ⭐【新功能】右侧可折叠面板中增加历史记录
+- ⚡️【优化】编辑表结构添加loading
 - 🐞【修复】修复表结构编辑浮点数小数位设置显示异常
 
 

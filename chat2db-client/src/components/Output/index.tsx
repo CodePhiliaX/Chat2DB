@@ -72,9 +72,9 @@ export default memo<IProps>((props) => {
                     <div className={classnames(styles.iconBox, { [styles.failureIconBox]: item.status !== 'success' })}>
                       <Iconfont code="&#xe650;" />
                     </div>
-                    <span className={styles.timeSpan}>[{item.useTime}]</span>
-                    {!!item.operationRows && <span>{item.operationRows} rows</span>}
-                    {!!item.useTime && <span>affected in {item.useTime} ms</span>}
+                    <span className={styles.timeSpan}>[{item.gmtCreate}]</span>
+                    {/* {!!item.operationRows && <span>{item.operationRows} rows</span>} */}
+                    {!!item.useTime && <span>{i18n('common.text.executionTime',item.useTime)}</span>}
                   </div>
                   <div className={styles.sqlPlace}>{nameList.filter((name) => name).join(' > ')}</div>
                   <div className={styles.sqlBox} dangerouslySetInnerHTML={{ __html: item.highlightedCode }} />

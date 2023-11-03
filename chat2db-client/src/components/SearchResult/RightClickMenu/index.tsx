@@ -14,6 +14,7 @@ export interface IMenu {
   callback?: () => void;
   children?: {
     callback: () => void;
+    hide?: boolean;
   }[]
 }
 
@@ -22,50 +23,59 @@ export enum AllSupportedMenusType  {
   CopyRow = 'copy-row',
   CloneRow = 'clone-row',
   DeleteRow = 'delete-row',
+  SetDefault = 'set-default',
+  SetNull = 'set-null',
 }
 
 export default memo<IProps>((props) => {
   const { children, menuList } = props;
   const allSupportedMenus = {
     [AllSupportedMenusType.CopyCell]: {
-      label: <MenuLabel icon="&#xec7a;" label="拷贝" />,
+      label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copy')} />,
       key: AllSupportedMenusType.CopyCell,
     },
     [AllSupportedMenusType.CopyRow]: {
-      label: <MenuLabel icon="&#xec7a;" label="拷贝行" />,
+      label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copyRowAs')} />,
       key: AllSupportedMenusType.CopyRow,
       children: [
         {
-          label: 'Insert 语句',
+          label: i18n('common.button.insertSql'),
           key: 'copy-row-1',
         },
         {
-          label: 'Update 语句',
+          label: i18n('common.button.updateSql'),
           key: 'copy-row-2',
         },
         {
-          label: '制表符分隔值(数据)',
+          label: i18n('common.button.tabularSeparatedValues'),
           key: 'copy-row-3',
         },
         {
-          label: '制表符分隔值(字段名)',
+          label: i18n('common.button.tabularSeparatedValuesFieldName'),
           key: 'copy-row-4',
         },
         {
-          label: '制表符分隔值(字段名和数据)',
+          label: i18n('common.button.tabularSeparatedValuesFieldNameAndData'),
           key: 'copy-row-5',
         },
       ]
     },
     [AllSupportedMenusType.CloneRow]: {
-      label: <MenuLabel icon="&#xec7a;" label="克隆行" />,
+      label: <MenuLabel icon="&#xe8db;" label={i18n('common.button.cloneRow')} />,
       key: AllSupportedMenusType.CloneRow,
     },
-
     [AllSupportedMenusType.DeleteRow]: {
-      label: <MenuLabel icon="&#xe6a7;" label="删除行" />,
+      label: <MenuLabel icon="&#xe6a7;" label={i18n('common.button.deleteRow')} />,
       key: AllSupportedMenusType.DeleteRow,
-    }
+    },
+    [AllSupportedMenusType.SetDefault]: {
+      label: <MenuLabel label={i18n('common.button.setDefault')} />,
+      key: AllSupportedMenusType.SetDefault,
+    },
+    [AllSupportedMenusType.SetNull]: {
+      label: <MenuLabel label={i18n('common.button.setNull')} />,
+      key: AllSupportedMenusType.SetNull,
+    },
   }
 
   const items = useMemo(()=>{
@@ -74,6 +84,7 @@ export default memo<IProps>((props) => {
         ...allSupportedMenus[menu.key],
         onClick: menu.callback,
         children: menu.children?.map((child,index) => {
+          if (child.hide) return null;
           return {
             ...allSupportedMenus[menu.key]['children'][index],
             onClick: child.callback,
