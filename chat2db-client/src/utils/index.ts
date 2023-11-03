@@ -272,3 +272,14 @@ export function compareVersion(version1: string, version2: string) {
     }
   return 0;
 }
+
+// 二维数组复制
+export function tableCopy(array2D:string[][]) {
+  try{
+    const text = array2D.map(row => row.join('\t')).join('\n')
+    navigator.clipboard.writeText(text);
+  }
+  catch{
+    console.log('copy error')
+  }
+}

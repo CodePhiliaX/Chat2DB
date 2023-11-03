@@ -72,7 +72,7 @@ export default memo<IProps>((props) => {
                     <div className={classnames(styles.iconBox, { [styles.failureIconBox]: item.status !== 'success' })}>
                       <Iconfont code="&#xe650;" />
                     </div>
-                    <span className={styles.timeSpan}>[2023-10-15 14:50:29]</span>
+                    <span className={styles.timeSpan}>[{item.useTime}]</span>
                     {!!item.operationRows && <span>{item.operationRows} rows</span>}
                     {!!item.useTime && <span>affected in {item.useTime} ms</span>}
                   </div>

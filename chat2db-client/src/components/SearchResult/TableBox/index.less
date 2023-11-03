@@ -23,9 +23,6 @@
   flex-direction: column;
   :global {
     .art-table {
-      table colgroup col {
-        min-width: 120px;
-      }
       table colgroup col:nth-of-type(1) {
         min-width: 60px;
       }
@@ -79,6 +76,11 @@
     }
     .art-table-header-cell {
       padding: 0px 4px;
+    }
+    .art-table-header-row .art-table-header-cell:nth-of-type(1){
+      .resize-handle{
+        display: none;
+      }
     }
   }
 }
@@ -246,6 +248,9 @@
   color: var(--color-bg-base);
   .tableHoverBox {
     background-color: var(--color-primary-hover);
+  }
+  .cellValueNull {
+    color: var(--color-bg-base);
   }
 }
 .tableItemSuccess {

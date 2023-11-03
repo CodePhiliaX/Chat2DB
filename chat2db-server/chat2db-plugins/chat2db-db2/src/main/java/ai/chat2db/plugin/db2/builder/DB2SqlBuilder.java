@@ -7,6 +7,7 @@ import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.util.TableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class DB2SqlBuilder extends DefaultSqlBuilder {
@@ -84,7 +85,7 @@ public class DB2SqlBuilder extends DefaultSqlBuilder {
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
                 DB2ColumnTypeEnum typeEnum = DB2ColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
+                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append(";\n");
                 if (StringUtils.isNotBlank(tableColumn.getComment())) {
                     script.append("\n").append(buildComment(tableColumn)).append(";\n");
                 }

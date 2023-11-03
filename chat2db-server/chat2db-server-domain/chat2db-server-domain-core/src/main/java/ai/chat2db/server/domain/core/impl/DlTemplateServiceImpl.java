@@ -282,7 +282,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 keyColumns.add(header.getName());
             }
         }
-        return Lists.newArrayList();
+        return keyColumns;
     }
 
     private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema, List<String> keyColumns) {
@@ -343,21 +343,21 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 .append(" (");
         for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
-            String newValue = row.get(i);
-            if (newValue != null) {
+            //String newValue = row.get(i);
+            //if (newValue != null) {
                 script.append(metaSchema.getMetaDataName(header.getName()))
                         .append(",");
-            }
+           // }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(") VALUES (");
         for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
-            if (newValue != null) {
+            //if (newValue != null) {
                 Header header = param.getHeaderList().get(i);
                 script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
                         .append(",");
-            }
+            //}
         }
         script.deleteCharAt(script.length() - 1);
         script.append(")");

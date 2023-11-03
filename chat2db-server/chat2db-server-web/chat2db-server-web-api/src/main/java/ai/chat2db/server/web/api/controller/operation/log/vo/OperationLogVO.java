@@ -1,7 +1,10 @@
 package ai.chat2db.server.web.api.controller.operation.log.vo;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 /**
  * @author moji
@@ -15,6 +18,18 @@ public class OperationLogVO {
      * 主键
      */
     private Long id;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime gmtCreate;
+
+    /**
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime gmtModified;
 
     /**
      * 文件别名

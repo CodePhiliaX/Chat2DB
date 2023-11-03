@@ -10,6 +10,13 @@ export interface IDatabase {
 export interface ITableHeaderItem {
   dataType: TableDataType;
   name: string;
+  autoIncrement: boolean | null; // 是否自增
+  columnSize: number | null; // 字段长度
+  comment: string | null; // 字段注释
+  decimalDigits: number | null; // 小数位
+  defaultValue: string | null; // 默认值
+  nullable: boolean | null; // 是否为空
+  primaryKey: boolean | null; // 是否为主键
 }
 
 export interface IManageResultData {

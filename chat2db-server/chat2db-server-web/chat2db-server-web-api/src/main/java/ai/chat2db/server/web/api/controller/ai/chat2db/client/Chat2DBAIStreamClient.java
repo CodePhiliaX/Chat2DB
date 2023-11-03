@@ -196,26 +196,11 @@ public class Chat2DBAIStreamClient {
             log.error("param error：ChatEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder()
                     .messages(chatMessages)
                     .stream(true)
                     .build();
-            ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-            DataResult<Config> chat2dbModel = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL);
-            String model = Objects.nonNull(chat2dbModel.getData()) && StringUtils.isNotBlank(chat2dbModel.getData().getContent()) ? chat2dbModel.getData().getContent() : AiSqlSourceEnum.OPENAI.getCode();
-            AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(model);
-            switch (aiSqlSourceEnum) {
-                case BAICHUANAI:
-                    chatCompletion = ChatCompletion.builder().messages(chatMessages).model("Baichuan2-53B").build();
-                    break;
-                case ZHIPUAI:
-                    chatCompletion = ChatCompletion.builder().messages(chatMessages).model("chatglm_turbo").build();
-                    break;
-                default:
-                    break;
-            }
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();

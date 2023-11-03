@@ -110,7 +110,7 @@ public class RdbDmlController {
                     //connection.commit();
                     return DataResult.of(resultVOS.get(0));
                 }else {
-                    connection.rollback();
+                    //connection.rollback();
                     return DataResult.of(executeResult);
                 }
             } catch (Exception e) {

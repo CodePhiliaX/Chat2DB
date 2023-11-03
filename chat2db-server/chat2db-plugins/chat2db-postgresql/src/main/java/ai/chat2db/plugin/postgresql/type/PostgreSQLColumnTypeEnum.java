@@ -119,7 +119,7 @@ public enum PostgreSQLColumnTypeEnum implements ColumnBuilder {
     }
 
     @Override
-    public String buildModifyColumn(TableColumn column) {
+    public String buildModifyColumn(TableColumn column, TableColumn oldColumn) {
 
         if (EditStatus.DELETE.name().equals(column.getEditStatus())) {
             return StringUtils.join("DROP COLUMN `", column.getName() + "`");

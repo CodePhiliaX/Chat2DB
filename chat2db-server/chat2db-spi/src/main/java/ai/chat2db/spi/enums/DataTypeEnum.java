@@ -108,7 +108,11 @@ public enum DataTypeEnum implements BaseEnum<String> {
 
     public String getSqlValue(String value) {
         if (this == DataTypeEnum.BOOLEAN) {
-            return value;
+            if("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)){
+                return value;
+            }else {
+                return "'" + value + "'";
+            }
         }
         if (this == DataTypeEnum.NUMERIC) {
             return value;
@@ -147,9 +151,6 @@ public enum DataTypeEnum implements BaseEnum<String> {
             return "'" + value + "'";
         }
         if (this == DataTypeEnum.UNKNOWN) {
-            return "'" + value + "'";
-        }
-        if (this == DataTypeEnum.CHAT2DB_ROW_NUMBER) {
             return "'" + value + "'";
         }
         return "'" + value + "'";
