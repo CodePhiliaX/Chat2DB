@@ -375,8 +375,8 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
         }
       } catch (error) {
         setIsLoading(false);
-        setIsAiDrawerLoading(false);
         setIsStream(false);
+        setIsAiDrawerLoading(false);
         closeEventSource.current();
       }
     };
@@ -384,6 +384,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     const handleError = (error: any) => {
       console.error('Error:', error);
       setIsLoading(false);
+      setIsStream(false);
       closeEventSource.current();
     };
 
