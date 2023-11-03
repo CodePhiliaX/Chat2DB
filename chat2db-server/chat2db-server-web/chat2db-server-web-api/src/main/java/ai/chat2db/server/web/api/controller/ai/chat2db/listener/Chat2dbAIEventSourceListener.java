@@ -66,43 +66,12 @@ public class Chat2dbAIEventSourceListener extends EventSourceListener {
         }
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
-        DataResult<Config> chat2dbModel = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL);
-        String model = Objects.nonNull(chat2dbModel.getData()) && StringUtils.isNotBlank(chat2dbModel.getData().getContent()) ? chat2dbModel.getData().getContent() : AiSqlSourceEnum.OPENAI.getCode();
-        AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(model);
-        String text = "";
-        String completionId = null;
-        // 读取Json
-        switch (aiSqlSourceEnum) {
-            case BAICHUANAI:
-                BaichuanChatCompletions chatCompletions = mapper.readValue(data, BaichuanChatCompletions.class);
-                for (BaichuanChatMessage message : chatCompletions.getData().getMessages()) {
-                    if (message != null) {
-                        if (message.getContent() != null) {
-                            text = message.getContent();
-                        }
-                    }
-                }
-                break;
-            case ZHIPUAI:
-                ZhipuChatCompletions zhipuChatCompletions = mapper.readValue(data, ZhipuChatCompletions.class);
-                text = zhipuChatCompletions.getData();
-                if (Objects.isNull(text)) {
-                    for (FastChatMessage message : zhipuChatCompletions.getBody().getChoices()) {
-                        if (message != null && message.getContent() != null) {
-                            text = message.getContent();
-                        }
-                    }
-                }
-                break;
-            default:
-                ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class);
-                text = completionResponse.getChoices().get(0).getDelta() == null
-                        ? completionResponse.getChoices().get(0).getText()
-                        : completionResponse.getChoices().get(0).getDelta().getContent();
-                completionId = completionResponse.getId();
-                break;
-        }
+        ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class);
+        String text = completionResponse.getChoices().get(0).getDelta() == null
+                ? completionResponse.getChoices().get(0).getText()
+                : completionResponse.getChoices().get(0).getDelta().getContent();
+        String completionId = completionResponse.getId();
+
         Message message = new Message();
         if (text != null) {
             message.setContent(text);
