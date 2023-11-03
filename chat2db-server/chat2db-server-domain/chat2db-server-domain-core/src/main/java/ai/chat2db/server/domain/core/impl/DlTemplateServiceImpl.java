@@ -282,7 +282,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 keyColumns.add(header.getName());
             }
         }
-        return Lists.newArrayList();
+        return keyColumns;
     }
 
     private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema, List<String> keyColumns) {
