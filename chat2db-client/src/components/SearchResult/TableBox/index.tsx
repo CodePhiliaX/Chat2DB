@@ -11,13 +11,13 @@ import { IManageResultData, IResultConfig } from '@/typings/database';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { compareStrings } from '@/utils/sort';
 import { DownOutlined } from '@ant-design/icons';
-import { copy } from '@/utils';
+import { copy, tableCopy } from '@/utils';
 import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import StatusBar from '../StatusBar';
-import RightClickMenu from '../RightClickMenu';
+import RightClickMenu, { AllSupportedMenusType } from '../RightClickMenu';
 import styles from './index.less';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 import { downloadFile } from '@/utils/common';
@@ -42,6 +42,10 @@ interface IUpdateData {
   dataList?: string[];
   type: CRUD;
   rowNo: string;
+}
+
+enum USER_FILLED_VALUE {
+  DEFAULT = 'CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT'
 }
 
 const SupportBaseTable: any = styled(BaseTable)`
@@ -110,6 +114,10 @@ export default function TableBox(props: ITableProps) {
   const monacoEditorRef = React.useRef<any>(null);
   // 表格loading
   const [tableLoading, setTableLoading] = useState<boolean>(false);
+  // 列宽数组
+  const [columnResize, setColumnResize] = useState<number[]>([0]);
+  // 表格的宽度
+  // const [tableBoxWidth, setTableBoxWidth] = useState<number>(0);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -340,6 +348,8 @@ export default function TableBox(props: ITableProps) {
   const renderTableCellValue = (value) => {
     if (value === null) {
       return <span className={styles.cellValueNull}>{'<null>'}</span>;
+    } else if (value === USER_FILLED_VALUE.DEFAULT) {
+      return <span className={styles.cellValueNull}>{'<default>'}</span>;
     } else if (!value) {
       // 如果为空需要展位
       return <span />;
@@ -364,7 +374,12 @@ export default function TableBox(props: ITableProps) {
     }
     // 当前单元格所在的行被选中了(行聚焦)
     if (rowNo === curOperationRowNo) {
-      styleList.push(styles.tableItemFocus);
+      // No列的高亮只需要用tableItemHighlight不需要用tableItemFocus
+      if (colIndex === 0) {
+        styleList.push(styles.tableItemHighlight);
+      } else {
+        styleList.push(styles.tableItemFocus);
+      }
       return classnames(...styleList);
     }
     // 新添加的行
@@ -407,114 +422,6 @@ export default function TableBox(props: ITableProps) {
     return newTableData;
   };
 
-  // 表格的列配置
-  const columns: ArtColumn[] = useMemo(() => {
-    return (queryResultData.headerList || []).map((item, colIndex) => {
-      const { dataType, name } = item;
-      const isNumber = dataType === TableDataType.NUMERIC;
-      const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
-      if (isNumericalOrder) {
-        return {
-          code: `${preCode}${colIndex}No.`,
-          name: 'No.',
-          key: name,
-          lock: true,
-          width: 60,
-          features: { sortable: compareStrings },
-          render: (value: any, rowData) => {
-            const rowNo = rowData[`${preCode}0No.`];
-            return (
-              <RightClickMenu>
-                <div
-                  onClick={() => {
-                    setEditingCell(null);
-                    setCurOperationRowNo(rowNo);
-                  }}
-                  // 右键
-                  onContextMenu={() => {
-                    setEditingCell(null);
-                    setCurOperationRowNo(rowNo);
-                  }}
-                  className={tableCellStyle(value, colIndex, rowNo)}
-                >
-                  <div className={styles.tableItemNo}>{value}</div>
-                </div>
-              </RightClickMenu>
-            );
-          },
-        };
-      }
-      return {
-        code: `${preCode}${colIndex}${name}`,
-        name: name,
-        key: name,
-        render: (value: any, rowData) => {
-          const rowNo = rowData[`${preCode}0No.`];
-          return (
-            <div
-              className={tableCellStyle(value, colIndex, rowNo)}
-              onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
-              onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
-            >
-              {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
-                <Input
-                  ref={editDataInputRef}
-                  value={editingData}
-                  onChange={(e) => {
-                    setEditingData(e.target.value);
-                  }}
-                  onBlur={editDataOnBlur}
-                />
-              ) : (
-                <>
-                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
-                  <div className={styles.tableHoverBox}>
-                    <Iconfont
-                      code="&#xe606;"
-                      onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                    />
-                    <Iconfont
-                      code="&#xeb4e;"
-                      onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        },
-        // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
-        features: { sortable: isNumber ? compareStrings : true },
-      };
-    });
-  }, [queryResultData.headerList, editingCell, editingData, curOperationRowNo, oldDataList]);
-
-  // 表格渲染的配置
-  const pipeline = useTablePipeline()
-    .input({ dataSource: tableData, columns })
-    .use(
-      features.sort({
-        mode: 'single',
-        defaultSorts,
-        highlightColumnWhenActive: true,
-        // sorts,
-        // onChangeSorts,
-      }),
-    )
-    .use(
-      features.columnResize({
-        fallbackSize: 120,
-        handleActiveBackground: `var(--color-primary-bg-hover)`,
-      }),
-    );
-  // .use(
-  //   features.columnResize({
-  //     fallbackSize: 120,
-  //     minSize: 60,
-  //     maxSize: 1080,
-  //   }),
-  // );
-
   const onPageNoChange = (pageNo: number) => {
     const config = { ...paginationConfig, pageNo };
     setPaginationConfig(config);
@@ -544,6 +451,7 @@ export default function TableBox(props: ITableProps) {
       const oldData = oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)!;
       const _tableData = tableData.map((item) => (item[`${preCode}0No.`] === curOperationRowNo ? oldData : item));
       setTableData(_tableData);
+      setCurOperationRowNo(null);
       return;
     }
     // 聚焦单元格撤销
@@ -569,24 +477,28 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 处理创建数据
-  const handleCreateData = () => {
-    // 如果加的这行数据是删除过的，则恢复
-    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.DELETE);
-    if (index !== -1) {
-      updateData.splice(index, 1);
-      setUpdateData([...updateData]);
-      return;
-    }
+  const handleCreateData = (_newData?: any) => {
     // 正常的新增
     const newTableData = lodash.cloneDeep(tableData);
-    const newData = {};
-    columns.forEach((t, i) => {
-      if (t.name === 'No.') {
-        newData[`${preCode}${i}${t.name}`] = (newTableData.length + 1).toString();
-      } else {
-        newData[`${preCode}${i}${t.name}`] = null;
-      }
-    });
+    let newData = {};
+    if (_newData) {
+      newData = _newData;
+    } else {
+      columns.forEach((t, i) => {
+        if (t.name === 'No.') {
+          newData[`${preCode}${i}${t.name}`] = (newTableData.length + 1).toString();
+        } else {
+          // 判断是否有默认值
+          const hasDefaultValue =
+            queryResultData.headerList.find((item) => item.name === t.name)?.defaultValue !== null;
+          if (hasDefaultValue) {
+            newData[`${preCode}${i}${t.name}`] = USER_FILLED_VALUE.DEFAULT;
+            return;
+          }
+          newData[`${preCode}${i}${t.name}`] = null;
+        }
+      });
+    }
     newTableData.push(newData);
     setTableData(newTableData);
     setUpdateData([
@@ -597,12 +509,26 @@ export default function TableBox(props: ITableProps) {
         rowNo: newTableData.length.toString(),
       },
     ]);
+    setCurOperationRowNo(newTableData.length.toString());
 
     // 新增一条数据，tableBox需要滚动到最下方
     setTimeout(() => {
       tableBoxRef.current?.scrollTo(0, tableBoxRef.current?.scrollHeight + 31);
     }, 0);
   };
+
+  // // 获取tableBoxRef的宽度
+  // const getTableBoxRefWidth = () => {
+  //   setTableBoxWidth(tableBoxRef.current?.clientWidth || 0);
+  // };
+
+  // useEffect(()=>{
+  //   window.addEventListener('resize', getTableBoxRefWidth);
+  //   getTableBoxRefWidth();
+  //   return ()=>{
+  //     window.removeEventListener('resize', getTableBoxRefWidth);
+  //   }
+  // },[])
 
   // 处理删除数据
   const handleDeleteData = () => {
@@ -668,7 +594,7 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 获取更新数据的sql
-  const getExecuteUpdateSql = () => {
+  const getExecuteUpdateSql = (_updateData?: any) => {
     return new Promise<string>((resolve) => {
       const params = {
         databaseName: props.executeSqlParams?.databaseName,
@@ -677,7 +603,7 @@ export default function TableBox(props: ITableProps) {
         type: props.executeSqlParams?.databaseType,
         tableName: queryResultData.tableName,
         headerList: queryResultData.headerList,
-        operations: updateData,
+        operations: _updateData || updateData,
       };
       sqlService.getExecuteUpdateSql(params).then((res) => {
         resolve(res || '');
@@ -762,6 +688,209 @@ export default function TableBox(props: ITableProps) {
     return true;
   }, [curOperationRowNo, updateData, editingCell]);
 
+  const rowRightClickMenu = [
+    {
+      key: AllSupportedMenusType.CopyRow,
+      children: [
+        {
+          callback: () => {
+            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+            const _updateData = {
+              type: CRUD.CREATE,
+              dataList: newRowDataList,
+              rowNo: (tableData.length + 1).toString(),
+            };
+            getExecuteUpdateSql([_updateData]).then((res) => {
+              copy(res);
+            });
+          },
+        },
+        {
+          callback: () => {
+            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+            const _updateData = {
+              type: CRUD.UPDATE_COPY,
+              dataList: newRowDataList,
+              rowNo: (tableData.length + 1).toString(),
+            };
+            getExecuteUpdateSql([_updateData]).then((res) => {
+              copy(res);
+            });
+          },
+        },
+        // 复制当前行的数据
+        {
+          callback: () => {
+            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+            // 去掉No列
+            newRowDataList.splice(0, 1);
+            tableCopy([newRowDataList]);
+          },
+        },
+        // 复制表头
+        {
+          callback: () => {
+            const headerList = queryResultData.headerList.map((item) => item.name);
+            // 去掉No列
+            headerList.splice(0, 1);
+            tableCopy([headerList]);
+          },
+        },
+        // 复制表头和当前行的数据
+        {
+          callback: () => {
+            const headerList = queryResultData.headerList.map((item) => item.name);
+            const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+            const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+            // 去掉No列
+            headerList.splice(0, 1);
+            const array2D = [headerList, newRowDataList];
+            tableCopy(array2D);
+          },
+        },
+      ],
+    },
+    {
+      key: AllSupportedMenusType.CloneRow,
+      callback: () => {
+        const newTableData = lodash.cloneDeep(tableData);
+        const newRowData = newTableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
+        newRowData[`${preCode}0No.`] = (newTableData.length + 1).toString();
+        handleCreateData(newRowData);
+      },
+    },
+    {
+      key: AllSupportedMenusType.DeleteRow,
+      callback: handleDeleteData,
+    },
+  ];
+
+  // 表格的列配置
+  const columns: ArtColumn[] = useMemo(() => {
+    return (queryResultData.headerList || []).map((item, colIndex) => {
+      const { dataType, name } = item;
+      const isNumber = dataType === TableDataType.NUMERIC;
+      const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
+      if (isNumericalOrder) {
+        return {
+          code: `${preCode}${colIndex}No.`,
+          name: 'No.',
+          key: name,
+          lock: true,
+          features: { sortable: compareStrings },
+          render: (value: any, rowData) => {
+            const rowNo = rowData[`${preCode}0No.`];
+            return (
+              <RightClickMenu menuList={rowRightClickMenu}>
+                <div
+                  onClick={() => {
+                    setEditingCell(null);
+                    setCurOperationRowNo(rowNo);
+                  }}
+                  // 右键
+                  onContextMenu={() => {
+                    setEditingCell(null);
+                    setCurOperationRowNo(rowNo);
+                  }}
+                  className={tableCellStyle(value, colIndex, rowNo)}
+                >
+                  <div className={styles.tableItemNo}>{value}</div>
+                </div>
+              </RightClickMenu>
+            );
+          },
+        };
+      }
+      return {
+        code: `${preCode}${colIndex}${name}`,
+        name: name,
+        key: name,
+        render: (value: any, rowData) => {
+          const rowNo = rowData[`${preCode}0No.`];
+          return (
+            <div
+              className={tableCellStyle(value, colIndex, rowNo)}
+              onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
+              onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
+            >
+              {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
+                <Input
+                  ref={editDataInputRef}
+                  value={editingData}
+                  onChange={(e) => {
+                    setEditingData(e.target.value);
+                  }}
+                  onBlur={editDataOnBlur}
+                />
+              ) : (
+                <>
+                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
+                  <div className={styles.tableHoverBox}>
+                    <Iconfont
+                      code="&#xe606;"
+                      onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
+                    <Iconfont
+                      code="&#xeb4e;"
+                      onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        },
+        // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
+        features: { sortable: isNumber ? compareStrings : true },
+      };
+    });
+  }, [queryResultData.headerList, editingCell, editingData, curOperationRowNo, oldDataList]);
+
+  // 表格渲染的配置
+  const pipeline = useTablePipeline()
+    .input({ dataSource: tableData, columns })
+    .use(
+      features.sort({
+        mode: 'single',
+        defaultSorts,
+        highlightColumnWhenActive: true,
+        // sorts,
+        // onChangeSorts,
+      }),
+    )
+    .use(
+      features.columnResize({
+        fallbackSize: 150,
+        // handleBackground: '#ddd',
+        handleHoverBackground: `var(--color-primary-bg-hover)`,
+        handleActiveBackground: `var(--color-primary-bg-hover)`,
+        minSize: 60,
+        maxSize: 1080,
+        sizes: columnResize,
+        onChangeSizes: (sizes) => {
+          console.log(sizes);
+          sizes[0] = 0;
+          setColumnResize(sizes);
+        },
+      }),
+    );
+  // .use(
+  //   features.columnResize({
+  //     fallbackSize: 120,
+  //     handleActiveBackground: `var(--color-primary-bg-hover)`,
+  //   }),
+  // );
+  // .use(
+  //   features.columnResize({
+  //     fallbackSize: 120,
+  //     minSize: 60,
+  //     maxSize: 1080,
+  //   }),
+  // );
+
   const renderContent = () => {
     const bottomStatus = (
       <div className={styles.statusBar}>
@@ -804,9 +933,12 @@ export default function TableBox(props: ITableProps) {
             </div>
             {queryResultData.canEdit && (
               <div className={classnames(styles.toolBarItem, styles.editTableDataBar)}>
+                {/* 新增行 */}
                 <Popover mouseEnterDelay={0.8} content={i18n('editTableData.tips.addRow')} trigger="hover">
                   <div
-                    onClick={handleCreateData}
+                    onClick={() => {
+                      handleCreateData();
+                    }}
                     className={classnames(styles.createDataBar, styles.editTableDataBarItem)}
                   >
                     <Iconfont code="&#xe61b;" />

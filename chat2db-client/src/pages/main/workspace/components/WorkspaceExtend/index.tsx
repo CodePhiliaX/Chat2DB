@@ -47,8 +47,6 @@ export default memo<IProps>((props) => {
     setActiveExtend(item);
   };
 
-  console.log(props.curWorkspaceParams)
-
   return (
     <div
       className={classnames(styles.workspaceExtend, className, {

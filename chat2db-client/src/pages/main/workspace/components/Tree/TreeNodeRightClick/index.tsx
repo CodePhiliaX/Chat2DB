@@ -193,16 +193,21 @@ function TreeNodeRightClick(props: IProps) {
   }
 
   function refresh() {
-    // data.children = [];
     setIsLoading(true);
-    getChildren?.({
-      ...data,
+    const params = {
       ...data.extraParams,
+      extraParams:{
+        ...data.extraParams
+      },
       refresh: true,
-    }).then((res) => {
-      data.children = res;
+    }
+    getChildren?.(params).then((res) => {
+      data.children = res as any;
+      console.log(data)
+    })
+    .finally(() => {
       setIsLoading(false);
-    });
+    })
   }
 
   function openEditTableData() {
@@ -290,24 +295,22 @@ function TreeNodeRightClick(props: IProps) {
     <>
       {modelDom}
       {notificationDom}
-      {!!dropdowns.length && (
-        <Dropdown
-          overlayStyle={{
-            zIndex: 1080,
-          }}
-          className={className}
-          menu={{
-            items: dropdowns,
-          }}
-          trigger={props.trigger || ['hover']}
-        >
-          {children || (
-            <div>
-              <Iconfont code="&#xe601;" />
-            </div>
-          )}
-        </Dropdown>
-      )}
+      <Dropdown
+        overlayStyle={{
+          zIndex: 1080,
+        }}
+        className={className}
+        menu={{
+          items: dropdowns,
+        }}
+        trigger={props.trigger || ['hover']}
+      >
+        {children || (
+          <div>
+            <Iconfont code="&#xe601;" />
+          </div>
+        )}
+      </Dropdown>
       <Modal
         maskClosable={false}
         title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}

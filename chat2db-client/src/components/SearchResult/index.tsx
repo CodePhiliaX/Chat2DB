@@ -7,6 +7,7 @@ import React, {
   forwardRef,
   ForwardedRef,
   useImperativeHandle,
+  Fragment,
 } from 'react';
 import classnames from 'classnames';
 import Tabs from '@/components/Tabs';
@@ -61,7 +62,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
    * 执行SQL
    * @param sql
    */
-  const handleExecuteSQL = async (_sql: string) => {
+  const handleExecuteSQL = (_sql: string) => {
     setTableLoading(true);
 
     const executeSQLParams: IExecuteSqlParams = {
@@ -72,17 +73,19 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
 
     controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-    let sqlResult = await sqlServer.executeSql(executeSQLParams, {
+     sqlServer.executeSql(executeSQLParams, {
       signal: controllerRef.current.signal,
+    }).then((res) => {
+      const sqlResult = res.map((_res) => ({
+        ..._res,
+        uuid: uuidV4(),
+      }));
+  
+      setResultDataList(sqlResult);
+    })
+    .finally(() => {
+      setTableLoading(false);
     });
-
-    sqlResult = sqlResult.map((res) => ({
-      ...res,
-      uuid: uuidV4(),
-    }));
-
-    setResultDataList(sqlResult);
-    setTableLoading(false);
   };
 
   const onChange = useCallback(() => {
@@ -118,7 +121,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
       );
     }
     return (
-      <>
+      <Fragment key={queryResultData.uuid}>
         {queryResultData.success ? (
           renderSuccessResult()
         ) : (
@@ -129,7 +132,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
             text={queryResultData.message}
           />
         )}
-      </>
+      </Fragment>
     );
   };
 
