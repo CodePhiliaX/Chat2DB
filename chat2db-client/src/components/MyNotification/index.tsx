@@ -117,6 +117,7 @@ function MyNotification() {
         onCancel={() => {
           setOpen(false);
         }}
+        zIndex={99999}
       >
         <div className={styles.errorDetail}>{props?.errorDetail}</div>
       </Modal>
