@@ -7,7 +7,9 @@
 /src/.umi-test
 /dist
 .swc
+./yarn-error.log
 
 
 /release
 /static
+/versions

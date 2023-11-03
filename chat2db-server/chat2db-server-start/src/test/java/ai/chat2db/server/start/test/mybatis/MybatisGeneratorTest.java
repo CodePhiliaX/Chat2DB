@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.annotation.Resource;
 import javax.sql.DataSource;
 
 import ai.chat2db.server.start.test.common.BaseTest;
-
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.DataSourceConfig;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.converts.MySqlTypeConvert;
+import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.google.common.collect.Lists;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -33,18 +33,20 @@ public class MybatisGeneratorTest extends BaseTest {
         //doGenerator(Lists.newArrayList("data_source"));
         //doGenerator(Lists.newArrayList("operation_log"));
         //doGenerator(Lists.newArrayList("operation_saved"));
-        doGenerator(Lists.newArrayList("dbhub_user"));
+        //doGenerator(Lists.newArrayList("environment","data_source","team","team_dbhub_user","data_source_access",
+        // "dbhub_user"));
+        doGenerator(Lists.newArrayList("operation_log"));
     }
 
     private void doGenerator(List<String> tableList) {
 
-        // 当前项目地址 拿到的是ali-dbhub-server-start地址
+        // 当前项目地址 拿到的是chat2db-server-start地址
         String outputDir = System.getProperty("user.dir")
-            + "/../ali-dbhub-server-domain/ali-dbhub-server-domain-repository/src/main"
+            + "/../chat2db-server-domain/chat2db-server-domain-repository/src/main"
             + "/java";
         String xmlDir = System.getProperty("user.dir")
-            + "/../ali-dbhub-server-domain/ali-dbhub-server-domain-repository/src/main"
-            + "/resources/com/alibaba/dbhub/server/domain/repository";
+            + "/../chat2db-server-domain/chat2db-server-domain-repository/src/main"
+            + "/resources/mapper";
 
         // 不要生成service controller
         Map<OutputFile, String> pathInfo = new HashMap<>();
@@ -59,9 +61,11 @@ public class MybatisGeneratorTest extends BaseTest {
             //全局配置
             .globalConfig(builder -> {
                 // 设置作者
-                builder.author("ali-dbhub")
+                builder.author("chat2db")
                     //执行完毕不打开文件夹
                     .disableOpenDir()
+                    // 还是使用date
+                    .dateType(DateType.ONLY_DATE)
                     // 指定输出目录
                     .outputDir(outputDir);
             })
@@ -82,14 +86,13 @@ public class MybatisGeneratorTest extends BaseTest {
                     //开启实体类配置
                     .entityBuilder()
                     .formatFileName("%sDO")
-                    // 覆盖文件
                     .enableFileOverride()
                     //.addTableFills(new Column("gmt_create", FieldFill.INSERT)) // 表字段填充
                     //.addTableFills(new Column("update_time", FieldFill.INSERT_UPDATE)) // 表字段填充
                     //开启lombok
                     .enableLombok()
                     .mapperBuilder()
-                    // 覆盖文件
+                    //// 覆盖文件
                     .enableFileOverride()
                 ;
 

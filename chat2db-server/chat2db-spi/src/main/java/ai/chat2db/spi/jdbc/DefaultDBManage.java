@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DefaultDBManage implements DBManage {
 
+
+
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {
         Connection connection = connectInfo.getConnection();
@@ -67,7 +69,7 @@ public class DefaultDBManage implements DBManage {
         }
         connectInfo.setSession(session);
         connectInfo.setConnection(connection);
-        if (StringUtils.isNotBlank(connectInfo.getDatabaseName())) {
+        if (StringUtils.isNotBlank(connectInfo.getDatabaseName()) || StringUtils.isNotBlank(connectInfo.getSchemaName())) {
             connectDatabase(connection, connectInfo.getDatabaseName());
         }
         return connection;
@@ -113,6 +115,21 @@ public class DefaultDBManage implements DBManage {
 
     @Override
     public void modifySchema(Connection connection,String databaseName, String schemaName, String newSchemaName) {
+
+    }
+
+    @Override
+    public void dropFunction(Connection connection, String databaseName, String schemaName, String functionName) {
+
+    }
+
+    @Override
+    public void dropTrigger(Connection connection, String databaseName, String schemaName, String triggerName) {
+
+    }
+
+    @Override
+    public void dropProcedure(Connection connection, String databaseName, String schemaName, String triggerName) {
 
     }
 

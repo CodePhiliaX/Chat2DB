@@ -1,9 +1,9 @@
 import { getCurrentWorkspaceDatabase, setCurrentWorkspaceDatabase } from '@/utils/localStorage';
 import sqlService, { MetaSchemaVO } from '@/service/sql';
 import historyService from '@/service/history';
-import { DatabaseTypeCode, ConsoleStatus, TreeNodeType } from '@/constants';
+import { DatabaseTypeCode, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
-import { ITreeNode, IConsole, IPageResponse } from '@/typings';
+import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro, IWorkspaceTab } from '@/typings';
 import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
@@ -22,24 +22,31 @@ export interface IWorkspaceModelState {
   // 双击树node节点
   doubleClickTreeNodeData: ITreeNode | undefined;
   consoleList: IConsole[];
+  curConsoleId: number | null;
   openConsoleList: IConsole[];
   curTableList: ITreeNode[];
+  // 触发tab编辑表或打开表
+  createTabIntro: ICreateTabIntro | undefined;
+  // 触发新增console
+  createConsoleIntro: IWorkspaceTab | undefined;   
 }
 
 export interface IWorkspaceModelType {
   namespace: 'workspace';
   state: IWorkspaceModelState;
   reducers: {
-    setDatabaseAndSchema: Reducer<IWorkspaceModelState['databaseAndSchema']>;
-    setCurWorkspaceParams: Reducer<IWorkspaceModelState['curWorkspaceParams']>;
-    setDoubleClickTreeNodeData: Reducer<any>; //TS TODO:
-    setConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setOpenConsoleList: Reducer<IWorkspaceModelState['consoleList']>;
-    setCurTableList: Reducer<IWorkspaceModelState['curTableList']>;
+    // TS TODO:
+    setDatabaseAndSchema: Reducer<IWorkspaceModelState>;
+    setCurWorkspaceParams: Reducer<IWorkspaceModelState>;
+    setDoubleClickTreeNodeData: Reducer<IWorkspaceModelState>;
+    setConsoleList: Reducer<IWorkspaceModelState>;
+    setOpenConsoleList: Reducer<IWorkspaceModelState>;
+    setCurConsoleId: Reducer<IWorkspaceModelState>;
+    setCurTableList: Reducer<IWorkspaceModelState>;
+    setCreateTabIntro: Reducer<IWorkspaceModelState>;
+    setCreateConsoleIntro: Reducer<IWorkspaceModelState>;
   };
   effects: {
-    fetchDatabaseAndSchema: Effect;
-    fetchDatabaseAndSchemaLoading: Effect;
     fetchGetSavedConsole: Effect;
     fetchGetCurTableList: Effect;
     fetchGetSavedConsoleLoading: Effect;
@@ -51,11 +58,14 @@ const WorkspaceModel: IWorkspaceModelType = {
 
   state: {
     databaseAndSchema: undefined,
-    curWorkspaceParams: getCurrentWorkspaceDatabase(),
+    curWorkspaceParams: {} as any,
     doubleClickTreeNodeData: undefined,
     consoleList: [],
     openConsoleList: [],
     curTableList: [],
+    curConsoleId: null,
+    createTabIntro: undefined,
+    createConsoleIntro: undefined,
   },
 
   reducers: {
@@ -88,12 +98,20 @@ const WorkspaceModel: IWorkspaceModelType = {
         consoleList: payload,
       };
     },
-
+    // 工作台页面打开的console列表
     setOpenConsoleList(state, { payload }) {
       return {
         ...state,
         openConsoleList: payload,
       };
+    },
+
+    // 当前聚焦的console
+    setCurConsoleId(state, { payload }) {
+      return {
+        ...state,
+        curConsoleId: payload
+      }
     },
 
     setCurTableList(state, { payload }) {
@@ -102,36 +120,25 @@ const WorkspaceModel: IWorkspaceModelType = {
         curTableList: payload,
       };
     },
+    // 创建tab的引子
+    setCreateTabIntro(state, { payload }) {
+      return {
+        ...state,
+        createTabIntro: payload,
+      };
+    },
+    // 创建console的引子
+    setCreateConsoleIntro(state, { payload }) { 
+      return {
+        ...state,
+        createConsoleIntro: payload,
+      };
+    }
+    
   },
 
   effects: {
-    *fetchDatabaseAndSchema({ payload, callback }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-        if (callback && typeof callback === 'function') {
-          callback(res);
-        }
-      }
-      catch {
-
-      }
-    },
-    *fetchDatabaseAndSchemaLoading({ payload }, { put }) {
-      try {
-        const res = (yield sqlService.getDatabaseSchemaList(payload)) as MetaSchemaVO;
-        yield put({
-          type: 'setDatabaseAndSchema',
-          payload: res,
-        });
-      }
-      catch {
-
-      }
-    },
+    // 获取保存的控制台列表
     *fetchGetSavedConsole({ payload, callback }, { put }) {
       try {
         const res = (yield historyService.getSavedConsoleList({
@@ -146,6 +153,7 @@ const WorkspaceModel: IWorkspaceModelType = {
       catch {
       }
     },
+    // 获取保存的控制台列表Loading
     *fetchGetSavedConsoleLoading({ payload, callback }, { put }) {
       try {
         const res = (yield historyService.getSavedConsoleList({
@@ -160,20 +168,21 @@ const WorkspaceModel: IWorkspaceModelType = {
       catch {
       }
     },
-    *fetchGetCurTableList({ payload, callback }, { put, call }) {
+    // 获取当前连接下的表列表
+    *fetchGetCurTableList({ payload, callback }, { put }) {
       try {
         const res = (yield treeConfig[TreeNodeType.TABLES].getChildren!({
           pageNo: 1,
           pageSize: 999,
           ...payload,
-        })) as ITreeNode[];
+        })) as any;
         // 异步操作完成后调用回调函数
         if (callback && typeof callback === 'function') {
-          callback(res);
+          callback(res.data);
         }
         yield put({
           type: 'setCurTableList',
-          payload: res,
+          payload: res.data,
         });
       }
       catch {

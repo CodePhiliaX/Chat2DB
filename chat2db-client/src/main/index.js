@@ -4,10 +4,13 @@ const path = require('path');
 const os = require('os');
 const fs = require('fs');
 const registerAppMenu = require('./menu');
+const registerAnalysis = require('./analysis');
 const i18n = require('./i18n');
 const { loadMainResource } = require('./utils');
 
 let mainWindow = null;
+
+let baseUrl = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -15,7 +18,7 @@ function createWindow() {
     minHeight: 720,
     show: false,
     webPreferences: {
-      webSercurity: false,
+      webSecurity: false,
       nodeIntegration: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
@@ -47,9 +50,12 @@ function createWindow() {
 // const menu = Menu.buildFromTemplate(menuBar);
 // Menu.setApplicationMenu(menu);
 
+app.commandLine.appendSwitch('--disable-gpu-sandbox');
+
 app.on('ready', () => {
   createWindow();
-  registerAppMenu();
+  registerAppMenu(mainWindow);
+  registerAnalysis();
 
   app.on('activate', function () {
     if (mainWindow === null) {
@@ -64,56 +70,38 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('before-quit', (event) => {
-  // const isWindows = os.platform() === 'win32';
-  // let ports = [10821, 10822, 10824]; // 日常端口、测试包端口、线上包端口
-  // for (let port of ports) {
-  //   let command = '';
-  //   if (isWindows) {
-  //     command = `netstat -ano | findstr:${port}`;
-  //   } else {
-  //     command = `lsof -i :${port} | awk '{print $2}'`;
-  //   }
-
-  //   exec(command, (err, stdout) => {
-  //     if (err) {
-  //       console.error(`exec error: ${err}`);
-  //       return;
-  //     }
-
-  //     let pidArr = [];
-  //     if (isWindows) {
-  //       const lines = stdout.trim().split('\n');
-  //       pidArr = lines.map((line) => line.trim().split(/\s+/)[4]).filter((pid) => !isNaN(pid));
-  //     } else {
-  //       pidArr = stdout.trim().split('\n');
-  //     }
-
-  //     if (pidArr.length) {
-  //       try {
-  //         (pidArr || []).forEach((pid) => {
-  //           !!pid && !isNaN(pid) && process.kill(pid);
-  //         });
-  //       } catch (error) {
-  //         console.error(`Error killing process: ${error}`);
-  //       }
-  //     }
-  //   });
-  // }
-  try {
-    const request = net.request({
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      url: 'http://127.0.0.1:10824/api/system/stop',
-    });
-    request.end();
-  } catch (error) {}
+app.on('before-quit', () => {
+  if(baseUrl){
+    try {
+      const request = net.request({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        url: `${baseUrl}/api/system/stop`,
+      });
+      request.end();
+    } catch (error) {}
+  }
 });
 
-ipcMain.handle('get-product-name', (event) => {
+ipcMain.handle('get-product-name', () => {
   const exePath = app.getPath('exe');
   const { name } = path.parse(exePath);
   return name;
 });
+
+// 注册退出应用事件
+ipcMain.on('quit-app', () => {
+  app.quit();
+});
+
+ipcMain.on('register-app-menu', (event, orgs) => {
+  registerAppMenu(mainWindow, orgs);
+});
+
+ipcMain.on('set-base-url',(event,_baseUrl)=>{
+  baseUrl = _baseUrl;
+})
+
+

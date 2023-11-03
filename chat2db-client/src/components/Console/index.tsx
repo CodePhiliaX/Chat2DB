@@ -1,24 +1,26 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import { connect } from 'umi';
 import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
-import ChatInput from './ChatInput';
+import ChatInput, { SyncModelType } from './ChatInput';
 import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
-import { format } from 'sql-formatter';
-import sqlServer from '@/service/sql';
 import historyServer from '@/service/history';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
-import { ITreeNode } from '@/typings';
+import { IAiConfig, ITreeNode } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { handleLocalStorageSavedConsole, readLocalStorageSavedConsoleText } from '@/utils';
-import { chatErrorCodeArr, chatErrorToInvite, chatErrorToLogin } from '@/constants/chat';
-import { AiSqlSourceType } from '@/typings/ai';
+import { formatSql, getCookie } from '@/utils';
+import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
+import { AIType } from '@/typings/ai';
 import i18n from '@/i18n';
+import configService from '@/service/config';
+// import NewEditor from './NewMonacoEditor';
+import sqlService from '@/service/sql';
+import indexedDB from '@/indexedDB';
 import styles from './index.less';
 
 enum IPromptType {
@@ -29,13 +31,13 @@ enum IPromptType {
   ChatRobot = 'ChatRobot',
 }
 
-enum IPromptTypeText {
-  NL_2_SQL = '自然语言转换',
-  SQL_EXPLAIN = '解释SQL',
-  SQL_OPTIMIZER = 'SQL优化',
-  SQL_2_SQL = 'SQL转换',
-  ChatRobot = 'Chat机器人',
-}
+// enum IPromptTypeText {
+//   NL_2_SQL = '自然语言转换',
+//   SQL_EXPLAIN = '解释SQL',
+//   SQL_OPTIMIZER = 'SQL优化',
+//   SQL_2_SQL = 'SQL转换',
+//   ChatRobot = 'Chat机器人',
+// }
 
 export type IAppendValue = {
   text: any;
@@ -43,7 +45,7 @@ export type IAppendValue = {
 };
 
 interface IProps {
-  /** 是谁在调用我 */
+  /** 调用来源 */
   source: 'workspace';
   /** 是否是活跃的console，用于快捷键 */
   isActive?: boolean;
@@ -59,16 +61,17 @@ interface IProps {
   value?: string;
   executeParams: {
     databaseName?: string;
-    dataSourceId?: number;
+    dataSourceId: number;
     type?: DatabaseTypeCode;
     consoleId?: number;
     schemaName?: string;
     consoleName?: string;
+    status?: ConsoleStatus;
   };
-  tableList?: ITreeNode[];
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
-  dispatch: Function;
+  dispatch: any;
+  remainingBtnLoading: boolean;
   // remainingUse: IAIState['remainingUse'];
   // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (sql: string) => void;
@@ -76,14 +79,17 @@ interface IProps {
   tables: any[];
 }
 
-function Console(props: IProps) {
+export interface IConsoleRef {
+  editorRef: IExportRefFunction | undefined;
+}
+
+function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const {
     hasAiChat = true,
     executeParams,
     appendValue,
     isActive,
     hasSaveBtn = true,
-    value,
     aiModel,
     dispatch,
     source,
@@ -93,16 +99,34 @@ function Console(props: IProps) {
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [syncTableModel, setSyncTableModel] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [aiContent, setAiContent] = useState('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isAiDrawerLoading, setIsAiDrawerLoading] = useState(false);
-  const monacoHint = useRef<any>();
-  const [modal, contextHolder] = Modal.useModal();
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
+  const [isStream, setIsStream] = useState(false);
   const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
+  const closeEventSource = useRef<any>();
+  const [tableNameList, setTableNameList] = useState<string[]>([]);
+
+  // 上一次同步的console数据
+  const lastSyncConsole = useRef<any>(defaultValue);
+  const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(executeParams.status || ConsoleStatus.DRAFT);
+
+  /**
+   * 当前选择的AI类型是Chat2DBAI
+   */
+  const isChat2DBAI = useMemo(
+    () => aiModel.aiConfig?.aiSqlSource === AIType.CHAT2DBAI,
+    [aiModel.aiConfig?.aiSqlSource],
+  );
+
+  useEffect(() => {
+    handleSelectTableSyncModel();
+  }, [aiModel.hasWhite, localStorage.getItem('syncTableModel')]);
 
   useEffect(() => {
     if (appendValue) {
@@ -110,14 +134,13 @@ function Console(props: IProps) {
     }
   }, [appendValue]);
 
-  useEffect(() => {
-    monacoHint.current?.dispose();
-    const myEditorHintData: any = {};
-    props.tables?.map((item: any) => {
-      myEditorHintData[item.name] = [];
-    });
-    monacoHint.current = editorRef?.current?.handleRegisterTigger(myEditorHintData);
-  }, [props.tables]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      editorRef: editorRef?.current,
+    }),
+    [editorRef?.current],
+  );
 
   useEffect(() => {
     if (source !== 'workspace') {
@@ -128,10 +151,25 @@ function Console(props: IProps) {
       // 离开时清除定时器
       if (timerRef.current) {
         clearInterval(timerRef.current);
-        handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+      }
+      const curValue = editorRef?.current?.getAllContent();
+      if (curValue === lastSyncConsole.current) {
+        return;
+      }
+      if (saveStatus === ConsoleStatus.RELEASE) {
+        saveConsole(curValue, true);
+      } else {
+        indexedDB
+          .updateData('chat2db', 'workspaceConsoleDDL', {
+            consoleId: executeParams.consoleId!,
+            ddl: curValue,
+            userId: getCookie('CHAT2DB.USER_ID'),
+          })
+          .then(() => {
+            lastSyncConsole.current = curValue;
+          });
       }
     } else {
-      // 活跃时自动保存
       timingAutoSave();
     }
     return () => {
@@ -142,72 +180,132 @@ function Console(props: IProps) {
   }, [isActive]);
 
   useEffect(() => {
-    if (source !== 'workspace') {
-      return;
-    }
-    const value = readLocalStorageSavedConsoleText(executeParams.consoleId!);
-    if (value) {
-      editorRef?.current?.setValue(value, 'reset');
+    if (saveStatus === ConsoleStatus.RELEASE) {
+      editorRef?.current?.setValue(defaultValue, 'cover');
+    } else {
+      indexedDB
+        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
+          consoleId: executeParams.consoleId!,
+          userId: getCookie('CHAT2DB.USER_ID'),
+        })
+        .then((res: any) => {
+          // oldValue是为了处理函数视图等，他们是带着值来的，不需要去数据库取值
+          const oldValue = editorRef?.current?.getAllContent();
+          if (!oldValue) {
+            editorRef?.current?.setValue(res?.[0]?.ddl || '', 'cover');
+          }
+        });
     }
   }, []);
 
-  function timingAutoSave() {
+  // TODO: 暂时写在这里，后续去掉
+  useEffect(() => {
+    if (!props.executeParams) {
+      return;
+    }
+
+    if(!props.tables || props.tables.length === 0) {
+      setTableNameList([]);
+      setSelectedTables([]);
+      return 
+    }
+
+
+    const { dataSourceId, databaseName, schemaName } = props.executeParams;
+    sqlService
+      .getAllTableList({
+        dataSourceId,
+        databaseName,
+        schemaName,
+      })
+      .then((data) => {
+        const tableNameListTemp = data.map((t) => t.name);
+        setTableNameList(tableNameListTemp);
+
+        if (selectedTables.length === 0) {
+          setSelectedTables(tableNameListTemp.slice(0, 1));
+        }
+      });
+    // debugger
+  }, [props.tables]);
+
+  function timingAutoSave(_status?: ConsoleStatus) {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
     timerRef.current = setInterval(() => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'save', editorRef?.current?.getAllContent());
+      const curValue = editorRef?.current?.getAllContent();
+      if (curValue === lastSyncConsole.current) {
+        return;
+      }
+      if (saveStatus === ConsoleStatus.RELEASE || _status === ConsoleStatus.RELEASE) {
+        saveConsole(curValue, true);
+      } else {
+        indexedDB
+          .updateData('chat2db', 'workspaceConsoleDDL', {
+            consoleId: executeParams.consoleId!,
+            ddl: curValue,
+            userId: getCookie('CHAT2DB.USER_ID'),
+          })
+          .then(() => {
+            lastSyncConsole.current = curValue;
+          });
+      }
     }, 5000);
   }
 
-  const tableListName = useMemo(() => {
-    const tableList = (props.tables || []).map((t) => t.name);
-
-    // 默认选中前八个
-    setSelectedTables(tableList.slice(0, 8));
-
-    return tableList;
-  }, [props.tables]);
-
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
     setIsLoading(true);
-    const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
-    setIsLoading(false);
-    // console.log('weiChatConfig', wechatQrCodeUrl, token);
-    setPopularizeModal(true);
-    setModalProps({
-      imageUrl: wechatQrCodeUrl,
-      token,
-      tip,
-    });
-    if (shouldPoll) {
-      let pollCnt = 0;
-      aiFetchIntervalRef.current = setInterval(async () => {
-        const { apiKey } = await aiServer.getLoginStatus({ token });
-        pollCnt++;
-        if (apiKey || pollCnt >= 60) {
-          clearInterval(aiFetchIntervalRef.current);
-        }
-        if (apiKey) {
-          setPopularizeModal(false);
-          await dispatch({
-            type: 'ai/setKeyAndAiType',
-            payload: {
-              key: apiKey,
-              aiType: AiSqlSourceType.CHAT2DBAI,
-            },
-          });
-          await dispatch({
-            type: 'ai/fetchRemainingUse',
-            payload: {
-              key: apiKey,
-            },
-          });
-        }
-      }, 3000);
+    try {
+      const { wechatQrCodeUrl, token, tip } = await aiServer.getLoginQrCode({});
+      setIsLoading(false);
+
+      setPopularizeModal(true);
+      setModalProps({
+        imageUrl: wechatQrCodeUrl,
+        token,
+        tip,
+      });
+      if (shouldPoll) {
+        let pollCnt = 0;
+        aiFetchIntervalRef.current = setInterval(async () => {
+          const { apiKey } = (await aiServer.getLoginStatus({ token })) || {};
+          pollCnt++;
+          if (apiKey || pollCnt >= 60) {
+            clearInterval(aiFetchIntervalRef.current);
+          }
+          if (apiKey) {
+            setPopularizeModal(false);
+
+            await dispatch({
+              type: 'ai/setAiConfig',
+              payload: {
+                ...(aiModel.aiConfig || {}),
+                apiKey,
+              },
+            });
+            await dispatch({
+              type: 'ai/fetchRemainingUse',
+              payload: {
+                apiKey,
+              },
+            });
+          }
+        }, 3000);
+      }
+    } catch (e) {
+      setIsLoading(false);
     }
   };
 
-  const handleAiChat = async (content: string, promptType: IPromptType) => {
-    const { key } = aiModel?.keyAndAiType;
-    if (!key) {
+  const handleAIChatInEditor = async (content: string, promptType: IPromptType, ext?: string) => {
+    const aiConfig = await configService.getAiSystemConfig({});
+    handleAiChat(content, promptType, aiConfig, ext);
+  };
+
+  const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig, ext?: string) => {
+    const { apiKey } = aiConfig || props.aiModel?.aiConfig || {};
+    if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
@@ -217,6 +315,7 @@ function Console(props: IProps) {
     if (isNL2SQL) {
       setIsLoading(true);
     } else {
+      setAiContent('');
       setIsAiDrawerOpen(true);
       setIsAiDrawerLoading(true);
     }
@@ -226,61 +325,66 @@ function Console(props: IProps) {
       dataSourceId,
       databaseName,
       schemaName,
-      tableNames: selectedTables,
+      tableNames: syncTableModel ? selectedTables : null,
+      ext,
     });
 
     const handleMessage = (message: string) => {
       setIsLoading(false);
-
+      setIsAiDrawerLoading(false);
       try {
         const isEOF = message === '[DONE]';
         if (isEOF) {
-          closeEventSource();
-          setIsLoading(false);
-          dispatch({
-            type: 'ai/fetchRemainingUse',
-            payload: {
-              key,
-            },
-          });
+          closeEventSource.current();
+          setIsStream(false);
+          if (isChat2DBAI) {
+            dispatch({
+              type: 'ai/fetchRemainingUse',
+              payload: {
+                apiKey,
+              },
+            });
+          }
           if (isNL2SQL) {
-            editorRef?.current?.setValue('\n\n\n');
+            editorRef?.current?.setValue('\n');
           } else {
             setIsAiDrawerLoading(false);
-            chatResult.current += '\n\n\n';
+            chatResult.current += '\n';
             setAiContent(chatResult.current);
             chatResult.current = '';
           }
           return;
         }
 
-        // let hasError = false;
-        // chatErrorCodeArr.forEach((err) => {
-        //   if (message.includes(err)) {
-        //     hasError = true;
-        //   }
-        // });
         let hasErrorToLogin = false;
         chatErrorToLogin.forEach((err) => {
           if (message.includes(err)) {
             hasErrorToLogin = true;
           }
         });
-        let hasErrorToInvite = false;
-        chatErrorToInvite.forEach((err) => {
+        let hasKeyLimitedOrExpired = false;
+        chatErrorForKey.forEach((err) => {
           if (message.includes(err)) {
-            hasErrorToInvite = true;
+            hasKeyLimitedOrExpired = true;
           }
         });
-        if (hasErrorToLogin || hasErrorToInvite) {
-          closeEventSource();
+
+        if (hasKeyLimitedOrExpired) {
+          closeEventSource.current();
+          setIsLoading(false);
+          handlePopUp();
+          return;
+        }
+
+        if (hasErrorToLogin) {
+          closeEventSource.current();
           setIsLoading(false);
           hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
-          hasErrorToInvite && handleClickRemainBtn();
+          // hasErrorToInvite && handleClickRemainBtn();
           dispatch({
             type: 'ai/fetchRemainingUse',
             payload: {
-              key,
+              apiKey,
             },
           });
           return;
@@ -290,27 +394,32 @@ function Console(props: IProps) {
           editorRef?.current?.setValue(JSON.parse(message).content);
         } else {
           chatResult.current += JSON.parse(message).content;
+          setAiContent(chatResult.current);
         }
       } catch (error) {
         setIsLoading(false);
+        setIsStream(false);
+        setIsAiDrawerLoading(false);
+        closeEventSource.current();
       }
     };
 
     const handleError = (error: any) => {
       console.error('Error:', error);
       setIsLoading(false);
+      setIsStream(false);
+      closeEventSource.current();
     };
 
-    const closeEventSource = connectToEventSource({
+    closeEventSource.current = connectToEventSource({
       url: `/api/ai/chat?${params}`,
       uid,
+      onOpen: () => {
+        setIsStream(true);
+      },
       onMessage: handleMessage,
       onError: handleError,
     });
-  };
-
-  const onPressChatInput = (value: string) => {
-    handleAiChat(value, IPromptType.NL_2_SQL);
   };
 
   const executeSQL = (sql?: string) => {
@@ -322,81 +431,136 @@ function Console(props: IProps) {
     props.onExecuteSQL && props.onExecuteSQL(sqlContent);
   };
 
-  const saveConsole = (value?: string) => {
-    // const a = editorRef.current?.getAllContent();
-    let p: any = {
+  const saveConsole = (value?: string, noPrompting?: boolean) => {
+    const p: any = {
       id: executeParams.consoleId,
       status: ConsoleStatus.RELEASE,
       ddl: value,
     };
 
-    historyServer.updateSavedConsole(p).then((res) => {
-      handleLocalStorageSavedConsole(executeParams.consoleId!, 'delete');
+    historyServer.updateSavedConsole(p).then(() => {
+      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
+      lastSyncConsole.current = value;
+      setSaveStatus(ConsoleStatus.RELEASE);
+      if (noPrompting) {
+        return;
+      }
       message.success(i18n('common.tips.saveSuccessfully'));
       props.onConsoleSave && props.onConsoleSave();
+      timingAutoSave(ConsoleStatus.RELEASE);
     });
   };
 
-  const addAction = useMemo(
-    () => [
-      {
-        id: 'explainSQL',
-        label: i18n('common.text.explainSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_EXPLAIN),
+  const addAction = [
+    {
+      id: 'explainSQL',
+      label: i18n('common.text.explainSQL'),
+      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_EXPLAIN),
+    },
+    {
+      id: 'optimizeSQL',
+      label: i18n('common.text.optimizeSQL'),
+      action: (selectedText: string) => handleAIChatInEditor(selectedText, IPromptType.SQL_OPTIMIZER),
+    },
+    {
+      id: 'changeSQL',
+      label: i18n('common.text.conversionSQL'),
+      action: (selectedText: string, ext?: string) => {
+        handleAIChatInEditor(selectedText, IPromptType.SQL_2_SQL, ext);
       },
-      {
-        id: 'optimizeSQL',
-        label: i18n('common.text.optimizeSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_OPTIMIZER),
-      },
-      {
-        id: 'changeSQL',
-        label: i18n('common.text.conversionSQL'),
-        action: (selectedText: string) => handleAiChat(selectedText, IPromptType.SQL_2_SQL),
-      },
-    ],
-    [],
-  );
+    },
+  ];
 
   const handleClickRemainBtn = async () => {
-    if (
-      !aiModel.keyAndAiType.key ||
-      aiModel.remainingUse?.remainingUses === null ||
-      aiModel.remainingUse?.remainingUses === undefined
-    ) {
+    if (!isChat2DBAI) return;
+
+    // chat2dbAi模型下，没有key，就需要登录
+    if (!aiModel.aiConfig?.apiKey) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
     }
+    handlePopUp();
+  };
 
-    setIsLoading(true);
-    const { tip, wechatQrCodeUrl } = (await aiServer.getInviteQrCode({})) || {};
-    setIsLoading(false);
+  /**
+   * 弹框 关注公众号
+   */
+  const handlePopUp = () => {
     setModalProps({
-      imageUrl: wechatQrCodeUrl,
-      tip,
+      imageUrl:
+        'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp',
+      tip: (
+        <>
+          {aiModel.remainingUse?.remainingUses === 0 && <p>Key次数用完或者过期</p>}
+          <p>微信扫描二维码并关注公众号获得 AI 使用机会。</p>
+        </>
+      ),
     });
     setPopularizeModal(true);
   };
 
+  /**
+   * 格式化sql
+   */
+  const handleSQLFormat = () => {
+    let setValueType = 'select';
+    let sql = editorRef?.current?.getCurrentSelectContent();
+    if (!sql) {
+      sql = editorRef?.current?.getAllContent() || '';
+      setValueType = 'cover';
+    }
+    formatSql(sql, executeParams.type!).then((res) => {
+      editorRef?.current?.setValue(res, setValueType);
+    });
+  };
+
+  const handleSelectTableSyncModel = () => {
+    const syncModel = localStorage.getItem('syncTableModel');
+    const hasAiAccess = aiModel.hasWhite;
+    if (syncModel !== null) {
+      setSyncTableModel(Number(syncModel));
+      return;
+    }
+
+    setSyncTableModel(hasAiAccess ? SyncModelType.AUTO : SyncModelType.MANUAL);
+  };
+
   return (
-    <div className={styles.console}>
+    <div className={styles.console} ref={ref as any}>
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput
-            tables={tableListName}
+            isStream={isStream}
+            disabled={isLoading}
+            aiType={aiModel.aiConfig?.aiSqlSource}
             remainingUse={aiModel.remainingUse}
-            onPressEnter={onPressChatInput}
+            remainingBtnLoading={props.remainingBtnLoading}
+            tables={tableNameList}
+            onPressEnter={(value: string) => {
+              // editorRef?.current?.toFocus();
+              handleAiChat(value, IPromptType.NL_2_SQL);
+            }}
             selectedTables={selectedTables}
             onSelectTables={(tables: string[]) => {
-              if (tables.length > 8) {
-                message.warning({
-                  content: i18n('chat.input.tableSelect.error.TooManyTable'),
-                });
-                return;
-              }
+              // if (tables.length > 8) {
+              //   message.warning({
+              //     content: i18n('chat.input.tableSelect.error.TooManyTable'),
+              //   });
+              //   return;
+              // }
               setSelectedTables(tables);
             }}
             onClickRemainBtn={handleClickRemainBtn}
+            syncTableModel={syncTableModel}
+            onSelectTableSyncModel={(model: number) => {
+              setSyncTableModel(model);
+              localStorage.setItem('syncTableModel', String(model));
+            }}
+            onCancelStream={() => {
+              closeEventSource.current();
+              setIsStream(false);
+              setIsLoading(false);
+            }}
           />
         )}
         {/* <div key={uuid()}>{chatContent.current}</div> */}
@@ -411,9 +575,10 @@ function Console(props: IProps) {
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
-          tables={props.tables}
-        // onChange={}
         />
+
+        {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
+
         {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
@@ -438,13 +603,7 @@ function Console(props: IProps) {
             </Button>
           )}
         </div>
-        <Button
-          type="text"
-          onClick={() => {
-            const contextTmp = editorRef?.current?.getAllContent();
-            editorRef?.current?.setValue(format(contextTmp || ''), 'cover');
-          }}
-        >
+        <Button type="text" onClick={handleSQLFormat}>
           {i18n('common.button.format')}
         </Button>
       </div>
@@ -462,7 +621,16 @@ function Console(props: IProps) {
   );
 }
 
-const dvaModel = connect(({ ai }: { ai: IAIState }) => ({
-  aiModel: ai,
-}));
-export default dvaModel(Console);
+const dvaModel = connect(
+  ({ ai, loading }: { ai: IAIState; loading: any }) => {
+    return {
+      aiModel: ai,
+      remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
+    };
+  },
+  null,
+  null,
+  { forwardRef: true },
+);
+
+export default dvaModel(forwardRef(Console));

@@ -1,13 +1,11 @@
 package ai.chat2db.server.start.config.listener;
 
-import java.time.Duration;
-
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 
 import ai.chat2db.server.tools.base.enums.SystemEnvironmentEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import com.dtflys.forest.Forest;
-import com.dtflys.forest.utils.TypeReference;
+import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,10 +33,8 @@ public class ManageApplicationListener implements ApplicationListener<Applicatio
         // 尝试访问确认应用是否已经启动
         DataResult<String> dataResult;
         try {
-            dataResult = Forest.get("http://127.0.0.1:" + serverPort + "/api/system/get-version-a")
-                .connectTimeout(Duration.ofMillis(50))
-                .readTimeout(Duration.ofMillis(100))
-                .execute(new TypeReference<>() {});
+            String body = HttpUtil.get("http://127.0.0.1:" + serverPort + "/api/system/get-version-a", 10);
+            dataResult = JSON.parseObject(body, new TypeReference<>() {});
         } catch (Exception e) {
             // 抛出异常 代表没有旧的启动 或者旧的不靠谱
             log.info("尝试访问旧的应用失败。本异常不重要，正常启动启动都会输出，请忽略。" + e.getMessage());

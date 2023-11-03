@@ -3,12 +3,13 @@ package ai.chat2db.server.web.api.controller.operation.log;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.OperationLog;
-import ai.chat2db.server.domain.api.param.OperationLogCreateParam;
-import ai.chat2db.server.domain.api.param.OperationLogPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.operation.log.converter.OperationLogWebConverter;
 import ai.chat2db.server.web.api.controller.operation.log.request.OperationLogCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.log.request.OperationLogQueryRequest;
@@ -47,6 +48,7 @@ public class OperationLogController {
     @GetMapping("/list")
     public WebPageResult<OperationLogVO> list(OperationLogQueryRequest request) {
         OperationLogPageQueryParam param = operationLogWebConverter.req2param(request);
+        param.setUserId(ContextUtils.getUserId());
         PageResult<OperationLog> result = operationLogService.queryPage(param);
         List<OperationLogVO> operationLogVOList = operationLogWebConverter.dto2vo(result.getData());
         return WebPageResult.of(operationLogVOList, result.getTotal(), result.getPageNo(), result.getPageSize());
@@ -63,5 +65,6 @@ public class OperationLogController {
         OperationLogCreateParam param = operationLogWebConverter.createReq2param(request);
         return operationLogService.create(param);
     }
+
 
 }

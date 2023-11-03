@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.Plugin;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import com.jcraft.jsch.JSchException;
@@ -42,6 +43,10 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(dbType).getDBConfig().getDefaultDriverConfig();
     }
 
+    public static SqlBuilder getSqlBuilder() {
+        return PLUGIN_MAP.get(getConnectInfo().getDbType()).getMetaData().getSqlBuilder();
+    }
+
     /**
      * 获取当前线程的ContentContext
      *
@@ -56,7 +61,7 @@ public class Chat2DBContext {
     }
 
     public static MetaData getMetaData(String dbType) {
-        if(StringUtils.isBlank(dbType)){
+        if (StringUtils.isBlank(dbType)) {
             return getMetaData();
         }
         return PLUGIN_MAP.get(dbType).getMetaData();
@@ -78,13 +83,33 @@ public class Chat2DBContext {
                 connection = connectInfo.getConnection();
                 if (connection != null) {
                     return connection;
-                }else {
+                } else {
                     connection = getDBManage().getConnection(connectInfo);
                 }
             }
         }
         return connection;
     }
+
+    public static String getDbVersion() {
+        ConnectInfo connectInfo = getConnectInfo();
+        String dbVersion = connectInfo.getDbVersion();
+        if (dbVersion == null) {
+            synchronized (connectInfo) {
+                if (connectInfo.getDbVersion() != null) {
+                    return connectInfo.getDbVersion();
+                } else {
+                    dbVersion = SQLExecutor.getInstance().getDbVersion(getConnection());
+                    connectInfo.setDbVersion(dbVersion);
+                    return connectInfo.getDbVersion();
+                }
+            }
+        } else {
+            return dbVersion;
+        }
+
+    }
+
 
     /**
      * 设置context
@@ -119,7 +144,7 @@ public class Chat2DBContext {
 
             Session session = connectInfo.getSession();
             if (session != null && session.isConnected() && connectInfo.getSsh() != null
-                && connectInfo.getSsh().isUse()) {
+                    && connectInfo.getSsh().isUse()) {
                 try {
                     session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
                 } catch (JSchException e) {

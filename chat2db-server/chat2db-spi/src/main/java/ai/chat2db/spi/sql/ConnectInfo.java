@@ -43,6 +43,13 @@ public class ConnectInfo {
      */
     private String databaseName;
 
+
+
+    /**
+     * schema
+     */
+    private String schemaName;
+
     /**
      * 控制台ID
      */
@@ -73,6 +80,9 @@ public class ConnectInfo {
      */
     private String dbType;
 
+    /**
+     * 端口
+     */
     private Integer port;
 
     /**
@@ -119,11 +129,22 @@ public class ConnectInfo {
 
     public Connection connection;
 
-
+    /**
+     * Database version used for different database
+     */
+    private String dbVersion;
 
     
     private DriverConfig driverConfig;
 
+
+    public String getDbVersion() {
+        return dbVersion;
+    }
+
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = dbVersion;
+    }
 
     public DriverConfig getDriverConfig() {
         return driverConfig;
@@ -486,4 +507,11 @@ public class ConnectInfo {
         this.gmtModified = gmtModified;
     }
 
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
 }

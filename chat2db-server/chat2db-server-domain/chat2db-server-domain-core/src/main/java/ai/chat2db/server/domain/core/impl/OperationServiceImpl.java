@@ -9,19 +9,23 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.model.Operation;
-import ai.chat2db.server.domain.api.param.OperationPageQueryParam;
-import ai.chat2db.server.domain.api.param.OperationSavedParam;
-import ai.chat2db.server.domain.api.param.OperationUpdateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
+import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.OperationService;
 import ai.chat2db.server.domain.core.converter.OperationConverter;
+import ai.chat2db.server.domain.core.util.PermissionUtils;
 import ai.chat2db.server.domain.repository.entity.OperationSavedDO;
 import ai.chat2db.server.domain.repository.mapper.OperationSavedMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-
+import ai.chat2db.server.tools.common.exception.DataNotFoundException;
+import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,16 +54,20 @@ public class OperationServiceImpl implements OperationService {
     private DataSourceService dataSourceService;
 
     @Override
-    public DataResult<Long> create(OperationSavedParam param) {
+    public DataResult<Long> createWithPermission(OperationSavedParam param) {
         OperationSavedDO userSavedDdlDO = operationConverter.param2do(param);
         userSavedDdlDO.setGmtCreate(LocalDateTime.now());
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
+        userSavedDdlDO.setUserId(ContextUtils.getUserId());
         operationSavedMapper.insert(userSavedDdlDO);
         return DataResult.of(userSavedDdlDO.getId());
     }
 
     @Override
-    public ActionResult update(OperationUpdateParam param) {
+    public ActionResult updateWithPermission(OperationUpdateParam param) {
+        Operation data = queryExistent(param.getId()).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
         OperationSavedDO userSavedDdlDO = operationConverter.param2do(param);
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
         operationSavedMapper.updateById(userSavedDdlDO);
@@ -78,7 +86,31 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public DataResult<Operation> queryExistent(Long id) {
+        DataResult<Operation> dataResult = find(id);
+        if (dataResult.getData() == null) {
+            throw new DataNotFoundException();
+        }
+        return dataResult;
+    }
+
+    @Override
+    public DataResult<Operation> queryExistent(OperationQueryParam param) {
+        EasyLambdaQueryWrapper<OperationSavedDO> queryWrapper = new EasyLambdaQueryWrapper<>();
+        queryWrapper.eqWhenPresent(OperationSavedDO::getId, param.getId())
+            .eqWhenPresent(OperationSavedDO::getUserId, param.getUserId());
+        IPage<OperationSavedDO> page = operationSavedMapper.selectPage(new Page<>(1, 1), queryWrapper);
+        if (CollectionUtils.isEmpty(page.getRecords())) {
+            throw new DataNotFoundException();
+        }
+        return DataResult.of(operationConverter.do2dto(page.getRecords().get(0)));
+    }
+
+    @Override
+    public ActionResult deleteWithPermission(Long id) {
+        Operation data = queryExistent(id).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
         operationSavedMapper.deleteById(id);
         return ActionResult.isSuccess();
     }
@@ -100,6 +132,12 @@ public class OperationServiceImpl implements OperationService {
         }
         if (StringUtils.isNotBlank(param.getTabOpened())) {
             queryWrapper.eq("tab_opened", param.getTabOpened());
+        }
+        if (StringUtils.isNotBlank(param.getOperationType())) {
+            queryWrapper.eq("operation_type", param.getOperationType());
+        }
+        if (param.getUserId() != null) {
+            queryWrapper.eq("user_id", param.getUserId());
         }
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();

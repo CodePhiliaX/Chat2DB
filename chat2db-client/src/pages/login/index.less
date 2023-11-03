@@ -1,0 +1,93 @@
+.loginPage {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('../../assets/img/login-bg.svg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.logo {
+  position: fixed;
+  top: 32px;
+  left: 32px;
+  // app-region: 'no-drag';
+  display: flex;
+  align-items: center;
+
+  .logoImage {
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+  }
+
+  .logoText {
+    color: var(--color-text);
+    font-weight: bold;
+    font-size: 20px;
+  }
+}
+
+.loginPlane {
+  width: 360px;
+  border: 1px solid var(--color-border);
+  box-shadow: rgb(22 14 45 / 2%) 0px 0px 40px, rgb(22 14 45 / 6%) 0px 0px 104px;
+  border-radius: 8px;
+  padding: 48px;
+  color: var(--color-text);
+  background-color: var(--color-bg-container);
+  margin-bottom: 48px;
+  .loginWelcome {
+    font-size: 24px;
+    text-align: center;
+  }
+  .whyLogin {
+    margin: 8px auto 0px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 24px;
+    opacity: 0.4;
+    cursor: pointer;
+    max-width: fit-content;
+
+    &:hover {
+      opacity: 0.6;
+      font-size: 14px;
+      text-decoration: underline;
+    }
+  }
+}
+
+.defaultPasswordTips{
+  opacity: 0.3;
+  text-align: center;
+}
+
+.loginForm {
+  margin-top: 36px;
+  .loginFormSubmit {
+    margin-top: 24px;
+    width: 100%;
+  }
+}
+
+.setting {
+  position: fixed;
+  bottom: 32px;
+  left: 32px;
+  height: auto;
+  width: auto;
+
+  .settingBtn {
+    padding: 0px 12px;
+    font-size: 14px;
+    color: var(--color-text);
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

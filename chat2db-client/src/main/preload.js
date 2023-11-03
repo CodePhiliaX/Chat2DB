@@ -4,7 +4,7 @@ const { JAVA_APP_NAME, JAVA_PATH } = require('./constants');
 const path = require('path');
 const { readVersion } = require('./utils');
 
-contextBridge.exposeInMainWorld('myAPI', {
+contextBridge.exposeInMainWorld('electronApi', {
   startServerForSpawn: async () => {
     const javaPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/${JAVA_APP_NAME}`);
     const libPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, './static/lib');
@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('myAPI', {
       '-Xmx1024M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
+      '-Dchat2db.mode=DESKTOP',
       `-Dproject.path=${javaPath}`,
       `-Dloader.path=${libPath}`,
       javaPath,
@@ -38,5 +39,14 @@ contextBridge.exposeInMainWorld('myAPI', {
     child.on('close', (code) => {
       console.log(`child process exited with code ${code}`);
     });
+  },
+  quitApp: () => {
+    ipcRenderer.send('quit-app');
+  },
+  setBaseURL: (baseUrl) => {
+    ipcRenderer.send('set-base-url', baseUrl);
+  },
+  registerAppMenu: (menuProps) => {
+    ipcRenderer.send('register-app-menu', menuProps);
   },
 });

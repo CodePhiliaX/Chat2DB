@@ -1,6 +1,9 @@
-import { ThemeType } from '@/constants';
+import { ThemeType, DatabaseTypeCode } from '@/constants';
 import { ITreeNode } from '@/typings';
+import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
+import sqlServer from '@/service/sql';
+import { format } from 'sql-formatter';
 
 export function getOsTheme() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -72,7 +75,7 @@ export function deepClone(target: any) {
 }
 
 // 模糊匹配树并且高亮
-export function approximateTreeNode(treeData: ITreeNode[], target: string, isDelete = true) {
+export function approximateTreeNode(treeData: ITreeNode[], target: string = '', isDelete = true) {
   if (target) {
     const newTree: ITreeNode[] = lodash.cloneDeep(treeData || []);
     newTree.map((item, index) => {
@@ -139,39 +142,20 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
   return flag;
 }
 
-// 处理console的保存和删除操作
-export function handleLocalStorageSavedConsole(id: number, type: 'save' | 'delete', text?: string) {
-  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
-  let savedObj: any = {};
-  if (saved) {
-    savedObj = JSON.parse(saved);
-  }
-
-  if (type === 'save') {
-    savedObj[id] = text || '';
-  } else if (type === 'delete') {
-    delete savedObj[id];
-  }
-
-  localStorage.setItem(`timing-auto-save-console-v1`, JSON.stringify(savedObj));
-}
-
-// 获取保存的console
-export function readLocalStorageSavedConsoleText(id: number) {
-  const saved = localStorage.getItem(`timing-auto-save-console-v1`);
-  let savedObj: any = {};
-  if (saved) {
-    savedObj = JSON.parse(saved);
-  }
-  return savedObj[id] || '';
-}
-
 // 清理就版本不兼容的LocalStorage
 export function clearOlderLocalStorage() {
-  if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+  if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
     localStorage.clear();
-    localStorage.setItem('app-local-storage-versions', 'v2');
+    localStorage.setItem('app-local-storage-versions', 'v3');
   }
+}
+
+// 退出登录清理一些记录位置的localStorage
+export function logoutClearSomeLocalStorage() {
+  localStorage.removeItem('current-workspace-database');
+  localStorage.removeItem('cur-connection');
+  localStorage.removeItem('active-console-id');
+  localStorage.removeItem('curPage');
 }
 
 // 判断是否需要更新版本
@@ -194,4 +178,108 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
 
   // 如果两个版本号完全相等，则返回false
   return false;
+}
+
+// Copy
+export function copy(message: string) {
+  clipboardCopy(message);
+}
+
+// 获取应用的一些基本信息
+export function getApplicationMessage() {
+  const env = __ENV__;
+  const versions = __APP_VERSION__;
+  const buildTime = __BUILD_TIME__;
+  const userAgent = navigator.userAgent;
+  return {
+    env,
+    versions,
+    buildTime,
+    userAgent,
+  };
+}
+
+// os is mac or windows
+export function osNow(): {
+  isMac: boolean;
+  isWin: boolean;
+} {
+  const agent = navigator.userAgent.toLowerCase();
+  const isMac = /macintosh|mac os x/i.test(navigator.userAgent);
+  const isWin =
+    agent.indexOf('win32') >= 0 ||
+    agent.indexOf('wow32') >= 0 ||
+    agent.indexOf('win64') >= 0 ||
+    agent.indexOf('wow64') >= 0;
+  return {
+    isMac,
+    isWin,
+  };
+}
+
+// 格式化sql
+export function formatSql(sql: string, dbType: DatabaseTypeCode) {
+  return new Promise((r: (sql: string) => void) => {
+    let formatRes = '';
+    try {
+      formatRes = format(sql || '');
+    } catch {}
+    // 如果格式化失败，直接返回原始sql
+    if (!formatRes) {
+      sqlServer
+        .sqlFormat({
+          sql,
+          dbType,
+        })
+        .then((res) => {
+          formatRes = res;
+          r(formatRes);
+        });
+    } else {
+      r(formatRes);
+    }
+  });
+}
+
+// 桌面端用hash模式，web端用history模式，路由跳转
+export function navigate(path: string) {
+  if (__ENV__ === 'desktop') {
+    window.location.replace(`#${path}`)
+  } else {
+    window.location.replace(path)
+  }
+}
+
+// 获取cookie
+export function getCookie(name: string) {
+  const arr = document.cookie.match(new RegExp('(^| )' + name + '=([^;]*)(;|$)'));
+  if (arr != null) {
+    return decodeURIComponent(arr[2]);
+  }
+  return null;
+}
+
+// 注释出参的含义
+export function compareVersion(version1: string, version2: string) {
+  const version1Arr = version1.split('.');
+  const version2Arr = version2.split('.');
+    const v1 = Number(version1Arr.join('')) ;
+    const v2 =  Number(version2Arr.join(''));
+    if (v1 > v2) {
+      return 1;
+    } else if (v1 < v2) {
+      return -1;
+    }
+  return 0;
+}
+
+// 二维数组复制
+export function tableCopy(array2D:string[][]) {
+  try{
+    const text = array2D.map(row => row.join('\t')).join('\n')
+    navigator.clipboard.writeText(text);
+  }
+  catch{
+    console.log('copy error')
+  }
 }

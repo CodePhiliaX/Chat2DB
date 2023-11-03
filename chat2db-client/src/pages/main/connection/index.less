@@ -13,7 +13,7 @@
   flex-direction: column;
   width: 220px;
   overflow: hidden;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   border-right: 1px solid var(--color-border-secondary);
   border-top: 0px;
   border-bottom: 0px;
@@ -55,7 +55,25 @@
     .menuItemsTitle {
       flex: 1;
       width: 0;
-      .f-single-line();
+      display: flex;
+      align-items: center;
+
+      .name {
+        .f-single-line();
+      }
+
+      .envTag {
+        flex-shrink: 0;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        margin-right: 8px;
+      }
+
+      .databaseTypeIcon {
+        margin-right: 6px;
+      }
     }
 
     .moreButton {
@@ -66,6 +84,7 @@
 
     &:hover {
       background-color: var(--color-hover-bg);
+
       .moreButton {
         display: block;
       }
@@ -95,24 +114,55 @@
 
 .layoutRight {
   flex: 1;
+  overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
+  .notPermission {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .notPermissionIconTips {
+    color: var(--color-text-tertiary);
+    text-align: center;
+    width: 340px;
+  }
+  .notPermissionIconBox,
+  .connectButtonBox {
+    display: flex;
+    justify-content: center;
+  }
+  .notPermissionIcon {
+    font-size: 200px;
+    color: var(--color-text-quaternary);
+    margin: 20px 0px;
+  }
+  .connectButton {
+    margin-top: 20px;
+  }
 }
 
 .dataBaseList {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  max-width: 800px;
+  // display: flex;
+  // justify-content: space-between;
+  // flex-wrap: wrap;
+  // max-width: 800px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 1000px) {
+  .dataBaseList {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .databaseItem {
-  flex-grow: 1;
+  min-width: 220px;
   border-radius: 4px;
   height: 50px;
-  width: 210px;
   margin: 10px 20px;
   padding: 0px 16px;
   border-radius: 8px;
@@ -135,6 +185,7 @@
 
   .databaseItemRight {
     display: none;
+
     i {
       font-size: 16px;
     }
@@ -148,6 +199,7 @@
 
     .databaseItemRight {
       display: block;
+
       i {
         color: var(--color-primary);
       }
@@ -194,4 +246,19 @@
   z-index: 1;
   transform: scale(1);
   transition: transform 0.3s ease-in-out;
+}
+
+.envLabel {
+  display: flex;
+  justify-content: space-between;
+  line-height: 30px;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.envRefreshBox {
+  &:hover {
+    cursor: pointer;
+    color: var(--color-primary);
+  }
 }

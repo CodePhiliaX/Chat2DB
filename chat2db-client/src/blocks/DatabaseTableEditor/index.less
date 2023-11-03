@@ -1,0 +1,171 @@
+@import '../../styles/var.less';
+
+.box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  // position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 10px 0px 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.saveButton {
+  // position: absolute;
+  // right: 20px;
+}
+
+.tabList {
+  display: flex;
+  border-bottom: 0;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: var(--color-bg-subtle);
+  position: relative;
+  &::after {
+    position: absolute;
+    left: calc(82px * var(--i));
+    content: '';
+    height: 26px;
+    width: 82px;
+    border-radius: 4px;
+    color: var(--color-primary);
+    background-color: var(--color-primary-bg);
+    z-index: 0;
+    transition: left 0.2s ease-out;
+  }
+}
+
+.tabItem {
+  position: relative;
+  z-index: 1;
+  height: 26px;
+  width: 82px;
+  text-align: center;
+  line-height: 26px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.currentTab {
+  color: var(--color-primary);
+}
+
+.main {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab {
+  z-index: 2;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden {
+  z-index: 1;
+  opacity: 0;
+}
+
+.monacoEditorModal {
+  display: flex;
+  height: 400px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+
+  .monacoEditorHeader {
+    height: 38px;
+    padding: 0px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    .formatButton {
+      border-radius: 3px;
+      background-color: var(--color-fill-quaternary);
+      height: 24px;
+      padding: 0px 7px;
+      cursor: pointer;
+      i {
+        margin-right: 6px;
+      }
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+    .executeButton {
+      height: 24px;
+      line-height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      i {
+        margin-right: 4px;
+      }
+    }
+  }
+  .monacoEditorContent {
+    width: 0px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0px -6px;
+    border-right: 1px solid var(--color-border);
+    .monacoEditor {
+      flex: 1;
+      margin: 0px 6px;
+    }
+  }
+  .result {
+    width: 0px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .resultHeader {
+      width: 100%;
+      line-height: 38px;
+      text-align: center;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .resultContent {
+      flex: 1;
+      padding: 0px 10px;
+      overflow-y: auto;
+      .errorTitle {
+        display: flex;
+        align-items: center;
+        padding: 4px 10px;
+        // background-color: var(--color-bg-subtle);
+        border-radius: 8px;
+        margin-top: 10px;
+        i {
+          color: var(--color-error);
+          margin-right: 4px;
+        }
+      }
+
+      .errorMessage {
+        margin: 10px 0px;
+        padding: 4px 10px;
+        background-color: var(--color-bg-subtle);
+        border-radius: 8px;
+      }
+    }
+  }
+}

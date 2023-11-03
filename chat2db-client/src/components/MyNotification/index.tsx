@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Button, ConfigProvider, Modal, notification, Space } from 'antd';
-import styles from './index.less';
+import React, { useCallback, useState } from 'react';
+import { Button, message, Modal, notification, Space } from 'antd';
 import i18n from '@/i18n';
 import { IconType } from 'antd/es/notification/interface';
 import Iconfont from '../Iconfont';
+import { copy, getApplicationMessage } from '@/utils';
+import styles from './index.less';
 
 interface IProps {
   type?: IconType;
@@ -16,6 +17,10 @@ interface IProps {
   errorDetail: string;
   /** 问题wiki路径 */
   solutionLink: string;
+  /** 请求的接口 */
+  requestUrl: string;
+  /** 请求的参数 */
+  requestParams?: string;
 }
 
 function MyNotification() {
@@ -25,9 +30,9 @@ function MyNotification() {
   const [open, setOpen] = useState(false);
   const [props, setProps] = useState<IProps>();
 
-  window._notificationApi = useCallback((props: IProps) => {
-    const { errorCode, errorMessage, errorDetail, solutionLink } = props;
-    setProps(props);
+  window._notificationApi = useCallback((myProps: IProps) => {
+    const { errorCode, errorMessage, solutionLink } = myProps;
+    setProps(myProps);
     const btn = (
       <Space>
         <Button
@@ -39,16 +44,18 @@ function MyNotification() {
         >
           {i18n('common.notification.detail')}
         </Button>
-        <Button type="link" size="small" target="_blank" href={solutionLink}>
-          {i18n('common.notification.solution')}
-        </Button>
+        {solutionLink && (
+          <Button type="link" size="small" target="_blank" href={solutionLink}>
+            {i18n('common.notification.solution')}
+          </Button>
+        )}
       </Space>
     );
 
     const renderDescription = () => {
       return (
         <div className={styles.description}>
-          {props.errorCode} {props.errorMessage}
+          {errorCode} {errorMessage}
         </div>
       );
     };
@@ -68,24 +75,51 @@ function MyNotification() {
       description: renderDescription(),
       placement: 'bottomRight',
       btn,
-      duration: null,
     });
   }, []);
+
+  function renderModalTitle() {
+    const list = [props?.errorCode, props?.errorMessage];
+    return <div className={styles.modalTitle}>{list.filter((t) => t).join(':')}</div>;
+  }
+
+  function copyError() {
+    const errorMessage = {
+      getApplicationMessage: getApplicationMessage(),
+      ...props,
+    };
+    copy(JSON.stringify(errorMessage));
+    message.success(i18n('common.button.copySuccessfully'));
+  }
+
+  function renderModalFooter() {
+    if (props?.requestParams) {
+      return (
+        <div className={styles.modalFooter} onClick={copyError}>
+          <Iconfont code="&#xeb4e;" />
+          {i18n('common.button.copyError')}
+          <span className={styles.copyErrorTips}>{i18n('common.button.copyErrorTips')}</span>
+        </div>
+      );
+    }
+    return false;
+  }
 
   return (
     <>
       {notificationDom}
       <Modal
         className={styles.modal}
+        title={renderModalTitle()}
         open={open}
-        title={props?.errorCode}
         width="70vw"
-        footer={[]}
+        footer={renderModalFooter()}
         onCancel={() => {
           setOpen(false);
         }}
+        zIndex={99999}
       >
-        {props?.errorDetail}
+        <div className={styles.errorDetail}>{props?.errorDetail}</div>
       </Modal>
     </>
   );

@@ -2,6 +2,8 @@ package ai.chat2db.server.web.api.controller.rdb.vo;
 
 import java.util.List;
 
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
 import lombok.Data;
 
 /**
@@ -25,15 +27,20 @@ public class TableVO {
     /**
      * 列
      */
-    private List<ColumnVO> columnList;
+    private List<TableColumn> columnList;
 
     /**
      * 索引
      */
-    private List<IndexVO> indexList;
+    private List<TableIndex> indexList;
 
     /**
      * 是否已经被固定
      */
     private boolean pinned;
+
+    /**
+     * ddl
+     */
+    private String ddl;
 }

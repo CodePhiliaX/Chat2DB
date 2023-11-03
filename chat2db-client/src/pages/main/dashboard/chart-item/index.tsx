@@ -19,6 +19,7 @@ import i18n from '@/i18n';
 import { useTheme } from '@/hooks';
 import { EditorThemeType, ThemeType } from '@/constants';
 import { IRemainingUse } from '@/typings/ai';
+import { isValid } from '@/utils/check';
 
 const handleSQLResult2ChartData = (data) => {
   const { headerList, dataList } = data;
@@ -103,7 +104,6 @@ function ChartItem(props: IChartItemProps) {
     if (!curConnection) {
       return;
     }
-    console.log(chartData);
     setChartData({
       ...chartData,
       dataSourceId: curConnection.id,
@@ -134,29 +134,34 @@ function ChartItem(props: IChartItemProps) {
   };
 
   const handleExecuteSQL = async (sql: string, chartData: IChartItem) => {
-    setIsLoading(true);
-
     const { dataSourceId, databaseName } = chartData;
-
-    let executeSQLParams: IExecuteSqlParams = {
-      sql,
-      dataSourceId,
-      databaseName,
-    };
-
-    // 获取当前SQL的查询结果
-    let sqlResult = await sqlService.executeSql(executeSQLParams);
-
-    let sqlData;
-    if (sqlResult && sqlResult[0]) {
-      sqlData = handleSQLResult2ChartData(sqlResult[0]);
+    if (!isValid(dataSourceId)) {
+      message.success(i18n('dashboard.editor.execute.noDataSource'));
+      return;
     }
-    setChartData({
-      ...chartData,
-      ddl: sql,
-      sqlData,
-    });
-    setIsLoading(false);
+    setIsLoading(true);
+    try {
+      let executeSQLParams: IExecuteSqlParams = {
+        sql,
+        dataSourceId,
+        databaseName,
+      };
+      // 获取当前SQL的查询结果
+      let sqlResult = await sqlService.executeSql(executeSQLParams);
+
+      let sqlData;
+      if (sqlResult && sqlResult[0]) {
+        sqlData = handleSQLResult2ChartData(sqlResult[0]);
+      }
+      setChartData({
+        ...chartData,
+        ddl: sql,
+        sqlData,
+      });
+      message.success(i18n('dashboard.editor.execute.success'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /** 根据id请求Chart数据 */
@@ -378,8 +383,10 @@ function ChartItem(props: IChartItemProps) {
               value={cascaderValue}
               loadData={loadData}
               onChange={(value, selectedOptions) => {
-                console.log('onChange', value, selectedOptions);
-                let p: any = {}; //包含了dataSourceId、databaseName、schemaName
+                const p: any = {
+                  dataSourceId: '',
+                };
+                //包含了dataSourceId、databaseName、schemaName
                 (selectedOptions || []).forEach((o) => {
                   if (o.type) {
                     p[`${o.type}Name`] = o.value;

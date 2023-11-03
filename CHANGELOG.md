@@ -1,12 +1,306 @@
+# 3.0.10
+`2023-11-05`
+**Changelog**
+- ⭐【New Features】The tree node operation menu supports right-clicking
+- ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
+- ⭐【New Features】Edit table structure supports setting primary keys in columns
+- ⭐【New Features】Edit data to support cell-level undo changes
+- ⭐【New Features】 Edit data support right click operation 
+  1. Supports single-row replication of Insert, Update, table header fields, and row data 
+  2. Clone the selected row 
+  3. Replication of cell data is supported 
+  4. You can set the cell to Null or Default 
+  5. Row deletion is supported
+- ⭐【New Features】History is added to the foldable panel on the right
+- ⚡️【Optimize】Edit the table structure to add loading
+- 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
+
+**更新日志**
+- ⭐【新功能】树节点操作菜单支持右键唤出
+- ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
+- ⭐【新功能】编辑表结构支持在列中设置主键
+- ⭐【新功能】编辑数据支持单元格级别撤销修改
+- ⭐【新功能】编辑数据支持右键操作
+  1. 支持单行复制 Insert、Update、表头字段、行数据
+  2. 支持克隆选中行
+  3. 支持复制单元格数据
+  4. 支持设置单元格为Null和Default
+  5. 支持删除行
+- ⭐【新功能】右侧可折叠面板中增加历史记录
+- ⚡️【优化】编辑表结构添加loading
+- 🐞【修复】修复表结构编辑浮点数小数位设置显示异常
+
+
+# 3.0.9
+`2023-11-01`
+**Changelog**
+- ⭐【New Features】Query results can be refreshed
+- ⚡️【Optimize】Console Tabs adaptive width
+- 🐞【Fixed】console save bug
+- 🐞【Fixed】sqlite can only retrieve one piece of data
+
+**更新日志**
+- ⭐【新功能】查询结果支持刷新
+- ⚡️【优化】控制台Tabs自适应宽度
+- 🐞【修复】console保存bug
+- 🐞【修复】sqlite只能查到一条数据问题
+
+# 3.0.5
+`2023-10-23`
+**Changelog**
+- ⭐【New Features】Supports visual database creation
+- ⭐【New Features】Support hot update
+- ⭐【New Features】Double-click the table to open it directly
+- ⚡️【Optimize】The search table supports size fuzzy matching
+- ⚡️【Optimize】Sort Database and Schema at the top
+- ⚡️【Optimize】The queried data supports editing and modification in the large popup window of the view
+- ⚡️【Optimize】Example Query the page loading effect of data
+- ⚡️【Optimize】Keep the top focused tab always in the viewable area
+- ⚡️【Optimize】Query data cell does not have scroll bar problem
+
+**更新日志**
+- ⭐【新功能】支持可视化创建数据库
+- ⭐【新功能】支持热更新
+- ⭐【新功能】双击表直接打开表
+- ⚡️【优化】搜索表支持大小模糊匹配
+- ⚡️【优化】Database 和 Schema 排序
+- ⚡️【优化】查询的数据支持在查看的大的弹窗中编辑修改
+- ⚡️【优化】查询数据翻页loading效果
+- ⚡️【优化】保持顶部聚焦的tab永远在可视区域内
+- ⚡️【优化】查询数据单元格没有滚动条问题
+
+
+# 3.0.4
+`2023-10-20`
+
+**Changelog**
+- 🐞【Fixed】Bugs are displayed when more than 100 data items are queried
+
+**更新日志**
+- 🐞【修复】查询数据超过100条时显示bug
+
+# 3.0.1
+`2023-10-19`
+
+**Changelog**
+- ⚡️【Optimize】Search result scroll bar
+- ⚡️【Fixed】Oracle update result data bug
+
+**更新日志**
+- ⚡️【优化】查询结果滚动条
+- 🐞【修复】Oracle更新结果数据错误
+
+# 3.0.0
+`2023-10-17`
+
+**Changelog**
+- 🔥【New Features】Support for team collaboration mode
+- 🔥【New Features】Support for visual table structure creation, editing, and deletion
+- 🔥【New Features】Support for editing, adding, and deleting query data results
+- ⭐【New Features】Support the feature of importing Navicat/DBever data source links
+- ⭐【New Features】Support for AI automatic sync table structure。
+- ⭐【New Features】Support export table structure
+- ⭐【New Features】Support importing SQL files
+- ⭐【New Features】Support the connection supports adding an environment,better distinguishing between online and daily
+- ⚡️【Optimize】Optimize Editor Intellisense
+- ⚡️【Optimize】Optimize AI Input
+- ⚡️【Optimize】Sql query support is stopped
+- ⚡️【Optimize】Sql execution supports viewing the number of affected rows
+- ⚡️【Optimize】Reclaiming non-administrator permissions to edit shared connections
+- ⚡️【Optimize】`Cmd/Ctrl + R` Run SQL， `Cmd/Ctrl + Shift + R` Refresh Page
+- 🐞【Fixed】Table operation columns are overridden by table comments
+- 🐞【Fixed】The last Tab in the query result cannot be closed
+
+**更新日志**
+- 🔥【新功能】支持团队协作模式
+- 🔥【新功能】支持可视化表结构新增、编辑、删除
+- 🔥【新功能】支持查询数据结果编辑、新增、删除
+- ⭐【新功能】支持导入Navicat/DBeaver数据源链接的功能
+- ⭐【新功能】支持AI自动同步表结构
+- ⭐【新功能】支持导出表结构
+- ⭐【新功能】支持导入sql文件
+- ⭐【新功能】连接支持添加环境标识，更好地区分在线和日常
+- ⚡️【优化】优化编辑器提示功能
+- ⚡️【优化】优化AI输入
+- ⚡️【优化】sql查询支持停止
+- ⚡️【优化】sql执行支持查看影响行数
+- ⚡️【优化】回收非管理员编辑共享连接权限
+- ⚡️【优化】`Cmd/Ctrl + R` 运行SQL， `Cmd/Ctrl + Shift + R` 刷新页面
+- 🐞【修复】表操作列被表注释覆盖问题
+- 🐞【修复】查询结果最后一个Tab无法关闭问题
+
+# 2.1.0
+
+## ⭐ New Features
+
+- 🔥The team function is newly launched, supporting team collaboration. R&D does not require knowing the online database
+  password, solving the security issue of enterprise database accounts. It is recommended to directly deploy the team
+  function using 'docker'
+- Added support for environment selection, better distinguishing between online and daily
+
+## ⭐ 新特性
+
+-🔥 新推出团队功能，支持团队协作。研发不需要知道在线数据库
+密码，解决企业数据库帐号的安全问题。建议直接部署团队
+使用'docker'的函数 -增加了环境选择的支持，更好地区分在线和日常
+
+# 2.0.14
+
+## 🐞 Bug Fixes
+
+- Fix the issue of 'Oracle' query 'Blob' reporting errors
+- Modify the paging logic and fix some SQL queries that cannot be queried
+
+## ⭐ 新特性
+
+- 🔥 团队功能全新上线，支持团队协作，研发无需知道线上数据库密码，解决企业数据库账号安全问题,团队功能建议直接使用 `docker` 部署
+- 新增支持环境选择，更好的区分线上、日常环境
+
+## 🐞 问题修复
+
+- 修复 `Oracle` 查询 `Blob` 报错的问题
+- 修改分页逻辑，修复部分 SQL 无法查询
+
+# 2.0.13
+
+- 修改分页逻辑，修复部分 SQL 无法查询
+
+# 2.0.13
+
+## ⭐ New Features
+
+## 🐞 Bug Fixes
+
+- Fixed a bug where sql formatting was not selected
+- Fixed open view lag issue
+- Solve the white screen problem of connected non-relational databases (non-relational databases are not supported)
+
+## ⭐ 新特性
+
+## 🐞 问题修复
+
+- 修复不选中 sql 格式化的 bug
+- 修复打开视图卡顿问题
+- 解决已连接的非关系型数据库打开白屏问题（暂不支持非关系性数据库）
+
+# 2.0.12
+
+## ⭐ New Features
+
+- 🔥Supports viewing views, functions, triggers, and procedures
+- Support selected sql formatting
+- Added new dark themes
+
+## 🐞 Bug Fixes
+
+- Fixed sql formatting failure issue
+- Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing
+  page crashes
+- Logs desensitize sensitive data
+- Fix the issue of 'CLOB' not displaying specific content [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- Fix the problem that non-Select does not display query results
+- Fix the problem that Oracle cannot query without schema
+- Fix the problem of special type of SQL execution error reporting
+- Fix the problem that the test link is successful, but the error is reported when saving the link
+
+## ⭐ 新特性
+
+- 🔥 支持查看视图、函数、触发器、存储过程
+- 支持选中 sql 格式化
+- 增加新的暗色主题
+
+## 🐞 问题修复
+
+- 修复 sql 格式化会失败问题
+- 修复本地存储的主题色、背景色与新版本不兼容时会导致页面崩溃问题
+- 日志对敏感数据进行脱敏
+- 修复 `CLOB` 不展示具体内容的问题 [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- 修复非 Select 不展示查询结果的问题
+- 修复 Oracle 不带 schema 无法查询的问题
+- 修复特殊类型的 SQL 执行报错的问题
+- 修复测试链接成功，但保存链接报错的问题
+
+# 2.0.11
+
+## 🐞 Bug Fixes
+
+- Fix the issue where SSH does not support older versions of encryption algorithms
+- Fix the issue of SQL Server 2008 not being able to connect
+- Fix the issue of not being able to view table name notes and field notes
+
+## 🐞 问题修复
+
+- 修复 SSH 不支持老版本加密算法的问题
+- 修复 SQLServer2008 无法连接的问题
+- 修复无法查看表名备注、字段备注的问题
+
+# 2.0.10
+
+## 🐞 Bug Fixes
+
+- Activate the console for the latest operation when you create or start a console、Records the last console used
+- The replication function of the browser, such as edge, is unavailable
+- table Indicates an error when ddl is exported after the search
+- Adds table comments and column field types and comments
+
+## 🐞 问题修复
+
+- 新建、开打 console 时激活最新操作的 console、记录最后一次使用的 console
+- edge 等浏览器复制功能无法正常使用
+- table 搜索后导出 ddl 报错
+- 增加表注释以及列字段类型和注释
+- 当数据源添加了 database 默认选择第一个 database
+
+# 2.0.9
+
+## 🐞 Bug Fixes
+
+-Fix the issue of Windows flash back
+
+## 🐞 问题修复
+
+- 修复 windows 闪退的问题
+
+# 2.0.8
+
+## 🐞 Bug Fixes
+
+- Repair the Scientific notation in some databases [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- Fix some cases where data is not displayed
+
+## 🐞 问题修复
+
+- 修复部分数据库出现科学计数法的情况 [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- 修复部分情况数据不展示
+
+# 2.0.7
+
+## ⭐ New Features
+
+- Export query result as file is supported
+
+## 🐞 Bug Fixes
+
+- Fixed ai config issues [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
+
+## ⭐ 新特性
+
+- 支持导出查询结果
+
+## 🐞 问题修复
+
+- 修复 ai 配置 [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
+
 # 2.0.6
 
 ## 🐞 Bug Fixes
 
-- Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom disappears  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+- Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom
+  disappears [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
 
 ## 🐞 问题修复
 
-- Fixed: 当选择的库下面表过多时最下面的“新建控制台”按钮消失  [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+- Fixed: 当选择的库下面表过多时最下面的“新建控制台”按钮消失 [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
 
 # 2.0.5
 
@@ -184,3 +478,21 @@ Chat2DB 的 1.0.0 正式版来啦 🎉🎉🎉🎉🎉🎉🎉🎉🎉
 - 🔌 强大的扩展能力，目前已经支持 Mysql、PostgreSQL、Oracle、SQLServer、ClickHouse、Oceanbase、H2、SQLite 等等，未来会支持更多的数据库
 - 🛡 前端使用 Electron 开发，提供 Windows、Mac、Linux 客户端、网页版本一体化的解决方案
 - 🎁 支持环境隔离、线上、日常数据权限分离
+
+
+# 0.0.0
+`2023--`
+
+**Changelog**
+- ⭐【New Features】
+- ⚡️【Optimize】
+- 🐞【Fixed】
+
+
+**更新日志**
+- ⭐【新功能】
+- ⚡️【优化】
+- 🐞【修复】
+
+
+

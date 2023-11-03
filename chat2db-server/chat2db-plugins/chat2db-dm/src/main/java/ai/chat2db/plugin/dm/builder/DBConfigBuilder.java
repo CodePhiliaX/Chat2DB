@@ -14,7 +14,7 @@ public class DBConfigBuilder {
         DriverConfig driverConfig = new DriverConfig();
         driverConfig.setJdbcDriver("DmJdbcDriver18-8.1.2.141.jar");
         driverConfig.setJdbcDriverClass("dm.jdbc.driver.DmDriver");
-        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss-chat2db.alibaba.com/lib/DmJdbcDriver18-8.1.2.141.jar"));
+        driverConfig.setDownloadJdbcDriverUrls(Lists.newArrayList("https://oss.sqlgpt.cn/lib/DmJdbcDriver18-8.1.2.141.jar"));
         dbConfig.setDefaultDriverConfig(driverConfig);
 
         dbConfig.setDriverConfigList(Lists.newArrayList(driverConfig));

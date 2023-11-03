@@ -1,7 +1,5 @@
 package ai.chat2db.server.web.api.controller.rdb.vo;
 
-import ai.chat2db.spi.enums.ColumnTypeEnum;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,27 +16,52 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class ColumnVO {
     /**
-     * 名称
+     * 旧的列名，在修改列的时候需要这个参数
+     * 在返回的时候oldName=name
+     */
+    private String oldName;
+
+    /**
+     * 列名
      */
     private String name;
 
     /**
-     * 列的类型
-     *
-     * @see ColumnTypeEnum
+     * 表名
      */
-    private String dataType;
+    private String tableName;
 
     /**
      * 列的类型
      * 比如 varchar(100) ,double(10,6)
      */
+
     private String columnType;
 
     /**
-     * 是否为空
+     * 列的数据类型
+     * 比如 varchar ,double
      */
-    private Boolean nullable;
+
+    private Integer dataType;
+
+
+    /**
+     * 默认值
+     */
+
+    private String defaultValue;
+
+    /**
+     * 是否自增
+     * 为空 代表没有值 数据库的实际语义是 false
+     */
+    private Boolean autoIncrement;
+
+    /**
+     * 注释
+     */
+    private String comment;
 
     /**
      * 是否主键
@@ -46,33 +69,90 @@ public class ColumnVO {
     private Boolean primaryKey;
 
     /**
-     * 默认值
+     * 空间名
      */
-    private String defaultValue;
+    private String schemaName;
 
     /**
-     * 是否自增
+     * 数据库名
      */
-    private Boolean autoIncrement;
+    private String databaseName;
 
     /**
-     * 数字精度
+     *  Data source dependent type name, for a UDT the type name is fully qualified
      */
-    private Integer numericPrecision;
+    private String typeName;
 
     /**
-     * 数字比例
+     * column size.
      */
-    private Integer numericScale;
+
+    private Integer columnSize;
 
     /**
-     * 字符串最大长度
+     * is not used.
      */
-    private Integer characterMaximumLength;
+    private Integer bufferLength;
 
     /**
-     * 注释
+     * the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
      */
-    private String comment;
+
+    private Integer decimalDigits;
+
+    /**
+     * Radix (typically either 10 or 2)
+     */
+
+    private Integer numPrecRadix;
+
+    /**
+     * is NULL allowed.
+     * columnNoNulls - might not allow NULL values
+     * columnNullable - definitely allows NULL values
+     * columnNullableUnknown - nullability unknown
+     */
+    private Integer nullableInt;
+
+    /**
+     * unused
+     */
+    private Integer sqlDataType;
+
+
+    /**
+     * unused
+     */
+    private Integer sqlDatetimeSub;
+
+    /**
+     * for char types the maximum number of bytes in the column
+     */
+    private Integer charOctetLength;
+
+    /**
+     * index of column in table (starting at 1)
+     */
+
+    private Integer ordinalPosition;
+
+    /**
+     * ISO rules are used to determine the nullability for a column.
+     */
+
+    private Integer nullable;
+
+    /**
+     * String => Indicates whether this is a generated column
+     *      * YES --- if this a generated column
+     *      * NO --- if this not a generated column
+     */
+    private Boolean generatedColumn;
+
+
+    private String extent;
+
+
+    private String editStatus;
 
 }

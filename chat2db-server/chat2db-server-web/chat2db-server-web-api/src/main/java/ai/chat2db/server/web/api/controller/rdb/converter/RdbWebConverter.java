@@ -2,21 +2,9 @@ package ai.chat2db.server.web.api.controller.rdb.converter;
 
 import java.util.List;
 
-import ai.chat2db.server.domain.api.param.DlCountParam;
-import ai.chat2db.server.domain.api.param.DlExecuteParam;
-import ai.chat2db.server.domain.api.param.DropParam;
-import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
-import ai.chat2db.server.domain.api.param.TablePageQueryParam;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.DmlRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableDeleteRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableDetailQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.TableRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
@@ -24,6 +12,7 @@ import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.MetaSchema;
@@ -100,6 +89,20 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract TablePageQueryParam tablePageRequest2param(TableBriefQueryRequest request);
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract TablePageQueryParam tablePageRequest2param(DataExportRequest request);
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract TableQueryParam tableRequest2param(DataExportRequest request);
 
     /**
      * 参数转换
@@ -219,4 +222,19 @@ public abstract class RdbWebConverter {
     public abstract List<DatabaseVO> databaseDto2vo(List<Database> dto);
 
     public abstract MetaSchemaVO metaSchemaDto2vo(MetaSchema data);
+
+
+    public abstract UpdateSelectResultParam request2param(SelectResultUpdateRequest request);
+
+    public abstract TableMilvusQueryRequest request2request(TableBriefQueryRequest request);
+
+    @Mappings({
+            @Mapping(source = "databaseName", target = "database"),
+            @Mapping(source = "schemaName", target = "schema"),
+    })
+    public abstract TableVectorParam param2param(TableBriefQueryRequest request);
+
+    public abstract EsTableSchemaRequest req2req(TableBriefQueryRequest request);
+
+    public abstract TablePageQueryParam schemaReq2page(EsTableSchemaRequest request);
 }

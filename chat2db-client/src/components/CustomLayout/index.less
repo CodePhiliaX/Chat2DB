@@ -1,0 +1,53 @@
+@import '../../styles/var.less';
+
+.customLayout {
+  display: flex;
+  align-items: center;
+  .iconPanel {
+    margin: 0px 5px;
+    border: 1px solid var(--color-text-tertiary);
+    border-radius: 3px;
+    height: 14px;
+    width: 14px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    &::after {
+      position: absolute;
+      content: '';
+      width: 6px;
+      background-color: var(--color-text-tertiary);
+    }
+  }
+
+  .iconPanelLeft {
+    &::after {
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+  }
+
+  .iconPanelLeftHidden {
+    &::after {
+      left: 5px;
+      width: 1px;
+    }
+  }
+
+  .iconPanelRight {
+    &::after {
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: 6px;
+    }
+  }
+
+  .iconPanelRightHidden {
+    &::after {
+      right: 5px;
+      width: 1px;
+    }
+  }
+}

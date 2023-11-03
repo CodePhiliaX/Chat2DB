@@ -1,19 +1,55 @@
 @import '../../styles/var.less';
 
 .tab-focus() {
-  border-radius: 8px 8px 0 0;
-  background-color: var(--color-bg-base);
+  background-color: var(--color-bg-subtle);
+  // 添加内阴影
+  box-shadow: inset 0px -1px 0px var(--color-primary);
+  .icon {
+    opacity: 1;
+  }
 }
 
 .tab-focus-line() {
   color: var(--color-primary);
-  background-color: var(--color-bg-base);
+  background-color: var(--color-bg-subtle);
+  .icon {
+    display: flex;
+  }
 }
 
-.tab {
+.tabBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.tabsNav {
   display: flex;
   overflow: auto;
-  &::-webkit-scrollbar {display:none}
+  height: 32px;
+  flex-shrink: 0;
+  background-color: var(--color-bg-base);
+  border-bottom: 1px solid var(--color-border);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tabsContent {
+  flex: 1;
+  height: 0px;
+  .tabsContentItem {
+    height: 100%;
+    width: 100%;
+    display: none;
+    position: relative;
+  }
+  .tabsContentItemActive {
+    display: block;
+  }
+}
+
+.activeContent {
+  display: block;
 }
 
 .tabList {
@@ -24,83 +60,53 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0px 10px;
-  line-height: 30px;
-  height: 30px;
-  width: 100px;
-  margin: 0px 2px;
+  padding-left: 10px;
+  line-height: 32px;
+  height: 32px;
   cursor: pointer;
   user-select: none;
-  &:hover {
-    .tab-focus();
-    .text {
-      color: var(--color-primary);
-    }
-  }
-  .text {
-    flex: 1;
-    width: 0;
-    .f-single-line();
-  }
-  .icon {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    height: 20px;
-    margin-left: 2px;
-    cursor: pointer;
-    i {
-      font-size: 12px;
-    }
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
-}
-
-.tabItemLine {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0px 10px;
-  line-height: 20px;
-  height: 28px;
-  width: 100px;
-  cursor: pointer;
   border-right: 1px solid var(--color-border);
-  &:hover {
-    .tab-focus-line();
-    .text {
-      color: var(--color-primary);
-    }
+  .textBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
   }
   .text {
     flex: 1;
-    width: 0;
+    width: fit-content;
     .f-single-line();
   }
   .icon {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    justify-content: center;
+    width: 20px;
     height: 20px;
-    margin-left: 2px;
+    margin: 0px 4px;
+    border-radius: 4px;
     cursor: pointer;
+    color: var(--color-text-secondary);
+    opacity: 0;
     i {
       font-size: 12px;
     }
     &:hover {
       color: var(--color-primary);
+      background-color: var(--color-hover-bg);
+    }
+  }
+  &:hover {
+    // .tab-focus();
+    color: var(--color-primary);
+    .icon{
+      opacity: 1;
     }
   }
 }
 
 .activeTab {
   .tab-focus();
-}
-
-.activeTabLine {
-  .tab-focus-line();
 }
 
 .rightBox {
@@ -119,7 +125,7 @@
   }
 }
 
-.input{
+.input {
   border: 0;
   width: 86px;
   flex: 1;
@@ -127,7 +133,17 @@
   outline: none;
   font-size: 12px;
   font-weight: 400;
-  input:focus{
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+  input:focus {
     outline: none;
   }
+}
+
+.prefixIcon {
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.activeContent {
 }

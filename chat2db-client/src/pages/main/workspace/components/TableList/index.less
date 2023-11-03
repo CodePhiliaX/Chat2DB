@@ -1,0 +1,142 @@
+@import '../../../../../styles/var.less';
+
+.tableModule {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 0;
+}
+
+.leftModuleTitle {
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  padding: 4px 10px;
+  .leftModuleTitleText {
+    // 下阴影
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 26px;
+    cursor: pointer;
+    user-select: none;
+    .modelName {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      height: 100%;
+    }
+    .iconBox {
+      display: flex;
+      align-items: center;
+      margin: 0px -5px;
+      height: 100%;
+    }
+    .itemIcon {
+      padding: 0px 5px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    .refreshIcon {
+    }
+    .moreIcon {
+      i {
+        transform: rotate(90deg);
+      }
+    }
+    .refreshIcon,
+    .searchIcon {
+      cursor: pointer;
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+  .leftModuleTitleSearch {
+    height: 26px;
+  }
+}
+
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
+}
+
+.emptyBox{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  width: 80%;
+  margin: 0 auto;
+  padding-top: 40px;
+  box-sizing: border-box;
+  color: var(--color-text-quaternary);
+  >div{
+    text-align: center;
+    line-height: 20px;
+  }
+}
+
+.treeBox {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+}
+
+.paging {
+  flex-shrink: 0;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  overflow: hidden;
+  padding: 0px 4px;
+  border-top: 1px solid var(--color-border);
+  .paginationBox,
+  .paginationSelectBox {
+    display: flex;
+    align-items: center;
+    height: 26px;
+  }
+}
+
+.refreshIconBox {
+  cursor: pointer;
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.cascaderPopup {
+  :global {
+    .ant-cascader-menu {
+      height: auto;
+    }
+  }
+}
+
+.operationItem {
+  display: flex;
+  align-items: center;
+  .operationIconRight {
+    margin-left: 10px;
+  }
+  .operationTitle {
+    margin-left: 6px;
+  }
+}
+
+.importTableOperationItem {
+  .operationIcon {
+    font-size: 16px;
+  }
+}
+
+:global {
+  .ant-dropdown-menu-submenu-title {
+    display: flex;
+    align-items: center;
+  }
+}

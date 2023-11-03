@@ -9,6 +9,7 @@ import ai.chat2db.server.tools.common.util.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.util.ContentTypeUtils;
 import org.zalando.logbook.Correlation;
 import org.zalando.logbook.HttpRequest;
 import org.zalando.logbook.HttpResponse;
@@ -53,8 +54,13 @@ public class EasyLogSink implements Sink {
         webLog.setStartTime(LocalDateTime.ofInstant(correlation.getStart(), ZoneId.systemDefault()));
         webLog.setEndTime(LocalDateTime.ofInstant(correlation.getEnd(), ZoneId.systemDefault()));
         try {
-            webLog.setRequest(LogUtils.cutLog(new String(request.getBody(), StandardCharsets.UTF_8)));
-            webLog.setResponse(LogUtils.cutLog(new String(response.getBody(), StandardCharsets.UTF_8)));
+            webLog.setRequest(LogUtils.maskString(LogUtils.cutLog(new String(request.getBody(), StandardCharsets.UTF_8))));
+            if (ContentTypeUtils.isContentTypeJSON(response.getContentType()) || ContentTypeUtils.isContentTypeHTML(
+                response.getContentType())) {
+                webLog.setResponse(LogUtils.maskString(LogUtils.cutLog(new String(response.getBody(), StandardCharsets.UTF_8))));
+            } else {
+                webLog.setResponse(response.getContentType() + ":[" + response.getBody().length + "]");
+            }
         } catch (IOException e) {
             log.warn("获取日志的请求&返回异常，大概率是用户关闭了流。", e);
         }

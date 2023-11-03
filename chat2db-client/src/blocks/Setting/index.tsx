@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import { Modal } from 'antd';
+import { Modal, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import BaseSetting from './BaseSetting';
 import AISetting from './AiSetting';
@@ -9,66 +9,59 @@ import ProxySetting from './ProxySetting';
 import About from './About';
 import { connect } from 'umi';
 import { IAIState } from '@/models/ai';
+import { IAiConfig } from '@/typings';
 import styles from './index.less';
-import configService, { IChatGPTConfig } from '@/service/config';
-import { AiSqlSourceType } from '@/typings/ai';
-import TestVersion from '@/components/TestVersion';
+import { ILatestVersion } from '@/service/config';
+import UpdateDetection,{IUpdateDetectionRef,UpdatedStatusEnum} from '@/blocks/Setting/UpdateDetection';
 
 interface IProps {
+  aiConfig: IAiConfig;
   className?: string;
-  text?: string;
-  dispatch: Function;
+  render?: ReactNode;
+  dispatch: (params: any) => void;
+  noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
+  defaultArouse?: boolean; // 是否默认弹出
+  defaultMenu?: number; // 默认选中的菜单
 }
-const initChatGPTConfig = {
-  chat2dbApiKey: '',
-  chat2dbApiHost: '',
-  apiKey: '',
-  httpProxyHost: '',
-  httpProxyPort: '',
-  restAiUrl: '',
-  apiHost: '',
-  restAiStream: true,
-  aiSqlSource: '',
-  azureApiKey: '',
-  azureEndpoint: '',
-  azureDeploymentId: '',
-};
-function Setting(props: IProps) {
-  const { className, text, dispatch } = props;
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [chatGPTConfig, setChatGPTConfig] = useState<IChatGPTConfig>(initChatGPTConfig);
+export interface IUpdateDetectionData extends ILatestVersion {
+  updatedStatusEnum: UpdatedStatusEnum;
+  needUpdate: boolean;
+}
 
-  const [currentMenu, setCurrentMenu] = useState(0);
+function Setting(props: IProps) {
+  const { className, dispatch, noLogin = false, defaultArouse, defaultMenu = 0 } = props;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
+  const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
+  const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
 
   useEffect(() => {
-    getChatGptSystemConfig();
+    if (defaultArouse) {
+      showModal();
+    }
   }, []);
 
   useEffect(() => {
-    if (!isModalVisible) {
-      return;
+    if (isModalVisible && !noLogin) {
+      getAiSystemConfig();
     }
-    getChatGptSystemConfig();
   }, [isModalVisible]);
 
-  const getChatGptSystemConfig = () => {
-    configService.getChatGptSystemConfig().then((res: IChatGPTConfig) => {
-      if (!res) {
-        return;
-      }
-      handleUpdateAiConfig({
-        key: res.chat2dbApiHost,
-        aiType: res.aiSqlSource,
-      });
-      setChatGPTConfig({
-        ...res,
-        restAiStream: res.restAiStream || true,
-        aiSqlSource: res.aiSqlSource || AiSqlSourceType.CHAT2DBAI,
-      });
+  useEffect(() => {
+    if (!noLogin) {
+      getAiSystemConfig();
+    }
+  }, []);
+
+  const getAiSystemConfig = () => {
+    /** 获取ai相关配置 */
+    dispatch({
+      type: 'ai/getAiSystemConfig',
     });
   };
 
-  const showModal = () => {
+  const showModal = (_currentMenu: number = 0) => {
+    setCurrentMenu(_currentMenu);
     setIsModalVisible(true);
   };
 
@@ -84,51 +77,63 @@ function Setting(props: IProps) {
     setCurrentMenu(t);
   }
 
-  const handleUpdateAiConfig = (payload: IAIState['keyAndAiType']) => {
+  const handleApplyAiConfig = (aiConfig: IAiConfig) => {
     dispatch({
-      type: 'ai/setKeyAndAiType',
-      payload,
-    });
-    dispatch({
-      type: 'ai/fetchRemainingUse',
-      payload: {
-        key: payload.key,
-      },
+      type: 'ai/setAiSystemConfig',
+      payload: aiConfig,
     });
   };
+
   const menusList = [
     {
       label: i18n('setting.nav.basic'),
       icon: '\ue795',
       body: <BaseSetting />,
+      code: 'basic',
     },
     {
       label: i18n('setting.nav.customAi'),
       icon: '\ue646',
-      body: <AISetting chatGPTConfig={chatGPTConfig} handleUpdateAiConfig={handleUpdateAiConfig} />,
+      body: <AISetting aiConfig={props.aiConfig} handleApplyAiConfig={handleApplyAiConfig} />,
+      code: 'ai',
     },
     {
       label: i18n('setting.nav.proxy'),
       icon: '\ue63f',
       body: <ProxySetting />,
+      code: 'proxy',
     },
     {
       label: i18n('setting.nav.aboutUs'),
-      icon: '\ue60c',
-      body: <About />,
+      icon: '\ue65c',
+      rightSlot: updateDetectionData?.needUpdate && (
+        <div className={classnames(styles.rightSlot, styles.rightSlotAbout)}>
+          <Tooltip title={`发现新版本v${updateDetectionData?.version}`}>
+            <Iconfont code="&#xe69c;" />
+          </Tooltip>
+        </div>
+      ),
+      body: <About updateDetectionRef={updateDetectionRef as any} updateDetectionData={updateDetectionData} />,
+      code: 'about',
     },
   ];
 
   return (
     <>
-      <div className={classnames(className, styles.box)} onClick={showModal}>
-        {text ? (
-          <span className={styles.setText}>{text}</span>
-        ) : (
-          <Iconfont className={styles.settingIcon} code="&#xe630;"></Iconfont>
-        )}
+      <div
+        className={classnames(className, styles.box)}
+        onClick={() => {
+          showModal();
+        }}
+      >
+        {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
       </div>
-      <TestVersion></TestVersion>
+      <UpdateDetection
+        setUpdateDetectionData={setUpdateDetectionData}
+        updateDetectionData={updateDetectionData}
+        openSettingModal={showModal}
+        ref={updateDetectionRef}
+      />
       <Modal
         open={isModalVisible}
         onOk={handleOk}
@@ -141,6 +146,10 @@ function Setting(props: IProps) {
           <div className={styles.menus}>
             <div className={classnames(styles.menusTitle)}>{i18n('setting.title.setting')}</div>
             {menusList.map((t, index) => {
+              // 如果是没有登录的页面，不显示ai设置等需要登录的功能
+              if (noLogin && index === 1) {
+                return false;
+              }
               return (
                 <div
                   key={index}
@@ -149,8 +158,9 @@ function Setting(props: IProps) {
                     [styles.activeMenu]: t.label === menusList[currentMenu].label,
                   })}
                 >
-                  <Iconfont code={t.icon} />
+                  <Iconfont className={styles.prefixIcon} code={t.icon} />
                   {t.label}
+                  {t.rightSlot}
                 </div>
               );
             })}
@@ -166,5 +176,5 @@ function Setting(props: IProps) {
 }
 
 export default connect(({ ai }: { ai: IAIState }) => ({
-  remainingUse: ai.remainingUse,
+  aiConfig: ai.aiConfig,
 }))(Setting);

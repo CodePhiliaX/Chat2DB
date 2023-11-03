@@ -1,0 +1,91 @@
+@import '../../../styles/var.less';
+
+.includeCol {
+  max-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ant-input-number {
+  width: 100%;
+}
+
+.formBox {
+  flex: 1;
+  height: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.indexListHeader {
+  flex-shrink: 0;
+  margin: 0px -10px 10px;
+  button {
+    margin: 0px 10px;
+  }
+}
+
+.editableCell {
+  height: 28px;
+  line-height: 26px;
+  padding: 0px 7px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  .f-single-line();
+  width: 100%;
+  cursor: pointer;
+  &:hover {
+    border: 1px solid var(--color-border);
+  }
+}
+
+.operationBar {
+  display: flex;
+  justify-content: end;
+  .deleteIconBox {
+    height: 26px;
+    width: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.includeCol {
+  :global {
+    .ant-table-body {
+      border: 1px solid var(--color-border);
+      border-top: 0px;
+      border-bottom: 0px;
+    }
+    .ant-table-header {
+      border: 1px solid var(--color-border);
+      border-bottom: 0px;
+    }
+    .ant-table {
+      border-radius: 10px;
+      border-bottom: 0px;
+    }
+    .ant-table-wrapper .ant-table-tbody > tr > td {
+      // border: 0px;
+      padding: 4px 2px;
+    }
+    .ant-table-wrapper .ant-table-thead > tr > th {
+      padding: 8px 4px;
+      &::before {
+        display: none;
+      }
+    }
+    .ant-table-wrapper .ant-table-thead > tr > td {
+      &::before {
+        display: none;
+      }
+    }
+  }
+}

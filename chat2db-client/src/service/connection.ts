@@ -1,12 +1,13 @@
-import { IPageResponse, IConnectionDetails } from '@/typings';
-import { DatabaseTypeCode } from '@/constants';
+import { IPageResponse, IConnectionDetails, IConnectionEnv } from '@/typings';
+import { DatabaseTypeCode, ConnectionKind } from '@/constants';
 import createRequest from './base';
 
 export interface IGetConnectionParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
-  refresh?: boolean
+  refresh?: boolean;
+  kind?: ConnectionKind;
 }
 
 /**
@@ -41,9 +42,14 @@ const remove = createRequest<{ id: number }, void>('/api/connection/datasource/:
 
 const clone = createRequest<{ id: number }, void>('/api/connection/datasource/clone', { method: 'post' });
 
-const getDBList = createRequest<{ dataSourceId: number, refresh?: boolean }, any>('/api/rdb/database/list', { method: 'get' });
+const getDBList = createRequest<{ dataSourceId: number; refresh?: boolean }, any>('/api/rdb/database/list', {
+  method: 'get',
+});
 
-const getSchemaList = createRequest<{ dataSourceId: number, databaseName: string; refresh?: boolean }, any>('/api/rdb/schema/list', { method: 'get' });
+const getSchemaList = createRequest<{ dataSourceId: number; databaseName: string; refresh?: boolean }, any>(
+  '/api/rdb/schema/list',
+  { method: 'get' },
+);
 
 export interface IDriverResponse {
   driverConfigList: {
@@ -73,9 +79,23 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
   errorLevel: false,
   method: 'get',
 });
+
 const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
 
+const getEnvList = createRequest<void, IConnectionEnv[]>('/api/common/environment/list_all', { errorLevel: false });
+
+/** 导入Navicat链接 */
+// const importNavicatConnection = createRequest<
+//   {
+//     formData: FormData;
+//   },
+//   void
+// >('/api/converter/ncx/upload', {
+//   method: 'post',
+// });
+
 export default {
+  getEnvList,
   getList,
   getDetails,
   save,
@@ -90,4 +110,5 @@ export default {
   getDriverList,
   downloadDriver,
   saveDriver,
+  // importNavicatConnection,
 };

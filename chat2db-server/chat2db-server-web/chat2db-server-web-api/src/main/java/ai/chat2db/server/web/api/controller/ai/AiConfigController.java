@@ -2,17 +2,23 @@ package ai.chat2db.server.web.api.controller.ai;
 
 import java.util.Objects;
 
+import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
+import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
+import ai.chat2db.server.tools.common.model.LoginUser;
+import ai.chat2db.server.tools.common.util.ContextUtils;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
+import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.response.ApiKeyResponse;
 import ai.chat2db.server.web.api.http.response.InviteQrCodeResponse;
 import ai.chat2db.server.web.api.http.response.QrCodeResponse;
-import ai.chat2db.server.web.api.util.OpenAIClient;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +54,11 @@ public class AiConfigController {
      */
     @GetMapping("/getLoginQrCode")
     public DataResult<QrCodeResponse> getLoginQrCode() {
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        if (RoleCodeEnum.USER.getCode().equals(loginUser.getRoleCode())) {
+            return DataResult.of(
+                QrCodeResponse.builder().tip(I18nUtils.getMessage("settings.permissionDeniedForAiConfig")).build());
+        }
         return gatewayClientService.getLoginQrCode();
     }
 
@@ -59,20 +70,27 @@ public class AiConfigController {
      */
     @GetMapping("/getLoginStatus")
     public DataResult<QrCodeResponse> getLoginStatus(@RequestParam(required = false) String token) {
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        if (RoleCodeEnum.USER.getCode().equals(loginUser.getRoleCode())) {
+            return DataResult.of(QrCodeResponse.builder().build());
+        }
         DataResult<QrCodeResponse> dataResult = gatewayClientService.getLoginStatus(token);
         QrCodeResponse qrCodeResponse = dataResult.getData();
         // Representative successfully logged in
         if (StringUtils.isNotBlank(qrCodeResponse.getApiKey())) {
+            SystemConfigParam sqlSourceParam = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE)
+                .content(AiSqlSourceEnum.CHAT2DBAI.getCode()).build();
+            configService.createOrUpdate(sqlSourceParam);
             SystemConfigParam param = SystemConfigParam.builder()
-                .code(OpenAIClient.OPENAI_KEY).content(qrCodeResponse.getApiKey())
+                .code(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).content(qrCodeResponse.getApiKey())
                 .build();
             configService.createOrUpdate(param);
             SystemConfigParam hostParam = SystemConfigParam.builder()
-                .code(OpenAIClient.OPENAI_HOST)
+                .code(Chat2dbAIClient.CHAT2DB_OPENAI_HOST)
                 .content(chat2dbProperties.getGateway().getModelBaseUrl() + "/model")
                 .build();
             configService.createOrUpdate(hostParam);
-            OpenAIClient.refresh();
+            Chat2dbAIClient.refresh();
         }
         return dataResult;
     }
@@ -107,7 +125,7 @@ public class AiConfigController {
     }
 
     private String getApiKey() {
-        DataResult<Config> apiKey = configService.find(OpenAIClient.OPENAI_KEY);
+        DataResult<Config> apiKey = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
         return Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : null;
     }
 }
