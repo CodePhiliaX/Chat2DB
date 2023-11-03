@@ -396,6 +396,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         tableQueryParam.setTableName(MetaNameUtils.getMetaName(tableName));
         tableQueryParam.setSchemaName(schemaName);
         tableQueryParam.setDatabaseName(databaseName);
+        tableQueryParam.setRefresh(true);
         List<TableColumn> columns = tableService.queryColumns(tableQueryParam);
         if (CollectionUtils.isEmpty(columns)) {
             return headers;
