@@ -63,32 +63,30 @@ const registerIntelliSenseTable = (
       const word = match ? match[0] : '';
 
       return {
-        suggestions: (tableList || []).map((tableName) => {
-          return {
-            label: {
-              label: tableName.name,
-              detail: databaseName ? `(${databaseName})` : null,
-              description: i18n('sqlEditor.text.tableName'),
-            },
-            kind: monaco.languages.CompletionItemKind.Folder,
-            insertText: handleInsertText(word, tableName.name, databaseCode),
-            // range: monaco.Range.fromPositions(position),
-            // documentation: tableName.comment,
-            sortText: isTableContext ? '01' : '08',
-            command: {
-              id: 'addFieldList',
-              title: 'addFieldList',
-              arguments: [
-                {
-                  tableName: tableName.name,
-                  dataSourceId,
-                  databaseName,
-                  schemaName,
-                },
-              ],
-            },
-          };
-        }),
+        suggestions: (tableList || []).map((tableName) => ({
+          label: {
+            label: tableName.name,
+            detail: databaseName ? `(${databaseName})` : null,
+            description: i18n('sqlEditor.text.tableName'),
+          },
+          kind: monaco.languages.CompletionItemKind.Folder,
+          insertText: handleInsertText(word, tableName.name, databaseCode),
+          // range: monaco.Range.fromPositions(position),
+          // documentation: tableName.comment,
+          sortText: isTableContext ? '01' : '08',
+          command: {
+            id: 'addFieldList',
+            title: 'addFieldList',
+            arguments: [
+              {
+                tableName: tableName.name,
+                dataSourceId,
+                databaseName,
+                schemaName,
+              },
+            ],
+          },
+        })),
       };
     },
   });
