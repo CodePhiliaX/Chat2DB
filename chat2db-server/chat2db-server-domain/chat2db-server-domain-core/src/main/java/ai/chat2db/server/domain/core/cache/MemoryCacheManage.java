@@ -21,16 +21,12 @@ public class MemoryCacheManage {
     private static final byte[] NULL_BYTES = SerializationUtils.serialize((NullValue)NullValue.INSTANCE);
     private static final String SYNCHRONIZED_PREFIX = "MemoryCache:";
 
-    private static Cache<String, byte[]> cache;
-
-    static {
-        cache = CacheBuilder.newBuilder()
-            // 5M
-            .maximumWeight(5 * 1024 * 1024)
-            .weigher((Weigher<String, byte[]>)(key, value) -> value.length)
-            .expireAfterAccess(10, TimeUnit.MINUTES)
-            .build();
-    }
+    private static final Cache<String, byte[]> CACHE = CacheBuilder.newBuilder()
+        // 5M
+        .maximumWeight(5 * 1024 * 1024)
+        .weigher((Weigher<String, byte[]>)(key, value) -> value.length)
+        .expireAfterAccess(10, TimeUnit.MINUTES)
+        .build();
 
     /**
      * Retrieve a value from the cache, and if not, query it
@@ -73,7 +69,7 @@ public class MemoryCacheManage {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-        byte[] bytes = cache.getIfPresent(key);
+        byte[] bytes = CACHE.getIfPresent(key);
         if (bytes == null) {
             return null;
         }
@@ -96,9 +92,9 @@ public class MemoryCacheManage {
             return;
         }
         if (value == null) {
-            cache.put(key, NULL_BYTES);
+            CACHE.put(key, NULL_BYTES);
         } else {
-            cache.put(key, SerializationUtils.serialize(value));
+            CACHE.put(key, SerializationUtils.serialize(value));
         }
     }
 
