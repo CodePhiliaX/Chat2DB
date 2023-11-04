@@ -35,7 +35,6 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 // 不支持创建schema的数据库类型
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
 
-const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
@@ -51,6 +50,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [openDBCascaderDropdown, setOpenDBCascaderDropdown] = useState<false | undefined>(undefined);
   const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState<false | undefined>(undefined);
   const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
+  const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
 
   useEffect(() => {
     if (openDBCascaderDropdown === false) {
@@ -307,10 +307,13 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   code={databaseMap[curWorkspaceParams.databaseType]?.icon}
                 />
                 <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
+                <div className={styles.pullDownArrow}>
+                  <Iconfont code="&#xe88e;" />
+                </div>
               </div>
             </Cascader>
 
-            {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />}
+            {/* {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
             {!!curDBOptions?.length && (
               <Cascader
                 popupClassName={styles.cascaderPopup}
@@ -344,11 +347,18 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 value={[curWorkspaceParams?.databaseName || '']}
               >
                 <div className={styles.crumbsItem}>
+                  <Iconfont
+                    className={styles.databaseTypeIcon}
+                    code="&#xe62c;"
+                  />
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+                  <div className={styles.pullDownArrow}>
+                    <Iconfont code="&#xe88e;" />
+                  </div>
                 </div>
               </Cascader>
             )}
-            {!!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe641;" />}
+            {/* {!!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
             {!!curSchemaOptions.length && (
               <Cascader
                 popupClassName={styles.cascaderPopup}
@@ -382,7 +392,11 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 }}
               >
                 <div className={styles.crumbsItem}>
+                  <Iconfont className={styles.databaseTypeIcon} code="&#xe696;" />
                   <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
+                  <div className={styles.pullDownArrow}>
+                    <Iconfont code="&#xe88e;" />
+                  </div>
                 </div>
               </Cascader>
             )}

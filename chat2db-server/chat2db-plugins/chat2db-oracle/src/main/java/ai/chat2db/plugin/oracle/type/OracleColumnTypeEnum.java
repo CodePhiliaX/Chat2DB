@@ -215,7 +215,7 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
 
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn) {
+    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
@@ -232,7 +232,7 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
             script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append(") \n" );
+            script.append(" ").append("MODIFY (").append(buildModifyColumnSql(tableColumn,oldColumn)).append(") \n" );
 
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
                 script.append(";");
@@ -245,6 +245,27 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
         }
         return "";
     }
+
+    public String buildModifyColumnSql(TableColumn column,TableColumn oldColumn) {
+        OracleColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+
+        script.append("\"").append(column.getName()).append("\"").append(" ");
+
+        script.append(buildDataType(column, type)).append(" ");
+
+        script.append(buildDefaultValue(column,type)).append(" ");
+
+        if(oldColumn.getNullable() != column.getNullable()) {
+            script.append(buildNullable(column, type)).append(" ");
+        }
+
+        return script.toString();
+    }
+
     public static List<ColumnType> getTypes(){
         return Arrays.stream(OracleColumnTypeEnum.values()).map(columnTypeEnum ->
                 columnTypeEnum.getColumnType()

@@ -2,6 +2,7 @@ import { DatabaseTypeCode } from '@/constants';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { addIntelliSenseField } from './field';
 import i18n from '@/i18n';
+import { compatibleDataBaseName } from '../database';
 
 /** 当前库下的表 */
 let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
@@ -12,30 +13,7 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
   },
 });
 
-/** 根据不同的数据库，插入不同的表名  */
-const handleInsertText = (text: string, databaseCode: DatabaseTypeCode = DatabaseTypeCode.MYSQL) => {
-  const regFirstWord = /^[a-zA-Z].*/;
-  // 检测到第一个字符是字母，不需要加引号
-  if (regFirstWord.test(text)) {
-    return `${text}`;
-  }
-
-  if (
-    [DatabaseTypeCode.POSTGRESQL, DatabaseTypeCode.ORACLE, DatabaseTypeCode.DB2, DatabaseTypeCode.SQLITE].includes(
-      databaseCode,
-    )
-  ) {
-    return `\"${text}\"`;
-  } else if ([DatabaseTypeCode.SQLSERVER].includes(databaseCode)) {
-    return `[${text}]`;
-  } else if ([DatabaseTypeCode.MYSQL].includes(databaseCode)) {
-    return `\`${text}\``;
-  } else {
-    return `${text}`;
-  }
-};
-
-function checkTableContext(text) {
+const checkTableContext = (text) => {
   const normalizedText = text.trim().toUpperCase();
   const tableKeywords = ['FROM', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UPDATE'];
 
@@ -46,11 +24,20 @@ function checkTableContext(text) {
   }
 
   return false;
-}
+};
+
+const handleInsertText = (keyword: string, tableName: string, databaseCode: DatabaseTypeCode) => {
+  console.log('test', /^[\"\`\[]/.test(keyword));
+  if (/^[\"\`\[]/.test(keyword)) {
+    return tableName;
+  }
+  console.log('databaseCode', databaseCode);
+  return compatibleDataBaseName(tableName, databaseCode);
+};
 
 const registerIntelliSenseTable = (
   tableList: Array<{ name: string; comment: string }>,
-  databaseCode?: DatabaseTypeCode,
+  databaseCode: DatabaseTypeCode,
   dataSourceId?: number,
   databaseName?: string | null,
   schemaName?: string | null,
@@ -72,7 +59,11 @@ const registerIntelliSenseTable = (
       });
 
       const isTableContext = checkTableContext(lineContentUntilPosition);
+      // 获取触发提示的字符
+      const match = lineContentUntilPosition.match(/\S+$/);
+      const word = match ? match[0] : '';
 
+      console.log('触发提示的字符:', word);
       return {
         suggestions: (tableList || []).map((tableName) => {
           return {
@@ -82,7 +73,7 @@ const registerIntelliSenseTable = (
               description: i18n('sqlEditor.text.tableName'),
             },
             kind: monaco.languages.CompletionItemKind.Folder,
-            insertText: handleInsertText(tableName.name, databaseCode),
+            insertText: handleInsertText(word, tableName.name, databaseCode),
             // range: monaco.Range.fromPositions(position),
             // documentation: tableName.comment,
             sortText: isTableContext ? '01' : '08',

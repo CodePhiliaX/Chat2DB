@@ -160,7 +160,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
     const colors = {
       'editor.lineHighlightBackground': colorPrimary + '14', // 当前行背景色
-      'editor.selectionBackground': colorPrimary + '20', // 选中文本的背景色
+      'editor.selectionBackground': colorPrimary + '50', // 选中文本的背景色
       // 'editorLineNumber.foreground': colorPrimary, // 行号颜色
       'editorLineNumber.activeForeground': colorPrimary, // 当前行号颜色
       // 'editorCursor.foreground': colorPrimary, // 光标颜色

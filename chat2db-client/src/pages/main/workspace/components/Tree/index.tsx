@@ -103,8 +103,12 @@ const TreeNode = (props: TreeNodeIProps) => {
     const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
     treeNodeConfig
       .getChildren?.({
-        ...data,
-        ...(data.extraParams || {}),
+        ...data.extraParams,
+        extraParams:{
+          ...data.extraParams
+        },
+        // ...data,
+        // ...(data.extraParams || {}),
       })
       .then((res) => {
         if (res.length) {
@@ -123,7 +127,7 @@ const TreeNode = (props: TreeNodeIProps) => {
           // }
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setIsLoading(false);
       });
   }
@@ -191,7 +195,6 @@ const TreeNode = (props: TreeNodeIProps) => {
       handleClick(data);
     }
   }
-
   return show ? (
     <>
       <TreeNodeRightClick
