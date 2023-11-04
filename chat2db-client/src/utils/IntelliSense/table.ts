@@ -27,11 +27,10 @@ const checkTableContext = (text) => {
 };
 
 const handleInsertText = (keyword: string, tableName: string, databaseCode: DatabaseTypeCode) => {
-  console.log('test', /^[\"\`\[]/.test(keyword));
   if (/^[\"\`\[]/.test(keyword)) {
     return tableName;
   }
-  console.log('databaseCode', databaseCode);
+
   return compatibleDataBaseName(tableName, databaseCode);
 };
 
@@ -63,7 +62,6 @@ const registerIntelliSenseTable = (
       const match = lineContentUntilPosition.match(/\S+$/);
       const word = match ? match[0] : '';
 
-      console.log('触发提示的字符:', word);
       return {
         suggestions: (tableList || []).map((tableName) => {
           return {
