@@ -148,7 +148,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         extraParams: {
           databaseType: curConnection.type,
           dataSourceId: curConnection.id,
-          dataSourceName: curConnection.name,
+          dataSourceName: curConnection.alias,
         },
       })
       .then((res: any) => {

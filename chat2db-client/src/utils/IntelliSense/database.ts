@@ -20,7 +20,7 @@ const checkTableContext = (text) => {
   return false;
 };
 
-const registerIntelliSenseDatabase = (databaseName: Array<{name:string, dataSourceName:string}>) => {
+const registerIntelliSenseDatabase = (databaseName: Array<{ name: string; dataSourceName: string }>) => {
   console.log('registerIntelliSenseDatabase', databaseName);
   intelliSenseDatabase.dispose();
   intelliSenseDatabase = monaco.languages.registerCompletionItemProvider('sql', {
@@ -35,10 +35,10 @@ const registerIntelliSenseDatabase = (databaseName: Array<{name:string, dataSour
       const isTableContext = checkTableContext(lineContentUntilPosition);
 
       return {
-        suggestions: (databaseName || []).map(({name, dataSourceName}) => ({
+        suggestions: (databaseName || []).map(({ name, dataSourceName }) => ({
           label: {
             label: name,
-            // detail: `(${dataSourceName})`,
+            detail: dataSourceName ? `(${dataSourceName})` : null,
             description: i18n('sqlEditor.text.databaseName'),
           },
           sortText: isTableContext ? '01' : '08',
