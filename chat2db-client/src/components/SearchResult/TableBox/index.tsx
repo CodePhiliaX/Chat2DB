@@ -781,6 +781,7 @@ export default function TableBox(props: ITableProps) {
               <div
                 data-chat2db-general-can-copy-element
                 data-chat2db-edit-table-data-can-paste
+                data-chat2db-edit-table-data-can-right-click
                 onClick={() => {
                   handelRowNoClick(rowNo);
                 }}
@@ -807,6 +808,7 @@ export default function TableBox(props: ITableProps) {
             <div
               data-chat2db-general-can-copy-element
               data-chat2db-edit-table-data-can-paste
+              data-chat2db-edit-table-data-can-right-click
               className={tableCellStyle(value, colIndex, rowNo)}
               onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
               onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}

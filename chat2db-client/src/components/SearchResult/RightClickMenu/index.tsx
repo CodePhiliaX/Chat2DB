@@ -1,5 +1,5 @@
-import React, { memo, useMemo } from 'react';
-import { Dropdown } from 'antd';
+import React, { memo, useEffect, useMemo } from 'react';
+import { Dropdown, ConfigProvider } from 'antd';
 import i18n from '@/i18n';
 import MenuLabel from '@/components/MenuLabel';
 
@@ -30,6 +30,29 @@ export enum AllSupportedMenusType {
 
 export default memo<IProps>((props) => {
   const { children, menuList } = props;
+  const [open, setOpen] = React.useState<boolean | undefined>(undefined);
+  const [canContextmenu, setCanContextmenu] = React.useState<boolean>(false);
+  useEffect(() => {
+    if (open === false) {
+      setOpen(undefined);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const handleClick = (event) => {
+      const targetElement = event.target as Element;
+      if (targetElement.closest('[data-chat2db-edit-table-data-can-right-click]')) {
+        setCanContextmenu(true);
+      } else {
+        setCanContextmenu(false);
+      }
+    };
+    document.addEventListener('contextmenu', handleClick);
+    return () => {
+      document.removeEventListener('contextmenu', handleClick);
+    };
+  }, []);
+
   const allSupportedMenus = {
     [AllSupportedMenusType.CopyCell]: {
       label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copy')} />,
@@ -87,12 +110,18 @@ export default memo<IProps>((props) => {
     return menuList?.map((menu) => {
       return {
         ...allSupportedMenus[menu.key],
-        onClick: menu.callback,
+        onClick: () => {
+          menu.callback?.();
+          setOpen(false);
+        },
         children: menu.children?.map((child, index) => {
           if (child.hide) return null;
           return {
             ...allSupportedMenus[menu.key]['children'][index],
-            onClick: child.callback,
+            onClick: () => {
+              child.callback();
+              setOpen(false);
+            },
           };
         }),
       };
@@ -100,14 +129,26 @@ export default memo<IProps>((props) => {
   }, [menuList]);
 
   return (
-    <Dropdown
-      menu={{
-        items: items || [],
-        style: items ? {} : {display: 'none'},
+    <ConfigProvider
+      theme={{
+        token: {
+          motion: false,
+        },
       }}
-      trigger={['contextMenu']}
     >
-      {children}
-    </Dropdown>
+      <Dropdown
+        menu={{
+          items: items || [],
+          style: items ? {} : { display: 'none' },
+        }}
+        trigger={['contextMenu']}
+        open={open && canContextmenu}
+        onOpenChange={(_open) => {
+          setOpen(_open);
+        }}
+      >
+        {children}
+      </Dropdown>
+    </ConfigProvider>
   );
 });
