@@ -21,7 +21,6 @@ const checkTableContext = (text) => {
 };
 
 const registerIntelliSenseDatabase = (databaseName: Array<{ name: string; dataSourceName: string }>) => {
-  console.log('registerIntelliSenseDatabase', databaseName);
   intelliSenseDatabase.dispose();
   intelliSenseDatabase = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' '],
@@ -41,9 +40,9 @@ const registerIntelliSenseDatabase = (databaseName: Array<{ name: string; dataSo
             detail: dataSourceName ? `(${dataSourceName})` : null,
             description: i18n('sqlEditor.text.databaseName'),
           },
+          insertText: name,
           sortText: isTableContext ? '01' : '08',
-          kind: monaco.languages.CompletionItemKind.database,
-          insertText: databaseName,
+          kind: monaco.languages.CompletionItemKind.Property,
         })),
       };
     },
