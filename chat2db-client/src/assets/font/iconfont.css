@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1697982809195') format('woff2'),
-       url('iconfont.woff?t=1697982809195') format('woff'),
-       url('iconfont.ttf?t=1697982809195') format('truetype');
+  src: url('iconfont.woff2?t=1699180324907') format('woff2'),
+       url('iconfont.woff?t=1699180324907') format('woff'),
+       url('iconfont.ttf?t=1699180324907') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,38 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xiajiantou1-copy:before {
+  content: "\100be";
+}
+
+.icon-chakan2:before {
+  content: "\e788";
+}
+
+.icon-clone:before {
+  content: "\e8db";
+}
+
+.icon-tijiao:before {
+  content: "\e687";
+}
+
+.icon-chakan1:before {
+  content: "\e665";
+}
+
+.icon-fuzhi:before {
+  content: "\ec7a";
+}
+
+.icon-icon_answer:before {
+  content: "\e686";
+}
+
+.icon-icon_question:before {
+  content: "\e6a8";
 }
 
 .icon-fasong:before {
@@ -35,10 +67,6 @@
 
 .icon-shengji:before {
   content: "\e69c";
-}
-
-.icon-kuaisushengjix:before {
-  content: "\e65d";
 }
 
 .icon-quanju_shengji:before {
