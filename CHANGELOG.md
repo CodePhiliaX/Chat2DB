@@ -18,11 +18,13 @@
 - ⭐【New Features】The Table tree node operation menu on the left supports copying table, field, key, index, and function names
 - ⭐【New Features】The node in the left Table tree supports ctrl/cmd+c to copy the node text
 - ⭐【New Features】You can right-click to close tabs, close other tabs, or close all tabs
+- ⭐【New Features】Top database and schema support search
 - ⚡️【Optimize】Smart prompts for SQL editing
 - ⚡️【Optimize】Edit the table structure to add loading
 - ⚡️【Optimize】The tree node operation menu supports right-clicking
 - 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
-
+- 🐞【Fixed】Fixed switching the saved sql on the console will eliminate the problem
+- 🐞【Fixed】After multiple tables are paged, the context cannot select a table other than the current page
 
 ## 3.0.9
 

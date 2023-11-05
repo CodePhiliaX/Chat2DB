@@ -71,6 +71,7 @@ const createInitialData = () => {
     autoIncrement: null,
     comment: null,
     primaryKey: null,
+    primaryKeyOrder: null,
     schemaName: null,
     databaseName: null,
     typeName: null,
@@ -215,7 +216,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       dataIndex: 'nullable',
       width: '100px',
       render: (nullable: NullableType | null, record: IColumnItemNew) => {
-        console.log(nullable);
         // const editable = isEditing(record);
         return (
           <div>
@@ -244,6 +244,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               }}
             >
               {primaryKey && <Iconfont code="&#xe775;" />}
+              {primaryKey && <span>{record.primaryKeyOrder}</span>}
             </div>
           </div>
         );
@@ -288,22 +289,46 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   const handelPrimaryKey = (_data: IColumnItemNew) => {
     const newData = dataSource.map((item) => {
+      let primaryKeyOrder:null | number = item.primaryKeyOrder;
+
+      // 如果当前字段是主键，取消主键的时候，比当前字段顺序大的字段顺序-1
+      if(_data.primaryKey) {
+        if(_data.primaryKeyOrder &&  item.primaryKeyOrder && item.primaryKeyOrder >= _data.primaryKeyOrder){
+          primaryKeyOrder  = item.primaryKeyOrder - 1;
+        }
+      }else{
+        // 增加主键的时候，主键顺序为当前表的最大主键顺序+1
+        // 因为在map里所以只对当前字段进行处理
+        if( _data.key === item.key){
+          primaryKeyOrder = Math.max(...dataSource.map(i => {
+            return i.primaryKeyOrder || 0
+          })) + 1;
+        }
+      }
+
       if (item.key === _data?.key) {
         // 判断当前数据是新增的数据还是编辑后的数据
         let editStatus = item.editStatus;
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
         }
+
         const editingDataItem = {
           ...item,
           primaryKey: !item.primaryKey,
+          primaryKeyOrder,
           nullable: !item.primaryKey ? NullableType.NotNull : item.nullable,
           editStatus,
         };
         return editingDataItem;
       }
-      return item;
+
+      return {
+        ...item,
+        primaryKeyOrder,
+      };
     });
+    console.log(newData)
     setDataSource(newData);
   };
 
