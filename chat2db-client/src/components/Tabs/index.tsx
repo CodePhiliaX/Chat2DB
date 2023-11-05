@@ -191,6 +191,7 @@ export default memo<IProps>((props) => {
           )}
         </div>
       )}
+      {/* 隐藏的方案 */}
       <div className={styles.tabsContent}>
         {internalTabs?.map((t) => {
           return (
@@ -205,6 +206,12 @@ export default memo<IProps>((props) => {
           );
         })}
       </div>
+      {/* 直接不要dom的方案 */}
+      {/* <div className={styles.tabsContent}>
+        <div className={classnames(styles.tabsContentItem, styles.tabsContentItemActive)}>
+          {internalTabs.find((t) => t.key === internalActiveTab)?.children}
+        </div>
+      </div> */}
     </div>
   );
 });

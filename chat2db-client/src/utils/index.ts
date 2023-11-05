@@ -273,8 +273,24 @@ export function compareVersion(version1: string, version2: string) {
   return 0;
 }
 
+// 把剪切板的内容转成二维数组
+export function clipboardToArray(text:string):Array<Array<string | null>> {
+  if(!text){
+    return [[]]
+  }
+  try{
+    const rows = text.split('\n')
+    const array2D = rows.map(row => row.split('\t'))
+    return array2D
+  }
+  catch{
+    console.log('copy error')
+    return [[]]
+  }
+}
+
 // 二维数组复制
-export function tableCopy(array2D:string[][]) {
+export function tableCopy(array2D:Array<Array<string | null>>) {
   try{
     const text = array2D.map(row => row.join('\t')).join('\n')
     navigator.clipboard.writeText(text);

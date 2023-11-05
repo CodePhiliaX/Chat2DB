@@ -6,7 +6,7 @@ import MenuLabel from '@/components/MenuLabel';
 interface IProps {
   className?: string;
   children?: React.ReactNode;
-  menuList: IMenu[]
+  menuList: IMenu[] | null;
 }
 
 export interface IMenu {
@@ -15,10 +15,10 @@ export interface IMenu {
   children?: {
     callback: () => void;
     hide?: boolean;
-  }[]
+  }[];
 }
 
-export enum AllSupportedMenusType  {
+export enum AllSupportedMenusType {
   CopyCell = 'copy-cell',
   CopyRow = 'copy-row',
   CloneRow = 'clone-row',
@@ -59,7 +59,7 @@ export default memo<IProps>((props) => {
           label: i18n('common.button.tabularSeparatedValuesFieldNameAndData'),
           key: 'copy-row-5',
         },
-      ]
+      ],
     },
     [AllSupportedMenusType.CloneRow]: {
       label: <MenuLabel icon="&#xe8db;" label={i18n('common.button.cloneRow')} />,
@@ -81,25 +81,33 @@ export default memo<IProps>((props) => {
       label: <MenuLabel icon="&#xe788;" label={i18n('common.button.viewData')} />,
       key: AllSupportedMenusType.ViewData,
     },
-  }
+  };
 
-  const items = useMemo(()=>{
-    return menuList.map((menu) => {
+  const items = useMemo(() => {
+    return menuList?.map((menu) => {
       return {
         ...allSupportedMenus[menu.key],
         onClick: menu.callback,
-        children: menu.children?.map((child,index) => {
+        children: menu.children?.map((child, index) => {
           if (child.hide) return null;
           return {
             ...allSupportedMenus[menu.key]['children'][index],
             onClick: child.callback,
-          }
-        })
-      }
-    })
-  }, [menuList])
+          };
+        }),
+      };
+    });
+  }, [menuList]);
 
-  return <Dropdown menu={{ items }} trigger={["contextMenu"]} >
-    {children}
-  </Dropdown>;
+  return (
+    <Dropdown
+      menu={{
+        items: items || [],
+        style: items ? {} : {display: 'none'},
+      }}
+      trigger={['contextMenu']}
+    >
+      {children}
+    </Dropdown>
+  );
 });

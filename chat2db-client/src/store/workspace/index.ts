@@ -2,16 +2,16 @@ import { create, UseBoundStore, StoreApi } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 
 import { configStore, IConfigStore } from './config';
-import { demoStore, IDemoStore } from './demo';
+import { copyFocusedContent, ICopyFocusedContent } from './copyFocusedContent';
 
-export type IStore = IConfigStore & IDemoStore;
+export type IStore = IConfigStore & ICopyFocusedContent;
 
 export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
   devtools(
     persist(
       (set) => ({
         ...configStore(set),
-        ...demoStore(set),
+        ...copyFocusedContent(set),
       }),
       // persist config
       {

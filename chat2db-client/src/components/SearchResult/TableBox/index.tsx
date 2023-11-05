@@ -3,26 +3,40 @@ import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin, Butto
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
 import classnames from 'classnames';
+import lodash from 'lodash';
+import { v4 as uuid } from 'uuid';
 import i18n from '@/i18n';
+
+// 样式
+import styles from './index.less';
+
+// 工具函数
+import { compareStrings } from '@/utils/sort';
+import { downloadFile } from '@/utils/common';
+import { transformInputValue } from './utils';
+
+// 类型定义
 import { CRUD } from '@/constants';
 import { TableDataType } from '@/constants/table';
-import ExecuteSQL from '@/components/ExecuteSQL';
 import { IManageResultData, IResultConfig } from '@/typings/database';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { compareStrings } from '@/utils/sort';
+
+// api
+import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
+
+// store
+import { useWorkspaceStore } from '@/store/workspace';
+
+// 依赖组件
+import ExecuteSQL from '@/components/ExecuteSQL';
 import { DownOutlined } from '@ant-design/icons';
-import { copy, tableCopy } from '@/utils';
+import { copy, tableCopy, clipboardToArray } from '@/utils';
 import Iconfont from '../../Iconfont';
 import StateIndicator from '../../StateIndicator';
 import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import StatusBar from '../StatusBar';
 import RightClickMenu, { AllSupportedMenusType } from '../RightClickMenu';
-import styles from './index.less';
-import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
-import { downloadFile } from '@/utils/common';
-import lodash from 'lodash';
-import { v4 as uuid } from 'uuid';
 
 interface ITableProps {
   className?: string;
@@ -38,13 +52,13 @@ interface IViewTableCellData {
 }
 
 interface IUpdateData {
-  oldDataList?: string[];
-  dataList?: string[];
+  oldDataList?: Array<string | null>;
+  dataList?: Array<string | null>;
   type: CRUD;
   rowNo: string;
 }
 
-enum USER_FILLED_VALUE {
+export enum USER_FILLED_VALUE {
   DEFAULT = 'CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT',
 }
 
@@ -78,7 +92,7 @@ const defaultPaginationConfig: IResultConfig = {
 export default function TableBox(props: ITableProps) {
   const { className, outerQueryResultData } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
-  const [messageApi, contextHolder] = message.useMessage();
+  const [, contextHolder] = message.useMessage();
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
   // sql查询结果
   const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
@@ -86,7 +100,7 @@ export default function TableBox(props: ITableProps) {
   // 保存原始的表数据，用于撤销
   const [oldTableData, setOldTableData] = useState<{ [key: string]: string }[]>([]);
   // 实时更新的表数据
-  const [tableData, setTableData] = useState<{ [key: string]: string }[]>([]);
+  const [tableData, setTableData] = useState<{ [key: string]: string | null }[]>([]);
   // DataList不带列标识的表数据
   // 保存原始的表数据，用于对比新老数据看是否有变化
   const [oldDataList, setOldDataList] = useState<string[][]>([]);
@@ -118,6 +132,11 @@ export default function TableBox(props: ITableProps) {
   const [columnResize, setColumnResize] = useState<number[]>([0]);
   // 表格的宽度
   // const [tableBoxWidth, setTableBoxWidth] = useState<number>(0);
+  const { setFocusedContent } = useWorkspaceStore((state) => {
+    return {
+      setFocusedContent: state.setFocusedContent,
+    };
+  });
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -217,15 +236,6 @@ export default function TableBox(props: ITableProps) {
     [queryResultData.headerList],
   );
 
-  function viewTableCell(cellData: IViewTableCellData) {
-    setViewTableCellData(cellData);
-  }
-
-  function copyTableCell(cellData: IViewTableCellData) {
-    copy(cellData?.value || viewTableCellData?.value);
-    messageApi.success(i18n('common.button.copySuccessfully'));
-  }
-
   function monacoEditorEditData() {
     const editorData = monacoEditorRef?.current?.getAllContent();
     // 获取原始的该单元格的数据
@@ -271,6 +281,7 @@ export default function TableBox(props: ITableProps) {
     if (editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2]) {
       return;
     }
+    setFocusedContent(value);
     // 聚焦当前单元格，取消对于行的聚焦
     setCurOperationRowNo(null);
     // 当前聚焦或者编辑的单元格的数据
@@ -285,38 +296,52 @@ export default function TableBox(props: ITableProps) {
     }
   };
 
-  // 编辑数据失焦
-  const editDataOnBlur = (type: 'blur' | 'set', _editingData?: string | null) => {
-    // if (type === 'blur') {
-    //   setEditingCell(null);
-    //   setEditingData('');
-    // }
-    // 写入的数据
-    const value: any = type === 'blur' ? editingData : _editingData;
-    const [colIndex, rowNo] = editingCell!;
-    let oldRowDataList: string[] = [];
-    let newRowDataList: string[] = [];
+  // 编辑数据
+  const updateTableData = (type: 'setCell' | 'setRow' , _data: string | null | Array<string | null>) => {
     const newTableData = lodash.cloneDeep(tableData);
-    newTableData.forEach((item) => {
-      if (item[`${preCode}0No.`] === rowNo) {
-        item[`${preCode}${colIndex}${columns[colIndex].name}`] = value;
-        newRowDataList = Object.keys(item).map((i) => item[i]);
-      }
-    });
+    let oldRowDataList: Array<string | null> = [];
+    let newRowDataList: Array<string | null> = [];
+    let curRowNo:string | null = '0';
+    if(type === 'setCell' &&( typeof _data === 'string' || _data === null)){
+      const [colIndex, rowNo] = editingCell!;
+      curRowNo = rowNo;
+      newTableData.forEach((item) => {
+        if (item[`${preCode}0No.`] === rowNo) {
+          item[`${preCode}${colIndex}${columns[colIndex].name}`] = _data;
+          newRowDataList = Object.keys(item).map((i) => item[i]);
+        }
+      });
+    }
+
+    if(type === 'setRow' && Array.isArray(_data)){
+      curRowNo = curOperationRowNo;
+      _data.unshift(curOperationRowNo);
+      newTableData.forEach((t)=>{
+        if(t[`${preCode}0No.`] === curOperationRowNo){
+          const dataLength = Object.keys(t).length;
+          _data.forEach((item, index) => {
+            if(index > dataLength) return 
+            t[`${preCode}${index}${columns[index].name}`] = item || null;
+          });
+          return 
+        }
+      })
+      newRowDataList = _data;
+    }
 
     setTableData(newTableData);
 
     oldDataList.forEach((item) => {
-      if (item[0] === rowNo) {
+      if (item[0] === curRowNo) {
         oldRowDataList = item;
       }
     });
 
-    const index = updateData.findIndex((item) => item.rowNo === rowNo);
+    const index = updateData.findIndex((item) => item.rowNo === curRowNo);
     // 如果newRowDataList和oldRowDataList的数据一样，代表用户虽然编辑过，但是又改回去了，则不需要更新
     if (oldRowDataList?.join(',') === newRowDataList?.join(',')) {
       if (index !== -1) {
-        setUpdateData(updateData.filter((item) => item.rowNo !== rowNo && item.type !== CRUD.UPDATE));
+        setUpdateData(updateData.filter((item) => item.rowNo !== curRowNo && item.type !== CRUD.UPDATE));
       }
       return;
     }
@@ -328,7 +353,7 @@ export default function TableBox(props: ITableProps) {
           type: CRUD.UPDATE,
           oldDataList: oldRowDataList,
           dataList: newRowDataList,
-          rowNo,
+          rowNo:curRowNo!,
         },
       ]);
       return;
@@ -514,6 +539,7 @@ export default function TableBox(props: ITableProps) {
       },
     ]);
     setCurOperationRowNo(newTableData.length.toString());
+    setEditingCell(null);
 
     // 新增一条数据，tableBox需要滚动到最下方
     setTimeout(() => {
@@ -521,37 +547,24 @@ export default function TableBox(props: ITableProps) {
     }, 0);
   };
 
-  // // 获取tableBoxRef的宽度
-  // const getTableBoxRefWidth = () => {
-  //   setTableBoxWidth(tableBoxRef.current?.clientWidth || 0);
-  // };
-
-  // useEffect(()=>{
-  //   window.addEventListener('resize', getTableBoxRefWidth);
-  //   getTableBoxRefWidth();
-  //   return ()=>{
-  //     window.removeEventListener('resize', getTableBoxRefWidth);
-  //   }
-  // },[])
-
   // 处理删除数据
   const handleDeleteData = () => {
-    if (curOperationRowNo === null) {
+    const rowNo = curOperationRowNo || editingCell?.[1];
+    if (rowNo === null) {
       return;
     }
-
     // 如果是新增的行，则直接删除
-    const index = updateData.findIndex((item) => item.rowNo === curOperationRowNo && item.type === CRUD.CREATE);
+    const index = updateData.findIndex((item) => item.rowNo === rowNo && item.type === CRUD.CREATE);
     if (index !== -1) {
       updateData.splice(index, 1);
       setUpdateData([...updateData]);
-      setTableData(tableData.filter((item) => item[`${preCode}0No.`] !== curOperationRowNo));
+      setTableData(tableData.filter((item) => item[`${preCode}0No.`] !== rowNo));
       setCurOperationRowNo(null);
       return;
     }
 
     // 正常的删除数据
-    const deleteIndex = updateData.findIndex((t) => t.rowNo === curOperationRowNo);
+    const deleteIndex = updateData.findIndex((t) => t.rowNo === rowNo);
     if (deleteIndex !== -1) {
       updateData.splice(deleteIndex, 1);
     }
@@ -559,20 +572,21 @@ export default function TableBox(props: ITableProps) {
     // 如果删除的这个数据时编辑过的，要把这个数据恢复
     setTableData(
       tableData.map((item) =>
-        item[`${preCode}0No.`] === curOperationRowNo
-          ? oldTableData.find((i) => i[`${preCode}0No.`] === curOperationRowNo)!
+        item[`${preCode}0No.`] === rowNo
+          ? oldTableData.find((i) => i[`${preCode}0No.`] === rowNo)!
           : item,
       ),
     );
-    const newDataOldList = oldDataList.find((item) => item[0] === curOperationRowNo);
+    const newDataOldList = oldDataList.find((item) => item[0] === rowNo);
     setUpdateData([
       ...updateData,
       {
         type: CRUD.DELETE,
         oldDataList: newDataOldList,
-        rowNo: curOperationRowNo,
+        rowNo: rowNo!,
       },
     ]);
+    setEditingCell(null);
     setCurOperationRowNo(null);
   };
 
@@ -589,12 +603,17 @@ export default function TableBox(props: ITableProps) {
 
   // 更新数据的sql
   const handleUpdateSubmit = () => {
-    if (!updateData.length) {
+    if (!updateData.length || tableLoading) {
       return;
     }
-    getExecuteUpdateSql().then((res) => {
-      executeUpdateDataSql(res);
-    });
+    setTableLoading(true);
+    getExecuteUpdateSql()
+      .then((res) => {
+        executeUpdateDataSql(res);
+      })
+      .catch(() => {
+        setTableLoading(false);
+      });
   };
 
   // 获取更新数据的sql
@@ -624,19 +643,24 @@ export default function TableBox(props: ITableProps) {
       schemaName: props.executeSqlParams?.schemaName,
       tableName: queryResultData.tableName,
     };
-    sqlService.executeUpdateDataSql(executeSQLParams).then((res) => {
-      if (res?.success) {
-        // 更新成功后，需要重新获取表格数据
-        getTableData().then(() => {
-          message.success(i18n('common.text.successfulExecution'));
-          setUpdateData([]);
-        });
-      } else {
-        setUpdateDataSql(res.sql);
-        setViewUpdateDataSqlModal(true);
-        setInitError(res.message);
-      }
-    });
+    sqlService
+      .executeUpdateDataSql(executeSQLParams)
+      .then((res) => {
+        if (res?.success) {
+          // 更新成功后，需要重新获取表格数据
+          getTableData().then(() => {
+            message.success(i18n('common.text.successfulExecution'));
+            setUpdateData([]);
+          });
+        } else {
+          setUpdateDataSql(res?.sql);
+          setViewUpdateDataSqlModal(true);
+          setInitError(res.message);
+        }
+      })
+      .finally(() => {
+        setTableLoading(false);
+      });
   };
 
   // 获取表格数据 接受一个参数params 包含IExecuteSqlParams中的一个或多个
@@ -692,122 +716,46 @@ export default function TableBox(props: ITableProps) {
     return true;
   }, [curOperationRowNo, updateData, editingCell]);
 
-  const copyRow = {
-    key: AllSupportedMenusType.CopyRow,
-    children: [
-      {
-        callback: () => {
-          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-          const _updateData = {
-            type: CRUD.CREATE,
-            dataList: newRowDataList,
-            rowNo: (tableData.length + 1).toString(),
-          };
-          getExecuteUpdateSql([_updateData]).then((res) => {
-            copy(res);
+  const handelRowNoClick = (rowNo: string) => {
+    setEditingCell(null);
+    setCurOperationRowNo(rowNo);
+    const newRowData = tableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+    const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+    newRowDataList.splice(0, 1);
+    setFocusedContent([newRowDataList]);
+  };
+
+  useEffect(() => {
+    const handleCopy = () => {
+      if(curOperationRowNo) {
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            const array2D =  clipboardToArray(text);
+            updateTableData('setRow', array2D[0]);
+          })
+          .catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
           });
-        },
-        hide: !queryResultData.canEdit,
-      },
-      {
-        callback: () => {
-          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-          const _updateData = {
-            type: CRUD.UPDATE_COPY,
-            dataList: newRowDataList,
-            rowNo: (tableData.length + 1).toString(),
-          };
-          getExecuteUpdateSql([_updateData]).then((res) => {
-            copy(res);
+      }
+      if(editingCell && editingCell[2] === false){
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            updateTableData('setCell', text);
+          })
+          .catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
           });
-        },
-        hide: !queryResultData.canEdit,
-      },
-      // 复制当前行的数据
-      {
-        callback: () => {
-          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-          // 去掉No列
-          newRowDataList.splice(0, 1);
-          tableCopy([newRowDataList]);
-        },
-      },
-      // 复制表头
-      {
-        callback: () => {
-          const headerList = queryResultData.headerList.map((item) => item.name);
-          // 去掉No列
-          headerList.splice(0, 1);
-          tableCopy([headerList]);
-        },
-      },
-      // 复制表头和当前行的数据
-      {
-        callback: () => {
-          const headerList = queryResultData.headerList.map((item) => item.name);
-          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
-          // 去掉No列
-          headerList.splice(0, 1);
-          const array2D = [headerList, newRowDataList];
-          tableCopy(array2D);
-        },
-      },
-    ],
-  };
+      }
+    };
+    document.addEventListener('paste', handleCopy);
+    return () => {
+      document.removeEventListener('paste', handleCopy);
+    };
+  }, [curOperationRowNo, editingCell]);
 
-  const cloneRow = {
-    key: AllSupportedMenusType.CloneRow,
-    callback: () => {
-      const newTableData = lodash.cloneDeep(tableData);
-      const newRowData = newTableData.find((item) => item[`${preCode}0No.`] === curOperationRowNo)!;
-      newRowData[`${preCode}0No.`] = (newTableData.length + 1).toString();
-      handleCreateData(newRowData);
-    },
-  };
-
-  const deleteRow = {
-    key: AllSupportedMenusType.DeleteRow,
-    callback: handleDeleteData,
-  };
-
-  const copyCell = {
-    key: AllSupportedMenusType.CopyCell,
-    callback: () => {
-      copy(editingData);
-    },
-  };
-
-  const setDefault = {
-    key: AllSupportedMenusType.SetDefault,
-    callback: () => {
-      editDataOnBlur('set', USER_FILLED_VALUE.DEFAULT);
-    },
-  };
-
-  const setNull = {
-    key: AllSupportedMenusType.SetNull,
-    callback: () => {
-      editDataOnBlur('set', null);
-    },
-  };
-
-  const viewData = {
-    key: AllSupportedMenusType.ViewData,
-    callback: () => {
-      setViewTableCellData({
-        name: columns[editingCell![0]].name,
-        value: editingData,
-        colIndex: editingCell![0],
-        rowNo: editingCell![1],
-      });
-    },
-  }
-
-  // 表格的列配置
+  // 表格 列配置
   const columns: ArtColumn[] = useMemo(() => {
     return (queryResultData.headerList || []).map((item, colIndex) => {
       const { dataType, name } = item;
@@ -815,39 +763,27 @@ export default function TableBox(props: ITableProps) {
       const isNumericalOrder = dataType === TableDataType.CHAT2DB_ROW_NUMBER;
       if (isNumericalOrder) {
         return {
-          code: `${preCode}${colIndex}No.`,
+          code: `${preCode}0No.`,
           name: 'No.',
           title: <div />,
           key: name,
           lock: true,
           // features: { sortable: compareStrings },
           render: (value: any, rowData) => {
-            console.log(value, rowData);
             const rowNo = rowData[`${preCode}0No.`];
-            let rowRightClickMenu = [copyRow, cloneRow, deleteRow];
-            // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
-            if (!queryResultData.canEdit) {
-              rowRightClickMenu = rowRightClickMenu.filter(
-                (i) => i.key !== AllSupportedMenusType.CloneRow && i.key !== AllSupportedMenusType.DeleteRow,
-              );
-            }
             return (
-              <RightClickMenu menuList={rowRightClickMenu}>
                 <div
+                  data-chat2db-can-copy-element
                   onClick={() => {
-                    setEditingCell(null);
-                    setCurOperationRowNo(rowNo);
+                    handelRowNoClick(rowNo);
                   }}
-                  // 右键
                   onContextMenu={() => {
-                    setEditingCell(null);
-                    setCurOperationRowNo(rowNo);
+                    handelRowNoClick(rowNo);
                   }}
                   className={tableCellStyle(value, colIndex, rowNo)}
                 >
                   <div className={styles.tableItemNo}>{value}</div>
                 </div>
-              </RightClickMenu>
             );
           },
         };
@@ -860,57 +796,42 @@ export default function TableBox(props: ITableProps) {
         // title: <div>{name}</div>,
         render: (value: any, rowData) => {
           const rowNo = rowData[`${preCode}0No.`];
-          let cellRightClickMenu = [viewData, copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
-          // 判断是否有默认值,如果没有默认值，则不显示设置默认值的菜单
-          const hasDefaultValue = queryResultData.headerList.find((i) => i.name === name)?.defaultValue !== null;
-          if (!hasDefaultValue) {
-            cellRightClickMenu = cellRightClickMenu.filter((i) => i.key !== AllSupportedMenusType.SetDefault);
-          }
-          // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
-          if (!queryResultData.canEdit) {
-            cellRightClickMenu = cellRightClickMenu.filter(
-              (i) =>
-                i.key !== AllSupportedMenusType.CloneRow &&
-                i.key !== AllSupportedMenusType.DeleteRow &&
-                i.key !== AllSupportedMenusType.SetNull,
-            );
-          }
           return (
-            <RightClickMenu menuList={cellRightClickMenu}>
-              <div
-                className={tableCellStyle(value, colIndex, rowNo)}
-                onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
-                onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
-                onContextMenu={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
-              >
-                {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
-                  <Input
-                    ref={editDataInputRef}
-                    value={editingData}
-                    onChange={(e) => {
-                      setEditingData(e.target.value);
-                    }}
-                    onBlur={() => {
-                      editDataOnBlur('blur');
-                    }}
-                  />
-                ) : (
-                  <>
-                    <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
-                    {/* <div className={styles.tableHoverBox}>
-                      <Iconfont
-                        code="&#xe606;"
-                        onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                      />
-                      <Iconfont
-                        code="&#xeb4e;"
-                        onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
-                      />
-                    </div> */}
-                  </>
-                )}
-              </div>
-            </RightClickMenu>
+            <div
+              data-chat2db-can-copy-element
+              className={tableCellStyle(value, colIndex, rowNo)}
+              onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
+              onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
+              onContextMenu={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
+            >
+              {editingCell?.[0] === colIndex && editingCell?.[1] === rowNo && editingCell?.[2] ? (
+                <Input
+                  ref={editDataInputRef}
+                  value={transformInputValue(editingData) as any}
+                  onChange={(e) => {
+                    setEditingData(e.target.value);
+                  }}
+                  onBlur={() => {
+                    setEditingCell([editingCell![0], editingCell![1], false]);
+                    updateTableData('setCell', editingData);
+                  }}
+                />
+              ) : (
+                <>
+                  <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
+                  {/* <div className={styles.tableHoverBox}>
+                    <Iconfont
+                      code="&#xe606;"
+                      onClick={viewTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
+                    <Iconfont
+                      code="&#xeb4e;"
+                      onClick={copyTableCell.bind(null, { name: item.name, value, colIndex, rowNo })}
+                    />
+                  </div> */}
+                </>
+              )}
+            </div>
           );
         },
         // 如果是数字类型，因为后端返回的都是字符串，所以需要调用字符串对比函数来判断
@@ -947,19 +868,175 @@ export default function TableBox(props: ITableProps) {
         },
       }),
     );
-  // .use(
-  //   features.columnResize({
-  //     fallbackSize: 120,
-  //     handleActiveBackground: `var(--color-primary-bg-hover)`,
-  //   }),
-  // );
-  // .use(
-  //   features.columnResize({
-  //     fallbackSize: 120,
-  //     minSize: 60,
-  //     maxSize: 1080,
-  //   }),
-  // );
+
+  // 右键菜单配置项
+  const copyRow = {
+    key: AllSupportedMenusType.CopyRow,
+    children: [
+      {
+        callback: () => {
+          const rowNo = curOperationRowNo || editingCell![1];
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          const _updateData = {
+            type: CRUD.CREATE,
+            dataList: newRowDataList,
+            rowNo: (tableData.length + 1).toString(),
+          };
+          getExecuteUpdateSql([_updateData]).then((res) => {
+            copy(res);
+          });
+        },
+        hide: !queryResultData.canEdit,
+      },
+      {
+        callback: () => {
+          const rowNo = curOperationRowNo || editingCell![1];
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          const _updateData = {
+            type: CRUD.UPDATE_COPY,
+            dataList: newRowDataList,
+            rowNo: (tableData.length + 1).toString(),
+          };
+          getExecuteUpdateSql([_updateData]).then((res) => {
+            copy(res);
+          });
+        },
+        hide: !queryResultData.canEdit,
+      },
+      // 复制当前行的数据
+      {
+        callback: () => {
+          const rowNo = curOperationRowNo || editingCell![1];
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          // 去掉No列
+          newRowDataList.splice(0, 1);
+          tableCopy([newRowDataList]);
+        },
+      },
+      // 复制表头
+      {
+        callback: () => {
+          const headerList = queryResultData.headerList.map((item) => item.name);
+          // 去掉No列
+          headerList.splice(0, 1);
+          tableCopy([headerList]);
+        },
+      },
+      // 复制表头和当前行的数据
+      {
+        callback: () => {
+          const rowNo = curOperationRowNo || editingCell![1];
+          const headerList = queryResultData.headerList.map((item) => item.name);
+          const newRowData = tableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+          const newRowDataList = Object.keys(newRowData).map((item) => newRowData[item]);
+          // 去掉No列
+          headerList.splice(0, 1);
+          const array2D = [headerList, newRowDataList];
+          tableCopy(array2D);
+        },
+      },
+    ],
+  };
+
+  const cloneRow = {
+    key: AllSupportedMenusType.CloneRow,
+    callback: () => {
+      const newTableData = lodash.cloneDeep(tableData);
+      const rowNo = curOperationRowNo || editingCell![1];
+      const newRowData = newTableData.find((item) => item[`${preCode}0No.`] === rowNo)!;
+      newRowData[`${preCode}0No.`] = (newTableData.length + 1).toString();
+      handleCreateData(newRowData);
+    },
+  };
+
+  const deleteRow = {
+    key: AllSupportedMenusType.DeleteRow,
+    callback: handleDeleteData,
+  };
+
+  const copyCell = {
+    key: AllSupportedMenusType.CopyCell,
+    callback: () => {
+      copy(editingData);
+    },
+  };
+
+  const setDefault = {
+    key: AllSupportedMenusType.SetDefault,
+    callback: () => {
+      updateTableData('setCell', USER_FILLED_VALUE.DEFAULT);
+    },
+  };
+
+  const setNull = {
+    key: AllSupportedMenusType.SetNull,
+    callback: () => {
+      updateTableData('setCell', null);
+    },
+  };
+
+  const viewData = {
+    key: AllSupportedMenusType.ViewData,
+    callback: () => {
+      setViewTableCellData({
+        name: columns[editingCell![0]].name,
+        value: editingData,
+        colIndex: editingCell![0],
+        rowNo: editingCell![1],
+      });
+    },
+  };
+  const rowRightClickMenu = useMemo(()=>{
+    // const allSupportedMenus = {
+    //   [AllSupportedMenusType.CopyCell]: copyCell,
+    //   [AllSupportedMenusType.CopyRow]: copyRow,
+    //   [AllSupportedMenusType.CloneRow]: cloneRow,
+    //   [AllSupportedMenusType.DeleteRow]: deleteRow,
+    //   [AllSupportedMenusType.SetDefault]: setDefault,
+    //   [AllSupportedMenusType.SetNull]: setNull,
+    //   [AllSupportedMenusType.ViewData]: viewData,
+    // }
+
+    let rightClickMenu:any = [];
+    if(curOperationRowNo){
+      rightClickMenu = [copyRow, cloneRow, deleteRow];
+      // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
+      if (!queryResultData.canEdit) {
+        rightClickMenu = rightClickMenu.filter(
+          (i) => i.key !== AllSupportedMenusType.CloneRow && i.key !== AllSupportedMenusType.DeleteRow,
+        );
+      }
+    }
+
+    if(editingCell){
+      rightClickMenu = [viewData, copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
+      // 判断是否有默认值,如果没有默认值，则不显示设置默认值的菜单
+      const hasDefaultValue =
+        queryResultData.headerList.find((item) => item.name === columns[editingCell![0]].name)?.defaultValue !== null;
+      if (!hasDefaultValue) {
+        rightClickMenu = rightClickMenu.filter((i) => i.key !== AllSupportedMenusType.SetDefault);
+      }
+      // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
+      if (!queryResultData.canEdit) {
+        rightClickMenu = rightClickMenu.filter(
+          (i) =>
+            i.key !== AllSupportedMenusType.CloneRow &&
+            i.key !== AllSupportedMenusType.DeleteRow &&
+            i.key !== AllSupportedMenusType.SetNull,
+        );
+      }
+    }
+
+
+    if(!curOperationRowNo && !editingCell){
+      return null
+    }
+    return rightClickMenu
+
+  },[curOperationRowNo, editingCell])
 
   const renderContent = () => {
     const bottomStatus = (
@@ -1073,23 +1150,25 @@ export default function TableBox(props: ITableProps) {
               </Dropdown>
             </div>
           </div>
-          <div
-            ref={tableBoxRef}
-            className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
-          >
-            {allDataReady && (
-              <>
-                {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
-                <SupportBaseTable
-                  className={classnames('supportBaseTable', props.className, styles.table)}
-                  components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-                  isStickyHead
-                  stickyTop={31}
-                  {...pipeline.getProps()}
-                />
-              </>
-            )}
-          </div>
+          <RightClickMenu menuList={rowRightClickMenu}>
+            <div
+              ref={tableBoxRef}
+              className={classnames(styles.supportBaseTableBox, { [styles.supportBaseTableBoxHidden]: tableLoading })}
+            >
+              {allDataReady && (
+                <>
+                  {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
+                    <SupportBaseTable
+                      className={classnames('supportBaseTable', props.className, styles.table)}
+                      components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+                      isStickyHead
+                      stickyTop={31}
+                      {...pipeline.getProps()}
+                    />
+                </>
+              )}
+            </div>
+          </RightClickMenu>
           <StatusBar
             description={queryResultData.description}
             duration={queryResultData.duration}
@@ -1110,11 +1189,13 @@ export default function TableBox(props: ITableProps) {
         width="60vw"
         maskClosable={false}
         destroyOnClose={true}
-        footer={queryResultData.canEdit && [
-          <Button key="1" type="primary" onClick={monacoEditorEditData}>
-            {i18n('common.button.modify')}
-          </Button>,
-        ]}
+        footer={
+          queryResultData.canEdit && [
+            <Button key="1" type="primary" onClick={monacoEditorEditData}>
+              {i18n('common.button.modify')}
+            </Button>,
+          ]
+        }
       >
         <>
           <div className={styles.monacoEditor}>
@@ -1129,7 +1210,6 @@ export default function TableBox(props: ITableProps) {
                 lineNumbers: 'off',
                 readOnly: !queryResultData.canEdit,
               }}
-
             />
           </div>
         </>

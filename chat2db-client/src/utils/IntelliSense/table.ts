@@ -27,11 +27,11 @@ function checkTableContext(text) {
 }
 
 const handleInsertText = (keyword: string, tableName: string, databaseCode: DatabaseTypeCode) => {
-  console.log('test', /^[\"\`\[]/.test(keyword));
+  // console.log('test', /^[\"\`\[]/.test(keyword));
   if (/^[\"\`\[]/.test(keyword)) {
     return tableName;
   }
-  console.log('databaseCode', databaseCode);
+  // console.log('databaseCode', databaseCode);
   return compatibleDataBaseName(tableName, databaseCode);
 };
 

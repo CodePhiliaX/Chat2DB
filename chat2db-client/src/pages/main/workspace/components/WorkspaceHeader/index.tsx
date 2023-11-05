@@ -308,7 +308,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 />
                 <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
                 <div className={styles.pullDownArrow}>
-                  <Iconfont code="&#xe88e;" />
+                  <Iconfont code="&#x100be;" />
                 </div>
               </div>
             </Cascader>
@@ -342,7 +342,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                     </div>
                   );
                 }}
-                onChange={databaseChange}
+                onChange={databaseChange as any}
                 bordered={false}
                 value={[curWorkspaceParams?.databaseName || '']}
               >
@@ -353,7 +353,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   />
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
                   <div className={styles.pullDownArrow}>
-                    <Iconfont code="&#xe88e;" />
+                    <Iconfont code="&#x100be;" />
                   </div>
                 </div>
               </Cascader>
@@ -395,7 +395,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   <Iconfont className={styles.databaseTypeIcon} code="&#xe696;" />
                   <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
                   <div className={styles.pullDownArrow}>
-                    <Iconfont code="&#xe88e;" />
+                    <Iconfont code="&#x100be;" />
                   </div>
                 </div>
               </Cascader>
