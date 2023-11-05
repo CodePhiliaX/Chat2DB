@@ -31,6 +31,7 @@ export default {
   'editTable.label.engine': 'Engine',
   'editTable.label.incrementValue': 'Increment value',
   'editTable.label.order': 'Order',
+  'editTable.label.primaryKey': 'Key',
   'editTable.title.sqlPreview': 'SQL preview',
   'editTable.button.addColumn': 'Add column',
   'editTable.button.addIndex': 'Add Index',

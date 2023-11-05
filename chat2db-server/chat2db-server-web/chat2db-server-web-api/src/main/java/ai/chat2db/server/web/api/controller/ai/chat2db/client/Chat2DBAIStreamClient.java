@@ -1,12 +1,17 @@
 package ai.chat2db.server.web.api.controller.ai.chat2db.client;
 
+import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
+import ai.chat2db.server.domain.api.model.Config;
+import ai.chat2db.server.domain.api.service.ConfigService;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.web.api.controller.ai.chat2db.interceptor.Chat2dbHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatOpenAiApi;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbedding;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
+import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
 import com.unfbx.chatgpt.interceptor.HeaderAuthorizationInterceptor;
@@ -100,7 +105,7 @@ public class Chat2DBAIStreamClient {
     private OkHttpClient okHttpClient() {
         OkHttpClient okHttpClient = new OkHttpClient
             .Builder()
-            .addInterceptor(new HeaderAuthorizationInterceptor(Lists.newArrayList(this.apiKey)))
+            .addInterceptor(new Chat2dbHeaderAuthorizationInterceptor(this.apiKey, this.model))
             .connectTimeout(50, TimeUnit.SECONDS)
             .writeTimeout(50, TimeUnit.SECONDS)
             .readTimeout(50, TimeUnit.SECONDS)
@@ -191,7 +196,6 @@ public class Chat2DBAIStreamClient {
             log.error("param error：ChatEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
             ChatCompletion chatCompletion = ChatCompletion.builder()
                     .messages(chatMessages)

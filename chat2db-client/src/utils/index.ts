@@ -1,6 +1,6 @@
 import { ThemeType, DatabaseTypeCode } from '@/constants';
 import { ITreeNode } from '@/typings';
-import clipboardCopy from 'copy-to-clipboard';
+// import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
 import sqlServer from '@/service/sql';
 import { format } from 'sql-formatter';
@@ -180,11 +180,6 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
   return false;
 }
 
-// Copy
-export function copy(message: string) {
-  clipboardCopy(message);
-}
-
 // 获取应用的一些基本信息
 export function getApplicationMessage() {
   const env = __ENV__;
@@ -271,4 +266,37 @@ export function compareVersion(version1: string, version2: string) {
       return -1;
     }
   return 0;
+}
+
+// 把剪切板的内容转成二维数组
+export function clipboardToArray(text:string):Array<Array<string | null>> {
+  if(!text){
+    return [[]]
+  }
+  try{
+    const rows = text.split('\n')
+    const array2D = rows.map(row => row.split('\t'))
+    return array2D
+  }
+  catch{
+    console.log('copy error')
+    return [[]]
+  }
+}
+
+// Copy
+export function copy(message: string) {
+  // clipboardCopy(message);
+  navigator.clipboard.writeText(message);
+}
+
+// 二维数组复制
+export function tableCopy(array2D:Array<Array<string | null>>) {
+  try{
+    const text = array2D.map(row => row.join('\t')).join('\n')
+    navigator.clipboard.writeText(text);
+  }
+  catch{
+    console.log('copy error')
+  }
 }

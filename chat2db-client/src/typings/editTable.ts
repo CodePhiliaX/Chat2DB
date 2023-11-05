@@ -1,4 +1,4 @@
-import { IndexesType, EditColumnOperationType } from '@/constants';
+import { IndexesType, EditColumnOperationType, NullableType } from '@/constants';
 
 // 编辑表时表的基础数据
 export interface IBaseInfo {
@@ -25,7 +25,7 @@ export interface IColumnItemNew {
   defaultValue: string | null; // 默认值
   autoIncrement: string | null; // 是否自增
   comment: string | null; // 注释
-  primaryKey: string | null; // 是否主键
+  primaryKey: boolean | null; // 是否主键
   typeName: string | null; // 类型名
   columnSize: number | null; // 列的长度
   bufferLength: number | null; // 缓冲区长度
@@ -35,7 +35,7 @@ export interface IColumnItemNew {
   sqlDatetimeSub: string| null; // sql日期时间子类型
   charOctetLength:string|  null; // 字符串最大长度
   ordinalPosition: number| null; // 位置
-  nullable: 0 | 1 | null; //是否为空
+  nullable: NullableType | null; //是否为空
   generatedColumn: string | null; // 是否生成列
 
   charSetName: string | null; // 字符集名

@@ -3,23 +3,18 @@ package ai.chat2db.server.web.api.controller.ai.baichuan.client;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.baichuan.interceptor.BaichuanHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.baichuan.model.BaichuanChatCompletionsOptions;
-import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHeaderAuthorizationInterceptor;
-import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.sse.EventSource;
+import okhttp3.*;
 import okhttp3.sse.EventSourceListener;
-import okhttp3.sse.EventSources;
+import okio.BufferedSource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -195,7 +190,6 @@ public class BaichuanAIStreamClient {
             chatCompletionsOptions.setModel(this.model);
             chatCompletionsOptions.setMessages(chatMessages);
 
-            EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
@@ -203,7 +197,23 @@ public class BaichuanAIStreamClient {
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
             //创建事件
-            EventSource eventSource = factory.newEventSource(request, eventSourceListener);
+            // 发送请求并处理响应
+            try (Response response = this.okHttpClient.newCall(request).execute()) {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                }
+
+                // 读取并输出响应数据
+                BufferedSource source = response.body().source();
+                while (!source.exhausted()) {
+                    String content = source.readUtf8Line();
+                    eventSourceListener.onEvent(null, "[DATA]", null, content);
+                }
+                eventSourceListener.onEvent(null, "[DONE]", null, "[DONE]");
+            } catch (Exception e) {
+                log.error("baichuan ai error", e);
+            }
+
             log.info("finish invoking baichuan ai");
         } catch (Exception e) {
             log.error("baichuan ai error", e);

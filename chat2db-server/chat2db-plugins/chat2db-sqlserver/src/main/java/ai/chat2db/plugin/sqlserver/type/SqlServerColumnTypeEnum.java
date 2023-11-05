@@ -267,7 +267,7 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
 
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn) {
+    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();

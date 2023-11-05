@@ -15,7 +15,8 @@ public interface ColumnBuilder {
     /**
      * Build modify column sql
      * @param tableColumn
+     * @param oldColumn
      * @return
      */
-    String buildModifyColumn(TableColumn tableColumn);
+    String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn);
 }

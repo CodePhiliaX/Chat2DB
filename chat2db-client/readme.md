@@ -10,13 +10,16 @@
 
 ## 启动项目
 
+
 强制使用 yarn，因为环境变量、lock 文件只维护了 yarn，npm/pnpm 可能会产生意想不到的 bug node 版本要求 16 以上 `npm i -g yarn` `yarn` `yarn run build:web:prod` `cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front` (复制打包结果到指定目录。windows 可能命令不一样，可以手动复制下) 之后就可以启动后端了 `mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml`
 
 启动前端项目调试 `yarn run start:web` 注意：因为 electron 包比较难下载，如果 yarn 时 electron 下载失败或超时，可以删除掉 chat2db-client/package.json 下的 electron，再次 yarn
 
-## TS 书写规范
+## TS书写规范
 
-1. 所有的 interface 与 type 必须已 I 开头 `interface IState { name: string }` // good `interface State { name: string }` // bad
+  1. 所有的interface 与 type 必须已I开头
+    `interface IState { name: string }` // good
+    `interface State { name: string }` // bad
 
 ## 如何在 js 与 css 中使用颜色
 

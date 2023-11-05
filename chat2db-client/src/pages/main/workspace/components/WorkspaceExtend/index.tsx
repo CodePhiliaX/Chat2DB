@@ -5,6 +5,7 @@ import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import Output from '@/components/Output';
 import { useWorkspaceStore } from '@/store/workspace';
+import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
@@ -32,7 +33,7 @@ export default memo<IProps>((props) => {
     // },
     {
       code: 'executiveLog',
-      title: '执行记录',
+      title: i18n('common.title.executiveLogging'),
       icon: '\ue8ad',
       components: <Output curWorkspaceParams={props.curWorkspaceParams} />,
     },
@@ -45,8 +46,6 @@ export default memo<IProps>((props) => {
     }
     setActiveExtend(item);
   };
-
-  console.log(props.curWorkspaceParams)
 
   return (
     <div

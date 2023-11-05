@@ -60,7 +60,7 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
 //   CreateTable = 'createTable',
 //   CreateConsole = 'createConsole',
 //   DeleteTable = 'deleteTable',
-//   ExportDDL = 'exportDDL',
+//   ViewDDL = 'viewDDL',
 //   EditSource = 'editSource',
 //   Top = 'top',
 //   EditTable = 'editTable',
@@ -100,7 +100,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 extraParams: {
                   databaseType: t.type,
                   dataSourceId: t.id,
-                  dataSourceName: t.name,
+                  dataSourceName: t.alias,
                 },
               };
             });
@@ -114,6 +114,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.DATA_SOURCE]: {
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         connectionService
           .getDBList(params)
@@ -124,7 +126,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 name: t.name,
                 treeNodeType: TreeNodeType.DATABASE,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   databaseName: t.name,
                 },
               };
@@ -141,7 +143,9 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.DATABASE]: {
     icon: '\ue62c',
-    getChildren: (params: ISchemaParams) => {
+    getChildren: (params) => {
+      // const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[], b?: any) => void, j) => {
         connectionService
           .getSchemaList(params)
@@ -155,17 +159,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
               };
             });
             r(data);
-            // if (data.length) {
-            // } else {
-            //   let data = [
-            //     {
-            //       key: params.databaseName + 'tables',
-            //       name: 'tables',
-            //       treeNodeType: TreeNodeType.TABLES,
-            //     }
-            //   ]
-            //   r(data, 'custom');
-            // }
           })
           .catch((error) => {
             j();
@@ -179,7 +172,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     icon: '\ue696',
     getChildren: (parentData: ITreeNode) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
-        let data = [
+        const data = [
           {
             key: parentData.name + 'tables',
             name: 'tables',
@@ -195,6 +188,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.TABLES]: {
     icon: '\ueac5',
     getChildren: (params, options) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r, j) => {
         mysqlServer
           .getTableList(params, options)
@@ -207,7 +202,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 pinned: t.pinned,
                 comment: t.comment,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   tableName: t.name,
                 },
               };
@@ -256,10 +251,10 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
     operationColumn: [
-      // OperationColumn.EditTableData,
       OperationColumn.Top,
-      OperationColumn.ExportDDL,
+      OperationColumn.ViewDDL,
       OperationColumn.EditTable,
+      OperationColumn.CopyName,
       OperationColumn.DeleteTable,
     ],
   },
@@ -267,6 +262,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.VIEWS]: {
     icon: '\ue70c',
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getViewList(params)
@@ -279,7 +276,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 pinned: t.pinned,
                 comment: t.comment,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   tableName: t.name,
                 },
               };
@@ -296,6 +293,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.FUNCTIONS]: {
     icon: '\ue76a',
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getFunctionList(params)
@@ -309,7 +308,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 comment: t.comment,
                 isLeaf: true,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   functionName: t.functionName,
                 },
               };
@@ -325,11 +324,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.FUNCTION]: {
     icon: '\ue76a',
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.PROCEDURES]: {
     icon: '\ue73c',
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getProcedureList(params)
@@ -343,7 +345,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 comment: t.comment,
                 isLeaf: true,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   procedureName: t.procedureName,
                 },
               };
@@ -359,11 +361,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.PROCEDURE]: {
     icon: '\ue73c',
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.TRIGGERS]: {
     icon: '\ue64a',
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getTriggerList(params)
@@ -377,7 +382,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 comment: t.comment,
                 isLeaf: true,
                 extraParams: {
-                  ...params.extraParams,
+                  ..._extraParams,
                   triggerName: t.triggerName,
                 },
               };
@@ -393,6 +398,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEW]: {
@@ -410,11 +416,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(list);
       });
     },
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEWCOLUMNS]: {
     icon: '\ue647',
     getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getViewColumnList(params)
@@ -427,9 +436,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 pinned: t.pinned,
                 comment: t.comment,
                 isLeaf: true,
-                extraParams: {
-                  ...params.extraParams,
-                },
+                extraParams: _extraParams,
               };
             });
             r(list);
@@ -442,11 +449,14 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.VIEWCOLUMN]: {
     icon: '\ue647',
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.COLUMNS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getColumnList(params)
@@ -459,6 +469,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 isLeaf: true,
                 columnType: item.columnType,
                 comment: item.comment,
+                extraParams: _extraParams,
               };
             });
             r(tableList);
@@ -472,10 +483,13 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611',
+    operationColumn: [OperationColumn.CopyName],
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getKeyList(params)
@@ -486,6 +500,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.KEY,
                 key: item.name,
                 isLeaf: true,
+                extraParams: _extraParams,
               };
             });
             r(tableList);
@@ -495,13 +510,17 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.Refresh],
   },
   [TreeNodeType.KEY]: {
     icon: '\ue775',
+    operationColumn: [OperationColumn.CopyName],
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
-    getChildren: (params: ITableParams) => {
+    getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
           .getIndexList(params)
@@ -512,6 +531,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 treeNodeType: TreeNodeType.INDEX,
                 key: item.name,
                 isLeaf: true,
+                extraParams: _extraParams,
               };
             });
             r(tableList);
@@ -521,8 +541,10 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.Refresh],
   },
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
+    operationColumn: [OperationColumn.CopyName],
   },
 };

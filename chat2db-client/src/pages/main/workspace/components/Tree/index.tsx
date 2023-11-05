@@ -10,6 +10,7 @@ import { TreeNodeType, databaseMap } from '@/constants';
 import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { IWorkspaceModelType, ICurWorkspaceParams } from '@/models/workspace';
+import { useCommonStore } from '@/store/common';
 
 interface IProps {
   className?: string;
@@ -83,6 +84,11 @@ const TreeNode = (props: TreeNodeIProps) => {
   const indentArr = new Array(level).fill('indent');
   const [openTooltipComment, setOpenTooltipComment] = useState(false);
   const contentTextRef = React.useRef<HTMLDivElement>(null);
+  const { setFocusedContent } = useCommonStore((state) => {
+    return {
+      setFocusedContent: state.setFocusedContent,
+    };
+  });
 
   useEffect(() => {
     if (!data.comment) {
@@ -103,8 +109,12 @@ const TreeNode = (props: TreeNodeIProps) => {
     const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
     treeNodeConfig
       .getChildren?.({
-        ...data,
-        ...(data.extraParams || {}),
+        ...data.extraParams,
+        extraParams: {
+          ...data.extraParams,
+        },
+        // ...data,
+        // ...(data.extraParams || {}),
       })
       .then((res) => {
         if (res.length) {
@@ -123,7 +133,7 @@ const TreeNode = (props: TreeNodeIProps) => {
           // }
         }
       })
-      .catch((error) => {
+      .catch(() => {
         setIsLoading(false);
       });
   }
@@ -153,17 +163,6 @@ const TreeNode = (props: TreeNodeIProps) => {
     }
   };
 
-  function renderTitle(data: ITreeNode) {
-    return (
-      <>
-        <span>{data.name}</span>
-        {data.columnType && data.treeNodeType === TreeNodeType.COLUMN && (
-          <span style={{ color: callVar('--color-primary') }}>（{data.columnType}）</span>
-        )}
-      </>
-    );
-  }
-
   function nodeDoubleClick() {
     if (
       data.treeNodeType === TreeNodeType.TABLE ||
@@ -192,59 +191,77 @@ const TreeNode = (props: TreeNodeIProps) => {
     }
   }
 
+  const handelClickTreeNode = () => {
+    console.log(data.key,'data.key')
+    setFocusedContent((data.key || '') as any);
+  };
+
   return show ? (
     <>
-      <Tooltip
-        open={openTooltipComment}
-        placement="right"
-        color={window._AppThemePack.colorPrimary}
-        title={data.comment}
+      <TreeNodeRightClick
+        setIsLoading={setIsLoading}
+        dispatch={dispatch}
+        className={styles.moreButton}
+        data={data}
+        curWorkspaceParams={curWorkspaceParams}
+        trigger={['contextMenu']}
       >
-        <div className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}>
-          <div className={styles.left}>
-            {indentArr.map((item, i) => {
-              return <div key={i} className={styles.indent} />;
-            })}
-          </div>
-          <div className={styles.right}>
-            {!data.isLeaf && (
-              <div
-                onClick={handleClick.bind(null, data)}
-                className={classnames(styles.arrows, { [styles.loadingArrows]: isLoading })}
-              >
-                {isLoading ? (
-                  <div className={styles.loadingIcon}>
-                    <Iconfont code="&#xe6cd;" />
-                  </div>
-                ) : (
-                  <Iconfont
-                    className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })}
-                    code="&#xeb6d;"
-                  />
-                )}
+        <Tooltip
+          open={openTooltipComment}
+          placement="right"
+          color={window._AppThemePack.colorPrimary}
+          title={data.comment}
+        >
+          <div
+            className={classnames(styles.treeNode, { [styles.hiddenTreeNode]: !show })}
+            onClick={handelClickTreeNode}
+            data-chat2db-general-can-copy-element
+          >
+            <div className={styles.left}>
+              {indentArr.map((item, i) => {
+                return <div key={i} className={styles.indent} />;
+              })}
+            </div>
+            <div className={styles.right}>
+              {!data.isLeaf && (
+                <div
+                  onClick={handleClick.bind(null, data)}
+                  className={classnames(styles.arrows, { [styles.loadingArrows]: isLoading })}
+                >
+                  {isLoading ? (
+                    <div className={styles.loadingIcon}>
+                      <Iconfont code="&#xe6cd;" />
+                    </div>
+                  ) : (
+                    <Iconfont
+                      className={classnames(styles.arrowsIcon, { [styles.rotateArrowsIcon]: showChildren })}
+                      code="&#xeb6d;"
+                    />
+                  )}
+                </div>
+              )}
+              <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
+                <div className={styles.typeIcon}>
+                  <Iconfont code={recognizeIcon(data.treeNodeType)!} />
+                </div>
+                <div className={styles.contentText} ref={contentTextRef}>
+                  <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }} />
+                  {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
+                </div>
               </div>
-            )}
-            <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
-              <div className={styles.typeIcon}>
-                <Iconfont code={recognizeIcon(data.treeNodeType)!} />
-              </div>
-              <div className={styles.contentText} ref={contentTextRef}>
-                <div className={styles.name} dangerouslySetInnerHTML={{ __html: data.name }} />
-                {data.treeNodeType === TreeNodeType.COLUMN && <div className={styles.type}>{data.columnType}</div>}
+              <div className={styles.moreBox}>
+                <TreeNodeRightClick
+                  setIsLoading={setIsLoading}
+                  dispatch={dispatch}
+                  className={styles.moreButton}
+                  data={data}
+                  curWorkspaceParams={curWorkspaceParams}
+                />
               </div>
             </div>
-            <div className={styles.moreBox}>
-              <TreeNodeRightClick
-                setIsLoading={setIsLoading}
-                dispatch={dispatch}
-                className={styles.moreButton}
-                data={data}
-                curWorkspaceParams={curWorkspaceParams}
-              />
-            </div>
           </div>
-        </div>
-      </Tooltip>
+        </Tooltip>
+      </TreeNodeRightClick>
       {data.children?.map((item: any, i: number) => {
         return (
           <TreeNode
