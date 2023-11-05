@@ -10,7 +10,7 @@ import { TreeNodeType, databaseMap } from '@/constants';
 import TreeNodeRightClick from './TreeNodeRightClick';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { IWorkspaceModelType, ICurWorkspaceParams } from '@/models/workspace';
-import { useWorkspaceStore } from '@/store/workspace';
+import { useCommonStore } from '@/store/common';
 
 interface IProps {
   className?: string;
@@ -84,7 +84,7 @@ const TreeNode = (props: TreeNodeIProps) => {
   const indentArr = new Array(level).fill('indent');
   const [openTooltipComment, setOpenTooltipComment] = useState(false);
   const contentTextRef = React.useRef<HTMLDivElement>(null);
-  const { setFocusedContent } = useWorkspaceStore((state) => {
+  const { setFocusedContent } = useCommonStore((state) => {
     return {
       setFocusedContent: state.setFocusedContent,
     };

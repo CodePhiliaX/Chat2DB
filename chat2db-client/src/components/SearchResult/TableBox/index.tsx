@@ -25,7 +25,7 @@ import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 
 // store
-import { useWorkspaceStore } from '@/store/workspace';
+import { useCommonStore } from '@/store/common';
 
 // 依赖组件
 import ExecuteSQL from '@/components/ExecuteSQL';
@@ -136,7 +136,7 @@ export default function TableBox(props: ITableProps) {
   const [canPaste, setCanPaste] = useState<boolean>(false);
   // 判断是否聚焦在了可粘贴的区域中 hooks
   useCheckCanPaste(setCanPaste);
-  const { setFocusedContent } = useWorkspaceStore((state) => {
+  const { setFocusedContent } = useCommonStore((state) => {
     return {
       setFocusedContent: state.setFocusedContent,
     };

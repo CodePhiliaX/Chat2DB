@@ -7,7 +7,7 @@ import CustomLayout from '@/components/CustomLayout';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Tag, Divider } from 'antd';
+import { Cascader, Spin, Modal, Tag, Divider, ConfigProvider } from 'antd';
 import { databaseMap, TreeNodeType, DatabaseTypeCode } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
@@ -296,130 +296,138 @@ const WorkspaceHeader = memo<IProps>((props) => {
   return (
     <>
       {!!connectionList.length && (
-        <div className={styles.workspaceHeader}>
-          <div className={styles.workspaceHeaderLeft}>
-            <Cascader
-              popupClassName={styles.cascaderPopup}
-              options={connectionOptions}
-              onChange={connectionChange}
-              bordered={false}
-              value={[curConnection?.id || '']}
-            >
-              <div className={styles.crumbsItem}>
-                <Iconfont
-                  className={styles.databaseTypeIcon}
-                  code={databaseMap[curWorkspaceParams.databaseType]?.icon}
-                />
-                <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
-                <div className={styles.pullDownArrow}>
-                  <Iconfont code="&#x100be;" />
+        <ConfigProvider
+          theme={{
+            token: {
+              motion: false,
+            }
+          }}
+        >
+          <div className={styles.workspaceHeader}>
+            <div className={styles.workspaceHeaderLeft}>
+              <Cascader
+                popupClassName={styles.cascaderPopup}
+                options={connectionOptions}
+                onChange={connectionChange}
+                bordered={false}
+                value={[curConnection?.id || '']}
+              >
+                <div className={styles.crumbsItem}>
+                  <Iconfont
+                    className={styles.databaseTypeIcon}
+                    code={databaseMap[curWorkspaceParams.databaseType]?.icon}
+                  />
+                  <div className={styles.text}>{curWorkspaceParams.dataSourceName}</div>
+                  <div className={styles.pullDownArrow}>
+                    <Iconfont code="&#x100be;" />
+                  </div>
                 </div>
-              </div>
-            </Cascader>
+              </Cascader>
 
-            {/* {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
-            {!!curDBOptions?.length && (
-              <Cascader
-                popupClassName={styles.cascaderPopup}
-                options={curDBOptions}
-                open={openDBCascaderDropdown}
-                dropdownRender={(menu) => {
-                  return (
-                    <div>
-                      {menu}
-                      <Divider style={{ margin: 0 }} />
-                      {
-                        // 不支持创建数据库的数据库类型
-                        !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
-                          <div
-                            className={styles.dropdownFooter}
-                            onClick={() => {
-                              setOpenDBCascaderDropdown(false);
-                              createDatabaseRef.current?.setOpen(true, 'database');
-                            }}
-                          >
-                            <Iconfont code="&#xe631;" />
-                            {i18n('common.Button.addDatabase')}
-                          </div>
-                        )
-                      }
+              {/* {!!curDBOptions?.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
+              {!!curDBOptions?.length && (
+                <Cascader
+                  popupClassName={styles.cascaderPopup}
+                  options={curDBOptions}
+                  open={openDBCascaderDropdown}
+                  dropdownRender={(menu) => {
+                    return (
+                      <div>
+                        {menu}
+                        <Divider style={{ margin: 0 }} />
+                        {
+                          // 不支持创建数据库的数据库类型
+                          !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
+                            <div
+                              className={styles.dropdownFooter}
+                              onClick={() => {
+                                setOpenDBCascaderDropdown(false);
+                                createDatabaseRef.current?.setOpen(true, 'database');
+                              }}
+                            >
+                              <Iconfont code="&#xe631;" />
+                              {i18n('common.Button.addDatabase')}
+                            </div>
+                          )
+                        }
+                      </div>
+                    );
+                  }}
+                  onChange={databaseChange as any}
+                  bordered={false}
+                  value={[curWorkspaceParams?.databaseName || '']}
+                >
+                  <div className={styles.crumbsItem}>
+                    <Iconfont className={styles.databaseTypeIcon} code="&#xe62c;" />
+                    <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
+                    <div className={styles.pullDownArrow}>
+                      <Iconfont code="&#x100be;" />
                     </div>
-                  );
-                }}
-                onChange={databaseChange as any}
-                bordered={false}
-                value={[curWorkspaceParams?.databaseName || '']}
-              >
-                <div className={styles.crumbsItem}>
-                  <Iconfont className={styles.databaseTypeIcon} code="&#xe62c;" />
-                  <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
-                  <div className={styles.pullDownArrow}>
-                    <Iconfont code="&#x100be;" />
                   </div>
-                </div>
-              </Cascader>
-            )}
-            {/* {!!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
-            {!!curSchemaOptions.length && (
-              <Cascader
-                popupClassName={styles.cascaderPopup}
-                options={curSchemaOptions}
-                onChange={schemaChange}
-                bordered={false}
-                open={openSchemaCascaderDropdown}
-                value={[curWorkspaceParams?.schemaName || '']}
-                dropdownRender={(menu) => {
-                  return (
-                    <div>
-                      {menu}
-                      <Divider style={{ margin: 0 }} />
-                      {
-                        // 不支持创建schema的数据库类型
-                        !notSupportCreateSchemaType.includes(curWorkspaceParams?.databaseType) && (
-                          <div
-                            className={styles.dropdownFooter}
-                            onClick={() => {
-                              setOpenSchemaCascaderDropdown(false);
-                              createDatabaseRef.current?.setOpen(true, 'schema');
-                            }}
-                          >
-                            <Iconfont code="&#xe631;" />
-                            {i18n('common.Button.addSchema')}
-                          </div>
-                        )
-                      }
+                </Cascader>
+              )}
+              {/* {!!curSchemaOptions.length && <Iconfont className={styles.arrow} code="&#xe641;" />} */}
+              {!!curSchemaOptions.length && (
+                <Cascader
+                  popupClassName={styles.cascaderPopup}
+                  options={curSchemaOptions}
+                  onChange={schemaChange}
+                  bordered={false}
+                  open={openSchemaCascaderDropdown}
+                  value={[curWorkspaceParams?.schemaName || '']}
+                  dropdownRender={(menu) => {
+                    return (
+                      <div>
+                        {menu}
+                        <Divider style={{ margin: 0 }} />
+                        {
+                          // 不支持创建schema的数据库类型
+                          !notSupportCreateSchemaType.includes(curWorkspaceParams?.databaseType) && (
+                            <div
+                              className={styles.dropdownFooter}
+                              onClick={() => {
+                                setOpenSchemaCascaderDropdown(false);
+                                createDatabaseRef.current?.setOpen(true, 'schema');
+                              }}
+                            >
+                              <Iconfont code="&#xe631;" />
+                              {i18n('common.Button.addSchema')}
+                            </div>
+                          )
+                        }
+                      </div>
+                    );
+                  }}
+                >
+                  <div className={styles.crumbsItem}>
+                    <Iconfont className={styles.databaseTypeIcon} code="&#xe696;" />
+                    <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
+                    <div className={styles.pullDownArrow}>
+                      <Iconfont code="&#x100be;" />
                     </div>
-                  );
-                }}
-              >
-                <div className={styles.crumbsItem}>
-                  <Iconfont className={styles.databaseTypeIcon} code="&#xe696;" />
-                  <div className={styles.text}>{curWorkspaceParams.schemaName}</div>
-                  <div className={styles.pullDownArrow}>
-                    <Iconfont code="&#x100be;" />
                   </div>
-                </div>
-              </Cascader>
-            )}
-            <div className={styles.refreshBox} onClick={handleRefresh}>
-              {cascaderLoading ? (
-                <Spin className={styles.spin} />
-              ) : (
-                <Iconfont className={styles.typeIcon} code="&#xec08;" />
+                </Cascader>
+              )}
+              <div className={styles.refreshBox} onClick={handleRefresh}>
+                {cascaderLoading ? (
+                  <Spin className={styles.spin} />
+                ) : (
+                  <Iconfont className={styles.typeIcon} code="&#xec08;" />
+                )}
+              </div>
+            </div>
+            <div className={classnames(styles.connectionTag, styles.workspaceHeaderCenter)}>
+              {curConnection?.id && curConnection?.environment?.shortName && (
+                <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>
+                  {curConnection?.environment?.shortName}
+                </Tag>
               )}
             </div>
+            <div className={styles.workspaceHeaderRight}>
+              <CustomLayout />
+            </div>
           </div>
-          <div className={classnames(styles.connectionTag, styles.workspaceHeaderCenter)}>
-            {curConnection?.id && curConnection?.environment?.shortName && (
-              <Tag color={curConnection?.environment?.color?.toLocaleLowerCase()}>
-                {curConnection?.environment?.shortName}
-              </Tag>
-            )}
-          </div>
-          <div className={styles.workspaceHeaderRight}>
-            <CustomLayout />
-          </div>
-        </div>
+        </ConfigProvider>
       )}
 
       <Modal open={noConnectionModal} closeIcon={<></>} keyboard={false} maskClosable={false} footer={false}>

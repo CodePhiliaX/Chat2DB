@@ -10,10 +10,11 @@
   6. Supports zooming in to view or modify data
 - ⭐【New Features】Supports the ctrl/cmd+c shortcut to copy row data or cell data
 - ⭐【New Features】Supports the shortcut key ctrl/cmd+v to paste and copy row data/cell data to row/cell
-- ⭐【New Features】The tree node operation menu can copy the names of tables, fields, keys, indexes, and functions
 - ⭐【New Features】Edit table structure supports setting primary keys in columns
 - ⭐【New Features】History is added to the foldable panel on the right
 - ⭐【New Features】Edit data to support cell-level undo changes
+- ⭐【New Features】The Table tree node operation menu on the left supports copying table, field, key, index, and function names
+- ⭐【New Features】The node in the left Table tree supports ctrl/cmd+c to copy the node text
 - ⚡️【Optimize】Edit the table structure to add loading
 - ⚡️【Optimize】The tree node operation menu supports right-clicking
 - 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
@@ -28,10 +29,11 @@
   6. 支持放大查看或修改数据
 - ⭐【新功能】支持快捷键ctrl/cmd+c 复制行数据/单元格数据
 - ⭐【新功能】支持快捷键ctrl/cmd+v 粘贴复制行数据/单元格数据到行/单元格
-- ⭐【新功能】树节点操作菜单支持复制表、字段、key、index、函数等名称
 - ⭐【新功能】编辑表结构支持在列中设置主键
-- ⭐【新功能】右侧可折叠面板中增加历史记录
 - ⭐【新功能】编辑数据支持单元格级别撤销修改
+- ⭐【新功能】左侧Table树节点操作菜单支持复制表、字段、key、index、函数等名称
+- ⭐【新功能】左侧Table树节点支持ctrl/cmd+c 复制节点文本
+- ⭐【新功能】右侧可折叠面板中增加历史记录
 - ⚡️【优化】编辑表结构添加loading
 - ⚡️【优化】树节点操作菜单支持右键唤出
 - 🐞【修复】修复表结构编辑浮点数小数位设置显示异常

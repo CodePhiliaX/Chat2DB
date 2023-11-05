@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import classnames from 'classnames';
 import i18n from '@/i18n';
 import { connect } from 'umi';
-import { Input, Cascader, Dropdown, MenuProps, Pagination, Select } from 'antd';
+import { Input, Cascader, Dropdown, MenuProps, Pagination, Select, ConfigProvider } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import { IConnectionModelType } from '@/models/connection';
@@ -423,17 +423,25 @@ const TableList = dvaModel((props: any) => {
           </div>
         ) : (
           <div className={styles.leftModuleTitleText}>
-            <Cascader
-              defaultValue={[curType.value]}
-              popupClassName={styles.cascaderPopup}
-              options={optionsList}
-              onChange={cascaderChange as any}
+            <ConfigProvider
+              theme={{
+                token: {
+                  motion: false,
+                },
+              }}
             >
-              <div className={styles.modelName}>
-                {curType.label}
-                <Iconfont code="&#xe88e;" />
-              </div>
-            </Cascader>
+              <Cascader
+                defaultValue={[curType.value]}
+                popupClassName={styles.cascaderPopup}
+                options={optionsList}
+                onChange={cascaderChange as any}
+              >
+                <div className={styles.modelName}>
+                  {curType.label}
+                  <Iconfont code="&#xe88e;" />
+                </div>
+              </Cascader>
+            </ConfigProvider>
             <div className={styles.iconBox}>
               <div className={classnames(styles.refreshIcon, styles.itemIcon)} onClick={() => refreshTableList()}>
                 <Iconfont code="&#xec08;" />
@@ -466,7 +474,7 @@ const TableList = dvaModel((props: any) => {
         </LoadingContent>
       </div>
 
-      {pagingData?.total > 100 && !searchKey && (
+      {pagingData?.total > 100 && !searchKey && curType.value === TreeNodeType.TABLES && (
         <div className={styles.paging}>
           <div className={styles.paginationBox}>
             <Pagination

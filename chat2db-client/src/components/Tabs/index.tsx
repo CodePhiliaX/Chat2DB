@@ -74,7 +74,7 @@ export default memo<IProps>((props) => {
 
     onChange?.(internalActiveTab);
   }, [internalActiveTab]);
-
+  
   function deleteTab(data: ITabItem) {
     const newInternalTabs = internalTabs?.filter((t) => t.key !== data.key);
     let activeKeyTemp = internalActiveTab;
