@@ -13,6 +13,8 @@ import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
 import LoadingContent from '@/components/Loading/LoadingContent';
 
+import useMonacoTheme from '@/components/Console/MonacoEditor/useMonacoTheme';
+
 import styles from './index.less';
 
 interface IProps {
@@ -41,6 +43,8 @@ const workspacePage = memo<IProps>((props) => {
       panelLeftWidth: state.layout.panelLeftWidth,
     }
   });
+  // 编辑器的主题
+  useMonacoTheme();
 
   const isReady =
     curWorkspaceParams?.dataSourceId &&
