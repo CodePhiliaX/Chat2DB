@@ -13,8 +13,6 @@ import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
 import LoadingContent from '@/components/Loading/LoadingContent';
 
-import { copy, tableCopy } from '@/utils'
-
 import styles from './index.less';
 
 interface IProps {
@@ -37,11 +35,10 @@ const workspacePage = memo<IProps>((props) => {
   const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
-  const { panelLeft, panelLeftWidth, focusedContent } = useWorkspaceStore((state) => {
+  const { panelLeft, panelLeftWidth } = useWorkspaceStore((state) => {
     return {
       panelLeft: state.layout.panelLeft,
       panelLeftWidth: state.layout.panelLeftWidth,
-      focusedContent: state.focusedContent,
     }
   });
 
@@ -60,25 +57,6 @@ const workspacePage = memo<IProps>((props) => {
       getConsoleList();
     }
   }, [curWorkspaceParams]);
-
-  // 注册快捷键监听cmd+c或ctrl+c复制focusedContent
-  useEffect(() => {
-    const handleCopy = (e: KeyboardEvent) => {
-      if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
-        if (!focusedContent) return
-        // 如果是数据是数组，就调用tableCopy
-        if (Array.isArray(focusedContent)) {
-          tableCopy(focusedContent as any)
-          return
-        }
-        copy(focusedContent as any)
-      }
-    };
-    document.addEventListener('keydown', handleCopy);
-    return () => {
-      document.removeEventListener('keydown', handleCopy);
-    };
-  }, [focusedContent]);
 
   function clearData() {
     dispatch({

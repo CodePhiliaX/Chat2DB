@@ -13,7 +13,7 @@ import styles from './index.less';
 // 工具函数
 import { compareStrings } from '@/utils/sort';
 import { downloadFile } from '@/utils/common';
-import { transformInputValue } from './utils';
+import { transformInputValue, useCheckCanPaste } from './utils';
 
 // 类型定义
 import { CRUD } from '@/constants';
@@ -132,6 +132,10 @@ export default function TableBox(props: ITableProps) {
   const [columnResize, setColumnResize] = useState<number[]>([0]);
   // 表格的宽度
   // const [tableBoxWidth, setTableBoxWidth] = useState<number>(0);
+  // 判断是否可以执行cmd+v
+  const [canPaste, setCanPaste] = useState<boolean>(false);
+  // 判断是否聚焦在了可粘贴的区域中 hooks
+  useCheckCanPaste(setCanPaste);
   const { setFocusedContent } = useWorkspaceStore((state) => {
     return {
       setFocusedContent: state.setFocusedContent,
@@ -297,12 +301,12 @@ export default function TableBox(props: ITableProps) {
   };
 
   // 编辑数据
-  const updateTableData = (type: 'setCell' | 'setRow' , _data: string | null | Array<string | null>) => {
+  const updateTableData = (type: 'setCell' | 'setRow', _data: string | null | Array<string | null>) => {
     const newTableData = lodash.cloneDeep(tableData);
     let oldRowDataList: Array<string | null> = [];
     let newRowDataList: Array<string | null> = [];
-    let curRowNo:string | null = '0';
-    if(type === 'setCell' &&( typeof _data === 'string' || _data === null)){
+    let curRowNo: string | null = '0';
+    if (type === 'setCell' && (typeof _data === 'string' || _data === null)) {
       const [colIndex, rowNo] = editingCell!;
       curRowNo = rowNo;
       newTableData.forEach((item) => {
@@ -313,19 +317,19 @@ export default function TableBox(props: ITableProps) {
       });
     }
 
-    if(type === 'setRow' && Array.isArray(_data)){
+    if (type === 'setRow' && Array.isArray(_data)) {
       curRowNo = curOperationRowNo;
       _data.unshift(curOperationRowNo);
-      newTableData.forEach((t)=>{
-        if(t[`${preCode}0No.`] === curOperationRowNo){
+      newTableData.forEach((t) => {
+        if (t[`${preCode}0No.`] === curOperationRowNo) {
           const dataLength = Object.keys(t).length;
           Object.keys(t).forEach((item, index) => {
-            if(index > dataLength) return 
+            if (index > dataLength) return;
             t[item] = _data[index] || null;
-          })
-          return 
+          });
+          return;
         }
-      })
+      });
       newRowDataList = _data;
     }
 
@@ -353,7 +357,7 @@ export default function TableBox(props: ITableProps) {
           type: CRUD.UPDATE,
           oldDataList: oldRowDataList,
           dataList: newRowDataList,
-          rowNo:curRowNo!,
+          rowNo: curRowNo!,
         },
       ]);
       return;
@@ -572,9 +576,7 @@ export default function TableBox(props: ITableProps) {
     // 如果删除的这个数据时编辑过的，要把这个数据恢复
     setTableData(
       tableData.map((item) =>
-        item[`${preCode}0No.`] === rowNo
-          ? oldTableData.find((i) => i[`${preCode}0No.`] === rowNo)!
-          : item,
+        item[`${preCode}0No.`] === rowNo ? oldTableData.find((i) => i[`${preCode}0No.`] === rowNo)! : item,
       ),
     );
     const newDataOldList = oldDataList.find((item) => item[0] === rowNo);
@@ -727,18 +729,18 @@ export default function TableBox(props: ITableProps) {
 
   useEffect(() => {
     const handleCopy = () => {
-      if(curOperationRowNo) {
+      if (curOperationRowNo) {
         navigator.clipboard
           .readText()
           .then((text) => {
-            const array2D =  clipboardToArray(text);
+            const array2D = clipboardToArray(text);
             updateTableData('setRow', array2D[0]);
           })
           .catch((err) => {
             console.error('Failed to read clipboard contents: ', err);
           });
       }
-      if(editingCell && editingCell[2] === false){
+      if (editingCell && editingCell[2] === false) {
         navigator.clipboard
           .readText()
           .then((text) => {
@@ -749,11 +751,15 @@ export default function TableBox(props: ITableProps) {
           });
       }
     };
-    document.addEventListener('paste', handleCopy);
+    if (canPaste) {
+      document.addEventListener('paste', handleCopy);
+    } else {
+      document.removeEventListener('paste', handleCopy);
+    }
     return () => {
       document.removeEventListener('paste', handleCopy);
     };
-  }, [curOperationRowNo, editingCell]);
+  }, [curOperationRowNo, editingCell, canPaste]);
 
   // 表格 列配置
   const columns: ArtColumn[] = useMemo(() => {
@@ -772,18 +778,19 @@ export default function TableBox(props: ITableProps) {
           render: (value: any, rowData) => {
             const rowNo = rowData[`${preCode}0No.`];
             return (
-                <div
-                  data-chat2db-can-copy-element
-                  onClick={() => {
-                    handelRowNoClick(rowNo);
-                  }}
-                  onContextMenu={() => {
-                    handelRowNoClick(rowNo);
-                  }}
-                  className={tableCellStyle(value, colIndex, rowNo)}
-                >
-                  <div className={styles.tableItemNo}>{value}</div>
-                </div>
+              <div
+                data-chat2db-general-can-copy-element
+                data-chat2db-edit-table-data-can-paste
+                onClick={() => {
+                  handelRowNoClick(rowNo);
+                }}
+                onContextMenu={() => {
+                  handelRowNoClick(rowNo);
+                }}
+                className={tableCellStyle(value, colIndex, rowNo)}
+              >
+                <div className={styles.tableItemNo}>{value}</div>
+              </div>
             );
           },
         };
@@ -798,7 +805,8 @@ export default function TableBox(props: ITableProps) {
           const rowNo = rowData[`${preCode}0No.`];
           return (
             <div
-              data-chat2db-can-copy-element
+              data-chat2db-general-can-copy-element
+              data-chat2db-edit-table-data-can-paste
               className={tableCellStyle(value, colIndex, rowNo)}
               onClick={handleClickTableItem.bind(null, colIndex, rowNo, value, false)}
               onDoubleClick={handleClickTableItem.bind(null, colIndex, rowNo, value, true)}
@@ -989,7 +997,7 @@ export default function TableBox(props: ITableProps) {
       });
     },
   };
-  const rowRightClickMenu = useMemo(()=>{
+  const rowRightClickMenu = useMemo(() => {
     // const allSupportedMenus = {
     //   [AllSupportedMenusType.CopyCell]: copyCell,
     //   [AllSupportedMenusType.CopyRow]: copyRow,
@@ -1000,8 +1008,8 @@ export default function TableBox(props: ITableProps) {
     //   [AllSupportedMenusType.ViewData]: viewData,
     // }
 
-    let rightClickMenu:any = [];
-    if(curOperationRowNo){
+    let rightClickMenu: any = [];
+    if (curOperationRowNo) {
       rightClickMenu = [copyRow, cloneRow, deleteRow];
       // 如果当前数据不可编辑，则不显示cloneRow和deleteRow
       if (!queryResultData.canEdit) {
@@ -1011,7 +1019,7 @@ export default function TableBox(props: ITableProps) {
       }
     }
 
-    if(editingCell){
+    if (editingCell) {
       rightClickMenu = [viewData, copyCell, copyRow, cloneRow, setNull, setDefault, deleteRow];
       // 判断是否有默认值,如果没有默认值，则不显示设置默认值的菜单
       const hasDefaultValue =
@@ -1030,13 +1038,11 @@ export default function TableBox(props: ITableProps) {
       }
     }
 
-
-    if(!curOperationRowNo && !editingCell){
-      return null
+    if (!curOperationRowNo && !editingCell) {
+      return null;
     }
-    return rightClickMenu
-
-  },[curOperationRowNo, editingCell])
+    return rightClickMenu;
+  }, [curOperationRowNo, editingCell]);
 
   const renderContent = () => {
     const bottomStatus = (
@@ -1158,13 +1164,13 @@ export default function TableBox(props: ITableProps) {
               {allDataReady && (
                 <>
                   {tableLoading && <Spin className={styles.supportBaseTableSpin} />}
-                    <SupportBaseTable
-                      className={classnames('supportBaseTable', props.className, styles.table)}
-                      components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
-                      isStickyHead
-                      stickyTop={31}
-                      {...pipeline.getProps()}
-                    />
+                  <SupportBaseTable
+                    className={classnames('supportBaseTable', props.className, styles.table)}
+                    components={{ EmptyContent: () => <h2>{i18n('common.text.noData')}</h2> }}
+                    isStickyHead
+                    stickyTop={31}
+                    {...pipeline.getProps()}
+                  />
                 </>
               )}
             </div>
@@ -1178,6 +1184,25 @@ export default function TableBox(props: ITableProps) {
       );
     }
   };
+
+  const renderMonacoEditor = useMemo(() => {
+    return (
+      <div className={styles.monacoEditor}>
+        <MonacoEditor
+          ref={monacoEditorRef}
+          id={`view_table-Cell_data-${uuid()}`}
+          appendValue={{
+            text: viewTableCellData?.value,
+            range: 'reset',
+          }}
+          options={{
+            lineNumbers: 'off',
+            readOnly: !queryResultData.canEdit,
+          }}
+        />
+      </div>
+    );
+  }, [queryResultData, viewTableCellData]);
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
@@ -1197,22 +1222,7 @@ export default function TableBox(props: ITableProps) {
           ]
         }
       >
-        <>
-          <div className={styles.monacoEditor}>
-            <MonacoEditor
-              ref={monacoEditorRef}
-              id={`view_table-Cell_data-${uuid()}`}
-              appendValue={{
-                text: viewTableCellData?.value,
-                range: 'reset',
-              }}
-              options={{
-                lineNumbers: 'off',
-                readOnly: !queryResultData.canEdit,
-              }}
-            />
-          </div>
-        </>
+        {renderMonacoEditor}
       </Modal>
       <Modal
         width="60vw"

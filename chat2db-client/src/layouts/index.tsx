@@ -19,7 +19,7 @@ import MyNotification from '@/components/MyNotification';
 // import Iconfont from '@/components/Iconfont';
 // import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
-import useCancelCopyFocusData from '@/hooks/useCopyFocusData';
+import useCopyFocusData from '@/hooks/useFocusData';
 
 declare global {
   interface Window {
@@ -89,7 +89,7 @@ function AppContainer() {
   const [appTheme, setAppTheme] = useTheme();
   const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
-  useCancelCopyFocusData();
+  useCopyFocusData();
 
   useLayoutEffect(() => {
     collectInitApp();

@@ -1,6 +1,6 @@
 import { ThemeType, DatabaseTypeCode } from '@/constants';
 import { ITreeNode } from '@/typings';
-import clipboardCopy from 'copy-to-clipboard';
+// import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
 import sqlServer from '@/service/sql';
 import { format } from 'sql-formatter';
@@ -180,11 +180,6 @@ export function isVersionHigher(version: string, currentVersion: string): boolea
   return false;
 }
 
-// Copy
-export function copy(message: string) {
-  clipboardCopy(message);
-}
-
 // 获取应用的一些基本信息
 export function getApplicationMessage() {
   const env = __ENV__;
@@ -287,6 +282,12 @@ export function clipboardToArray(text:string):Array<Array<string | null>> {
     console.log('copy error')
     return [[]]
   }
+}
+
+// Copy
+export function copy(message: string) {
+  // clipboardCopy(message);
+  navigator.clipboard.writeText(message);
 }
 
 // 二维数组复制
