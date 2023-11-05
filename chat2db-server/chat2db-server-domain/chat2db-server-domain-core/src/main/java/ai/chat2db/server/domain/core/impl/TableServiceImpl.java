@@ -206,6 +206,7 @@ public class TableServiceImpl implements TableService {
                 tables.add(t);
             }
         }
+        tables = pinTable(tables, param);
         return PageResult.of(tables, total, param);
     }
 
