@@ -333,9 +333,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   dropdownRender={(menu) => {
                     return (
                       <div>
-                        {menu}
-                        <Divider style={{ margin: 0 }} />
-                        {
+                         {
                           // 不支持创建数据库的数据库类型
                           !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
                             <div
@@ -350,6 +348,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
                             </div>
                           )
                         }
+                        <Divider style={{ margin: 0 }} />
+                        {menu}
                       </div>
                     );
                   }}
