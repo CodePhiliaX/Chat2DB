@@ -319,10 +319,10 @@ export default function TableBox(props: ITableProps) {
       newTableData.forEach((t)=>{
         if(t[`${preCode}0No.`] === curOperationRowNo){
           const dataLength = Object.keys(t).length;
-          _data.forEach((item, index) => {
+          Object.keys(t).forEach((item, index) => {
             if(index > dataLength) return 
-            t[`${preCode}${index}${columns[index].name}`] = item || null;
-          });
+            t[item] = _data[index] || null;
+          })
           return 
         }
       })
