@@ -215,7 +215,6 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       dataIndex: 'nullable',
       width: '100px',
       render: (nullable: NullableType | null, record: IColumnItemNew) => {
-        console.log(nullable);
         // const editable = isEditing(record);
         return (
           <div>

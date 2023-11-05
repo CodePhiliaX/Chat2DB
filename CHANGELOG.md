@@ -18,6 +18,7 @@
 - ⭐【New Features】The Table tree node operation menu on the left supports copying table, field, key, index, and function names
 - ⭐【New Features】The node in the left Table tree supports ctrl/cmd+c to copy the node text
 - ⭐【New Features】You can right-click to close tabs, close other tabs, or close all tabs
+- ⭐【New Features】Top database and schema support search
 - ⚡️【Optimize】Smart prompts for SQL editing
 - ⚡️【Optimize】Edit the table structure to add loading
 - ⚡️【Optimize】The tree node operation menu supports right-clicking

@@ -7,7 +7,7 @@ import CustomLayout from '@/components/CustomLayout';
 import { IConnectionModelType } from '@/models/connection';
 import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
-import { Cascader, Spin, Modal, Tag, Divider, ConfigProvider } from 'antd';
+import { Cascader, Spin, Modal, Tag, Divider, ConfigProvider, Input } from 'antd';
 import { databaseMap, TreeNodeType, DatabaseTypeCode } from '@/constants';
 import { treeConfig } from '../Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
@@ -51,6 +51,9 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const [openSchemaCascaderDropdown, setOpenSchemaCascaderDropdown] = useState<false | undefined>(undefined);
   const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
   const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
+  const [searchCurDBOptions, setSearchCurDBOptions] = useState<IOption[] | null>(null);
+  const [searchCurSchemaOptions, setSearchCurSchemaOptions] = useState<IOption[] | null>(null);
+
 
   useEffect(() => {
     if (openDBCascaderDropdown === false) {
@@ -293,6 +296,22 @@ const WorkspaceHeader = memo<IProps>((props) => {
     getConnectionList();
   }
 
+  function handleSearchDB(value:string){
+    setSearchCurDBOptions(
+      curDBOptions.filter((t:any) => {
+        return t?.label?.includes(value);
+      }),
+    )
+  }
+
+  function handleSearchSchema(value:string){
+    setSearchCurSchemaOptions(
+      curSchemaOptions.filter((t:any) => {
+        return t?.label?.includes(value);
+      }),
+    )
+  }
+
   return (
     <>
       {!!connectionList.length && (
@@ -300,7 +319,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
           theme={{
             token: {
               motion: false,
-            }
+            },
           }}
         >
           <div className={styles.workspaceHeader}>
@@ -328,13 +347,18 @@ const WorkspaceHeader = memo<IProps>((props) => {
               {!!curDBOptions?.length && (
                 <Cascader
                   popupClassName={styles.cascaderPopup}
-                  options={curDBOptions}
+                  options={searchCurDBOptions || curDBOptions}
                   open={openDBCascaderDropdown}
                   dropdownRender={(menu) => {
                     return (
                       <div>
-                        {menu}
+                        <SearchHeader handleSearch={handleSearchDB} />
                         <Divider style={{ margin: 0 }} />
+
+                        {menu}
+
+                        <Divider style={{ margin: 0 }} />
+
                         {
                           // 不支持创建数据库的数据库类型
                           !notSupportCreateDatabaseType.includes(curWorkspaceParams?.databaseType) && (
@@ -370,7 +394,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
               {!!curSchemaOptions.length && (
                 <Cascader
                   popupClassName={styles.cascaderPopup}
-                  options={curSchemaOptions}
+                  options={searchCurSchemaOptions || curSchemaOptions}
                   onChange={schemaChange}
                   bordered={false}
                   open={openSchemaCascaderDropdown}
@@ -378,6 +402,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   dropdownRender={(menu) => {
                     return (
                       <div>
+                        <SearchHeader handleSearch={handleSearchSchema} />
+                        <Divider style={{ margin: 0 }} />
                         {menu}
                         <Divider style={{ margin: 0 }} />
                         {
@@ -456,6 +482,34 @@ const WorkspaceHeader = memo<IProps>((props) => {
     </>
   );
 });
+
+function SearchHeader(props: {handleSearch: (value:string) => void}) {
+  const [value, setValue] = useState('');
+  
+  useEffect(()=>{
+    props.handleSearch(value)
+  },[value])
+
+  return (
+    <div className={styles.searchHeader}>
+      <div className={styles.searchIconBox}>
+        <Iconfont className={styles.searchIcon} code="&#xe600;" />
+      </div>
+      <Input
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+        }}
+        className={styles.searchHeaderInput}
+        placeholder={i18n('common.text.search')}
+        bordered={false}
+        onPressEnter={(e) => {
+          props.handleSearch(value);
+        }}
+      />
+    </div>
+  );
+}
 
 export default connect(
   ({
