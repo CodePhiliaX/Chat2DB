@@ -71,6 +71,7 @@ const createInitialData = () => {
     autoIncrement: null,
     comment: null,
     primaryKey: null,
+    primaryKeyOrder: null,
     schemaName: null,
     databaseName: null,
     typeName: null,
@@ -243,6 +244,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               }}
             >
               {primaryKey && <Iconfont code="&#xe775;" />}
+              {primaryKey && <span>{record.primaryKeyOrder}</span>}
             </div>
           </div>
         );
@@ -287,22 +289,46 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
 
   const handelPrimaryKey = (_data: IColumnItemNew) => {
     const newData = dataSource.map((item) => {
+      let primaryKeyOrder:null | number = item.primaryKeyOrder;
+
+      if(_data.primaryKey) {
+        // 如果当前字段是主键，且当前字段的主键顺序大于当前编辑的字段的主键顺序，那么当前字段的主键顺序减1
+        if(_data.primaryKeyOrder &&  item.primaryKeyOrder && item.primaryKeyOrder >= _data.primaryKeyOrder){
+          primaryKeyOrder  = item.primaryKeyOrder - 1;
+        }
+      }
+
+      // 增加主键的时候，主键顺序为当前表的最大主键顺序+1
+      if(_data.key === item.key && !_data.primaryKey){
+        primaryKeyOrder = Math.max(...dataSource.map(i => {
+          return i.primaryKeyOrder || 0
+        })) + 1;
+      }
+
+
       if (item.key === _data?.key) {
         // 判断当前数据是新增的数据还是编辑后的数据
         let editStatus = item.editStatus;
         if (editStatus !== EditColumnOperationType.Add) {
           editStatus = EditColumnOperationType.Modify;
         }
+
         const editingDataItem = {
           ...item,
           primaryKey: !item.primaryKey,
+          primaryKeyOrder,
           nullable: !item.primaryKey ? NullableType.NotNull : item.nullable,
           editStatus,
         };
         return editingDataItem;
       }
-      return item;
+
+      return {
+        ...item,
+        primaryKeyOrder,
+      };
     });
+    console.log(newData)
     setDataSource(newData);
   };
 
