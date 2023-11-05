@@ -1,8 +1,8 @@
-import React, { memo, useEffect, useState, useRef, Fragment } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import styles from './index.less';
-import { Popover } from 'antd';
+import { Popover, Dropdown } from 'antd';
 
 export interface ITabItem {
   prefixIcon?: string | React.ReactNode;
@@ -25,7 +25,7 @@ interface IProps {
   items?: ITabItem[];
   activeKey?: number | string | null;
   onChange?: (key: string | number | null) => void;
-  onEdit?: (action: 'add' | 'remove', data?: ITabItem, list?: ITabItem[]) => void;
+  onEdit?: (action: 'add' | 'remove', data?: ITabItem[], list?: ITabItem[]) => void;
   hideAdd?: boolean;
   editableNameOnBlur?: (option: ITabItem) => void;
   concealTabHeader?: boolean;
@@ -89,7 +89,22 @@ export default memo<IProps>((props) => {
     }
     changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
-    onEdit?.('remove', data, newInternalTabs);
+    onEdit?.('remove', [data], newInternalTabs);
+  }
+
+  const deleteOtherTab = (data: ITabItem)=>{
+    const newInternalTabs = internalTabs?.filter((t) => t.key === data.key);
+    const deleteTabs = internalTabs?.filter((t) => t.key !== data.key);
+    changeTab(data.key);
+    setInternalTabs(newInternalTabs);
+    onEdit?.('remove', deleteTabs, newInternalTabs);
+  }
+
+  // 关闭所有tab
+  const deleteAllTab = ()=>{
+    changeTab(null);
+    setInternalTabs([]);
+    onEdit?.('remove',[...internalTabs]);
   }
 
   function changeTab(key: string | number | null) {
@@ -127,47 +142,73 @@ export default memo<IProps>((props) => {
       return true;
     }
 
+    const closeTabsMenu = [
+      {
+        label: '关闭',
+        key: 'close',
+        onClick: () => {
+          deleteTab(t)
+        }
+      },
+      {
+        label: '关闭其他',
+        key: 'closeOther',
+        onClick: () => {
+          deleteOtherTab(t)
+        }
+      },
+      {
+        label: '关闭所有',
+        key: 'closeAll',
+        onClick: () => {
+          deleteAllTab()
+        }
+      }
+    ]
+
     return (
-      <Popover mouseEnterDelay={0.8} content={t.popover} key={t.key}>
-        <div
-          onDoubleClick={() => {
-            onDoubleClick(t);
-          }}
-          style={t.styles}
-          className={classnames(
-            styles.tabItem,
-            { [styles.activeTab]: t.key === internalActiveTab },
-          )}
-        >
-          {t.key === editingTab ? (
-            <input
-              value={t.label as string}
-              onChange={(e) => {
-                inputOnChange(e.target.value);
-              }}
-              className={styles.input}
-              autoFocus
-              onBlur={onBlur}
-              type="text"
-            />
-          ) : (
-            <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
-              {t.prefixIcon &&
-                (typeof t.prefixIcon == 'string' ? (
-                  <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />
-                ) : (
-                  t.prefixIcon
-                ))}
-              <div className={styles.text}>{t.label}</div>
-            </div>
-          )}
-          {showClosed() && (
-            <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
-              <Iconfont code="&#xe634;" />
-            </div>
-          )}
-        </div>
-      </Popover>
+      <Dropdown key={t.key} menu={{ items: closeTabsMenu }} trigger={['contextMenu']}>
+        <Popover mouseEnterDelay={0.8} content={t.popover} key={t.key}>
+          <div
+            onDoubleClick={() => {
+              onDoubleClick(t);
+            }}
+            style={t.styles}
+            className={classnames(
+              styles.tabItem,
+              { [styles.activeTab]: t.key === internalActiveTab },
+            )}
+          >
+            {t.key === editingTab ? (
+              <input
+                value={t.label as string}
+                onChange={(e) => {
+                  inputOnChange(e.target.value);
+                }}
+                className={styles.input}
+                autoFocus
+                onBlur={onBlur}
+                type="text"
+              />
+            ) : (
+              <div className={styles.textBox} key={t.key} onClick={changeTab.bind(null, t.key)}>
+                {t.prefixIcon &&
+                  (typeof t.prefixIcon == 'string' ? (
+                    <Iconfont className={styles.prefixIcon} code={t.prefixIcon} />
+                  ) : (
+                    t.prefixIcon
+                  ))}
+                <div className={styles.text}>{t.label}</div>
+              </div>
+            )}
+            {showClosed() && (
+              <div className={styles.icon} onClick={deleteTab.bind(null, t)}>
+                <Iconfont code="&#xe634;" />
+              </div>
+            )}
+          </div>
+        </Popover>
+      </Dropdown>
     );
   }
 
@@ -195,14 +236,14 @@ export default memo<IProps>((props) => {
       <div className={styles.tabsContent}>
         {internalTabs?.map((t) => {
           return (
-            <div
-              key={t.key}
-              className={classnames(styles.tabsContentItem, {
-                [styles.tabsContentItemActive]: t.key === internalActiveTab,
-              })}
-            >
-              {t.children}
-            </div>
+              <div
+                key={t.key}
+                className={classnames(styles.tabsContentItem, {
+                  [styles.tabsContentItemActive]: t.key === internalActiveTab,
+                })}
+              >
+                {t.children}
+              </div>
           );
         })}
       </div>

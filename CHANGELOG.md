@@ -15,6 +15,7 @@
 - ⭐【New Features】Edit data to support cell-level undo changes
 - ⭐【New Features】The Table tree node operation menu on the left supports copying table, field, key, index, and function names
 - ⭐【New Features】The node in the left Table tree supports ctrl/cmd+c to copy the node text
+- ⭐【New Features】You can right-click to close tabs, close other tabs, or close all tabs
 - ⚡️【Optimize】Edit the table structure to add loading
 - ⚡️【Optimize】The tree node operation menu supports right-clicking
 - 🐞【Fixed】Fixed table structure editing floating-point decimal Settings display exception
@@ -34,6 +35,7 @@
 - ⭐【新功能】左侧Table树节点操作菜单支持复制表、字段、key、index、函数等名称
 - ⭐【新功能】左侧Table树节点支持ctrl/cmd+c 复制节点文本
 - ⭐【新功能】右侧可折叠面板中增加历史记录
+- ⭐【新功能】支持右键关闭tab/关闭其他tab/关闭所有tab
 - ⚡️【优化】编辑表结构添加loading
 - ⚡️【优化】树节点操作菜单支持右键唤出
 - 🐞【修复】修复表结构编辑浮点数小数位设置显示异常

@@ -467,17 +467,25 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   }
 
   // 删除 新增tab
-  const onEdit = (action: 'add' | 'remove', data: ITabItem) => {
+  const onEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
     if (action === 'remove') {
-      setWorkspaceTabList(workspaceTabList.filter((t) => t.id !== data.key));
-      const editData = workspaceTabList?.find((t) => t.id === data.key);
-      if (
-        editData?.type !== WorkspaceTabType.EditTable &&
-        editData?.type !== WorkspaceTabType.CreateTable &&
-        editData?.type !== WorkspaceTabType.EditTableData
-      ) {
-        closeWindowTab(data.key as number);
-      }
+      setWorkspaceTabList(
+        workspaceTabList.filter((t) => {
+          return data.findIndex((item) => item.key === t.id) === -1;
+        }),
+      );
+      data.forEach((item) => {
+        const editData = workspaceTabList?.find((t) => t.id === item.key);
+        if (
+          editData?.type !== WorkspaceTabType.EditTable &&
+          editData?.type !== WorkspaceTabType.CreateTable &&
+          editData?.type !== WorkspaceTabType.EditTableData
+        ) {
+          closeWindowTab(item.key as number);
+        }
+      })
+
+      
     }
     if (action === 'add') {
       addConsole();
