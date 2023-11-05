@@ -1194,7 +1194,7 @@ export default function TableBox(props: ITableProps) {
           ref={monacoEditorRef}
           id={`view_table-Cell_data-${uuid()}`}
           appendValue={{
-            text: viewTableCellData?.value,
+            text: transformInputValue(viewTableCellData?.value),
             range: 'reset',
           }}
           options={{
