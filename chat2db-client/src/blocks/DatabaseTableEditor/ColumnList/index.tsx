@@ -291,20 +291,20 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     const newData = dataSource.map((item) => {
       let primaryKeyOrder:null | number = item.primaryKeyOrder;
 
+      // 如果当前字段是主键，取消主键的时候，比当前字段顺序大的字段顺序-1
       if(_data.primaryKey) {
-        // 如果当前字段是主键，且当前字段的主键顺序大于当前编辑的字段的主键顺序，那么当前字段的主键顺序减1
         if(_data.primaryKeyOrder &&  item.primaryKeyOrder && item.primaryKeyOrder >= _data.primaryKeyOrder){
           primaryKeyOrder  = item.primaryKeyOrder - 1;
         }
+      }else{
+        // 增加主键的时候，主键顺序为当前表的最大主键顺序+1
+        // 因为在map里所以只对当前字段进行处理
+        if( _data.key === item.key){
+          primaryKeyOrder = Math.max(...dataSource.map(i => {
+            return i.primaryKeyOrder || 0
+          })) + 1;
+        }
       }
-
-      // 增加主键的时候，主键顺序为当前表的最大主键顺序+1
-      if(_data.key === item.key && !_data.primaryKey){
-        primaryKeyOrder = Math.max(...dataSource.map(i => {
-          return i.primaryKeyOrder || 0
-        })) + 1;
-      }
-
 
       if (item.key === _data?.key) {
         // 判断当前数据是新增的数据还是编辑后的数据
