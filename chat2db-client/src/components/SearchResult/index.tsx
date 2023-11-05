@@ -10,7 +10,7 @@ import React, {
   Fragment,
 } from 'react';
 import classnames from 'classnames';
-import Tabs from '@/components/Tabs';
+import Tabs,{ ITabItem } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 // import Output from '@/components/Output';
@@ -155,9 +155,11 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   }, [resultDataList]);
 
   const onEdit = useCallback(
-    (type: 'add' | 'remove', value) => {
+    (type: 'add' | 'remove', data:ITabItem[]) => {
       if (type === 'remove') {
-        const newResultDataList = resultDataList?.filter((d) => d.uuid !== value.key);
+        const newResultDataList = resultDataList?.filter((d) => {
+          return data.findIndex((item) => item.key === d.uuid) === -1;
+        });
         setResultDataList(newResultDataList);
       }
     },

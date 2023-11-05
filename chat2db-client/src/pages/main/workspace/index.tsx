@@ -35,7 +35,12 @@ const workspacePage = memo<IProps>((props) => {
   const { workspaceModel, connectionModel, dispatch } = props;
   const { curConnection } = connectionModel;
   const { curWorkspaceParams } = workspaceModel;
-  const { panelLeft, panelLeftWidth } = useWorkspaceStore((state) => state.layout);
+  const { panelLeft, panelLeftWidth } = useWorkspaceStore((state) => {
+    return {
+      panelLeft: state.layout.panelLeft,
+      panelLeftWidth: state.layout.panelLeftWidth,
+    }
+  });
 
   const isReady =
     curWorkspaceParams?.dataSourceId &&

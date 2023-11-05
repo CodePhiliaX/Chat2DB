@@ -4,7 +4,7 @@ import { formatParams } from '@/utils/common';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput, { SyncModelType } from './ChatInput';
-import Editor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
+import MonacoEditor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
 import historyServer from '@/service/history';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
@@ -115,7 +115,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   // 上一次同步的console数据
   const lastSyncConsole = useRef<any>(defaultValue);
   const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(executeParams.status || ConsoleStatus.DRAFT);
-
   /**
    * 当前选择的AI类型是Chat2DBAI
    */
@@ -563,9 +562,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             }}
           />
         )}
-        {/* <div key={uuid()}>{chatContent.current}</div> */}
-
-        <Editor
+        <MonacoEditor
           id={uid}
           defaultValue={defaultValue}
           isActive={isActive}
@@ -579,7 +576,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
         {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
 
-        {/* <Modal open={modelConfig.open}>{modelConfig.content}</Modal> */}
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
             <div className={styles.aiBlock}>{aiContent}</div>

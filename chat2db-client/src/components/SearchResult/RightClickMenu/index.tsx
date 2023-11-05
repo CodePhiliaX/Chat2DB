@@ -1,12 +1,12 @@
-import React, { memo, useMemo } from 'react';
-import { Dropdown } from 'antd';
+import React, { memo, useEffect, useMemo } from 'react';
+import { Dropdown, ConfigProvider } from 'antd';
 import i18n from '@/i18n';
 import MenuLabel from '@/components/MenuLabel';
 
 interface IProps {
   className?: string;
   children?: React.ReactNode;
-  menuList: IMenu[]
+  menuList: IMenu[] | null;
 }
 
 export interface IMenu {
@@ -15,20 +15,44 @@ export interface IMenu {
   children?: {
     callback: () => void;
     hide?: boolean;
-  }[]
+  }[];
 }
 
-export enum AllSupportedMenusType  {
+export enum AllSupportedMenusType {
   CopyCell = 'copy-cell',
   CopyRow = 'copy-row',
   CloneRow = 'clone-row',
   DeleteRow = 'delete-row',
   SetDefault = 'set-default',
   SetNull = 'set-null',
+  ViewData = 'view-data',
 }
 
 export default memo<IProps>((props) => {
   const { children, menuList } = props;
+  const [open, setOpen] = React.useState<boolean | undefined>(undefined);
+  const [canContextmenu, setCanContextmenu] = React.useState<boolean>(false);
+  useEffect(() => {
+    if (open === false) {
+      setOpen(undefined);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const handleClick = (event) => {
+      const targetElement = event.target as Element;
+      if (targetElement.closest('[data-chat2db-edit-table-data-can-right-click]')) {
+        setCanContextmenu(true);
+      } else {
+        setCanContextmenu(false);
+      }
+    };
+    document.addEventListener('contextmenu', handleClick);
+    return () => {
+      document.removeEventListener('contextmenu', handleClick);
+    };
+  }, []);
+
   const allSupportedMenus = {
     [AllSupportedMenusType.CopyCell]: {
       label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copy')} />,
@@ -58,7 +82,7 @@ export default memo<IProps>((props) => {
           label: i18n('common.button.tabularSeparatedValuesFieldNameAndData'),
           key: 'copy-row-5',
         },
-      ]
+      ],
     },
     [AllSupportedMenusType.CloneRow]: {
       label: <MenuLabel icon="&#xe8db;" label={i18n('common.button.cloneRow')} />,
@@ -76,25 +100,55 @@ export default memo<IProps>((props) => {
       label: <MenuLabel label={i18n('common.button.setNull')} />,
       key: AllSupportedMenusType.SetNull,
     },
-  }
+    [AllSupportedMenusType.ViewData]: {
+      label: <MenuLabel icon="&#xe788;" label={i18n('common.button.viewData')} />,
+      key: AllSupportedMenusType.ViewData,
+    },
+  };
 
-  const items = useMemo(()=>{
-    return menuList.map((menu) => {
+  const items = useMemo(() => {
+    return menuList?.map((menu) => {
       return {
         ...allSupportedMenus[menu.key],
-        onClick: menu.callback,
-        children: menu.children?.map((child,index) => {
+        onClick: () => {
+          menu.callback?.();
+          setOpen(false);
+        },
+        children: menu.children?.map((child, index) => {
           if (child.hide) return null;
           return {
             ...allSupportedMenus[menu.key]['children'][index],
-            onClick: child.callback,
-          }
-        })
-      }
-    })
-  }, [menuList])
+            onClick: () => {
+              child.callback();
+              setOpen(false);
+            },
+          };
+        }),
+      };
+    });
+  }, [menuList]);
 
-  return <Dropdown menu={{ items }} trigger={["contextMenu"]} >
-    {children}
-  </Dropdown>;
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          motion: false,
+        },
+      }}
+    >
+      <Dropdown
+        menu={{
+          items: items || [],
+          style: items ? {} : { display: 'none' },
+        }}
+        trigger={['contextMenu']}
+        open={open && canContextmenu}
+        onOpenChange={(_open) => {
+          setOpen(_open);
+        }}
+      >
+        {children}
+      </Dropdown>
+    </ConfigProvider>
+  );
 });
