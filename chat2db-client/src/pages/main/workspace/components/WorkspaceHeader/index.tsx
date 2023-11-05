@@ -15,6 +15,7 @@ import styles from './index.less';
 import i18n from '@/i18n';
 import CreateDatabase, { ICreateDatabaseRef } from '@/components/CreateDatabase';
 import { getCurrentWorkspaceDatabase } from '@/utils/localStorage';
+import { registerIntelliSenseDatabase } from '@/utils/IntelliSense';
 
 interface IProps {
   className?: string;
@@ -34,7 +35,6 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 
 // 不支持创建schema的数据库类型
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
-
 
 const WorkspaceHeader = memo<IProps>((props) => {
   const { connectionModel, workspaceModel, mainPageModel, dispatch } = props;
@@ -148,7 +148,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
         extraParams: {
           databaseType: curConnection.type,
           dataSourceId: curConnection.id,
-          dataSourceName: curConnection.name,
+          dataSourceName: curConnection.alias,
         },
       })
       .then((res: any) => {
@@ -159,7 +159,11 @@ const WorkspaceHeader = memo<IProps>((props) => {
               label: t.name,
             };
           }) || [];
+
         setCurDBOptions(dbList);
+        registerIntelliSenseDatabase(
+          res.map((t: any) => ({ name: t.name, dataSourceName: t.extraParams.dataSourceName })),
+        );
         let databaseName = '';
         if (dbList.find((t: any) => t.value === localStorageWorkspaceDatabase.databaseName)) {
           databaseName = localStorageWorkspaceDatabase.databaseName!;
@@ -347,10 +351,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                 value={[curWorkspaceParams?.databaseName || '']}
               >
                 <div className={styles.crumbsItem}>
-                  <Iconfont
-                    className={styles.databaseTypeIcon}
-                    code="&#xe62c;"
-                  />
+                  <Iconfont className={styles.databaseTypeIcon} code="&#xe62c;" />
                   <div className={styles.text}>{curWorkspaceParams.databaseName}</div>
                   <div className={styles.pullDownArrow}>
                     <Iconfont code="&#x100be;" />

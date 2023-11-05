@@ -100,7 +100,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 extraParams: {
                   databaseType: t.type,
                   dataSourceId: t.id,
-                  dataSourceName: t.name,
+                  dataSourceName: t.alias,
                 },
               };
             });
@@ -324,9 +324,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.FUNCTION]: {
     icon: '\ue76a',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.PROCEDURES]: {
@@ -363,9 +361,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.PROCEDURE]: {
     icon: '\ue73c',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.TRIGGERS]: {
@@ -402,9 +398,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEW]: {
@@ -422,9 +416,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(list);
       });
     },
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEWCOLUMNS]: {
@@ -457,9 +449,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.VIEWCOLUMN]: {
     icon: '\ue647',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 
   [TreeNodeType.COLUMNS]: {
@@ -493,9 +483,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
@@ -526,10 +514,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.KEY]: {
     icon: '\ue775',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
-    
+    operationColumn: [OperationColumn.CopyName],
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
@@ -560,8 +545,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
-    operationColumn: [
-      OperationColumn.CopyName
-    ],
+    operationColumn: [OperationColumn.CopyName],
   },
 };

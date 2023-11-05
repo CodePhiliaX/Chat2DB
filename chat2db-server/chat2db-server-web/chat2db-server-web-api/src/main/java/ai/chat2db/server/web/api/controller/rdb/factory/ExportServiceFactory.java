@@ -28,7 +28,6 @@ public class ExportServiceFactory {
         REPORT_POOL.put(ExportTypeEnum.MARKDOWN.name(), ExportMarkdownService.class);
         REPORT_POOL.put(ExportTypeEnum.HTML.name(), ExportHtmlService.class);
         REPORT_POOL.put(ExportTypeEnum.PDF.name(), ExportPdfService.class);
-        CopyTemplate.copyTemplateFile();
     }
 
     /**

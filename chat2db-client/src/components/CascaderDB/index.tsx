@@ -5,6 +5,7 @@ import cs from 'classnames';
 import styles from './index.less';
 import Iconfont from '../Iconfont';
 import { databaseMap } from '@/constants/database';
+import { registerIntelliSenseDatabase } from '@/utils/IntelliSense';
 
 interface IProps {
   className?: string;
@@ -55,7 +56,7 @@ function CascaderDB(props: IProps) {
     setCurDatabaseName(value);
     setSchemaOptions([]);
     setCurSchemeName('');
-    
+
     props.onChange &&
       props.onChange({
         dataSourceId: curDataSourceId!,

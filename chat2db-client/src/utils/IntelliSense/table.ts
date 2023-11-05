@@ -13,7 +13,7 @@ let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
   },
 });
 
-function checkTableContext(text) {
+const checkTableContext = (text) => {
   const normalizedText = text.trim().toUpperCase();
   const tableKeywords = ['FROM', 'JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'UPDATE'];
 
@@ -24,14 +24,13 @@ function checkTableContext(text) {
   }
 
   return false;
-}
+};
 
 const handleInsertText = (keyword: string, tableName: string, databaseCode: DatabaseTypeCode) => {
-  // console.log('test', /^[\"\`\[]/.test(keyword));
   if (/^[\"\`\[]/.test(keyword)) {
     return tableName;
   }
-  // console.log('databaseCode', databaseCode);
+
   return compatibleDataBaseName(tableName, databaseCode);
 };
 
@@ -63,34 +62,31 @@ const registerIntelliSenseTable = (
       const match = lineContentUntilPosition.match(/\S+$/);
       const word = match ? match[0] : '';
 
-      console.log('触发提示的字符:', word);
       return {
-        suggestions: (tableList || []).map((tableName) => {
-          return {
-            label: {
-              label: tableName.name,
-              detail: databaseName ? `(${databaseName})` : null,
-              description: i18n('sqlEditor.text.tableName'),
-            },
-            kind: monaco.languages.CompletionItemKind.Folder,
-            insertText: handleInsertText(word, tableName.name, databaseCode),
-            // range: monaco.Range.fromPositions(position),
-            // documentation: tableName.comment,
-            sortText: isTableContext ? '01' : '08',
-            command: {
-              id: 'addFieldList',
-              title: 'addFieldList',
-              arguments: [
-                {
-                  tableName: tableName.name,
-                  dataSourceId,
-                  databaseName,
-                  schemaName,
-                },
-              ],
-            },
-          };
-        }),
+        suggestions: (tableList || []).map((tableName) => ({
+          label: {
+            label: tableName.name,
+            detail: databaseName ? `(${databaseName})` : null,
+            description: i18n('sqlEditor.text.tableName'),
+          },
+          kind: monaco.languages.CompletionItemKind.Folder,
+          insertText: handleInsertText(word, tableName.name, databaseCode),
+          // range: monaco.Range.fromPositions(position),
+          // documentation: tableName.comment,
+          sortText: isTableContext ? '01' : '08',
+          command: {
+            id: 'addFieldList',
+            title: 'addFieldList',
+            arguments: [
+              {
+                tableName: tableName.name,
+                dataSourceId,
+                databaseName,
+                schemaName,
+              },
+            ],
+          },
+        })),
       };
     },
   });
