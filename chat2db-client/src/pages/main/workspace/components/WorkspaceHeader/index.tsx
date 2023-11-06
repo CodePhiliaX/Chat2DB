@@ -503,7 +503,7 @@ function SearchHeader(props: {handleSearch: (value:string) => void}) {
         className={styles.searchHeaderInput}
         placeholder={i18n('common.text.search')}
         bordered={false}
-        onPressEnter={(e) => {
+        onPressEnter={() => {
           props.handleSearch(value);
         }}
       />
