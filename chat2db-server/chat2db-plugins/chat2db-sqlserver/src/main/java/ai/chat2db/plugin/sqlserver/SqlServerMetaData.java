@@ -1,9 +1,9 @@
 package ai.chat2db.plugin.sqlserver;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.sqlserver.builder.SqlServerSqlBuilder;
@@ -23,12 +23,12 @@ import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
 
-
     private List<String> systemDatabases = Arrays.asList("master", "model", "msdb", "tempdb");
+
     @Override
     public List<Database> databases(Connection connection) {
         List<Database> databases = SQLExecutor.getInstance().databases(connection);
-        return sortDatabase(databases,systemDatabases,connection);
+        return sortDatabase(databases, systemDatabases, connection);
     }
 
     private List<String> systemSchemas = Arrays.asList("guest", "INFORMATION_SCHEMA", "sys", "db_owner",
@@ -130,11 +130,11 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 column.setDefaultValue(resultSet.getString("COLUMN_DEFAULT"));
                 //column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
                 column.setComment(resultSet.getString("COLUMN_COMMENT"));
-               // column.setPrimaryKey("PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY")));
+                // column.setPrimaryKey("PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY")));
                 column.setNullable(resultSet.getInt("IS_NULLABLE"));
                 column.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
                 column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
-               // column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
+                // column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
                 column.setCollationName(resultSet.getString("COLLATION_NAME"));
                 column.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
                 //setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
@@ -298,6 +298,77 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             return table;
         });
     }
+
+    private static final String INDEX_SQL = "SELECT ic.key_ordinal AS COLUMN_POSITION, ic.is_descending_key as DESCEND , ind.name AS INDEX_NAME, ind.is_unique AS IS_UNIQUE, col.name AS COLUMN_NAME, ind.type_desc AS INDEX_TYPE, CASE WHEN ic.key_ordinal = 0 THEN 'N' ELSE 'Y' END AS IS_PRIMARY FROM sys.indexes ind INNER JOIN sys.index_columns ic ON ind.object_id = ic.object_id and ind.index_id = ic.index_id INNER JOIN sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id INNER JOIN sys.tables t ON ind.object_id = t.object_id LEFT JOIN sys.key_constraints kc ON ind.object_id = kc.parent_object_id AND ind.index_id = kc.unique_index_id WHERE t.name = '%s' and t.schema_id= SCHEMA_ID('%s') ORDER BY t.name, ind.name, ind.index_id, ic.index_column_id";
+
+    @Override
+    public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = String.format(INDEX_SQL, tableName,schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
+            while (resultSet.next()) {
+                String keyName = resultSet.getString("INDEX_NAME");
+                TableIndex tableIndex = map.get(keyName);
+                if (tableIndex != null) {
+                    List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                    columnList.add(getTableIndexColumn(resultSet));
+                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
+                            .collect(Collectors.toList());
+                    tableIndex.setColumnList(columnList);
+                } else {
+                    TableIndex index = new TableIndex();
+                    index.setDatabaseName(databaseName);
+                    index.setSchemaName(schemaName);
+                    index.setTableName(tableName);
+                    index.setName(keyName);
+                    int isunique = resultSet.getInt("IS_UNIQUE");
+                    if(isunique ==1){
+                        index.setUnique(true);
+                    }else {
+                        index.setUnique(false);
+                    }
+                    List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
+                    tableIndexColumns.add(getTableIndexColumn(resultSet));
+                    index.setColumnList(tableIndexColumns);
+                    String indexType = resultSet.getString("INDEX_TYPE");
+                    if ("Y".equalsIgnoreCase(resultSet.getString("IS_PRIMARY"))) {
+                        index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
+                    }else if("CLUSTERED".equalsIgnoreCase(indexType)){
+                        if(index.getUnique()){
+                            index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
+                        }else {
+                            index.setType(SqlServerIndexTypeEnum.CLUSTERED.getName());
+                        }
+                    }else if("NONCLUSTERED".equalsIgnoreCase(indexType)){
+                        if(index.getUnique()){
+                            index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
+                        }else {
+                            index.setType(SqlServerIndexTypeEnum.NONCLUSTERED.getName());
+                        }
+                    }else {
+                        index.setType(indexType);
+                    }
+                    map.put(keyName, index);
+                }
+            }
+            return map.values().stream().collect(Collectors.toList());
+        });
+
+    }
+
+    private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
+        TableIndexColumn tableIndexColumn = new TableIndexColumn();
+        tableIndexColumn.setColumnName(resultSet.getString("COLUMN_NAME"));
+        tableIndexColumn.setOrdinalPosition(resultSet.getShort("COLUMN_POSITION"));
+        int collation = resultSet.getInt("DESCEND");
+        if (collation == 1) {
+            tableIndexColumn.setAscOrDesc("ASC");
+        } else {
+            tableIndexColumn.setAscOrDesc("DESC");
+        }
+        return tableIndexColumn;
+    }
+
 
     @Override
     public SqlBuilder getSqlBuilder() {

@@ -24,10 +24,10 @@ export default memo<IProps>((props) => {
         className={classnames(styles.iconPanelLeft, styles.iconPanel, { [styles.iconPanelLeftHidden]: !panelLeft })}
         onClick={togglePanelLeft}
       />
-      {/* <div
+      <div
         className={classnames(styles.iconPanelRight, styles.iconPanel, { [styles.iconPanelRightHidden]: !panelRight })}
         onClick={togglePanelRight}
-      /> */}
+      />
     </div>
   );
 });

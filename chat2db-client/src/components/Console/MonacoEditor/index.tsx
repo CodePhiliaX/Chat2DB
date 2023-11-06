@@ -147,38 +147,12 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     };
   }, []);
 
-  // 监听主题色变化切换编辑器主题色
+  // 设置报表里面的编辑器的主题
   useEffect(() => {
     if (options?.theme) {
       monaco.editor.setTheme(options.theme);
-      return;
     }
-
-    // TODO: 因为在appTheme变化以后_AppThemePack并没有变化，所以这里需要延迟一下，但是这里要去掉
-    
-    const { colorPrimary, colorBgBase, colorTextBase  } = window._AppThemePack;
-
-    const colors = {
-      'editor.lineHighlightBackground': colorPrimary + '14', // 当前行背景色
-      'editor.selectionBackground': colorPrimary + '20', // 选中文本的背景色
-      // 'editorLineNumber.foreground': colorPrimary, // 行号颜色
-      'editorLineNumber.activeForeground': colorPrimary, // 当前行号颜色
-      // 'editorCursor.foreground': colorPrimary, // 光标颜色
-      'editorRuler.foreground': colorPrimary + '15', // 右侧竖线颜色
-      'editor.foreground': colorTextBase, // 文本颜色
-      'editor.background': colorBgBase, //背景色
-    };
-
-    monaco.editor.defineTheme(appTheme.backgroundColor, {
-      // base 如果appTheme.backgroundColor包含dark则为vs-dark，否则为vs
-      base: appTheme.backgroundColor.includes(ThemeType.Dark) ? 'vs-dark' : 'vs',
-      inherit: true, // 是否继承vscode默认主题
-      rules: [{ background: '#15161a' }] as any,
-      colors,
-    });
-
-    monaco.editor.setTheme(appTheme.backgroundColor);
-  }, [appTheme.backgroundColor, options?.theme]);
+  }, [options?.theme]);
 
   useImperativeHandle(ref, () => ({
     getCurrentSelectContent,

@@ -44,4 +44,5 @@ export enum CRUD {
   READ = 'READ',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
+  UPDATE_COPY = 'UPDATE_COPY',
 }

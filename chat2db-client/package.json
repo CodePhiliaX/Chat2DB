@@ -46,7 +46,7 @@
     "react-sortablejs": "^6.1.4",
     "sql-formatter": "^12.2.1",
     "styled-components": "^6.0.1",
-    "umi": "^4.0.70",
+    "umi": "^4.0.87",
     "umi-request": "^1.4.0",
     "uuid": "^9.0.0",
     "zustand": "^4.4.4"

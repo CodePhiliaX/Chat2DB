@@ -45,9 +45,10 @@
   .moreBox{
     width: 22px;
     height: 100%;
-    display: none;
+    display: flex;
     justify-content: center;
     align-items: center;
+    opacity: 0;
   }
 
   .moreButton {
@@ -58,16 +59,12 @@
   &:hover {
     background-color: var(--color-hover-bg);
     .moreBox{
-      width: 22px;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+     opacity: 1;
     }
     
-    .moreButton {
-      display: block;
-    }
+    // .moreButton {
+    //   opacity: 1;
+    // }
   }
 }
 

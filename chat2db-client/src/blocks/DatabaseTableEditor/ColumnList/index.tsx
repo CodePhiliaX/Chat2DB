@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import styles from './index.less';
+import classnames from 'classnames';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -10,7 +11,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Context } from '../index';
 import { IColumnItemNew, IColumnTypes } from '@/typings';
 import i18n from '@/i18n';
-import { EditColumnOperationType, DatabaseTypeCode } from '@/constants';
+import { EditColumnOperationType, DatabaseTypeCode, NullableType } from '@/constants';
 import CustomSelect from '@/components/CustomSelect';
 import Iconfont from '@/components/Iconfont';
 
@@ -71,6 +72,7 @@ const createInitialData = () => {
     autoIncrement: null,
     comment: null,
     primaryKey: null,
+    primaryKeyOrder: null,
     schemaName: null,
     databaseName: null,
     typeName: null,
@@ -129,6 +131,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
             key: uuidv4(),
           };
         }) || [];
+      setEditingConfig(null);
       setDataSource(list);
     }
   }, [tableDetails]);
@@ -213,15 +216,50 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       title: i18n('editTable.label.nullable'),
       dataIndex: 'nullable',
       width: '100px',
-      render: (nullable: number, record: IColumnItemNew) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Form.Item name="nullable" style={{ margin: 0 }} valuePropName="checked">
-            <Checkbox checked={nullable === 1} disabled={!editingConfig?.supportNullable} />
-          </Form.Item>
-        ) : (
+      render: (nullable: NullableType | null, record: IColumnItemNew) => {
+        // const editable = isEditing(record);
+        return (
           <div>
-            <Checkbox checked={nullable === 1} />
+            <Checkbox
+              onChange={() => {
+                if (databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add) {
+                  return null;
+                }
+                handelNullable(record);
+              }}
+              checked={nullable === NullableType.Null}
+              disabled={
+                editingConfig?.supportNullable === false ||
+                !!record.primaryKey ||
+                (databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add)
+              }
+            />
+          </div>
+        );
+      },
+    },
+    {
+      title: i18n('editTable.label.primaryKey'),
+      dataIndex: 'primaryKey',
+      width: '50px',
+      render: (primaryKey: boolean, record: IColumnItemNew) => {
+        return (
+          <div>
+            <div
+              className={classnames(styles.keyBox, {
+                [styles.disabledKeyBox]:
+                  databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add,
+              })}
+              onClick={() => {
+                if (databaseType === DatabaseTypeCode.SQLITE && record.editStatus !== EditColumnOperationType.Add) {
+                  return null;
+                }
+                handelPrimaryKey(record);
+              }}
+            >
+              {primaryKey && <Iconfont code="&#xe775;" />}
+              {primaryKey && <span>{record.primaryKeyOrder}</span>}
+            </div>
           </div>
         );
       },
@@ -263,6 +301,80 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     },
   ];
 
+  const handelPrimaryKey = (_data: IColumnItemNew) => {
+    const newData = dataSource.map((item) => {
+      let primaryKeyOrder: null | number = item.primaryKeyOrder;
+
+      // 取消主键if
+      if (_data.primaryKey) {
+        // 如果取消的时当前的字段，主键顺序为null
+        if (_data.key === item.key) {
+          primaryKeyOrder = null;
+        } else {
+          // 如果当前字段是主键，取消主键的时候，比当前字段顺序大的字段顺序-1
+          if (_data.primaryKeyOrder && item.primaryKeyOrder && item.primaryKeyOrder >= _data.primaryKeyOrder) {
+            primaryKeyOrder = item.primaryKeyOrder - 1;
+          }
+        }
+      } else {
+        // 增加主键if
+        // 增加主键的时候，主键顺序为当前表的最大主键顺序+1
+        if (_data.key === item.key) {
+          primaryKeyOrder =
+            Math.max(
+              ...dataSource.map((i) => {
+                return i.primaryKeyOrder || 0;
+              }),
+            ) + 1;
+        }
+        // 对于当前字段之前的字段，主键顺序不变
+      }
+
+      if (item.key === _data?.key) {
+        // 判断当前数据是新增的数据还是编辑后的数据
+        let editStatus = item.editStatus;
+        if (editStatus !== EditColumnOperationType.Add) {
+          editStatus = EditColumnOperationType.Modify;
+        }
+
+        const editingDataItem = {
+          ...item,
+          primaryKey: !item.primaryKey,
+          primaryKeyOrder,
+          nullable: !item.primaryKey ? NullableType.NotNull : item.nullable,
+          editStatus,
+        };
+        return editingDataItem;
+      }
+
+      return {
+        ...item,
+        primaryKeyOrder,
+      };
+    });
+    setDataSource(newData);
+  };
+
+  const handelNullable = (_data: IColumnItemNew) => {
+    const newData = dataSource.map((item) => {
+      if (item.key === _data?.key) {
+        // 判断当前数据是新增的数据还是编辑后的数据
+        let editStatus = item.editStatus;
+        if (editStatus !== EditColumnOperationType.Add) {
+          editStatus = EditColumnOperationType.Modify;
+        }
+        const editingDataItem = {
+          ...item,
+          nullable: !item.nullable ? NullableType.Null : NullableType.NotNull,
+          editStatus,
+        };
+        return editingDataItem;
+      }
+      return item;
+    });
+    setDataSource(newData);
+  };
+
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (active.id !== over?.id) {
       setDataSource((previous) => {
@@ -278,7 +390,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     const { name: nameList } = field[0];
     const name = nameList[0];
     if (name === 'nullable') {
-      value = value ? 1 : 0;
+      value = value ? NullableType.Null : NullableType.NotNull;
     }
 
     const newData = dataSource.map((item) => {
@@ -416,7 +528,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
           </Form.Item>
         )}
         {editingConfig?.supportScale && (
-          <Form.Item labelCol={labelCol} label={i18n('editTable.label.decimalPoint')} name="decimalPoint">
+          <Form.Item labelCol={labelCol} label={i18n('editTable.label.decimalPoint')} name="decimalDigits">
             <Input autoComplete="off" />
           </Form.Item>
         )}

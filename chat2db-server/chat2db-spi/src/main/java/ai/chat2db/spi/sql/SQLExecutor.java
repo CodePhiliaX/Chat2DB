@@ -186,7 +186,7 @@ public class SQLExecutor {
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
-            stmt.setQueryTimeout(30);
+            //stmt.setQueryTimeout(30);
             if (offset != null && count != null) {
                 stmt.setMaxRows(offset + count);
             }

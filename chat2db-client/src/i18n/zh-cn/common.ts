@@ -101,4 +101,17 @@ export default {
   'common.label.name': '名称',
   'common.title.create': '创建',
   'common.title.executiveLogging': '执行记录',
+  'common.text.executionTime': '{1}ms 执行完毕',
+  'common.button.copyRowAs': '复制行为',
+  'common.button.insertSql': 'Insert 语句',
+  'common.button.updateSql': 'Update 语句',
+  'common.button.tabularSeparatedValues': '制表符分隔值',
+  'common.button.tabularSeparatedValuesFieldName': '制表符分隔值(字段名)',
+  'common.button.tabularSeparatedValuesFieldNameAndData': '制表符分隔值(字段名和数据)',
+  'common.button.cloneRow': '克隆行',
+  'common.button.deleteRow': '删除行',
+  'common.button.setNull': '设置为NULL',
+  'common.button.setDefault': '设置为默认值',
+  'common.button.viewData': '查看/修改数据',
+
 };

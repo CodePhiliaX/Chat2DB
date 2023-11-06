@@ -38,7 +38,7 @@ public class WenxinAIEventSourceListener extends EventSourceListener {
      */
     @Override
     public void onOpen(EventSource eventSource, Response response) {
-        log.info("Fast Chat Sse connecting...");
+        log.info("Wenxin chat Sse connecting...");
     }
 
     /**
@@ -81,7 +81,7 @@ public class WenxinAIEventSourceListener extends EventSourceListener {
             throw new RuntimeException(e);
         }
         sseEmitter.complete();
-        log.info("FastChatAI close sse connection...");
+        log.info("WenxinChatAI close sse connection...");
     }
 
     @Override
@@ -107,13 +107,13 @@ public class WenxinAIEventSourceListener extends EventSourceListener {
                 if (StringUtils.isBlank(bodyString) && Objects.nonNull(t)) {
                     bodyString = t.getMessage();
                 }
-                log.error("Fast Chat AI sse response：{}", bodyString);
+                log.error("Wenxin chat AI sse response：{}", bodyString);
             } else {
-                log.error("Fast Chat AI sse response：{}，error：{}", response, t);
+                log.error("Wenxin chat AI sse response：{}，error：{}", response, t);
             }
             eventSource.cancel();
             Message message = new Message();
-            message.setContent("Fast Chat AI error：" + bodyString);
+            message.setContent("Wenxin chat AI error：" + bodyString);
             sseEmitter.send(SseEmitter.event()
                 .id("[ERROR]")
                 .data(message));
@@ -122,7 +122,7 @@ public class WenxinAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("Fast Chat AI send data error:", exception);
+            log.error("Wenxin chat AI send data error:", exception);
         }
     }
 }

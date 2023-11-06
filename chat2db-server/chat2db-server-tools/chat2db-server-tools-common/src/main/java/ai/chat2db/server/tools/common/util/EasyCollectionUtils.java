@@ -1,10 +1,6 @@
 package ai.chat2db.server.tools.common.util;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -187,6 +183,17 @@ public class EasyCollectionUtils {
     static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+    public static <E> List<E> union(List<? extends E> list1, List<? extends E> list2) {
+        ArrayList<E> result = new ArrayList();
+        if(list1 != null && list1.size()>0) {
+            result.addAll(list1);
+        }
+        if(list2!= null && list2.size()>0) {
+            result.addAll(list2);
+        }
+        return result;
     }
 
 }

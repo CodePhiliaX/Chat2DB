@@ -86,8 +86,13 @@ public class Table {
 
     private String collate;
 
+
     private Long incrementValue;
 
+
     private String partition;
+
+
+    private String tablespace;
 }
 

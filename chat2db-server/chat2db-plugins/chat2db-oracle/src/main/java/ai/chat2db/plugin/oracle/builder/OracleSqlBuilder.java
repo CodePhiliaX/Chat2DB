@@ -4,11 +4,9 @@ import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
-import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
 public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {

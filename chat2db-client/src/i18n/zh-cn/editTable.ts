@@ -31,6 +31,7 @@ export default {
   'editTable.label.engine': '引擎',
   'editTable.label.incrementValue': '自增值',
   'editTable.label.order': '排序',
+  'editTable.label.primaryKey': '键',
   'editTable.title.sqlPreview': 'sql预览',
   'editTable.button.addColumn': '添加列',
   'editTable.button.addIndex': '添加索引',
