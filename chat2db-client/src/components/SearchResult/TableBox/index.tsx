@@ -43,6 +43,7 @@ interface ITableProps {
   className?: string;
   outerQueryResultData: IManageResultData;
   executeSqlParams: any;
+  tableBoxId: string;
 }
 
 interface IViewTableCellData {
@@ -91,7 +92,7 @@ const defaultPaginationConfig: IResultConfig = {
 };
 
 export default function TableBox(props: ITableProps) {
-  const { className, outerQueryResultData } = props;
+  const { className, outerQueryResultData, tableBoxId } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [, contextHolder] = message.useMessage();
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
@@ -1077,6 +1078,7 @@ export default function TableBox(props: ITableProps) {
               />
             </div>
             <div className={classnames(styles.toolBarItem, styles.refreshBar)}>
+              {/* 刷新 */}
               <Popover mouseEnterDelay={0.8} content={i18n('common.button.refresh')} trigger="hover">
                 <div
                   onClick={() => {
@@ -1210,7 +1212,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {activeSearchResult.id === queryResultData.uuid && renderContent()}
+      {activeSearchResult.id === tableBoxId && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

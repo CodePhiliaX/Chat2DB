@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import styles from './index.less';
 import { Popover, Dropdown } from 'antd';
+import i18n from '@/i18n';
 
 export interface ITabItem {
   prefixIcon?: string | React.ReactNode;
@@ -163,21 +164,21 @@ export default memo<IProps>((props) => {
 
     const closeTabsMenu = [
       {
-        label: '关闭',
+        label: i18n('common.button.close'),
         key: 'close',
         onClick: () => {
           deleteTab(t);
         },
       },
-      {
-        label: '关闭其他',
+      { 
+        label: i18n('common.button.closeOthers'),
         key: 'closeOther',
         onClick: () => {
           deleteOtherTab(t);
         },
       },
       {
-        label: '关闭所有',
+        label: i18n('common.button.closeAll'),
         key: 'closeAll',
         onClick: () => {
           deleteAllTab();

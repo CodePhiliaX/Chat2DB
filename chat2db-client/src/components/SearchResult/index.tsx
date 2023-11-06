@@ -103,6 +103,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
           <div className={styles.successResultContent}>
             {needTable ? (
               <TableBox
+                tableBoxId={queryResultData.uuid}
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
                 executeSqlParams={props.executeSqlParams}
