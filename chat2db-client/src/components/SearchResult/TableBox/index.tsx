@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin, Button } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
@@ -26,7 +26,6 @@ import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 
 // store
 import { useCommonStore } from '@/store/common';
-import { useWorkspaceStore } from '@/store/workspace';
 
 // 依赖组件
 import ExecuteSQL from '@/components/ExecuteSQL';
@@ -38,6 +37,7 @@ import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import StatusBar from '../StatusBar';
 import RightClickMenu, { AllSupportedMenusType } from '../RightClickMenu';
+import { Context } from '../index';
 
 interface ITableProps {
   className?: string;
@@ -95,6 +95,7 @@ export default function TableBox(props: ITableProps) {
   const { className, outerQueryResultData, tableBoxId } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [, contextHolder] = message.useMessage();
+  const { activeTabIdRef } = useContext(Context);
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
   // sql查询结果
   const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
@@ -143,7 +144,6 @@ export default function TableBox(props: ITableProps) {
       setFocusedContent: state.setFocusedContent,
     };
   });
-  const activeSearchResult = useWorkspaceStore((state) => state.activeTab.activeSearchResult);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -875,7 +875,6 @@ export default function TableBox(props: ITableProps) {
         maxSize: 1080,
         sizes: columnResize,
         onChangeSizes: (sizes) => {
-          console.log(sizes);
           sizes[0] = 0;
           setColumnResize(sizes);
         },
@@ -1212,7 +1211,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {activeSearchResult.id === tableBoxId && renderContent()}
+      {activeTabIdRef?.current === tableBoxId && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

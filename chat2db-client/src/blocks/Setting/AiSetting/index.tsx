@@ -28,6 +28,9 @@ export default function SettingAI(props: IProps) {
     setLoading(true);
     try {
       const res = await getUser();
+      // 向cookie中写入当前用户id
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
       setUserInfo(res);
     } finally {
       setLoading(false);
