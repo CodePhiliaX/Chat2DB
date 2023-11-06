@@ -1,6 +1,6 @@
-## 3.0.10
+## 3.0.11
 
-`2023-11-05`
+`2023-11-06`
 
 **Changelog**
 - ⭐【New Features】Add multiple CN AI configurations Add multiple domestic AI configurations
