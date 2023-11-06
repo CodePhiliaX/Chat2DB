@@ -8,10 +8,7 @@ import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -179,7 +176,6 @@ public class WenxinAIStreamClient {
 
             FastChatCompletionsOptions chatCompletionsOptions = new FastChatCompletionsOptions(chatMessages);
             chatCompletionsOptions.setStream(true);
-            chatCompletionsOptions.setModel(this.model);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
@@ -192,7 +188,7 @@ public class WenxinAIStreamClient {
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking fast chat ai");
         } catch (Exception e) {
-            log.error("fast chat ai error", e);
+            log.error("wenxin chat ai error", e);
             eventSourceListener.onFailure(null, e, null);
             throw new ParamBusinessException();
         }
