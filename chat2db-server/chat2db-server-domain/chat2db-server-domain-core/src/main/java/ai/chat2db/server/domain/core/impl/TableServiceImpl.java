@@ -241,6 +241,9 @@ public class TableServiceImpl implements TableService {
             keyIndex.setSchemaName(newTable.getSchemaName());
             keyIndex.setDatabaseName(newTable.getDatabaseName());
             keyIndex.setEditStatus(status);
+            if(!EditStatus.ADD.name().equals(status)){
+                keyIndex.setOldName(keyIndex.getName());
+            }
             indexes.add(keyIndex);
         }
         List<TableIndexColumn> tableIndexColumns = keyIndex.getColumnList();
