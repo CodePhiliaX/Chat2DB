@@ -192,7 +192,6 @@ const TreeNode = (props: TreeNodeIProps) => {
   }
 
   const handelClickTreeNode = () => {
-    console.log(data.key,'data.key')
     setFocusedContent((data.key || '') as any);
   };
 

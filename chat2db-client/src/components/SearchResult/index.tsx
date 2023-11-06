@@ -10,7 +10,7 @@ import React, {
   Fragment,
 } from 'react';
 import classnames from 'classnames';
-import Tabs,{ ITabItem } from '@/components/Tabs';
+import Tabs, { ITabItem } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 // import Output from '@/components/Output';
@@ -23,6 +23,7 @@ import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { Spin } from 'antd';
+import { useWorkspaceStore } from '@/store/workspace';
 
 interface IProps {
   className?: string;
@@ -43,10 +44,10 @@ export interface ISearchResultRef {
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
   const { className, sql, executeSqlParams } = props;
-  // const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
+  const setActiveSearchResult = useWorkspaceStore((state) => state.setActiveSearchResult);
 
   useEffect(() => {
     if (sql) {
@@ -73,23 +74,25 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
 
     controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-     sqlServer.executeSql(executeSQLParams, {
-      signal: controllerRef.current.signal,
-    }).then((res) => {
-      const sqlResult = res.map((_res) => ({
-        ..._res,
-        uuid: uuidV4(),
-      }));
-  
-      setResultDataList(sqlResult);
-    })
-    .finally(() => {
-      setTableLoading(false);
-    });
+    sqlServer
+      .executeSql(executeSQLParams, {
+        signal: controllerRef.current.signal,
+      })
+      .then((res) => {
+        const sqlResult = res.map((_res) => ({
+          ..._res,
+          uuid: uuidV4(),
+        }));
+
+        setResultDataList(sqlResult);
+      })
+      .finally(() => {
+        setTableLoading(false);
+      });
   };
 
-  const onChange = useCallback(() => {
-    // setCurrentTab(uuid);
+  const onChange = useCallback((uuid) => {
+    setActiveSearchResult(uuid);
   }, []);
 
   const renderResult = (queryResultData) => {
@@ -155,7 +158,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   }, [resultDataList]);
 
   const onEdit = useCallback(
-    (type: 'add' | 'remove', data:ITabItem[]) => {
+    (type: 'add' | 'remove', data: ITabItem[]) => {
       if (type === 'remove') {
         const newResultDataList = resultDataList?.filter((d) => {
           return data.findIndex((item) => item.key === d.uuid) === -1;
@@ -205,10 +208,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
           {tabsList?.length ? (
             <Tabs
               hideAdd
-              // concealTabHeader={outputTabAndTabsList?.length === 1}
               className={styles.tabs}
               onChange={onChange as any}
-              // activeKey={currentTab}
               onEdit={onEdit as any}
               items={tabsList}
               concealTabHeader={tabsList.length === 1}

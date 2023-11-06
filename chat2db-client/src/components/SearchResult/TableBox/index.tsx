@@ -26,6 +26,7 @@ import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 
 // store
 import { useCommonStore } from '@/store/common';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // 依赖组件
 import ExecuteSQL from '@/components/ExecuteSQL';
@@ -141,6 +142,7 @@ export default function TableBox(props: ITableProps) {
       setFocusedContent: state.setFocusedContent,
     };
   });
+  const activeSearchResult = useWorkspaceStore((state) => state.activeTab.activeSearchResult);
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {
@@ -1208,7 +1210,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {renderContent()}
+      {activeSearchResult.id === queryResultData.uuid && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}
