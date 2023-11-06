@@ -181,7 +181,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     }
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
+    public String buildModifyColumn(TableColumn tableColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");

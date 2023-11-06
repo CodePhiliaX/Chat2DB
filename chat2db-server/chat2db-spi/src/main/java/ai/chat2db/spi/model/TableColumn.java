@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
+
 /**
  * 列信息
  *
@@ -81,6 +83,18 @@ public class TableColumn {
      * 是否主键
      */
     private Boolean primaryKey;
+
+
+    /**
+     * 主键名
+     */
+    private String primaryKeyName;
+
+
+    /**
+     * 主键顺序
+     */
+    private int primaryKeyOrder;
 
     /**
      * 空间名
@@ -184,4 +198,17 @@ public class TableColumn {
 
     // sqlserver
     private String defaultConstraintName;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TableColumn that = (TableColumn) o;
+        return Objects.equals(name, that.name) && Objects.equals(tableName, that.tableName) && Objects.equals(columnType, that.columnType) && Objects.equals(defaultValue, that.defaultValue) && Objects.equals(autoIncrement, that.autoIncrement) && Objects.equals(comment, that.comment) && Objects.equals(typeName, that.typeName) && Objects.equals(columnSize, that.columnSize) && Objects.equals(decimalDigits, that.decimalDigits) && Objects.equals(numPrecRadix, that.numPrecRadix) && Objects.equals(sqlDataType, that.sqlDataType) && Objects.equals(ordinalPosition, that.ordinalPosition) && Objects.equals(nullable, that.nullable) && Objects.equals(extent, that.extent) && Objects.equals(charSetName, that.charSetName) && Objects.equals(collationName, that.collationName) && Objects.equals(value, that.value) && Objects.equals(unit, that.unit) && Objects.equals(sparse, that.sparse) && Objects.equals(defaultConstraintName, that.defaultConstraintName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, tableName, columnType, defaultValue, autoIncrement, comment, typeName, columnSize, decimalDigits, numPrecRadix, sqlDataType, ordinalPosition, nullable, extent, charSetName, collationName, value, unit, sparse, defaultConstraintName);
+    }
 }

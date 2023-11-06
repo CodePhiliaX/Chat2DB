@@ -7,7 +7,6 @@ import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.util.TableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -58,7 +57,7 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
                 script.append("ALTER TABLE ").append("\"").append(newTable.getDatabaseName()).append("\".\"").append(newTable.getName()).append("\"").append("\n");
                 SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append(";\n");
+                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
             }
         }
 

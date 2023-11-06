@@ -250,7 +250,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
 
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
+    public String buildModifyColumn(TableColumn tableColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();

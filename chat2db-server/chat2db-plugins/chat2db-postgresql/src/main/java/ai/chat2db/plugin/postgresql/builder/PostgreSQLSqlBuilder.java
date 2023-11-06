@@ -5,8 +5,6 @@ import ai.chat2db.plugin.postgresql.type.PostgreSQLIndexTypeEnum;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.util.TableUtils;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +106,7 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
             PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(tableColumn.getColumnType());
-            scriptModify.append("\t").append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append(",\n");
+            scriptModify.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             modify = true;
 
         }

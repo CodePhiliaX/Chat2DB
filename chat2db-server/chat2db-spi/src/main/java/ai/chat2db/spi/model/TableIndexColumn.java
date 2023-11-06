@@ -111,5 +111,8 @@ public class TableIndexColumn {
 
 
     private Long subPart;
+
+
+    private String editStatus;
 }
 

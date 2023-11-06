@@ -8,7 +8,6 @@ import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.util.TableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -87,7 +86,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus()) &&  StringUtils.isNotBlank(tableColumn.getColumnType())&& StringUtils.isNotBlank(tableColumn.getName())){
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append(",\n");
+                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             }
         }
 
