@@ -21,6 +21,14 @@ const registerAppMenu = (mainWindow, orgs) => {
         },
         { type: 'separator' },
         {
+          label: '重新启动',
+          click() {
+            // 退出程序
+            app.relaunch();
+            app.quit();
+          },
+        },
+        {
           label: '退出',
           accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
           click() {
