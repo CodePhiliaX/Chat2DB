@@ -85,16 +85,28 @@
 //   }
 // }
 
-.keyBox{
+.keyBox {
   width: 26px;
   height: 26px;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  i{
+  position: relative;
+  i {
     color: var(--color-warning);
   }
+  span {
+    position: absolute;
+    font-weight: bold;
+    right: 4px;
+    bottom: -2px;
+    transform: scale(0.8);
+  }
+}
+
+.disabledKeyBox {
+  cursor: default;
 }
 
 .operationBar {

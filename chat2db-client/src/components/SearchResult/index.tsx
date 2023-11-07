@@ -8,9 +8,10 @@ import React, {
   ForwardedRef,
   useImperativeHandle,
   Fragment,
+  createContext,
 } from 'react';
 import classnames from 'classnames';
-import Tabs,{ ITabItem } from '@/components/Tabs';
+import Tabs, { ITabItem } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
 // import Output from '@/components/Output';
@@ -41,12 +42,19 @@ export interface ISearchResultRef {
   handleExecuteSQL: (sql: string) => void;
 }
 
+interface IContext {
+  // 这里不用ref的话，会导致切换时闪动
+  activeTabIdRef: React.MutableRefObject<null | string>
+}
+
+export const Context = createContext<IContext>({} as any);
+
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
   const { className, sql, executeSqlParams } = props;
-  // const [currentTab, setCurrentTab] = useState<string | number | undefined>();
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
+  const activeTabIdRef = useRef<null | string>(null);
 
   useEffect(() => {
     if (sql) {
@@ -73,23 +81,25 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
 
     controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-     sqlServer.executeSql(executeSQLParams, {
-      signal: controllerRef.current.signal,
-    }).then((res) => {
-      const sqlResult = res.map((_res) => ({
-        ..._res,
-        uuid: uuidV4(),
-      }));
-  
-      setResultDataList(sqlResult);
-    })
-    .finally(() => {
-      setTableLoading(false);
-    });
+    sqlServer
+      .executeSql(executeSQLParams, {
+        signal: controllerRef.current.signal,
+      })
+      .then((res) => {
+        const sqlResult = res.map((_res) => ({
+          ..._res,
+          uuid: uuidV4(),
+        }));
+
+        setResultDataList(sqlResult);
+      })
+      .finally(() => {
+        setTableLoading(false);
+      });
   };
 
-  const onChange = useCallback(() => {
-    // setCurrentTab(uuid);
+  const onChange = useCallback((uuid) => {
+    activeTabIdRef.current = uuid;
   }, []);
 
   const renderResult = (queryResultData) => {
@@ -100,6 +110,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
           <div className={styles.successResultContent}>
             {needTable ? (
               <TableBox
+                tableBoxId={queryResultData.uuid}
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
                 executeSqlParams={props.executeSqlParams}
@@ -155,7 +166,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   }, [resultDataList]);
 
   const onEdit = useCallback(
-    (type: 'add' | 'remove', data:ITabItem[]) => {
+    (type: 'add' | 'remove', data: ITabItem[]) => {
       if (type === 'remove') {
         const newResultDataList = resultDataList?.filter((d) => {
           return data.findIndex((item) => item.key === d.uuid) === -1;
@@ -166,25 +177,6 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     [resultDataList],
   );
 
-  // const outputTabAndTabsList = useMemo(() => {
-  //   const params = {
-  //     pageNo: 1,
-  //     pageSize: 10,
-  //   };
-
-  //   return [
-  //     {
-  //       prefixIcon: <Iconfont key="output" className={styles.outputPrefixIcon} code="&#xe6bb;" />,
-  //       label: 'Output',
-  //       key: 'output',
-  //       children: <Output params={params} />,
-  //       styles: { width: '80px' },
-  //       canClosed: false,
-  //     },
-  //     ...tabsList,
-  //   ];
-  // }, [tabsList]);
-
   const stopExecuteSql = () => {
     controllerRef.current && controllerRef.current.abort();
     setResultDataList([]);
@@ -192,35 +184,39 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   };
 
   return (
-    <div className={classnames(className, styles.searchResult)}>
-      {tableLoading ? (
-        <div className={styles.tableLoading}>
-          <Spin />
-          <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
-            {i18n('common.button.cancelRequest')}
-          </div>
-        </div>
-      ) : (
-        <>
-          {tabsList?.length ? (
-            <Tabs
-              hideAdd
-              // concealTabHeader={outputTabAndTabsList?.length === 1}
-              className={styles.tabs}
-              onChange={onChange as any}
-              // activeKey={currentTab}
-              onEdit={onEdit as any}
-              items={tabsList}
-              concealTabHeader={tabsList.length === 1}
-            />
-          ) : (
-            <div className={styles.noData}>
-              <img src={EmptyImg} />
-              <p>{i18n('common.text.noData')}</p>
+    <Context.Provider
+      value={{
+        activeTabIdRef: activeTabIdRef,
+      }}
+    >
+      <div className={classnames(className, styles.searchResult)}>
+        {tableLoading ? (
+          <div className={styles.tableLoading}>
+            <Spin />
+            <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
+              {i18n('common.button.cancelRequest')}
             </div>
-          )}
-        </>
-      )}
-    </div>
+          </div>
+        ) : (
+          <>
+            {tabsList?.length ? (
+              <Tabs
+                hideAdd
+                className={styles.tabs}
+                onChange={onChange as any}
+                onEdit={onEdit as any}
+                items={tabsList}
+                concealTabHeader={tabsList.length === 1}
+              />
+            ) : (
+              <div className={styles.noData}>
+                <img src={EmptyImg} />
+                <p>{i18n('common.text.noData')}</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </Context.Provider>
   );
 });

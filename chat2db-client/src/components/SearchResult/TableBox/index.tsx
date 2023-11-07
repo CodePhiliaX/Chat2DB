@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { Dropdown, Input, MenuProps, message, Modal, Space, Popover, Spin, Button } from 'antd';
 import { BaseTable, ArtColumn, useTablePipeline, features, SortItem } from 'ali-react-table';
 import styled from 'styled-components';
@@ -37,11 +37,13 @@ import MonacoEditor from '../../Console/MonacoEditor';
 import MyPagination from '../Pagination';
 import StatusBar from '../StatusBar';
 import RightClickMenu, { AllSupportedMenusType } from '../RightClickMenu';
+import { Context } from '../index';
 
 interface ITableProps {
   className?: string;
   outerQueryResultData: IManageResultData;
   executeSqlParams: any;
+  tableBoxId: string;
 }
 
 interface IViewTableCellData {
@@ -90,9 +92,10 @@ const defaultPaginationConfig: IResultConfig = {
 };
 
 export default function TableBox(props: ITableProps) {
-  const { className, outerQueryResultData } = props;
+  const { className, outerQueryResultData, tableBoxId } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [, contextHolder] = message.useMessage();
+  const { activeTabIdRef } = useContext(Context);
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
   // sql查询结果
   const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
@@ -872,7 +875,6 @@ export default function TableBox(props: ITableProps) {
         maxSize: 1080,
         sizes: columnResize,
         onChangeSizes: (sizes) => {
-          console.log(sizes);
           sizes[0] = 0;
           setColumnResize(sizes);
         },
@@ -1075,6 +1077,7 @@ export default function TableBox(props: ITableProps) {
               />
             </div>
             <div className={classnames(styles.toolBarItem, styles.refreshBar)}>
+              {/* 刷新 */}
               <Popover mouseEnterDelay={0.8} content={i18n('common.button.refresh')} trigger="hover">
                 <div
                   onClick={() => {
@@ -1194,7 +1197,7 @@ export default function TableBox(props: ITableProps) {
           ref={monacoEditorRef}
           id={`view_table-Cell_data-${uuid()}`}
           appendValue={{
-            text: viewTableCellData?.value,
+            text: transformInputValue(viewTableCellData?.value),
             range: 'reset',
           }}
           options={{
@@ -1208,7 +1211,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {renderContent()}
+      {activeTabIdRef?.current === tableBoxId && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

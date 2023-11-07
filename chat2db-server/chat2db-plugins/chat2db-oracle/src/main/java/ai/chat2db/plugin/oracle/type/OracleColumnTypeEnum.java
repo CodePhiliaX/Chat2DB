@@ -215,7 +215,7 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
 
 
     @Override
-    public String buildModifyColumn(TableColumn tableColumn, TableColumn oldColumn) {
+    public String buildModifyColumn(TableColumn tableColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
@@ -232,7 +232,7 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
             script.append("ALTER TABLE "). append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildModifyColumnSql(tableColumn,oldColumn)).append(") \n" );
+            script.append(" ").append("MODIFY (").append(buildModifyColumnSql(tableColumn,tableColumn.getOldColumn())).append(") \n" );
 
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
                 script.append(";");

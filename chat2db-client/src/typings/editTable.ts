@@ -1,4 +1,4 @@
-import { IndexesType, EditColumnOperationType, NullableType } from '@/constants';
+import { EditColumnOperationType, NullableType } from '@/constants';
 
 // 编辑表时表的基础数据
 export interface IBaseInfo {
@@ -26,6 +26,7 @@ export interface IColumnItemNew {
   autoIncrement: string | null; // 是否自增
   comment: string | null; // 注释
   primaryKey: boolean | null; // 是否主键
+  primaryKeyOrder: number | null; // 主键顺序
   typeName: string | null; // 类型名
   columnSize: number | null; // 列的长度
   bufferLength: number | null; // 缓冲区长度
@@ -69,7 +70,7 @@ export interface IIndexItem {
   key?: string;
   name: string | null;
   comment?: string | null;
-  type: IndexesType | null;
+  type: any | null;
   columnList: IIndexIncludeColumnItem[];
   editStatus: EditColumnOperationType | null; // 操作类型
 

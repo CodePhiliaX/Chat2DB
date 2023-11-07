@@ -6,7 +6,6 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.util.TableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
@@ -93,7 +92,7 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
                 SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append("\n");
+                script.append(typeEnum.buildModifyColumn(tableColumn)).append("\n");
             }
         }
 

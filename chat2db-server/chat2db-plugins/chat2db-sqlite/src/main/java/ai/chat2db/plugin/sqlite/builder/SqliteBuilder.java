@@ -7,7 +7,6 @@ import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.util.TableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -26,21 +25,25 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
             SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(column.getColumnType());
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
+        for (TableIndex tableIndex : table.getIndexList()) {
+            if(SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals( tableIndex.getType())) {
+                SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
+                script.append("\t").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            }
+        }
+        script = new StringBuilder(script.substring(0, script.length() - 2));
+        script.append("\n);");
 
         // append primary key and index
         for (TableIndex tableIndex : table.getIndexList()) {
             if (StringUtils.isBlank(tableIndex.getName()) || StringUtils.isBlank(tableIndex.getType())) {
                 continue;
             }
-            SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
-            script.append("\t").append("").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            if(!SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals( tableIndex.getType())) {
+                SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
+                script.append("\n").append("CREATE ").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(";\n");
+            }
         }
-
-        script = new StringBuilder(script.substring(0, script.length() - 2));
-        script.append("\n)");
-
-        script.append(";");
-
         return script.toString();
     }
 
@@ -58,7 +61,7 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
                 script.append("ALTER TABLE ").append("\"").append(newTable.getDatabaseName()).append("\".\"").append(newTable.getName()).append("\"").append("\n");
                 SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, TableUtils.getTableColumn(oldTable,tableColumn.getOldName()))).append(";\n");
+                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
             }
         }
 

@@ -9,7 +9,7 @@ export interface IConfigStore {
 }
 
 
-export const configStore = (set) => ({
+export const configStore = (set):IConfigStore => ({
   layout: {
     panelLeft: true,
     panelRight: false,
