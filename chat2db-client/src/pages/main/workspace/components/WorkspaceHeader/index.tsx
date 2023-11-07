@@ -299,7 +299,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
   function handleSearchDB(value:string){
     setSearchCurDBOptions(
       curDBOptions.filter((t:any) => {
-        return t?.label?.includes(value);
+        const reg = new RegExp(value,'i') ;
+        return reg.test(t?.label || '');
       }),
     )
   }
@@ -307,7 +308,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
   function handleSearchSchema(value:string){
     setSearchCurSchemaOptions(
       curSchemaOptions.filter((t:any) => {
-        return t?.label?.includes(value);
+        const reg = new RegExp(value,'i') ;
+        return reg.test(t?.label || '');
       }),
     )
   }

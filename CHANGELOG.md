@@ -1,3 +1,13 @@
+## 3.0.11
+
+`2023-11-08`
+
+**Changelog**
+- ⭐【New Features】
+- ⚡️【Optimize】After the update is completed, click restart to close the problem that cannot be automatically opened (hot update cannot fix this problem, you need to download a new version to cover the client)
+- 🐞【Fixed】database and schema searches support case ambiguity matching
+
+
 ## 3.0.10
 
 `2023-11-06`
