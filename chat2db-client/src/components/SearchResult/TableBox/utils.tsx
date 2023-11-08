@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { USER_FILLED_VALUE } from './index';
+import { clipboardToArray } from '@/utils';
 
 // 在input中把USER_FILLED_VALUE转换为null
 export const transformInputValue = (value: string) => {
@@ -9,9 +10,18 @@ export const transformInputValue = (value: string) => {
   return value;
 };
 
+interface IUsePasteDataRelyData {
+  curOperationRowNo, 
+  editingCell, 
+  updateTableData
+}
 
-// 判断是否聚焦在了可粘贴的区域中 hooks
-export const useCheckCanPaste = (setCanPaste)=>{
+// 处理粘贴的数据 hooks
+export const usePasteData = (props: IUsePasteDataRelyData) => {
+  const { curOperationRowNo, editingCell, updateTableData } = props;
+  const [canPaste, setCanPaste] = useState<boolean>(false);
+
+  // 判断当前是否可以粘贴
   useEffect(()=>{
     const handleClick = (event) => {
       const targetElement = event.target  as Element;
@@ -28,4 +38,39 @@ export const useCheckCanPaste = (setCanPaste)=>{
       document.removeEventListener('contextmenu', handleClick);
     };
   },[])
+
+  // 读取剪切板数据，更新表格数据
+  useEffect(() => {
+    const handleCopy = () => {
+      if (curOperationRowNo) {
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            const array2D = clipboardToArray(text);
+            updateTableData('setRow', array2D[0]);
+          })
+          .catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
+          });
+      }
+      if (editingCell && editingCell[2] === false) {
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            updateTableData('setCell', text);
+          })
+          .catch((err) => {
+            console.error('Failed to read clipboard contents: ', err);
+          });
+      }
+    };
+    if (canPaste) {
+      document.addEventListener('paste', handleCopy);
+    } else {
+      document.removeEventListener('paste', handleCopy);
+    }
+    return () => {
+      document.removeEventListener('paste', handleCopy);
+    };
+  }, [curOperationRowNo, editingCell, canPaste]);
 }
