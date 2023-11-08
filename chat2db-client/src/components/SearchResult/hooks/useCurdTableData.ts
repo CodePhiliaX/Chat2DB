@@ -1,6 +1,6 @@
 import lodash from 'lodash';
 import { CRUD } from '@/constants';
-import { USER_FILLED_VALUE, IUpdateData } from './index';
+import { USER_FILLED_VALUE, IUpdateData } from '../components/TableBox/index';
 
 export interface IProps {
   preCode: string;
@@ -14,14 +14,15 @@ export interface IProps {
   updateData: IUpdateData[];
   setUpdateData: (updateData: IUpdateData[]) => void;
   // 
-  curOperationRowNo: string | null;
-  setCurOperationRowNo: (curOperationRowNo: string | null)=>void;
+  curOperationRowNo: Array<string> | null;
+  setCurOperationRowNo: (curOperationRowNo: Array<string> | null)=>void;
   // 
   columns;
   oldDataList;
   queryResultData;
   tableBoxRef;
-  oldTableData
+  oldTableData;
+  colNoCode
 }
 
 const useCurdTableData = (props: IProps) => {
@@ -39,7 +40,8 @@ const useCurdTableData = (props: IProps) => {
     setCurOperationRowNo,
     setEditingCell,
     tableBoxRef,
-    oldTableData
+    oldTableData,
+    colNoCode
   } = props;
 
   // 编辑数据
@@ -47,23 +49,23 @@ const useCurdTableData = (props: IProps) => {
     const newTableData = lodash.cloneDeep(tableData);
     let oldRowDataList: Array<string | null> = [];
     let newRowDataList: Array<string | null> = [];
-    let curRowNo: string | null = '0';
+    let curRowNo: string | null = null;
     if (type === 'setCell' && (typeof _data === 'string' || _data === null)) {
       const [colId, rowId] = editingCell!;
       curRowNo = rowId;
       newTableData.forEach((item) => {
-        if (item[`${preCode}0No.`] === rowId) {
+        if (item[colNoCode] === rowId) {
           item[colId] = _data;
           newRowDataList = Object.keys(item).map((i) => item[i]);
         }
       });
     }
 
-    if (type === 'setRow' && Array.isArray(_data)) {
-      curRowNo = curOperationRowNo;
-      _data.unshift(curOperationRowNo);
+    if (type === 'setRow' && Array.isArray(_data) && curOperationRowNo) {
+      curRowNo = curOperationRowNo[0];
+      _data.unshift(curOperationRowNo[0]);
       newTableData.forEach((t) => {
-        if (t[`${preCode}0No.`] === curOperationRowNo) {
+        if (t[colNoCode] === curOperationRowNo[0]) {
           const dataLength = Object.keys(t).length;
           Object.keys(t).forEach((item, index) => {
             if (index > dataLength) return;
@@ -120,39 +122,47 @@ const useCurdTableData = (props: IProps) => {
   };
 
   // 处理创建数据
-  const handleCreateData = (_newData?: any) => {
+  const handleCreateData = (_newData?: {[key in string]:any}[]) => {
     // 正常的新增
     const newTableData = lodash.cloneDeep(tableData);
-    let newData = {};
+    let newData: {[key in string]:any}[] = [{}];
     if (_newData) {
       newData = _newData;
     } else {
-      columns.forEach((t, i) => {
-        if (t.name === 'No.') {
-          newData[`${preCode}${i}${t.name}`] = (newTableData.length + 1).toString();
-        } else {
-          // 判断是否有默认值
-          const hasDefaultValue =
-            queryResultData.headerList.find((item) => item.name === t.name)?.defaultValue !== null;
-          if (hasDefaultValue) {
-            newData[`${preCode}${i}${t.name}`] = USER_FILLED_VALUE.DEFAULT;
-            return;
+      newData.forEach((newDataItem, index) => {
+        columns.forEach((t, i) => {
+          if (t.name === 'No.') {
+            newDataItem[`${preCode}${i}${t.name}`] = (newTableData.length + index + 1).toString();
+          } else {
+            // 判断是否有默认值
+            const hasDefaultValue =
+              queryResultData.headerList.find((item) => item.name === t.name)?.defaultValue !== null;
+            if (hasDefaultValue) {
+              newDataItem[`${preCode}${i}${t.name}`] = USER_FILLED_VALUE.DEFAULT;
+              return;
+            }
+            newDataItem[`${preCode}${i}${t.name}`] = null;
           }
-          newData[`${preCode}${i}${t.name}`] = null;
-        }
+        });
       });
     }
-    newTableData.push(newData);
-    setTableData(newTableData);
+
+    setTableData(newTableData.concat(newData));
+
+    const newUpdateData = newData.map((item, index) => {
+      return  {
+        type: CRUD.CREATE,
+        dataList: Object.keys(item).map((i) => item[i]),
+        rowId: (newTableData.length + index + 1).toString(),
+      }
+    });
+
     setUpdateData([
       ...updateData,
-      {
-        type: CRUD.CREATE,
-        dataList: Object.keys(newData).map((item) => newData[item]),
-        rowId: newTableData.length.toString(),
-      },
+      ...newUpdateData,
     ]);
-    setCurOperationRowNo(newTableData.length.toString());
+
+    setCurOperationRowNo([(newTableData.length + 1).toString()]);
     setEditingCell(null);
 
     // 新增一条数据，tableBox需要滚动到最下方
@@ -163,22 +173,23 @@ const useCurdTableData = (props: IProps) => {
 
   // 处理删除数据
   const handleDeleteData = () => {
-    const rowId = curOperationRowNo || editingCell?.[1];
-    if (rowId === null) {
+    const rowIds = curOperationRowNo || [editingCell?.[1]];
+    if (rowIds === null) {
       return;
     }
     // 如果是新增的行，则直接删除
-    const index = updateData.findIndex((item) => item.rowId === rowId && item.type === CRUD.CREATE);
+    const index = updateData.findIndex((item) => rowIds.includes(item.rowId) && item.type === CRUD.CREATE);
     if (index !== -1) {
       updateData.splice(index, 1);
       setUpdateData([...updateData]);
-      setTableData(tableData.filter((item) => item[`${preCode}0No.`] !== rowId));
+      const _tableData = tableData.filter((item) => !rowIds.includes(item[colNoCode]!))
+      setTableData(_tableData);
       setCurOperationRowNo(null);
       return;
     }
 
     // 正常的删除数据
-    const deleteIndex = updateData.findIndex((t) => t.rowId === rowId);
+    const deleteIndex = updateData.findIndex((t) => rowIds.includes(t[colNoCode]));
     if (deleteIndex !== -1) {
       updateData.splice(deleteIndex, 1);
     }
@@ -186,17 +197,21 @@ const useCurdTableData = (props: IProps) => {
     // 如果删除的这个数据时编辑过的，要把这个数据恢复
     setTableData(
       tableData.map((item) =>
-        item[`${preCode}0No.`] === rowId ? oldTableData.find((i) => i[`${preCode}0No.`] === rowId)! : item,
+        rowIds.includes(item[colNoCode]!) ? oldTableData.find((i) => item[colNoCode] ===  i[colNoCode])! : item,
       ),
     );
-    const newDataOldList = oldDataList.find((item) => item[0] === rowId);
+
+    const updateDataList = rowIds.map((rowId) => {
+      return {
+        type: CRUD.DELETE,
+        oldDataList: oldDataList.find((i) => i[0] === rowId),
+        rowId: rowId!,
+      }
+    });
+
     setUpdateData([
       ...updateData,
-      {
-        type: CRUD.DELETE,
-        oldDataList: newDataOldList,
-        rowId: rowId!,
-      },
+      ...updateDataList,
     ]);
     setEditingCell(null);
     setCurOperationRowNo(null);

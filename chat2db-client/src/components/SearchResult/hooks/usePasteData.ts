@@ -1,33 +1,24 @@
 import { useEffect, useState } from 'react';
-import { USER_FILLED_VALUE } from './index';
 import { clipboardToArray } from '@/utils';
 
-// 在input中把USER_FILLED_VALUE转换为null
-export const transformInputValue = (value: string) => {
-  if (value === USER_FILLED_VALUE.DEFAULT) {
-    return null;
-  }
-  return value;
-};
-
 interface IUsePasteDataRelyData {
-  curOperationRowNo, 
-  editingCell, 
-  updateTableData
+  curOperationRowNo: Array<string> | null;
+  editingCell;
+  updateTableData;
 }
 
 // 处理粘贴的数据 hooks
-export const usePasteData = (props: IUsePasteDataRelyData) => {
+const usePasteData = (props: IUsePasteDataRelyData) => {
   const { curOperationRowNo, editingCell, updateTableData } = props;
   const [canPaste, setCanPaste] = useState<boolean>(false);
 
   // 判断当前是否可以粘贴
-  useEffect(()=>{
+  useEffect(() => {
     const handleClick = (event) => {
-      const targetElement = event.target  as Element;
+      const targetElement = event.target as Element;
       if (targetElement.closest('[data-chat2db-edit-table-data-can-paste]')) {
         setCanPaste(true);
-      }else{
+      } else {
         setCanPaste(false);
       }
     };
@@ -37,7 +28,7 @@ export const usePasteData = (props: IUsePasteDataRelyData) => {
       document.removeEventListener('click', handleClick);
       document.removeEventListener('contextmenu', handleClick);
     };
-  },[])
+  }, []);
 
   // 读取剪切板数据，更新表格数据
   useEffect(() => {
@@ -73,4 +64,6 @@ export const usePasteData = (props: IUsePasteDataRelyData) => {
       document.removeEventListener('paste', handleCopy);
     };
   }, [curOperationRowNo, editingCell, canPaste]);
-}
+};
+
+export default usePasteData;
