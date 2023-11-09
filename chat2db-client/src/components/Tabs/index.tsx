@@ -57,11 +57,13 @@ export default memo<IProps>((props) => {
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
   const tabListBoxRef = useRef<HTMLDivElement>(null);
   const tabsNavRef = useRef<HTMLDivElement>(null);
+  const isNumberKey = useRef<boolean>(false);
 
   useEffect(() => {
     if (isValid(activeKey)) {
       setInternalActiveTab(activeKey!);
     }
+    isNumberKey.current = typeof activeKey === 'number';
   }, [activeKey]);
 
   useEffect(() => {
@@ -242,13 +244,10 @@ export default memo<IProps>((props) => {
     return {
       label: t.label,
       key: t.key,
-      // itemIcon: t.prefixIcon,
-      // onClick: () => {
-      //   changeTab(t.key);
-      // },
     };
   });
-
+  console.log('moreTabsMenu', moreTabsMenu);
+  console.log('`${internalActiveTab}`', internalActiveTab);
   return (
     <div className={classnames(styles.tabBox, className)}>
       {!concealTabHeader && (
@@ -260,7 +259,7 @@ export default memo<IProps>((props) => {
               })}
             </div>
           )}
-          {!hideAdd && (
+          {
             <div className={styles.rightBox}>
               <div className={styles.moreTabs}>
                 <Dropdown
@@ -268,26 +267,33 @@ export default memo<IProps>((props) => {
                     style: { maxHeight: '200px', overflowY: 'auto' },
                     items: moreTabsMenu,
                     selectable: true,
-                    selectedKeys: [`${activeKey}`],
-                    onClick: (v) => changeTab(Number(v.key)),
+                    selectedKeys: [`${internalActiveTab}`],
+                    onClick: (v) => {
+                      if (isNumberKey.current) {
+                        changeTab(Number(v.key));
+                      } else {
+                        changeTab(v.key);
+                      }
+                    },
                   }}
-                  // trigger={['click']}
                 >
                   <a onClick={(e) => e.preventDefault()}>
                     <Iconfont code="&#xe601;" />
                   </a>
                 </Dropdown>
               </div>
-              <div
-                className={classnames(styles.addIcon, {
-                  [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,
-                })}
-                onClick={handleAdd}
-              >
-                <Iconfont code="&#xe631;" />
-              </div>
+              {!hideAdd && (
+                <div
+                  className={classnames(styles.addIcon, {
+                    [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,
+                  })}
+                  onClick={handleAdd}
+                >
+                  <Iconfont code="&#xe631;" />
+                </div>
+              )}
             </div>
-          )}
+          }
         </div>
       )}
       {/* 隐藏的方案 */}
