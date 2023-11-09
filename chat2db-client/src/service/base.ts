@@ -125,7 +125,7 @@ request.interceptors.response.use(async (response) => {
   return response;
 });
 
-export default function createRequest<P = void, R = {}>(url: string, options?: IOptions) {
+export default function createRequest<P = void, R = void>(url: string, options?: IOptions) {
   // 路由跳转
   const {
     method = 'get',

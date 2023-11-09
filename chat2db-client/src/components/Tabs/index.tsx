@@ -246,8 +246,7 @@ export default memo<IProps>((props) => {
       key: t.key,
     };
   });
-  console.log('moreTabsMenu', moreTabsMenu);
-  console.log('`${internalActiveTab}`', internalActiveTab);
+
   return (
     <div className={classnames(styles.tabBox, className)}>
       {!concealTabHeader && (
