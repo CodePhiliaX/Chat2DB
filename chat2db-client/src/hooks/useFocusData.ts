@@ -21,7 +21,7 @@ function useCopyFocusData() {
           tableCopy(focusedContent as any)
           return
         }
-        copy(focusedContent as any)
+        copy(focusedContent as any);
       }
     };
     document.addEventListener('keydown', handleCopy);
