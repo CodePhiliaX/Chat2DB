@@ -130,7 +130,7 @@ function MainPage(props: IProps) {
           iconFontSize: 24,
           isLoad: false,
           component: <Team />,
-          name: '团队协作',
+          name: i18n('team.title'),
         });
         if (localStorage.getItem('curPage') === 'team') {
           setActiveNav(navConfig[3]);
