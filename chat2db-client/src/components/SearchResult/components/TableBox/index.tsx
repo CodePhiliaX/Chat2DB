@@ -557,6 +557,8 @@ export default function TableBox(props: ITableProps) {
   // 获取表格数据 接受一个参数params 包含IExecuteSqlParams中的一个或多个
   const getTableData = (params?: Partial<IExecuteSqlParams>) => {
     setTableLoading(true);
+    setCurOperationRowNo(null);
+    setEditingCell(null);
     const executeSQLParams: IExecuteSqlParams = {
       sql: queryResultData.originalSql,
       dataSourceId: props.executeSqlParams?.dataSourceId,
@@ -586,7 +588,7 @@ export default function TableBox(props: ITableProps) {
     setCurOperationRowNo,
     tableData,
     colNoCode,
-    curOperationRowNo, 
+    curOperationRowNo,
     setFocusedContent,
   });
 
@@ -610,7 +612,20 @@ export default function TableBox(props: ITableProps) {
         return {
           code: colNoCode,
           name: 'No.',
-          title: <div />,
+          title: (
+            <div
+              className={styles.allSelectBox}
+              onClick={() => {
+                if(curOperationRowNo){
+                  setCurOperationRowNo(null);
+                  return;
+                }
+                // 全选列
+                const rowIds = tableData.map((i) => i[colNoCode]!);
+                setCurOperationRowNo(rowIds);
+              }}
+            />
+          ),
           key: name,
           lock: true,
           // features: { sortable: compareStrings },
@@ -677,13 +692,7 @@ export default function TableBox(props: ITableProps) {
         features: { sortable: isNumber ? compareStrings : true },
       };
     });
-  }, [
-    queryResultData.headerList,
-    editingCell,
-    editingData,
-    curOperationRowNo,
-    oldDataList
-  ]);
+  }, [queryResultData.headerList, editingCell, editingData, curOperationRowNo, oldDataList]);
 
   const { updateTableData, handleCreateData, handleDeleteData } = useCurdTableData({
     tableData,
@@ -734,9 +743,9 @@ export default function TableBox(props: ITableProps) {
       }),
     );
 
-  const getSelectTableRowData = ()=>{
-    if(!curOperationRowNo && !editingCell){
-      return [[]]
+  const getSelectTableRowData = () => {
+    if (!curOperationRowNo && !editingCell) {
+      return [[]];
     }
     const rowIds = curOperationRowNo || [editingCell?.[1]];
     const newRowDatas = tableData.filter((item) => rowIds.includes(item[colNoCode]!));
@@ -745,8 +754,8 @@ export default function TableBox(props: ITableProps) {
       delete _item[colNoCode];
       return Object.keys(_item).map((i) => _item[i]);
     });
-    return newRowDatasList
-  }
+    return newRowDatasList;
+  };
 
   // 右键菜单配置项
   const copyRow = {
@@ -761,7 +770,7 @@ export default function TableBox(props: ITableProps) {
             delete _item[colNoCode];
             return Object.keys(_item).map((i) => _item[i]);
           });
-          const _updateDatas = newRowDatasList.map((item,index) => {
+          const _updateDatas = newRowDatasList.map((item, index) => {
             return {
               type: CRUD.CREATE,
               dataList: item,
@@ -784,7 +793,7 @@ export default function TableBox(props: ITableProps) {
             delete _item[colNoCode];
             return Object.keys(_item).map((i) => _item[i]);
           });
-          const _updateDatas = newRowDatasList.map((item,index) => {
+          const _updateDatas = newRowDatasList.map((item, index) => {
             return {
               type: CRUD.UPDATE_COPY,
               dataList: item,
@@ -801,7 +810,7 @@ export default function TableBox(props: ITableProps) {
       // 复制当前行的数据
       {
         callback: () => {
-          const selectTableRowData = getSelectTableRowData()
+          const selectTableRowData = getSelectTableRowData();
           tableCopy(selectTableRowData);
         },
       },
