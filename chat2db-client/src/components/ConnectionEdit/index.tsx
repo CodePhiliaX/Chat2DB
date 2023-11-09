@@ -381,6 +381,14 @@ function RenderForm(props: IRenderFormProps) {
     dataSourceFormConfig.baseInfo.items.forEach((t: IFormItem) => {
       if (t.selects) {
         t.defaultValue = _backfillData[t.name] || t.defaultValue;
+        t.selects.forEach((selectItem: ISelect) => {
+          // 调用select内的回掉函数
+          if (selectItem.value === t.defaultValue) {
+            if(selectItem.onChange){
+              setDataSourceFormConfig(selectItem.onChange({...dataSourceFormConfig}))
+            }
+          }
+        });
       }
     });
   }
