@@ -727,7 +727,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -739,7 +738,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
           }
         },
         {
@@ -764,7 +762,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Instance',
           name: 'instance',
           required: false,
-
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -819,7 +816,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:sqlserver://localhost:1433',
@@ -828,11 +824,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
-      pattern: /jdbc:sqlserver:\/\/(.*):(\d+)(\/(\w+))?/,
-      template: 'jdbc:sqlserver://{host}:{port};',
+      pattern: /jdbc:sqlserver:\/\/(.*):(\d+)(;database=(\w+))?/,
+      template: 'jdbc:sqlserver://{host}:{port};database={database}',
     },
     ssh: sshConfig,
   },
