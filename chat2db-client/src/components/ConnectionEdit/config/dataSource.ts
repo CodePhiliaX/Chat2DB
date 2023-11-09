@@ -618,7 +618,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                 },
               ],
               onChange: (data: IConnectionConfig) => {
-                data.baseInfo.pattern = /jdbc:h2:tcp:(.*)?/;
+                data.baseInfo.pattern = /jdbc:h2:(.*)?/;
                 data.baseInfo.template = 'jdbc:h2:{file}';
                 return data
               }
