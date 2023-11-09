@@ -1,4 +1,5 @@
 export default {
+  'workspace.title': 'Workspace',
   'workspace.cascader.placeholder': 'Select Here',
   'workspace.ai.input.placeholder': 'Enter your plain text statement here',
   'workspace.title.saved': 'Saved',
