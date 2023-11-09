@@ -23,6 +23,8 @@ export interface IOnchangeProps {
   data?: ITabItem;
 }
 
+const MAX_TABS = 20;
+
 interface IProps {
   className?: string;
   items?: ITabItem[];
@@ -92,7 +94,7 @@ export default memo<IProps>((props) => {
       if (activeTab) {
         setTimeout(() => {
           activeTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
-        }, 50);
+        }, 100);
       }
     }
 
@@ -136,6 +138,9 @@ export default memo<IProps>((props) => {
   };
 
   const handleAdd = () => {
+    if (internalTabs.length >= MAX_TABS) {
+      return;
+    }
     onEdit?.('add');
   };
 
@@ -260,6 +265,7 @@ export default memo<IProps>((props) => {
               <div className={styles.moreTabs}>
                 <Dropdown
                   menu={{
+                    style: { maxHeight: '200px', overflowY: 'auto' },
                     items: moreTabsMenu,
                     selectable: true,
                     selectedKeys: [`${activeKey}`],
@@ -272,7 +278,12 @@ export default memo<IProps>((props) => {
                   </a>
                 </Dropdown>
               </div>
-              <div className={styles.addIcon} onClick={handleAdd}>
+              <div
+                className={classnames(styles.addIcon, {
+                  [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,
+                })}
+                onClick={handleAdd}
+              >
                 <Iconfont code="&#xe631;" />
               </div>
             </div>
