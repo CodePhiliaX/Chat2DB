@@ -58,6 +58,7 @@ export default memo<IProps>((props) => {
   const tabListBoxRef = useRef<HTMLDivElement>(null);
   const tabsNavRef = useRef<HTMLDivElement>(null);
   const isNumberKey = useRef<boolean>(false);
+  const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
 
   useEffect(() => {
     if (isValid(activeKey)) {
@@ -102,6 +103,16 @@ export default memo<IProps>((props) => {
 
     onChange?.(internalActiveTab);
   }, [internalActiveTab]);
+
+
+  useEffect(() => {
+    // from copilot
+    if (tabListBoxRef.current) {
+      const tabsNavWidth = tabsNavRef.current?.getBoundingClientRect().width || 0;
+      const tabListBoxWidth = tabListBoxRef.current?.getBoundingClientRect().width || 0;
+      setShowMoreTabs(tabsNavWidth < tabListBoxWidth);
+    }
+  }, [internalTabs]);
 
   const deleteTab = (data: ITabItem) => {
     const newInternalTabs = internalTabs?.filter((t) => t.key !== data.key);
@@ -240,14 +251,14 @@ export default memo<IProps>((props) => {
     );
   };
 
-  const moreTabsMenu: MenuProps['items'] = (internalTabs || []).map((t) => {
+  const moreTabsMenu = (internalTabs || []).map((t) => {
     return {
       label: t.label,
-      key: t.key,
+      key: t.key.toString(),
+      value: t.key,
     };
   });
-  console.log('moreTabsMenu', moreTabsMenu);
-  console.log('`${internalActiveTab}`', internalActiveTab);
+
   return (
     <div className={classnames(styles.tabBox, className)}>
       {!concealTabHeader && (
@@ -261,28 +272,28 @@ export default memo<IProps>((props) => {
           )}
           {
             <div className={styles.rightBox}>
-              <div className={styles.moreTabs}>
-                <Dropdown
-                  menu={{
-                    style: { maxHeight: '200px', overflowY: 'auto' },
-                    items: moreTabsMenu,
-                    selectable: true,
-                    selectedKeys: [`${internalActiveTab}`],
-                    onClick: (v) => {
-                      if (isNumberKey.current) {
-                        changeTab(Number(v.key));
-                      } else {
-                        changeTab(v.key);
-                      }
-                    },
-                  }}
-                >
-                  <a onClick={(e) => e.preventDefault()}>
-                    <Iconfont code="&#xe601;" />
-                  </a>
-                </Dropdown>
-              </div>
-              {!hideAdd && (
+              {
+                showMoreTabs &&
+                <div className={styles.moreTabs}>
+                  <Dropdown
+                    menu={{
+                      style: { maxHeight: '200px', overflowY: 'auto' },
+                      items: moreTabsMenu,
+                      selectable: true,
+                      selectedKeys: [`${internalActiveTab}`],
+                      onClick: (v) => {
+                        const key = moreTabsMenu.find((t) => t?.key === v.key)?.value || null
+                        changeTab(key);
+                      },
+                    }}
+                  >
+                    <a onClick={(e) => e.preventDefault()}>
+                      <Iconfont code="&#xe601;" />
+                    </a>
+                  </Dropdown>
+                </div>
+              }
+               {!hideAdd && (
                 <div
                   className={classnames(styles.addIcon, {
                     [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,
