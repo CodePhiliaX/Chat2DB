@@ -69,7 +69,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       ...editorDefaultOptions,
       ...options,
       value: defaultValue || '',
-      language: language,
+      language,
       theme: appTheme.backgroundColor,
     });
     editorRef.current = editorIns;
