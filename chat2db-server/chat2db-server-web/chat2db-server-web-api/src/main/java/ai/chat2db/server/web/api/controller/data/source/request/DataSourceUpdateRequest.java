@@ -106,4 +106,14 @@ public class DataSourceUpdateRequest {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
 }

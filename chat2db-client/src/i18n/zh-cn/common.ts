@@ -116,6 +116,6 @@ export default {
   'common.button.close': '关闭',
   'common.button.closeAll': '全部关闭',
   'common.button.closeOthers': '关闭其他',
-
-
+  'common.label.tcp': '线上',
+  'common.label.LocalFile': '本地',
 };

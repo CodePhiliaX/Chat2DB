@@ -12,7 +12,7 @@ import styles from './index.less';
 
 // 工具函数
 import { compareStrings } from '@/utils/sort';
-import { downloadFile } from '@/utils/common';
+import { downloadFile } from '@/utils/file';
 import { transformInputValue } from '../../utils';
 
 // 类型定义
@@ -616,6 +616,7 @@ export default function TableBox(props: ITableProps) {
             <div
               className={styles.allSelectBox}
               onClick={() => {
+                setEditingCell(null);
                 if(curOperationRowNo){
                   setCurOperationRowNo(null);
                   return;

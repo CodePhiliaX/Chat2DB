@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import { connect } from 'umi';
-import { formatParams } from '@/utils/common';
+import { formatParams } from '@/utils/url';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput, { SyncModelType } from './ChatInput';
@@ -10,10 +10,11 @@ import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import Iconfont from '../Iconfont';
-import { IAiConfig, ITreeNode } from '@/typings';
+import { IAiConfig } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { formatSql, getCookie } from '@/utils';
+import { getCookie } from '@/utils';
+import { formatSql } from '@/utils/sql';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AIType } from '@/typings/ai';
 import i18n from '@/i18n';
@@ -203,12 +204,11 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       return;
     }
 
-    if(!props.tables || props.tables.length === 0) {
+    if (!props.tables || props.tables.length === 0) {
       setTableNameList([]);
       setSelectedTables([]);
-      return 
+      return;
     }
-
 
     const { dataSourceId, databaseName, schemaName } = props.executeParams;
     sqlService

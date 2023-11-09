@@ -7,4 +7,5 @@ export interface INavItem {
   openBrowser?: string;
   iconFontSize?: number;
   isLoad: boolean;
+  name: string;
 }

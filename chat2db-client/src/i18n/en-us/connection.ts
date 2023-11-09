@@ -1,4 +1,5 @@
 export default {
+  'connection.title': 'Connections',
   'connection.title.connections': 'Connections',
   'connection.title.createConnection': 'New Connection',
   'connection.title.editConnection': 'Edit Connection',

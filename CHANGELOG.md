@@ -3,10 +3,13 @@
 `2023-11-08`
 
 **Changelog**
-- ⭐【New Features】
+
+- ⭐【New Features】Oracle connections support the Service name mode
+- ⭐【New Features】[New function] Edit table data to support batch copy, clone, delete (click 1X1 cell to select/cancel, hold down shift/ctrl/cmd to select multiple)
 - ⚡️【Optimize】After the update is completed, click restart to close the problem that cannot be automatically opened (hot update cannot fix this problem, you need to download a new version to cover the client)
 - 🐞【Fixed】database and schema searches support case ambiguity matching
 - 🐞【Fixed】Where database was not displayed after being added
+- 🐞【Fixed】sql formatting to ·now()· format error
 
 
 ## 3.0.10
