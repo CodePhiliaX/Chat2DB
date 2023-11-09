@@ -616,6 +616,7 @@ export default function TableBox(props: ITableProps) {
             <div
               className={styles.allSelectBox}
               onClick={() => {
+                setEditingCell(null);
                 if(curOperationRowNo){
                   setCurOperationRowNo(null);
                   return;
