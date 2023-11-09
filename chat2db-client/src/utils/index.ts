@@ -216,10 +216,11 @@ export function osNow(): {
 export function formatSql(sql: string, dbType: DatabaseTypeCode) {
   return new Promise((r: (sql: string) => void) => {
     let formatRes = '';
-    try {
-      formatRes = format(sql || '');
-    } catch {}
-    // 如果格式化失败，直接返回原始sql
+    // try {
+    //   formatRes = format(sql || '');
+    //   // formatRes = '';
+    // } catch {}
+    // // 如果格式化失败，直接返回原始sql
     if (!formatRes) {
       sqlServer
         .sqlFormat({
