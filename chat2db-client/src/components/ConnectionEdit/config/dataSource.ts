@@ -1,6 +1,7 @@
 import { DatabaseTypeCode, OperationColumn } from '@/constants';
 import { IConnectionConfig } from './types';
 import { InputType, AuthenticationType } from './enum';
+import i18n from '@/i18n';
 
 export const sshConfig: IConnectionConfig['ssh'] = {
   items: [
@@ -595,7 +596,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           selects: [
             {
-              label: 'TCP',
+              label: i18n('common.label.tcp'),
               value: 'TCP',
               items: [],
               onChange: (data: IConnectionConfig) => {
@@ -605,7 +606,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               }
             },
             {
-              label: 'LocalFile',
+              label: i18n('common.label.LocalFile'),
               value: 'LocalFile',
               items: [
                 {

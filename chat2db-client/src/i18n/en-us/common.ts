@@ -117,4 +117,6 @@ export default {
   'common.button.close': 'Close',
   'common.button.closeAll': 'Close all',
   'common.button.closeOthers': 'Close others',
+  'common.label.tcp': 'TCP',
+  'common.label.LocalFile': 'LocalFile',
 };  
