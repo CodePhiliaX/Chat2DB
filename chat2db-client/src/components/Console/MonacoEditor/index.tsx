@@ -2,7 +2,7 @@ import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DatabaseTypeCode, EditorThemeType, ThemeType } from '@/constants';
+import { DatabaseTypeCode, EditorThemeType } from '@/constants';
 import { editorDefaultOptions } from './monacoEditorConfig';
 import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
 

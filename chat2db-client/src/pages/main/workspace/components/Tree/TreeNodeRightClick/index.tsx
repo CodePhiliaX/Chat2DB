@@ -203,7 +203,6 @@ function TreeNodeRightClick(props: IProps) {
     }
     getChildren?.(params).then((res) => {
       data.children = res as any;
-      console.log(data)
     })
     .finally(() => {
       setIsLoading(false);

@@ -14,6 +14,7 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -91,7 +92,7 @@ public class ConnectionInfoHandler {
         connectInfo.setJdbc(dataSource.getJdbc());
         connectInfo.setExtendInfo(dataSource.getExtendInfo());
         connectInfo.setUrl(dataSource.getUrl());
-        connectInfo.setPort(dataSource.getPort() != null ? Integer.parseInt(dataSource.getPort()) : null);
+        connectInfo.setPort(StringUtils.isNotBlank(dataSource.getPort()) ? Integer.parseInt(dataSource.getPort()) : null);
         connectInfo.setHost(dataSource.getHost());
         DriverConfig driverConfig = dataSource.getDriverConfig();
         if (driverConfig != null && driverConfig.notEmpty()) {

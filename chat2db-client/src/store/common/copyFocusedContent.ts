@@ -1,6 +1,6 @@
 export interface ICopyFocusedContent {
   focusedContent: any[][]| any[] | string | null;
-  setFocusedContent: (content: any[][]| any[] | string | null) => void;
+  setFocusedContent: (content: any[][] | any[] | string | null) => void;
 }
 
 export const copyFocusedContent = (set): ICopyFocusedContent => ({
