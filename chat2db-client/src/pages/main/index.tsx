@@ -25,6 +25,7 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
+import { getUrlParam, updateQueryStringParameter } from '@/utils/url';
 import styles from './index.less';
 
 const navConfig: INavItem[] = [
@@ -58,8 +59,6 @@ const navConfig: INavItem[] = [
   },
 ];
 
-// const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
-
 interface IProps {
   mainModel: IMainPageType['state'];
   workspaceModel: IWorkspaceModelType['state'];
@@ -75,37 +74,7 @@ function MainPage(props: IProps) {
   const [userInfo, setUserInfo] = useState<ILoginUser>();
 
   useEffect(() => {
-    getUser().then((res) => {
-      if (res) {
-        setUserInfo(res);
-        const hasTeamIcon = navConfig.find((i) => i.key === 'team');
-        if (res.admin && !hasTeamIcon) {
-          navConfig.splice(3, 0, {
-            key: 'team',
-            icon: '\ue64b',
-            iconFontSize: 24,
-            isLoad: false,
-            component: <Team />,
-          });
-          if (localStorage.getItem('curPage') === 'team') {
-            setActiveNav(navConfig[3]);
-          }
-        }
-        if (!res.admin && hasTeamIcon) {
-          navConfig.splice(3, 1);
-          if (localStorage.getItem('curPage') === 'team') {
-            setActiveNav(navConfig[2]);
-          }
-        }
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
-    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
-    navConfig[activeIndex].isLoad = true;
-    setActiveNav(navConfig[activeIndex]);
+    handleInitPage();
   }, []);
 
   useEffect(() => {
@@ -145,13 +114,48 @@ function MainPage(props: IProps) {
     localStorage.setItem('curPage', curPage);
   }, [curPage]);
 
-  function switchingNav(item: INavItem) {
+  const handleInitPage = async () => {
+    const res = await getUser();
+    if (res) {
+      setUserInfo(res);
+      const hasTeamIcon = navConfig.find((i) => i.key === 'team');
+      if (res.admin && !hasTeamIcon) {
+        navConfig.splice(3, 0, {
+          key: 'team',
+          icon: '\ue64b',
+          iconFontSize: 24,
+          isLoad: false,
+          component: <Team />,
+        });
+        if (localStorage.getItem('curPage') === 'team') {
+          setActiveNav(navConfig[3]);
+        }
+      }
+      if (!res.admin && hasTeamIcon) {
+        navConfig.splice(3, 1);
+        if (localStorage.getItem('curPage') === 'team') {
+          setActiveNav(navConfig[2]);
+        }
+      }
+    }
+
+    const urlTab = getUrlParam('tab');
+    const initPage = urlTab || localStorage.getItem('curPage');
+    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === initPage);
+    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
+    navConfig[activeIndex].isLoad = true;
+    setActiveNav(navConfig[activeIndex]);
+  };
+
+  const switchingNav = (item: INavItem) => {
     if (item.openBrowser) {
       window.open(item.openBrowser, '_blank');
     } else {
+      const newURL = updateQueryStringParameter('tab', item.key);
+      history.pushState({}, '', newURL);
       setActiveNav(item);
     }
-  }
+  };
 
   const handleLogout = () => {
     userLogout().then(() => {

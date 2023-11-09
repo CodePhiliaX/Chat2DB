@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import { connect } from 'umi';
-import { formatParams } from '@/utils/common';
+import { formatParams } from '@/utils/url';
 import connectToEventSource from '@/utils/eventSource';
 import { Button, Spin, message, Drawer, Modal } from 'antd';
 import ChatInput, { SyncModelType } from './ChatInput';
