@@ -44,7 +44,7 @@
     "node-machine-id": "^1.1.12",
     "react-monaco-editor": "^0.54.0",
     "react-sortablejs": "^6.1.4",
-    "sql-formatter": "^12.2.1",
+    "sql-formatter": "^13.0.4",
     "styled-components": "^6.0.1",
     "umi": "^4.0.87",
     "umi-request": "^1.4.0",
