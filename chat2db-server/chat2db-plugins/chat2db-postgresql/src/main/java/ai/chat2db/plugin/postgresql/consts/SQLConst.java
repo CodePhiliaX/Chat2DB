@@ -42,7 +42,7 @@ public class SQLConst {
             + "        -- 约束\n"
             + "        tableScript:= tableScript || chr(13)||chr(10) || array_to_string(\n"
             + "        array(\n"
-            + "        select concat(' CONSTRAINT ', conname || '_' || tablename ,c ,u,p,f) from (\n"
+            + "        select concat(' CONSTRAINT ',conname ,c ,u,p,f) from (\n"
             + "        select conname,\n"
             + "        case when contype='c' then ' CHECK('|| ( select findattname(namespace,tablename,'c') ) ||')' "
             + "end "
