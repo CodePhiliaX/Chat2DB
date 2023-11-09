@@ -98,11 +98,16 @@ export default function SettingAI(props: IProps) {
 
       <Form layout="vertical">
         {Object.keys(AIFormConfig[aiConfig?.aiSqlSource]).map((key: string) => (
-          <Form.Item key={key} label={capitalizeFirstLetter(key)} className={styles.title}>
+          <Form.Item
+            key={key}
+            required={key === 'apiKey' || key === 'secretKey'}
+            label={capitalizeFirstLetter(key)}
+            className={styles.title}
+          >
             <Input
               autoComplete="off"
               value={aiConfig[key]}
-              defaultValue={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
+              placeholder={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
               onChange={(e) => {
                 setAiConfig({ ...aiConfig, [key]: e.target.value });
               }}

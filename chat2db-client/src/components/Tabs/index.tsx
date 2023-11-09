@@ -1,9 +1,11 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import styles from './index.less';
-import { Popover, Dropdown } from 'antd';
+import { Popover, Dropdown, MenuProps } from 'antd';
 import i18n from '@/i18n';
+import { isValid } from '@/utils/check';
+import _ from 'lodash';
+import styles from './index.less';
 
 export interface ITabItem {
   prefixIcon?: string | React.ReactNode;
@@ -55,20 +57,20 @@ export default memo<IProps>((props) => {
   const tabsNavRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (activeKey !== null && activeKey !== undefined) {
-      setInternalActiveTab(activeKey);
+    if (isValid(activeKey)) {
+      setInternalActiveTab(activeKey!);
     }
   }, [activeKey]);
 
   useEffect(() => {
     setInternalTabs(items || []);
-    if (items?.length && (internalActiveTab === undefined || internalActiveTab === null)) {
+    if (items?.length && !isValid(internalActiveTab)) {
       setInternalActiveTab(items[0]?.key);
     }
   }, [items]);
 
   useEffect(() => {
-    const fn = (e) => {
+    const fn = _.debounce((e) => {
       if (e.deltaY) {
         e.preventDefault();
         // 鼠标滚轮事件，让tab可以横向滚动
@@ -76,7 +78,7 @@ export default memo<IProps>((props) => {
           tabsNavRef.current.scrollLeft -= e.deltaY;
         }
       }
-    };
+    }, 30);
     tabsNavRef.current?.addEventListener('wheel', fn);
     return () => {
       tabsNavRef.current?.removeEventListener('wheel', fn);
@@ -88,14 +90,16 @@ export default memo<IProps>((props) => {
     if (tabListBoxRef.current) {
       const activeTab = tabListBoxRef.current.querySelector(`.${styles.activeTab}`);
       if (activeTab) {
-        activeTab.scrollIntoView({ block: 'nearest' });
+        setTimeout(() => {
+          activeTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        }, 50);
       }
     }
 
     onChange?.(internalActiveTab);
   }, [internalActiveTab]);
 
-  function deleteTab(data: ITabItem) {
+  const deleteTab = (data: ITabItem) => {
     const newInternalTabs = internalTabs?.filter((t) => t.key !== data.key);
     let activeKeyTemp = internalActiveTab;
     // 删掉的是当前激活的tab，那么就切换到前一个,如果前一个没有就切换到后一个
@@ -110,7 +114,7 @@ export default memo<IProps>((props) => {
     changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
     onEdit?.('remove', [data], newInternalTabs);
-  }
+  };
 
   const deleteOtherTab = (data: ITabItem) => {
     const newInternalTabs = internalTabs?.filter((t) => t.key === data.key);
@@ -127,21 +131,21 @@ export default memo<IProps>((props) => {
     onEdit?.('remove', [...internalTabs]);
   };
 
-  function changeTab(key: string | number | null) {
+  const changeTab = (key: string | number | null) => {
     setInternalActiveTab(key);
-  }
+  };
 
-  function handleAdd() {
+  const handleAdd = () => {
     onEdit?.('add');
-  }
+  };
 
-  function onDoubleClick(t: ITabItem) {
+  const onDoubleClick = (t: ITabItem) => {
     if (t.editableName) {
       setEditingTab(t.key);
     }
-  }
+  };
 
-  function renderTabItem(t: ITabItem, index: number) {
+  const renderTabItem = (t: ITabItem, index: number) => {
     function inputOnChange(value: string) {
       internalTabs[index].label = value;
       setInternalTabs([...internalTabs]);
@@ -170,7 +174,7 @@ export default memo<IProps>((props) => {
           deleteTab(t);
         },
       },
-      { 
+      {
         label: i18n('common.button.closeOthers'),
         key: 'closeOther',
         onClick: () => {
@@ -227,7 +231,18 @@ export default memo<IProps>((props) => {
         </Popover>
       </Dropdown>
     );
-  }
+  };
+
+  const moreTabsMenu: MenuProps['items'] = (internalTabs || []).map((t) => {
+    return {
+      label: t.label,
+      key: t.key,
+      // itemIcon: t.prefixIcon,
+      // onClick: () => {
+      //   changeTab(t.key);
+      // },
+    };
+  });
 
   return (
     <div className={classnames(styles.tabBox, className)}>
@@ -242,6 +257,21 @@ export default memo<IProps>((props) => {
           )}
           {!hideAdd && (
             <div className={styles.rightBox}>
+              <div className={styles.moreTabs}>
+                <Dropdown
+                  menu={{
+                    items: moreTabsMenu,
+                    selectable: true,
+                    selectedKeys: [`${activeKey}`],
+                    onClick: (v) => changeTab(Number(v.key)),
+                  }}
+                  // trigger={['click']}
+                >
+                  <a onClick={(e) => e.preventDefault()}>
+                    <Iconfont code="&#xe601;" />
+                  </a>
+                </Dropdown>
+              </div>
               <div className={styles.addIcon} onClick={handleAdd}>
                 <Iconfont code="&#xe631;" />
               </div>

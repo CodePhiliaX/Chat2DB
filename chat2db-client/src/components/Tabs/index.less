@@ -25,6 +25,7 @@
 .tabsNav {
   display: flex;
   overflow-x: scroll;
+  position: relative;
   height: 32px;
   flex-shrink: 0;
   background-color: var(--color-bg-base);
@@ -66,6 +67,9 @@
   cursor: pointer;
   user-select: none;
   border-right: 1px solid var(--color-border);
+  &:last-child {
+    border-right: 0;
+  }
   .textBox {
     flex: 1;
     display: flex;
@@ -111,6 +115,30 @@
 
 .rightBox {
   flex: 1;
+  position: sticky;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: var(--color-bg-base);
+  border-left:  1px solid var(--color-border);
+  border-right:  1px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  
+  display: flex;
+
+
+}
+
+.moreTabs{
+  width: 30px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    color: var(--color-primary);
+  }
+
 }
 
 .addIcon {
@@ -120,6 +148,8 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-left:  1px solid var(--color-border);
+
   &:hover {
     color: var(--color-primary);
   }
