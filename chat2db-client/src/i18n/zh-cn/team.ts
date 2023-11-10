@@ -1,4 +1,5 @@
 export default {
+  'team.title': '团队管理',
   'team.tab.datasource': '链接管理',
   'team.tab.user': '用户管理',
   'team.tab.team': '团队管理',

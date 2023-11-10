@@ -411,15 +411,6 @@ function RenderForm(props: IRenderFormProps) {
     return initValue;
   }
 
-  // function selectChange(t: { name: string; value: any }) {
-  //   dataSourceFormConfig[tab]?.items.map((j, i) => {
-  //     if (j.name === t.name) {
-  //       j.defaultValue = t.value;
-  //     }
-  //   });
-  //   setDataSourceFormConfig({ ...dataSourceFormConfig });
-  // }
-
   function onFieldsChange(data: any, datas: any) {
     // 将antd的格式转换为正常的对象格式
     if (!data.length) {
@@ -494,7 +485,7 @@ function RenderForm(props: IRenderFormProps) {
         url,
       };
     }
-
+    
     if (keyName === 'host' && !aliasChanged) {
       newData.alias = '@' + keyValue;
     }

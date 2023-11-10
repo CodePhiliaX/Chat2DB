@@ -4,6 +4,7 @@
   background-color: var(--color-bg-subtle);
   // 添加内阴影
   box-shadow: inset 0px -1px 0px var(--color-primary);
+
   .icon {
     opacity: 1;
   }
@@ -12,6 +13,7 @@
 .tab-focus-line() {
   color: var(--color-primary);
   background-color: var(--color-bg-subtle);
+
   .icon {
     display: flex;
   }
@@ -30,6 +32,7 @@
   flex-shrink: 0;
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border);
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -38,12 +41,14 @@
 .tabsContent {
   flex: 1;
   height: 0px;
+
   .tabsContentItem {
     height: 100%;
     width: 100%;
     display: none;
     position: relative;
   }
+
   .tabsContentItemActive {
     display: block;
   }
@@ -67,19 +72,23 @@
   cursor: pointer;
   user-select: none;
   border-right: 1px solid var(--color-border);
+
   &:last-child {
     border-right: 0;
   }
+
   .textBox {
     flex: 1;
     display: flex;
     align-items: center;
   }
+
   .text {
     flex: 1;
     width: fit-content;
     .f-single-line();
   }
+
   .icon {
     flex-shrink: 0;
     display: flex;
@@ -92,18 +101,22 @@
     cursor: pointer;
     color: var(--color-text-secondary);
     opacity: 0;
+
     i {
       font-size: 12px;
     }
+
     &:hover {
       color: var(--color-primary);
       background-color: var(--color-hover-bg);
     }
   }
+
   &:hover {
     // .tab-focus();
     color: var(--color-primary);
-    .icon{
+
+    .icon {
       opacity: 1;
     }
   }
@@ -114,30 +127,29 @@
 }
 
 .rightBox {
-  flex: 1;
+  // flex: 1;
   position: sticky;
   right: 0;
   top: 0;
   bottom: 0;
   background-color: var(--color-bg-base);
-  border-left:  1px solid var(--color-border);
-  border-right:  1px solid var(--color-border);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  
+  // box-shadow: -1px 0 4px rgba(0, 0, 0, 0.1);
   display: flex;
-
-
 }
 
-.moreTabs{
+.moreTabs {
   width: 30px;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-left: 1px solid var(--color-border);
+
   &:hover {
     color: var(--color-primary);
   }
+
 
 }
 
@@ -148,10 +160,18 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border-left:  1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
 
   &:hover {
     color: var(--color-primary);
+  }
+}
+
+.addIconDisabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  &:hover {
+    color: var(--color-text-disabled);
   }
 }
 
@@ -165,6 +185,7 @@
   font-weight: 400;
   background-color: var(--color-bg-subtle);
   color: var(--color-text);
+
   input:focus {
     outline: none;
   }
@@ -173,7 +194,4 @@
 .prefixIcon {
   flex-shrink: 0;
   margin-right: 4px;
-}
-
-.activeContent {
 }

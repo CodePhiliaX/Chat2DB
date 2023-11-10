@@ -123,7 +123,7 @@ const AIModel: IAIModelType = {
           });
           return;
         }
-        const res = (yield aiService.getRemainingUse({})) as IRemainingUse;
+        const res = (yield aiService.getRemainingUse()) as IRemainingUse;
         yield put({
           type: 'setRemainUse',
           payload: res,
