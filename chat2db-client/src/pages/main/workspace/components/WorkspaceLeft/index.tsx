@@ -9,7 +9,7 @@ import TableList from '../TableList';
 import SaveList from '../SaveList';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import { IExportParams } from '@/service/sql';
-import { downloadFile } from '@/utils/common';
+import { downloadFile } from '@/utils/file';
 
 interface IProps {
   className?: string;

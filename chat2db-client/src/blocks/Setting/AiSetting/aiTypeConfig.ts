@@ -23,14 +23,14 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
   },
   [AIType.ZHIPUAI]: {
     apiKey: true,
-    apiHost: true,
-    model: true,
+    apiHost: 'https://open.bigmodel.cn/api/paas/v3/model-api/',
+    model: 'chatglm_turbo',
   },
   [AIType.BAICHUANAI]: {
     apiKey: true,
     secretKey: true,
-    apiHost: true,
-    model: true,
+    apiHost: 'https://api.baichuan-ai.com/v1/stream/chat/',
+    model: 'Baichuan2-53B',
   },
   [AIType.WENXINAI]: {
     apiKey: true,
@@ -43,7 +43,7 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
   },
   [AIType.OPENAI]: {
     apiKey: true,
-    apiHost: true,
+    apiHost: 'https://api.openai.com/',
     httpProxyHost: true,
     httpProxyPort: true,
     // model: 'gpt-3.5-turbo',

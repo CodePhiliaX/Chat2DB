@@ -1,4 +1,4 @@
-@import '../../../styles/var.less';
+@import '../../../../styles/var.less';
 
 .button-bar-item() {
   width: 24px;
@@ -21,6 +21,14 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  .allSelectBox{
+    width: calc(100% + 8px);
+    height: 100%;
+    transform: translateX(-4px);
+    &:hover{
+      background-color: var(--color-hover-bg);
+    }
+  }
   :global {
     .art-table {
       table colgroup col:nth-of-type(1) {

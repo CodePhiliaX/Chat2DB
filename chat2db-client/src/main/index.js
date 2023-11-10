@@ -91,8 +91,9 @@ ipcMain.handle('get-product-name', () => {
   return name;
 });
 
-// 注册退出应用事件
+// 重启app
 ipcMain.on('quit-app', () => {
+  app.relaunch();
   app.quit();
 });
 

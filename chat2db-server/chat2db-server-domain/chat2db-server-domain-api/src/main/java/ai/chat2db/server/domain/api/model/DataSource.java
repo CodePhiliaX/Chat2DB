@@ -132,6 +132,17 @@ public class DataSource {
      */
     private String kind;
 
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
+
     public LinkedHashMap<String, Object> getExtendMap() {
         if (ObjectUtils.isEmpty(extendInfo)) {
             return new LinkedHashMap<>();

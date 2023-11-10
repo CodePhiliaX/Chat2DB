@@ -114,4 +114,9 @@ export default {
   'common.button.setNull': 'Set NULL',
   'common.button.setDefault': 'Set DEFAULT',
   'common.button.viewData': 'View/Edit Data',
+  'common.button.close': 'Close',
+  'common.button.closeAll': 'Close all',
+  'common.button.closeOthers': 'Close others',
+  'common.label.tcp': 'TCP',
+  'common.label.LocalFile': 'LocalFile',
 };  

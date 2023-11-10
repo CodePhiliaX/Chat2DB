@@ -50,7 +50,7 @@ export default {
   'setting.text.autoUpdate': '新版自动下载并安装更新',
   'setting.text.manualUpdate': '仅在新版本发布时提醒我',
   'setting.button.iSee': '我知道了',
-  'setting.text.newEditionIsReady': '新版本以下载完成, 重启软件将会安装新版本',
+  'setting.text.newEditionIsReady': '新版本已下载完成, 重启软件将会安装新版本',
   'setting.button.goToUpdate': '前往更新',
   'setting.text.UpdatedLatestVersion': '已更新到最新版本 {1}',
 

@@ -155,7 +155,7 @@ jobs:
       - name: Copy App
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
-          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/99.0.${{ github.run_id }}/static/lib
+      #    cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/99.0.${{ github.run_id }}/static/lib
 
       - name: Prepare Build Electron
         run: |
@@ -230,7 +230,7 @@ jobs:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --linux"
+          args: "-c.appId=com.chat2db.test -c.productName=test -c.nsis.shortcutName=test -c.extraMetadata.version=99.1.${{ github.run_id }} --linux"
 
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows

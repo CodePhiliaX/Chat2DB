@@ -1,6 +1,7 @@
 import { DatabaseTypeCode, OperationColumn } from '@/constants';
 import { IConnectionConfig } from './types';
 import { InputType, AuthenticationType } from './enum';
+import i18n from '@/i18n';
 
 export const sshConfig: IConnectionConfig['ssh'] = {
   items: [
@@ -405,15 +406,58 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           }
         },
         {
-          defaultValue: 'XE',
-          inputType: InputType.INPUT,
-          labelNameCN: 'SID',
-          labelNameEN: 'SID',
-          name: 'sid',
+          defaultValue: 'sid',
+          inputType: InputType.SELECT,
+          labelNameCN: '链接类型',
+          labelNameEN: 'Service type',
+          name: 'serviceType',
           required: true,
+          selects: [
+            {
+              label: 'SID',
+              value: 'sid',
+              items: [
+                {
+                  defaultValue: 'XE',
+                  inputType: InputType.INPUT,
+                  labelNameCN: 'SID',
+                  labelNameEN: 'SID',
+                  name: 'sid',
+                  required: true,
+                  styles: {
+                    width: '70%',
+                  }
+                },
+              ],
+              onChange: (data: IConnectionConfig) => {
+                data.baseInfo.pattern = /jdbc:oracle:(.*):@(.*):(\d+):(.*)/;
+                data.baseInfo.template = 'jdbc:oracle:{driver}:@{host}:{port}:{sid}';
+                return data
+              }
+            },
+            {
+              label: 'Service',
+              value: 'service',
+              items: [{
+                defaultValue: 'XE',
+                inputType: InputType.INPUT,
+                labelNameCN: '服务名',
+                labelNameEN: 'Service name',
+                name: 'serviceName',
+                required: true,
+                styles: {
+                  width: '70%',
+                },
+              }],
+              onChange: (data: IConnectionConfig) => {
+                data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+):(.*)/;
+                data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}:{serviceName}';
+                return data
+              }
+            },
+          ],
           styles: {
-            width: '70%',
-
+            width: '50%',
           }
         },
         {
@@ -496,7 +540,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:oracle:(.*):@(.*):(\d+):(.*)/,
@@ -527,7 +570,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
           }
         },
         {
@@ -543,6 +585,48 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             labelWidthEN: '40px',
             labelWidthCN: '40px',
             labelAlign: 'right'
+          }
+        },
+        {
+          defaultValue: 'TCP',
+          inputType: InputType.SELECT,
+          labelNameCN: '链接类型',
+          labelNameEN: 'Service type',
+          name: 'serviceType',
+          required: true,
+          selects: [
+            {
+              label: i18n('common.label.tcp'),
+              value: 'TCP',
+              items: [],
+              onChange: (data: IConnectionConfig) => {
+                data.baseInfo.pattern = /jdbc:h2:tcp:\/\/(.*):(\d+)(\/(\w+))?/;
+                data.baseInfo.template = 'jdbc:h2:tcp://{host}:{port}/{database}';
+                return data
+              }
+            },
+            {
+              label: i18n('common.label.LocalFile'),
+              value: 'LocalFile',
+              items: [
+                {
+                  defaultValue: '',
+                  inputType: InputType.INPUT,
+                  labelNameCN: 'File',
+                  labelNameEN: 'File',
+                  name: 'file',
+                  required: true,
+                },
+              ],
+              onChange: (data: IConnectionConfig) => {
+                data.baseInfo.pattern = /jdbc:h2:(.*)?/;
+                data.baseInfo.template = 'jdbc:h2:{file}';
+                return data
+              }
+            },
+          ],
+          styles: {
+            width: '70%',
           }
         },
         {
@@ -597,7 +681,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:h2:tcp://localhost:9092',
@@ -644,7 +727,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -656,7 +738,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
           }
         },
         {
@@ -681,7 +762,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Instance',
           name: 'instance',
           required: false,
-
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -736,7 +816,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:sqlserver://localhost:1433',
@@ -745,11 +824,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
-      pattern: /jdbc:sqlserver:\/\/(.*):(\d+)(\/(\w+))?/,
-      template: 'jdbc:sqlserver://{host}:{port};',
+      pattern: /jdbc:sqlserver:\/\/(.*):(\d+)(;database=(\w+))?/,
+      template: 'jdbc:sqlserver://{host}:{port};database={database}',
     },
     ssh: sshConfig,
   },
@@ -775,7 +853,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'File',
           name: 'file',
           required: true,
-
         },
         {
           defaultValue: 'jdbc:sqlite:identifier.sqlite',
@@ -787,8 +864,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
 
         },
       ],
-      pattern: /jdbc:sqlite/,
-      template: 'jdbc:sqlite://{host}:{port}/{database}',
+      pattern: /jdbc:sqlite:(.*)?/,
+      template: 'jdbc:sqlite:{file}',
     },
     ssh: sshConfig,
   },

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import classnames from 'classnames';
 import { connect } from 'umi';
 import lodash from 'lodash';
@@ -53,7 +53,8 @@ const WorkspaceHeader = memo<IProps>((props) => {
   const localStorageWorkspaceDatabase = getCurrentWorkspaceDatabase();
   const [searchCurDBOptions, setSearchCurDBOptions] = useState<IOption[] | null>(null);
   const [searchCurSchemaOptions, setSearchCurSchemaOptions] = useState<IOption[] | null>(null);
-
+  const dbOptionsSearchRef = React.useRef<any>(null);
+  const schemaOptionsSearchRef = React.useRef<any>(null);
 
   useEffect(() => {
     if (openDBCascaderDropdown === false) {
@@ -294,22 +295,32 @@ const WorkspaceHeader = memo<IProps>((props) => {
 
   function handleRefresh() {
     getConnectionList();
+    setSearchCurDBOptions(null);
+    setSearchCurSchemaOptions(null);
+    schemaOptionsSearchRef.current?.setValue('');
+    dbOptionsSearchRef.current?.setValue('');
   }
 
-  function handleSearchDB(value:string){
+  function handleSearchDB(value: string) {
     setSearchCurDBOptions(
-      curDBOptions.filter((t:any) => {
-        return t?.label?.includes(value);
-      }),
-    )
+      value
+        ? curDBOptions.filter((t: any) => {
+            const reg = new RegExp(value, 'i');
+            return reg.test(t?.label || '');
+          })
+        : null,
+    );
   }
 
-  function handleSearchSchema(value:string){
+  function handleSearchSchema(value: string) {
     setSearchCurSchemaOptions(
-      curSchemaOptions.filter((t:any) => {
-        return t?.label?.includes(value);
-      }),
-    )
+      value
+        ? curSchemaOptions.filter((t: any) => {
+            const reg = new RegExp(value, 'i');
+            return reg.test(t?.label || '');
+          })
+        : null,
+    );
   }
 
   return (
@@ -352,7 +363,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   dropdownRender={(menu) => {
                     return (
                       <div>
-                        <SearchHeader handleSearch={handleSearchDB} />
+                        <SearchHeader ref={dbOptionsSearchRef} handleSearch={handleSearchDB} />
                         <Divider style={{ margin: 0 }} />
 
                         {menu}
@@ -402,7 +413,7 @@ const WorkspaceHeader = memo<IProps>((props) => {
                   dropdownRender={(menu) => {
                     return (
                       <div>
-                        <SearchHeader handleSearch={handleSearchSchema} />
+                        <SearchHeader ref={schemaOptionsSearchRef} handleSearch={handleSearchSchema} />
                         <Divider style={{ margin: 0 }} />
                         {menu}
                         <Divider style={{ margin: 0 }} />
@@ -483,15 +494,19 @@ const WorkspaceHeader = memo<IProps>((props) => {
   );
 });
 
-function SearchHeader(props: {handleSearch: (value:string) => void}) {
+const SearchHeader = forwardRef((props: { handleSearch: (value: string) => void },ref: any) => {
   const [value, setValue] = useState('');
-  
-  useEffect(()=>{
-    props.handleSearch(value)
-  },[value])
+
+  useUpdateEffect(() => {
+    props.handleSearch(value);
+  }, [value]);
+
+  useImperativeHandle(ref, () => ({
+    setValue,
+  }));
 
   return (
-    <div className={styles.searchHeader}>
+    <div className={styles.searchHeader} ref={ref}>
       <div className={styles.searchIconBox}>
         <Iconfont className={styles.searchIcon} code="&#xe600;" />
       </div>
@@ -509,7 +524,7 @@ function SearchHeader(props: {handleSearch: (value:string) => void}) {
       />
     </div>
   );
-}
+});
 
 export default connect(
   ({

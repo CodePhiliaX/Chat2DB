@@ -2,7 +2,7 @@ import React, { ForwardedRef, forwardRef, useEffect, useImperativeHandle, useRef
 import cs from 'classnames';
 import { useTheme } from '@/hooks';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DatabaseTypeCode, EditorThemeType, ThemeType } from '@/constants';
+import { DatabaseTypeCode, EditorThemeType } from '@/constants';
 import { editorDefaultOptions } from './monacoEditorConfig';
 import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
 
@@ -69,7 +69,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       ...editorDefaultOptions,
       ...options,
       value: defaultValue || '',
-      language: language,
+      language,
       theme: appTheme.backgroundColor,
     });
     editorRef.current = editorIns;

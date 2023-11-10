@@ -1,9 +1,6 @@
-import { ThemeType, DatabaseTypeCode } from '@/constants';
+import { ThemeType } from '@/constants';
 import { ITreeNode } from '@/typings';
-// import clipboardCopy from 'copy-to-clipboard';
 import lodash from 'lodash';
-import sqlServer from '@/service/sql';
-import { format } from 'sql-formatter';
 
 export function getOsTheme() {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -212,36 +209,12 @@ export function osNow(): {
   };
 }
 
-// 格式化sql
-export function formatSql(sql: string, dbType: DatabaseTypeCode) {
-  return new Promise((r: (sql: string) => void) => {
-    let formatRes = '';
-    try {
-      formatRes = format(sql || '');
-    } catch {}
-    // 如果格式化失败，直接返回原始sql
-    if (!formatRes) {
-      sqlServer
-        .sqlFormat({
-          sql,
-          dbType,
-        })
-        .then((res) => {
-          formatRes = res;
-          r(formatRes);
-        });
-    } else {
-      r(formatRes);
-    }
-  });
-}
-
 // 桌面端用hash模式，web端用history模式，路由跳转
 export function navigate(path: string) {
   if (__ENV__ === 'desktop') {
-    window.location.replace(`#${path}`)
+    window.location.replace(`#${path}`);
   } else {
-    window.location.replace(path)
+    window.location.replace(path);
   }
 }
 
@@ -258,29 +231,28 @@ export function getCookie(name: string) {
 export function compareVersion(version1: string, version2: string) {
   const version1Arr = version1.split('.');
   const version2Arr = version2.split('.');
-    const v1 = Number(version1Arr.join('')) ;
-    const v2 =  Number(version2Arr.join(''));
-    if (v1 > v2) {
-      return 1;
-    } else if (v1 < v2) {
-      return -1;
-    }
+  const v1 = Number(version1Arr.join(''));
+  const v2 = Number(version2Arr.join(''));
+  if (v1 > v2) {
+    return 1;
+  } else if (v1 < v2) {
+    return -1;
+  }
   return 0;
 }
 
 // 把剪切板的内容转成二维数组
-export function clipboardToArray(text:string):Array<Array<string | null>> {
-  if(!text){
-    return [[]]
+export function clipboardToArray(text: string): Array<Array<string | null>> {
+  if (!text) {
+    return [[]];
   }
-  try{
-    const rows = text.split('\n')
-    const array2D = rows.map(row => row.split('\t'))
-    return array2D
-  }
-  catch{
-    console.log('copy error')
-    return [[]]
+  try {
+    const rows = text.split('\n');
+    const array2D = rows.map((row) => row.split('\t'));
+    return array2D;
+  } catch {
+    console.log('copy error');
+    return [[]];
   }
 }
 
@@ -291,12 +263,11 @@ export function copy(message: string) {
 }
 
 // 二维数组复制
-export function tableCopy(array2D:Array<Array<string | null>>) {
-  try{
-    const text = array2D.map(row => row.join('\t')).join('\n')
+export function tableCopy(array2D: Array<Array<string | null>>) {
+  try {
+    const text = array2D.map((row) => row.join('\t')).join('\n');
     navigator.clipboard.writeText(text);
-  }
-  catch{
-    console.log('copy error')
+  } catch {
+    console.log('copy error');
   }
 }
