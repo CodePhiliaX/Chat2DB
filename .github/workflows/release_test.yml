@@ -230,7 +230,7 @@ jobs:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --linux"
+          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB_Test -c.nsis.shortcutName=Chat2DB_Test -c.extraMetadata.version=99.0.${{ github.run_id }}_Test --linux"
 
       # 准备要需要的数据 Windows
       - name: Prepare upload for Windows
