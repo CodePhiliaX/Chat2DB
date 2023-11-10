@@ -271,7 +271,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
 
-        if (Arrays.asList(BIT, TINYINT).contains(type)) {
+        if (Arrays.asList(BIT).contains(type)) {
             return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
 
