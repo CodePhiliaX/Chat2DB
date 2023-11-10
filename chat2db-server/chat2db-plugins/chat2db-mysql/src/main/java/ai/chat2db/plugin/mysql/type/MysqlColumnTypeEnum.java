@@ -15,7 +15,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     BIT("BIT", true, false, true, false, false, false, true, true, false, false),
 
-    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false, false),
+    TINYINT("TINYINT", true, false, true, true, false, false, true, true, false, false),
 
     TINYINT_UNSIGNED("TINYINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
@@ -271,7 +271,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
 
-        if (BIT.equals(type)) {
+        if (Arrays.asList(BIT, TINYINT).contains(type)) {
             return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
 
