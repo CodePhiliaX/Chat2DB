@@ -26,13 +26,15 @@
 
 .tabsNav {
   display: flex;
-  overflow-x: scroll;
+  overflow-x: hidden;
   position: relative;
   height: 32px;
   flex-shrink: 0;
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border);
-
+  &:hover {
+    overflow-x: scroll;
+  }
   &::-webkit-scrollbar {
     display: none;
   }

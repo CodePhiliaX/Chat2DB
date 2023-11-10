@@ -61,6 +61,7 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
         return {
           value: t.id,
           label: t.name,
+          color: t.color,
         };
       }),
     );
@@ -545,9 +546,15 @@ function RenderForm(props: IRenderFormProps) {
               });
             }}
           >
-            {t.selects?.map((selectItem: ISelect) => (
-              <Option key={selectItem.value?.toString()} value={selectItem.value}>
-                {selectItem.label}
+            {t.selects?.map((selectItem: any) => (
+              <Option  key={selectItem.value?.toString()} value={selectItem.value}>
+                <div className={styles.optionItem}>
+                  {
+                    selectItem?.color &&
+                    <div className={styles.envTag} style={{ background: selectItem?.color.toLocaleLowerCase() }} />
+                  }
+                  {selectItem.label}
+                </div>
               </Option>
             ))}
           </Select>
