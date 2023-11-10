@@ -75,7 +75,7 @@ export default memo<IProps>((props) => {
   }, [items]);
 
   useEffect(() => {
-    const fn = _.debounce((e) => {
+    const fn = (e) => {
       if (e.deltaY) {
         e.preventDefault();
         // 鼠标滚轮事件，让tab可以横向滚动
@@ -83,7 +83,7 @@ export default memo<IProps>((props) => {
           tabsNavRef.current.scrollLeft -= e.deltaY;
         }
       }
-    }, 30);
+    }
     tabsNavRef.current?.addEventListener('wheel', fn);
     return () => {
       tabsNavRef.current?.removeEventListener('wheel', fn);
@@ -286,6 +286,7 @@ export default memo<IProps>((props) => {
                         changeTab(key);
                       },
                     }}
+                    trigger={['click']}
                   >
                     <a onClick={(e) => e.preventDefault()}>
                       <Iconfont code="&#xe601;" />
