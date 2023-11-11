@@ -461,7 +461,6 @@ public class SQLExecutor {
             return dbVersion;
         } catch (Exception e) {
             log.error("get db version error", e);
-            //throw new RuntimeException(e);
         }
         return "";
     }
