@@ -513,6 +513,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
                   label: 'NULL',
                   value: 'NULL',
                 },
+                {
+                  label: 'CURRENT_TIMESTAMP',
+                  value: 'CURRENT_TIMESTAMP',
+                }
               ]}
             />
           </Form.Item>
