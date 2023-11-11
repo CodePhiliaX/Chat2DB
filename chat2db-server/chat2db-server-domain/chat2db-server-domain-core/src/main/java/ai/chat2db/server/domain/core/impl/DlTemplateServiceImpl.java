@@ -392,43 +392,47 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     }
 
     private List<Header> setColumnInfo(List<Header> headers, String tableName, String schemaName, String databaseName) {
-        TableQueryParam tableQueryParam = new TableQueryParam();
-        tableQueryParam.setTableName(MetaNameUtils.getMetaName(tableName));
-        tableQueryParam.setSchemaName(schemaName);
-        tableQueryParam.setDatabaseName(databaseName);
-        tableQueryParam.setRefresh(true);
-        List<TableColumn> columns = tableService.queryColumns(tableQueryParam);
-        if (CollectionUtils.isEmpty(columns)) {
-            return headers;
-        }
-        Map<String, TableColumn> columnMap = columns.stream().collect(Collectors.toMap(TableColumn::getName, tableColumn -> tableColumn));
-
-        List<TableIndex> tableIndices = tableService.queryIndexes(tableQueryParam);
-        if (!CollectionUtils.isEmpty(tableIndices)) {
-            for (TableIndex tableIndex : tableIndices) {
-                if ("PRIMARY".equalsIgnoreCase(tableIndex.getType())) {
-                    List<TableIndexColumn> columnList = tableIndex.getColumnList();
-                    if (!CollectionUtils.isEmpty(columnList)) {
-                        for (TableIndexColumn tableIndexColumn : columnList) {
-                            TableColumn tableColumn = columnMap.get(tableIndexColumn.getColumnName());
-                            if (tableColumn != null) {
-                                tableColumn.setPrimaryKey(true);
+        try {
+            TableQueryParam tableQueryParam = new TableQueryParam();
+            tableQueryParam.setTableName(MetaNameUtils.getMetaName(tableName));
+            tableQueryParam.setSchemaName(schemaName);
+            tableQueryParam.setDatabaseName(databaseName);
+            tableQueryParam.setRefresh(true);
+            List<TableColumn> columns = tableService.queryColumns(tableQueryParam);
+            if (CollectionUtils.isEmpty(columns)) {
+                return headers;
+            }
+            Map<String, TableColumn> columnMap = columns.stream().collect(Collectors.toMap(TableColumn::getName, tableColumn -> tableColumn));
+            List<TableIndex> tableIndices = tableService.queryIndexes(tableQueryParam);
+            if (!CollectionUtils.isEmpty(tableIndices)) {
+                for (TableIndex tableIndex : tableIndices) {
+                    if ("PRIMARY".equalsIgnoreCase(tableIndex.getType())) {
+                        List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                        if (!CollectionUtils.isEmpty(columnList)) {
+                            for (TableIndexColumn tableIndexColumn : columnList) {
+                                TableColumn tableColumn = columnMap.get(tableIndexColumn.getColumnName());
+                                if (tableColumn != null) {
+                                    tableColumn.setPrimaryKey(true);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        for (Header header : headers) {
-            TableColumn tableColumn = columnMap.get(header.getName());
-            if (tableColumn != null) {
-                header.setPrimaryKey(tableColumn.getPrimaryKey());
-                header.setComment(tableColumn.getComment());
-                header.setDefaultValue(tableColumn.getDefaultValue());
-                header.setNullable(tableColumn.getNullable());
-                header.setColumnSize(tableColumn.getColumnSize());
-                header.setDecimalDigits(tableColumn.getDecimalDigits());
+            for (Header header : headers) {
+                TableColumn tableColumn = columnMap.get(header.getName());
+                if (tableColumn != null) {
+                    header.setPrimaryKey(tableColumn.getPrimaryKey());
+                    header.setComment(tableColumn.getComment());
+                    header.setDefaultValue(tableColumn.getDefaultValue());
+                    header.setNullable(tableColumn.getNullable());
+                    header.setColumnSize(tableColumn.getColumnSize());
+                    header.setDecimalDigits(tableColumn.getDecimalDigits());
+                }
             }
+
+        }catch (Exception e){
+            log.error("setColumnInfo error:",e);
         }
         return headers;
     }
