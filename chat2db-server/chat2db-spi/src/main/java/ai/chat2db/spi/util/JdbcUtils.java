@@ -1,8 +1,5 @@
 package ai.chat2db.spi.util;
 
-import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,17 +8,16 @@ import java.util.Map;
 
 import com.alibaba.druid.DbType;
 
-import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.ssh.SSHManager;
-import cn.hutool.core.io.unit.DataSizeUtil;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.Nullable;
 
 /**
  * jdbc工具类
@@ -133,77 +129,6 @@ public class JdbcUtils {
     }
 
     /**
-     * 获取一个返回值
-     *
-     * @param rs
-     * @param index
-     * @return
-     * @throws SQLException
-     */
-    public static String getResultSetValue(ResultSet rs, int index, boolean limitSize) throws SQLException {
-        Object obj = rs.getObject(index);
-        if (obj == null) {
-            return null;
-        }
-        try {
-            if (obj instanceof BigDecimal bigDecimal) {
-                return bigDecimal.toPlainString();
-            } else if (obj instanceof Double d) {
-                return BigDecimal.valueOf(d).toPlainString();
-            } else if (obj instanceof Float f) {
-                return BigDecimal.valueOf(f).toPlainString();
-            } else if (obj instanceof Clob) {
-                return largeString(rs, index, limitSize);
-            } else if (obj instanceof byte[]) {
-                return largeString(rs, index, limitSize);
-            } else if (obj instanceof Blob blob) {
-                return largeStringBlob(blob, limitSize);
-            }
-            return rs.getString(index);
-        } catch (Exception e) {
-            log.warn("解析数失败:{},{}", index, obj, e);
-            return obj.toString();
-        }
-    }
-
-    private static String largeStringBlob(Blob blob, boolean limitSize) throws SQLException {
-        if (blob == null) {
-            return null;
-        }
-        int length = Math.toIntExact(blob.length());
-        if (limitSize && length > MAX_RESULT_SIZE) {
-            length = Math.toIntExact(MAX_RESULT_SIZE);
-        }
-        byte[] data = blob.getBytes(1, length);
-        String result = new String(data);
-
-        if (length > MAX_RESULT_SIZE) {
-            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(length)
-                + " ,"
-                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result;
-        }
-        return result;
-    }
-
-    private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {
-        String result = rs.getString(index);
-        if (result == null) {
-            return null;
-
-        }
-        if (!limitSize) {
-            return result;
-        }
-
-        if (result.length() > MAX_RESULT_SIZE) {
-            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(result.length()) + " ,"
-                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result.substring(0,
-                Math.toIntExact(MAX_RESULT_SIZE));
-        }
-        return result;
-    }
-
-    /**
      * 测试数据库连接
      *
      * @param url      数据库连接
@@ -263,6 +188,19 @@ public class JdbcUtils {
         }
         dataSourceConnect.setDescription("成功");
         return dataSourceConnect;
+    }
+
+    public static void closeResultSet(@Nullable ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException var2) {
+                log.trace("Could not close JDBC ResultSet", var2);
+            } catch (Throwable var3) {
+                log.trace("Unexpected exception on closing JDBC ResultSet", var3);
+            }
+        }
+
     }
 
 }

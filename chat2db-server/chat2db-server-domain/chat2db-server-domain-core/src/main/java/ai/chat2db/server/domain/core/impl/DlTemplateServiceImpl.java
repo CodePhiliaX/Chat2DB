@@ -11,6 +11,7 @@ import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.core.util.MetaNameUtils;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.ConnectInfo;
 import com.alibaba.druid.DbType;
@@ -36,7 +37,6 @@ import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -436,7 +436,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     private ExecuteResult execute(String sql, Integer offset, Integer count) {
         ExecuteResult executeResult;
         try {
-            executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count);
+            ValueHandler valueHandler = Chat2DBContext.getMetaData().getValueHandler();
+            executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count,valueHandler);
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()
