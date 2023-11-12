@@ -105,4 +105,14 @@ public class DataSourceUpdateRequest {
      */
     @NotNull
     private Long environmentId;
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
 }

@@ -1,17 +1,21 @@
 export interface IConsoleStore {
   activeTab: {
     activeConsole: {
-      id: string | null;
+      id: string | number | null;
     };
     activeSearchResult: {
-      id: string | null;
+      id: string | number | null;
     };
   };
-  setActiveConsole: (id: string | null) => void;
-  setActiveSearchResult: (id: string | null) => void;
+  setActiveConsole: (props: IActiveTabData) => void;
+  setActiveSearchResult: (props: IActiveTabData) => void;
 }
 
-export const consoleStore = (set):IConsoleStore => ({
+type IActiveTabData = {
+  id: string | number;
+} | null
+
+export const consoleStore = (set): IConsoleStore => ({
   activeTab: {
     activeConsole: {
       id: null,
@@ -20,24 +24,20 @@ export const consoleStore = (set):IConsoleStore => ({
       id: null,
     },
   },
-  setActiveConsole: (id: string | null) => {
+  setActiveConsole: (activeConsole: IActiveTabData) => {
     return set((state) => ({
       activeTab: {
         ...state.activeTab,
-        activeConsole: {
-          id,
-        },
+        activeConsole,
       },
-    }))
+    }));
   },
-  setActiveSearchResult: (id: string | null) => {
+  setActiveSearchResult: (activeSearchResult: IActiveTabData) => {
     return set((state) => ({
       activeTab: {
         ...state.activeTab,
-        activeSearchResult: {
-          id,
-        },
+        activeSearchResult,
       },
-    }))
-  }
-})
+    }));
+  },
+});

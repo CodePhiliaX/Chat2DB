@@ -1,8 +1,11 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
+import { Popover, Dropdown, MenuProps } from 'antd';
+import i18n from '@/i18n';
+import { isValid } from '@/utils/check';
+import _ from 'lodash';
 import styles from './index.less';
-import { Popover, Dropdown } from 'antd';
 
 export interface ITabItem {
   prefixIcon?: string | React.ReactNode;
@@ -19,6 +22,8 @@ export interface IOnchangeProps {
   type: 'add' | 'delete' | 'switch';
   data?: ITabItem;
 }
+
+const MAX_TABS = 20;
 
 interface IProps {
   className?: string;
@@ -52,16 +57,19 @@ export default memo<IProps>((props) => {
   const [editingTab, setEditingTab] = useState<ITabItem['key'] | undefined>();
   const tabListBoxRef = useRef<HTMLDivElement>(null);
   const tabsNavRef = useRef<HTMLDivElement>(null);
+  const isNumberKey = useRef<boolean>(false);
+  const [showMoreTabs, setShowMoreTabs] = useState<boolean>(false);
 
   useEffect(() => {
-    if (activeKey !== null && activeKey !== undefined) {
-      setInternalActiveTab(activeKey);
+    if (isValid(activeKey)) {
+      setInternalActiveTab(activeKey!);
     }
+    isNumberKey.current = typeof activeKey === 'number';
   }, [activeKey]);
 
   useEffect(() => {
     setInternalTabs(items || []);
-    if (items?.length && (internalActiveTab === undefined || internalActiveTab === null)) {
+    if (items?.length && !isValid(internalActiveTab)) {
       setInternalActiveTab(items[0]?.key);
     }
   }, [items]);
@@ -75,7 +83,7 @@ export default memo<IProps>((props) => {
           tabsNavRef.current.scrollLeft -= e.deltaY;
         }
       }
-    };
+    }
     tabsNavRef.current?.addEventListener('wheel', fn);
     return () => {
       tabsNavRef.current?.removeEventListener('wheel', fn);
@@ -87,14 +95,26 @@ export default memo<IProps>((props) => {
     if (tabListBoxRef.current) {
       const activeTab = tabListBoxRef.current.querySelector(`.${styles.activeTab}`);
       if (activeTab) {
-        activeTab.scrollIntoView({ block: 'nearest' });
+        setTimeout(() => {
+          activeTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+        }, 100);
       }
     }
 
     onChange?.(internalActiveTab);
   }, [internalActiveTab]);
 
-  function deleteTab(data: ITabItem) {
+
+  useEffect(() => {
+    // from copilot
+    if (tabListBoxRef.current) {
+      const tabsNavWidth = tabsNavRef.current?.getBoundingClientRect().width || 0;
+      const tabListBoxWidth = tabListBoxRef.current?.getBoundingClientRect().width || 0;
+      setShowMoreTabs(tabsNavWidth < tabListBoxWidth);
+    }
+  }, [internalTabs]);
+
+  const deleteTab = (data: ITabItem) => {
     const newInternalTabs = internalTabs?.filter((t) => t.key !== data.key);
     let activeKeyTemp = internalActiveTab;
     // 删掉的是当前激活的tab，那么就切换到前一个,如果前一个没有就切换到后一个
@@ -109,7 +129,7 @@ export default memo<IProps>((props) => {
     changeTab(activeKeyTemp);
     setInternalTabs(newInternalTabs);
     onEdit?.('remove', [data], newInternalTabs);
-  }
+  };
 
   const deleteOtherTab = (data: ITabItem) => {
     const newInternalTabs = internalTabs?.filter((t) => t.key === data.key);
@@ -126,21 +146,24 @@ export default memo<IProps>((props) => {
     onEdit?.('remove', [...internalTabs]);
   };
 
-  function changeTab(key: string | number | null) {
+  const changeTab = (key: string | number | null) => {
     setInternalActiveTab(key);
-  }
+  };
 
-  function handleAdd() {
+  const handleAdd = () => {
+    if (internalTabs.length >= MAX_TABS) {
+      return;
+    }
     onEdit?.('add');
-  }
+  };
 
-  function onDoubleClick(t: ITabItem) {
+  const onDoubleClick = (t: ITabItem) => {
     if (t.editableName) {
       setEditingTab(t.key);
     }
-  }
+  };
 
-  function renderTabItem(t: ITabItem, index: number) {
+  const renderTabItem = (t: ITabItem, index: number) => {
     function inputOnChange(value: string) {
       internalTabs[index].label = value;
       setInternalTabs([...internalTabs]);
@@ -163,21 +186,21 @@ export default memo<IProps>((props) => {
 
     const closeTabsMenu = [
       {
-        label: '关闭',
+        label: i18n('common.button.close'),
         key: 'close',
         onClick: () => {
           deleteTab(t);
         },
       },
       {
-        label: '关闭其他',
+        label: i18n('common.button.closeOthers'),
         key: 'closeOther',
         onClick: () => {
           deleteOtherTab(t);
         },
       },
       {
-        label: '关闭所有',
+        label: i18n('common.button.closeAll'),
         key: 'closeAll',
         onClick: () => {
           deleteAllTab();
@@ -226,7 +249,15 @@ export default memo<IProps>((props) => {
         </Popover>
       </Dropdown>
     );
-  }
+  };
+
+  const moreTabsMenu = (internalTabs || []).map((t) => {
+    return {
+      label: t.label,
+      key: t.key.toString(),
+      value: t.key,
+    };
+  });
 
   return (
     <div className={classnames(styles.tabBox, className)}>
@@ -239,13 +270,42 @@ export default memo<IProps>((props) => {
               })}
             </div>
           )}
-          {!hideAdd && (
+          {
             <div className={styles.rightBox}>
-              <div className={styles.addIcon} onClick={handleAdd}>
-                <Iconfont code="&#xe631;" />
-              </div>
+              {
+                showMoreTabs &&
+                <div className={styles.moreTabs}>
+                  <Dropdown
+                    menu={{
+                      style: { maxHeight: '200px', overflowY: 'auto' },
+                      items: moreTabsMenu,
+                      selectable: true,
+                      selectedKeys: [`${internalActiveTab}`],
+                      onClick: (v) => {
+                        const key = moreTabsMenu.find((t) => t?.key === v.key)?.value || null
+                        changeTab(key);
+                      },
+                    }}
+                    trigger={['click']}
+                  >
+                    <a onClick={(e) => e.preventDefault()}>
+                      <Iconfont code="&#xe601;" />
+                    </a>
+                  </Dropdown>
+                </div>
+              }
+               {!hideAdd && (
+                <div
+                  className={classnames(styles.addIcon, {
+                    [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,
+                  })}
+                  onClick={handleAdd}
+                >
+                  <Iconfont code="&#xe631;" />
+                </div>
+              )}
             </div>
-          )}
+          }
         </div>
       )}
       {/* 隐藏的方案 */}

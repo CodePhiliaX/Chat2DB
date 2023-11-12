@@ -1,5 +1,7 @@
 import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 
+export type NonNullable<T> = T extends null | undefined ? never : T;
+
 export interface IPageResponse<T> {
   data: T[];
   pageNo: number;

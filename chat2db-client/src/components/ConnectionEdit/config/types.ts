@@ -4,6 +4,7 @@ import { DatabaseTypeCode, OperationColumn } from '@/constants';
 export type ISelect = {
   value?: AuthenticationType | SSHAuthenticationType | string | boolean;
   label?: string;
+  onChange?: (value: IConnectionConfig) => IConnectionConfig;
   rest?: {
     [key in string]: any
   }
@@ -27,7 +28,7 @@ export interface IFormItem {
     labelWidthEN?: string; // 英文环境下表单label的长度 推荐px 默认值为 70px
     labelWidthCN?: string; // 中文环境下表单label的长度 推荐px 默认值为 100px
     labelAlign?: 'left' | 'right'; // label的对齐方式 默认值为左对齐
-  }
+  },
 }
 
 // 配置链接数据源表单 Json
@@ -38,6 +39,7 @@ export type IConnectionConfig = {
     pattern: RegExp;
     template: string;
     excludes?: OperationColumn[];
+
   },
   driver?: {
     items: IFormItem[];

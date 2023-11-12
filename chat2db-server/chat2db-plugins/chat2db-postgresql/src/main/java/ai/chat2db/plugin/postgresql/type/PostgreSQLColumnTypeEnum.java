@@ -122,7 +122,7 @@ public enum PostgreSQLColumnTypeEnum implements ColumnBuilder {
     public String buildModifyColumn(TableColumn column) {
 
         if (EditStatus.DELETE.name().equals(column.getEditStatus())) {
-            return StringUtils.join("DROP COLUMN `", column.getName() + "`");
+            return StringUtils.join("DROP COLUMN \"", column.getName() + "\"");
         }
         if (EditStatus.ADD.name().equals(column.getEditStatus())) {
             return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(column));

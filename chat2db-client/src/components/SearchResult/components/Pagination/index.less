@@ -1,0 +1,52 @@
+@import '../../../../styles/var.less';
+.paginationWrapper {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  height: 30px;
+}
+
+.item-icon {
+  height: 24px;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 10px;
+  background-color: transparent;
+
+  border-radius: 4px;
+  outline: none;
+  transition: border 0.2s;
+
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+
+  box-sizing: border-box;
+  &:hover {
+    background-color: var(--color-bg-text-hover);
+    color: var(--color-link);
+  }
+}
+
+.item-icon-disabled {
+  &,
+  &:hover {
+    cursor: not-allowed;
+    color: var(--color-text-disabled);
+  }
+}
+
+.input-number {
+  width: 32px;
+  :global {
+    .ant-input-number-input {
+      text-align: center;
+      padding: 0px;
+      // display: flex;
+      // justify-content: center;
+    }
+  }
+}

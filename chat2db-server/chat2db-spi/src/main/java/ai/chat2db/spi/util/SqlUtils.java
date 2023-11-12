@@ -14,6 +14,7 @@ import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
@@ -35,7 +36,12 @@ public class SqlUtils {
 
     public static void buildCanEditResult(String sql, DbType dbType, ExecuteResult executeResult) {
         try {
-            Statement statement = CCJSqlParserUtil.parse(sql);
+            Statement statement ;
+            if (DbType.sqlserver.equals(dbType)) {
+                statement = CCJSqlParserUtil.parse(sql, ccjSqlParser -> ccjSqlParser.withSquareBracketQuotation(true));
+            } else {
+                statement = CCJSqlParserUtil.parse(sql);
+            }
             if (statement instanceof Select) {
                 Select select = (Select) statement;
                 PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
@@ -56,7 +62,8 @@ public class SqlUtils {
                                     // 检查函数是否为 "COUNT"
                                     if ("COUNT".equalsIgnoreCase(function.getName())) {
                                         executeResult.setCanEdit(false);
-                                        return;                                    }
+                                        return;
+                                    }
                                 }
                             }
                         }
@@ -68,11 +75,12 @@ public class SqlUtils {
                                 sqlSelectStatement.getSelect().getFirstQueryBlock().getFrom());
                         executeResult.setTableName(getMetaDataTableName(sqlExprTableSource.getCatalog(), sqlExprTableSource.getSchema(), sqlExprTableSource.getTableName()));
                     }
-                }else {
+                } else {
                     executeResult.setCanEdit(false);
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             executeResult.setCanEdit(false);
         }
     }
@@ -121,13 +129,13 @@ public class SqlUtils {
         return list;
     }
 
-    private static final String  DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
+    private static final String DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
 
     public static String getSqlValue(String value, String dataType) {
         if (value == null) {
             return null;
         }
-        if(DEFAULT_VALUE.equals(value)){
+        if (DEFAULT_VALUE.equals(value)) {
             return "DEFAULT";
         }
         DataTypeEnum dataTypeEnum = DataTypeEnum.getByCode(dataType);

@@ -161,7 +161,7 @@ jobs:
       - name: Copy App
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
-          cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/lib
+      #    cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/lib
 
       - name: Prepare Build Electron
         run: |

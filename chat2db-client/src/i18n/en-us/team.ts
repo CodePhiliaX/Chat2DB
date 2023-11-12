@@ -1,4 +1,5 @@
 export default {
+    'team.title': 'Team Management',
     'team.tab.datasource': 'DataSource Management',
     'team.tab.user': 'User Management',
     'team.tab.team': 'Team Management',

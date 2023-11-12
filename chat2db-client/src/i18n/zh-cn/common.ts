@@ -113,5 +113,9 @@ export default {
   'common.button.setNull': '设置为NULL',
   'common.button.setDefault': '设置为默认值',
   'common.button.viewData': '查看/修改数据',
-
+  'common.button.close': '关闭',
+  'common.button.closeAll': '全部关闭',
+  'common.button.closeOthers': '关闭其他',
+  'common.label.tcp': '线上',
+  'common.label.LocalFile': '本地',
 };

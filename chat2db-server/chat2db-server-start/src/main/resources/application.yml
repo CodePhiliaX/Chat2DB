@@ -73,7 +73,7 @@ chatgpt:
   # 可以选择GPT3或GPT35
   version: GPT35
   context:
-    length: 4
+    length: 1
 
 # Print the HTTP log
 logbook:
