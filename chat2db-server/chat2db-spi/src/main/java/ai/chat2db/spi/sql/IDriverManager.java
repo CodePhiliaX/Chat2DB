@@ -106,7 +106,7 @@ public class IDriverManager {
 
     public static DriverPropertyInfo[] getProperty(DriverConfig driver)
             throws SQLException {
-        if (driver == null) {
+        if (Objects.isNull(driver)) {
             return null;
         }
         DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
@@ -114,7 +114,7 @@ public class IDriverManager {
             driverEntry = getJDBCDriver(driver);
         }
         try {
-            String url = driver.getUrl() == null ? "" : driver.getUrl();
+            String url = Objects.isNull(driver.getUrl()) ? "" : driver.getUrl();
             return driverEntry.getDriver().getPropertyInfo(url, null);
         } catch (Exception var7) {
             return null;
