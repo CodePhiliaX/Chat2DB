@@ -80,9 +80,10 @@ jobs:
             .yarn/unplugged
             .yarn/build-state.yml
             .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            yarn-${{ runner.os }}-
+            yarn-
   
       - name: Build and Copy Artifacts
         run: |
