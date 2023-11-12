@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
@@ -39,7 +40,7 @@ public class IDriverManager {
     }
 
     public static Connection getConnection(String url, String user, String password, DriverConfig driver)
-        throws SQLException {
+            throws SQLException {
         Properties info = new Properties();
         if (user != null) {
             info.put("user", user);
@@ -53,8 +54,8 @@ public class IDriverManager {
     }
 
     public static Connection getConnection(String url, String user, String password, DriverConfig driver,
-        Map<String, Object> properties)
-        throws SQLException {
+                                           Map<String, Object> properties)
+            throws SQLException {
         Properties info = new Properties();
         if (StringUtils.isNotEmpty(user)) {
             info.put("user", user);
@@ -74,7 +75,7 @@ public class IDriverManager {
     }
 
     public static Connection getConnection(String url, Properties info, DriverConfig driver)
-        throws SQLException {
+            throws SQLException {
         if (url == null) {
             throw new SQLException("The url cannot be null", "08001");
         }
@@ -84,8 +85,8 @@ public class IDriverManager {
         }
         try {
             Connection connection = driverEntry.getDriver().connect(url, info);
-            if(connection == null){
-                throw new SQLException("driver.connect return null , No suitable driver found for url " +url ,"08001");
+            if (connection == null) {
+                throw new SQLException("driver.connect return null , No suitable driver found for url " + url, "08001");
             }
             return connection;
         } catch (SQLException var7) {
@@ -94,13 +95,31 @@ public class IDriverManager {
                 return con;
             } else {
                 throw new SQLException("Cannot create connection (" + var7.getMessage() + ")", "08001",
-                    var7);
+                        var7);
             }
         }
     }
 
+    public static DriverPropertyInfo[] getProperty(DriverConfig driver)
+            throws SQLException {
+        if (driver == null) {
+            return null;
+        }
+        DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
+        if (driverEntry == null) {
+            driverEntry = getJDBCDriver(driver);
+        }
+        try {
+            String url = driver.getUrl() == null ? "" : driver.getUrl();
+            return driverEntry.getDriver().getPropertyInfo(url, null);
+        } catch (Exception var7) {
+            return null;
+        }
+    }
+
+
     private static Connection tryConnectionAgain(DriverEntry driverEntry, String url,
-        Properties info) throws SQLException {
+                                                 Properties info) throws SQLException {
         if (url.contains("mysql")) {
             if (!info.containsKey("useSSL")) {
                 info.put("useSSL", "false");
@@ -111,14 +130,14 @@ public class IDriverManager {
     }
 
     private static DriverEntry getJDBCDriver(DriverConfig driver)
-        throws SQLException {
+            throws SQLException {
         synchronized (driver) {
             try {
                 if (DRIVER_ENTRY_MAP.containsKey(driver.getJdbcDriver())) {
                     return DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
                 }
                 ClassLoader cl = getClassLoader(driver);
-                Driver d = (Driver)cl.loadClass(driver.getJdbcDriverClass()).newInstance();
+                Driver d = (Driver) cl.loadClass(driver.getJdbcDriverClass()).newInstance();
                 DriverEntry driverEntry = DriverEntry.builder().driverConfig(driver).driver(d).build();
                 DRIVER_ENTRY_MAP.put(driver.getJdbcDriver(), driverEntry);
                 return driverEntry;

@@ -1,0 +1,16 @@
+{
+  "dbType": "SQLSERVER",
+  "driverConfigList": [
+    {
+      "url": "jdbc:sqlserver://localhost:1433;database=master",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/mssql-jdbc-11.2.1.jre17.jar"
+      ],
+      "jdbcDriver": "mssql-jdbc-11.2.1.jre17.jar",
+      "jdbcDriverClass": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+    }
+  ],
+  "name": "SQLServer"
+}

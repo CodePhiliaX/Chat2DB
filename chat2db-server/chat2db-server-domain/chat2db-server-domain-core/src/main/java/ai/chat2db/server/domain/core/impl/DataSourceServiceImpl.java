@@ -89,10 +89,13 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (dataSourceKind == DataSourceKindEnum.SHARED && !ContextUtils.getLoginUser().getAdmin()) {
             throw new PermissionDeniedBusinessException();
         }
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceDO.setUserId(ContextUtils.getUserId());
+        dataSourceDO.setExtendInfo(null);
+
         dataSourceMapper.insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
         return DataResult.of(dataSourceDO.getId());
@@ -125,6 +128,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSource dataSource = queryExistent(param.getId(), null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceMapper.updateById(dataSourceDO);
