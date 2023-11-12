@@ -42,7 +42,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           java-package: "jre"
-          architecture: ${{ matrix.arch == 'arm64' && 'aarch64' }}
+          architecture: ${{ matrix.arch == 'arm64' && 'aarch64' || 'x64' }}
 
       # 开放TLS
       - name: Enable TLS 1.0 and 1.1 in java.security
@@ -96,31 +96,11 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 从缓存中拿去前端依赖
-      # - name: Cache node modules
-      #   uses: actions/cache@v3
-      #   env:
-      #     cache-name: cache-node-modules
-      #   with:
-      #     path: ./node_modules
-      #     key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-build-${{ env.cache-name }}-
-      #       ${{ runner.os }}-build-
-      #       ${{ runner.os }}-
-
-      # 安装前端依赖
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: Yarn install
-        continue-on-error: true
-        run: |
-          cd chat2db-client
-          yarn install --frozen-lockfile
-
       # 打包Web前端资源
       - name: Build FE Static
         run: |
           cd chat2db-client
+          yarn install --frozen-lockfile
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
