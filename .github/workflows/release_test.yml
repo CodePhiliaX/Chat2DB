@@ -31,6 +31,7 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@main
 
+      # 安装JRE
       - name: Install JRE
         uses: actions/setup-java@main
         with:
@@ -39,6 +40,7 @@ jobs:
           java-package: "jre"
           architecture: ${{ matrix.arch }}
 
+      # 开放TLS
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
@@ -53,6 +55,7 @@ jobs:
           RUNNER_OS: ${{ runner.os }}
           JAVA_HOME: ${{ env.JAVA_HOME }}
 
+      # JRE拷贝到前端静态目录
       - name: Copy JRE to static directory
         run: |
           mkdir -p chat2db-client/static/jre
@@ -64,6 +67,16 @@ jobs:
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
 
+      # Linux中删除jre中相关文件
+      - if: ${{ runner.os == 'Linux' }}
+        name: Delete File on Linux
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
+
+      # 安装Node.js
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
@@ -71,6 +84,7 @@ jobs:
           # cache: "yarn"
           # cache-dependency-path: chat2db-client/yarn.lock
 
+      # 安装Java
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
@@ -78,6 +92,7 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
+      # 从缓存中拿去前端依赖
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v3
@@ -85,19 +100,21 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
+      # 安装前端依赖
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
+        name: Yarn install
         continue-on-error: true
         run: |
           cd chat2db-client
           yarn install --frozen-lockfile
 
+      # 打包Web前端资源
       - name: Build FE Static
         run: |
           cd chat2db-client
@@ -105,15 +122,7 @@ jobs:
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
 
-      # Linux
-      - if: ${{ runner.os == 'Linux' }}
-        name: Delete File
-        run: |
-          cd chat2db-client/static/jre/
-          ls -la
-          rm -rf legal
-          ls -la
-
+      # 打包后端工程 & 发送到前端
       - name: Build BE Static
         run: |
           mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
@@ -122,6 +131,7 @@ jobs:
           cp -r chat2db-client/version chat2db-client/versions/
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
 
+      # 打包桌面端前端资源
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
@@ -129,6 +139,7 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
+      # 打包Electron
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
@@ -145,7 +156,7 @@ jobs:
             -c.extraMetadata.version=99.0.${{ github.run_id }}-Test
             ${{ matrix.build_arg}}
 
-      # Only for macOS x86_64
+      # 公证&签名 Mac App
       - name: Notarize MacOS x86_64 App
         if: matrix.os == 'macos-latest' && matrix.arch == 'x86_64'
         run: |
@@ -165,11 +176,13 @@ jobs:
           cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
+      # 准备发往OSS的文件
       - name: Prepare upload for OSS
         run: |
           mkdir -p oss_temp_file
           cp -r chat2db-client/release/*${{ matrix.file_extension }} ./oss_temp_file
 
+      # 设置OSS
       - name: Set up oss utils
         uses: yizhoumo/setup-ossutil@v1
         with:
@@ -177,11 +190,11 @@ jobs:
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           ossutil-version: "1.7.16"
-
+      # 上传到OSS
       - name: Upload to OSS
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
-
+      # 发送到DingTalk
       - name: Send dingtalk message
         uses: ghostoy/dingtalk-action@master
         with:
