@@ -39,11 +39,16 @@ jobs:
           java-package: "jre"
           architecture: ${{ matrix.arch }}
 
+      # java.security 开放tls1 Windows
+      - name: Enable tls1
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
-          elif [ "$RUNNER_OS" = "Linux" ]; then
+
+          if [ "$RUNNER_OS" = "Linux" ]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           elif [ "$RUNNER_OS" = "macOS" ]; then
             sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
