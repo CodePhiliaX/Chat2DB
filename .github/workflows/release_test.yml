@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: Check out git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       - name: Install JRE
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@main
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -60,14 +60,14 @@ jobs:
           JAVA_HOME: ${{ runner.os == 'Windows' && env.JAVA_HOME }} || $JAVA_HOME
       
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@main
         with:
           node-version: '16'
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
       - name: Install Java and Maven
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@main
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -84,7 +84,7 @@ jobs:
           mkdir -p versions/99.0.${{ github.run_id }}/static
           echo "99.0.${{ github.run_id }}" > versions/version
           cp -r versions/version ./versions/
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar versions/99.0.${{ github.run_id }}/static/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
 
       - name: Prepare Build Electron
         run: |
@@ -113,7 +113,7 @@ jobs:
           xcrun notarytool store-credentials "Chat2DB" --apple-id "${{ secrets.MAC_APPLE_ID }}" --password "${{ secrets.MAC_APPLE_PASSWORD }}" --team-id "${{ secrets.MAC_TEAM_ID }}"
           xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
 
-      # Jar包
+      # Build Jar包
       - name: Prepare upload for Jar
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         run: |
