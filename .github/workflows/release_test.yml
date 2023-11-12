@@ -92,13 +92,13 @@ jobs:
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
+          
       - name: Build BE Static
         run: |
           mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
-          cd chat2db-client
           mkdir -p chat2db-client/versions/99.0.${{ github.run_id }}/static
-          echo -n "99.0.${{ github.run_id }}" > chat2db-client/versions/99.0.${{ github.run_id }}/version
-          cd ..
+          echo -n 99.0.${{ github.run_id }} > chat2db-client/version
+          cp -r chat2db-client/version chat2db-client/versions/
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
 
       - name: Prepare Build Electron
