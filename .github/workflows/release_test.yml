@@ -43,7 +43,7 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
-          if [ "$RUNNER_OS" = "Linux" ]; then
+          elif [ "$RUNNER_OS" = "Linux" ]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           elif [ "$RUNNER_OS" = "macOS" ]; then
             sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
