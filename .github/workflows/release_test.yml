@@ -11,14 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-latest
-            file_extension: ".exe"
-          - os: macos-latest
-            arch: x86_64
-            file_extension: ".dmg"
-          - os: macos-latest
-            arch: arm64
-            file_extension: ".dmg"
+          # - os: windows-latest
+          #   file_extension: ".exe"
+          # - os: macos-latest
+          #   arch: x86_64
+          #   file_extension: ".dmg"
+          # - os: macos-latest
+          #   arch: arm64
+          #   file_extension: ".dmg"
           - os: ubuntu-latest
             file_extension: ".AppImage"
     runs-on: ${{ matrix.os }}
@@ -46,7 +46,6 @@ jobs:
           fi
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
-        shell: bash
 
       - name: Copy JRE to static directory
         run: |
@@ -56,7 +55,7 @@ jobs:
             chmod -R 777 chat2db-client/static/jre
           fi
         env:
-          JAVA_HOME: ${{ runner.os == 'Windows' && env.JAVA_HOME }} || $JAVA_HOME
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       - name: Install Node.js
         uses: actions/setup-node@main

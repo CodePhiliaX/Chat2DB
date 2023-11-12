@@ -6,9 +6,9 @@ name: Build Test Client
 on:
   push:
     branches:
-      - "release_test"
-      - "release_test_2"
-      - "release_test_3"
+      # - "release_test"
+      # - "release_test_2"
+      # - "release_test_3"
 
 # Workflow's jobs
 # 一共需要3台电脑运行
