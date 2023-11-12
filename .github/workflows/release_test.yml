@@ -62,12 +62,9 @@ jobs:
       # JRE拷贝到前端静态目录
       - name: Copy JRE to static directory
         run: |
-          mkdir -p chat2db-client/static/jre
-          cp -r "$JAVA_HOME" chat2db-client/static/jre
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            cp -r ${{ env.JAVA_HOME }} chat2db-client/static/jre
-          else
-            cp -r $JAVA_HOME chat2db-client/static/jre
+          mkdir -p chat2db-client/static
+          cp -r "$JAVA_HOME"/jre chat2db-client/static/jre
+          if [ "${{ runner.os }}" != "Windows" ]; then
             chmod -R 777 chat2db-client/static/jre
           fi
         shell: bash
