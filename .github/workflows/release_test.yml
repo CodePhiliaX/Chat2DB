@@ -39,15 +39,10 @@ jobs:
           java-package: "jre"
           architecture: ${{ matrix.arch }}
 
-      # java.security 开放tls1 Windows
-      - name: Enable tls1
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
-
       - name: Enable TLS 1.0 and 1.1 in java.security
-        if: ${{ runner.os != 'Windows' }}
         run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           if [ "$RUNNER_OS" = "Linux" ]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           elif [ "$RUNNER_OS" = "macOS" ]; then
@@ -73,8 +68,8 @@ jobs:
         uses: actions/setup-node@main
         with:
           node-version: "16"
-          cache: "yarn"
-          cache-dependency-path: chat2db-client/yarn.lock
+          # cache: "yarn"
+          # cache-dependency-path: chat2db-client/yarn.lock
 
       - name: Install Java and Maven
         uses: actions/setup-java@main
@@ -83,23 +78,42 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Restore Yarn Cache
-        uses: actions/cache@v2
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
         with:
-          path: |
-            ./node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: |
+          cd chat2db-client
+          yarn install --frozen-lockfile    
 
       - name: Build FE Static
         run: |
           cd chat2db-client
-          yarn install --frozen-lockfile
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
 
+      # Linux
+      - if: ${{ runner.os == 'Linux' }}
+        name: Delete File
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
+          
       - name: Build BE Static
         run: |
           mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
@@ -115,14 +129,7 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
-      # Linux
-      - name: Delete File
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          cd chat2db-client/static/jre/
-          ls -la
-          rm -rf legal
-          ls -la
+
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
