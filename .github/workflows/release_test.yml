@@ -64,7 +64,10 @@ jobs:
         run: |
           mkdir -p chat2db-client/static/jre
           cp -r "$JAVA_HOME" chat2db-client/static/jre
-          if [ "${{ runner.os }}" != "Windows" ]; then
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            cp -r ${{ env.JAVA_HOME }} chat2db-client/static/jre
+          else
+            cp -r $JAVA_HOME chat2db-client/static/jre
             chmod -R 777 chat2db-client/static/jre
           fi
         shell: bash
