@@ -13,16 +13,20 @@ jobs:
         include:
           - os: windows-latest
             file_extension: ".exe"
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe"
             build_arg: "--win --x64"
           - os: macos-latest
             arch: x86_64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg"
             file_extension: ".dmg"
             build_arg: "--mac --x64"
           - os: macos-latest
             arch: arm64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg"
             file_extension: ".dmg"
             build_arg: "--mac --arm64"
           - os: ubuntu-latest
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage"
             file_extension: ".AppImage"
             build_arg: "--linux"
     runs-on: ${{ matrix.os }}
@@ -189,10 +193,12 @@ jobs:
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           ossutil-version: "1.7.16"
+
       # 上传到OSS
       - name: Upload to OSS
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
+
       # 发送到DingTalk
       - name: Send dingtalk message
         uses: ghostoy/dingtalk-action@master
@@ -202,9 +208,9 @@ jobs:
           content: |
             {
               "title": "${{ matrix.os }}-test-打包完成通知",
-              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }}](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }})"
+              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[${{matrix.file_name}}](${{matrix.file_name}})"
             }
-     
+
       # 发送Jar包地址到DingTalk
       - if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         name: Send dingtalk message
