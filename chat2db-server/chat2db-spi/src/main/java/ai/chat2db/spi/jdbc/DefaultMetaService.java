@@ -26,7 +26,15 @@ public class DefaultMetaService implements MetaData {
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
-        return SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        if(StringUtils.isNotBlank(databaseName) && CollectionUtils.isNotEmpty(schemas)){
+            for ( Schema schema : schemas) {
+                if(StringUtils.isBlank(schema.getDatabaseName())){
+                    schema.setDatabaseName(databaseName);
+                }
+            }
+        }
+        return schemas;
     }
 
     @Override
