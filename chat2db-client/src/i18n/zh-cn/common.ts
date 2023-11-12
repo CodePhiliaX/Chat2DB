@@ -45,6 +45,7 @@ export default {
   'common.text.table': '表',
   'common.tips.saveSuccessfully': '保存成功',
   'common.button.copy': '复制',
+  'common.button.copyName': '复制名称',
   'common.button.copySuccessfully': '复制成功',
   'common.button.createConsole': '新建控制台',
   'common.button.exportWord': '导出到Word',

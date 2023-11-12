@@ -9,7 +9,7 @@ import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, useTreeStore } from './treeStore';
-import { screenOutMenu } from './screenOutMenu';
+import { getRightClickMenu } from './rightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
 
 interface IProps {
@@ -49,7 +49,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.key;
 
   // 加载数据
-  function loadData() {
+  function loadData(_props?: { refresh: boolean }) {
     const treeNodeConfig: ITreeConfigItem = treeConfig[treeNodeData.pretendNodeType || treeNodeData.treeNodeType];
     setIsLoading(true);
     setTreeNodeData({
@@ -62,6 +62,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         extraParams: {
           ...treeNodeData.extraParams,
         },
+        refresh: _props?.refresh || false,
       })
       .then((res) => {
         if (res.length) {
@@ -138,7 +139,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   // 点击节点
   const handelClickTreeNode = () => {
     useCommonStore.setState({
-      focusedContent: (treeNodeData.key || '') as any,
+      focusedContent: (treeNodeData.name || '') as any,
     });
     setFocusId(treeNodeData.key || '');
   };
@@ -151,17 +152,19 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   }, [treeNodeData]);
 
   const treeNodeDom = useMemo(() => {
-    // const { dropdowns } = useTreeNodeRightClick({ data: treeNodeData });
+    const dropdownsItems = getRightClickMenu({ treeNodeData, loadData }).map((item) => {
+      return {
+        ...item,
+        label: <MenuLabel {...item.labelProps} />,
+      };
+    });
+
     return (
       <Dropdown
         trigger={['contextMenu']}
         menu={{
-          items: screenOutMenu({treeNodeData,loadData}).map((item) => {
-            return {
-              ...item,
-              label: <MenuLabel {...item.labelProps} />,
-            };
-          }),
+          items: dropdownsItems || [],
+          style: dropdownsItems ? {} : { display: 'none' }, // 有菜单项才显示
         }}
         overlayStyle={{
           zIndex: 1080,
@@ -171,6 +174,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           <div
             className={classnames(styles.treeNode, { [styles.treeNodeFocus]: isFocus })}
             onClick={handelClickTreeNode}
+            onContextMenu={handelClickTreeNode}
             data-chat2db-general-can-copy-element
           >
             <div className={styles.left}>

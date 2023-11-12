@@ -9,6 +9,7 @@ export default {
   'workspace.menu.pin': 'Pin',
   'workspace.menu.unPin': 'Unpin',
   'workspace.menu.editTableData': 'Edit Table Data',
+  'workspace.menu.queryConsole': 'Query console',
   'workspace.menu.deleteTablePlaceHolder': 'Please enter the name of the table you want to delete',
   'workspace.tips.affirmDeleteTable':
     'The table name you entered is not the same as the table name you want to delete, please confirm again',

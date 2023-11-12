@@ -49,7 +49,6 @@ function TreeNodeRightClick(props: IProps) {
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
     return t.type === data.extraParams?.databaseType;
   })!;
-  
   const monacoEditorRef = useRef<IExportRefFunction>(null);
   
   const operationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {

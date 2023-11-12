@@ -30,7 +30,7 @@ export enum OperationColumn {
   CreateTable = 'createTable', //创建表
   CreateConsole = 'createConsole', // 新建console
   DeleteTable = 'deleteTable', // 删除表
-  ViewDDL = 'viewDDL', // 导出ddl
+  ViewDDL = 'viewDDL', // 查看ddl
   EditSource = 'editSource', // 编辑数据源
   Top = 'top', // 置顶
   EditTable = 'editTable', // 编辑表
