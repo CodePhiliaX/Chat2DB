@@ -64,6 +64,7 @@ jobs:
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
+
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
@@ -71,6 +72,18 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/build-state.yml
+            .yarn/install-state.gz
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+  
       - name: Build and Copy Artifacts
         run: |
           cd chat2db-client
@@ -81,7 +94,6 @@ jobs:
           mvn clean package -B '-Dmaven.test.skip=true' -f ../chat2db-server/pom.xml
           mkdir -p versions/99.0.${{ github.run_id }}/static
           echo "99.0.${{ github.run_id }}" > versions/version
-          cp -r versions/version ./versions/
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
 
       - name: Prepare Build Electron
