@@ -13,14 +13,18 @@ jobs:
         include:
           - os: windows-latest
             file_extension: ".exe"
+            build_arg: "--win --x64"
           - os: macos-latest
             arch: x86_64
             file_extension: ".dmg"
+            build_arg: "--mac --x64"
           - os: macos-latest
             arch: arm64
             file_extension: ".dmg"
+            build_arg: "--mac --arm64"
           - os: ubuntu-latest
             file_extension: ".AppImage"
+            build_arg: "--linux"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -38,14 +42,15 @@ jobs:
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
           elif [[ "${{ runner.os }}" == "Linux" ]]; then
-            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
           else
             sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           fi
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+        shell: bash
+
+
 
       - name: Copy JRE to static directory
         run: |
@@ -74,10 +79,12 @@ jobs:
       - name: Cache Yarn dependencies
         uses: actions/cache@v3
         with:
-          path: "**/node_modules"
-          key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            ${{ runner.temp }}/yarn
+            ${{ runner.temp }}/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            yarn-${{ runner.os }}-
+            ${{ runner.os }}-yarn-
 
       - name: Build FE Static
         run: |
@@ -125,7 +132,7 @@ jobs:
             -c.win.publisherName=Chat2DB-Test
             -c.nsis.shortcutName=Chat2DB-Test
             -c.extraMetadata.version=99.0.${{ github.run_id }}-Test
-            --${{ matrix.os }} ${{ matrix.arch }}
+            ${{ matrix.build_arg}}
 
       # Only for macOS x86_64
       - name: Notarize MacOS x86_64 App
