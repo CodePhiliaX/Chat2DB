@@ -2,8 +2,8 @@ name: Build Test Client
 
 on:
   push:
-    branches:
-      - "release_test"
+    # branches:
+      # - "release_test"
 
 jobs:
   release:

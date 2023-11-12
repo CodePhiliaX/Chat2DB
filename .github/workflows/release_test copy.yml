@@ -6,7 +6,7 @@ name: Build Test Client
 on:
   push:
     branches:
-      # - "release_test"
+      - "release_test"
       # - "release_test_2"
       # - "release_test_3"
 
