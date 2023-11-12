@@ -1,20 +1,10 @@
-# Workflow's name
 name: Build Test Client
 
-# Workflow's trigger
-# 在release_test 分支收到推送的时候触发
 on:
   push:
     branches:
       - "release_test"
-      - "release_test_2"
-      - "release_test_3"
 
-# Workflow's jobs
-# 一共需要3台电脑运行
-# windows
-# macos-latest x86_64
-# macos-latest arm64
 jobs:
   release:
     strategy:
@@ -22,140 +12,79 @@ jobs:
       matrix:
         include:
           - os: windows-latest
+            file_extension: '.exe'
           - os: macos-latest
             arch: x86_64
+            file_extension: '.dmg'
           - os: macos-latest
             arch: arm64
+            file_extension: '.dmg'
           - os: ubuntu-latest
+            file_extension: '.AppImage'
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out git repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
 
-      # 安装jre Windows
-      - name: Install Jre for Windows
-        if: ${{ runner.os == 'Windows' }}
-        uses: actions/setup-java@main
+      - name: Install JRE
+        uses: actions/setup-java@v2
         with:
-          java-version: "17"
-          distribution: "temurin"
-          java-package: "jre"
+          java-version: '17'
+          distribution: 'temurin'
+          java-package: 'jre'
+          architecture: ${{ matrix.arch }}
 
-      # 安装jre MacOS X64
-      - name: Install Jre MacOS X64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
-        uses: actions/setup-java@main
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          java-package: "jre"
-
-      # 安装jre MacOS arm64
-      - name: Install Jre MacOS arm64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
-        uses: actions/setup-java@main
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          java-package: "jre"
-          architecture: "aarch64"
-
-      # 安装jre Linux
-      - name: Install Jre for Linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: actions/setup-java@main
-        with:
-          java-version: "17"
-          distribution: "temurin"
-          java-package: "jre"
-
-      # java.security 开放tls1 Windows
-      - name: Enable tls1
-        if: ${{ runner.os == 'Windows' }}
+      - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Windows 使用 Git Bash，其 sed 命令与 Linux 类似
+            sed -i "s/jdk.tls.disabledAlgorithms=.*TLSv1, TLSv1.1,/jdk.tls.disabledAlgorithms=/" "${JAVA_HOME}/conf/security/java.security"
+          else
+            # macOS 和 Linux 使用相同的 sed 语法
+            sed -i '' "s/jdk.tls.disabledAlgorithms=.*TLSv1, TLSv1.1,/jdk.tls.disabledAlgorithms=/" "${JAVA_HOME}/conf/security/java.security"
+          fi
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+        shell: bash 
 
-      # java.security 开放tls1 macOS
-      - name: Enable tls1
-        if: ${{ runner.os == 'macOS' }}
+      - name: Copy JRE to static directory
         run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
-
-      # java.security 开放tls1 Linux
-      - name: Enable tls1
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" ${{ env.JAVA_HOME }}/conf/security/java.security
-
-      # 复制jre Windows
-      - name: Copy Jre for Windows
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          mkdir chat2db-client/static
-          cp -r "${{ env.JAVA_HOME }}" chat2db-client/static/jre
-
-      # 复制jre macOS
-      - name: Copy Jre for macOS
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          mkdir chat2db-client/static
-          cp -r $JAVA_HOME chat2db-client/static/jre
-          chmod -R 777 chat2db-client/static/jre/
-
-      # 复制jre Linux
-      - name: Copy Jre for Linux
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          mkdir chat2db-client/static
-          cp -r $JAVA_HOME chat2db-client/static/jre
-          chmod -R 777 chat2db-client/static/jre/
-
-      # 安装node
+          mkdir -p chat2db-client/static/jre
+          cp -r "${JAVA_HOME}" chat2db-client/static/jre
+          if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
+            chmod -R 777 chat2db-client/static/jre
+          fi
+        shell: bash
+        env:
+          JAVA_HOME: ${{ runner.os == 'Windows' && env.JAVA_HOME }} || $JAVA_HOME
+      
       - name: Install Node.js
-        uses: actions/setup-node@main
+        uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: '16'
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
-      # 安装java
       - name: Install Java and Maven
-        uses: actions/setup-java@main
+        uses: actions/setup-java@v2
         with:
-          java-version: "17"
-          distribution: "temurin"
+          java-version: '17'
+          distribution: 'temurin'
           cache: "maven"
 
-      # 构建静态文件信息
-      - name: Yarn install & build & copy
+      - name: Build and Copy Artifacts
         run: |
           cd chat2db-client
           yarn install 
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
-
-      # 编译服务端java版本
-      - name: Build Java
-        run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
-
-      # touch versions
-      - name: touch versions
-        run: |
-          cd chat2db-client
-          mkdir versions
-          mkdir versions/99.0.${{ github.run_id }}
-          mkdir versions/99.0.${{ github.run_id }}/static
-          touch version
-          echo -n 99.0.${{ github.run_id }} > version
-          cp -r version ./versions/
-
-      # 复制服务端java 到指定位置
-      - name: Copy App
-        run: |
-          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
-      #    cp -r chat2db-server/chat2db-server-start/target/lib chat2db-client/versions/99.0.${{ github.run_id }}/static/lib
+          mvn clean package -B '-Dmaven.test.skip=true' -f ../chat2db-server/pom.xml
+          mkdir -p versions/99.0.${{ github.run_id }}/static
+          echo "99.0.${{ github.run_id }}" > versions/version
+          cp -r versions/version ./versions/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar versions/99.0.${{ github.run_id }}/static/
 
       - name: Prepare Build Electron
         run: |
@@ -164,109 +93,44 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
-      # windows
-      - name: Build/release Electron app for Windows
-        if: ${{ runner.os == 'Windows' }}
+      - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
-          skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.win.publisherName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --win --x64"
+          args: >
+            -c.appId=com.chat2db.test
+            -c.productName=Chat2DB-Test
+            -c.win.publisherName=Chat2DB-Test
+            -c.nsis.shortcutName=Chat2DB-Test
+            -c.extraMetadata.version=99.0.${{ github.run_id }}-Test
+            --${{ matrix.os }} ${{ matrix.arch }}
 
-      # macos x86_64
-      - name: Build/release Electron app for MacOS X64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          package_root: "chat2db-client/"
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
-          skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --mac --x64"
-
-      # x86_64 notarization
-      - name: Notarization x86_64 App
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
+      # Only for macOS x86_64
+      - name: Notarize MacOS x86_64 App
+        if: matrix.os == 'macos-latest' && matrix.arch == 'x86_64'
         run: |
-          xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
+          xcrun notarytool store-credentials "Chat2DB" --apple-id "${{ secrets.MAC_APPLE_ID }}" --password "${{ secrets.MAC_APPLE_PASSWORD }}" --team-id "${{ secrets.MAC_TEAM_ID }}"
           xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
-      
-      # macos arm64
-      - name: Build/release Electron app for MacOS arm64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          package_root: "chat2db-client/"
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
-          skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=Chat2DB-Test -c.nsis.shortcutName=Chat2DB-Test -c.extraMetadata.version=99.0.${{ github.run_id }}-Test --mac --arm64"
 
-      # arm notarization
-      - name: Notarization arm64 App
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
-        run: |
-          xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
-          xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg --keychain-profile "Chat2DB"
-
-      # Linux
-      - name: Delete File
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          cd chat2db-client/static/jre/
-          ls -la
-          rm -rf legal
-          ls -la
-
-      - name: Build/release Electron app for Linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          package_root: "chat2db-client/"
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          skip_build: true
-          args: "-c.appId=com.chat2db.test -c.productName=test -c.nsis.shortcutName=test -c.extraMetadata.version=99.1.${{ github.run_id }} --linux"
-
-      # 准备要需要的数据 Windows
-      - name: Prepare upload for Windows
-        if: runner.os == 'Windows'
-        run: |
-          mkdir oss_temp_file
-          cp -r chat2db-client/release/*Setup*.exe ./oss_temp_file
-
-      # 准备要需要的数据 MacOS x86_64
-      - name: Prepare upload for MacOS x86_64
+      # Jar包
+      - name: Prepare upload for Jar
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         run: |
-          mkdir oss_temp_file
+          mkdir -p oss_temp_file
           cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
           cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
           cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
           cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
           cd static/ && zip -r chat2db-server-start.zip ./ 
-          cp -r chat2db-server-start.zip ../../../../oss_temp_file
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file    
 
-      # 准备要需要的数据 MacOS arm64
-      - name: Prepare upload for MacOS arm64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
+      - name: Prepare upload for OSS
         run: |
-          mkdir oss_temp_file
-          cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          mkdir -p oss_temp_file
+          cp -r chat2db-client/release/*${{ matrix.file_extension }} ./oss_temp_file
 
-      # 准备要需要的数据 Linux
-      - name: Prepare upload for Linux
-        if: runner.os == 'Linux'
-        run: |
-          mkdir oss_temp_file
-          cp -r chat2db-client/release/*.AppImage ./oss_temp_file
-
-      # 把文件上传到OSS 方便下载
       - name: Set up oss utils
         uses: yizhoumo/setup-ossutil@v1
         with:
@@ -274,58 +138,18 @@ jobs:
           access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           ossutil-version: "1.7.16"
-      - name: Upload to oss
+
+      - name: Upload to OSS
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
 
-      # 构建完成通知
-      - name: Send dingtalk message for Windows
-        if: ${{ runner.os == 'Windows' }}
+      - name: Send dingtalk message
         uses: ghostoy/dingtalk-action@master
         with:
           webhook: ${{ secrets.DINGTALK_WEBHOOK }}
           msgtype: markdown
           content: |
             {
-              "title": "Windows-test-打包完成通知",
-              "text": "# Windows-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe) "
-            }
-
-      # 构建完成通知
-      - name: Send dingtalk message for MacOS x86_64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
-        uses: ghostoy/dingtalk-action@master
-        with:
-          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
-          msgtype: markdown
-          content: |
-            {
-              "title": "MacOS-x86_64-test-构建完成通知",
-              "text": "# MacOS-x86_64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
-            }
-
-      # 构建完成通知
-      - name: Send dingtalk message for MacOS arm64
-        if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
-        uses: ghostoy/dingtalk-action@master
-        with:
-          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
-          msgtype: markdown
-          content: |
-            {
-              "title": "MacOS-arm64-test-构建完成通知",
-              "text": "# MacOS-arm64-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg) "
-            }
-
-      # 构建完成通知
-      - name: Send dingtalk message for Linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: ghostoy/dingtalk-action@master
-        with:
-          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
-          msgtype: markdown
-          content: |
-            {
-              "title": "Linux-test-打包完成通知",
-              "text": "# Linux-test-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Linux下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage) "
+              "title": "${{ matrix.os }}-test-打包完成通知",
+              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }}](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }})"
             }
