@@ -12,15 +12,15 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            file_extension: '.exe'
+            file_extension: ".exe"
           - os: macos-latest
             arch: x86_64
-            file_extension: '.dmg'
+            file_extension: ".dmg"
           - os: macos-latest
             arch: arm64
-            file_extension: '.dmg'
+            file_extension: ".dmg"
           - os: ubuntu-latest
-            file_extension: '.AppImage'
+            file_extension: ".AppImage"
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -30,47 +30,46 @@ jobs:
       - name: Install JRE
         uses: actions/setup-java@main
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          java-package: 'jre'
+          java-version: "17"
+          distribution: "temurin"
+          java-package: "jre"
           architecture: ${{ matrix.arch }}
 
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            # Windows 使用 Git Bash，其 sed 命令与 Linux 类似
-            sed -i "s/jdk.tls.disabledAlgorithms=.*TLSv1, TLSv1.1,/jdk.tls.disabledAlgorithms=/" "${JAVA_HOME}/conf/security/java.security"
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+          elseif [[ "${{ runner.os }}" == "Linux" ]]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           else
-            # macOS 和 Linux 使用相同的 sed 语法
-            sed -i '' "s/jdk.tls.disabledAlgorithms=.*TLSv1, TLSv1.1,/jdk.tls.disabledAlgorithms=/" "${JAVA_HOME}/conf/security/java.security"
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           fi
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
-        shell: bash 
+        shell: bash
 
       - name: Copy JRE to static directory
         run: |
           mkdir -p chat2db-client/static/jre
           cp -r "${JAVA_HOME}" chat2db-client/static/jre
-          if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
+          if [[ "${{ runner.os }}" != "Windows" ]]; then
             chmod -R 777 chat2db-client/static/jre
           fi
-        shell: bash
         env:
           JAVA_HOME: ${{ runner.os == 'Windows' && env.JAVA_HOME }} || $JAVA_HOME
-      
+
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
-          node-version: '16'
+          node-version: "16"
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
           cache: "maven"
 
       - name: Build and Copy Artifacts
@@ -124,7 +123,7 @@ jobs:
           cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
           cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
           cd static/ && zip -r chat2db-server-start.zip ./ 
-          cp -r chat2db-server-start.zip ../../../../oss_temp_file    
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
       - name: Prepare upload for OSS
         run: |
