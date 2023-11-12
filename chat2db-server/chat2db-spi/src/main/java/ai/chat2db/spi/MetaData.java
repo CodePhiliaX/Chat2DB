@@ -206,4 +206,12 @@ public interface MetaData {
      */
     String getMetaDataName(String ...names);
 
+
+    /**
+     * Get column builder.
+     *
+     * @return
+     */
+    ValueHandler getValueHandler();
+
 }

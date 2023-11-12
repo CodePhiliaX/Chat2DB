@@ -74,5 +74,10 @@
             <artifactId>jsqlparser</artifactId>
             <version>4.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.locationtech.jts</groupId>
+            <artifactId>jts-core</artifactId>
+            <version>1.18.1</version> <!-- 确保使用最新的版本 -->
+        </dependency>
     </dependencies>
 </project>

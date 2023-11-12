@@ -7,6 +7,8 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
@@ -53,9 +55,10 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
 
     private static final String SELECT_TABLE_INDEX = "SELECT tmp.INDISPRIMARY AS Index_primary, tmp.TABLE_SCHEM, tmp.TABLE_NAME, tmp.NON_UNIQUE, tmp.INDEX_QUALIFIER, tmp.INDEX_NAME AS Key_name, tmp.indisclustered, tmp.ORDINAL_POSITION AS Seq_in_index, trim(BOTH '\"' FROM sys_get_indexdef( tmp.CI_OID, tmp.ORDINAL_POSITION, FALSE) ) AS Column_name, CASE tmp.AM_NAME WHEN 'btree' THEN CASE tmp.I_INDOPTION [ tmp.ORDINAL_POSITION - 1 ] & 1 :: SMALLINT WHEN 1 THEN 'D' ELSE'A' END ELSE NULL END AS Collation, tmp.CARDINALITY, tmp.PAGES, tmp.FILTER_CONDITION , tmp.AM_NAME AS Index_method, tmp.DESCRIPTION AS Index_comment FROM ( SELECT n.nspname AS TABLE_SCHEM, ct.relname AS TABLE_NAME, NOT i.indisunique AS NON_UNIQUE, NULL AS INDEX_QUALIFIER, ci.relname AS INDEX_NAME, i.INDISPRIMARY , i.indisclustered , ( information_schema._sys_expandarray ( i.indkey ) ).n AS ORDINAL_POSITION, ci.reltuples AS CARDINALITY, ci.relpages AS PAGES, sys_get_expr ( i.indpred, i.indrelid ) AS FILTER_CONDITION, ci.OID AS CI_OID, i.indoption AS I_INDOPTION, am.amname AS AM_NAME , d.description FROM sys_class ct JOIN sys_namespace n ON ( ct.relnamespace = n.OID ) JOIN sys_index i ON ( ct.OID = i.indrelid ) JOIN sys_class ci ON ( ci.OID = i.indexrelid ) JOIN sys_am am ON ( ci.relam = am.OID ) left outer join sys_description d on i.indexrelid = d.objoid WHERE n.nspname = '%s' AND ct.relname = '%s' ) AS tmp";
 
+    private static final String SELECT_TABLE_INDEX_8R6 = "SELECT tmp.INDISPRIMARY AS Index_primary, tmp.TABLE_SCHEM, tmp.TABLE_NAME, tmp.NON_UNIQUE, tmp.INDEX_QUALIFIER, tmp.INDEX_NAME AS Key_name, tmp.indisclustered, tmp.ORDINAL_POSITION AS Seq_in_index, trim(BOTH '\"' FROM sys_get_indexdef( tmp.CI_OID, tmp.ORDINAL_POSITION, FALSE) ) AS Column_name, CASE tmp.AM_NAME WHEN 'btree' THEN CASE tmp.I_INDOPTION [ tmp.ORDINAL_POSITION - 1 ] & 1 :: SMALLINT WHEN 1 THEN 'D' ELSE'A' END ELSE NULL END AS Collation, tmp.CARDINALITY, tmp.PAGES, tmp.FILTER_CONDITION , tmp.AM_NAME AS Index_method, tmp.DESCRIPTION AS Index_comment FROM ( SELECT n.nspname AS TABLE_SCHEM, ct.relname AS TABLE_NAME, NOT i.indisunique AS NON_UNIQUE, NULL AS INDEX_QUALIFIER, ci.relname AS INDEX_NAME, i.INDISPRIMARY , i.indisclustered , ( information_schema._pg_expandarray ( i.indkey ) ).n AS ORDINAL_POSITION, ci.reltuples AS CARDINALITY, ci.relpages AS PAGES, sys_get_expr ( i.indpred, i.indrelid ) AS FILTER_CONDITION, ci.OID AS CI_OID, i.indoption AS I_INDOPTION, am.amname AS AM_NAME , d.description FROM sys_class ct JOIN sys_namespace n ON ( ct.relnamespace = n.OID ) JOIN sys_index i ON ( ct.OID = i.indrelid ) JOIN sys_class ci ON ( ci.OID = i.indexrelid ) JOIN sys_am am ON ( ci.relam = am.OID ) left outer join sys_description d on i.indexrelid = d.objoid WHERE n.nspname = '%s' AND ct.relname = '%s' ) AS tmp";
+
     @Override
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
-
         String constraintSql = String.format(SELECT_KEY_INDEX, schemaName, tableName);
         Map<String, String> constraintMap = new HashMap();
         LinkedHashMap<String, TableIndex> foreignMap = new LinkedHashMap();
@@ -85,8 +88,11 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
             }
             return null;
         });
-
+        String version = getDbVersion();
         String sql = String.format(SELECT_TABLE_INDEX, schemaName, tableName);
+        if(version.startsWith("12.")|| version.startsWith("9.")) {
+            sql = String.format(SELECT_TABLE_INDEX_8R6, schemaName, tableName);
+        }
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             LinkedHashMap<String, TableIndex> map = new LinkedHashMap(foreignMap);
 
@@ -124,7 +130,14 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
             }
             return map.values().stream().collect(Collectors.toList());
         });
+    }
 
+    private String getDbVersion(){
+        String version = Chat2DBContext.getDbVersion();
+        if(StringUtils.isNotBlank(version)){
+            return version;
+        }
+        return "";
     }
 
     private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
