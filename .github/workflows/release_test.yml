@@ -11,14 +11,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: windows-latest
-          #   file_extension: ".exe"
-          # - os: macos-latest
-          #   arch: x86_64
-          #   file_extension: ".dmg"
-          # - os: macos-latest
-          #   arch: arm64
-          #   file_extension: ".dmg"
+          - os: windows-latest
+            file_extension: ".exe"
+          - os: macos-latest
+            arch: x86_64
+            file_extension: ".dmg"
+          - os: macos-latest
+            arch: arm64
+            file_extension: ".dmg"
           - os: ubuntu-latest
             file_extension: ".AppImage"
     runs-on: ${{ matrix.os }}
@@ -75,23 +75,19 @@ jobs:
       - name: Cache Yarn dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/build-state.yml
-            .yarn/install-state.gz
+          path: '**/node_modules'
           key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             yarn-${{ runner.os }}-
-            yarn-
   
       - name: Build FE Static
         run: |
           cd chat2db-client
-          yarn install 
+          yarn install --frozen-lockfile
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
+
           
       - name: Build BE Static
         run: |
@@ -107,6 +103,15 @@ jobs:
           yarn run build:web:desktop --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
+
+      # Linux
+      - name: Delete File
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
