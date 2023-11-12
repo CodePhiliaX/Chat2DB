@@ -204,3 +204,16 @@ jobs:
               "title": "${{ matrix.os }}-test-打包完成通知",
               "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }}](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }})"
             }
+     
+      # 发送Jar包地址到DingTalk
+      - if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
+        name: Send dingtalk message
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "Jar-test-构建完成通知",
+              "text": "### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
+            }
