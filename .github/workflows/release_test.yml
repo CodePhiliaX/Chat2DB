@@ -42,7 +42,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           java-package: "jre"
-          architecture: ${{ matrix.arch == 'arm64' && 'aarch64' || 'x64' }}
+          # architecture: ${{ matrix.arch == 'arm64' && 'aarch64' || 'x64' }}
 
       # 开放TLS
       - name: Enable TLS 1.0 and 1.1 in java.security
