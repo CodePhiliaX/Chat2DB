@@ -75,7 +75,7 @@ jobs:
       - if: ${{ runner.os == 'Linux' }}
         name: Delete File on Linux
         run: |
-          cd chat2db-client/static/jre/x64/
+          cd chat2db-client/static/jre/
           ls -la
           rm -rf legal
           ls -la
