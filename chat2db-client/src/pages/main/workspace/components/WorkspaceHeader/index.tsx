@@ -9,7 +9,7 @@ import { IWorkspaceModelType } from '@/models/workspace';
 import { IMainPageType } from '@/models/mainPage';
 import { Cascader, Spin, Modal, Tag, Divider, ConfigProvider, Input } from 'antd';
 import { databaseMap, TreeNodeType, DatabaseTypeCode } from '@/constants';
-import { treeConfig } from '../Tree/treeConfig';
+import { treeConfig } from '../../../../../blocks/Tree/treeConfig';
 import { useUpdateEffect } from '@/hooks/useUpdateEffect';
 import styles from './index.less';
 import i18n from '@/i18n';

@@ -1,27 +1,31 @@
 import React, { memo, useMemo, useRef, useState } from 'react';
 import { message, Modal, Input, Dropdown, notification } from 'antd';
-import classnames from 'classnames';
+// import classnames from 'classnames';
 import i18n from '@/i18n';
 import styles from './index.less';
-import Iconfont from '@/components/Iconfont';
-import { TreeNodeType, CreateTabIntroType, WorkspaceTabType, OperationColumn } from '@/constants';
-import { ITreeConfigItem, treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
-import { ITreeNode } from '@/typings';
-import connectionServer from '@/service/connection';
-import mysqlServer from '@/service/sql';
+
+// ----- components -----
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
-import { ICurWorkspaceParams } from '@/models/workspace';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
+import MenuLabel from '@/components/MenuLabel';
+
+// ----- constants -----
+import { TreeNodeType, OperationColumn } from '@/constants';
+import { ITreeNode } from '@/typings';
+
+// ----- service -----
+import connectionServer from '@/service/connection';
+// import mysqlServer from '@/service/sql';
+
+// ----- config -----
+import { ITreeConfigItem, treeConfig } from '../treeConfig';
 
 export type IProps = {
   className?: string;
-  setIsLoading: (value: boolean) => void;
+  // setIsLoading: (value: boolean) => void;
   data: ITreeNode;
-  dispatch: any;
-  curWorkspaceParams: ICurWorkspaceParams;
-  children?: any;
-  trigger?: any;
+  children?: React.ReactNode;
 };
 
 export interface IOperationColumnConfigItem {
@@ -31,19 +35,24 @@ export interface IOperationColumnConfigItem {
 }
 
 function TreeNodeRightClick(props: IProps) {
-  const { className, data, setIsLoading, dispatch, curWorkspaceParams, children } = props;
+  const { data } = props;
   const [verifyDialog, setVerifyDialog] = useState<boolean>();
   const [verifyTableName, setVerifyTableName] = useState<string>('');
-  const [modalApi, modelDom] = Modal.useModal();
-  const [notificationApi, notificationDom] = notification.useNotification();
+  const [, modelDom] = Modal.useModal();
+  const [, notificationDom] = notification.useNotification();
+  // 拿出当前节点的配置
   const treeNodeConfig: ITreeConfigItem = treeConfig[data.treeNodeType];
   const { getChildren, operationColumn } = treeNodeConfig;
+
   const [monacoVerifyDialog, setMonacoVerifyDialog] = useState(false);
+
   const dataSourceFormConfig = dataSourceFormConfigs.find((t: IConnectionConfig) => {
     return t.type === data.extraParams?.databaseType;
   })!;
+  
   const monacoEditorRef = useRef<IExportRefFunction>(null);
-  const OperationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
+  
+  const operationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
     [OperationColumn.Refresh]: () => {
       return {
         text: i18n('common.button.refresh'),
@@ -67,26 +76,26 @@ function TreeNodeRightClick(props: IProps) {
         text: i18n('workspace.menu.ViewDDL'),
         icon: '\ue665',
         handle: () => {
-          mysqlServer
-            .exportCreateTableSql({
-              ...curWorkspaceParams,
-              tableName: data.key,
-            } as any)
-            .then((res) => {
-              setMonacoVerifyDialog(true);
-              setTimeout(() => {
-                monacoEditorRef.current?.setValue(res, 'cover');
-              }, 0);
-            });
+          // mysqlServer
+          //   .exportCreateTableSql({
+          //     ...curWorkspaceParams,
+          //     tableName: data.key,
+          //   } as any)
+          //   .then((res) => {
+          //     setMonacoVerifyDialog(true);
+          //     setTimeout(() => {
+          //       monacoEditorRef.current?.setValue(res, 'cover');
+          //     }, 0);
+          //   });
         },
       };
     },
-    [OperationColumn.ShiftOut]: (data) => {
+    [OperationColumn.ShiftOut]: (_data) => {
       return {
         text: '移出',
         icon: '\ue62a',
         handle: () => {
-          connectionServer.remove({ id: +data.key }).then(() => {
+          connectionServer.remove({ id: +_data.key }).then(() => {
             treeConfig[TreeNodeType.DATA_SOURCES]?.getChildren!({} as any).then(() => {
               // setTreeData(res);
             });
@@ -94,15 +103,15 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.CreateTable]: (data) => {
+    [OperationColumn.CreateTable]: () => {
       return {
         text: '新建表',
         icon: '\ue6b6',
         handle: () => {
-          const operationData = {
-            type: 'new',
-            nodeData: data,
-          };
+          // const operationData = {
+          //   type: 'new',
+          //   nodeData: _data,
+          // };
           // setOperationDataDialog(operationData)
         },
       };
@@ -123,22 +132,22 @@ function TreeNodeRightClick(props: IProps) {
         },
       };
     },
-    [OperationColumn.EditTable]: (data) => {
+    [OperationColumn.EditTable]: () => {
       return {
         text: i18n('workspace.menu.editTable'),
         icon: '\ue602',
         handle: () => {
-          dispatch({
-            type: 'workspace/setCreateTabIntro',
-            payload: {
-              type: CreateTabIntroType.EditorTable,
-              workspaceTabType: WorkspaceTabType.EditTable,
-              treeNodeData: {
-                ...data,
-                name: data.key,
-              },
-            },
-          });
+          // dispatch({
+          //   type: 'workspace/setCreateTabIntro',
+          //   payload: {
+          //     type: CreateTabIntroType.EditorTable,
+          //     workspaceTabType: WorkspaceTabType.EditTable,
+          //     treeNodeData: {
+          //       ...data,
+          //       name: data.key,
+          //     },
+          //   },
+          // });
         },
       };
     },
@@ -173,27 +182,27 @@ function TreeNodeRightClick(props: IProps) {
   };
 
   function handleTop() {
-    const api = data.pinned ? 'deleteTablePin' : 'addTablePin';
-    mysqlServer[api]({
-      ...curWorkspaceParams,
-      tableName: data.key,
-    } as any).then(() => {
-      dispatch({
-        type: 'workspace/fetchGetCurTableList',
-        payload: {
-          ...curWorkspaceParams,
-          extraParams: curWorkspaceParams,
-          refresh: true,
-        },
-        callback: () => {
-          message.success(i18n('common.text.submittedSuccessfully'));
-        },
-      });
-    });
+    // const api = data.pinned ? 'deleteTablePin' : 'addTablePin';
+    // mysqlServer[api]({
+    //   ...curWorkspaceParams,
+    //   tableName: data.key,
+    // } as any).then(() => {
+    //   dispatch({
+    //     type: 'workspace/fetchGetCurTableList',
+    //     payload: {
+    //       ...curWorkspaceParams,
+    //       extraParams: curWorkspaceParams,
+    //       refresh: true,
+    //     },
+    //     callback: () => {
+    //       message.success(i18n('common.text.submittedSuccessfully'));
+    //     },
+    //   });
+    // });
   }
 
   function refresh() {
-    setIsLoading(true);
+    // setIsLoading(true);
     const params = {
       ...data.extraParams,
       extraParams:{
@@ -205,55 +214,51 @@ function TreeNodeRightClick(props: IProps) {
       data.children = res as any;
     })
     .finally(() => {
-      setIsLoading(false);
+      // setIsLoading(false);
     })
   }
 
   function openEditTableData() {
-    const payload = {
-      type: CreateTabIntroType.EditTableData,
-      workspaceTabType: WorkspaceTabType.EditTableData,
-      treeNodeData: {
-        ...data,
-        name: data.key,
-      },
-    };
-    dispatch({
-      type: 'workspace/setCreateTabIntro',
-      payload,
-    });
+    // const payload = {
+    //   type: CreateTabIntroType.EditTableData,
+    //   workspaceTabType: WorkspaceTabType.EditTableData,
+    //   treeNodeData: {
+    //     ...data,
+    //     name: data.key,
+    //   },
+    // };
+    // dispatch({
+    //   type: 'workspace/setCreateTabIntro',
+    //   payload,
+    // });
   }
 
   function handleOk() {
     if (verifyTableName === data.key) {
-      const p: any = {
-        ...data.extraParams,
-        tableName: data.key,
-      };
-      mysqlServer.deleteTable(p).then(() => {
-        // notificationApi.success(
-        //   {
-        //     message: i18n('common.text.successfullyDelete'),
-        //   }
-        // )
-        message.success(i18n('common.text.successfullyDelete'));
-        dispatch({
-          type: 'workspace/fetchGetCurTableList',
-          payload: {
-            ...curWorkspaceParams,
-            extraParams: curWorkspaceParams,
-          },
-          callback: () => {
-            setVerifyDialog(false);
-            setVerifyTableName('');
-          },
-        });
-      });
+      // const p: any = {
+      //   ...data.extraParams,
+      //   tableName: data.key,
+      // };
+      // mysqlServer.deleteTable(p).then(() => {
+      //   message.success(i18n('common.text.successfullyDelete'));
+      //   dispatch({
+      //     type: 'workspace/fetchGetCurTableList',
+      //     payload: {
+      //       ...curWorkspaceParams,
+      //       extraParams: curWorkspaceParams,
+      //     },
+      //     callback: () => {
+      //       setVerifyDialog(false);
+      //       setVerifyTableName('');
+      //     },
+      //   });
+      // });
     } else {
       message.error(i18n('workspace.tips.affirmDeleteTable'));
     }
   }
 
+  // 有些数据库不支持的操作，需要排除掉
   function excludeSomeOperation() {
     const excludes = dataSourceFormConfig.baseInfo.excludes;
     const newOperationColumn: OperationColumn[] = [];
@@ -274,15 +279,10 @@ function TreeNodeRightClick(props: IProps) {
   const dropdowns = useMemo(() => {
     if (dataSourceFormConfig) {
       return excludeSomeOperation().map((t, i) => {
-        const concrete = OperationColumnConfig[t](data);
+        const concrete = operationColumnConfig[t](data);
         return {
           key: i,
-          label: (
-            <div className={classnames(styles.operationItem)}>
-              <Iconfont className={styles.operationIcon} code={concrete?.icon} />
-              <div className={styles.operationTitle}>{concrete.text}</div>
-            </div>
-          ),
+          label: <MenuLabel icon={concrete?.icon} label={concrete.text} />,
           onClick: concrete.handle,
         };
       });
@@ -294,22 +294,6 @@ function TreeNodeRightClick(props: IProps) {
     <>
       {modelDom}
       {notificationDom}
-      <Dropdown
-        overlayStyle={{
-          zIndex: 1080,
-        }}
-        className={className}
-        menu={{
-          items: dropdowns,
-        }}
-        trigger={props.trigger || ['hover']}
-      >
-        {children || (
-          <div>
-            <Iconfont code="&#xe601;" />
-          </div>
-        )}
-      </Dropdown>
       <Modal
         maskClosable={false}
         title={`${i18n('workspace.menu.deleteTable')}-${data.key}`}

@@ -35,24 +35,6 @@ const SQLExecute = memo<IProps>((props) => {
   const searchResultRef = useRef<ISearchResultRef>(null);
   const consoleRef = useRef<IConsoleRef>(null);
 
-  // useEffect(() => {
-  //   if (!doubleClickTreeNodeData) {
-  //     return;
-  //   }
-  //   if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
-  //     const { extraParams } = doubleClickTreeNodeData;
-  //     const { tableName } = extraParams || {};
-  //     const ddl = `SELECT * FROM ${tableName};\n`;
-  //     if (isActive) {
-  //       setAppendValue({ text: ddl });
-  //     }
-  //   }
-  //   dispatch({
-  //     type: 'workspace/setDoubleClickTreeNodeData',
-  //     payload: '',
-  //   });
-  // }, [doubleClickTreeNodeData]);
-
   useUpdateEffect(() => {
     consoleRef.current?.editorRef?.setValue(data.initDDL, 'cover');
   }, [data.initDDL]);

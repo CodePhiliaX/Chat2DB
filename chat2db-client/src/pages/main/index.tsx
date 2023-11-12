@@ -7,16 +7,18 @@ import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
 
+import i18n from '@/i18n';
 import { findObjListValue } from '@/utils';
 import { getUser, userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
 import { ILoginUser, IRole } from '@/typings/user';
-import i18n from '@/i18n';
 
 // ----- model -----
 import { IMainPageType } from '@/models/mainPage';
 import { IWorkspaceModelType } from '@/models/workspace';
-import { IConnectionModelType } from '@/models/connection';
+
+// ----- hooks -----
+import useGetConnection from '@/hooks/useGetConnection';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -66,7 +68,6 @@ const navConfig: INavItem[] = [
 interface IProps {
   mainModel: IMainPageType['state'];
   workspaceModel: IWorkspaceModelType['state'];
-  connectionModel: IConnectionModelType['state'];
   dispatch: any;
 }
 
@@ -76,18 +77,11 @@ function MainPage(props: IProps) {
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem | null>(null);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
+  // 获取当前连接
+  useGetConnection();
 
   useEffect(() => {
     handleInitPage();
-  }, []);
-
-  useEffect(() => {
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
-    dispatch({
-      type: 'connection/fetchConnectionEnvList',
-    });
   }, []);
 
   useEffect(() => {
@@ -243,14 +237,11 @@ export default connect(
   ({
     mainPage,
     workspace,
-    connection,
   }: {
     mainPage: IMainPageType;
     workspace: IWorkspaceModelType;
-    connection: IConnectionModelType;
   }) => ({
     mainModel: mainPage,
     workspaceModel: workspace,
-    connectionModel: connection,
   }),
 )(MainPage);

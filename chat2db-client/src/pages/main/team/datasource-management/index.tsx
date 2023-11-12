@@ -24,7 +24,7 @@ function DataSourceManagement() {
     // pageSizeOptions: ['10', '20', '30', '40'],
   });
   const [showCreateConnection, setShowCreateConnection] = useState(false)
-  const connectionInfo = useRef<IConnectionDetails>();
+  const connectionInfo = useRef<IConnectionDetails>(null);
 
   const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type: AffiliationType; id?: number }>({
     open: false,
@@ -108,7 +108,7 @@ function DataSourceManagement() {
   };
 
   const handleAddDataSource = () => {
-    connectionInfo.current = undefined;
+    connectionInfo.current = null;
     setShowCreateConnection(true);
   }
 

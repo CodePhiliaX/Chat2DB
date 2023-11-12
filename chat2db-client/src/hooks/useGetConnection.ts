@@ -1,0 +1,56 @@
+import { useEffect } from 'react';
+import connectionService from '@/service/connection';
+
+import { useConnectionStore } from '@/store/connection';
+import { useWorkspaceStore } from '@/store/workspace';
+
+const useGetConnection = () => {
+  const { setConnectionEnvList, getConnectionList } = useConnectionStore((state) => {
+    return {
+      setConnectionEnvList: state.setConnectionEnvList,
+      getConnectionList: state.getConnectionList,
+    };
+  });
+
+  const { currentConnectionDetails, setCurrentConnectionDetails } = useWorkspaceStore((state) => {
+    return {
+      currentConnectionDetails: state.currentConnectionDetails,
+      setCurrentConnectionDetails: state.setCurrentConnectionDetails,
+    };
+  });
+
+
+  const getConnectionEnvList = () => {
+    connectionService.getEnvList().then((res) => {
+      setConnectionEnvList(res);
+    });
+  };
+
+  // 获取连接列表，获取连接环境列表
+  useEffect(() => {
+    getConnectionList().then((res) => {
+      // 如果连接列表为空，则设置当前连接为空
+      if(res.length === 0){
+        setCurrentConnectionDetails(null);
+        return;
+      }
+      // 如果当前连接不存在，则设置当前连接为第一个连接
+      if (!currentConnectionDetails?.id) {
+        setCurrentConnectionDetails(res[0]);
+        return;
+      }
+      // 如果存在但是不在列表中，则设置当前连接为第一个连接
+      const currentConnection = res.find((item) => item.id === currentConnectionDetails?.id);
+      if (!currentConnection) {
+        setCurrentConnectionDetails(res[0]);
+      }
+    });
+    getConnectionEnvList();
+  }, []);
+
+  return {
+    getConnectionList,
+  };
+};
+
+export default useGetConnection;

@@ -1,19 +1,31 @@
-import { IPageResponse, IConnectionDetails, IConnectionEnv } from '@/typings';
-import { DatabaseTypeCode, ConnectionKind } from '@/constants';
+import { IPageResponse, IConnectionDetails, IConnectionEnv, IPageParams } from '@/typings';
+import { DatabaseTypeCode } from '@/constants';
 import createRequest from './base';
 
-export interface IGetConnectionParams {
-  searchKey?: string;
-  pageNo: number;
-  pageSize: number;
-  refresh?: boolean;
-  kind?: ConnectionKind;
+export interface IDriverResponse {
+  driverConfigList: {
+    jdbcDriver: string;
+    jdbcDriverClass: string;
+  }[];
+  defaultDriverConfig: {
+    jdbcDriverClass: string;
+  };
+}
+
+interface IDriverParams {
+  dbType: DatabaseTypeCode;
+}
+
+interface IUploadDriver {
+  multipartFiles: any;
+  jdbcDriverClass: string;
+  dbType: string;
 }
 
 /**
  * 查询连接列表
  */
-const getList = createRequest<IGetConnectionParams, IPageResponse<IConnectionDetails>>(
+const getList = createRequest<IPageParams, IPageResponse<IConnectionDetails>>(
   '/api/connection/datasource/list',
   {},
 );
@@ -50,26 +62,6 @@ const getSchemaList = createRequest<{ dataSourceId: number; databaseName: string
   '/api/rdb/schema/list',
   { method: 'get' },
 );
-
-export interface IDriverResponse {
-  driverConfigList: {
-    jdbcDriver: string;
-    jdbcDriverClass: string;
-  }[];
-  defaultDriverConfig: {
-    jdbcDriverClass: string;
-  };
-}
-
-interface IDriverParams {
-  dbType: DatabaseTypeCode;
-}
-
-interface IUploadDriver {
-  multipartFiles: any;
-  jdbcDriverClass: string;
-  dbType: string;
-}
 
 const getDriverList = createRequest<IDriverParams, IDriverResponse>('/api/jdbc/driver/list', {
   errorLevel: false,

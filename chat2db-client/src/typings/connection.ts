@@ -1,22 +1,40 @@
-import { DatabaseTypeCode, ConnectionEnv } from '@/constants';
+import { DatabaseTypeCode } from '@/constants';
 
+// 连接 高级配置列表的信息
 export interface IConnectionExtendInfoItem {
   key: string;
   value: string;
 }
 
+// 连接的环境信息
+export interface IConnectionEnv {
+  id: number;
+  name: string;
+  shortName: string;
+  color: string;
+}
+
+// 连接列表的信息
+export interface IConnectionListItem {
+  id: number;
+  alias: string;
+  environment: IConnectionEnv;
+  type: DatabaseTypeCode;
+}
+
+
 export interface IConnectionDetails {
   id: number;
   alias: string;
+  environment: IConnectionEnv;
+  type: DatabaseTypeCode;
+
   url: string;
   user: string;
   password: string;
-  type: DatabaseTypeCode;
   ConsoleOpenedStatus: 'y' | 'n';
-  EnvType: ConnectionEnv;
   extendInfo: IConnectionExtendInfoItem[];
   environmentId: number;
-  environment: IConnectionEnv,
   ssh: any;
   driverConfig: {
     jdbcDriver: string;
@@ -27,10 +45,3 @@ export interface IConnectionDetails {
 
 export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>
 
-// Connected environment
-export interface IConnectionEnv {
-  id: number;
-  name: string;
-  shortName: string;
-  color: string;
-}

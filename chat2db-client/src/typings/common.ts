@@ -14,6 +14,7 @@ export interface IPageParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
+  refresh?: boolean;
 }
 
 export interface IPagingData {

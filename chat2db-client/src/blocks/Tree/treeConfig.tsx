@@ -1,8 +1,8 @@
-import { ITreeNode, IPagingData } from '@/typings';
+import { ITreeNode, IConnectionDetails } from '@/typings';
 import { TreeNodeType, OperationColumn } from '@/constants';
 import connectionService from '@/service/connection';
 
-import mysqlServer, { ISchemaParams, ITableParams } from '@/service/sql';
+import mysqlServer from '@/service/sql';
 
 export type ITreeConfig = Partial<{ [key in TreeNodeType]: ITreeConfigItem }>;
 
@@ -17,7 +17,8 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
     icon: '\ue63e',
   },
   [TreeNodeType.TABLES]: {
-    icon: '\ueac5',
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
   },
   [TreeNodeType.COLUMNS]: {
     icon: '\ueabe',
@@ -52,31 +53,37 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
   },
+  [TreeNodeType.VIEWCOLUMNS]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
+  [TreeNodeType.VIEWCOLUMN]: {
+    icon: '\ue647',
+  },
+  [TreeNodeType.FUNCTIONS]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
+  [TreeNodeType.PROCEDURES]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
+  [TreeNodeType.TRIGGERS]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
+  [TreeNodeType.VIEWS]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
 };
-
-// export enum OperationColumn {
-//   Refresh = 'refresh',
-//   ShiftOut = 'shiftOut',
-//   CreateTable = 'createTable',
-//   CreateConsole = 'createConsole',
-//   DeleteTable = 'deleteTable',
-//   ViewDDL = 'viewDDL',
-//   EditSource = 'editSource',
-//   Top = 'top',
-//   EditTable = 'editTable',
-// }
 
 export interface ITreeConfigItem {
   icon?: string;
   getChildren?: (
     params: any,
     options?: any,
-  ) => Promise<
-    | ITreeNode[]
-    | ({
-        data: ITreeNode[];
-      } & IPagingData)
-  >;
+  ) => Promise<ITreeNode[]>;
   next?: TreeNodeType;
   operationColumn?: OperationColumn[];
 }
@@ -85,16 +92,16 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.DATA_SOURCES]: {
     getChildren: () => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
-        let p = {
+        const p = {
           pageNo: 1,
           pageSize: 1000,
         };
         connectionService
           .getList(p)
           .then((res) => {
-            const data: ITreeNode[] = res.data.map((t) => {
+            const data: ITreeNode[] = res.data.map((t: IConnectionDetails) => {
               return {
-                key: t.id!,
+                key: t.id,
                 name: t.alias,
                 treeNodeType: TreeNodeType.DATA_SOURCE,
                 extraParams: {
@@ -106,17 +113,22 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(data);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
     },
   },
+
   [TreeNodeType.DATA_SOURCE]: {
-    getChildren: (params) => {
-      const _extraParams = params.extraParams;
-      delete params.extraParams;
-      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+    getChildren: (params: { 
+      dataSourceId: number; 
+      dataSourceName: string;
+      extraParams: any
+    }) => {
+      return new Promise((r, j) => {
+        const _extraParams = params.extraParams;
+        delete params.extraParams;
         connectionService
           .getDBList(params)
           .then((res) => {
@@ -133,7 +145,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(data);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
@@ -141,10 +153,11 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     operationColumn: [OperationColumn.EditSource, OperationColumn.Refresh, OperationColumn.ShiftOut],
     next: TreeNodeType.DATABASE,
   },
+
   [TreeNodeType.DATABASE]: {
     icon: '\ue62c',
     getChildren: (params) => {
-      // const _extraParams = params.extraParams;
+      const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[], b?: any) => void, j) => {
         connectionService
@@ -156,11 +169,15 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 name: t.name,
                 treeNodeType: TreeNodeType.SCHEMAS,
                 schemaName: t.name,
+                extraParams: {
+                  ..._extraParams,
+                  schemaName: t.name,
+                }
               };
             });
             r(data);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
@@ -168,15 +185,43 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     operationColumn: [OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh],
     next: TreeNodeType.SCHEMAS,
   },
+
   [TreeNodeType.SCHEMAS]: {
     icon: '\ue696',
     getChildren: (parentData: ITreeNode) => {
-      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+      const {dataSourceId,databaseName,schemaName} =  parentData.extraParams!
+      const preCode = [dataSourceId,databaseName,schemaName].join('-')
+      return new Promise((r: (value: ITreeNode[]) => void) => {
         const data = [
           {
-            key: parentData.name + 'tables',
+            key: `${preCode}-tables`,
             name: 'tables',
             treeNodeType: TreeNodeType.TABLES,
+            extraParams: parentData.extraParams
+          },
+          {
+            key: `${preCode}-views`,
+            name: 'view',
+            treeNodeType: TreeNodeType.VIEWS,
+            extraParams: parentData.extraParams
+          },
+          {
+            key: `${preCode}-functions`,
+            name: 'functions',
+            treeNodeType: TreeNodeType.FUNCTIONS,
+            extraParams: parentData.extraParams
+          },
+          {
+            key: `${preCode}-procedures`,
+            name: 'procedures',
+            treeNodeType: TreeNodeType.PROCEDURES,
+            extraParams: parentData.extraParams
+          },
+          {
+            key: `${preCode}-triggers`,
+            name: 'triggers',
+            treeNodeType: TreeNodeType.TRIGGERS,
+            extraParams: parentData.extraParams
           },
         ];
         r(data);
@@ -207,12 +252,13 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 },
               };
             });
-            r({
-              data: tableList,
-              pageNo: res.pageNo,
-              pageSize: res.pageSize,
-              total: res.total,
-            });
+            r(tableList);
+            // {
+            //   data: tableList,
+            //   pageNo: res.pageNo,
+            //   pageSize: res.pageSize,
+            //   total: res.total,
+            // }
           })
           .catch((error) => {
             j(error);
@@ -225,24 +271,26 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.TABLE]: {
     icon: '\ue63e',
     getChildren: (params) => {
-      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+      return new Promise((r: (value: ITreeNode[]) => void) => {
+        const {dataSourceId,databaseName,schemaName,tableName} =  params.extraParams!
+        const preCode = [dataSourceId,databaseName,schemaName,tableName].join('-')
         const list = [
           {
+            key: `${preCode}-columns`,
             name: 'columns',
             treeNodeType: TreeNodeType.COLUMNS,
-            key: 'columns',
             extraParams: params.extraParams,
           },
           {
+            key: `${preCode}-keys`,
             name: 'keys',
             treeNodeType: TreeNodeType.KEYS,
-            key: 'keys',
             extraParams: params.extraParams,
           },
           {
+            key: `${preCode}-indexs`,
             name: 'indexs',
             treeNodeType: TreeNodeType.INDEXES,
-            key: 'indexs',
             extraParams: params.extraParams,
           },
         ];
@@ -404,7 +452,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.VIEW]: {
     icon: '\ue70c',
     getChildren: (params) => {
-      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+      return new Promise((r: (value: ITreeNode[]) => void) => {
         const list = [
           {
             name: 'columns',
@@ -447,6 +495,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
   },
+
   [TreeNodeType.VIEWCOLUMN]: {
     icon: '\ue647',
     operationColumn: [OperationColumn.CopyName],
@@ -474,7 +523,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
@@ -505,7 +554,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
@@ -536,7 +585,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch((error) => {
+          .catch(() => {
             j();
           });
       });
