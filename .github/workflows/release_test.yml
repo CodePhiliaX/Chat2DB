@@ -38,7 +38,7 @@ jobs:
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           elseif [[ "${{ runner.os }}" == "Linux" ]]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           else
