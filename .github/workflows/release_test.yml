@@ -57,7 +57,6 @@ jobs:
         env:
           RUNNER_OS: ${{ runner.os }}
           JAVA_HOME: ${{ env.JAVA_HOME }}
-        
 
       - name: Copy JRE to static directory
         run: |
@@ -84,23 +83,14 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Cache Yarn Dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/yarn
-            node_modules
-          key: {{ runner.os }}-yarn-{{ hashFiles('**/yarn.lock') }}
-  
       - name: Restore Yarn Cache
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cache/yarn
-            node_modules
-          key: {{ runner.os }}-yarn-{{ hashFiles('**/yarn.lock') }}
+            ./node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            {{ runner.os }}-yarn-{{ runner.os }}-
+            ${{ runner.os }}-yarn-
 
       - name: Build FE Static
         run: |
@@ -197,12 +187,3 @@ jobs:
               "title": "${{ matrix.os }}-test-打包完成通知",
               "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }}](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }})"
             }
-
-      - name: Save Yarn Cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/yarn
-            node_modules
-          key: {{ runner.os }}-yarn-{{ hashFiles('**/yarn.lock') }}
-          save-key: {{ runner.os }}-yarn-{{ hashFiles('**/yarn.lock') }}
