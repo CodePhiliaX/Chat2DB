@@ -96,7 +96,7 @@ jobs:
         continue-on-error: true
         run: |
           cd chat2db-client
-          yarn install --frozen-lockfile    
+          yarn install --frozen-lockfile
 
       - name: Build FE Static
         run: |
@@ -113,7 +113,7 @@ jobs:
           ls -la
           rm -rf legal
           ls -la
-          
+
       - name: Build BE Static
         run: |
           mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
@@ -128,8 +128,6 @@ jobs:
           yarn run build:web:desktop --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
-
-
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
