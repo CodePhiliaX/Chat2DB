@@ -3,7 +3,7 @@ name: Build Test Client
 on:
   push:
     # branches:
-      # - "release_test"
+    # - "release_test"
 
 jobs:
   release:
@@ -38,7 +38,7 @@ jobs:
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           elif [[ "${{ runner.os }}" == "Linux" ]]; then
             sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
           else
@@ -64,7 +64,6 @@ jobs:
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
-
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
@@ -75,11 +74,11 @@ jobs:
       - name: Cache Yarn dependencies
         uses: actions/cache@v3
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: yarn-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             yarn-${{ runner.os }}-
-  
+
       - name: Build FE Static
         run: |
           cd chat2db-client
@@ -88,7 +87,6 @@ jobs:
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
 
-          
       - name: Build BE Static
         run: |
           mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
@@ -118,6 +116,9 @@ jobs:
         with:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+          skip_build: true
           args: >
             -c.appId=com.chat2db.test
             -c.productName=Chat2DB-Test
