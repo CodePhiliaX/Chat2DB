@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { addColorSchemeListener, colorSchemeListeners } from '@/layouts/GlobalLayout';
 import { getOsTheme } from '@/utils';
 import { ITheme } from '@/typings';
 import { ThemeType, PrimaryColorType } from '@/constants';
