@@ -51,6 +51,7 @@ export interface IDatabaseSupportField {
   charsets: ICharset[];
   collations: ICollation[];
   indexTypes: IIndexTypes[];
+  defaultValues: IDefaultValue[];
 }
 
 /** 字段所对应的 字符集*/
@@ -83,4 +84,9 @@ export interface IColumnTypes {
   supportScale: boolean; // 是否支持小数位
   supportValue: boolean; // 是否支持值
   supportUnit: boolean; // 是否支持单位
+}
+
+/** 不同数据库支持不同的默认值 */
+export interface IDefaultValue {
+  defaultValue: string; // 默认值
 }

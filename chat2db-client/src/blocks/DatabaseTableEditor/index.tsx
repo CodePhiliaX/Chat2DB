@@ -54,6 +54,7 @@ export interface IDatabaseSupportField {
   charsets: IOption[];
   collations: IOption[];
   indexTypes: IOption[];
+  defaultValues: IOption[];
 }
 
 export default memo((props: IProps) => {
@@ -93,6 +94,7 @@ export default memo((props: IProps) => {
     charsets: [],
     collations: [],
     indexTypes: [],
+    defaultValues: [],
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -148,11 +150,20 @@ export default memo((props: IProps) => {
             };
           }) || [];
 
+        const defaultValues =
+            res?.defaultValues?.map((i) => {
+              return {
+                value: i.defaultValue,
+                label: i.defaultValue,
+              };
+            }) || [];
+
         setDatabaseSupportField({
           columnTypes,
           charsets,
           collations,
           indexTypes,
+          defaultValues,
         });
       });
   }
