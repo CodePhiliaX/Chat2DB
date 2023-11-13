@@ -768,7 +768,6 @@ export default function TableBox(props: ITableProps) {
           const newRowDatas = tableData.filter((item) => rowIds.includes(item[colNoCode]!));
           const newRowDatasList = newRowDatas.map((item) => {
             const _item = lodash.cloneDeep(item);
-            delete _item[colNoCode];
             return Object.keys(_item).map((i) => _item[i]);
           });
           const _updateDatas = newRowDatasList.map((item, index) => {
@@ -791,7 +790,6 @@ export default function TableBox(props: ITableProps) {
           const newRowDatas = tableData.filter((item) => rowIds.includes(item[colNoCode]!));
           const newRowDatasList = newRowDatas.map((item) => {
             const _item = lodash.cloneDeep(item);
-            delete _item[colNoCode];
             return Object.keys(_item).map((i) => _item[i]);
           });
           const _updateDatas = newRowDatasList.map((item, index) => {
