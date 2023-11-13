@@ -110,21 +110,21 @@ const registerAppMenu = (mainWindow, orgs) => {
         {
           label: '访问官网',
           click() {
-            const url = 'https://chat2db.ai/';
+            const url = 'https://www.sqlgpt.cn/zh';
             shell.openExternal(url);
           },
         },
         {
           label: '查看文档',
           click() {
-            const url = 'https://doc.chat2db.ai/';
+            const url = 'https://doc.sqlgpt.cn/zh/';
             shell.openExternal(url);
           },
         },
         {
           label: '查看更新日志',
           click() {
-            const url = 'https://doc.chat2db.ai/changelog/';
+            const url = 'https://doc.sqlgpt.cn/zh/changelog/';
             shell.openExternal(url);
           },
         },

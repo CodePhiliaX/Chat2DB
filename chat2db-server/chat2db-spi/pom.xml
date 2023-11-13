@@ -77,7 +77,7 @@
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.18.1</version> <!-- 确保使用最新的版本 -->
+            <version>1.19.0</version> <!-- 确保使用最新的版本 -->
         </dependency>
     </dependencies>
 </project>
