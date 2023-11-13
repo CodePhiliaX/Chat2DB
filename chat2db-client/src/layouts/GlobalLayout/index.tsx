@@ -1,29 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import usePollRequestService, { ServiceStatus } from '@/hooks/usePollRequestService';
 import i18n, { isEn } from '@/i18n';
 import { Button, ConfigProvider, Spin, Tooltip } from 'antd';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import service from '@/service/misc';
-import styles from './index.less';
 import MyNotification from '@/components/MyNotification';
+import useCopyFocusData from '@/hooks/useFocusData';
 import { useTheme } from '@/hooks/useTheme';
 import { getAntdThemeConfig } from '@/theme';
-import useCopyFocusData from '@/hooks/useFocusData';
 import { Outlet } from 'umi';
 import init from '../init/init';
 import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons';
+import { ThemeType } from '@/constants';
+import styles from './index.less';
 
 const GlobalLayout = () => {
-  const [appTheme] = useTheme();
+  const [appTheme, setAppTheme] = useTheme();
+  const [antdTheme, setAntdTheme] = useState<any>({});
+
   const { serviceStatus, restartPolling } = usePollRequestService({
     loopService: service.testService,
   });
+  
   useCopyFocusData();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    setAntdTheme(getAntdThemeConfig(appTheme));
+  }, [appTheme]);
+
+  useLayoutEffect(() => {
     init();
+    monitorOsTheme();
   }, []);
+
+  // 监听系统(OS)主题变化
+  const monitorOsTheme = () => {
+    function change(e: any) {
+      if (appTheme.backgroundColor === ThemeType.FollowOs) {
+        setAppTheme({
+          ...appTheme,
+          backgroundColor: e.matches ? ThemeType.Dark : ThemeType.Light,
+        });
+      }
+    }
+    const matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    matchMedia.onchange = change;
+  };
 
   // 等待状态页面
   if (serviceStatus === ServiceStatus.PENDING) {
@@ -53,7 +76,7 @@ const GlobalLayout = () => {
   }
 
   return (
-    <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={getAntdThemeConfig(appTheme)}>
+    <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <div className={styles.app}>
         <Outlet />
       </div>

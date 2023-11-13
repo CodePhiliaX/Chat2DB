@@ -27,4 +27,5 @@ const initLang = () => {
     document.cookie = `CHAT2DB.LOCALE=${lang};Expires=${date}`;
   }
 };
+
 export default init;

@@ -23,7 +23,12 @@ export default defineConfig({
     {
       path: '/',
       component: '@/layouts/GlobalLayout',
-      routes: [{ path: '/', component: 'main' }],
+      routes: [
+        {
+          path: '/',
+          component: 'main',
+        },
+      ],
     },
   ],
 

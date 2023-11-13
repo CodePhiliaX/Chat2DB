@@ -1,21 +1,34 @@
 import { useEffect, useState } from 'react';
-// import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
+import { addColorSchemeListener, colorSchemeListeners } from '@/layouts/GlobalLayout';
 import { getOsTheme } from '@/utils';
 import { ITheme } from '@/typings';
 import { ThemeType, PrimaryColorType } from '@/constants';
 import { getPrimaryColor, getTheme, setPrimaryColor, setTheme } from '@/utils/localStorage';
+import { v4 as uuidv4 } from 'uuid';
+
+const colorSchemeListeners: {
+  [key: string]: (theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) => void;
+} = {};
+
+const addColorSchemeListener = (
+  callback: (theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) => void,
+) => {
+  const uuid = uuidv4();
+  colorSchemeListeners[uuid] = callback;
+  return uuid;
+};
 
 const initialTheme = () => {
   const localStorageTheme = getTheme();
   const localStoragePrimaryColor = getPrimaryColor();
 
   // 判断localStorage的theme在不在ThemeType中, 如果存在就用localStorageTheme
-  let backgroundColor = ThemeType.Light
+  let backgroundColor = ThemeType.Light;
   if (Object.values(ThemeType).includes(localStorageTheme)) {
     backgroundColor = localStorageTheme;
   }
 
-  let primaryColor = PrimaryColorType.Golden_Purple
+  let primaryColor = PrimaryColorType.Golden_Purple;
   if (Object.values(PrimaryColorType).includes(localStoragePrimaryColor)) {
     primaryColor = localStoragePrimaryColor;
   }
@@ -37,10 +50,10 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
   // const isDark = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
   useEffect(() => {
-    // const uuid = addColorSchemeListener(setAppTheme as any);
-    // return () => {
-    //   delete colorSchemeListeners[uuid];
-    // };
+    const uuid = addColorSchemeListener(setAppTheme as any);
+    return () => {
+      delete colorSchemeListeners[uuid];
+    };
   }, []);
 
   function handleAppThemeChange(theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) {
@@ -50,9 +63,9 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
           ? ThemeType.DarkDimmed
           : ThemeType.Light;
     }
-    // Object.keys(colorSchemeListeners)?.forEach((t) => {
-    //   colorSchemeListeners[t]?.(theme);
-    // });
+    Object.keys(colorSchemeListeners)?.forEach((t) => {
+      colorSchemeListeners[t]?.(theme);
+    });
     document.documentElement.setAttribute('theme', theme.backgroundColor);
     setTheme(theme.backgroundColor);
     document.documentElement.setAttribute('primary-color', theme.primaryColor);
