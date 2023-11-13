@@ -20,8 +20,11 @@ export default defineConfig({
   publicPath: '/',
   hash: true,
   routes: [
-    { path: '/login', component: '@/pages/login' },
-    { path: '/', component: 'main' },
+    {
+      path: '/',
+      component: '@/layouts/GlobalLayout',
+      routes: [{ path: '/', component: 'main' }],
+    },
   ],
 
   npmClient: 'yarn',

@@ -4,45 +4,19 @@ import { Outlet } from 'umi';
 import { ConfigProvider, Spin } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { getAntdThemeConfig } from '@/theme';
-import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import { useTheme } from '@/hooks';
 import { ThemeType, LangType, PrimaryColorType } from '@/constants/';
-import styles from './index.less';
 import { getLang, setLang } from '@/utils/localStorage';
 import { clearOlderLocalStorage } from '@/utils';
 import registerMessage from './init/registerMessage';
 import registerNotification from './init/registerNotification';
 import MyNotification from '@/components/MyNotification';
-// import Iconfont from '@/components/Iconfont';
-// import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
 import useCopyFocusData from '@/hooks/useFocusData';
-
-declare global {
-  interface Window {
-    _Lang: string;
-    _APP_PORT: string;
-    _BUILD_TIME: string;
-    _BaseURL: string;
-    _AppThemePack: { [key in string]: string };
-    _appGatewayParams: IVersionResponse;
-    _notificationApi: any;
-    _indexedDB: any;
-    electronApi?: {
-      startServerForSpawn: () => void;
-      quitApp: () => void;
-      setBaseURL: (baseUrl: string) => void;
-      registerAppMenu: (data: any) => void;
-    };
-  }
-  const __APP_VERSION__: string;
-  const __BUILD_TIME__: string;
-  const __ENV__: string;
-  const __APP_PORT__: string;
-}
+import styles from './index.less';
 
 const initConfig = () => {
   registerMessage();
@@ -139,16 +113,7 @@ function AppContainer() {
     };
   }
 
-  // 初始化语言
-  function initLang() {
-    const lang = getLang();
-    if (!lang) {
-      setLang(LangType.EN_US);
-      document.documentElement.setAttribute('lang', LangType.EN_US);
-      const date = new Date('2030-12-30 12:30:00').toUTCString();
-      document.cookie = `CHAT2DB.LOCALE=${lang};Expires=${date}`;
-    }
-  }
+
 
   useEffect(() => {
     detectionService();
@@ -203,8 +168,7 @@ function AppContainer() {
           {startSchedule === 2 && <Outlet />}
         </div>
       )}
-      {/* 全局的弹窗 */}
-      <MyNotification />
+   
     </div>
   );
 }

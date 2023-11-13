@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
+// import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
 import { getOsTheme } from '@/utils';
 import { ITheme } from '@/typings';
 import { ThemeType, PrimaryColorType } from '@/constants';
@@ -37,10 +37,10 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
   // const isDark = useMemo(() => appTheme.backgroundColor === ThemeType.Dark, [appTheme]);
 
   useEffect(() => {
-    const uuid = addColorSchemeListener(setAppTheme as any);
-    return () => {
-      delete colorSchemeListeners[uuid];
-    };
+    // const uuid = addColorSchemeListener(setAppTheme as any);
+    // return () => {
+    //   delete colorSchemeListeners[uuid];
+    // };
   }, []);
 
   function handleAppThemeChange(theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) {
@@ -50,9 +50,9 @@ export function useTheme<T = ITheme>(): [T, React.Dispatch<React.SetStateAction<
           ? ThemeType.DarkDimmed
           : ThemeType.Light;
     }
-    Object.keys(colorSchemeListeners)?.forEach((t) => {
-      colorSchemeListeners[t]?.(theme);
-    });
+    // Object.keys(colorSchemeListeners)?.forEach((t) => {
+    //   colorSchemeListeners[t]?.(theme);
+    // });
     document.documentElement.setAttribute('theme', theme.backgroundColor);
     setTheme(theme.backgroundColor);
     document.documentElement.setAttribute('primary-color', theme.primaryColor);
