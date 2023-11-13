@@ -1,11 +1,10 @@
 package ai.chat2db.spi.util;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Map;
+import java.sql.*;
+import java.text.Collator;
+import java.util.*;
 
+import ai.chat2db.spi.model.KeyValue;
 import com.alibaba.druid.DbType;
 
 import ai.chat2db.spi.config.DriverConfig;
@@ -14,8 +13,11 @@ import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.ssh.SSHManager;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 
@@ -138,11 +140,11 @@ public class JdbcUtils {
      * @return
      */
     public static DataSourceConnect testConnect(String url, String host, String port,
-        String userName, String password, String dbType,
-        DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
+                                                String userName, String password, String dbType,
+                                                DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
         DataSourceConnect dataSourceConnect = DataSourceConnect.builder()
-            .success(Boolean.TRUE)
-            .build();
+                .success(Boolean.TRUE)
+                .build();
         Session session = null;
         Connection connection = null;
         // 加载驱动
@@ -155,7 +157,7 @@ public class JdbcUtils {
             }
             // 创建连接
             connection = IDriverManager.getConnection(url, userName, password,
-                driverConfig, properties);
+                    driverConfig, properties);
         } catch (Exception e) {
             log.error("connection fail:", e);
             dataSourceConnect.setSuccess(Boolean.FALSE);
@@ -201,6 +203,98 @@ public class JdbcUtils {
             }
         }
 
+    }
+
+    public static void setDriverDefaultProperty(DriverConfig driverConfig) {
+        if(driverConfig == null){
+            return;
+        }
+        List<KeyValue> defaultKeyValues = driverConfig.getExtendInfo();
+        Map<String, KeyValue> valueMap = Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(defaultKeyValues)) {
+            for (KeyValue keyValue : defaultKeyValues) {
+                if (keyValue == null || StringUtils.isBlank(keyValue.getKey())) {
+                    continue;
+                }
+                valueMap.put(keyValue.getKey(), keyValue);
+            }
+        }
+        try {
+            DriverPropertyInfo[] propertyInfos = IDriverManager.getProperty(driverConfig);
+            if (propertyInfos == null) {
+                return;
+            }
+            for (int i = 0; i < propertyInfos.length; i++) {
+                DriverPropertyInfo propertyInfo = propertyInfos[i];
+                if (propertyInfo == null) {
+                    continue;
+                }
+                KeyValue keyValue = valueMap.get(propertyInfo.name);
+                if (keyValue != null) {
+                    String[] choices = propertyInfo.choices;
+                    if (CollectionUtils.isEmpty(keyValue.getChoices()) && choices != null && choices.length > 0) {
+                        keyValue.setChoices(Lists.newArrayList(choices));
+                    }
+                } else {
+                    keyValue = new KeyValue();
+                    keyValue.setKey(propertyInfo.name);
+                    keyValue.setValue(propertyInfo.value);
+                    keyValue.setRequired(propertyInfo.required);
+                    String[] choices = propertyInfo.choices;
+                    if (choices != null && choices.length > 0) {
+                        keyValue.setChoices(Lists.newArrayList(choices));
+                    }
+                    valueMap.put(keyValue.getKey(), keyValue);
+                }
+            }
+            if (!valueMap.isEmpty()) {
+                Comparator comparator = Collator.getInstance(Locale.ENGLISH);
+                List<KeyValue> result = new ArrayList<>(valueMap.values());
+                Collections.sort(result, (o1, o2) -> comparator.compare(o1.getKey(), o2.getKey()));
+                driverConfig.setExtendInfo(result);
+            }
+        } catch (SQLException e) {
+            log.error("get property error:", e);
+        }
+    }
+
+    public static void removePropertySameAsDefault(DriverConfig driverConfig) {
+        if(driverConfig == null){
+            return;
+        }
+        List<KeyValue> customValue = driverConfig.getExtendInfo();
+        if (CollectionUtils.isEmpty(customValue)) {
+            return ;
+        }
+        Map<String, String> map = Maps.newHashMap();
+        List<KeyValue> result = new ArrayList<>();
+        try {
+            DriverPropertyInfo[] propertyInfos = IDriverManager.getProperty(driverConfig);
+            if (propertyInfos == null) {
+                return ;
+            }
+            for (int i = 0; i < propertyInfos.length; i++) {
+                DriverPropertyInfo propertyInfo = propertyInfos[i];
+                if (propertyInfo == null) {
+                    continue;
+                }
+                map.put(propertyInfo.name, propertyInfo.value);
+            }
+            for (KeyValue keyValue : customValue) {
+                if (keyValue == null || StringUtils.isBlank(keyValue.getKey())) {
+                    continue;
+                }
+                String value = map.get(keyValue.getKey());
+                if (!StringUtils.equals(value, keyValue.getValue())) {
+                    result.add(keyValue);
+                }
+            }
+            Comparator comparator = Collator.getInstance(Locale.ENGLISH);
+            Collections.sort(result, (o1, o2) -> comparator.compare(o1.getKey(), o2.getKey()));
+            driverConfig.setExtendInfo(result);
+        } catch (SQLException e) {
+
+        }
     }
 
 }

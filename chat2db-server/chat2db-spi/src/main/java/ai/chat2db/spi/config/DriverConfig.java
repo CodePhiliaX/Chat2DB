@@ -3,6 +3,7 @@ package ai.chat2db.spi.config;
 
 import java.util.List;
 
+import ai.chat2db.spi.model.KeyValue;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,6 +13,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Data
 public class DriverConfig {
+
+    /**
+     * url
+     */
+    private String url;
     /**
      * jdbcDriver
      */
@@ -22,17 +28,14 @@ public class DriverConfig {
      */
     private String jdbcDriverClass;
 
-    ///**
-    // * name
-    // */
-    //private String name;
-
     /**
      * downloadJdbcDriverUrls
      */
     private List<String> downloadJdbcDriverUrls;
 
-
+    /**
+     * dbType
+     */
     private String dbType;
 
     /**
@@ -40,6 +43,13 @@ public class DriverConfig {
      */
     private boolean custom;
 
+    /**
+     * properties
+     */
+    private List<KeyValue> extendInfo;
+
+
+    private boolean defaultDriver;
 
     public boolean notEmpty() {
        return StringUtils.isNotBlank(getJdbcDriver()) && StringUtils.isNotBlank(

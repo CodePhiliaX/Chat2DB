@@ -1,16 +1,15 @@
 package ai.chat2db.plugin.oceanbase;
 
-import ai.chat2db.plugin.oceanbase.builder.DBConfigBuilder;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.Plugin;
 import ai.chat2db.spi.config.DBConfig;
-import ai.chat2db.spi.jdbc.DefaultMetaService;
+import ai.chat2db.spi.util.FileUtils;
 
 public class OceanBasePlugin implements Plugin {
     @Override
     public DBConfig getDBConfig() {
-        return DBConfigBuilder.buildDBConfig();
+        return FileUtils.readJsonValue(this.getClass(),"oceanbase.json", DBConfig.class);
     }
 
     @Override
