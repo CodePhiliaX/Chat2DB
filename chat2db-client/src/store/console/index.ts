@@ -5,16 +5,19 @@
 import { create, UseBoundStore, StoreApi } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { IConsole } from '@/typings/console';
+import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
-  activeConsoleId: string | null;
+  activeConsoleId: string | number | null;
+  workspaceTabList: IWorkspaceTab[] | null;
 }
 
 const initConsoleStore = {
   consoleList: null,
-  activeConsoleId: null
+  activeConsoleId: null,
+  workspaceTabList: null,
 }
 
 export const useConsoleStore: UseBoundStore<StoreApi<IConsoleStore>> = create(
@@ -31,6 +34,10 @@ export const getSavedConsoleList = () => {
   });
 }
 
-export const setActiveConsoleId = (id: string) => {
+export const setActiveConsoleId = (id: IConsoleStore['activeConsoleId']) => {
   useConsoleStore.setState({ activeConsoleId: id });
+}
+
+export const setWorkspaceTabList = (items: IConsoleStore['workspaceTabList']) => {
+  useConsoleStore.setState({ workspaceTabList: items });
 }

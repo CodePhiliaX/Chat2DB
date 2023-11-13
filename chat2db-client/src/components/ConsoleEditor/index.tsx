@@ -582,7 +582,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           </Spin>
         </Drawer>
       </Spin>
-
       <div className={styles.consoleOptionsWrapper}>
         <div className={styles.consoleOptionsLeft}>
           <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>

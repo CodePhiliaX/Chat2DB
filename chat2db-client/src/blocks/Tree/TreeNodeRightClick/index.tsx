@@ -7,7 +7,7 @@ import styles from './index.less';
 // ----- components -----
 import { dataSourceFormConfigs } from '@/components/ConnectionEdit/config/dataSource';
 import { IConnectionConfig } from '@/components/ConnectionEdit/config/types';
-import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
+import MonacoEditor, { IExportRefFunction } from '@/components/ConsoleEditor/MonacoEditor';
 import MenuLabel from '@/components/MenuLabel';
 
 // ----- constants -----

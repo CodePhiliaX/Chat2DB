@@ -1,4 +1,4 @@
-import MonacoEditor from '@/components/Console/MonacoEditor';
+import MonacoEditor from '@/components/ConsoleEditor/MonacoEditor';
 import { Button } from 'antd';
 import React, { useState } from 'react';
 import styles from './index.less';

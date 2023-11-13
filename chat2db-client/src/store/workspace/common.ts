@@ -5,7 +5,6 @@ export interface ICommonStore {
   setCurrentConnectionDetails: (connectionDetails: Partial<IConnectionDetails> | null) => void;
 }
 
-
 export const commonStore = (set): ICommonStore => ({
   currentConnectionDetails: null,
   setCurrentConnectionDetails: (connectionDetails: ICommonStore['currentConnectionDetails']) =>

@@ -82,7 +82,7 @@ export interface IHistoryRecord {
  gmtCreate: string;
 }
 
-const saveConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });
+const createConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });
 
 // orderByDesc true 降序
 const getWindowTab = createRequest<{ id: number, orderByDesc: boolean }, number>('/api/operation/saved/:id', { method: 'get' });
@@ -101,7 +101,7 @@ export default {
   getSavedConsoleList,
   updateSavedConsole,
   getHistoryList,
-  saveConsole,
+  createConsole,
   deleteSavedConsole,
   createHistory,
   getWindowTab

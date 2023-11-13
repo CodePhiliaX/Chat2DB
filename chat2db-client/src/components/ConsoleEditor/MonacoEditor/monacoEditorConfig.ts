@@ -1,4 +1,4 @@
-import { IEditorOptions } from '@/components/Console/MonacoEditor';
+import { IEditorOptions } from '@/components/ConsoleEditor/MonacoEditor';
 
 export const editorDefaultOptions: IEditorOptions = {
   fontFamily: `"Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace`,
