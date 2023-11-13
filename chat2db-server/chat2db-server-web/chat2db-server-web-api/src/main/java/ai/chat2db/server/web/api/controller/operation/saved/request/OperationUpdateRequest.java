@@ -24,6 +24,26 @@ public class OperationUpdateRequest {
     private String name;
 
     /**
+     * 数据源连接ID
+     */
+    private Long dataSourceId;
+
+    /**
+     * db名称
+     */
+    private String databaseName;
+
+    /**
+     * 表所在空间
+     */
+    private String schemaName;
+
+    /**
+     * 数据库类型
+     */
+    private String type;
+
+    /**
      * ddl内容
      */
     @NotNull

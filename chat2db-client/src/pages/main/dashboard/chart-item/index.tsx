@@ -10,7 +10,7 @@ import { MoreOutlined } from '@ant-design/icons';
 import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select, Spin } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
 import { data } from '../../../../../mock/sqlResult.json';
-import Console from '@/components/Console';
+import Console from '@/components/ConsoleEditor';
 import Iconfont from '@/components/Iconfont';
 import sqlService, { IExecuteSqlParams, MetaSchemaVO } from '@/service/sql';
 import { Option } from '@/typings/common';
