@@ -89,7 +89,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         // If the database name contains the name of the current database, the current database is placed in the first place
         int num = -1;
         for (int i = 0; i < schemas.size(); i++) {
-            if (StringUtils.isNotBlank(ulr) && ulr.contains(schemas.get(i).getName())) {
+            String schema = schemas.get(i).getName();
+            if (StringUtils.isNotBlank(ulr) && schema!=null && ulr.contains(schema)) {
                 num = i;
                 break;
             }

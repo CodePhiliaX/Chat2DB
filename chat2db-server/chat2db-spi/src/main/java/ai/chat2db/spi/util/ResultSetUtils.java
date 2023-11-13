@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.common.collect.Lists;
 
-import static ai.chat2db.spi.util.JdbcUtils.getResultSetValue;
 
 /**
  * @author jipengfei
@@ -22,28 +21,6 @@ import static ai.chat2db.spi.util.JdbcUtils.getResultSetValue;
 public class ResultSetUtils {
 
 
-    public static <T> T toObject(ResultSet rs, Class<T> clazz) {
-        try {
-            if (rs == null || clazz == null) {
-                return null;
-            }
-            ResultSetMetaData resultSetMetaData = rs.getMetaData();
-            int col = resultSetMetaData.getColumnCount();
-            List<String> headerList = getRsHeader(rs);
-            Map<String, Object> map = new HashMap<>();
-            for (int i = 1; i <= col; i++) {
-                map.put(headerList.get(i), getResultSetValue(rs, i, true));
-            }
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            //mapper.configure(DeserializationFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-
-            return mapper.convertValue(map, clazz);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private static List<String> getRsHeader(ResultSet rs) {
         try {
