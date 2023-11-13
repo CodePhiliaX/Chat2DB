@@ -1,12 +1,10 @@
 import createRequest from "./base";
 // import { IPageResponse,IPageParams,IHistoryRecord, IWindowTab, ISavedConsole } from '@/types';
-import { ConsoleOpenedStatus, DatabaseTypeCode, ConsoleStatus } from '@/constants'
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants'
 import { ICreateConsole, IConsole, IPageResponse, IPageParams } from '@/typings';
 
 export interface IGetSavedListParams extends IPageParams {
-  dataSourceId?: number;
-  databaseName?: string;
-  tabOpened?: ConsoleOpenedStatus;
+  tabOpened?: 'y' | 'n';
   status?: ConsoleStatus
 }
 export interface IGetHistoryListParams extends IPageParams { 

@@ -4,40 +4,33 @@
 
 import { create, UseBoundStore, StoreApi } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { IConnectionListItem, IConnectionEnv } from '@/typings/connection';
-import connectionService from '@/service/connection';
+import { IConsole } from '@/typings/console';
+import historyService from '@/service/history';
 
-export interface IConnectionStore {
-  consoleList: IConnectionListItem[] | null;
-  connectionEnvList: IConnectionEnv[] | null;
-  setConnectionList: (connectionList: IConnectionListItem[]) => void;
-  setConnectionEnvList: (connectionEnvList: IConnectionEnv[]) => void;
-  getConnectionList: () => Promise<void>;
+export interface IConsoleStore {
+  consoleList: IConsole[] | null;
+  activeConsoleId: string | null;
 }
 
-export const connectionStore = (set): IConnectionStore => ({
+const initConsoleStore = {
   consoleList: null,
-  connectionEnvList: null,
-  setConnectionList: (connectionList: IConnectionListItem[]) => set({ connectionList }),
-  setConnectionEnvList: (connectionEnvList: IConnectionEnv[]) => set({ connectionEnvList }),
-  getConnectionList: () => {
-    return connectionService
-      .getList({
-        pageNo: 1,
-        pageSize: 1000,
-        refresh: true,
-      })
-      .then((res) => {
-        set({ connectionList: res?.data || [] });
-      })
-      .catch(() => {
-        set({ connectionList: [] });
-      });
-  },
-});
+  activeConsoleId: null
+}
 
-export const useConnectionStore: UseBoundStore<StoreApi<IConnectionStore>> = create(
-  devtools((set) => ({
-    ...connectionStore(set),
-  })),
+export const useConsoleStore: UseBoundStore<StoreApi<IConsoleStore>> = create(
+  devtools(() => (initConsoleStore)),
 );
+
+export const getSavedConsoleList = () => {
+  historyService.getSavedConsoleList({
+    tabOpened: 'y',
+    pageNo: 1,
+    pageSize: 20,
+  }).then((res) => {
+    useConsoleStore.setState({ consoleList: res?.data });
+  });
+}
+
+export const setActiveConsoleId = (id: string) => {
+  useConsoleStore.setState({ activeConsoleId: id });
+}
