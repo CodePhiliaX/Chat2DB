@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import ai.chat2db.plugin.sqlite.builder.SqliteBuilder;
 import ai.chat2db.plugin.sqlite.type.SqliteCollationEnum;
 import ai.chat2db.plugin.sqlite.type.SqliteColumnTypeEnum;
+import ai.chat2db.plugin.sqlite.type.SqliteDefaultValueEnum;
 import ai.chat2db.plugin.sqlite.type.SqliteIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -56,6 +57,7 @@ public class SqliteMetaData extends DefaultMetaService implements MetaData {
                 .charsets(null)
                 .collations(SqliteCollationEnum.getCollations())
                 .indexTypes(SqliteIndexTypeEnum.getIndexTypes())
+                .defaultValues(SqliteDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

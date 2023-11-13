@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.dm.builder.DMSqlBuilder;
 import ai.chat2db.plugin.dm.type.DMColumnTypeEnum;
+import ai.chat2db.plugin.dm.type.DMDefaultValueEnum;
 import ai.chat2db.plugin.dm.type.DMIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -218,6 +219,7 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
                 .charsets(Lists.newArrayList())
                 .collations(Lists.newArrayList())
                 .indexTypes(DMIndexTypeEnum.getIndexTypes())
+                .defaultValues(DMDefaultValueEnum.getDefaultValues())
                 .build();
     }
 
