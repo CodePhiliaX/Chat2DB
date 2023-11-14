@@ -1,7 +1,16 @@
-import { IEditorOptions } from '@/components/ConsoleEditor/MonacoEditor';
+import { IEditorOptions } from '@/components/MonacoEditor';
 
 export const editorDefaultOptions: IEditorOptions = {
-  fontFamily: `"Menlo", "DejaVu Sans Mono", "Liberation Mono", "Consolas", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace`,
+  fontFamily: 
+   `"Menlo", 
+    "DejaVu Sans Mono", 
+    "Liberation Mono", 
+    "Consolas", 
+    "Ubuntu Mono", 
+    "Courier New", 
+    "andale mono", 
+    "lucida console", 
+    "monospace"`,
   scrollBeyondLastLine: false, // 滚动超过最后一行
   automaticLayout: true, // 自动布局
   dragAndDrop: false, // 拖拽
@@ -19,14 +28,16 @@ export const editorDefaultOptions: IEditorOptions = {
   fixedOverflowWidgets: true, // 固定溢出小部件
   // renderLineHighlight: 'none', // 渲染行高亮
   codeLens: false, // 代码镜头
-  scrollbar: { // 滚动条
+  scrollbar: {
+    // 滚动条
     alwaysConsumeMouseWheel: false, // 总是消耗鼠标滚轮
   },
-  // padding: { 
+  // padding: {
   //   top: 2,
   //   bottom: 2,
   // },
-  minimap: { // 缩略图
+  minimap: {
+    // 缩略图
     enabled: false, // 启用
   },
 };

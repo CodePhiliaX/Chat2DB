@@ -8,7 +8,6 @@ import WorkspaceTabs from '../WorkspaceTabs';
 
 
 const WorkspaceRight = memo(() => {
-
   return (
     <div className={classnames(styles.workspaceRight)}>
       <WorkspaceTabs />

@@ -7,7 +7,7 @@ import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import NewWorkspaceRight from './components/NewWorkspaceRight';
 
-import useMonacoTheme from '@/components/ConsoleEditor/MonacoEditor/useMonacoTheme';
+import useMonacoTheme from '@/components/MonacoEditor/useMonacoTheme';
 
 import styles from './index.less';
 

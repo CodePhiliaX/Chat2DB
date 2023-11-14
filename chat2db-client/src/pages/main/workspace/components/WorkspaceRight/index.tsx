@@ -363,24 +363,24 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     }
   }, [curWorkspaceParams.databaseType]);
 
-  // 更新表名提示
-  useUpdateEffect(() => {
-    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
-    if (dataSourceId === null || dataSourceId === undefined) {
-      return;
-    }
-    sqlService
-      .getAllTableList({
-        dataSourceId,
-        databaseName,
-        schemaName,
-      })
-      .then((data) => {
-        tableList.current = (data || []).map((item: any) => item.name);
-        registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
-        registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
-      });
-  }, [workspaceModel.curTableList]); //当curTableList变化时（比如手动刷新，切换databaseName、schemaName），重新注册表名提示
+  // TODO: 重构后更新表名提示
+  // useUpdateEffect(() => {
+  //   const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+  //   if (dataSourceId === null || dataSourceId === undefined) {
+  //     return;
+  //   }
+  //   sqlService
+  //     .getAllTableList({
+  //       dataSourceId,
+  //       databaseName,
+  //       schemaName,
+  //     })
+  //     .then((data) => {
+  //       tableList.current = (data || []).map((item: any) => item.name);
+  //       registerIntelliSenseTable(data, databaseType, dataSourceId, databaseName, schemaName);
+  //       registerIntelliSenseField(tableList.current, dataSourceId, databaseName, schemaName);
+  //     });
+  // }, [workspaceModel.curTableList]); //当curTableList变化时（比如手动刷新，切换databaseName、schemaName），重新注册表名提示
 
   useEffect(() => {
     const { dataSourceId, dataSourceName, databaseName, schemaName, databaseType } = curWorkspaceParams;
@@ -402,134 +402,134 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       });
   }, [curWorkspaceParams.dataSourceId, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
 
-  function createConsole(params: {
-    doubleClickTreeNodeData: any;
-    workSpaceTabType: WorkspaceTabType;
-    name: string;
-    callback?: (res: number, list: any) => void;
-    ddl?: string;
-  }) {
-    const { doubleClickTreeNodeData: _doubleClickTreeNodeData, workSpaceTabType, name, callback, ddl } = params;
-    const { extraParams } = _doubleClickTreeNodeData;
-    const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType } = extraParams || {};
-    const newConsole: any = {
-      name,
-      type: databaseType!,
-      dataSourceId: dataSourceId!,
-      databaseName: databaseName,
-      schemaName: schemaName,
-      dataSourceName: dataSourceName!,
-      status: ConsoleStatus.DRAFT,
-      operationType: workSpaceTabType,
-      ddl: ddl || '',
-      tabOpened: ConsoleOpenedStatus.IS_OPEN,
-    };
-    historyService.saveConsole(newConsole).then((res) => {
-      const newList = [
-        ...workspaceTabList,
-        {
-          id: res,
-          title: newConsole.name,
-          type: workSpaceTabType,
-          uniqueData: newConsole,
-        },
-      ];
-      setWorkspaceTabList(newList);
-      callback?.(res, newList);
-      setActiveConsoleId(res);
-    });
-  }
+  // function createConsole(params: {
+  //   doubleClickTreeNodeData: any;
+  //   workSpaceTabType: WorkspaceTabType;
+  //   name: string;
+  //   callback?: (res: number, list: any) => void;
+  //   ddl?: string;
+  // }) {
+  //   const { doubleClickTreeNodeData: _doubleClickTreeNodeData, workSpaceTabType, name, callback, ddl } = params;
+  //   const { extraParams } = _doubleClickTreeNodeData;
+  //   const { databaseName, schemaName, dataSourceId, dataSourceName, databaseType } = extraParams || {};
+  //   const newConsole: any = {
+  //     name,
+  //     type: databaseType!,
+  //     dataSourceId: dataSourceId!,
+  //     databaseName: databaseName,
+  //     schemaName: schemaName,
+  //     dataSourceName: dataSourceName!,
+  //     status: ConsoleStatus.DRAFT,
+  //     operationType: workSpaceTabType,
+  //     ddl: ddl || '',
+  //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
+  //   };
+  //   historyService.saveConsole(newConsole).then((res) => {
+  //     const newList = [
+  //       ...workspaceTabList,
+  //       {
+  //         id: res,
+  //         title: newConsole.name,
+  //         type: workSpaceTabType,
+  //         uniqueData: newConsole,
+  //       },
+  //     ];
+  //     setWorkspaceTabList(newList);
+  //     callback?.(res, newList);
+  //     setActiveConsoleId(res);
+  //   });
+  // }
 
-  function getConsoleList(callback?: () => void) {
-    const p: any = {
-      pageNo: 1,
-      pageSize: 999,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      ...curWorkspaceParams,
-    };
+  // function getConsoleList(callback?: () => void) {
+  //   const p: any = {
+  //     pageNo: 1,
+  //     pageSize: 999,
+  //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
+  //     ...curWorkspaceParams,
+  //   };
 
-    dispatch({
-      type: 'workspace/fetchGetSavedConsole',
-      payload: p,
-      callback: (res: any) => {
-        dispatch({
-          type: 'workspace/setOpenConsoleList',
-          payload: res.data,
-        });
-        callback?.();
-      },
-    });
-  }
+  //   dispatch({
+  //     type: 'workspace/fetchGetSavedConsole',
+  //     payload: p,
+  //     callback: (res: any) => {
+  //       dispatch({
+  //         type: 'workspace/setOpenConsoleList',
+  //         payload: res.data,
+  //       });
+  //       callback?.();
+  //     },
+  //   });
+  // }
 
-  // 切换tab
-  function onTabChange(key: string | number | null) {
-    setActiveConsoleId(key);
-  }
+  // // 切换tab
+  // function onTabChange(key: string | number | null) {
+  //   setActiveConsoleId(key);
+  // }
 
   // 删除 新增tab
-  const onEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
-    if (action === 'remove') {
-      setWorkspaceTabList(
-        workspaceTabList.filter((t) => {
-          return data.findIndex((item) => item.key === t.id) === -1;
-        }),
-      );
-      data.forEach((item) => {
-        const editData = workspaceTabList?.find((t) => t.id === item.key);
-        if (
-          editData?.type !== WorkspaceTabType.EditTable &&
-          editData?.type !== WorkspaceTabType.CreateTable &&
-          editData?.type !== WorkspaceTabType.EditTableData
-        ) {
-          closeWindowTab(item.key as number);
-        }
-      })
+  // const onEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
+  //   if (action === 'remove') {
+  //     setWorkspaceTabList(
+  //       workspaceTabList.filter((t) => {
+  //         return data.findIndex((item) => item.key === t.id) === -1;
+  //       }),
+  //     );
+  //     data.forEach((item) => {
+  //       const editData = workspaceTabList?.find((t) => t.id === item.key);
+  //       if (
+  //         editData?.type !== WorkspaceTabType.EditTable &&
+  //         editData?.type !== WorkspaceTabType.CreateTable &&
+  //         editData?.type !== WorkspaceTabType.EditTableData
+  //       ) {
+  //         closeWindowTab(item.key as number);
+  //       }
+  //     })
 
       
-    }
-    if (action === 'add') {
-      addConsole();
-    }
-  };
+  //   }
+  //   if (action === 'add') {
+  //     addConsole();
+  //   }
+  // };
 
-  const addConsole = () => {
-    const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
-    const newConsole = {
-      name: `new console`,
-      ddl: '',
-      dataSourceId: dataSourceId!,
-      databaseName: databaseName!,
-      schemaName: schemaName!,
-      type: databaseType,
-      status: ConsoleStatus.DRAFT,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN,
-      operationType: WorkspaceTabType.CONSOLE,
-    };
-    historyService.saveConsole(newConsole).then((res) => {
-      const newList = [
-        ...workspaceTabList,
-        {
-          id: res,
-          title: newConsole.name,
-          type: newConsole.operationType,
-          uniqueData: newConsole,
-        },
-      ];
-      setWorkspaceTabList(newList);
-      setActiveConsoleId(res);
-    });
-  };
+  // const addConsole = () => {
+  //   const { dataSourceId, databaseName, schemaName, databaseType } = curWorkspaceParams;
+  //   const newConsole = {
+  //     name: `new console`,
+  //     ddl: '',
+  //     dataSourceId: dataSourceId!,
+  //     databaseName: databaseName!,
+  //     schemaName: schemaName!,
+  //     type: databaseType,
+  //     status: ConsoleStatus.DRAFT,
+  //     tabOpened: ConsoleOpenedStatus.IS_OPEN,
+  //     operationType: WorkspaceTabType.CONSOLE,
+  //   };
+  //   historyService.saveConsole(newConsole).then((res) => {
+  //     const newList = [
+  //       ...workspaceTabList,
+  //       {
+  //         id: res,
+  //         title: newConsole.name,
+  //         type: newConsole.operationType,
+  //         uniqueData: newConsole,
+  //       },
+  //     ];
+  //     setWorkspaceTabList(newList);
+  //     setActiveConsoleId(res);
+  //   });
+  // };
 
-  const closeWindowTab = (key: number) => {
-    const p: any = {
-      id: key,
-      tabOpened: 'n',
-    };
+  // const closeWindowTab = (key: number) => {
+  //   const p: any = {
+  //     id: key,
+  //     tabOpened: 'n',
+  //   };
 
-    historyService.updateSavedConsole(p).then(() => {
-      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', key);
-    });
-  };
+  //   historyService.updateSavedConsole(p).then(() => {
+  //     indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', key);
+  //   });
+  // };
 
   function renderCreateConsoleButton() {
     return (

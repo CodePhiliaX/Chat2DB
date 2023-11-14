@@ -5,6 +5,11 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DatabaseTypeCode, EditorThemeType } from '@/constants';
 import { editorDefaultOptions } from './monacoEditorConfig';
 import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
+import {
+  registerIntelliSenseField,
+  registerIntelliSenseKeyword,
+  registerIntelliSenseTable,
+} from '@/utils/IntelliSense';
 
 import styles from './index.less';
 
@@ -33,6 +38,7 @@ interface IProps {
   addAction?: Array<{ id: string; label: string; action: (selectedText: string, ext?: string) => void }>;
   defaultValue?: string;
   appendValue?: IAppendValue;
+  databaseType: DatabaseTypeCode;
   // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
   onSave?: (value: string) => void; // 快捷键保存的回调
@@ -58,6 +64,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     onExecute,
     defaultValue,
     appendValue,
+    databaseType,
   } = props;
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
@@ -135,6 +142,10 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       });
     }
   }, [editorRef.current, isActive]);
+
+  useEffect(() => {
+    registerIntelliSenseKeyword(databaseType);
+  }, [databaseType]);
 
   useEffect(() => {
     // 监听浏览器窗口大小变化，重新渲染编辑器

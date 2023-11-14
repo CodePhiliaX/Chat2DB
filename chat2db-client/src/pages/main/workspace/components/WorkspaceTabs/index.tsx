@@ -1,5 +1,7 @@
 import React, { memo, useEffect, useMemo, Fragment } from 'react';
 import styles from './index.less';
+import i18n from '@/i18n';
+import { Button } from 'antd'
 
 // ----- constants -----
 import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
@@ -14,6 +16,8 @@ import Tabs, { ITabItem } from '@/components/Tabs';
 import SearchResult from '@/components/SearchResult';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
 import SQLExecute from '@/blocks/SQLExecute';
+import Iconfont from '@/components/Iconfont';
+import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
 import { useConsoleStore, getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/store/console';
@@ -50,7 +54,13 @@ const WorkspaceTabs = memo(() => {
           id: item.id,
           type: item.operationType,
           title: item.name,
-          uniqueData: {},
+          uniqueData: {
+            dataSourceId: item.dataSourceId,
+            databaseType: item.type,
+            databaseName: item.databaseName,
+            schemaName: item.schemaName,
+            status: item.status,
+          },
         };
       }) || [];
     setWorkspaceTabList(_workspaceTabItems);
@@ -67,6 +77,13 @@ const WorkspaceTabs = memo(() => {
       indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', key);
     });
   };
+
+  const createNewConsole = () => {
+    createConsole({
+      dataSourceId: currentConnectionDetails?.id,
+      type: currentConnectionDetails?.type,
+    });
+  }
 
   // 删除 新增tab
   const handelTabsEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
@@ -88,10 +105,7 @@ const WorkspaceTabs = memo(() => {
       });
     }
     if (action === 'add') {
-      createConsole({
-        dataSourceId: currentConnectionDetails?.id,
-        type: currentConnectionDetails?.type,
-      });
+      createNewConsole();
     }
   };
 
@@ -121,22 +135,25 @@ const WorkspaceTabs = memo(() => {
     setWorkspaceTabList(list);
   };
 
+  // 渲染sql执行器
   const renderSQLExecute = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
     return (
       <SQLExecute
         boundInfo={{
           dataSourceId: uniqueData.dataSourceId,
-          databaseName: uniqueData.databaseName,
           type: uniqueData.databaseType,
+          databaseName: uniqueData?.databaseName,
           schemaName: uniqueData?.schemaName,
+          consoleId: item.id as number,
+          status: uniqueData.status,
         }}
         initDDL={uniqueData.ddl}
-        consoleId={item.id as number}
       />
     );
   };
 
+  // 渲染表格编辑器
   const renderTableEditor = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
     return (
@@ -152,11 +169,13 @@ const WorkspaceTabs = memo(() => {
     );
   };
 
+  // 渲染搜索结果
   const renderSearchResult = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
     return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} />;
   };
 
+  // 根据不同的tab类型渲染不同的内容
   const workspaceTabConnectionMap = (item: IWorkspaceTab) => {
     switch (item.type) {
       case WorkspaceTabType.CONSOLE:
@@ -175,6 +194,7 @@ const WorkspaceTabs = memo(() => {
     }
   };
 
+  // tab列表
   const workspaceTabItems = useMemo(() => {
     return workspaceTabList?.map((item) => {
       return {
@@ -187,15 +207,31 @@ const WorkspaceTabs = memo(() => {
     });
   }, [workspaceTabList]);
 
+  function renderCreateConsoleButton() {
+    return (
+      <div className={styles.createButtonBox}>
+        <Button className={styles.createButton} type="primary" onClick={()=>{createNewConsole()}}>
+          <Iconfont code="&#xe63a;" />
+          {i18n('common.button.createConsole')}
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <Tabs
-      className={styles.tabBox}
-      onChange={onTabChange as any}
-      onEdit={handelTabsEdit as any}
-      activeKey={activeConsoleId}
-      editableNameOnBlur={editableNameOnBlur}
-      items={workspaceTabItems}
-    />
+      workspaceTabItems?.length ?
+      <Tabs
+        className={styles.tabBox}
+        onChange={onTabChange as any}
+        onEdit={handelTabsEdit as any}
+        activeKey={activeConsoleId}
+        editableNameOnBlur={editableNameOnBlur}
+        items={workspaceTabItems}
+      />
+      :
+      <div className={styles.ears}>
+        <ShortcutKey slot={renderCreateConsoleButton} />
+      </div>
   );
 });
 

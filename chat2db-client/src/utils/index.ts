@@ -11,8 +11,8 @@ export function getOsTheme() {
 export function deepClone(target: any) {
   const map = new WeakMap();
 
-  function isObject(target: any) {
-    return (typeof target === 'object' && target) || typeof target === 'function';
+  function isObject(_target: any) {
+    return (typeof _target === 'object' && _target) || typeof _target === 'function';
   }
 
   function clone(data: any) {

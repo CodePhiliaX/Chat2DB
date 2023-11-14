@@ -5,6 +5,11 @@
 **更新日志**
 
 - 🐞【修复】复制为insert第一行丢失问题
+- 🐞【修复】达梦数据库index问题
+- 🐞【修复】Point 乱码问题
+- 🐞【修复】MariaDB连接数据库错误
+- 🐞【修复】#792 NullPointerException
+- 🐞【修复】Kingbase8r6 错误
 
 
 ## 3.0.11

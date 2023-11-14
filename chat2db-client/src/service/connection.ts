@@ -43,6 +43,7 @@ const test = createRequest<IConnectionDetails, boolean>('/api/connection/datasou
   method: 'post',
   delayTime: true,
 });
+
 const testSSH = createRequest<any, boolean>('/api/connection/ssh/pre_connect', {
   method: 'post',
   delayTime: true,

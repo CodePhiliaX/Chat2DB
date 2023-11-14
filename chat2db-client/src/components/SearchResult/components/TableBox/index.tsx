@@ -33,7 +33,7 @@ import { DownOutlined } from '@ant-design/icons';
 import { copy, tableCopy } from '@/utils';
 import Iconfont from '../../../Iconfont';
 import StateIndicator from '../../../StateIndicator';
-import MonacoEditor from '../../../ConsoleEditor/MonacoEditor';
+import MonacoEditor from '../../../MonacoEditor';
 import MyPagination from '../Pagination';
 import StatusBar from '../StatusBar';
 import RightClickMenu, { AllSupportedMenusType } from '../RightClickMenu';

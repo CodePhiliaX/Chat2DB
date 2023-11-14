@@ -2,27 +2,25 @@ import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, Forwa
 import { connect } from 'umi';
 import { formatParams } from '@/utils/url';
 import connectToEventSource from '@/utils/eventSource';
-import { Button, Spin, message, Drawer, Modal } from 'antd';
-import ChatInput, { SyncModelType } from './ChatInput';
-import MonacoEditor, { IEditorOptions, IExportRefFunction, IRangeType } from './MonacoEditor';
-import historyServer from '@/service/history';
+import { Spin, Drawer, Modal } from 'antd';
+import ChatInput, { SyncModelType } from './components/ChatInput';
+import MonacoEditor, { IEditorOptions, IExportRefFunction, IRangeType } from '../MonacoEditor';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
-import Iconfont from '../Iconfont';
 import { IAiConfig } from '@/typings';
 import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
-import { getCookie } from '@/utils';
-import { formatSql } from '@/utils/sql';
+import OperationLine from './components/OperationLine';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
 import { AIType } from '@/typings/ai';
 import i18n from '@/i18n';
 import configService from '@/service/config';
-// import NewEditor from './NewMonacoEditor';
-import sqlService from '@/service/sql';
-import indexedDB from '@/indexedDB';
 import styles from './index.less';
+
+// ----- hooks -----
+import { useModuleData } from './hooks/useModuleData';
+import { useSaveEditorData } from './hooks/useSaveEditorData';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -45,6 +43,17 @@ export type IAppendValue = {
   range?: IRangeType;
 };
 
+export interface IBoundInfo {
+  consoleId: number;
+  consoleName: string;
+  dataSourceId: number;
+  dataSourceName: string;
+  type: DatabaseTypeCode;
+  databaseName?: string;
+  schemaName?: string;
+  status?: ConsoleStatus;
+}
+
 interface IProps {
   /** 调用来源 */
   source: 'workspace';
@@ -60,24 +69,14 @@ interface IProps {
   /** 是否有 */
   hasSaveBtn?: boolean;
   value?: string;
-  executeParams: {
-    databaseName?: string;
-    dataSourceId: number;
-    type?: DatabaseTypeCode;
-    consoleId?: number;
-    schemaName?: string;
-    consoleName?: string;
-    status?: ConsoleStatus;
-  };
+  boundInfo: IBoundInfo;
+  setBoundInfo: (params: IBoundInfo) => void;
   editorOptions?: IEditorOptions;
   aiModel: IAIState;
   dispatch: any;
   remainingBtnLoading: boolean;
-  // remainingUse: IAIState['remainingUse'];
-  // onSQLContentChange: (v: string) => void;
   onExecuteSQL: (sql: string) => void;
   onConsoleSave: () => void;
-  tables: any[];
 }
 
 export interface IConsoleRef {
@@ -87,7 +86,8 @@ export interface IConsoleRef {
 function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const {
     hasAiChat = true,
-    executeParams,
+    boundInfo,
+    setBoundInfo,
     appendValue,
     isActive,
     hasSaveBtn = true,
@@ -99,7 +99,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
-  const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [syncTableModel, setSyncTableModel] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [aiContent, setAiContent] = useState('');
@@ -108,14 +107,20 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [popularizeModal, setPopularizeModal] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const [isStream, setIsStream] = useState(false);
-  const timerRef = useRef<any>();
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
-  const [tableNameList, setTableNameList] = useState<string[]>([]);
 
-  // 上一次同步的console数据
-  const lastSyncConsole = useRef<any>(defaultValue);
-  const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(executeParams.status || ConsoleStatus.DRAFT);
+  // ---------------- new-code ----------------
+  const { tableNameList, selectedTables, setSelectedTables } = useModuleData({ boundInfo: props.boundInfo });
+  const { saveConsole } = useSaveEditorData({
+    editorRef,
+    boundInfo: props.boundInfo,
+    isActive,
+    source,
+    defaultValue,
+  });
+  // ---------------- new-code ----------------
+
   /**
    * 当前选择的AI类型是Chat2DBAI
    */
@@ -141,117 +146,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     }),
     [editorRef?.current],
   );
-
-  useEffect(() => {
-    if (source !== 'workspace') {
-      return;
-    }
-    // 离开时保存
-    if (!isActive) {
-      // 离开时清除定时器
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-      const curValue = editorRef?.current?.getAllContent();
-      if (curValue === lastSyncConsole.current) {
-        return;
-      }
-      if (saveStatus === ConsoleStatus.RELEASE) {
-        saveConsole(curValue, true);
-      } else {
-        indexedDB
-          .updateData('chat2db', 'workspaceConsoleDDL', {
-            consoleId: executeParams.consoleId!,
-            ddl: curValue,
-            userId: getCookie('CHAT2DB.USER_ID'),
-          })
-          .then(() => {
-            lastSyncConsole.current = curValue;
-          });
-      }
-    } else {
-      timingAutoSave();
-    }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [isActive]);
-
-  useEffect(() => {
-    if (saveStatus === ConsoleStatus.RELEASE) {
-      editorRef?.current?.setValue(defaultValue, 'cover');
-    } else {
-      indexedDB
-        .getDataByCursor('chat2db', 'workspaceConsoleDDL', {
-          consoleId: executeParams.consoleId!,
-          userId: getCookie('CHAT2DB.USER_ID'),
-        })
-        .then((res: any) => {
-          // oldValue是为了处理函数视图等，他们是带着值来的，不需要去数据库取值
-          const oldValue = editorRef?.current?.getAllContent();
-          if (!oldValue) {
-            editorRef?.current?.setValue(res?.[0]?.ddl || '', 'cover');
-          }
-        });
-    }
-  }, []);
-
-  // TODO: 暂时写在这里，后续去掉
-  useEffect(() => {
-    if (!props.executeParams) {
-      return;
-    }
-
-    if (!props.tables || props.tables.length === 0) {
-      setTableNameList([]);
-      setSelectedTables([]);
-      return;
-    }
-
-    const { dataSourceId, databaseName, schemaName } = props.executeParams;
-    sqlService
-      .getAllTableList({
-        dataSourceId,
-        databaseName,
-        schemaName,
-      })
-      .then((data) => {
-        const tableNameListTemp = data.map((t) => t.name);
-        setTableNameList(tableNameListTemp);
-
-        if (selectedTables.length === 0) {
-          setSelectedTables(tableNameListTemp.slice(0, 1));
-        }
-      });
-    // debugger
-  }, [props.tables]);
-
-  function timingAutoSave(_status?: ConsoleStatus) {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    timerRef.current = setInterval(() => {
-      const curValue = editorRef?.current?.getAllContent();
-      if (curValue === lastSyncConsole.current) {
-        return;
-      }
-      if (saveStatus === ConsoleStatus.RELEASE || _status === ConsoleStatus.RELEASE) {
-        saveConsole(curValue, true);
-      } else {
-        indexedDB
-          .updateData('chat2db', 'workspaceConsoleDDL', {
-            consoleId: executeParams.consoleId!,
-            ddl: curValue,
-            userId: getCookie('CHAT2DB.USER_ID'),
-          })
-          .then(() => {
-            lastSyncConsole.current = curValue;
-          });
-      }
-    }, 5000);
-  }
 
   const handleApiKeyEmptyOrGetQrCode = async (shouldPoll?: boolean) => {
     setIsLoading(true);
@@ -309,7 +203,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       return;
     }
 
-    const { dataSourceId, databaseName, schemaName } = executeParams;
+    const { dataSourceId, databaseName, schemaName } = boundInfo;
     const isNL2SQL = promptType === IPromptType.NL_2_SQL;
     if (isNL2SQL) {
       setIsLoading(true);
@@ -328,11 +222,11 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       ext,
     });
 
-    const handleMessage = (message: string) => {
+    const handleMessage = (_message: string) => {
       setIsLoading(false);
       setIsAiDrawerLoading(false);
       try {
-        const isEOF = message === '[DONE]';
+        const isEOF = _message === '[DONE]';
         if (isEOF) {
           closeEventSource.current();
           setIsStream(false);
@@ -357,13 +251,13 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
         let hasErrorToLogin = false;
         chatErrorToLogin.forEach((err) => {
-          if (message.includes(err)) {
+          if (_message.includes(err)) {
             hasErrorToLogin = true;
           }
         });
         let hasKeyLimitedOrExpired = false;
         chatErrorForKey.forEach((err) => {
-          if (message.includes(err)) {
+          if (_message.includes(err)) {
             hasKeyLimitedOrExpired = true;
           }
         });
@@ -390,9 +284,9 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
         }
 
         if (isNL2SQL) {
-          editorRef?.current?.setValue(JSON.parse(message).content);
+          editorRef?.current?.setValue(JSON.parse(_message).content);
         } else {
-          chatResult.current += JSON.parse(message).content;
+          chatResult.current += JSON.parse(_message).content;
           setAiContent(chatResult.current);
         }
       } catch (error) {
@@ -428,26 +322,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       return;
     }
     props.onExecuteSQL && props.onExecuteSQL(sqlContent);
-  };
-
-  const saveConsole = (value?: string, noPrompting?: boolean) => {
-    const p: any = {
-      id: executeParams.consoleId,
-      status: ConsoleStatus.RELEASE,
-      ddl: value,
-    };
-
-    historyServer.updateSavedConsole(p).then(() => {
-      indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', executeParams.consoleId!);
-      lastSyncConsole.current = value;
-      setSaveStatus(ConsoleStatus.RELEASE);
-      if (noPrompting) {
-        return;
-      }
-      message.success(i18n('common.tips.saveSuccessfully'));
-      props.onConsoleSave && props.onConsoleSave();
-      timingAutoSave(ConsoleStatus.RELEASE);
-    });
   };
 
   const addAction = [
@@ -496,21 +370,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       ),
     });
     setPopularizeModal(true);
-  };
-
-  /**
-   * 格式化sql
-   */
-  const handleSQLFormat = () => {
-    let setValueType = 'select';
-    let sql = editorRef?.current?.getCurrentSelectContent();
-    if (!sql) {
-      sql = editorRef?.current?.getAllContent() || '';
-      setValueType = 'cover';
-    }
-    formatSql(sql, executeParams.type!).then((res) => {
-      editorRef?.current?.setValue(res, setValueType);
-    });
   };
 
   const handleSelectTableSyncModel = () => {
@@ -569,12 +428,13 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           ref={editorRef as any}
           className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
           addAction={addAction}
+          databaseType={boundInfo.type}
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
         />
 
-        {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
+        {/* <NewEditor id={uid} dataSource={props.boundInfo.type} database={props.boundInfo.databaseName} /> */}
 
         <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
@@ -582,26 +442,14 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           </Spin>
         </Drawer>
       </Spin>
-      <div className={styles.consoleOptionsWrapper}>
-        <div className={styles.consoleOptionsLeft}>
-          <Button type="primary" className={styles.runButton} onClick={() => executeSQL()}>
-            <Iconfont code="&#xe637;" />
-            {i18n('common.button.execute')}
-          </Button>
-          {hasSaveBtn && (
-            <Button
-              type="default"
-              className={styles.saveButton}
-              onClick={() => saveConsole(editorRef?.current?.getAllContent())}
-            >
-              {i18n('common.button.save')}
-            </Button>
-          )}
-        </div>
-        <Button type="text" onClick={handleSQLFormat}>
-          {i18n('common.button.format')}
-        </Button>
-      </div>
+      <OperationLine
+        boundInfo={boundInfo}
+        saveConsole={saveConsole}
+        executeSQL={executeSQL}
+        editorRef={editorRef}
+        setBoundInfo={setBoundInfo}
+        hasSaveBtn={hasSaveBtn}
+      />
       <Modal
         open={popularizeModal}
         footer={false}
