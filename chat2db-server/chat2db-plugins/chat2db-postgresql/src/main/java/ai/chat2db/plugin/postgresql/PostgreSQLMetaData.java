@@ -230,6 +230,10 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 TableIndex tableIndex = map.get(keyName);
                 if (tableIndex != null) {
                     List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                    if(columnList == null){
+                        columnList = new ArrayList<>();
+                        tableIndex.setColumnList(columnList);
+                    }
                     columnList.add(getTableIndexColumn(resultSet));
                     columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
                             .collect(Collectors.toList());

@@ -184,17 +184,6 @@ function AppContainer() {
           {startSchedule < 2 && (
             <div className={styles.loadingBox}>
               <Spin spinning={!serviceFail} size="large" />
-              {/* 状态等于1时，说明没服务起来需要轮训接口，这时可能服务配置又问题，需要设置来修改 */}
-              {/* {startSchedule === 1 && (
-                <Setting
-                  render={
-                    <div className={styles.settingBox}>
-                      <Iconfont code="&#xe630;" />
-                    </div>
-                  }
-                  noLogin
-                />
-              )} */}
               {serviceFail && (
                 <>
                   <div className={styles.github}>

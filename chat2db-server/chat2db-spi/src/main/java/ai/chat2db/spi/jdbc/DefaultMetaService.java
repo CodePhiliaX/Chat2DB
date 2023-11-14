@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -25,7 +26,15 @@ public class DefaultMetaService implements MetaData {
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
-        return SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        if(StringUtils.isNotBlank(databaseName) && CollectionUtils.isNotEmpty(schemas)){
+            for ( Schema schema : schemas) {
+                if(StringUtils.isBlank(schema.getDatabaseName())){
+                    schema.setDatabaseName(databaseName);
+                }
+            }
+        }
+        return schemas;
     }
 
     @Override
@@ -123,6 +132,8 @@ public class DefaultMetaService implements MetaData {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).collect(Collectors.joining("."));
     }
 
-
-
+    @Override
+    public ValueHandler getValueHandler() {
+        return new DefaultValueHandler();
+    }
 }
