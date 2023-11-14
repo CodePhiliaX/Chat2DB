@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.sqlserver.builder.SqlServerSqlBuilder;
 import ai.chat2db.plugin.sqlserver.type.SqlServerColumnTypeEnum;
+import ai.chat2db.plugin.sqlserver.type.SqlServerDefaultValueEnum;
 import ai.chat2db.plugin.sqlserver.type.SqlServerIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -382,6 +383,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 .charsets(null)
                 .collations(null)
                 .indexTypes(SqlServerIndexTypeEnum.getIndexTypes())
+                .defaultValues(SqlServerDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

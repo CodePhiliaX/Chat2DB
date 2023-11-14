@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.oracle.builder.OracleSqlBuilder;
 import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
+import ai.chat2db.plugin.oracle.type.OracleDefaultValueEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -290,6 +291,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 .charsets(Lists.newArrayList())
                 .collations(Lists.newArrayList())
                 .indexTypes(OracleIndexTypeEnum.getIndexTypes())
+                .defaultValues(OracleDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

@@ -2,6 +2,7 @@ package ai.chat2db.plugin.kingbase;
 
 import ai.chat2db.plugin.kingbase.builder.KingBaseSqlBuilder;
 import ai.chat2db.plugin.kingbase.type.KingBaseColumnTypeEnum;
+import ai.chat2db.plugin.kingbase.type.KingBaseDefaultValueEnum;
 import ai.chat2db.plugin.kingbase.type.KingBaseIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -196,6 +197,7 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
                 //.charsets(PostgreSQLCharsetEnum.getCharsets())
                 //.collations(PostgreSQLCollationEnum.getCollations())
                 .indexTypes(KingBaseIndexTypeEnum.getIndexTypes())
+                .defaultValues(KingBaseDefaultValueEnum.getDefaultValues())
                 .build();
     }
     @Override
