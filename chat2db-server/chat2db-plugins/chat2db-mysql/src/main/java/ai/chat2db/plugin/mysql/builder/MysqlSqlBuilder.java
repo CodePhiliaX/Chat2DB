@@ -17,7 +17,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         StringBuilder script = new StringBuilder();
         script.append("CREATE TABLE ");
         if(StringUtils.isNotBlank(table.getDatabaseName())) {
-            script.append("`").append(table.getName()).append("`").append(".");
+            script.append("`").append(table.getDatabaseName()).append("`").append(".");
         }
         script.append("`").append(table.getName()).append("`").append(" (").append("\n");
 
