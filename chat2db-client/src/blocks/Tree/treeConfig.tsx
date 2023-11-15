@@ -1,6 +1,7 @@
 import { ITreeNode, IConnectionDetails } from '@/typings';
 import { TreeNodeType, OperationColumn } from '@/constants';
 import connectionService from '@/service/connection';
+import { v4 as uuid } from 'uuid';
 
 import mysqlServer from '@/service/sql';
 
@@ -98,6 +99,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const data: ITreeNode[] = res.data.map((t: IConnectionDetails) => {
               return {
+                uuid: uuid(),
                 key: t.id,
                 name: t.alias,
                 treeNodeType: TreeNodeType.DATA_SOURCE,
@@ -127,6 +129,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const data: ITreeNode[] = res.map((t: any) => {
               return {
+                uuid: uuid(),
                 key: t.name,
                 name: t.name,
                 treeNodeType: TreeNodeType.DATABASE,
@@ -158,6 +161,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const data: ITreeNode[] = res.map((t: any) => {
               return {
+                uuid: uuid(),
                 key: t.name,
                 name: t.name,
                 treeNodeType: TreeNodeType.SCHEMAS,
@@ -192,30 +196,35 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       return new Promise((r: (value: ITreeNode[]) => void) => {
         const data = [
           {
+            uuid: uuid(),
             key: `${preCode}-tables`,
             name: 'tables',
             treeNodeType: TreeNodeType.TABLES,
             extraParams: parentData.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-views`,
             name: 'view',
             treeNodeType: TreeNodeType.VIEWS,
             extraParams: parentData.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-functions`,
             name: 'functions',
             treeNodeType: TreeNodeType.FUNCTIONS,
             extraParams: parentData.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-procedures`,
             name: 'procedures',
             treeNodeType: TreeNodeType.PROCEDURES,
             extraParams: parentData.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-triggers`,
             name: 'triggers',
             treeNodeType: TreeNodeType.TRIGGERS,
@@ -239,6 +248,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const tableList: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.name,
                 treeNodeType: TreeNodeType.TABLE,
                 key: t.name,
@@ -274,18 +284,21 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         const preCode = [dataSourceId, databaseName, schemaName, tableName].join('-');
         const list = [
           {
+            uuid: uuid(),
             key: `${preCode}-columns`,
             name: 'columns',
             treeNodeType: TreeNodeType.COLUMNS,
             extraParams: params.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-keys`,
             name: 'keys',
             treeNodeType: TreeNodeType.KEYS,
             extraParams: params.extraParams,
           },
           {
+            uuid: uuid(),
             key: `${preCode}-indexs`,
             name: 'indexs',
             treeNodeType: TreeNodeType.INDEXES,
@@ -297,6 +310,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
     operationColumn: [
+      OperationColumn.OpenTable,
       OperationColumn.CreateConsole,
       OperationColumn.Top,
       OperationColumn.ViewDDL,
@@ -317,6 +331,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const viewList: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.name,
                 treeNodeType: TreeNodeType.VIEW,
                 key: t.name,
@@ -349,6 +364,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.functionName,
                 treeNodeType: TreeNodeType.FUNCTION,
                 key: t.name,
@@ -373,7 +389,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.FUNCTION]: {
     icon: '\ue76a',
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenFunction, OperationColumn.CopyName],
   },
 
   [TreeNodeType.PROCEDURES]: {
@@ -387,6 +403,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.procedureName,
                 treeNodeType: TreeNodeType.PROCEDURE,
                 key: t.name,
@@ -411,7 +428,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.PROCEDURE]: {
     icon: '\ue73c',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenProcedure, OperationColumn.CopyName],
   },
 
   [TreeNodeType.TRIGGERS]: {
@@ -425,6 +442,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.triggerName,
                 treeNodeType: TreeNodeType.TRIGGER,
                 key: t.name,
@@ -449,7 +467,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenTrigger, OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEW]: {
@@ -458,6 +476,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       return new Promise((r: (value: ITreeNode[]) => void) => {
         const list = [
           {
+            uuid: uuid(),
             name: 'columns',
             treeNodeType: TreeNodeType.COLUMNS,
             key: 'columns',
@@ -467,7 +486,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(list);
       });
     },
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenView, OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEWCOLUMNS]: {
@@ -481,6 +500,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
+                uuid: uuid(),
                 name: t.name,
                 treeNodeType: TreeNodeType.VIEWCOLUMN,
                 key: t.name,
@@ -502,7 +522,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.VIEWCOLUMN]: {
     icon: '\ue647',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
 
   [TreeNodeType.COLUMNS]: {
@@ -516,6 +536,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               return {
+                uuid: uuid(),
                 name: item.name,
                 treeNodeType: TreeNodeType.COLUMN,
                 key: item.name,
@@ -536,7 +557,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
@@ -549,6 +570,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               return {
+                uuid: uuid(),
                 name: item.name,
                 treeNodeType: TreeNodeType.KEY,
                 key: item.name,
@@ -567,7 +589,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.KEY]: {
     icon: '\ue775',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
@@ -580,6 +602,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               return {
+                uuid: uuid(),
                 name: item.name,
                 treeNodeType: TreeNodeType.INDEX,
                 key: item.name,
@@ -598,6 +621,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
 };

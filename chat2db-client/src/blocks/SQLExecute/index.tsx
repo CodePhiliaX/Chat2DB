@@ -1,11 +1,11 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import ConsoleEditor, { IConsoleRef } from '@/components/ConsoleEditor';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
-import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+
 interface IProps {
   boundInfo: {
     databaseName: string;
@@ -16,6 +16,8 @@ interface IProps {
     status: ConsoleStatus;
   };
   initDDL: string;
+  // 异步加载sql
+  loadSQL: () => Promise<string>;
 }
 
 interface IContext {
@@ -31,15 +33,24 @@ interface IContext {
 }
 
 const SQLExecute = memo<IProps>((props) => {
-  const { boundInfo: _boundInfo, initDDL } = props;
+  const { boundInfo: _boundInfo, initDDL, loadSQL } = props;
   const draggableRef = useRef<any>();
   const searchResultRef = useRef<ISearchResultRef>(null);
   const consoleRef = useRef<IConsoleRef>(null);
-  const [boundInfo, setBoundInfo] = useState(_boundInfo)
+  const [boundInfo, setBoundInfo] = useState(_boundInfo);
 
-  useUpdateEffect(() => {
-    consoleRef.current?.editorRef?.setValue(initDDL, 'cover');
-  }, [initDDL]);
+
+  useEffect(() => {
+    if(loadSQL){
+      loadSQL().then((sql) => {
+        consoleRef.current?.editorRef?.setValue(sql, 'cover');
+      });
+    }
+  }, []);
+
+  // useUpdateEffect(() => {
+  //   consoleRef.current?.editorRef?.setValue(initDDL, 'cover');
+  // }, [initDDL]);
 
   return (
     <div className={classnames(styles.sqlExecute)}>

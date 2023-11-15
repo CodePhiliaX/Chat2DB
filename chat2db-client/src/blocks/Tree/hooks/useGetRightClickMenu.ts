@@ -14,6 +14,9 @@ import { useMemo } from 'react';
 // ----- store -----
 import { createConsole, addWorkspaceTab } from '@/store/console';
 
+// ---- functions -----
+import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
+
 interface IProps {
   treeNodeData: ITreeNode;
   loadData: any;
@@ -66,6 +69,7 @@ export const useGetRightClickMenu = (props: IProps) => {
           });
         },
       },
+
       // 创建console
       [OperationColumn.CreateConsole]: {
         text: i18n('workspace.menu.queryConsole'),
@@ -80,6 +84,7 @@ export const useGetRightClickMenu = (props: IProps) => {
           });
         },
       },
+
       // 创建表
       [OperationColumn.CreateTable]: {
         text: i18n('editTable.button.createTable'),
@@ -98,6 +103,7 @@ export const useGetRightClickMenu = (props: IProps) => {
           });
         },
       },
+
       // 删除表
       [OperationColumn.DeleteTable]: {
         text: i18n('workspace.menu.deleteTable'),
@@ -106,6 +112,7 @@ export const useGetRightClickMenu = (props: IProps) => {
           // setVerifyDialog(true);
         },
       },
+
       // 查看ddl
       [OperationColumn.ViewDDL]: {
         text: i18n('workspace.menu.ViewDDL'),
@@ -114,18 +121,34 @@ export const useGetRightClickMenu = (props: IProps) => {
           //
         },
       },
+
       // 置顶
       [OperationColumn.Top]: {
         text: treeNodeData.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: treeNodeData.pinned ? '\ue61d' : '\ue627',
         handle: () => {},
       },
+
       // 编辑表
       [OperationColumn.EditTable]: {
         text: i18n('workspace.menu.editTable'),
         icon: '\ue602',
-        handle: () => {},
+        handle: () => {
+          addWorkspaceTab({
+            id: `${OperationColumn.EditTable}-${treeNodeData.uuid}`,
+            title: i18n('editTable.button.createTable'),
+            type: WorkspaceTabType.EditTable,
+            uniqueData: {
+              dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+              databaseType: treeNodeData.extraParams!.databaseType!,
+              databaseName: treeNodeData.extraParams?.databaseName,
+              schemaName: treeNodeData.extraParams?.schemaName,
+              tableName: treeNodeData?.name,
+            },
+          });
+        },
       },
+
       // 复制名称
       [OperationColumn.CopyName]: {
         text: i18n('common.button.copyName'),
@@ -134,13 +157,83 @@ export const useGetRightClickMenu = (props: IProps) => {
           navigator.clipboard.writeText(treeNodeData.name);
         },
       },
+
+      // 打开表
+      [OperationColumn.OpenTable]: {
+        text: i18n('workspace.menu.openTable'),
+        icon: '\ue618',
+        handle: () => {
+          addWorkspaceTab({
+            id: `${OperationColumn.OpenTable}-${treeNodeData.uuid}`,
+            title: treeNodeData.name,
+            type: WorkspaceTabType.EditTableData,
+            uniqueData: {
+              dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+              databaseType: treeNodeData.extraParams!.databaseType!,
+              databaseName: treeNodeData.extraParams?.databaseName,
+              schemaName: treeNodeData.extraParams?.schemaName,
+              sql: `select * from ${treeNodeData.name}`,
+            },
+          });
+        },
+      },
+
+      // 打开视图
+      [OperationColumn.OpenView]: {
+        text: i18n('workspace.menu.view'),
+        icon: '\ue651',
+        handle: () => {
+          openView({
+            addWorkspaceTab,
+            treeNodeData,
+          });
+        },
+      },
+
+      // 打开函数
+      [OperationColumn.OpenFunction]: {
+        text: i18n('workspace.menu.view'),
+        icon: '\ue651',
+        handle: () => {
+          openFunction({
+            addWorkspaceTab,
+            treeNodeData,
+          });
+        },
+      },
+
+      // 打开存储过程
+      [OperationColumn.OpenProcedure]: {
+        text: i18n('workspace.menu.view'),
+        icon: '\ue651',
+        handle: () => {
+          openProcedure({
+            addWorkspaceTab,
+            treeNodeData,
+          });
+        },
+      },
+
+      // 打开触发器
+      [OperationColumn.OpenTrigger]: {
+        text: i18n('workspace.menu.view'),
+        icon: '\ue651',
+        handle: () => {
+          openTrigger({
+            addWorkspaceTab,
+            treeNodeData,
+          });
+        },
+      },
     };
 
+    // 根据配置生成右键菜单
     return excludeSomeOperation().map((t, i) => {
       const concrete = operationColumnConfig[t];
       return {
         key: i,
         onClick: concrete?.handle,
+        type: t,
         labelProps: {
           icon: concrete?.icon,
           label: concrete?.text,

@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import { Tooltip, Dropdown } from 'antd';
 import { ITreeNode } from '@/typings';
-import { TreeNodeType, databaseMap } from '@/constants';
+import { OperationColumn, TreeNodeType, databaseMap } from '@/constants';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
@@ -46,7 +46,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const [treeNodeData, setTreeNodeData] = useState<ITreeNode>({
     ...initData,
   });
-  const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.key;
+  const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
 
   // 加载数据
   function loadData(_props?: { refresh: boolean }) {
@@ -118,31 +118,38 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     }
   };
 
-  function nodeDoubleClick() {
-    // if (
-    //   data.treeNodeType === TreeNodeType.TABLE ||
-    //   data.treeNodeType === TreeNodeType.FUNCTION ||
-    //   data.treeNodeType === TreeNodeType.TRIGGER ||
-    //   data.treeNodeType === TreeNodeType.VIEW ||
-    //   data.treeNodeType === TreeNodeType.PROCEDURE
-    // ) {
-    //   dispatch({
-    //     type: 'workspace/setDoubleClickTreeNodeData',
-    //     payload: data,
-    //   });
-    // }
-    // else {
-    //   handleClick(data);
-    // }
-  }
+  // function nodeDoubleClick() {
+  //   if (
+  //     data.treeNodeType === TreeNodeType.TABLE ||
+  //     data.treeNodeType === TreeNodeType.FUNCTION ||
+  //     data.treeNodeType === TreeNodeType.TRIGGER ||
+  //     data.treeNodeType === TreeNodeType.VIEW ||
+  //     data.treeNodeType === TreeNodeType.PROCEDURE
+  //   ) {
+  //     dispatch({
+  //       type: 'workspace/setDoubleClickTreeNodeData',
+  //       payload: data,
+  //     });
+  //   }
+  //   else {
+  //     handleClick(data);
+  //   }
+  // }
 
   // 点击节点
   const handelClickTreeNode = () => {
     useCommonStore.setState({
       focusedContent: (treeNodeData.name || '') as any,
     });
-    setFocusId(treeNodeData.key || '');
+    setFocusId(treeNodeData.uuid || '');
   };
+
+  // 
+  const handelDoubleClickTreeNode = () => {
+    if (treeNodeData.treeNodeType === TreeNodeType.TABLE) {
+      rightClickMenu.find((item) => item.type === OperationColumn.OpenTable)?.onClick();
+    }
+  }
 
   // 递归渲染
   const treeNodes = useMemo(() => {
@@ -181,6 +188,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
             className={classnames(styles.treeNode, { [styles.treeNodeFocus]: isFocus })}
             onClick={handelClickTreeNode}
             onContextMenu={handelClickTreeNode}
+            onDoubleClick={handelDoubleClickTreeNode}
             data-chat2db-general-can-copy-element
           >
             <div className={styles.left}>
@@ -203,7 +211,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
                   )}
                 </div>
               )}
-              <div className={styles.dblclickArea} onDoubleClick={nodeDoubleClick}>
+              <div className={styles.dblclickArea}>
                 <div className={styles.typeIcon}>
                   <Iconfont code={recognizeIcon(treeNodeData.treeNodeType)!} />
                 </div>

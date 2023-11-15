@@ -13,6 +13,7 @@ export interface IExtraParams {
 }
 
 export interface ITreeNode {
+  uuid: string;
   key: string | number;
   name: string;
   // 用展示的name

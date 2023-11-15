@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useMemo, Fragment } from 'react';
 import styles from './index.less';
 import i18n from '@/i18n';
-import { Button } from 'antd'
+import { Button } from 'antd';
 
 // ----- constants -----
 import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
@@ -83,7 +83,7 @@ const WorkspaceTabs = memo(() => {
       dataSourceId: currentConnectionDetails?.id,
       type: currentConnectionDetails?.type,
     });
-  }
+  };
 
   // 删除 新增tab
   const handelTabsEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
@@ -95,11 +95,7 @@ const WorkspaceTabs = memo(() => {
       );
       data.forEach((item) => {
         const editData = workspaceTabList?.find((t) => t.id === item.key);
-        if (
-          editData?.type !== WorkspaceTabType.EditTable &&
-          editData?.type !== WorkspaceTabType.CreateTable &&
-          editData?.type !== WorkspaceTabType.EditTableData
-        ) {
+        if (editData?.type === WorkspaceTabType.CONSOLE) {
           closeWindowTab(item.key as number);
         }
       });
@@ -149,6 +145,7 @@ const WorkspaceTabs = memo(() => {
           status: uniqueData.status,
         }}
         initDDL={uniqueData.ddl}
+        loadSQL={uniqueData.loadSQL}
       />
     );
   };
@@ -210,7 +207,13 @@ const WorkspaceTabs = memo(() => {
   function renderCreateConsoleButton() {
     return (
       <div className={styles.createButtonBox}>
-        <Button className={styles.createButton} type="primary" onClick={()=>{createNewConsole()}}>
+        <Button
+          className={styles.createButton}
+          type="primary"
+          onClick={() => {
+            createNewConsole();
+          }}
+        >
           <Iconfont code="&#xe63a;" />
           {i18n('common.button.createConsole')}
         </Button>
@@ -218,20 +221,19 @@ const WorkspaceTabs = memo(() => {
     );
   }
 
-  return (
-      workspaceTabItems?.length ?
-      <Tabs
-        className={styles.tabBox}
-        onChange={onTabChange as any}
-        onEdit={handelTabsEdit as any}
-        activeKey={activeConsoleId}
-        editableNameOnBlur={editableNameOnBlur}
-        items={workspaceTabItems}
-      />
-      :
-      <div className={styles.ears}>
-        <ShortcutKey slot={renderCreateConsoleButton} />
-      </div>
+  return workspaceTabItems?.length ? (
+    <Tabs
+      className={styles.tabBox}
+      onChange={onTabChange as any}
+      onEdit={handelTabsEdit as any}
+      activeKey={activeConsoleId}
+      editableNameOnBlur={editableNameOnBlur}
+      items={workspaceTabItems}
+    />
+  ) : (
+    <div className={styles.ears}>
+      <ShortcutKey slot={renderCreateConsoleButton} />
+    </div>
   );
 });
 

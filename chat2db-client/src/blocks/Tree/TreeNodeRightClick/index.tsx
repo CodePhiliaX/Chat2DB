@@ -52,6 +52,7 @@ function TreeNodeRightClick(props: IProps) {
   const monacoEditorRef = useRef<IExportRefFunction>(null);
   
   const operationColumnConfig: { [key in OperationColumn]: (data: ITreeNode) => IOperationColumnConfigItem } = {
+    // 刷新
     [OperationColumn.Refresh]: () => {
       return {
         text: i18n('common.button.refresh'),

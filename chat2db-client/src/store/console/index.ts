@@ -73,10 +73,16 @@ export const createConsole = (params: ICreateConsoleParams)=>{
 
 export const addWorkspaceTab = (params: IWorkspaceTab) => {
   const workspaceTabList = useConsoleStore.getState().workspaceTabList;
+  if(workspaceTabList?.findIndex((item) => item?.id === params?.id) !== -1){
+    setActiveConsoleId(params.id);
+    return;
+  }
+  
   const newList = [
     ...(workspaceTabList||[]),
     params,
   ];
+
   setWorkspaceTabList(newList);
   setActiveConsoleId(params.id);
 };
