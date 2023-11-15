@@ -23,7 +23,17 @@ public class KeyValue implements Serializable {
     /**
      * 属性值
      */
-    private Object value;
+    private String value;
+
+    /**
+     * 是否必填
+     */
+    private boolean required;
+
+    /**
+     * 选项
+     */
+    private List<String> choices;
 
     public static Map<String, Object> toMap(List<KeyValue> keyValues) {
         if (CollectionUtils.isEmpty(keyValues)) {

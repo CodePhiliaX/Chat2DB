@@ -12,14 +12,16 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import ai.chat2db.spi.model.*;
+import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import cn.hutool.core.date.TimeInterval;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -92,12 +94,12 @@ public class SQLExecutor {
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-                           Consumer<List<String>> rowConsumer) {
-        executeSql(connection, sql, headerConsumer, rowConsumer, true);
+                           Consumer<List<String>> rowConsumer,ValueHandler valueHandler) {
+        executeSql(connection, sql, headerConsumer, rowConsumer, true,valueHandler);
     }
 
     public void executeSql(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-                           Consumer<List<String>> rowConsumer, boolean limitSize) {
+                           Consumer<List<String>> rowConsumer, boolean limitSize,ValueHandler valueHandler) {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement();) {
@@ -115,7 +117,7 @@ public class SQLExecutor {
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                                .dataType(ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                                .dataType(JdbcUtils.resolveDataType(
                                         resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
                                 .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
                                 .build());
@@ -125,7 +127,7 @@ public class SQLExecutor {
                     while (rs.next()) {
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         for (int i = 1; i <= col; i++) {
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitSize));
+                            row.add(valueHandler.getString(rs, i, limitSize));
                         }
                         rowConsumer.accept(row);
                     }
@@ -145,8 +147,8 @@ public class SQLExecutor {
      * @return
      * @throws SQLException
      */
-    public ExecuteResult execute(final String sql, Connection connection) throws SQLException {
-        return execute(sql, connection, true, null, null);
+    public ExecuteResult execute(final String sql, Connection connection,ValueHandler valueHandler) throws SQLException {
+        return execute(sql, connection, true, null, null,valueHandler);
     }
 
     public ExecuteResult executeUpdate(final String sql, Connection connection, int n)
@@ -160,7 +162,7 @@ public class SQLExecutor {
             if (affectedRows != n) {
                 executeResult.setSuccess(false);
                 executeResult.setMessage("Update error " + sql + " update affectedRows = " + affectedRows + ", Each SQL statement should update no more than one record. Please use a unique key for updates.");
-                connection.rollback();
+               // connection.rollback();
             }
         }
         return executeResult;
@@ -178,11 +180,10 @@ public class SQLExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset,
-                                 Integer count)
+                                 Integer count, ValueHandler valueHandler)
             throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
-
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
@@ -214,7 +215,7 @@ public class SQLExecutor {
                             chat2dbAutoRowIdIndex = i;
                             continue;
                         }
-                        String dataType = ai.chat2db.spi.util.JdbcUtils.resolveDataType(
+                        String dataType = JdbcUtils.resolveDataType(
                                 resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode();
                         headerList.add(Header.builder()
                                 .dataType(dataType)
@@ -241,7 +242,7 @@ public class SQLExecutor {
                             if (chat2dbAutoRowIdIndex == i) {
                                 continue;
                             }
-                            row.add(ai.chat2db.spi.util.JdbcUtils.getResultSetValue(rs, i, limitRowSize));
+                            row.add(valueHandler.getString(rs, i, limitRowSize));
                         }
                         if (count != null && count > 0 && rowCount++ >= count) {
                             break;
@@ -260,6 +261,7 @@ public class SQLExecutor {
         return executeResult;
     }
 
+
     /**
      * 执行sql
      *
@@ -268,8 +270,12 @@ public class SQLExecutor {
      * @return
      * @throws SQLException
      */
+    public ExecuteResult execute(Connection connection, String sql,ValueHandler valueHandler) throws SQLException {
+        return execute(sql, connection, true, null, null,valueHandler);
+    }
+
     public ExecuteResult execute(Connection connection, String sql) throws SQLException {
-        return execute(sql, connection, true, null, null);
+        return execute(sql, connection, true, null, null,new DefaultValueHandler());
     }
 
     /**
@@ -455,7 +461,6 @@ public class SQLExecutor {
             return dbVersion;
         } catch (Exception e) {
             log.error("get db version error", e);
-            //throw new RuntimeException(e);
         }
         return "";
     }

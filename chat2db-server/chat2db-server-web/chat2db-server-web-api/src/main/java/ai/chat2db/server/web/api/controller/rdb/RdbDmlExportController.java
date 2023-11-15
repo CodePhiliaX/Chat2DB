@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.SQLUtils.FormatOption;
@@ -130,7 +131,7 @@ public class RdbDmlExportController {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            }, false);
+            }, false,new DefaultValueHandler());
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -161,7 +162,7 @@ public class RdbDmlExportController {
                     sqlInsertStatement.setValues(valuesClause);
 
                     printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                }, false);
+                }, false,new DefaultValueHandler());
         }
     }
 

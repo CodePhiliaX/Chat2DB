@@ -1,27 +1,25 @@
 package ai.chat2db.spi.util;
 
-import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Map;
+import java.sql.*;
+import java.text.Collator;
+import java.util.*;
 
+import ai.chat2db.spi.model.KeyValue;
 import com.alibaba.druid.DbType;
 
-import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.ssh.SSHManager;
-import cn.hutool.core.io.unit.DataSizeUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.lang.Nullable;
 
 /**
  * jdbc工具类
@@ -133,77 +131,6 @@ public class JdbcUtils {
     }
 
     /**
-     * 获取一个返回值
-     *
-     * @param rs
-     * @param index
-     * @return
-     * @throws SQLException
-     */
-    public static String getResultSetValue(ResultSet rs, int index, boolean limitSize) throws SQLException {
-        Object obj = rs.getObject(index);
-        if (obj == null) {
-            return null;
-        }
-        try {
-            if (obj instanceof BigDecimal bigDecimal) {
-                return bigDecimal.toPlainString();
-            } else if (obj instanceof Double d) {
-                return BigDecimal.valueOf(d).toPlainString();
-            } else if (obj instanceof Float f) {
-                return BigDecimal.valueOf(f).toPlainString();
-            } else if (obj instanceof Clob) {
-                return largeString(rs, index, limitSize);
-            } else if (obj instanceof byte[]) {
-                return largeString(rs, index, limitSize);
-            } else if (obj instanceof Blob blob) {
-                return largeStringBlob(blob, limitSize);
-            }
-            return rs.getString(index);
-        } catch (Exception e) {
-            log.warn("解析数失败:{},{}", index, obj, e);
-            return obj.toString();
-        }
-    }
-
-    private static String largeStringBlob(Blob blob, boolean limitSize) throws SQLException {
-        if (blob == null) {
-            return null;
-        }
-        int length = Math.toIntExact(blob.length());
-        if (limitSize && length > MAX_RESULT_SIZE) {
-            length = Math.toIntExact(MAX_RESULT_SIZE);
-        }
-        byte[] data = blob.getBytes(1, length);
-        String result = new String(data);
-
-        if (length > MAX_RESULT_SIZE) {
-            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(length)
-                + " ,"
-                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result;
-        }
-        return result;
-    }
-
-    private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {
-        String result = rs.getString(index);
-        if (result == null) {
-            return null;
-
-        }
-        if (!limitSize) {
-            return result;
-        }
-
-        if (result.length() > MAX_RESULT_SIZE) {
-            return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(result.length()) + " ,"
-                + I18nUtils.getMessage("execute.exportCsv") + " ] " + result.substring(0,
-                Math.toIntExact(MAX_RESULT_SIZE));
-        }
-        return result;
-    }
-
-    /**
      * 测试数据库连接
      *
      * @param url      数据库连接
@@ -213,11 +140,11 @@ public class JdbcUtils {
      * @return
      */
     public static DataSourceConnect testConnect(String url, String host, String port,
-        String userName, String password, String dbType,
-        DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
+                                                String userName, String password, String dbType,
+                                                DriverConfig driverConfig, SSHInfo ssh, Map<String, Object> properties) {
         DataSourceConnect dataSourceConnect = DataSourceConnect.builder()
-            .success(Boolean.TRUE)
-            .build();
+                .success(Boolean.TRUE)
+                .build();
         Session session = null;
         Connection connection = null;
         // 加载驱动
@@ -230,7 +157,7 @@ public class JdbcUtils {
             }
             // 创建连接
             connection = IDriverManager.getConnection(url, userName, password,
-                driverConfig, properties);
+                    driverConfig, properties);
         } catch (Exception e) {
             log.error("connection fail:", e);
             dataSourceConnect.setSuccess(Boolean.FALSE);
@@ -263,6 +190,111 @@ public class JdbcUtils {
         }
         dataSourceConnect.setDescription("成功");
         return dataSourceConnect;
+    }
+
+    public static void closeResultSet(@Nullable ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException var2) {
+                log.trace("Could not close JDBC ResultSet", var2);
+            } catch (Throwable var3) {
+                log.trace("Unexpected exception on closing JDBC ResultSet", var3);
+            }
+        }
+
+    }
+
+    public static void setDriverDefaultProperty(DriverConfig driverConfig) {
+        if(driverConfig == null){
+            return;
+        }
+        List<KeyValue> defaultKeyValues = driverConfig.getExtendInfo();
+        Map<String, KeyValue> valueMap = Maps.newHashMap();
+        if (!CollectionUtils.isEmpty(defaultKeyValues)) {
+            for (KeyValue keyValue : defaultKeyValues) {
+                if (keyValue == null || StringUtils.isBlank(keyValue.getKey())) {
+                    continue;
+                }
+                valueMap.put(keyValue.getKey(), keyValue);
+            }
+        }
+        try {
+            DriverPropertyInfo[] propertyInfos = IDriverManager.getProperty(driverConfig);
+            if (propertyInfos == null) {
+                return;
+            }
+            for (int i = 0; i < propertyInfos.length; i++) {
+                DriverPropertyInfo propertyInfo = propertyInfos[i];
+                if (propertyInfo == null) {
+                    continue;
+                }
+                KeyValue keyValue = valueMap.get(propertyInfo.name);
+                if (keyValue != null) {
+                    String[] choices = propertyInfo.choices;
+                    if (CollectionUtils.isEmpty(keyValue.getChoices()) && choices != null && choices.length > 0) {
+                        keyValue.setChoices(Lists.newArrayList(choices));
+                    }
+                } else {
+                    keyValue = new KeyValue();
+                    keyValue.setKey(propertyInfo.name);
+                    keyValue.setValue(propertyInfo.value);
+                    keyValue.setRequired(propertyInfo.required);
+                    String[] choices = propertyInfo.choices;
+                    if (choices != null && choices.length > 0) {
+                        keyValue.setChoices(Lists.newArrayList(choices));
+                    }
+                    valueMap.put(keyValue.getKey(), keyValue);
+                }
+            }
+            if (!valueMap.isEmpty()) {
+                Comparator comparator = Collator.getInstance(Locale.ENGLISH);
+                List<KeyValue> result = new ArrayList<>(valueMap.values());
+                Collections.sort(result, (o1, o2) -> comparator.compare(o1.getKey(), o2.getKey()));
+                driverConfig.setExtendInfo(result);
+            }
+        } catch (SQLException e) {
+            log.error("get property error:", e);
+        }
+    }
+
+    public static void removePropertySameAsDefault(DriverConfig driverConfig) {
+        if(driverConfig == null){
+            return;
+        }
+        List<KeyValue> customValue = driverConfig.getExtendInfo();
+        if (CollectionUtils.isEmpty(customValue)) {
+            return ;
+        }
+        Map<String, String> map = Maps.newHashMap();
+        List<KeyValue> result = new ArrayList<>();
+        try {
+            DriverPropertyInfo[] propertyInfos = IDriverManager.getProperty(driverConfig);
+            if (propertyInfos == null) {
+                return ;
+            }
+            for (int i = 0; i < propertyInfos.length; i++) {
+                DriverPropertyInfo propertyInfo = propertyInfos[i];
+                if (propertyInfo == null) {
+                    continue;
+                }
+                map.put(propertyInfo.name, propertyInfo.value);
+            }
+            for (KeyValue keyValue : customValue) {
+                if (keyValue == null || StringUtils.isBlank(keyValue.getKey())) {
+                    continue;
+                }
+                String value = map.get(keyValue.getKey());
+                if (!StringUtils.equals(value, keyValue.getValue())) {
+                    result.add(keyValue);
+                }
+            }
+            Comparator comparator = Collator.getInstance(Locale.ENGLISH);
+            Collections.sort(result, (o1, o2) -> comparator.compare(o1.getKey(), o2.getKey()));
+            driverConfig.setExtendInfo(result);
+        } catch (SQLException e) {
+
+        }
     }
 
 }

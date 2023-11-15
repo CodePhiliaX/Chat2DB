@@ -179,12 +179,18 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ## ☎️ Contact Us
 
-Please star and fork on GitHub before joining the group.
-Follow our WeChat public account.
+### WeChat
 
 <a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="40%"/></a>
 
- Click and join <a href="https://discord.gg/dqae8nsC">discord server</a>
+### Discord
+<!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.gg/N6JscF7q)
+
+## LICENSE
+
+The primary license used by this software is the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), supplemented by the [Chat2DB License](./Chat2DB_LICENSE).
+
 
 ## ❤️ Acknowledgements
 
