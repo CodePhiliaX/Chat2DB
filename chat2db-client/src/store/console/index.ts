@@ -4,9 +4,10 @@
 
 import { create, UseBoundStore, StoreApi } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { IConsole } from '@/typings/console';
+import { IConsole, ICreateConsoleParams } from '@/typings';
 import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
+import { ConsoleStatus, WorkspaceTabType } from '@/constants'
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
@@ -41,3 +42,41 @@ export const setActiveConsoleId = (id: IConsoleStore['activeConsoleId']) => {
 export const setWorkspaceTabList = (items: IConsoleStore['workspaceTabList']) => {
   useConsoleStore.setState({ workspaceTabList: items });
 }
+
+export const createConsole = (params: ICreateConsoleParams)=>{
+  const workspaceTabList = useConsoleStore.getState().workspaceTabList;
+  const newConsole = {
+    ...params,
+    name: params.name || 'create console',
+    ddl: params.ddl || '',
+    status: ConsoleStatus.DRAFT,
+    operationType: WorkspaceTabType.CONSOLE,
+  };
+
+  return new Promise((resolve) => {
+    historyService.createConsole(newConsole).then((res) => {
+      const newList = [
+        ...(workspaceTabList||[]),
+        {
+          id: res,
+          title: newConsole.name,
+          type: newConsole.operationType,
+          uniqueData: newConsole,
+        },
+      ];
+      setWorkspaceTabList(newList);
+      setActiveConsoleId(res);
+      resolve(res);
+    });
+  });
+}
+
+export const addWorkspaceTab = (params: IWorkspaceTab) => {
+  const workspaceTabList = useConsoleStore.getState().workspaceTabList;
+  const newList = [
+    ...(workspaceTabList||[]),
+    params,
+  ];
+  setWorkspaceTabList(newList);
+  setActiveConsoleId(params.id);
+};

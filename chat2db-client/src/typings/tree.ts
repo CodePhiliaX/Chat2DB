@@ -1,9 +1,9 @@
 import { TreeNodeType, DatabaseTypeCode } from '@/constants';
 
 export interface IExtraParams {
-  databaseType?: DatabaseTypeCode;
+  dataSourceId: number;
+  databaseType: DatabaseTypeCode;
   dataSourceName?: string;
-  dataSourceId?: number;
   databaseName?: string;
   schemaName?: string;
   tableName?: string;

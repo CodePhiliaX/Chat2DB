@@ -30,14 +30,6 @@ enum IPromptType {
   ChatRobot = 'ChatRobot',
 }
 
-// enum IPromptTypeText {
-//   NL_2_SQL = '自然语言转换',
-//   SQL_EXPLAIN = '解释SQL',
-//   SQL_OPTIMIZER = 'SQL优化',
-//   SQL_2_SQL = 'SQL转换',
-//   ChatRobot = 'Chat机器人',
-// }
-
 export type IAppendValue = {
   text: any;
   range?: IRangeType;
@@ -384,7 +376,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   };
 
   return (
-    <div className={styles.console} ref={ref as any}>
+    <div className={styles.console} ref={ref as any}> 
       <Spin spinning={isLoading} style={{ height: '100%' }}>
         {hasAiChat && (
           <ChatInput

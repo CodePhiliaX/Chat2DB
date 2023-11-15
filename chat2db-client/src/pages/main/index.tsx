@@ -138,8 +138,7 @@ function MainPage(props: IProps) {
       }
     }
 
-    const urlTab = getUrlParam('tab');
-    const initPage = urlTab || localStorage.getItem('curPage');
+    const initPage = localStorage.getItem('curPage');
     const initPageIndex = navConfig.findIndex((t) => `${t.key}` === initPage);
     const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
     navConfig[activeIndex].isLoad = true;
@@ -150,8 +149,6 @@ function MainPage(props: IProps) {
     if (item.openBrowser) {
       window.open(item.openBrowser, '_blank');
     } else {
-      const newURL = updateQueryStringParameter('tab', item.key);
-      history.pushState({}, '', newURL);
       setActiveNav(item);
     }
   };

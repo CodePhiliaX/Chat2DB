@@ -5,11 +5,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DatabaseTypeCode, EditorThemeType } from '@/constants';
 import { editorDefaultOptions } from './monacoEditorConfig';
 import { IQuickInputService } from 'monaco-editor/esm/vs/platform/quickinput/common/quickInput';
-import {
-  registerIntelliSenseField,
-  registerIntelliSenseKeyword,
-  registerIntelliSenseTable,
-} from '@/utils/IntelliSense';
 
 import styles from './index.less';
 
@@ -142,10 +137,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       });
     }
   }, [editorRef.current, isActive]);
-
-  useEffect(() => {
-    registerIntelliSenseKeyword(databaseType);
-  }, [databaseType]);
 
   useEffect(() => {
     // 监听浏览器窗口大小变化，重新渲染编辑器

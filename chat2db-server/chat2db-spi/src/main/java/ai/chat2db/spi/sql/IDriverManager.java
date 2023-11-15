@@ -85,8 +85,9 @@ public class IDriverManager {
         if (Objects.isNull(driverEntry)) {
             driverEntry = getJDBCDriver(driver);
         }
-
-        try (Connection connection = driverEntry.getDriver().connect(url, info)) {
+        Connection connection;
+        try  {
+            connection = driverEntry.getDriver().connect(url, info);
             if (Objects.isNull(connection)) {
                 throw new SQLException(String.format("driver.connect return null , No suitable driver found for url %s", url), SQL_STATE_CODE);
 

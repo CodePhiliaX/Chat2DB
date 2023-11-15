@@ -9,7 +9,7 @@ import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, useTreeStore } from './treeStore';
-import { getRightClickMenu } from './rightClickMenu';
+import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
 
 interface IProps {
@@ -151,11 +151,17 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     });
   }, [treeNodeData]);
 
+  const rightClickMenu = useGetRightClickMenu({
+    treeNodeData,
+    loadData,
+  });
+
   const treeNodeDom = useMemo(() => {
-    const dropdownsItems = getRightClickMenu({ treeNodeData, loadData }).map((item) => {
+    const dropdownsItems: any = rightClickMenu.map((item) => {
       return {
-        ...item,
-        label: <MenuLabel {...item.labelProps} />,
+        key: item.key,
+        onClick: item.onClick,
+        label: <MenuLabel icon={item.labelProps.icon} label={item.labelProps.label} />,
       };
     });
 
@@ -163,8 +169,8 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       <Dropdown
         trigger={['contextMenu']}
         menu={{
-          items: dropdownsItems || [],
-          style: dropdownsItems ? {} : { display: 'none' }, // 有菜单项才显示
+          items: dropdownsItems,
+          style: dropdownsItems?.length ? {} : { display: 'none' }, // 有菜单项才显示
         }}
         overlayStyle={{
           zIndex: 1080,
@@ -216,7 +222,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         </Tooltip>
       </Dropdown>
     );
-  }, [isFocus, isLoading, treeNodeData]);
+  }, [isFocus, isLoading, rightClickMenu]);
 
   return (
     <>

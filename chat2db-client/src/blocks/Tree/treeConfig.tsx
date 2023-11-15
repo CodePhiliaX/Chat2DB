@@ -80,10 +80,7 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
 
 export interface ITreeConfigItem {
   icon?: string;
-  getChildren?: (
-    params: any,
-    options?: any,
-  ) => Promise<ITreeNode[]>;
+  getChildren?: (params: any, options?: any) => Promise<ITreeNode[]>;
   next?: TreeNodeType;
   operationColumn?: OperationColumn[];
 }
@@ -121,11 +118,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
 
   [TreeNodeType.DATA_SOURCE]: {
-    getChildren: (params: { 
-      dataSourceId: number; 
-      dataSourceName: string;
-      extraParams: any
-    }) => {
+    getChildren: (params: { dataSourceId: number; dataSourceName: string; extraParams: any }) => {
       return new Promise((r, j) => {
         const _extraParams = params.extraParams;
         delete params.extraParams;
@@ -172,7 +165,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 extraParams: {
                   ..._extraParams,
                   schemaName: t.name,
-                }
+                },
               };
             });
             r(data);
@@ -182,46 +175,51 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh,],
+    operationColumn: [
+      OperationColumn.CreateConsole,
+      OperationColumn.CreateTable,
+      OperationColumn.CopyName,
+      OperationColumn.Refresh,
+    ],
     next: TreeNodeType.SCHEMAS,
   },
 
   [TreeNodeType.SCHEMAS]: {
     icon: '\ue696',
     getChildren: (parentData: ITreeNode) => {
-      const {dataSourceId,databaseName,schemaName} =  parentData.extraParams!
-      const preCode = [dataSourceId,databaseName,schemaName].join('-')
+      const { dataSourceId, databaseName, schemaName } = parentData.extraParams!;
+      const preCode = [dataSourceId, databaseName, schemaName].join('-');
       return new Promise((r: (value: ITreeNode[]) => void) => {
         const data = [
           {
             key: `${preCode}-tables`,
             name: 'tables',
             treeNodeType: TreeNodeType.TABLES,
-            extraParams: parentData.extraParams
+            extraParams: parentData.extraParams,
           },
           {
             key: `${preCode}-views`,
             name: 'view',
             treeNodeType: TreeNodeType.VIEWS,
-            extraParams: parentData.extraParams
+            extraParams: parentData.extraParams,
           },
           {
             key: `${preCode}-functions`,
             name: 'functions',
             treeNodeType: TreeNodeType.FUNCTIONS,
-            extraParams: parentData.extraParams
+            extraParams: parentData.extraParams,
           },
           {
             key: `${preCode}-procedures`,
             name: 'procedures',
             treeNodeType: TreeNodeType.PROCEDURES,
-            extraParams: parentData.extraParams
+            extraParams: parentData.extraParams,
           },
           {
             key: `${preCode}-triggers`,
             name: 'triggers',
             treeNodeType: TreeNodeType.TRIGGERS,
-            extraParams: parentData.extraParams
+            extraParams: parentData.extraParams,
           },
         ];
         r(data);
@@ -272,8 +270,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     icon: '\ue63e',
     getChildren: (params) => {
       return new Promise((r: (value: ITreeNode[]) => void) => {
-        const {dataSourceId,databaseName,schemaName,tableName} =  params.extraParams!
-        const preCode = [dataSourceId,databaseName,schemaName,tableName].join('-')
+        const { dataSourceId, databaseName, schemaName, tableName } = params.extraParams!;
+        const preCode = [dataSourceId, databaseName, schemaName, tableName].join('-');
         const list = [
           {
             key: `${preCode}-columns`,
@@ -299,6 +297,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       });
     },
     operationColumn: [
+      OperationColumn.CreateConsole,
       OperationColumn.Top,
       OperationColumn.ViewDDL,
       OperationColumn.EditTable,
@@ -336,6 +335,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
 
   [TreeNodeType.FUNCTIONS]: {
@@ -368,11 +368,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
 
   [TreeNodeType.FUNCTION]: {
     icon: '\ue76a',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
 
   [TreeNodeType.PROCEDURES]: {
@@ -405,6 +406,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
 
   [TreeNodeType.PROCEDURE]: {
@@ -442,11 +444,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
 
   [TreeNodeType.TRIGGER]: {
     icon: '\ue64a',
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEW]: {
@@ -464,7 +467,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(list);
       });
     },
-    operationColumn: [OperationColumn.CopyName],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
   },
 
   [TreeNodeType.VIEWCOLUMNS]: {
@@ -494,6 +497,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh],
   },
 
   [TreeNodeType.VIEWCOLUMN]: {
@@ -528,7 +532,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.Refresh],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
   [TreeNodeType.COLUMN]: {
     icon: '\ue611',
@@ -559,7 +563,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.Refresh],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh],
   },
   [TreeNodeType.KEY]: {
     icon: '\ue775',
@@ -590,7 +594,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.Refresh],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName, OperationColumn.Refresh],
   },
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
