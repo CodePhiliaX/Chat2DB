@@ -406,6 +406,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     const handleError = (error: any) => {
       console.error('Error:', error);
       setIsLoading(false);
+      setIsAiDrawerLoading(false);
       setIsStream(false);
       closeEventSource.current();
     };
@@ -576,7 +577,21 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
         {/* <NewEditor id={uid} dataSource={props.executeParams.type} database={props.executeParams.databaseName} /> */}
 
-        <Drawer open={isAiDrawerOpen} getContainer={false} mask={false} onClose={() => setIsAiDrawerOpen(false)}>
+        <Drawer
+          open={isAiDrawerOpen}
+          getContainer={false}
+          mask={false}
+          onClose={() => {
+            try {
+              setIsAiDrawerOpen(false);
+              setIsAiDrawerLoading(false);
+              setIsStream(false);
+              closeEventSource.current && closeEventSource.current();
+            } catch (error) {
+              console.log('close drawer', error);
+            }
+          }}
+        >
           <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
             <div className={styles.aiBlock}>{aiContent}</div>
           </Spin>

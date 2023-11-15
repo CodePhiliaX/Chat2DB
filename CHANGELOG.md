@@ -1,3 +1,13 @@
+## 3.0.13
+
+`2023-11-15`
+
+**Changelog**
+
+- 🐞【Fixed】oracle datatype error
+- 🐞【Fixed】DM index error
+
+
 ## 3.0.12
 
 `2023-11-13`

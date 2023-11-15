@@ -503,18 +503,7 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         )}
         {editingConfig?.supportDefaultValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.defaultValue')} name="defaultValue">
-            <CustomSelect
-              options={[
-                {
-                  label: 'EMPTY_STRING',
-                  value: 'EMPTY_STRING',
-                },
-                {
-                  label: 'NULL',
-                  value: 'NULL',
-                },
-              ]}
-            />
+            <CustomSelect options={databaseSupportField.defaultValues} />
           </Form.Item>
         )}
         {editingConfig?.supportCharset && (

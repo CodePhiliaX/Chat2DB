@@ -19,4 +19,6 @@ public class TableMeta {
 
 
     private List<IndexType> indexTypes;
+
+    private List<DefaultValue> defaultValues;
 }

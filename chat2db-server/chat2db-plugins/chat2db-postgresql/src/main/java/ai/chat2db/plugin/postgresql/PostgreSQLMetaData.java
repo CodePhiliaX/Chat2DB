@@ -7,10 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.postgresql.builder.PostgreSQLSqlBuilder;
-import ai.chat2db.plugin.postgresql.type.PostgreSQLCharsetEnum;
-import ai.chat2db.plugin.postgresql.type.PostgreSQLCollationEnum;
-import ai.chat2db.plugin.postgresql.type.PostgreSQLColumnTypeEnum;
-import ai.chat2db.plugin.postgresql.type.PostgreSQLIndexTypeEnum;
+import ai.chat2db.plugin.postgresql.type.*;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -301,6 +298,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .charsets(PostgreSQLCharsetEnum.getCharsets())
                 .collations(PostgreSQLCollationEnum.getCollations())
                 .indexTypes(PostgreSQLIndexTypeEnum.getIndexTypes())
+                .defaultValues(PostgreSQLDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

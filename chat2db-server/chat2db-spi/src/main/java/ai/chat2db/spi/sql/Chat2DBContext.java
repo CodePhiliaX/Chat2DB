@@ -81,9 +81,13 @@ public class Chat2DBContext {
         if (connection == null) {
             synchronized (connectInfo) {
                 connection = connectInfo.getConnection();
-                if (connection != null) {
-                    return connection;
-                } else {
+                try {
+                    if (connection != null && !connection.isClosed()) {
+                        return connection;
+                    } else {
+                        connection = getDBManage().getConnection(connectInfo);
+                    }
+                } catch (SQLException e) {
                     connection = getDBManage().getConnection(connectInfo);
                 }
             }
