@@ -74,7 +74,10 @@ public class Chat2dbAIClient {
             apikey = ApplicationContextUtil.getProperty(CHAT2DB_OPENAI_KEY);
         }
         Config modelConfig = configService.find(CHAT2DB_OPENAI_MODEL).getData();
-        String model = modelConfig.getContent();
+        String model = "";
+        if (modelConfig != null) {
+            model = modelConfig.getContent();
+        }
         log.info("refresh chat2db apikey:{}", maskApiKey(apikey));
         CHAT2DB_AI_STREAM_CLIENT = Chat2DBAIStreamClient.builder().apiHost(apiHost)
                 .apiKey(apikey).model(model).build();

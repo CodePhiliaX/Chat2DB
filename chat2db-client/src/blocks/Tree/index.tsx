@@ -1,29 +1,39 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState, forwardRef, createContext, useContext } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
 import { Tooltip, Dropdown } from 'antd';
 import { ITreeNode } from '@/typings';
-import { OperationColumn, TreeNodeType, databaseMap } from '@/constants';
+import { TreeNodeType, databaseMap } from '@/constants';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, useTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
+import LoadingContent from '@/components/Loading/LoadingContent'
 
 interface IProps {
   className?: string;
   initialData: ITreeNode[] | null;
+  searchValue: string;
+  ref: any;
 }
 
 interface TreeNodeIProps {
   data: ITreeNode;
   level: number;
+  setShowParentNode?: (value: boolean) => void;
 }
 
-const Tree = memo((props: IProps) => {
-  const { className, initialData } = props;
+interface IContext {
+  searchValue?: string;
+}
+
+export const Context = createContext<IContext>({} as any);
+
+const Tree = (props: IProps, ref: any) => {
+  const { className, initialData, searchValue } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
 
   useEffect(() => {
@@ -36,17 +46,44 @@ const Tree = memo((props: IProps) => {
     });
   }, [treeData]);
 
-  return <div className={classnames(className, styles.treeBox)}>{treeNodes}</div>;
-});
+  return (
+    <Context.Provider value={{ searchValue }}>
+      <LoadingContent isLoading={!treeData} ref={ref} className={classnames(className, styles.treeBox)}>
+        {treeNodes}
+      </LoadingContent>
+    </Context.Provider>
+  );
+};
 
 const TreeNode = memo((props: TreeNodeIProps) => {
-  const { data: initData, level } = props;
+  const { data: initData, level, setShowParentNode: _setShowParentNode } = props;
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
   const [treeNodeData, setTreeNodeData] = useState<ITreeNode>({
     ...initData,
   });
+  const { searchValue } = useContext(Context);
   const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
+
+  const showTreeNode = useMemo(() => {
+    const reg = new RegExp(searchValue || '', 'i');
+    return reg.test(treeNodeData.name || '');
+  }, [searchValue]);
+
+  // 如果showTreeNode为true，那么他的父节点也要展示
+  const [showParentNode, setShowParentNode] = useState<boolean>(false);
+
+  useEffect(() => {
+    if(showTreeNode){
+      _setShowParentNode?.(true);
+    }
+  }, [showTreeNode]);
+
+  useEffect(() => {
+    if(showParentNode){
+      _setShowParentNode?.(true);
+    }
+  }, [showParentNode]);
 
   // 加载数据
   function loadData(_props?: { refresh: boolean }) {
@@ -118,24 +155,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     }
   };
 
-  // function nodeDoubleClick() {
-  //   if (
-  //     data.treeNodeType === TreeNodeType.TABLE ||
-  //     data.treeNodeType === TreeNodeType.FUNCTION ||
-  //     data.treeNodeType === TreeNodeType.TRIGGER ||
-  //     data.treeNodeType === TreeNodeType.VIEW ||
-  //     data.treeNodeType === TreeNodeType.PROCEDURE
-  //   ) {
-  //     dispatch({
-  //       type: 'workspace/setDoubleClickTreeNodeData',
-  //       payload: data,
-  //     });
-  //   }
-  //   else {
-  //     handleClick(data);
-  //   }
-  // }
-
   // 点击节点
   const handelClickTreeNode = () => {
     useCommonStore.setState({
@@ -144,17 +163,15 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     setFocusId(treeNodeData.uuid || '');
   };
 
-  // 
+  //
   const handelDoubleClickTreeNode = () => {
-    if (treeNodeData.treeNodeType === TreeNodeType.TABLE) {
-      rightClickMenu.find((item) => item.type === OperationColumn.OpenTable)?.onClick();
-    }
-  }
+    rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick();
+  };
 
   // 递归渲染
   const treeNodes = useMemo(() => {
     return treeNodeData.children?.map((item: any, index: number) => {
-      return <TreeNode key={item.name + index} level={level + 1} data={item} />;
+      return <TreeNode setShowParentNode={setShowParentNode} key={item.name + index} level={level + 1} data={item} />;
     });
   }, [treeNodeData]);
 
@@ -234,10 +251,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
 
   return (
     <>
-      {treeNodeDom}
+      {(showTreeNode || showParentNode) && treeNodeDom}
       {treeNodes}
     </>
   );
 });
 
-export default Tree;
+export default memo(forwardRef(Tree)) ;

@@ -8,10 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
-import ai.chat2db.plugin.mysql.type.MysqlCharsetEnum;
-import ai.chat2db.plugin.mysql.type.MysqlCollationEnum;
-import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
-import ai.chat2db.plugin.mysql.type.MysqlIndexTypeEnum;
+import ai.chat2db.plugin.mysql.type.*;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.ValueHandler;
@@ -287,6 +284,7 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 .charsets(MysqlCharsetEnum.getCharsets())
                 .collations(MysqlCollationEnum.getCollations())
                 .indexTypes(MysqlIndexTypeEnum.getIndexTypes())
+                .defaultValues(MysqlDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

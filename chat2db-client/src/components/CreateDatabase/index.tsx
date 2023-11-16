@@ -2,7 +2,7 @@ import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useM
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input, Modal } from 'antd';
-import MonacoEditor, { IExportRefFunction } from '@/components/ConsoleEditor/MonacoEditor';
+import MonacoEditor, { IExportRefFunction } from '@/components/MonacoEditor';
 import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';

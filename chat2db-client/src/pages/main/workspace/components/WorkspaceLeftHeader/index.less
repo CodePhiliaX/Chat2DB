@@ -5,10 +5,20 @@
 }
 
 .selectConnection {
-  margin: 4px 4px;
-  padding: 6px 8px;
-  border-radius: 4px;
+  // margin: 4px 4px;
+  padding: 6px;
+  // border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   cursor: pointer;
+  .menuLabel{
+    flex: 1;
+    width: 0px;
+  }
+  .dropDownArrow{
+    transform: rotate(90deg);
+  }
   &:hover {
     background: var(--color-hover-bg);
   }

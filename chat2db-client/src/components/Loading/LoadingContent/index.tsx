@@ -11,10 +11,11 @@ interface IProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   handleEmpty?: boolean;
   isLoading?: boolean;
   coverLoading?: boolean;
+  ref: any;
 }
 
 export default function LoadingContent<T>(props: IProps<T>) {
-  const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading } = props;
+  const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading, ...args } = props;
   const isEmpty = !isLoading && handleEmpty && !(data as any)?.length;
 
   const renderContent = () => {
@@ -38,5 +39,5 @@ export default function LoadingContent<T>(props: IProps<T>) {
     );
   };
 
-  return <div className={classnames(styles.loadingContent, className)}>{renderContent()}</div>;
+  return <div {...args} className={classnames(styles.loadingContent, className)}>{renderContent()}</div>;
 }

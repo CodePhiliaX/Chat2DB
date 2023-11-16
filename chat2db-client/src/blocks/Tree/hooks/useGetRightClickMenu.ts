@@ -17,6 +17,9 @@ import { createConsole, addWorkspaceTab } from '@/store/console';
 // ---- functions -----
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
 
+// ----- utils -----
+import { compatibleDataBaseName } from '@/utils/database';
+
 interface IProps {
   treeNodeData: ITreeNode;
   loadData: any;
@@ -25,6 +28,7 @@ interface IProps {
 interface IOperationColumnConfigItem {
   text: string;
   icon: string;
+  doubleClickTrigger?: boolean;
   handle: () => void;
 }
 
@@ -162,7 +166,12 @@ export const useGetRightClickMenu = (props: IProps) => {
       [OperationColumn.OpenTable]: {
         text: i18n('workspace.menu.openTable'),
         icon: '\ue618',
+        doubleClickTrigger: true,
         handle: () => {
+          const databaseName = compatibleDataBaseName(
+            treeNodeData.extraParams!.databaseName!,
+            treeNodeData.extraParams!.databaseType,
+            );
           addWorkspaceTab({
             id: `${OperationColumn.OpenTable}-${treeNodeData.uuid}`,
             title: treeNodeData.name,
@@ -172,7 +181,7 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseType: treeNodeData.extraParams!.databaseType!,
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
-              sql: `select * from ${treeNodeData.name}`,
+              sql: `select * from ${databaseName}`,
             },
           });
         },
@@ -182,6 +191,7 @@ export const useGetRightClickMenu = (props: IProps) => {
       [OperationColumn.OpenView]: {
         text: i18n('workspace.menu.view'),
         icon: '\ue651',
+        doubleClickTrigger: true,
         handle: () => {
           openView({
             addWorkspaceTab,
@@ -194,6 +204,7 @@ export const useGetRightClickMenu = (props: IProps) => {
       [OperationColumn.OpenFunction]: {
         text: i18n('workspace.menu.view'),
         icon: '\ue651',
+        doubleClickTrigger: true,
         handle: () => {
           openFunction({
             addWorkspaceTab,
@@ -206,6 +217,7 @@ export const useGetRightClickMenu = (props: IProps) => {
       [OperationColumn.OpenProcedure]: {
         text: i18n('workspace.menu.view'),
         icon: '\ue651',
+        doubleClickTrigger: true,
         handle: () => {
           openProcedure({
             addWorkspaceTab,
@@ -218,6 +230,7 @@ export const useGetRightClickMenu = (props: IProps) => {
       [OperationColumn.OpenTrigger]: {
         text: i18n('workspace.menu.view'),
         icon: '\ue651',
+        doubleClickTrigger: true,
         handle: () => {
           openTrigger({
             addWorkspaceTab,
@@ -234,6 +247,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         key: i,
         onClick: concrete?.handle,
         type: t,
+        doubleClickTrigger: concrete.doubleClickTrigger,
         labelProps: {
           icon: concrete?.icon,
           label: concrete?.text,

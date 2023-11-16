@@ -25,4 +25,5 @@ export default {
   'workspace.tree.trigger': 'Trigger',
   'workspace.tree.function': 'Function',
   'workspace.tree.procedure': 'Procedure',
+  'workspace.tree.search.placeholder': 'Search in the expand node',
 };
