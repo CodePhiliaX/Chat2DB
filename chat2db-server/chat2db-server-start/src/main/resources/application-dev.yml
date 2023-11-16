@@ -1,7 +1,7 @@
 spring:
   datasource:
     # 配置自带数据库的相对路径
-    url: jdbc:h2:~/.chat2db/db/chat2db_dev;MODE=MYSQL
+    url: jdbc:h2:~/.chat2db/db/chat2db_dev;MODE=MYSQL;FILE_LOCK=NO
     driver-class-name: org.h2.Driver
   h2:
     console:

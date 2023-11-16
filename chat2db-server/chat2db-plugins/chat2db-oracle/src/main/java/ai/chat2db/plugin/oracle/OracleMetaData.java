@@ -86,7 +86,12 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setSchemaName(schemaName);
                 tableColumn.setName(resultSet.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(resultSet.getString("DATA_TYPE"));
-                tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
+                Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
+                if(dataPrecision!=null) {
+                    tableColumn.setColumnSize(dataPrecision);
+                }else {
+                    tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
+                }
                 tableColumn.setDefaultValue(resultSet.getString("DATA_DEFAULT"));
                 tableColumn.setComment(resultSet.getString("COMMENTS"));
                 tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE")) ? 1 : 0);
