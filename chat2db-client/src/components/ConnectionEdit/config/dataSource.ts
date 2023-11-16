@@ -450,8 +450,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                 },
               }],
               onChange: (data: IConnectionConfig) => {
-                data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+):(.*)/;
-                data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}:{serviceName}';
+                data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+)\/(.*)/;
+                data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}/{serviceName}';
                 return data
               }
             },
@@ -470,15 +470,17 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelTextAlign: 'right',
           selects: [
             {
-              value: 'thin',
+              value: 'THIN',
+              label: 'thin',
+            },
+            {
+              value: 'OCI',
+              label: 'oci',
             },
             {
 
-              value: 'oci',
-            },
-            {
-
-              value: 'oci8',
+              value: 'OCI8',
+              label: 'oci8',
             },
           ],
           styles: {
