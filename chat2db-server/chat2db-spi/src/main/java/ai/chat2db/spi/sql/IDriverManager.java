@@ -76,7 +76,7 @@ public class IDriverManager {
     }
 
     public static Connection getConnection(String url, Properties info, DriverConfig driver)
-        throws SQLException {
+            throws SQLException {
         if (Objects.isNull(url)) {
             throw new SQLException("The url cannot be null", SQL_STATE_CODE);
         }
@@ -86,7 +86,7 @@ public class IDriverManager {
             driverEntry = getJDBCDriver(driver);
         }
         Connection connection;
-        try  {
+        try {
             connection = driverEntry.getDriver().connect(url, info);
             if (Objects.isNull(connection)) {
                 throw new SQLException(String.format("driver.connect return null , No suitable driver found for url %s", url), SQL_STATE_CODE);
@@ -98,7 +98,7 @@ public class IDriverManager {
 
             if (Objects.isNull(con)) {
                 throw new SQLException(String.format("Cannot create connection (%s)", sqlException.getMessage()), SQL_STATE_CODE,
-                    sqlException);
+                        sqlException);
             }
 
             return con;
@@ -111,10 +111,10 @@ public class IDriverManager {
             return null;
         }
         DriverEntry driverEntry = DRIVER_ENTRY_MAP.get(driver.getJdbcDriver());
-        if (driverEntry == null) {
-            driverEntry = getJDBCDriver(driver);
-        }
         try {
+            if (driverEntry == null) {
+                driverEntry = getJDBCDriver(driver);
+            }
             String url = Objects.isNull(driver.getUrl()) ? "" : driver.getUrl();
             return driverEntry.getDriver().getPropertyInfo(url, null);
         } catch (Exception var7) {
@@ -153,7 +153,7 @@ public class IDriverManager {
 
     }
 
-    public static ClassLoader getClassLoader(DriverConfig driverConfig) throws MalformedURLException {
+    public static ClassLoader getClassLoader(DriverConfig driverConfig) throws MalformedURLException, ClassNotFoundException {
         String jarPath = driverConfig.getJdbcDriver();
         if (CLASS_LOADER_MAP.containsKey(jarPath)) {
             return CLASS_LOADER_MAP.get(jarPath);
@@ -184,7 +184,7 @@ public class IDriverManager {
                     }
                     //urls[jarPaths.length] = new File(JdbcJarUtils.getFullPath("HikariCP-4.0.3.jar")).toURI().toURL();
                     cl = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
-
+                    cl.loadClass(driverConfig.getJdbcDriverClass());
                 }
                 CLASS_LOADER_MAP.put(jarPath, cl);
                 return cl;
