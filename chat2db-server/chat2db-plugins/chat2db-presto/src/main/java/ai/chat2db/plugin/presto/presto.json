@@ -1,5 +1,7 @@
 {
   "dbType": "PRESTO",
+  "supportDatabase": false,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:presto://localhost:8080/",

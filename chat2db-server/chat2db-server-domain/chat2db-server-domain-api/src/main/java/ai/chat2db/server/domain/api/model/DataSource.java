@@ -143,6 +143,11 @@ public class DataSource {
      */
     private String serviceType;
 
+
+    private boolean supportDatabase;
+
+    private boolean supportSchema;
+
     public LinkedHashMap<String, Object> getExtendMap() {
         if (ObjectUtils.isEmpty(extendInfo)) {
             return new LinkedHashMap<>();

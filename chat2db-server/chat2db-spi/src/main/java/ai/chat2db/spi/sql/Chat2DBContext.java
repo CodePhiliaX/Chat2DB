@@ -67,6 +67,10 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(dbType).getMetaData();
     }
 
+    public static DBConfig getDBConfig(String dbType) {
+        return PLUGIN_MAP.get(dbType).getDBConfig();
+    }
+
     public static DBConfig getDBConfig() {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBConfig();
     }

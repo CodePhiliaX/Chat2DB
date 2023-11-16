@@ -35,6 +35,7 @@ import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.tools.common.util.EasySqlUtils;
+import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -278,26 +279,26 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         fillEnvironment(list, selector);
 
-        fillExtendInfo(list);
+        fillSupportDatabase(list);
     }
 
-    private void fillExtendInfo(List<DataSource> list) {
-        for (DataSource dataSource : list) {
-            List<KeyValue> keyValues = dataSource.getExtendInfo();
-            if (CollectionUtils.isEmpty(keyValues)) {
-                continue;
-            }
-            for (KeyValue keyValue : keyValues) {
-                if (keyValue != null) {
-                    if ("serviceName".equalsIgnoreCase(keyValue.getKey())) {
+    private void fillSupportDatabase(List<DataSource> list) {
 
-                    }
+        if(CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (DataSource dataSource:list) {
+            String type = dataSource.getType();
+            if(StringUtils.isNotBlank(type)) {
+                DBConfig config = Chat2DBContext.getDBConfig(type);
+                if(config != null) {
+                    dataSource.setSupportDatabase(config.isSupportDatabase());
+                    dataSource.setSupportSchema(config.isSupportSchema());
                 }
             }
-
         }
-
     }
+
 
     private void fillEnvironment(List<DataSource> list, DataSourceSelector selector) {
         if (BooleanUtils.isNotTrue(selector.getEnvironment())) {

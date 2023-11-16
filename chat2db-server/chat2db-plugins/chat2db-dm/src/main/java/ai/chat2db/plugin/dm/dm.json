@@ -1,5 +1,7 @@
 {
   "dbType": "DM",
+  "supportDatabase": false,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:dm://localhost:5236/",

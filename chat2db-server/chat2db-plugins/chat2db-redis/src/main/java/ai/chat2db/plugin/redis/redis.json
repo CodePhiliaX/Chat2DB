@@ -1,5 +1,7 @@
 {
   "dbType": "REDIS",
+  "supportDatabase": false,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:redis://127.0.0.1:6379/0",

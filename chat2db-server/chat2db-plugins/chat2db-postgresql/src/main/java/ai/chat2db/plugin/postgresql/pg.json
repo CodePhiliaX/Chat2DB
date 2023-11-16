@@ -1,5 +1,7 @@
 {
   "dbType": "POSTGRESQL",
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:postgresql://localhost:5432/postgres",
