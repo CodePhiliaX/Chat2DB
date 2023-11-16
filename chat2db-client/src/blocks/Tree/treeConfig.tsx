@@ -9,7 +9,7 @@ export type ITreeConfig = Partial<{ [key in TreeNodeType]: ITreeConfigItem }>;
 
 export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfoldIcon?: string } }> = {
   [TreeNodeType.DATABASE]: {
-    icon: '\ue62c',
+    icon: '\ue669',
   },
   [TreeNodeType.SCHEMAS]: {
     icon: '\ue696',
@@ -181,7 +181,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     },
     operationColumn: [
       OperationColumn.CreateConsole,
-      OperationColumn.CreateTable,
+      OperationColumn.CreateSchema,
       OperationColumn.CopyName,
       OperationColumn.Refresh,
     ],
@@ -234,7 +234,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         r(data);
       });
     },
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.Refresh],
   },
 
   [TreeNodeType.TABLES]: {

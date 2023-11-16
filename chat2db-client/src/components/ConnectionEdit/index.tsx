@@ -28,8 +28,7 @@ export enum submitType {
 }
 
 interface IProps {
-  className?: string;
-  // closeCreateConnection: () => void;
+  closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
   submitCallback?: any;
   submit?: (data: IConnectionDetails) => void;
@@ -40,7 +39,7 @@ export interface ICreateConnectionFunction {
 }
 
 const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) => {
-  const { className, submitCallback, connectionData, submit } = props;
+  const { closeCreateConnection, submitCallback, connectionData, submit } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
   const [driveData, setDriveData] = useState<any>({});
@@ -228,12 +227,11 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
   }
 
   function onCancel() {
-    // closeCreateConnection();
-    // setEditDataSourceData(false)
+    closeCreateConnection();
   }
 
   function testSSH() {
-    let p = sshForm.getFieldsValue();
+    const p = sshForm.getFieldsValue();
     setLoading({
       ...loadings,
       sshTestLoading: true,
@@ -279,9 +277,9 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
           }
         </div>
         <div className={styles.rightButton}>
-          {/* <Button onClick={onCancel} className={styles.cancel}>
+          <Button onClick={onCancel} className={styles.cancel}>
             {i18n('common.button.cancel')}
-          </Button> */}
+          </Button>
           <Button
             className={styles.save}
             type="primary"

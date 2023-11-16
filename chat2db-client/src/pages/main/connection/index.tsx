@@ -134,6 +134,15 @@ const ConnectionsPage = () => {
     });
   };
 
+  const onSubmit = (data) => {
+    connectionService.save({
+      ...data,
+    }).then((res) => {
+      getConnectionList();
+      setConnectionActiveId(res);
+    });
+  }
+
   return (
     <>
       <div className={styles.box}>
@@ -154,7 +163,7 @@ const ConnectionsPage = () => {
           )}
         </div>
         <LoadingContent className={styles.layoutRight} isLoading={!connectionDetail && !!connectionActiveId}>
-          <CreateConnection connectionDetail={connectionDetail} />
+          <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
         </LoadingContent>
       </div>
 

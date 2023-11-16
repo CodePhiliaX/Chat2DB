@@ -8,7 +8,6 @@ import { DatabaseTypeCode } from '@/constants';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';
-import CreateDatabase, { ICreateDatabaseRef } from '@/components/CreateDatabase';
 
 // ----- store -----
 import { useWorkspaceStore } from '@/store/workspace';
@@ -25,39 +24,50 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 // 不支持创建schema的数据库类型
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
 
-const operationLine = (props: IProps) => {
+const OperationLine = (props: IProps) => {
   const [searchIng, setSearchIng] = useState<boolean>(false);
   const { searchValue, setSearchValue, getTreeData } = props;
-  const createDatabaseRef = React.useRef<ICreateDatabaseRef>(null);
-  const { currentConnectionDetails } = useWorkspaceStore((state) => {
+  const { currentConnectionDetails, openCreateDatabaseModal } = useWorkspaceStore((state) => {
     return {
       currentConnectionDetails: state.currentConnectionDetails,
+      openCreateDatabaseModal: state.openCreateDatabaseModal,
     };
   });
+
+  const handelOpenCreateDatabaseModal = () => {
+    openCreateDatabaseModal?.({
+      type: 'database',
+      relyOnParams: {
+        databaseType: currentConnectionDetails!.type!,
+        dataSourceId: currentConnectionDetails!.id!,
+      },
+      executedCallback: () => {
+        getTreeData(true);
+      }
+    });
+  }
 
   return (
     <>
       <div className={styles.operationLine}>
         <div className={styles.operationLineLeft}>
-          {!notSupportCreateDatabaseType.includes(currentConnectionDetails?.type) && (
+          {!notSupportCreateDatabaseType.includes(currentConnectionDetails!.type!) && (
             <Iconfont
-              onClick={() => {
-                createDatabaseRef.current?.setOpen(true, 'database');
-              }}
-              code="&#xe631;"
+              onClick={handelOpenCreateDatabaseModal}
+              code="&#xeb78;"
               box
               boxSize={20}
-              size={17}
+              size={15}
             />
           )}
           <Iconfont
             onClick={() => {
               getTreeData(true);
             }}
-            code="&#xe635;"
+            code="&#xe668;"
             box
             boxSize={20}
-            size={13}
+            size={14}
           />
           {searchIng ? (
             <Iconfont
@@ -73,7 +83,7 @@ const operationLine = (props: IProps) => {
               onClick={() => {
                 setSearchIng(true);
               }}
-              code="&#xe74a;"
+              code="&#xe888;"
               box
               boxSize={20}
               size={14}
@@ -86,7 +96,7 @@ const operationLine = (props: IProps) => {
         <div className={styles.searchBox}>
           <Input
             size="small"
-            prefix={<Iconfont code="&#xe74a;" />}
+            prefix={<Iconfont code="&#xe888;" />}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             allowClear
@@ -94,18 +104,8 @@ const operationLine = (props: IProps) => {
           />
         </div>
       )}
-      <CreateDatabase
-        executedCallback={() => {
-          getTreeData(true);
-        }}
-        curWorkspaceParams={{
-          dataSourceId: currentConnectionDetails?.id,
-          dataSourceName: currentConnectionDetails?.alias,
-        }}
-        ref={createDatabaseRef}
-      />
     </>
   );
 };
 
-export default memo(operationLine);
+export default memo(OperationLine);

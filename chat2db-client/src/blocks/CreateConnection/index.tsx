@@ -44,7 +44,13 @@ export default memo<IProps>((props) => {
             [styles.showCreateConnections]: connectionDetail,
           })}
         >
-          <ConnectionEdit connectionData={connectionDetail as any} submit={handleSubmit} />
+          <ConnectionEdit
+            closeCreateConnection={() => {
+              setConnectionDetail(null);
+            }}
+            connectionData={connectionDetail as any}
+            submit={handleSubmit}
+          />
         </div>
       )}
       {!connectionDetail && (
@@ -77,8 +83,8 @@ export default memo<IProps>((props) => {
   );
 });
 
-
-{/* <div className={styles.notPermission}>
+{
+  /* <div className={styles.notPermission}>
   <div className={styles.notPermissionIconBox}>
     <Iconfont className={styles.notPermissionIcon} code="&#xe658;" />
   </div>
@@ -95,4 +101,5 @@ export default memo<IProps>((props) => {
       {i18n('connection.button.connect')}
     </Button>
   </div>
-</div> */}
+</div> */
+}

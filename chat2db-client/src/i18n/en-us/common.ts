@@ -97,8 +97,6 @@ export default {
   'common.text.noTableFoundDown': 'Switch databases at the top',
   'common.title.preview': 'Preview',
   'common.title.errorMessage': 'Error message',
-  'common.Button.addDatabase': 'Add database',
-  'common.Button.addSchema': 'Add schema',
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
   'common.title.create': 'Create',

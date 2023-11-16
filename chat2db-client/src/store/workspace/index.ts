@@ -4,8 +4,9 @@ import { devtools, persist } from 'zustand/middleware';
 import { configStore, IConfigStore } from './config';
 import { consoleStore, IConsoleStore } from './console';
 import { commonStore, ICommonStore } from './common';
+import { modalStore , IModalStore } from './modal';
 
-export type IStore = IConfigStore & IConsoleStore & ICommonStore;
+export type IStore = IConfigStore & IConsoleStore & ICommonStore & IModalStore;
 
 export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
   devtools(
@@ -14,6 +15,7 @@ export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
         ...configStore(set),
         ...consoleStore(set),
         ...commonStore(set),
+        ...modalStore(),
       }),
       // persist config
       {
@@ -26,5 +28,8 @@ export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
         }),
       },
     ),
+    {
+      name: "workspaceStore"
+    }
   ),
 );

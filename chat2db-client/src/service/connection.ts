@@ -1,4 +1,4 @@
-import { IPageResponse, IConnectionDetails, IConnectionEnv, IPageParams } from '@/typings';
+import { IPageResponse, IConnectionDetails, ICreateConnectionDetails, IConnectionEnv, IPageParams } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import createRequest from './base';
 
@@ -32,7 +32,7 @@ const getList = createRequest<IPageParams, IPageResponse<IConnectionDetails>>(
 
 const getDetails = createRequest<{ id: number }, IConnectionDetails>('/api/connection/datasource/:id', {});
 
-const save = createRequest<IConnectionDetails, string>('/api/connection/datasource/create', {
+const save = createRequest<ICreateConnectionDetails, number>('/api/connection/datasource/create', {
   method: 'post',
   delayTime: true,
 });

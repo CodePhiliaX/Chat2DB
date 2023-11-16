@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 
 // ----- store -----
 import { createConsole, addWorkspaceTab } from '@/store/console';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ---- functions -----
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
@@ -34,6 +35,26 @@ interface IOperationColumnConfigItem {
 
 export const useGetRightClickMenu = (props: IProps) => {
   const { treeNodeData, loadData } = props;
+
+  const { openCreateDatabaseModal } = useWorkspaceStore((state) => {
+    return {
+      openCreateDatabaseModal: state.openCreateDatabaseModal,
+    };
+  });
+
+  const handelOpenCreateDatabaseModal = (type: 'database' |'schema') => {
+    openCreateDatabaseModal?.({
+      type,
+      relyOnParams: {
+        databaseType: treeNodeData.extraParams!.databaseType,
+        dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+        databaseName: treeNodeData?.name,
+      },
+      executedCallback: () => {
+        loadData(true);
+      }
+    });
+  }
 
   const rightClickMenu = useMemo(() => {
     // 拿出当前节点的配置
@@ -169,7 +190,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           const databaseName = compatibleDataBaseName(
-            treeNodeData.extraParams!.databaseName!,
+            treeNodeData.name!,
             treeNodeData.extraParams!.databaseType,
             );
           addWorkspaceTab({
@@ -181,7 +202,7 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseType: treeNodeData.extraParams!.databaseType!,
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
-              sql: `select * from ${databaseName}`,
+              sql: "select * from " + databaseName,
             },
           });
         },
@@ -238,6 +259,24 @@ export const useGetRightClickMenu = (props: IProps) => {
           });
         },
       },
+
+      // 创建数据库
+      [OperationColumn.CreateDatabase]: {
+        text: i18n('workspace.menu.createDatabase'),
+        icon: '\ue816',
+        handle: () => {
+          handelOpenCreateDatabaseModal('database');
+        },
+      },
+
+      // 创建schema
+      [OperationColumn.CreateSchema]: {
+        text: i18n('workspace.menu.createSchema'),
+        icon: '\ue696',
+        handle: () => {
+          handelOpenCreateDatabaseModal('schema');
+        },
+      }
     };
 
     // 根据配置生成右键菜单

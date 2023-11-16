@@ -485,11 +485,6 @@ const WorkspaceHeader = memo<IProps>((props) => {
           </div>
         </div>
       </Modal>
-      <CreateDatabase
-        executedCallback={handleRefresh}
-        curWorkspaceParams={curWorkspaceParams}
-        ref={createDatabaseRef}
-      />
     </>
   );
 });

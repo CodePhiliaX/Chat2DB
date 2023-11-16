@@ -1,4 +1,4 @@
-import React, { useRef, useImperativeHandle, ForwardedRef } from 'react';
+import React from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import StateIndicator from '@/components/StateIndicator';
@@ -11,7 +11,6 @@ interface IProps<T> extends React.HTMLAttributes<HTMLDivElement> {
   handleEmpty?: boolean;
   isLoading?: boolean;
   coverLoading?: boolean;
-  ref: any;
 }
 
 export default function LoadingContent<T>(props: IProps<T>) {
@@ -39,5 +38,5 @@ export default function LoadingContent<T>(props: IProps<T>) {
     );
   };
 
-  return <div {...args} className={classnames(styles.loadingContent, className)}>{renderContent()}</div>;
+  return <div className={classnames(styles.loadingContent, className)}>{renderContent()}</div>;
 }

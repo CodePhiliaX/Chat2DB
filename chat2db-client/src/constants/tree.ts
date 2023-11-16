@@ -42,4 +42,6 @@ export enum OperationColumn {
   OpenFunction = 'openFunction', // 打开函数
   OpenProcedure = 'openProcedure', // 打开存储过程
   OpenTrigger = 'openTrigger', // 打开触发器
+  CreateSchema = 'createSchema', // 新建schema
+  CreateDatabase = 'createDatabase', // 新建database
 }

@@ -11,15 +11,13 @@ import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, useTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
-import LoadingContent from '@/components/Loading/LoadingContent'
+import LoadingContent from '@/components/Loading/LoadingContent';
 
 interface IProps {
   className?: string;
   initialData: ITreeNode[] | null;
   searchValue: string;
-  ref: any;
 }
-
 interface TreeNodeIProps {
   data: ITreeNode;
   level: number;
@@ -32,7 +30,7 @@ interface IContext {
 
 export const Context = createContext<IContext>({} as any);
 
-const Tree = (props: IProps, ref: any) => {
+const Tree = (props: IProps) => {
   const { className, initialData, searchValue } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
 
@@ -48,8 +46,10 @@ const Tree = (props: IProps, ref: any) => {
 
   return (
     <Context.Provider value={{ searchValue }}>
-      <LoadingContent isLoading={!treeData} ref={ref} className={classnames(className, styles.treeBox)}>
-        {treeNodes}
+      <LoadingContent isLoading={!treeData} className={classnames(className)}>
+        <div className={styles.treeBox}>
+          {treeNodes}
+        </div>
       </LoadingContent>
     </Context.Provider>
   );
@@ -74,13 +74,13 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const [showParentNode, setShowParentNode] = useState<boolean>(false);
 
   useEffect(() => {
-    if(showTreeNode){
+    if (showTreeNode) {
       _setShowParentNode?.(true);
     }
   }, [showTreeNode]);
 
   useEffect(() => {
-    if(showParentNode){
+    if (showParentNode) {
       _setShowParentNode?.(true);
     }
   }, [showParentNode]);
@@ -257,4 +257,4 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   );
 });
 
-export default memo(forwardRef(Tree)) ;
+export default memo(forwardRef(Tree));

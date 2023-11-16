@@ -96,8 +96,6 @@ export default {
   'common.text.updateNow' : '立即更新',
   'common.title.preview' : '预览',
   'common.title.errorMessage': '错误信息',
-  'common.Button.addDatabase': '添加数据库',
-  'common.Button.addSchema': '添加Schema',
   'common.label.comment': '备注',
   'common.label.name': '名称',
   'common.title.create': '创建',
