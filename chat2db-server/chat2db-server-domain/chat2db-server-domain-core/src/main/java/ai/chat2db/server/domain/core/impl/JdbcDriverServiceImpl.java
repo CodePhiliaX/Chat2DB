@@ -9,6 +9,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.util.JdbcJarUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +60,8 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
             boolean flag = driverExists(driverConfig);
             if (flag && driverConfigMap.get(driverConfig.getJdbcDriver()) == null) {
                 driverConfigMap.put(driverConfig.getJdbcDriver(), driverConfig);
-                setDriverDefaultProperty(driverConfig);
+                //TODO :临时解决方案，后续需要优化
+                //setDriverDefaultProperty(driverConfig);
             } else {
                 log.warn("Driver file not found: {}", driverConfig.getJdbcDriver());
             }
@@ -87,6 +90,12 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
         driverDO.setJdbcDriverClass(jdbcDriverClass);
         driverDO.setDbType(dbType);
         driverDO.setJdbcDriver(localPath);
+        DriverConfig driverConfig = driverConfigConverter.do2Config(driverDO);
+        try {
+            IDriverManager.getClassLoader(driverConfig);
+        } catch (Exception e) {
+            throw new RuntimeException("Driver error,please check the driver file", e);
+        }
         jdbcDriverMapper.insert(driverDO);
         return ActionResult.isSuccess();
     }

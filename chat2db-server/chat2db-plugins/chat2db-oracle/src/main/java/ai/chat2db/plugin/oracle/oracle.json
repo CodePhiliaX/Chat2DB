@@ -1,5 +1,7 @@
 {
   "dbType": "ORACLE",
+  "supportDatabase": false,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:oracle:thin:@localhost:1521:XE",

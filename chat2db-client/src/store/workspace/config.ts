@@ -1,32 +1,34 @@
+import {useWorkspaceStore} from './index'
 export interface IConfigStore {
   layout: {
     panelLeft: boolean;
     panelLeftWidth: number;
     panelRight: boolean;
   };
-  togglePanelLeft: () => void;
-  togglePanelRight: () => void;
 }
 
-
-export const configStore = (set):IConfigStore => ({
+export const initConfigStore: IConfigStore = {
   layout: {
     panelLeft: true,
     panelRight: false,
     panelLeftWidth: 220,
   },
-  togglePanelLeft: () =>
-    set((state) => ({
-      layout: {
-        ...state.layout,
-        panelLeft: !state.layout.panelLeft,
-      },
-    })),
-  togglePanelRight: () =>
-    set((state) => ({
-      layout: {
-        ...state.layout,
-        panelRight: !state.layout.panelRight,
-      },
-    })),
-})
+}
+
+export const togglePanelRight = () => {
+  return useWorkspaceStore.setState((state) => ({
+    layout: {
+      ...state.layout,
+      panelRight: !state.layout.panelRight,
+    },
+  }))
+}
+
+export const togglePanelLeft = () => {
+  return useWorkspaceStore.setState((state) => ({
+    layout: {
+      ...state.layout,
+      panelLeft: !state.layout.panelLeft,
+    },
+  }))
+}

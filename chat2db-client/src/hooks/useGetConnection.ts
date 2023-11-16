@@ -1,21 +1,15 @@
 import { useEffect } from 'react';
 import connectionService from '@/service/connection';
 
-import { useConnectionStore } from '@/store/connection';
+import { setConnectionEnvList, getConnectionList } from '@/store/connection';
 import { useWorkspaceStore } from '@/store/workspace';
+import { setCurrentConnectionDetails } from '@/store/workspace/common';
 
 const useGetConnection = () => {
-  const { setConnectionEnvList, getConnectionList } = useConnectionStore((state) => {
-    return {
-      setConnectionEnvList: state.setConnectionEnvList,
-      getConnectionList: state.getConnectionList,
-    };
-  });
 
-  const { currentConnectionDetails, setCurrentConnectionDetails } = useWorkspaceStore((state) => {
+  const { currentConnectionDetails } = useWorkspaceStore((state) => {
     return {
       currentConnectionDetails: state.currentConnectionDetails,
-      setCurrentConnectionDetails: state.setCurrentConnectionDetails,
     };
   });
 

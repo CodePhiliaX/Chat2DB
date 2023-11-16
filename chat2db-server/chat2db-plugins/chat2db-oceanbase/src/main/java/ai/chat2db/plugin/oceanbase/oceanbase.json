@@ -1,5 +1,7 @@
 {
   "dbType": "OCEANBASE",
+  "supportDatabase": false,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:oceanbase://localhost:2883/",

@@ -1,5 +1,7 @@
 {
   "dbType": "HIVE",
+  "supportDatabase": false,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:hive2://localhost:10000/",

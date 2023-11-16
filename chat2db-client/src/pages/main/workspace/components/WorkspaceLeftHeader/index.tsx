@@ -6,6 +6,7 @@ import styles from './index.less';
 // ---- store ----
 import { useConnectionStore } from '@/store/connection';
 import { useWorkspaceStore } from '@/store/workspace';
+import { setCurrentConnectionDetails } from '@/store/workspace/common';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';
@@ -25,10 +26,9 @@ export default memo<IProps>((props) => {
     };
   });
 
-  const { currentConnectionDetails, setCurrentConnectionDetails } = useWorkspaceStore((state) => {
+  const { currentConnectionDetails } = useWorkspaceStore((state) => {
     return {
       currentConnectionDetails: state.currentConnectionDetails,
-      setCurrentConnectionDetails: state.setCurrentConnectionDetails,
     };
   });
 

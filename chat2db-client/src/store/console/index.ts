@@ -1,9 +1,7 @@
-/**
- * 数据源的store
- */
-
-import { create, UseBoundStore, StoreApi } from 'zustand';
+import { UseBoundStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
 import { devtools } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
+import { StoreApi } from 'zustand';
 import { IConsole, ICreateConsoleParams } from '@/typings';
 import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
@@ -21,8 +19,9 @@ const initConsoleStore = {
   workspaceTabList: null,
 }
 
-export const useConsoleStore: UseBoundStore<StoreApi<IConsoleStore>> = create(
+export const useConsoleStore: UseBoundStoreWithEqualityFn<StoreApi<IConsoleStore>> = createWithEqualityFn(
   devtools(() => (initConsoleStore)),
+  shallow
 );
 
 export const getSavedConsoleList = () => {

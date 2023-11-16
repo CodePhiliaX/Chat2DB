@@ -20,6 +20,8 @@ export interface IConnectionListItem {
   alias: string;
   environment: IConnectionEnv;
   type: DatabaseTypeCode;
+  supportDatabase: boolean;
+  supportSchema: boolean;
 }
 
 
@@ -41,6 +43,15 @@ export interface IConnectionDetails {
     jdbcDriverClass: string;
   };
   [key: string]: any;
+}
+
+export interface IConnectionListItem {
+  id: number;
+  alias: string;
+  environment: IConnectionEnv;
+  type: DatabaseTypeCode;
+  supportDatabase: boolean; 
+  supportSchema: boolean;
 }
 
 export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>

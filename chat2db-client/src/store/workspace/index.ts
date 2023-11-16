@@ -1,21 +1,23 @@
-import { create, UseBoundStore, StoreApi } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { UseBoundStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
+import { devtools,persist } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
+import { StoreApi } from 'zustand';
 
-import { configStore, IConfigStore } from './config';
+import { initConfigStore, IConfigStore } from './config';
 import { consoleStore, IConsoleStore } from './console';
-import { commonStore, ICommonStore } from './common';
-import { modalStore , IModalStore } from './modal';
+import { initCommonStore, ICommonStore } from './common';
+import { initModalStore , IModalStore } from './modal';
 
 export type IStore = IConfigStore & IConsoleStore & ICommonStore & IModalStore;
 
-export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
+export const useWorkspaceStore: UseBoundStoreWithEqualityFn<StoreApi<IStore>> = createWithEqualityFn(
   devtools(
     persist(
       (set) => ({
-        ...configStore(set),
         ...consoleStore(set),
-        ...commonStore(set),
-        ...modalStore(),
+        ...initConfigStore,
+        ...initCommonStore,
+        ...initModalStore,
       }),
       // persist config
       {
@@ -32,4 +34,5 @@ export const useWorkspaceStore: UseBoundStore<StoreApi<IStore>> = create(
       name: "workspaceStore"
     }
   ),
+  shallow
 );

@@ -43,11 +43,19 @@ const Tree = (props: IProps) => {
       return <TreeNode key={item.name + index} level={0} data={item} />;
     });
   }, [treeData]);
+  // 如果treeBox滚动的高度>0那么久加一个上边框
+  const [treeBoxScrollTop, setTreeBoxScrollTop] = useState<number>(0);
+  const handleScroll = (e: any) => {
+    setTreeBoxScrollTop(e.target.scrollTop);
+  };
 
   return (
     <Context.Provider value={{ searchValue }}>
       <LoadingContent isLoading={!treeData} className={classnames(className)}>
-        <div className={styles.treeBox}>
+        <div
+          className={classnames(styles.treeBox, { [styles.treeBoxScroll]: treeBoxScrollTop > 0 })}
+          onScroll={handleScroll}
+        >
           {treeNodes}
         </div>
       </LoadingContent>

@@ -22,15 +22,14 @@ import MenuLabel from '@/components/MenuLabel';
 import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
 
 // ----- store -----
-import { useConnectionStore } from '@/store/connection';
+import { useConnectionStore, getConnectionList } from '@/store/connection';
 
 import styles from './index.less';
 
 const ConnectionsPage = () => {
-  const { connectionList, getConnectionList } = useConnectionStore((state) => {
+  const { connectionList } = useConnectionStore((state) => {
     return {
       connectionList: state.connectionList,
-      getConnectionList: state.getConnectionList,
     };
   });
   const volatileRef = useRef<any>();
@@ -101,7 +100,6 @@ const ConnectionsPage = () => {
     ]
   } 
   
-
   const renderConnectionMenuList = () => {
     return connectionList?.map((t) => {
       return (

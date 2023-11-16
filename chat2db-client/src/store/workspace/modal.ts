@@ -13,11 +13,9 @@ export interface IModalStore {
   }) => void) | null;
 }
 
-const initModalStore: IModalStore = {
+export const initModalStore: IModalStore = {
   openCreateDatabaseModal: null,
 };
-
-export const modalStore = (): IModalStore => initModalStore;
 
 export const setOpenCreateDatabaseModal = (fn: any) => {
   useWorkspaceStore.setState({ openCreateDatabaseModal: fn });

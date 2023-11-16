@@ -1,12 +1,14 @@
-import { IConnectionDetails } from '@/typings/connection';
+import { IConnectionListItem } from '@/typings/connection';
+import { useWorkspaceStore } from './index'
 
 export interface ICommonStore {
-  currentConnectionDetails: Partial<IConnectionDetails> | null;
-  setCurrentConnectionDetails: (connectionDetails: Partial<IConnectionDetails> | null) => void;
+  currentConnectionDetails: IConnectionListItem | null;
 }
 
-export const commonStore = (set): ICommonStore => ({
+export const initCommonStore: ICommonStore = {
   currentConnectionDetails: null,
-  setCurrentConnectionDetails: (connectionDetails: ICommonStore['currentConnectionDetails']) =>
-    set({ currentConnectionDetails: connectionDetails }),
-});
+}
+
+export const setCurrentConnectionDetails = (connectionDetails: ICommonStore['currentConnectionDetails']) => {
+  return useWorkspaceStore.setState({ currentConnectionDetails: connectionDetails });
+}

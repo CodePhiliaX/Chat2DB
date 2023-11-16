@@ -1,4 +1,4 @@
-import { IPageResponse, IConnectionDetails, ICreateConnectionDetails, IConnectionEnv, IPageParams } from '@/typings';
+import { IPageResponse, IConnectionDetails, ICreateConnectionDetails, IConnectionEnv, IPageParams, IConnectionListItem } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import createRequest from './base';
 
@@ -25,7 +25,7 @@ interface IUploadDriver {
 /**
  * 查询连接列表
  */
-const getList = createRequest<IPageParams, IPageResponse<IConnectionDetails>>(
+const getList = createRequest<IPageParams, IPageResponse<IConnectionListItem>>(
   '/api/connection/datasource/list',
   {},
 );
@@ -73,7 +73,7 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
   method: 'get',
 });
 
-const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
+const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { method: 'post' });
 
 const getEnvList = createRequest<void, IConnectionEnv[]>('/api/common/environment/list_all', { errorLevel: false });
 

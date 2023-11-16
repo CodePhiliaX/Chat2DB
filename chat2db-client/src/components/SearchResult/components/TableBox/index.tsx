@@ -25,7 +25,7 @@ import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import sqlService, { IExportParams, IExecuteSqlParams } from '@/service/sql';
 
 // store
-import { useCommonStore } from '@/store/common';
+import { setFocusedContent } from '@/store/common/copyFocusedContent';
 
 // 依赖组件
 import ExecuteSQL from '@/components/ExecuteSQL';
@@ -145,12 +145,6 @@ export default function TableBox(props: ITableProps) {
   const [columnResize, setColumnResize] = useState<number[]>([0]);
   // 表格的宽度
   // const [tableBoxWidth, setTableBoxWidth] = useState<number>(0);
-  // 判断是否聚焦在了可粘贴的区域中 hooks
-  const { setFocusedContent } = useCommonStore((state) => {
-    return {
-      setFocusedContent: state.setFocusedContent,
-    };
-  });
 
   const handleExportSQLResult = async (exportType: ExportTypeEnum, exportSize: ExportSizeEnum) => {
     const params: IExportParams = {

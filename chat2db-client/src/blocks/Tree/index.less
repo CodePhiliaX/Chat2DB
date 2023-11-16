@@ -1,11 +1,16 @@
 @import '../../styles/var.less';
 
 .treeBox {
-  padding: 0px 6px 10px;
+  padding: 2px 6px 10px;
   box-sizing: border-box;
   overflow: hidden;
   overflow-y: auto;
   height: 100%;
+}
+
+// 如果treeBox滚动的高度>0那么久加一个上边框
+.treeBoxScroll {
+  border-top: 1px solid var(--color-border-secondary);
 }
 
 .leftModuleTitleShadow{
