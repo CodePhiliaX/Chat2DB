@@ -106,13 +106,13 @@ Redis和MongoDB得到部分支持，Hbase、Elasticsearch、openGauss、TiDB、I
 ## 📦 Docker 部署
 
 ```bash
-  // 拉取最新客户端,然后运行docker,名字是 `chat2db` , 并且将 `/root/.chat2db` 挂载到 `~/.chat2db-docker`
+  ## 拉取最新客户端,然后运行docker,名字是 `chat2db` , 并且将 `/root/.chat2db` 挂载到 `~/.chat2db-docker`
   docker run --name=chat2db -ti -p 10824:10824 -v ~/.chat2db-docker:/root/.chat2db  chat2db/chat2db:latest
-  // 这里正常会提示`Tomcat started on port(s): 10824 (http) with context path` 就可以结束了
+  ## 这里正常会提示`Tomcat started on port(s): 10824 (http) with context path` 就可以结束了
 
-  // 如果这里提示  `The container name "/chat2db" is already in use by container`, 代表已经存在容器了 运行
+  ## 如果这里提示  `The container name "/chat2db" is already in use by container`, 代表已经存在容器了 运行
   docker start chat2db
-  // 如果想更新chat2db 则需要先rm
+  ## 如果想更新chat2db 则需要先rm
   docker rm chat2db
 ```
 
@@ -135,8 +135,8 @@ $ git clone git@github.com:chat2db/Chat2DB.git
 - 前端调试
 
 ```bash
-node版本必须为16及以上 
-一定要用yarn
+# node版本必须为16及以上 
+# 一定要用yarn
 $ cd Chat2DB/chat2db-client
 $ yarn
 $ yarn run start:web
