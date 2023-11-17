@@ -35,6 +35,7 @@ const Modal = memo(() => {
       onCancel={() => {
         setOpen(false);
       }}
+      destroyOnClose={true}
       footer={modalData.footer || false}
     >
       {modalData.content}
