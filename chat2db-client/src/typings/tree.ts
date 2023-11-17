@@ -26,6 +26,9 @@ export interface ITreeNode {
   extraParams?: IExtraParams;
   pinned?: boolean; // 是否置顶
   comment?: string; // 表列的注释
+  loadData?: (params:{refresh: boolean}) => void; // 加载数据的方法
+  // 父元素
+  parentNode?: ITreeNode;
 }
 
 // 视图  函数  触发器  过程 通用的返回结果

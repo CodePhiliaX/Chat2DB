@@ -67,31 +67,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const { data: initData, level, setShowParentNode: _setShowParentNode } = props;
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
-  const [treeNodeData, setTreeNodeData] = useState<ITreeNode>({
-    ...initData,
-  });
   const { searchValue } = useContext(Context);
-  const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
-
-  const showTreeNode = useMemo(() => {
-    const reg = new RegExp(searchValue || '', 'i');
-    return reg.test(treeNodeData.name || '');
-  }, [searchValue]);
-
-  // 如果showTreeNode为true，那么他的父节点也要展示
-  const [showParentNode, setShowParentNode] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (showTreeNode) {
-      _setShowParentNode?.(true);
-    }
-  }, [showTreeNode]);
-
-  useEffect(() => {
-    if (showParentNode) {
-      _setShowParentNode?.(true);
-    }
-  }, [showParentNode]);
 
   // 加载数据
   function loadData(_props?: { refresh: boolean }) {
@@ -137,6 +113,35 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       });
   }
 
+  // 当前节点数据
+  const [treeNodeData, setTreeNodeData] = useState<ITreeNode>({
+    ...initData,
+    loadData,
+  });
+
+  // 当前节点是否是focus
+  const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
+
+  // 如果showTreeNode为true，那么他的父节点也要展示
+  const [showParentNode, setShowParentNode] = useState<boolean>(false);
+
+  const showTreeNode = useMemo(() => {
+    const reg = new RegExp(searchValue || '', 'i');
+    return reg.test(treeNodeData.name || '');
+  }, [searchValue]);
+
+  useEffect(() => {
+    if (showTreeNode) {
+      _setShowParentNode?.(true);
+    }
+  }, [showTreeNode]);
+
+  useEffect(() => {
+    if (showParentNode) {
+      _setShowParentNode?.(true);
+    }
+  }, [showParentNode]);
+
   //展开-收起
   const handleClick = () => {
     if (
@@ -171,7 +176,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     setFocusId(treeNodeData.uuid || '');
   };
 
-  //
+  // 双击节点
   const handelDoubleClickTreeNode = () => {
     rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick();
   };
@@ -179,7 +184,17 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   // 递归渲染
   const treeNodes = useMemo(() => {
     return treeNodeData.children?.map((item: any, index: number) => {
-      return <TreeNode setShowParentNode={setShowParentNode} key={item.name + index} level={level + 1} data={item} />;
+      return (
+        <TreeNode
+          setShowParentNode={setShowParentNode}
+          key={item.name + index}
+          level={level + 1}
+          data={{
+            ...item,
+            parentNode: treeNodeData,
+          }}
+        />
+      );
     });
   }, [treeNodeData]);
 
@@ -192,7 +207,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     const dropdownsItems: any = rightClickMenu.map((item) => {
       return {
         key: item.key,
-        onClick: item.onClick,
+        onClick: () => {
+          item.onClick(treeNodeData);
+        },
         label: <MenuLabel icon={item.labelProps.icon} label={item.labelProps.label} />,
       };
     });

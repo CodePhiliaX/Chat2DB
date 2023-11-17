@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import { Input } from 'antd';
@@ -35,8 +35,10 @@ const OperationLine = (props: IProps) => {
   });
 
   const handelOpenCreateDatabaseModal = () => {
+    const type = currentConnectionDetails?.supportDatabase ? 'database' : 'schema';
+
     openCreateDatabaseModal?.({
-      type: 'database',
+      type,
       relyOnParams: {
         databaseType: currentConnectionDetails!.type!,
         dataSourceId: currentConnectionDetails!.id!,
@@ -47,11 +49,20 @@ const OperationLine = (props: IProps) => {
     });
   }
 
+  const showCreate = useMemo(()=>{
+    if(currentConnectionDetails?.supportDatabase){
+      return !notSupportCreateDatabaseType.includes(currentConnectionDetails!.type!)
+    }
+    if(currentConnectionDetails?.supportSchema){
+      return !notSupportCreateSchemaType.includes(currentConnectionDetails!.type!)
+    }
+  },[currentConnectionDetails])
+
   return (
     <>
       <div className={styles.operationLine}>
         <div className={styles.operationLineLeft}>
-          {!notSupportCreateDatabaseType.includes(currentConnectionDetails!.type!) && (
+          { showCreate && (
             <Iconfont
               onClick={handelOpenCreateDatabaseModal}
               code="&#xeb78;"

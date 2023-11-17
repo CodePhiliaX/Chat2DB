@@ -1,17 +1,11 @@
-import React, { memo, useEffect } from 'react';
+import React, { memo } from 'react';
 import classnames from 'classnames';
 import styles from './index.less';
 import NewTableList from '../NewTableList';
 import WorkspaceLeftHeader from '../WorkspaceLeftHeader';
-import useCreateDatabase from '@/components/CreateDatabase';
-import { setOpenCreateDatabaseModal } from '@/store/workspace/modal';
+import CreateDatabase from '@/components/CreateDatabase';
 
 const WorkspaceLeft = memo(() => {
-  const { createDatabaseDom, openCreateDatabaseModal } = useCreateDatabase();
-
-  useEffect(() => {
-    setOpenCreateDatabaseModal(openCreateDatabaseModal);
-  }, [openCreateDatabaseModal]);
 
   return (
     <>
@@ -19,7 +13,7 @@ const WorkspaceLeft = memo(() => {
         <WorkspaceLeftHeader />
         <NewTableList />
       </div>
-      {createDatabaseDom}
+      <CreateDatabase />
     </>
   );
 });

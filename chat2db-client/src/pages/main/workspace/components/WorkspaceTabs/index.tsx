@@ -162,6 +162,7 @@ const WorkspaceTabs = memo(() => {
         databaseType={uniqueData?.databaseType}
         schemaName={uniqueData?.schemaName}
         tableName={uniqueData.tableName}
+        submitCallback={uniqueData.submitCallback}
       />
     );
   };

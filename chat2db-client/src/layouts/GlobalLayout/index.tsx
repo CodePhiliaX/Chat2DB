@@ -5,7 +5,6 @@ import { Button, ConfigProvider, Spin, Tooltip } from 'antd';
 import antdEnUS from 'antd/locale/en_US';
 import antdZhCN from 'antd/locale/zh_CN';
 import service from '@/service/misc';
-import MyNotification from '@/components/MyNotification';
 import useCopyFocusData from '@/hooks/useFocusData';
 import { useTheme } from '@/hooks/useTheme';
 import { getAntdThemeConfig } from '@/theme';
@@ -13,6 +12,7 @@ import { Outlet } from 'umi';
 import init from '../init/init';
 import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons';
 import { ThemeType } from '@/constants';
+import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
 
 const GlobalLayout = () => {
@@ -81,7 +81,7 @@ const GlobalLayout = () => {
         <Outlet />
       </div>
 
-      <MyNotification />
+      <GlobalComponent />
     </ConfigProvider>
   );
 };

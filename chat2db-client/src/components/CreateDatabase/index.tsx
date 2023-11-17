@@ -8,6 +8,7 @@ import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
 import { DatabaseTypeCode } from '@/constants';
+import { setOpenCreateDatabaseModal } from '@/store/workspace/modal';
 
 interface IProps {
   relyOnParams: {
@@ -29,7 +30,7 @@ export interface ICreateDatabase {
 // 创建database不支持注释的数据库
 const noCommentDatabase = [DatabaseTypeCode.MYSQL];
 
-const useCreateDatabase = () => {
+const CreateDatabase = () => {
   const [form] = Form.useForm<ICreateDatabase>();
   const monacoEditorUuid = useMemo(() => uuid(), []);
   const monacoEditorRef = React.useRef<IExportRefFunction>(null);
@@ -133,7 +134,11 @@ const useCreateDatabase = () => {
     executedCallbackRef.current = params.executedCallback;
   };
 
-  const createDatabaseDom = !!relyOnParams && (
+  useEffect(() => {
+    setOpenCreateDatabaseModal(openCreateDatabaseModal);
+  }, []);
+
+  return (!!relyOnParams && (
     <Modal
       onCancel={() => {
         setOpen(false);
@@ -179,12 +184,8 @@ const useCreateDatabase = () => {
         )}
       </div>
     </Modal>
-  );
+  ))
 
-  return {
-    createDatabaseDom,
-    openCreateDatabaseModal: openCreateDatabaseModal,
-  };
 };
 
-export default useCreateDatabase;
+export default CreateDatabase;

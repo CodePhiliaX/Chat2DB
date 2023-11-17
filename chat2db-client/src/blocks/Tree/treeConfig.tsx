@@ -182,6 +182,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     operationColumn: [
       OperationColumn.CreateConsole,
       OperationColumn.CreateSchema,
+      // OperationColumn.CreateTable,
       OperationColumn.CopyName,
       OperationColumn.Refresh,
     ],
@@ -312,10 +313,11 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     operationColumn: [
       OperationColumn.OpenTable,
       OperationColumn.CreateConsole,
-      OperationColumn.Top,
+      OperationColumn.Pin,
       OperationColumn.ViewDDL,
       OperationColumn.EditTable,
       OperationColumn.CopyName,
+      OperationColumn.Refresh,
       OperationColumn.DeleteTable,
     ],
   },
