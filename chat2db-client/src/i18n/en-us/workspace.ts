@@ -28,4 +28,6 @@ export default {
   'workspace.tree.function': 'Function',
   'workspace.tree.procedure': 'Procedure',
   'workspace.tree.search.placeholder': 'Search in the expand node',
+  'workspace.tree.delete.tip': 'I understand that this operation is permanently deleted',
+  'workspace.tree.delete.table.tip': 'Are you sure you want to delete the table {1}?',
 };
