@@ -3,7 +3,7 @@ name: Build Test Client
 on:
   push:
     branches:
-    - "release_test2"
+    - "release_test_2"
 
 jobs:
   release:
