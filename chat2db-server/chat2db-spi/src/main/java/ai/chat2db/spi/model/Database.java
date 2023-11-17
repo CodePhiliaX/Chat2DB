@@ -38,4 +38,6 @@ public class Database implements Serializable {
     private String charset;
 
     private String collation;
+
+    private String owner;
 }

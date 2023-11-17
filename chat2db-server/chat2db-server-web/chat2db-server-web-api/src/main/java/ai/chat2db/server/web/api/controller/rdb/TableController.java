@@ -64,18 +64,19 @@ public class TableController extends EmbeddingController {
         tableSelector.setIndexList(false);
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
-        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
-        singleThreadExecutor.submit(() -> {
-            try {
-                Chat2DBContext.putContext(connectInfo);
-                syncTableEs(request);
-            } catch (Exception e) {
-                log.error("sync table vector error", e);
-            } finally {
-                Chat2DBContext.removeContext();
-            }
-            log.info("sync table vector finish");
-        });
+//        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+//        singleThreadExecutor.submit(() -> {
+//            try {
+//                Chat2DBContext.putContext(connectInfo);
+//                syncTableVector(request);
+////                syncTableEs(request);
+//            } catch (Exception e) {
+//                log.error("sync table vector error", e);
+//            } finally {
+//                Chat2DBContext.removeContext();
+//            }
+//            log.info("sync table vector finish");
+//        });
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
                 request.getPageSize());
     }

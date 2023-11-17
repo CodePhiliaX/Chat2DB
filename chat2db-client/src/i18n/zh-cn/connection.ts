@@ -1,4 +1,5 @@
 export default {
+  'connection.title': '数据源',
   'connection.title.connections': '连接',
   'connection.title.createConnection': '创建数据源',
   'connection.title.editConnection': '修改数据源',
@@ -14,6 +15,7 @@ export default {
   'connection.label.sshConfiguration': 'SSH',
   'connection.button.addConnection': '新增连接',
   'connection.button.connect': '连接',
+  'connection.button.remove': '删除链接',
   'connection.message.testConnectResult': '测试连接{1}',
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',

@@ -1,0 +1,18 @@
+{
+  "dbType": "DM",
+  "supportDatabase": false,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:dm://localhost:5236/",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/DmJdbcDriver18-8.1.2.141.jar"
+      ],
+      "jdbcDriver": "DmJdbcDriver18-8.1.2.141.jar",
+      "jdbcDriverClass": "dm.jdbc.driver.DmDriver"
+    }
+  ],
+  "name": "DM"
+}

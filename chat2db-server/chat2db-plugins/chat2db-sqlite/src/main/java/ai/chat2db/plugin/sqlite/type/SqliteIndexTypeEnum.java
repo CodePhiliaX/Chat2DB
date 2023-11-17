@@ -59,23 +59,33 @@ public enum SqliteIndexTypeEnum {
     }
 
     public String buildIndexScript(TableIndex tableIndex) {
+        if (this.equals(PRIMARY_KEY)) {
+            return buildPrimaryKeyScript(tableIndex);
+        } else {
+            StringBuilder script = new StringBuilder();
+
+            script.append(keyword).append(" ");
+
+            script.append(buildIndexName(tableIndex)).append(" ON ").append(tableIndex.getTableName()).append(" ");
+
+            script.append(buildIndexColumn(tableIndex)).append(" ");
+            return script.toString();
+        }
+
+
+    }
+
+    private String buildPrimaryKeyScript(TableIndex tableIndex) {
         StringBuilder script = new StringBuilder();
-
-        script.append(keyword).append(" ");
-
-        script.append(buildIndexName(tableIndex)).append(" ON ").append(tableIndex.getTableName()).append(" ");
-
-        script.append(buildIndexColumn(tableIndex)).append(" ");
-
-
+        script.append("CONSTRAINT ").append(buildIndexName(tableIndex)).append(" ").append(keyword).append(" ").append(buildIndexColumn(tableIndex));
         return script.toString();
     }
 
     private String buildIndexComment(TableIndex tableIndex) {
-        if(StringUtils.isBlank(tableIndex.getComment())){
+        if (StringUtils.isBlank(tableIndex.getComment())) {
             return "";
-        }else {
-            return StringUtils.join("COMMENT '",tableIndex.getComment(),"'");
+        } else {
+            return StringUtils.join("COMMENT '", tableIndex.getComment(), "'");
         }
 
     }
@@ -84,7 +94,7 @@ public enum SqliteIndexTypeEnum {
         StringBuilder script = new StringBuilder();
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
-            if(StringUtils.isNotBlank(column.getColumnName())) {
+            if (StringUtils.isNotBlank(column.getColumnName())) {
                 script.append("\"").append(column.getColumnName()).append("\"").append(",");
             }
         }
@@ -94,10 +104,10 @@ public enum SqliteIndexTypeEnum {
     }
 
     private String buildIndexName(TableIndex tableIndex) {
-        if(this.equals(PRIMARY_KEY)){
-            return "";
-        }else {
-            return "\""+tableIndex.getName()+"\"";
+        if (this.equals(PRIMARY_KEY)) {
+            return tableIndex.getTableName()+"_pk";
+        } else {
+            return "\"" + tableIndex.getName() + "\"";
         }
     }
 
@@ -106,7 +116,7 @@ public enum SqliteIndexTypeEnum {
             return buildDropIndex(tableIndex);
         }
         if (EditStatus.MODIFY.name().equals(tableIndex.getEditStatus())) {
-            return StringUtils.join(buildDropIndex(tableIndex),",\n", "ADD ", buildIndexScript(tableIndex));
+            return StringUtils.join(buildDropIndex(tableIndex), ",\n", "ADD ", buildIndexScript(tableIndex));
         }
         if (EditStatus.ADD.name().equals(tableIndex.getEditStatus())) {
             return StringUtils.join("CREATE ", buildIndexScript(tableIndex));
@@ -118,8 +128,9 @@ public enum SqliteIndexTypeEnum {
         if (SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
             return StringUtils.join("DROP PRIMARY KEY");
         }
-        return StringUtils.join("DROP INDEX \"", tableIndex.getOldName(),"\"");
+        return StringUtils.join("DROP INDEX \"", tableIndex.getOldName(), "\"");
     }
+
     public static List<IndexType> getIndexTypes() {
         return Arrays.asList(SqliteIndexTypeEnum.values()).stream().map(SqliteIndexTypeEnum::getIndexType).collect(java.util.stream.Collectors.toList());
     }

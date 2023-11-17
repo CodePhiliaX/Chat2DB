@@ -1,0 +1,40 @@
+{
+  "dbType": "SQLSERVER",
+  "supportDatabase": true,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:sqlserver://localhost:1433;database=master",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/mssql-jdbc-11.2.1.jre17.jar"
+      ],
+      "jdbcDriver": "mssql-jdbc-11.2.1.jre17.jar",
+      "jdbcDriverClass": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+      "extendInfo": [
+        {
+          "key": "encrypt",
+          "value": "false",
+          "required": false
+        },
+        {
+          "key": "trustServerCertificate",
+          "value": "true",
+          "required": false
+        },
+        {
+          "key": "integratedSecurity",
+          "value": "false",
+          "required": false
+        },
+        {
+          "key": "Trusted_Connection",
+          "value": "yes",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "name": "SQLServer"
+}

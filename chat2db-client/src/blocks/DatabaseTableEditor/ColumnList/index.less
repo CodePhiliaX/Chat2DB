@@ -85,6 +85,30 @@
 //   }
 // }
 
+.keyBox {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  i {
+    color: var(--color-warning);
+  }
+  span {
+    position: absolute;
+    font-weight: bold;
+    right: 4px;
+    bottom: -2px;
+    transform: scale(0.8);
+  }
+}
+
+.disabledKeyBox {
+  cursor: default;
+}
+
 .operationBar {
   display: flex;
   justify-content: end;
@@ -129,6 +153,10 @@
       &::before {
         display: none;
       }
+    }
+    // antd无法设置最小宽度，所以在这里设置最小列宽为100px
+    colgroup col:nth-last-child(2) {
+      min-width: 100px;
     }
   }
 }

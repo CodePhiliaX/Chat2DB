@@ -8,17 +8,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
-import ai.chat2db.plugin.mysql.type.MysqlCharsetEnum;
-import ai.chat2db.plugin.mysql.type.MysqlCollationEnum;
-import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
-import ai.chat2db.plugin.mysql.type.MysqlIndexTypeEnum;
+import ai.chat2db.plugin.mysql.type.*;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
@@ -287,11 +284,17 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 .charsets(MysqlCharsetEnum.getCharsets())
                 .collations(MysqlCollationEnum.getCollations())
                 .indexTypes(MysqlIndexTypeEnum.getIndexTypes())
+                .defaultValues(MysqlDefaultValueEnum.getDefaultValues())
                 .build();
     }
 
     @Override
     public String getMetaDataName(String... names) {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "`" + name + "`").collect(Collectors.joining("."));
+    }
+
+    @Override
+    public ValueHandler getValueHandler() {
+        return new MysqlValueHandler();
     }
 }

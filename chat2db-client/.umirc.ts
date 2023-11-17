@@ -20,13 +20,16 @@ export default defineConfig({
   publicPath: '/',
   hash: true,
   routes: [
-    { path: '/demo', component: '@/pages/demo' },
-    { path: '/connections', component: 'main' },
-    { path: '/workspace', component: 'main' },
-    { path: '/dashboard', component: 'main' },
-    { path: '/login', component: '@/pages/login' },
-    { path: '/test', component: '@/pages/test' },
-    { path: '/', component: 'main' },
+    {
+      path: '/',
+      component: '@/layouts/GlobalLayout',
+      routes: [
+        {
+          path: '/',
+          component: 'main',
+        },
+      ],
+    },
   ],
 
   npmClient: 'yarn',
@@ -50,13 +53,7 @@ export default defineConfig({
   //   rel: 'manifest',
   //   href: 'manifest.json',
   // }],
-  links: [
-    {   rel:"icon",
-    type:"image/ico",
-    sizes:"32x32",
-    href:"/static/front/logo.ico" 
-  }
-  ],
+  links: [{ rel: 'icon', type: 'image/ico', sizes: '32x32', href: '/static/front/logo.ico' }],
   headScripts: [
     `if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
       localStorage.clear();
@@ -97,8 +94,8 @@ export default defineConfig({
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
-    __APP_VERSION__: yarn_config.app_version || '9.9.9',
+    __APP_VERSION__: yarn_config.app_version || '0.0.0',
     __APP_PORT__: yarn_config.app_port,
   },
-  esbuildMinifyIIFE: true
+  esbuildMinifyIIFE: true,
 });

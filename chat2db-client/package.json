@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@dnd-kit/modifiers": "^6.0.1",
-    "ahooks": "^3.7.7",
+    "ahooks": "^3.7.8",
     "ali-react-table": "^2.6.1",
     "antd": "^5.6.0",
     "copy-to-clipboard": "^3.3.3",
@@ -35,20 +35,21 @@
     "echarts-for-react": "^3.0.2",
     "electron-log": "^4.4.8",
     "event-source-polyfill": "^1.0.31",
+    "highlight.js": "^11.9.0",
     "lodash": "^4.17.21",
     "markdown-it-link-attributes": "^4.0.1",
-    "monaco-editor": "^0.34.0",
+    "monaco-editor": "^0.44.0",
     "monaco-editor-esm-webpack-plugin": "^2.1.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "node-machine-id": "^1.1.12",
     "react-monaco-editor": "^0.54.0",
     "react-sortablejs": "^6.1.4",
-    "sql-formatter": "^12.2.1",
+    "sql-formatter": "^13.0.4",
     "styled-components": "^6.0.1",
-    "umi": "^4.0.70",
+    "umi": "^4.0.87",
     "umi-request": "^1.4.0",
     "uuid": "^9.0.0",
-    "highlight.js": "^11.9.0"
+    "zustand": "^4.4.4"
   },
   "devDependencies": {
     "@types/event-source-polyfill": "^1.0.1",
@@ -129,7 +130,7 @@
         }
       ],
       "publisherName": "Chat2DB",
-      "icon": "src/assets/logo/logo.png"
+      "icon": "src/assets/logo/logo.ico"
     },
     "linux": {
       "maintainer": "Chat2DB, huanyueyaoqin@qq.com",

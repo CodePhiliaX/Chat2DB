@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public enum SqlServerColumnTypeEnum implements ColumnBuilder {
     //JSON("JSON", false, false, true, false, false, false, true, false, false, false)
@@ -166,12 +167,12 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
         }
 
 
-        if (column.getSparse() != null && column.getSparse()) {
+        if (!Objects.equals(column.getSparse(), column.getOldColumn().getSparse())) {
             script.append("ALTER TABLE ").append("[").append(column.getSchemaName()).append("].[").append(column.getTableName()).append("]");
             script.append(" ").append("ALTER COLUMN ").append("[").append(column.getName()).append("]").append(" add ").append("SPARSE").append(" \ngo\n");
         }
 
-        if (StringUtils.isNotBlank(column.getCollationName())) {
+        if (!Objects.equals(column.getCollationName(), column.getOldColumn().getCollationName())) {
             script.append("ALTER TABLE ").append("[").append(column.getSchemaName()).append("].[").append(column.getTableName()).append("]");
             script.append(" ").append("ALTER COLUMN ").append("[").append(column.getName()).append("]").append(" ").append("COLLATE ").append(column.getCollationName()).append(" \ngo\n");
         }
@@ -302,7 +303,7 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
             script.append("ALTER TABLE ").append("[").append(tableColumn.getSchemaName()).append("].[").append(tableColumn.getTableName()).append("]");
             script.append(" ").append("ALTER COLUMN ").append(buildUpdateColumnSql(tableColumn)).append(" \n");
 
-            if (StringUtils.isNotBlank(tableColumn.getComment())) {
+            if (!Objects.equals(tableColumn.getComment(), tableColumn.getOldColumn().getComment())) {
                 script.append("\n").append(buildModifyColumnComment(tableColumn));
             }
 

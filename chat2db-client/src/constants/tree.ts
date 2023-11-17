@@ -30,9 +30,18 @@ export enum OperationColumn {
   CreateTable = 'createTable', //创建表
   CreateConsole = 'createConsole', // 新建console
   DeleteTable = 'deleteTable', // 删除表
-  ExportDDL = 'exportDDL', // 导出ddl
+  OpenTable = 'openTable', // 删除表
+  ViewDDL = 'viewDDL', // 查看ddl
   EditSource = 'editSource', // 编辑数据源
-  Top = 'top', // 置顶
+  Pin = 'pin', // 置顶
   EditTable = 'editTable', // 编辑表
   EditTableData = 'editTableData', // 编辑表数据
+  CopyName = 'copyName', // 复制名称
+  EditView = 'editView', // 编辑视图
+  OpenView = 'openView', // 打开视图
+  OpenFunction = 'openFunction', // 打开函数
+  OpenProcedure = 'openProcedure', // 打开存储过程
+  OpenTrigger = 'openTrigger', // 打开触发器
+  CreateSchema = 'createSchema', // 新建schema
+  CreateDatabase = 'createDatabase', // 新建database
 }

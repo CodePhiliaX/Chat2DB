@@ -56,7 +56,7 @@ const ImportConnection: React.FC<IImportConnectionProps> = ({ open, onClose, onC
         message.success(`${selectedFile.name} 导入数据源成功`);
         onConfirm && onConfirm();
       } else {
-        message.error(`${selectedFile.name} 导入数据源是吧`);
+        message.error(`${selectedFile.name} 导入数据源失败`);
       }
     } catch (error) {
       message.error(`Error: ${error}`);

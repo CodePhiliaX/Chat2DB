@@ -4,7 +4,7 @@ import historyService from '@/service/history';
 import { DatabaseTypeCode, TreeNodeType } from '@/constants';
 import { Effect, Reducer } from 'umi';
 import { ITreeNode, IConsole, IPageResponse, ICreateTabIntro, IWorkspaceTab } from '@/typings';
-import { treeConfig } from '@/pages/main/workspace/components/Tree/treeConfig';
+import { treeConfig } from '@/blocks/Tree/treeConfig';
 
 export type ICurWorkspaceParams = {
   dataSourceId: number;
@@ -58,7 +58,7 @@ const WorkspaceModel: IWorkspaceModelType = {
 
   state: {
     databaseAndSchema: undefined,
-    curWorkspaceParams: getCurrentWorkspaceDatabase(),
+    curWorkspaceParams: {} as any,
     doubleClickTreeNodeData: undefined,
     consoleList: [],
     openConsoleList: [],

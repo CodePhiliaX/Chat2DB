@@ -1,13 +1,19 @@
 export default {
+  'workspace.title': 'Workspace',
   'workspace.cascader.placeholder': 'Select Here',
   'workspace.ai.input.placeholder': 'Enter your plain text statement here',
   'workspace.title.saved': 'Saved',
-  'workspace.menu.exportDDL': 'Export DDL',
+  'workspace.menu.ViewDDL': 'View DDL',
   'workspace.menu.deleteTable': 'Delete Table',
+  'workspace.menu.openTable': 'Open Table',
   'workspace.menu.editTable': 'Edit Table',
+  'workspace.menu.view': 'View',
   'workspace.menu.pin': 'Pin',
   'workspace.menu.unPin': 'Unpin',
   'workspace.menu.editTableData': 'Edit Table Data',
+  'workspace.menu.queryConsole': 'Query console',
+  'workspace.menu.createDatabase': 'Create database',
+  'workspace.menu.createSchema': 'Create schema',
   'workspace.menu.deleteTablePlaceHolder': 'Please enter the name of the table you want to delete',
   'workspace.tips.affirmDeleteTable':
     'The table name you entered is not the same as the table name you want to delete, please confirm again',
@@ -21,4 +27,5 @@ export default {
   'workspace.tree.trigger': 'Trigger',
   'workspace.tree.function': 'Function',
   'workspace.tree.procedure': 'Procedure',
+  'workspace.tree.search.placeholder': 'Search in the expand node',
 };

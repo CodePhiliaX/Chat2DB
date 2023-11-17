@@ -6,6 +6,62 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "37968169",
+      "name": "下箭头-copy",
+      "font_class": "xiajiantou1-copy",
+      "unicode": "100be",
+      "unicode_decimal": 65726
+    },
+    {
+      "icon_id": "22941156",
+      "name": "查看",
+      "font_class": "chakan2",
+      "unicode": "e788",
+      "unicode_decimal": 59272
+    },
+    {
+      "icon_id": "7735962",
+      "name": "clone",
+      "font_class": "clone",
+      "unicode": "e8db",
+      "unicode_decimal": 59611
+    },
+    {
+      "icon_id": "15488863",
+      "name": "提交",
+      "font_class": "tijiao",
+      "unicode": "e687",
+      "unicode_decimal": 59015
+    },
+    {
+      "icon_id": "12331656",
+      "name": "查看",
+      "font_class": "chakan1",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "5993150",
+      "name": "复制",
+      "font_class": "fuzhi",
+      "unicode": "ec7a",
+      "unicode_decimal": 60538
+    },
+    {
+      "icon_id": "1624922",
+      "name": "icon_answer",
+      "font_class": "icon_answer",
+      "unicode": "e686",
+      "unicode_decimal": 59014
+    },
+    {
+      "icon_id": "1625000",
+      "name": "icon_question",
+      "font_class": "icon_question",
+      "unicode": "e6a8",
+      "unicode_decimal": 59048
+    },
+    {
       "icon_id": "29290564",
       "name": "发送",
       "font_class": "fasong",
@@ -46,13 +102,6 @@
       "font_class": "shengji",
       "unicode": "e69c",
       "unicode_decimal": 59036
-    },
-    {
-      "icon_id": "12437192",
-      "name": "快速升级",
-      "font_class": "kuaisushengjix",
-      "unicode": "e65d",
-      "unicode_decimal": 58973
     },
     {
       "icon_id": "3141572",

@@ -21,6 +21,14 @@ const registerAppMenu = (mainWindow, orgs) => {
         },
         { type: 'separator' },
         {
+          label: '重新启动',
+          click() {
+            // 退出程序
+            app.relaunch();
+            app.quit();
+          },
+        },
+        {
           label: '退出',
           accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
           click() {
@@ -102,21 +110,21 @@ const registerAppMenu = (mainWindow, orgs) => {
         {
           label: '访问官网',
           click() {
-            const url = 'https://chat2db.ai/';
+            const url = 'https://www.sqlgpt.cn/zh';
             shell.openExternal(url);
           },
         },
         {
           label: '查看文档',
           click() {
-            const url = 'https://doc.chat2db.ai/';
+            const url = 'https://doc.sqlgpt.cn/zh/';
             shell.openExternal(url);
           },
         },
         {
           label: '查看更新日志',
           click() {
-            const url = 'https://doc.chat2db.ai/changelog/';
+            const url = 'https://doc.sqlgpt.cn/zh/changelog/';
             shell.openExternal(url);
           },
         },

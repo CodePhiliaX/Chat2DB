@@ -1,4 +1,4 @@
-import React, { useRef, useImperativeHandle, ForwardedRef } from 'react';
+import React from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import StateIndicator from '@/components/StateIndicator';
@@ -14,7 +14,7 @@ interface IProps<T> extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function LoadingContent<T>(props: IProps<T>) {
-  const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading } = props;
+  const { children, className, data = true, handleEmpty = false, empty, isLoading, coverLoading, ...args } = props;
   const isEmpty = !isLoading && handleEmpty && !(data as any)?.length;
 
   const renderContent = () => {

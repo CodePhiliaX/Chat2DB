@@ -19,6 +19,8 @@
   flex: 1;
   flex-shrink: 0;
   overflow: hidden;
+  display: flex;
+  justify-content: end;
 }
 
 .workspaceHeaderLeft {
@@ -71,6 +73,7 @@
   cursor: pointer;
   padding: 0px 6px;
   border-radius: 6px;
+  margin-right: 6px;
   .f-single-line();
 
   &:hover {
@@ -80,6 +83,10 @@
 
   .typeIcon {
     margin-right: 6px;
+  }
+
+  .pullDownArrow{
+    margin-left: 6px;
   }
 }
 
@@ -120,17 +127,44 @@
   }
 }
 
+.searchHeader {
+  display: flex;
+  align-items: center;
+  padding: 0px 6px;
+  
+  .searchIconBox{
+    height: 26px;
+    width: 26px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    i{
+      font-size: 15px;
+    }
+  }
+
+  .searchHeaderInput{
+    height: 34px;
+    font-size: 14px;
+  }
+}
+
 .dropdownFooter {
   display: flex;
   align-items: center;
   margin: 4px;
   padding: 4px 8px;
   line-height: 20px;
+  border-radius: 4px;
   i {
     margin-right: 4px;
   }
   &:hover {
     background-color: var(--color-hover-bg);
+    color: var(--color-primary);
+    i{
+      color: var(--color-primary);
+    }
     cursor: pointer;
   }
 }

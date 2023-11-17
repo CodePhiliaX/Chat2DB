@@ -11,6 +11,7 @@ import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.doc.DatabaseExportService;
 import ai.chat2db.server.web.api.controller.rdb.doc.conf.ExportOptions;
+import ai.chat2db.server.web.api.controller.rdb.doc.event.TemplateEvent;
 import ai.chat2db.server.web.api.controller.rdb.factory.ExportServiceFactory;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
@@ -20,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +50,7 @@ public class RdbDocController {
     @Autowired
     private RdbWebConverter rdbWebConverter;
 
+
     /**
      * export data
      *
@@ -55,6 +58,7 @@ public class RdbDocController {
      */
     @PostMapping("/export")
     public void export(@Valid @RequestBody DataExportRequest request, HttpServletResponse response) throws Exception {
+        //复制模板
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(

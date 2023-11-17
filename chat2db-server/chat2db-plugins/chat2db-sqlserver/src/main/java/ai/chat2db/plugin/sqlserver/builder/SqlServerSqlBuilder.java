@@ -130,6 +130,9 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
             if (versions.length > 0 && Integer.parseInt(versions[0]) >= 11) {
                 StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
                 sqlBuilder.append(sql);
+                if(!sql.toLowerCase().contains("order by")){
+                    sqlBuilder.append("\n ORDER BY (SELECT NULL)");
+                }
                 sqlBuilder.append("\n OFFSET ");
                 sqlBuilder.append(offset);
                 sqlBuilder.append(" ROWS ");
@@ -153,7 +156,7 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         sqlBuilder.append("\ngo\n");
         if (StringUtils.isNotBlank(database.getComment())) {
             sqlBuilder.append("exec [" + database.getName() + "].sys. sp_addextendedproperty 'MS_Description','")
-                    .append(database.getComment()).append("'").append("'\ngo\n");
+                    .append(database.getComment()).append("'").append("\ngo\n");
         }
         return sqlBuilder.toString();
     }
@@ -166,7 +169,7 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         if (StringUtils.isNotBlank(schema.getComment())) {
             sqlBuilder.append("exec sp_addextendedproperty 'MS_Description','")
                     .append(schema.getComment()).append("'").append(",'SCHEMA'")
-                    .append(",'").append(schema.getName()).append("'").append("'\ngo\n");
+                    .append(",'").append(schema.getName()).append("'").append("\ngo\n");
         }
         return sqlBuilder.toString();
     }

@@ -1,9 +1,9 @@
 import { TreeNodeType, DatabaseTypeCode } from '@/constants';
 
 export interface IExtraParams {
-  databaseType?: DatabaseTypeCode;
+  dataSourceId: number;
+  databaseType: DatabaseTypeCode;
   dataSourceName?: string;
-  dataSourceId?: number;
   databaseName?: string;
   schemaName?: string;
   tableName?: string;
@@ -13,15 +13,22 @@ export interface IExtraParams {
 }
 
 export interface ITreeNode {
+  uuid: string;
   key: string | number;
   name: string;
+  // 用展示的name
+  // displayName: string;
   treeNodeType: TreeNodeType; // 节点的类型 表、列、文件等等
+  pretendNodeType?: TreeNodeType; // 伪装的节点类型，当树不连续时，需要用到
   isLeaf?: boolean; // 是否为叶子节点
-  children?: ITreeNode[];
+  children?: ITreeNode[] | null;
   columnType?: string; // 列的类型
   extraParams?: IExtraParams;
   pinned?: boolean; // 是否置顶
   comment?: string; // 表列的注释
+  loadData?: (params:{refresh: boolean}) => void; // 加载数据的方法
+  // 父元素
+  parentNode?: ITreeNode;
 }
 
 // 视图  函数  触发器  过程 通用的返回结果

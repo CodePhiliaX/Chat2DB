@@ -35,6 +35,7 @@ import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.tools.common.util.EasySqlUtils;
+import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -89,10 +90,13 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (dataSourceKind == DataSourceKindEnum.SHARED && !ContextUtils.getLoginUser().getAdmin()) {
             throw new PermissionDeniedBusinessException();
         }
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceDO.setUserId(ContextUtils.getUserId());
+        dataSourceDO.setExtendInfo(null);
+
         dataSourceMapper.insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
         return DataResult.of(dataSourceDO.getId());
@@ -107,7 +111,7 @@ public class DataSourceServiceImpl implements DataSourceService {
                 return;
             }
             try (Connection connection = IDriverManager.getConnection(dataSource.getUrl(), dataSource.getUserName(),
-                dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
+                    dataSource.getPassword(), dataSource.getDriverConfig(), dataSource.getExtendMap())) {
                 DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
                 databaseQueryAllParam.setDataSourceId(dataSourceId);
                 databaseQueryAllParam.setConnection(connection);
@@ -125,6 +129,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSource dataSource = queryExistent(param.getId(), null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceMapper.updateById(dataSourceDO);
@@ -184,8 +189,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         LambdaQueryWrapper<DataSourceDO> queryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(DataSourceDO::getAlias, "%" + param.getSearchKey() + "%")
-                .or()
-                .like(DataSourceDO::getUrl, "%" + param.getSearchKey() + "%"));
+                    .or()
+                    .like(DataSourceDO::getUrl, "%" + param.getSearchKey() + "%"));
         }
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
@@ -203,9 +208,9 @@ public class DataSourceServiceImpl implements DataSourceService {
         LoginUser loginUser = ContextUtils.getLoginUser();
 
         IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
-            new Page<>(param.getPageNo(), param.getPageSize()),
-            BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
-            EasySqlUtils.orderBy(param.getOrderByList()));
+                new Page<>(param.getPageNo(), param.getPageSize()),
+                BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
+                EasySqlUtils.orderBy(param.getOrderByList()));
 
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
@@ -235,18 +240,18 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public ActionResult preConnect(DataSourcePreConnectParam param) {
         DataSourceTestParam testParam
-            = dataSourceConverter.param2param(param);
+                = dataSourceConverter.param2param(param);
         DriverConfig driverConfig = testParam.getDriverConfig();
         if (driverConfig == null || !driverConfig.notEmpty()) {
             driverConfig = Chat2DBContext.getDefaultDriverConfig(param.getType());
         }
         DataSourceConnect dataSourceConnect = JdbcUtils.testConnect(testParam.getUrl(), testParam.getHost(),
-            testParam.getPort(),
-            testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
-            driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
+                testParam.getPort(),
+                testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
+                driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
             return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription(),
-                dataSourceConnect.getErrorDetail());
+                    dataSourceConnect.getErrorDetail());
         }
         return ActionResult.isSuccess();
     }
@@ -273,7 +278,27 @@ public class DataSourceServiceImpl implements DataSourceService {
         }
 
         fillEnvironment(list, selector);
+
+        fillSupportDatabase(list);
     }
+
+    private void fillSupportDatabase(List<DataSource> list) {
+
+        if(CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (DataSource dataSource:list) {
+            String type = dataSource.getType();
+            if(StringUtils.isNotBlank(type)) {
+                DBConfig config = Chat2DBContext.getDBConfig(type);
+                if(config != null) {
+                    dataSource.setSupportDatabase(config.isSupportDatabase());
+                    dataSource.setSupportSchema(config.isSupportSchema());
+                }
+            }
+        }
+    }
+
 
     private void fillEnvironment(List<DataSource> list, DataSourceSelector selector) {
         if (BooleanUtils.isNotTrue(selector.getEnvironment())) {

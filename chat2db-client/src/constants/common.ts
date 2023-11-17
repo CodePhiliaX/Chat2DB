@@ -17,11 +17,6 @@ export enum DatabaseTypeCode {
   KINGBASE = "KINGBASE",
 }
 
-export enum ConsoleOpenedStatus {
-  IS_OPEN = 'y',
-  NOT_OPEN = 'n',
-}
-
 export enum ConsoleStatus {
   DRAFT = 'DRAFT',
   RELEASE = 'RELEASE',
@@ -44,4 +39,5 @@ export enum CRUD {
   READ = 'READ',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
+  UPDATE_COPY = 'UPDATE_COPY',
 }

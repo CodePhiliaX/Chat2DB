@@ -133,7 +133,7 @@ public class JdbcJarUtils {
         return path;
     }
 
-    public static final String DOWNLOAD_URL_HOST = "https://oss-chat2db.alibaba.com/lib/";
+    public static final String DOWNLOAD_URL_HOST = "https://oss.sqlgpt.cn/lib/";
     private static String getDownloadUrl(String jarPath) {
        return   DOWNLOAD_URL_HOST+jarPath;
     }

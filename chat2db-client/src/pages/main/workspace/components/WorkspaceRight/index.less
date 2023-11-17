@@ -1,11 +1,7 @@
 @import '../../../../../styles/var.less';
 
 .workspaceRight {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: 1;
   :global {
     .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
       color: var(--color-text) !important;
@@ -16,6 +12,7 @@
 
 .workspaceRightMain {
   display: flex;
+  height: 100%;
 }
 
 .workspaceExtend {

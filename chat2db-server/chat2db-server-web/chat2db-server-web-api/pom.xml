@@ -82,6 +82,13 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-spi</artifactId>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

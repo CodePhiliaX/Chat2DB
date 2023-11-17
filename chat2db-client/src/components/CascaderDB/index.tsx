@@ -55,7 +55,7 @@ function CascaderDB(props: IProps) {
     setCurDatabaseName(value);
     setSchemaOptions([]);
     setCurSchemeName('');
-    
+
     props.onChange &&
       props.onChange({
         dataSourceId: curDataSourceId!,

@@ -1,5 +1,7 @@
 import React, { memo, useRef, useState, createContext, useEffect, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
+import i18n from '@/i18n';
+import lodash from 'lodash';
 import styles from './index.less';
 import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
@@ -9,8 +11,7 @@ import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import ExecuteSQL from '@/components/ExecuteSQL';
 import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
 import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
-import i18n from '@/i18n';
-import lodash from 'lodash';
+import LoadingContent from '@/components/Loading/LoadingContent';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
@@ -19,6 +20,7 @@ interface IProps {
   databaseType: DatabaseTypeCode;
   changeTabDetails: (data: IWorkspaceTab) => void;
   tabDetails: IWorkspaceTab;
+  submitCallback: () => void;
 }
 
 interface ITabItem {
@@ -53,10 +55,20 @@ export interface IDatabaseSupportField {
   charsets: IOption[];
   collations: IOption[];
   indexTypes: IOption[];
+  defaultValues: IOption[];
 }
 
 export default memo((props: IProps) => {
-  const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails, databaseType } = props;
+  const {
+    databaseName,
+    dataSourceId,
+    tableName,
+    schemaName,
+    changeTabDetails,
+    tabDetails,
+    databaseType,
+    submitCallback,
+  } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
@@ -92,7 +104,9 @@ export default memo((props: IProps) => {
     charsets: [],
     collations: [],
     indexTypes: [],
+    defaultValues: [],
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item);
@@ -146,11 +160,20 @@ export default memo((props: IProps) => {
             };
           }) || [];
 
+        const defaultValues =
+          res?.defaultValues?.map((i) => {
+            return {
+              value: i.defaultValue,
+              label: i.defaultValue,
+            };
+          }) || [];
+
         setDatabaseSupportField({
           columnTypes,
           charsets,
           collations,
           indexTypes,
+          defaultValues,
         });
       });
   };
@@ -166,11 +189,17 @@ export default memo((props: IProps) => {
         schemaName,
         refresh: true,
       };
-      sqlService.getTableDetails(params).then((res) => {
-        const newTableDetails = lodash.cloneDeep(res);
-        setTableDetails(newTableDetails || {});
-        setOldTableDetails(res);
-      });
+      setIsLoading(true);
+      sqlService
+        .getTableDetails(params)
+        .then((res) => {
+          const newTableDetails = lodash.cloneDeep(res);
+          setTableDetails(newTableDetails || {});
+          setOldTableDetails(res);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   };
 
@@ -218,6 +247,8 @@ export default memo((props: IProps) => {
         },
       });
     }
+    // 保存成功后，刷新左侧树
+    submitCallback();
   };
 
   return (
@@ -232,7 +263,7 @@ export default memo((props: IProps) => {
         databaseType,
       }}
     >
-      <div className={classnames(styles.box)}>
+      <LoadingContent coverLoading isLoading={isLoading} className={classnames(styles.box)}>
         <div className={styles.header}>
           <div className={styles.tabList} style={{ '--i': currentTab.index } as any}>
             {tabList.map((item) => {
@@ -262,7 +293,8 @@ export default memo((props: IProps) => {
             );
           })}
         </div>
-      </div>
+      </LoadingContent>
+
       <Modal
         title={i18n('editTable.title.sqlPreview')}
         open={!!viewSqlModal}

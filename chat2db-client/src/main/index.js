@@ -10,13 +10,15 @@ const { loadMainResource } = require('./utils');
 
 let mainWindow = null;
 
+let baseUrl = null;
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     minWidth: 1080,
     minHeight: 720,
     show: false,
     webPreferences: {
-      webSercurity: false,
+      webSecurity: false,
       nodeIntegration: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
@@ -69,7 +71,18 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
-  mainWindow.webContents.send('before-quit-app');
+  if(baseUrl){
+    try {
+      const request = net.request({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        url: `${baseUrl}/api/system/stop`,
+      });
+      request.end();
+    } catch (error) {}
+  }
 });
 
 ipcMain.handle('get-product-name', () => {
@@ -78,11 +91,18 @@ ipcMain.handle('get-product-name', () => {
   return name;
 });
 
-// 注册退出应用事件
+// 重启app
 ipcMain.on('quit-app', () => {
+  app.relaunch();
   app.quit();
 });
 
 ipcMain.on('register-app-menu', (event, orgs) => {
   registerAppMenu(mainWindow, orgs);
 });
+
+ipcMain.on('set-base-url',(event,_baseUrl)=>{
+  baseUrl = _baseUrl;
+})
+
+

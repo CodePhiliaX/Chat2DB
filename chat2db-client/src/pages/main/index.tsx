@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'umi';
-import { Dropdown } from 'antd';
+import { Dropdown, Tooltip } from 'antd';
 import classnames from 'classnames';
 
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
 
+import i18n from '@/i18n';
 import { findObjListValue } from '@/utils';
 import { getUser, userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
 import { ILoginUser, IRole } from '@/typings/user';
-import i18n from '@/i18n';
 
 // ----- model -----
 import { IMainPageType } from '@/models/mainPage';
 import { IWorkspaceModelType } from '@/models/workspace';
-import { IConnectionModelType } from '@/models/connection';
+
+// ----- hooks -----
+import useGetConnection from '@/hooks/useGetConnection';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -25,6 +27,7 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
+import { getUrlParam, updateQueryStringParameter } from '@/utils/url';
 import styles from './index.less';
 
 const navConfig: INavItem[] = [
@@ -34,6 +37,7 @@ const navConfig: INavItem[] = [
     iconFontSize: 16,
     isLoad: false,
     component: <Workspace />,
+    name: i18n('workspace.title'),
   },
   {
     key: 'dashboard',
@@ -41,6 +45,7 @@ const navConfig: INavItem[] = [
     iconFontSize: 24,
     isLoad: false,
     component: <Dashboard />,
+    name: i18n('dashboard.title'),
   },
   {
     key: 'connections',
@@ -48,6 +53,7 @@ const navConfig: INavItem[] = [
     iconFontSize: 20,
     isLoad: false,
     component: <Connection />,
+    name: i18n('connection.title'),
   },
   {
     key: 'github',
@@ -55,15 +61,13 @@ const navConfig: INavItem[] = [
     iconFontSize: 26,
     isLoad: false,
     openBrowser: 'https://github.com/chat2db/Chat2DB/',
+    name: 'Github',
   },
 ];
-
-// const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
 
 interface IProps {
   mainModel: IMainPageType['state'];
   workspaceModel: IWorkspaceModelType['state'];
-  connectionModel: IConnectionModelType['state'];
   dispatch: any;
 }
 
@@ -73,48 +77,11 @@ function MainPage(props: IProps) {
   const { curPage } = mainModel;
   const [activeNav, setActiveNav] = useState<INavItem | null>(null);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
+  // 获取当前连接
+  useGetConnection();
 
   useEffect(() => {
-    getUser().then((res) => {
-      if (res) {
-        setUserInfo(res);
-        const hasTeamIcon = navConfig.find((i) => i.key === 'team');
-        if (res.admin && !hasTeamIcon) {
-          navConfig.splice(3, 0, {
-            key: 'team',
-            icon: '\ue64b',
-            iconFontSize: 24,
-            isLoad: false,
-            component: <Team />,
-          });
-          if (localStorage.getItem('curPage') === 'team') {
-            setActiveNav(navConfig[3]);
-          }
-        }
-        if (!res.admin && hasTeamIcon) {
-          navConfig.splice(3, 1);
-          if (localStorage.getItem('curPage') === 'team') {
-            setActiveNav(navConfig[2]);
-          }
-        }
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === localStorage.getItem('curPage'));
-    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
-    navConfig[activeIndex].isLoad = true;
-    setActiveNav(navConfig[activeIndex]);
-  }, []);
-
-  useEffect(() => {
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
-    dispatch({
-      type: 'connection/fetchConnectionEnvList',
-    });
+    handleInitPage();
   }, []);
 
   useEffect(() => {
@@ -145,13 +112,46 @@ function MainPage(props: IProps) {
     localStorage.setItem('curPage', curPage);
   }, [curPage]);
 
-  function switchingNav(item: INavItem) {
+  const handleInitPage = async () => {
+    const res = await getUser();
+    if (res) {
+      setUserInfo(res);
+      const hasTeamIcon = navConfig.find((i) => i.key === 'team');
+      if (res.admin && !hasTeamIcon) {
+        navConfig.splice(3, 0, {
+          key: 'team',
+          icon: '\ue64b',
+          iconFontSize: 24,
+          isLoad: false,
+          component: <Team />,
+          name: i18n('team.title'),
+        });
+        if (localStorage.getItem('curPage') === 'team') {
+          setActiveNav(navConfig[3]);
+        }
+      }
+      if (!res.admin && hasTeamIcon) {
+        navConfig.splice(3, 1);
+        if (localStorage.getItem('curPage') === 'team') {
+          setActiveNav(navConfig[2]);
+        }
+      }
+    }
+
+    const initPage = localStorage.getItem('curPage');
+    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === initPage);
+    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
+    navConfig[activeIndex].isLoad = true;
+    setActiveNav(navConfig[activeIndex]);
+  };
+
+  const switchingNav = (item: INavItem) => {
     if (item.openBrowser) {
       window.open(item.openBrowser, '_blank');
     } else {
       setActiveNav(item);
     }
-  }
+  };
 
   const handleLogout = () => {
     userLogout().then(() => {
@@ -193,32 +193,27 @@ function MainPage(props: IProps) {
         <ul className={styles.navList}>
           {navConfig.map((item) => {
             return (
-              <li
-                key={item.key}
-                className={classnames({
-                  [styles.activeNav]: item.key == activeNav?.key,
-                })}
-                onClick={() => switchingNav(item)}
-              >
-                <Iconfont
-                  style={{ '--icon-size': item.iconFontSize + 'px' } as any}
-                  className={styles.icon}
-                  code={item.icon}
-                />
-              </li>
+              <Tooltip key={item.key} placement="right" title={item.name}>
+                <li
+                  className={classnames({
+                    [styles.activeNav]: item.key == activeNav?.key,
+                  })}
+                  onClick={() => switchingNav(item)}
+                >
+                  <Iconfont
+                    style={{ '--icon-size': item.iconFontSize + 'px' } as any}
+                    className={styles.icon}
+                    code={item.icon}
+                  />
+                </li>
+              </Tooltip>
             );
           })}
         </ul>
         <div className={styles.footer}>
-          {/* <Iconfont
-            code="&#xe67c;"
-            className={styles.questionIcon}
-            onClick={() => {
-              window.open('https://github.com/chat2db/chat2db/wiki');
-            }}
-          /> */}
-
-          {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
+          <Tooltip placement="right" title="个人中心">
+            {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
+          </Tooltip>
           <Setting className={styles.setIcon} />
         </div>
       </div>
@@ -239,14 +234,11 @@ export default connect(
   ({
     mainPage,
     workspace,
-    connection,
   }: {
     mainPage: IMainPageType;
     workspace: IWorkspaceModelType;
-    connection: IConnectionModelType;
   }) => ({
     mainModel: mainPage,
     workspaceModel: workspace,
-    connectionModel: connection,
   }),
 )(MainPage);

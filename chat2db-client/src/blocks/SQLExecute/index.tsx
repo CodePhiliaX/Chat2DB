@@ -1,107 +1,83 @@
-import React, { memo, useRef, useState } from 'react';
-import { connect } from 'umi';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
-import Console, { IAppendValue } from '@/components/Console';
+import ConsoleEditor, { IConsoleRef } from '@/components/ConsoleEditor';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
-import { IWorkspaceModelState, IWorkspaceModelType } from '@/models/workspace';
-import { IAIState } from '@/models/ai';
-import { useUpdateEffect } from '@/hooks/useUpdateEffect';
+
 interface IProps {
-  className?: string;
-  isActive: boolean;
-  workspaceModel: IWorkspaceModelState;
-  aiModel: IAIState;
-  dispatch: any;
-  data: {
+  boundInfo: {
     databaseName: string;
     dataSourceId: number;
     type: DatabaseTypeCode;
     schemaName?: string;
     consoleId: number;
-    consoleName: string;
-    initDDL: string;
+    status: ConsoleStatus;
   };
+  initDDL: string;
+  // 异步加载sql
+  loadSQL: () => Promise<string>;
+}
+
+interface IContext {
+  boundInfoContext: {
+    databaseName: string;
+    dataSourceId: number;
+    type: DatabaseTypeCode;
+    schemaName?: string;
+    consoleId: number;
+    status: ConsoleStatus;
+  };
+  setBoundInfoContext: (boundInfo: IContext['boundInfoContext']) => void;
 }
 
 const SQLExecute = memo<IProps>((props) => {
-  const { data, workspaceModel, aiModel, isActive, dispatch } = props;
+  const { boundInfo: _boundInfo, initDDL, loadSQL } = props;
   const draggableRef = useRef<any>();
-  const [appendValue, setAppendValue] = useState<IAppendValue>();
-  const { curTableList, curWorkspaceParams } = workspaceModel;
-  // const [sql, setSql] = useState<string>('');
   const searchResultRef = useRef<ISearchResultRef>(null);
+  const consoleRef = useRef<IConsoleRef>(null);
+  const [boundInfo, setBoundInfo] = useState(_boundInfo);
 
-  // useEffect(() => {
-  //   if (!doubleClickTreeNodeData) {
-  //     return;
-  //   }
-  //   if (doubleClickTreeNodeData.treeNodeType === TreeNodeType.TABLE) {
-  //     const { extraParams } = doubleClickTreeNodeData;
-  //     const { tableName } = extraParams || {};
-  //     const ddl = `SELECT * FROM ${tableName};\n`;
-  //     if (isActive) {
-  //       setAppendValue({ text: ddl });
-  //     }
-  //   }
-  //   dispatch({
-  //     type: 'workspace/setDoubleClickTreeNodeData',
-  //     payload: '',
-  //   });
-  // }, [doubleClickTreeNodeData]);
 
-  useUpdateEffect(() => {
-    setAppendValue({ text: data.initDDL });
-  }, [data.initDDL]);
+  useEffect(() => {
+    if(loadSQL){
+      loadSQL().then((sql) => {
+        consoleRef.current?.editorRef?.setValue(sql, 'cover');
+      });
+    }
+  }, []);
+
+  // useUpdateEffect(() => {
+  //   consoleRef.current?.editorRef?.setValue(initDDL, 'cover');
+  // }, [initDDL]);
 
   return (
-    <div className={classnames(styles.box)}>
+    <div className={classnames(styles.sqlExecute)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
         <div ref={draggableRef} className={styles.boxRightConsole}>
-          <Console
+          <ConsoleEditor
+            ref={consoleRef}
             source="workspace"
-            defaultValue={data.initDDL}
-            isActive={isActive}
-            appendValue={appendValue}
-            executeParams={{ ...data }}
+            defaultValue={initDDL}
+            boundInfo={boundInfo}
+            setBoundInfo={setBoundInfo}
             hasAiChat={true}
             hasAi2Lang={true}
             onExecuteSQL={(sql) => {
               searchResultRef.current?.handleExecuteSQL(sql);
             }}
-            onConsoleSave={() => {
-              dispatch({
-                type: 'workspace/fetchGetSavedConsole',
-                payload: {
-                  status: ConsoleStatus.RELEASE,
-                  orderByDesc: true,
-                  ...curWorkspaceParams,
-                },
-                callback: (res: any) => {
-                  dispatch({
-                    type: 'workspace/setConsoleList',
-                    payload: res.data,
-                  });
-                },
-              });
-            }}
-            tables={curTableList || []}
-            remainingUse={aiModel.remainingUse}
+            // isActive={isActive}
+            // tables={curTableList || []}
+            // remainingUse={aiModel.remainingUse}
           />
         </div>
         <div className={styles.boxRightResult}>
-          <SearchResult ref={searchResultRef} executeSqlParams={data} />
+          <SearchResult ref={searchResultRef} executeSqlParams={boundInfo} />
         </div>
       </DraggableContainer>
     </div>
   );
 });
 
-const dvaModel = connect(({ workspace, ai }: { workspace: IWorkspaceModelType; ai: IAIState }) => ({
-  workspaceModel: workspace,
-  aiModel: ai,
-}));
-
-export default dvaModel(SQLExecute);
+export default SQLExecute;

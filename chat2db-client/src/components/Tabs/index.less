@@ -3,15 +3,17 @@
 .tab-focus() {
   background-color: var(--color-bg-subtle);
   // 添加内阴影
-  border-bottom: 1px solid var(--color-primary);
+  box-shadow: inset 0px -1px 0px var(--color-primary);
+
   .icon {
-    display: flex;
+    opacity: 1;
   }
 }
 
 .tab-focus-line() {
   color: var(--color-primary);
   background-color: var(--color-bg-subtle);
+
   .icon {
     display: flex;
   }
@@ -24,11 +26,15 @@
 
 .tabsNav {
   display: flex;
-  overflow: auto;
+  overflow-x: hidden;
+  position: relative;
   height: 32px;
   flex-shrink: 0;
   background-color: var(--color-bg-base);
   border-bottom: 1px solid var(--color-border);
+  &:hover {
+    overflow-x: scroll;
+  }
   &::-webkit-scrollbar {
     display: none;
   }
@@ -37,12 +43,14 @@
 .tabsContent {
   flex: 1;
   height: 0px;
+
   .tabsContentItem {
     height: 100%;
     width: 100%;
     display: none;
     position: relative;
   }
+
   .tabsContentItemActive {
     display: block;
   }
@@ -60,93 +68,59 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0px 10px;
+  padding-left: 10px;
   line-height: 32px;
   height: 32px;
-  width: 120px;
   cursor: pointer;
   user-select: none;
   border-right: 1px solid var(--color-border);
-  .textBox {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-  .text {
-    flex: 1;
-    width: 0;
-    .f-single-line();
-  }
-  .icon {
-    display: none;
-    align-items: center;
-    flex-shrink: 0;
-    height: 16px;
-    padding: 0px 2px;
-    margin-left: 2px;
-    border-radius: 2px;
-    cursor: pointer;
-    color: var(--color-text-secondary);
-    i {
-      font-size: 12px;
-    }
-    &:hover {
-      color: var(--color-primary);
-      background-color: var(--color-hover-bg);
-    }
-  }
-  &:hover {
-    .tab-focus();
-    color: var(--color-primary);
-  }
-}
 
-.tabItemLine {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0px 10px;
-  line-height: 20px;
-  height: 28px;
-  width: 100px;
-  cursor: pointer;
-  border-right: 1px solid var(--color-border);
+  &:last-child {
+    border-right: 0;
+  }
+
   .textBox {
     flex: 1;
     display: flex;
     align-items: center;
   }
+
   .text {
     flex: 1;
-    width: 0;
+    width: fit-content;
     .f-single-line();
   }
-  .text {
-    flex: 1;
-    width: 0;
-    .f-single-line();
-  }
+
   .icon {
-    display: none;
-    align-items: center;
     flex-shrink: 0;
-    height: 16px;
-    padding: 0px 2px;
-    margin-left: 2px;
-    border-radius: 2px;
-    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0px 4px;
+    border-radius: 4px;
     cursor: pointer;
+    color: var(--color-text-secondary);
+    opacity: 0;
+
     i {
       font-size: 12px;
     }
+
     &:hover {
       color: var(--color-primary);
       background-color: var(--color-hover-bg);
     }
   }
+
   &:hover {
-    .tab-focus-line();
+    // .tab-focus();
     color: var(--color-primary);
+
+    .icon {
+      opacity: 1;
+    }
   }
 }
 
@@ -154,12 +128,31 @@
   .tab-focus();
 }
 
-.activeTabLine {
-  .tab-focus-line();
+.rightBox {
+  // flex: 1;
+  position: sticky;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: var(--color-bg-base);
+  // box-shadow: -1px 0 4px rgba(0, 0, 0, 0.1);
+  display: flex;
 }
 
-.rightBox {
-  flex: 1;
+.moreTabs {
+  width: 30px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-left: 1px solid var(--color-border);
+
+  &:hover {
+    color: var(--color-primary);
+  }
+
+
 }
 
 .addIcon {
@@ -169,8 +162,18 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-left: 1px solid var(--color-border);
+
   &:hover {
     color: var(--color-primary);
+  }
+}
+
+.addIconDisabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  &:hover {
+    color: var(--color-text-disabled);
   }
 }
 
@@ -184,6 +187,7 @@
   font-weight: 400;
   background-color: var(--color-bg-subtle);
   color: var(--color-text);
+
   input:focus {
     outline: none;
   }
@@ -192,7 +196,4 @@
 .prefixIcon {
   flex-shrink: 0;
   margin-right: 4px;
-}
-
-.activeContent {
 }

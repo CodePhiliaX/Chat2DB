@@ -1,4 +1,5 @@
 export default {
+  'connection.title': 'Connections',
   'connection.title.connections': 'Connections',
   'connection.title.createConnection': 'New Connection',
   'connection.title.editConnection': 'Edit Connection',
@@ -14,6 +15,7 @@ export default {
   'connection.label.sshConfiguration': 'SSH Configuration',
   'connection.button.addConnection': 'Add Connection',
   'connection.button.connect': 'Connect',
+  'connection.button.remove': 'Remove',
   'connection.message.testConnectResult': 'Test connection is {1}',
   'connection.message.testSshConnection': 'Test the ssh connection',
   'connection.tableHeader.name': 'Name',

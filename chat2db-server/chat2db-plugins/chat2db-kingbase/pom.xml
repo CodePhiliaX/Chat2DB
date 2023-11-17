@@ -18,5 +18,18 @@
     </dependencies>
 
     <artifactId>chat2db-kingbase</artifactId>
-
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <!--properties的配置文件会和编译后的class文件放在一起-->
+                    <include>**/*.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+    </build>
 </project>

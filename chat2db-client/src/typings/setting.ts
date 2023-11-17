@@ -1,11 +1,12 @@
-import { AiSqlSourceType } from './ai';
+import { AIType } from './ai';
 
 export interface IAiConfig {
-  aiSqlSource: AiSqlSourceType;
+  aiSqlSource: AIType;
   apiKey?: string;
   apiHost?: string;
   httpProxyHost?: string;
   httpProxyPort?: string;
   stream?: boolean;
+  secretKey?:string;
   model?: string;
 }

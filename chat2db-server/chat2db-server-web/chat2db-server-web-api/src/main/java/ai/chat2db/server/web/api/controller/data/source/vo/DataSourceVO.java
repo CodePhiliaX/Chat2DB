@@ -117,4 +117,25 @@ public class DataSourceVO {
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */
     private String kind;
+
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
+
+    /**
+     * 是否支持数据库
+     */
+    private boolean supportDatabase;
+
+    /**
+     * 是否支持schema
+     */
+    private boolean supportSchema;
 }

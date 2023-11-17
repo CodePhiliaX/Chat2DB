@@ -25,21 +25,25 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
             SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(column.getColumnType());
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
+        for (TableIndex tableIndex : table.getIndexList()) {
+            if(SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals( tableIndex.getType())) {
+                SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
+                script.append("\t").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            }
+        }
+        script = new StringBuilder(script.substring(0, script.length() - 2));
+        script.append("\n);");
 
         // append primary key and index
         for (TableIndex tableIndex : table.getIndexList()) {
             if (StringUtils.isBlank(tableIndex.getName()) || StringUtils.isBlank(tableIndex.getType())) {
                 continue;
             }
-            SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
-            script.append("\t").append("").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
+            if(!SqliteIndexTypeEnum.PRIMARY_KEY.getName().equals( tableIndex.getType())) {
+                SqliteIndexTypeEnum sqliteIndexTypeEnum = SqliteIndexTypeEnum.getByType(tableIndex.getType());
+                script.append("\n").append("CREATE ").append(sqliteIndexTypeEnum.buildIndexScript(tableIndex)).append(";\n");
+            }
         }
-
-        script = new StringBuilder(script.substring(0, script.length() - 2));
-        script.append("\n)");
-
-        script.append(";");
-
         return script.toString();
     }
 
@@ -78,6 +82,6 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
     @Override
     public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
-        return "select * from(" + sql + ") t LIMIT " + pageNo + " OFFSET " + offset + "";
+        return "select * from(" + sql + ") t LIMIT " + pageSize + " OFFSET " + offset + "";
     }
 }

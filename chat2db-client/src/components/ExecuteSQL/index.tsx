@@ -2,10 +2,10 @@ import React, { memo, useRef, useState, useMemo, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
+import MonacoEditor, { IExportRefFunction } from '@/components/MonacoEditor';
 import i18n from '@/i18n';
 import { Button } from 'antd';
-import { formatSql } from '@/utils';
+import { formatSql } from '@/utils/sql';
 import sqlService, { IExecuteSqlParams } from '@/service/sql';
 import { DatabaseTypeCode } from '@/constants';
 

@@ -1,18 +1,25 @@
 package ai.chat2db.plugin.dm;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import ai.chat2db.plugin.dm.builder.DMSqlBuilder;
+import ai.chat2db.plugin.dm.type.DMColumnTypeEnum;
+import ai.chat2db.plugin.dm.type.DMDefaultValueEnum;
+import ai.chat2db.plugin.dm.type.DMIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import ai.chat2db.spi.util.SqlUtils;
+import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 public class DMMetaData extends DefaultMetaService implements MetaData {
 
@@ -137,5 +144,87 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
             }
             return table;
         });
+    }
+
+    private static String INDEX_SQL = "SELECT i.TABLE_NAME, i.INDEX_TYPE, i.INDEX_NAME, i.UNIQUENESS ,c.COLUMN_NAME, c.COLUMN_POSITION, c.DESCEND, cons.CONSTRAINT_TYPE FROM ALL_INDEXES i JOIN ALL_IND_COLUMNS c ON i.INDEX_NAME = c.INDEX_NAME AND i.TABLE_NAME = c.TABLE_NAME AND i.TABLE_OWNER = c.TABLE_OWNER LEFT JOIN ALL_CONSTRAINTS cons ON i.INDEX_NAME = cons.INDEX_NAME AND i.TABLE_NAME = cons.TABLE_NAME AND i.TABLE_OWNER = cons.OWNER WHERE i.TABLE_OWNER = '%s' AND i.TABLE_NAME = '%s' ORDER BY i.INDEX_NAME, c.COLUMN_POSITION;";
+
+    @Override
+    public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = String.format(INDEX_SQL, schemaName, tableName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
+            while (resultSet.next()) {
+                String keyName = resultSet.getString("INDEX_NAME");
+                TableIndex tableIndex = map.get(keyName);
+                if (tableIndex != null) {
+                    List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                    columnList.add(getTableIndexColumn(resultSet));
+                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
+                            .collect(Collectors.toList());
+                    tableIndex.setColumnList(columnList);
+                } else {
+                    TableIndex index = new TableIndex();
+                    index.setDatabaseName(databaseName);
+                    index.setSchemaName(schemaName);
+                    index.setTableName(tableName);
+                    index.setName(keyName);
+                    index.setUnique("UNIQUE".equalsIgnoreCase(resultSet.getString("UNIQUENESS")));
+//                    index.setType(resultSet.getString("Index_type"));
+//                    index.setComment(resultSet.getString("Index_comment"));
+                    List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
+                    tableIndexColumns.add(getTableIndexColumn(resultSet));
+                    index.setColumnList(tableIndexColumns);
+                    if ("P".equalsIgnoreCase(resultSet.getString("CONSTRAINT_TYPE"))) {
+                        index.setType(DMIndexTypeEnum.PRIMARY_KEY.getName());
+                    } else if (index.getUnique()) {
+                        index.setType(DMIndexTypeEnum.UNIQUE.getName());
+                    } else if ("BITMAP".equalsIgnoreCase(resultSet.getString("INDEX_TYPE"))) {
+                        index.setType(DMIndexTypeEnum.BITMAP.getName());
+                    } else {
+                        index.setType(DMIndexTypeEnum.NORMAL.getName());
+                    }
+                    map.put(keyName, index);
+                }
+            }
+            return map.values().stream().collect(Collectors.toList());
+        });
+
+    }
+
+    private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
+        TableIndexColumn tableIndexColumn = new TableIndexColumn();
+        tableIndexColumn.setColumnName(resultSet.getString("COLUMN_NAME"));
+        tableIndexColumn.setOrdinalPosition(resultSet.getShort("COLUMN_POSITION"));
+//        tableIndexColumn.setCollation(resultSet.getString("Collation"));
+//        tableIndexColumn.setCardinality(resultSet.getLong("Cardinality"));
+//        tableIndexColumn.setSubPart(resultSet.getLong("Sub_part"));
+        String collation = resultSet.getString("DESCEND");
+        if ("ASC".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("ASC");
+        } else if ("DESC".equalsIgnoreCase(collation)) {
+            tableIndexColumn.setAscOrDesc("DESC");
+        }
+        return tableIndexColumn;
+    }
+
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new DMSqlBuilder();
+    }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .columnTypes(DMColumnTypeEnum.getTypes())
+                .charsets(Lists.newArrayList())
+                .collations(Lists.newArrayList())
+                .indexTypes(DMIndexTypeEnum.getIndexTypes())
+                .defaultValues(DMDefaultValueEnum.getDefaultValues())
+                .build();
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 }

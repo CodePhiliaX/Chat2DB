@@ -22,7 +22,6 @@ input:-webkit-autofill {
   height: 6px;
 }
 
-
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-fill);
   border-radius: 2px;
@@ -40,12 +39,13 @@ input:-webkit-autofill {
   cursor: pointer;
 }
 
-// ::-webkit-scrollbar-track:hover {
-//   background-color: red;
-// }
-
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+* {
+  scrollbar-width: 4px; // 宽度：auto（默认），thin（窄），none（隐藏）
+  scrollbar-color: var(--color-fill) transparent; // 颜色：第一个颜色是滑块颜色，第二个颜色是轨道颜色
 }
 
 html,

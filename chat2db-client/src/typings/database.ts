@@ -10,6 +10,13 @@ export interface IDatabase {
 export interface ITableHeaderItem {
   dataType: TableDataType;
   name: string;
+  autoIncrement: boolean | null; // 是否自增
+  columnSize: number | null; // 字段长度
+  comment: string | null; // 字段注释
+  decimalDigits: number | null; // 小数位
+  defaultValue: string | null; // 默认值
+  nullable: boolean | null; // 是否为空
+  primaryKey: boolean | null; // 是否为主键
 }
 
 export interface IManageResultData {
@@ -44,6 +51,7 @@ export interface IDatabaseSupportField {
   charsets: ICharset[];
   collations: ICollation[];
   indexTypes: IIndexTypes[];
+  defaultValues: IDefaultValue[];
 }
 
 /** 字段所对应的 字符集*/
@@ -76,4 +84,9 @@ export interface IColumnTypes {
   supportScale: boolean; // 是否支持小数位
   supportValue: boolean; // 是否支持值
   supportUnit: boolean; // 是否支持单位
+}
+
+/** 不同数据库支持不同的默认值 */
+export interface IDefaultValue {
+  defaultValue: string; // 默认值
 }
