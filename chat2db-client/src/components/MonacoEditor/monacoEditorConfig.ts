@@ -32,6 +32,10 @@ export const editorDefaultOptions: IEditorOptions = {
     // 滚动条
     alwaysConsumeMouseWheel: false, // 总是消耗鼠标滚轮
   },
+  unicodeHighlight: {
+    ambiguousCharacters: false,
+    invisibleCharacters: false,
+  },
   // padding: {
   //   top: 2,
   //   bottom: 2,

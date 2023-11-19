@@ -38,9 +38,9 @@ export type IAppendValue = {
 export interface IBoundInfo {
   consoleId: number;
   consoleName: string;
-  dataSourceId: number;
-  dataSourceName: string;
-  type: DatabaseTypeCode;
+  dataSourceId?: number;
+  dataSourceName?: string;
+  type?: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
   status?: ConsoleStatus;
