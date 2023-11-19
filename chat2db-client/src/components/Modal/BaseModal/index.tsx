@@ -3,19 +3,23 @@ import { Modal as AntdModal } from 'antd';
 import { injectOpenModal } from '@/store/common/components';
 
 export type IModalData = {
-  title: string;
+  title?: string;
   width?: string;
   footer?: React.ReactNode | false;
   content: React.ReactNode | false
-} | null
+} | null | false
 
 const Modal = memo(() => {
   const [open, setOpen] = useState(false);
   const [modalData, setModalData] = useState<IModalData>(null);
 
   const openModal = (params:IModalData)=>{
-    setOpen(true)
-    setModalData(params)
+    if(params === false){
+      setOpen(false)
+    }else{
+      setOpen(true)
+      setModalData(params)
+    }
   }
 
   useEffect(() => {
@@ -31,6 +35,7 @@ const Modal = memo(() => {
       onCancel={() => {
         setOpen(false);
       }}
+      destroyOnClose={true}
       footer={modalData.footer || false}
     >
       {modalData.content}

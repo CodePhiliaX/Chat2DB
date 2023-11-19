@@ -81,6 +81,7 @@ const WorkspaceTabs = memo(() => {
   const createNewConsole = () => {
     createConsole({
       dataSourceId: currentConnectionDetails?.id,
+      dataSourceName: currentConnectionDetails?.alias,
       type: currentConnectionDetails?.type,
     });
   };
@@ -138,8 +139,8 @@ const WorkspaceTabs = memo(() => {
       <SQLExecute
         boundInfo={{
           dataSourceId: uniqueData.dataSourceId,
-          type: uniqueData.databaseType,
           databaseName: uniqueData?.databaseName,
+          type: uniqueData.databaseType,
           schemaName: uniqueData?.schemaName,
           consoleId: item.id as number,
           status: uniqueData.status,

@@ -6,6 +6,7 @@ interface ICreateConsoleParams {
   name?: string;
   ddl?: string;
   dataSourceId?: number;
+  dataSourceName?: string;
   databaseName?: string;
   schemaName?: string;
   type?: DatabaseTypeCode;
@@ -27,6 +28,9 @@ function useCreateConsole() {
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       operationType: WorkspaceTabType.CONSOLE,
+      type: params.type,
+      dataSourceId: params.dataSourceId,
+      dataSourceName: params.dataSourceName,
     };
     historyService.createConsole(newConsole).then((res) => {
       const newList = [

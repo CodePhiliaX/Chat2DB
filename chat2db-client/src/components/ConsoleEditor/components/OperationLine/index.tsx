@@ -50,11 +50,13 @@ const OperationLine = (props: IProps) => {
             {i18n('common.button.save')}
           </Button>
         )}
-        <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} />
+        <Button type="default" onClick={handleSQLFormat}>
+          {i18n('common.button.format')}
+        </Button>
       </div>
-      <Button type="text" onClick={handleSQLFormat}>
-        {i18n('common.button.format')}
-      </Button>
+      <div>
+        {/* <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} /> */}
+      </div>
     </div>
   );
 };

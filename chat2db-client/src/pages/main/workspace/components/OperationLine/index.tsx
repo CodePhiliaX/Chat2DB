@@ -101,7 +101,7 @@ const OperationLine = (props: IProps) => {
             />
           )}
         </div>
-        <div>1</div>
+        {/* <div>1</div> */}
       </div>
       {searchIng && (
         <div className={styles.searchBox}>

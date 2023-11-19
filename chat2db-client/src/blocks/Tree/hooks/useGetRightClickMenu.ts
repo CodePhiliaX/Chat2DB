@@ -19,6 +19,7 @@ import { useWorkspaceStore } from '@/store/workspace';
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
 import { handelPinTable } from '../functions/pinTable';
 import { viewDDL } from '../functions/viewDDL';
+import { deleteTable } from '../functions/deleteTable';
 
 // ----- utils -----
 import { compatibleDataBaseName } from '@/utils/database';
@@ -156,7 +157,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.deleteTable'),
         icon: '\ue6a7',
         handle: () => {
-          
+          deleteTable(treeNodeData);
         },
       },
 
