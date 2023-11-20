@@ -1,3 +1,13 @@
+## 3.0.14
+
+`2023-11-20`
+
+**更新日志**
+
+- 🐞【Fixed】Team paging problem
+- 【Developer】Friends don't worry, the company has some things recently, and is preparing 3.1.0, be patient
+
+
 ## 3.0.13
 
 `2023-11-15`
