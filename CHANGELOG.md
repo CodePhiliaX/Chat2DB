@@ -2,11 +2,13 @@
 
 `2023-11-20`
 
-**更新日志**
+**Changelog**
 
 - 🐞【Fixed】Team paging problem
+- 🐞【Fixed】Oracle service name bug
+- 🐞【Fixed】Oracle datatype error
+- ⚡️【Optimize】Support database or schema
 - 【Developer】Friends don't worry, the company has some things recently, and is preparing 3.1.0, be patient
-
 
 ## 3.0.13
 
