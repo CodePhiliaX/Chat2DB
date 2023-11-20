@@ -7,6 +7,7 @@
 - 🐞【Fixed】Team paging problem
 - 🐞【Fixed】Oracle service name bug
 - 🐞【Fixed】Oracle datatype error
+- 🐞【Fixed】Fixed an issue where MySQL changed table structure without displaying comments.
 - ⚡️【Optimize】Support database or schema
 - 【Developer】Friends don't worry, the company has some things recently, and is preparing 3.1.0, be patient
 
