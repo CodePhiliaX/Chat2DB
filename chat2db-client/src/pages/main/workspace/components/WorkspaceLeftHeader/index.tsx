@@ -4,9 +4,9 @@ import classnames from 'classnames';
 import styles from './index.less';
 
 // ---- store ----
-import { useConnectionStore } from '@/store/connection';
-import { useWorkspaceStore } from '@/store/workspace';
-import { setCurrentConnectionDetails } from '@/store/workspace/common';
+import { useConnectionStore } from '@/pages/main/store/connection';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';

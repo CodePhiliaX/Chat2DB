@@ -20,8 +20,8 @@ import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
-import { useConsoleStore, getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/store/console';
-import { useWorkspaceStore } from '@/store/workspace';
+import { getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ----- services -----
 import historyService from '@/service/history';
@@ -29,7 +29,8 @@ import historyService from '@/service/history';
 import indexedDB from '@/indexedDB';
 
 const WorkspaceTabs = memo(() => {
-  const { activeConsoleId, consoleList, workspaceTabList } = useConsoleStore((state) => {
+  
+  const { activeConsoleId, consoleList, workspaceTabList } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
       activeConsoleId: state.activeConsoleId,

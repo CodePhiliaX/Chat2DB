@@ -10,7 +10,7 @@ import { DatabaseTypeCode } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 
 // ----- store -----
-import { useWorkspaceStore } from '@/store/workspace';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IProps {
   searchValue: string;

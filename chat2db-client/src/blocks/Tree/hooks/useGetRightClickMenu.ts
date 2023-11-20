@@ -12,8 +12,8 @@ import { ITreeConfigItem, treeConfig } from '../treeConfig';
 import { useMemo } from 'react';
 
 // ----- store -----
-import { createConsole, addWorkspaceTab } from '@/store/console';
-import { useWorkspaceStore } from '@/store/workspace';
+import { createConsole, addWorkspaceTab } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ---- functions -----
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';

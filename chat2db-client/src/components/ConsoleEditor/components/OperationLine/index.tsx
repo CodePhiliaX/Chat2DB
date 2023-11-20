@@ -55,7 +55,7 @@ const OperationLine = (props: IProps) => {
         </Button>
       </div>
       <div>
-        {/* <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} /> */}
+        <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} />
       </div>
     </div>
   );

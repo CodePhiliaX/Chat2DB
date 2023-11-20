@@ -1,4 +1,5 @@
-import { setWorkspaceTabList, useConsoleStore, setActiveConsoleId } from '@/store/console';
+import { setWorkspaceTabList, setActiveConsoleId } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType, DatabaseTypeCode } from '@/constants'
 import historyService from '@/service/history';
 
@@ -14,7 +15,7 @@ interface ICreateConsoleParams {
 }
 
 function useCreateConsole() {
-  const { workspaceTabList } = useConsoleStore(state => {
+  const { workspaceTabList } = useWorkspaceStore(state => {
     return {
       workspaceTabList: state.workspaceTabList,
     }

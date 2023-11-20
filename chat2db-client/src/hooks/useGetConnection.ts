@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import connectionService from '@/service/connection';
 
-import { setConnectionEnvList, getConnectionList } from '@/store/connection';
-import { useWorkspaceStore } from '@/store/workspace';
-import { setCurrentConnectionDetails } from '@/store/workspace/common';
+import { setConnectionEnvList, getConnectionList } from '@/pages/main/store/connection';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 
 const useGetConnection = () => {
 

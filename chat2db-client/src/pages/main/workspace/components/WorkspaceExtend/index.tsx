@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import Output from '@/components/Output';
-import { useWorkspaceStore } from '@/store/workspace';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import i18n from '@/i18n';
 
 interface IProps {

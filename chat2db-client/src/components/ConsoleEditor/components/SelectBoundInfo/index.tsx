@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { IBoundInfo } from '../../index';
 import { Dropdown } from 'antd';
-import { useConnectionStore } from '@/store/connection';
+import { useConnectionStore } from '@/pages/main/store/connection';
 import connectionService from '@/service/connection';
 import styles from './index.less';
 

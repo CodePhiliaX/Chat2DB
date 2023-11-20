@@ -15,7 +15,7 @@ import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 
 // ----- store -----
-import { useConnectionStore } from '@/store/connection';
+import { useConnectionStore } from '@/pages/main/store/connection';
 
 const { Option } = Select;
 

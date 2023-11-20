@@ -4,7 +4,7 @@ import { shallow } from 'zustand/shallow';
 import { StoreApi } from 'zustand';
 
 import { initConfigStore, IConfigStore } from './config';
-import { consoleStore, IConsoleStore } from './console';
+import { initConsoleStore, IConsoleStore } from './console';
 import { initCommonStore, ICommonStore } from './common';
 import { initModalStore , IModalStore } from './modal';
 
@@ -13,8 +13,8 @@ export type IStore = IConfigStore & IConsoleStore & ICommonStore & IModalStore;
 export const useWorkspaceStore: UseBoundStoreWithEqualityFn<StoreApi<IStore>> = createWithEqualityFn(
   devtools(
     persist(
-      (set) => ({
-        ...consoleStore(set),
+      () => ({
+        ...initConsoleStore,
         ...initConfigStore,
         ...initCommonStore,
         ...initModalStore,

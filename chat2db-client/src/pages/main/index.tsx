@@ -88,19 +88,13 @@ function MainPage(props: IProps) {
     if (!activeNav) {
       return;
     }
-    // activeNav 发生变化，同步到全局状态管理
+    
     activeNav.isLoad = true;
     dispatch({
       type: 'mainPage/updateCurPage',
       payload: activeNav.key,
     });
-    // activeNav 发生变化 如果没有选中连接并且不在connections 那么需要跳转到 连接页面
-    // if (!curConnection?.id && activeNav.key !== 'connections') {
-    //   setActiveNav(navConfig[2]);
-    // }
-    // activeNav 变化 同步地址栏变化
-    // change url，but no page refresh
-    // window.history.pushState({}, "", `/#/${activeNav.key}`);
+
   }, [activeNav]);
 
   useEffect(() => {

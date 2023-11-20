@@ -22,7 +22,7 @@ import MenuLabel from '@/components/MenuLabel';
 import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
 
 // ----- store -----
-import { useConnectionStore, getConnectionList } from '@/store/connection';
+import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
 
 import styles from './index.less';
 
