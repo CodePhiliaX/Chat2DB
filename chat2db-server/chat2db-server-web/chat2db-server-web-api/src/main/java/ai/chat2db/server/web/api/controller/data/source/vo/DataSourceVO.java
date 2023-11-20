@@ -128,4 +128,14 @@ public class DataSourceVO {
      * 服务类型
      */
     private String serviceType;
+
+    /**
+     * 是否支持数据库
+     */
+    private boolean supportDatabase;
+
+    /**
+     * 是否支持schema
+     */
+    private boolean supportSchema;
 }

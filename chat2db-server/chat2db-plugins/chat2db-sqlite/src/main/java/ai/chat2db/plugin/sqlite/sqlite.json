@@ -1,5 +1,7 @@
 {
   "dbType": "SQLITE",
+  "supportDatabase": false,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:sqlite:identifier.sqlite",

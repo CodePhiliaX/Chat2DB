@@ -80,7 +80,7 @@ const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver
   method: 'get',
 });
 
-const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { errorLevel: false, method: 'post' });
+const saveDriver = createRequest<IUploadDriver, void>('/api/jdbc/driver/save', { method: 'post' });
 
 const getEnvList = createRequest<void, IConnectionEnv[]>('/api/common/environment/list_all', { errorLevel: false });
 

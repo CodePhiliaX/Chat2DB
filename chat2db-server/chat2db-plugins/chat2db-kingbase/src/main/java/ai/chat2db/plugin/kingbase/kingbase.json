@@ -1,5 +1,7 @@
 {
   "dbType": "KINGBASE",
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:kingbase8://localhost:54321/",

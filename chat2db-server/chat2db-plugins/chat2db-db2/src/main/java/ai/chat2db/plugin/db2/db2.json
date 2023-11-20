@@ -1,5 +1,7 @@
 {
   "dbType": "DB2",
+  "supportDatabase": false,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:db2://localhost:50000/",
