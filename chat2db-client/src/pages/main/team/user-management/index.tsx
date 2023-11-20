@@ -116,6 +116,10 @@ function UserManagement() {
     let res = await getUserManagementList({ searchKey, pageNo, pageSize });
     if (res) {
       setDataSource(res?.data ?? []);
+      setPagination({
+        ...pagination,
+        total: res?.total ?? 0,
+      } as any);
     }
   };
 
@@ -178,6 +182,11 @@ function UserManagement() {
         </Button>
       </div>
       <Table
+        style={{
+          maxHeight: '82vh',
+          overflow: 'auto',
+        }}
+        sticky
         rowKey={'id'}
         dataSource={dataSource}
         columns={columns}
