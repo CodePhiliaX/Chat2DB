@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Function {
     //FUNCTION_CAT String => function catalog (may be null)
-    //FUNCTION_SCHEM String => function schema (may be null)
+    //FUNCTION_SCHEMA String => function schema (may be null)
     //FUNCTION_NAME String => function name. This is the name used to invoke the function
     //REMARKS String => explanatory comment on the function
     //FUNCTION_TYPE short => kind of function:
@@ -30,7 +30,7 @@ public class Function {
     @JsonAlias({"FUNCTION_CAT"})
     private String databaseName;
 
-    @JsonAlias({"FUNCTION_SCHEM"})
+    @JsonAlias({"FUNCTION_SCHEMA"})
     private String schemaName;
 
     @JsonAlias({"FUNCTION_NAME"})
