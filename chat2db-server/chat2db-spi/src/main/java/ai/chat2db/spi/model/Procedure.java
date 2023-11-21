@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Procedure {
     //PROCEDURE_CAT String => procedure catalog (may be null)
-    //PROCEDURE_SCHEM String => procedure schema (may be null)
+    //PROCEDURE_SCHEMA String => procedure schema (may be null)
     //PROCEDURE_NAME String => procedure name
     //REMARKS String => explanatory comment on the procedure
     //PROCEDURE_TYPE short => kind of procedure:
@@ -30,7 +30,7 @@ public class Procedure {
     @JsonAlias({"PROCEDURE_CAT"})
     private String databaseName;
 
-    @JsonAlias({"PROCEDURE_SCHEM"})
+    @JsonAlias({"PROCEDURE_SCHEMA"})
 
     private String schemaName;
 
