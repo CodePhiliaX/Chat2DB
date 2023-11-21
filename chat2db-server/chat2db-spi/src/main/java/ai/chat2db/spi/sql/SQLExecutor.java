@@ -1,6 +1,7 @@
 package ai.chat2db.spi.sql;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
+import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.jdbc.DefaultValueHandler;
@@ -203,11 +204,12 @@ public class SQLExecutor {
                     // 获取header信息
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     executeResult.setHeaderList(headerList);
-                    int chat2dbAutoRowIdIndex = -1;// chat2db自动生成的行分页ID
+                    // chat2db自动生成的行分页ID
+                    int chat2dbAutoRowIdIndex = -1;
 
                     for (int i = 1; i <= col; i++) {
                         String name = ResultSetUtils.getColumnName(resultSetMetaData, i);
-                        if ("CAHT2DB_AUTO_ROW_ID".equals(name)) {
+                        if ("CHAT2DB_AUTO_ROW_ID".equals(name)) {
                             chat2dbAutoRowIdIndex = i;
                             continue;
                         }
@@ -293,9 +295,9 @@ public class SQLExecutor {
     }
 
     /**
-     * Retrieves the schema names available in this database. The results are ordered by TABLE_CATALOG and TABLE_SCHEM.
+     * Retrieves the schema names available in this database. The results are ordered by TABLE_CATALOG and TABLE_SCHEMA.
      * The schema columns are:
-     * TABLE_SCHEM String => schema name
+     * TABLE_SCHEMA String => schema name
      * TABLE_CATALOG String => catalog name (may be null)
      * Params:
      * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without
@@ -344,7 +346,7 @@ public class SQLExecutor {
             ResultSet resultSet = metadata.getTables(databaseName, schemaName, tableName,
                     types);
             // 如果connection为mysql
-            if ("MySQL".equalsIgnoreCase(metadata.getDatabaseProductName())) {
+            if (DataSourceTypeEnum.MYSQL.getCode().equalsIgnoreCase(metadata.getDatabaseProductName())) {
                 // 获取mysql表的comment
                 List<Table> tables = ResultSetUtils.toObjectList(resultSet, Table.class);
                 if (CollectionUtils.isNotEmpty(tables)) {
