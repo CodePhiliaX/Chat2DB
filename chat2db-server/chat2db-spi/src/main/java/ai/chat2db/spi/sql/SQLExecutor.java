@@ -1,7 +1,6 @@
 package ai.chat2db.spi.sql;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.jdbc.DefaultValueHandler;
@@ -204,8 +203,7 @@ public class SQLExecutor {
                     // 获取header信息
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     executeResult.setHeaderList(headerList);
-                    // chat2db自动生成的行分页ID
-                    int chat2dbAutoRowIdIndex = -1;
+                    int chat2dbAutoRowIdIndex = -1;// chat2db自动生成的行分页ID
 
                     for (int i = 1; i <= col; i++) {
                         String name = ResultSetUtils.getColumnName(resultSetMetaData, i);
@@ -346,7 +344,7 @@ public class SQLExecutor {
             ResultSet resultSet = metadata.getTables(databaseName, schemaName, tableName,
                     types);
             // 如果connection为mysql
-            if (DataSourceTypeEnum.MYSQL.getCode().equalsIgnoreCase(metadata.getDatabaseProductName())) {
+            if ("MySQL".equalsIgnoreCase(metadata.getDatabaseProductName())) {
                 // 获取mysql表的comment
                 List<Table> tables = ResultSetUtils.toObjectList(resultSet, Table.class);
                 if (CollectionUtils.isNotEmpty(tables)) {
