@@ -209,7 +209,7 @@ public class SQLExecutor {
 
                     for (int i = 1; i <= col; i++) {
                         String name = ResultSetUtils.getColumnName(resultSetMetaData, i);
-                        if ("CHAT2DB_AUTO_ROW_ID".equals(name)) {
+                        if ("CAHT2DB_AUTO_ROW_ID".equals(name)) {
                             chat2dbAutoRowIdIndex = i;
                             continue;
                         }
@@ -295,9 +295,9 @@ public class SQLExecutor {
     }
 
     /**
-     * Retrieves the schema names available in this database. The results are ordered by TABLE_CATALOG and TABLE_SCHEMA.
+     * Retrieves the schema names available in this database. The results are ordered by TABLE_CATALOG and TABLE_SCHEM.
      * The schema columns are:
-     * TABLE_SCHEMA String => schema name
+     * TABLE_SCHEM String => schema name
      * TABLE_CATALOG String => catalog name (may be null)
      * Params:
      * catalog – a catalog name; must match the catalog name as it is stored in the database;"" retrieves those without
