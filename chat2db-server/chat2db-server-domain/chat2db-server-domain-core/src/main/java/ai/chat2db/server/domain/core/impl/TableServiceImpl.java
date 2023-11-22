@@ -3,10 +3,7 @@ package ai.chat2db.server.domain.core.impl;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,10 +26,9 @@ import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.util.ResultSetUtils;
-import ai.chat2db.spi.util.SqlUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -109,9 +105,45 @@ public class TableServiceImpl implements TableService {
                     metaSchema.indexes(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
             table.setColumnList(
                     metaSchema.columns(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+            setPrimaryKey(table);
             return DataResult.of(table);
         }
         return DataResult.of(null);
+    }
+
+    private void setPrimaryKey(Table table) {
+        if (table == null) {
+            return;
+        }
+        List<TableIndex> tableIndices = table.getIndexList();
+        if (CollectionUtils.isEmpty(tableIndices)) {
+            return;
+        }
+        List<TableColumn> columns = table.getColumnList();
+        if (CollectionUtils.isEmpty(columns)) {
+            return;
+        }
+        Map<String, TableColumn> columnMap = columns.stream()
+                .collect(Collectors.toMap(TableColumn::getName, Function.identity()));
+        List<TableIndex> indexes = new ArrayList<>();
+        for (TableIndex tableIndex : tableIndices) {
+            if ("Primary".equalsIgnoreCase(tableIndex.getType())) {
+                List<TableIndexColumn> indexColumns = tableIndex.getColumnList();
+                if (CollectionUtils.isNotEmpty(indexColumns)) {
+                    for (TableIndexColumn indexColumn : indexColumns) {
+                        TableColumn column = columnMap.get(indexColumn.getColumnName());
+                        if (column != null) {
+                            column.setPrimaryKey(true);
+                            column.setPrimaryKeyOrder(indexColumn.getOrdinalPosition());
+                            column.setPrimaryKeyName(tableIndex.getName());
+                        }
+                    }
+                }
+            } else {
+                indexes.add(tableIndex);
+            }
+        }
+        table.setIndexList(indexes);
     }
 
     @Override
@@ -120,22 +152,152 @@ public class TableServiceImpl implements TableService {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         List<Sql> sqls = new ArrayList<>();
         if (oldTable == null) {
+            initPrimaryKey(newTable);
             sqls.add(Sql.builder().sql(sqlBuilder.buildCreateTableSql(newTable)).build());
         } else {
+            initUpdatePrimaryKey(oldTable, newTable);
             sqls.add(Sql.builder().sql(sqlBuilder.buildModifyTaleSql(oldTable, newTable)).build());
         }
         return ListResult.of(sqls);
     }
 
-    private void initOldTable(Table oldTable, Table newTable) {
-        if (oldTable == null) {
+    private void initUpdatePrimaryKey(Table oldTable, Table newTable) {
+        if (newTable == null || oldTable == null) {
             return;
         }
-        Map<String, TableColumn> columnMap = oldTable.getColumnList().stream().collect(Collectors.toMap(TableColumn::getName, Function.identity()));
-        for (TableColumn newColumn : newTable.getColumnList()) {
-            TableColumn oldColumn = columnMap.get(newColumn.getName());
-            if (oldColumn != null) {
-                newColumn.setOldColumn(oldColumn);
+        List<TableColumn> newColumns = getPrimaryKeyColumn(newTable);
+        List<TableColumn> oldColumns = getPrimaryKeyColumn(oldTable);
+        if (CollectionUtils.isEmpty(newColumns) && CollectionUtils.isEmpty(oldColumns)) {
+            return;
+        }
+        if (!CollectionUtils.isEmpty(newColumns) && CollectionUtils.isEmpty(oldColumns)) {
+            initPrimaryKey(newTable);
+            return;
+        }
+        if (CollectionUtils.isEmpty(newColumns) && CollectionUtils.isNotEmpty(oldColumns)) {
+            addPrimaryKey(newTable, oldColumns.get(0), EditStatus.DELETE.name());
+            return;
+        }
+        if (newColumns.size() != oldColumns.size()) {
+            for (TableColumn column : newColumns) {
+                if (column.getPrimaryKey() != null && column.getPrimaryKey()) {
+                    addPrimaryKey(newTable, column, EditStatus.MODIFY.name());
+                }
+            }
+            return;
+        }
+        boolean flag = false;
+        Map<String, TableColumn> oldColumnMap = oldColumns.stream().collect(Collectors.toMap(TableColumn::getName, Function.identity()));
+        for (TableColumn column : newColumns) {
+            TableColumn oldColumn = oldColumnMap.get(column.getName());
+            if (oldColumn == null) {
+                flag = true;
+            }
+        }
+        if (flag) {
+            for (TableColumn column : newColumns) {
+                if (column.getPrimaryKey() != null && column.getPrimaryKey()) {
+                    addPrimaryKey(newTable, column, EditStatus.MODIFY.name());
+                }
+            }
+        }
+    }
+
+    private List<TableColumn> getPrimaryKeyColumn(Table table) {
+        if (table == null || CollectionUtils.isEmpty(table.getColumnList())) {
+            return null;
+        }
+        return table.getColumnList().stream().filter(tableColumn ->
+                        tableColumn.getPrimaryKey() != null && tableColumn.getPrimaryKey())
+                .collect(Collectors.toList());
+    }
+
+    private void initPrimaryKey(Table newTable) {
+        if (newTable == null) {
+            return;
+        }
+        List<TableColumn> columns = newTable.getColumnList();
+        if (CollectionUtils.isEmpty(columns)) {
+            return;
+        }
+        for (TableColumn column : columns) {
+            if (column.getPrimaryKey() != null && column.getPrimaryKey()) {
+                addPrimaryKey(newTable, column, EditStatus.ADD.name());
+            }
+        }
+    }
+
+    private void addPrimaryKey(Table newTable, TableColumn column, String status) {
+        List<TableIndex> indexes = newTable.getIndexList();
+        if (indexes == null) {
+            indexes = new ArrayList<>();
+        }
+        TableIndex keyIndex = indexes.stream().filter(index -> "Primary".equalsIgnoreCase(index.getType())).findFirst().orElse(null);
+        if (keyIndex == null) {
+            keyIndex = new TableIndex();
+            keyIndex.setType("Primary");
+            keyIndex.setName(StringUtils.isBlank(column.getPrimaryKeyName()) ? "PRIMARY_KEY" : column.getPrimaryKeyName());
+            keyIndex.setTableName(newTable.getName());
+            keyIndex.setSchemaName(newTable.getSchemaName());
+            keyIndex.setDatabaseName(newTable.getDatabaseName());
+            keyIndex.setEditStatus(status);
+            if(!EditStatus.ADD.name().equals(status)){
+                keyIndex.setOldName(keyIndex.getName());
+            }
+            indexes.add(keyIndex);
+        }
+        List<TableIndexColumn> tableIndexColumns = keyIndex.getColumnList();
+        if (tableIndexColumns == null) {
+            tableIndexColumns = new ArrayList<>();
+        }
+        TableIndexColumn indexColumn = new TableIndexColumn();
+        indexColumn.setColumnName(column.getName());
+        indexColumn.setTableName(newTable.getName());
+        indexColumn.setSchemaName(newTable.getSchemaName());
+        indexColumn.setDatabaseName(newTable.getDatabaseName());
+        indexColumn.setOrdinalPosition(Short.valueOf(column.getPrimaryKeyOrder() + ""));
+        indexColumn.setEditStatus(status);
+        tableIndexColumns.add(indexColumn);
+        List<TableIndexColumn> sortTableIndexColumns = tableIndexColumns.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition)).collect(Collectors.toList());
+        Set<String> statusList = sortTableIndexColumns.stream().map(TableIndexColumn::getEditStatus).collect(Collectors.toSet());
+        if (statusList.size() == 1) {
+            //only one status ,set index status
+            keyIndex.setEditStatus(statusList.iterator().next());
+        } else {
+            //more status ,set index status modify
+            keyIndex.setEditStatus(EditStatus.MODIFY.name());
+        }
+
+        keyIndex.setColumnList(sortTableIndexColumns);
+        newTable.setIndexList(indexes);
+
+    }
+
+
+    private void initOldTable(Table oldTable, Table newTable) {
+        if (oldTable == null || newTable == null) {
+            return;
+        }
+        Map<String, TableColumn> columnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(oldTable.getColumnList())) {
+            for (TableColumn column : oldTable.getColumnList()) {
+                columnMap.put(column.getName(), column);
+            }
+        }
+        if (CollectionUtils.isNotEmpty(newTable.getColumnList())) {
+            for (TableColumn newColumn : newTable.getColumnList()) {
+                if (EditStatus.ADD.name().equals(newColumn.getEditStatus())) {
+                    continue;
+                }
+                String name = newColumn.getOldName() == null ? newColumn.getName() : newColumn.getOldName();
+                TableColumn oldColumn = columnMap.get(name);
+                if (oldColumn != null) {
+                    if (oldColumn.equals(newColumn) && EditStatus.MODIFY.name().equals(newColumn.getEditStatus())) {
+                        newColumn.setEditStatus(null);
+                    } else {
+                        newColumn.setOldColumn(oldColumn);
+                    }
+                }
             }
         }
     }
@@ -180,21 +342,9 @@ public class TableServiceImpl implements TableService {
             }
             total = versionDO.getTableCount();
         }
-//        LambdaQueryWrapper<TableCacheDO> query = new LambdaQueryWrapper<>();
-//        query.eq(TableCacheDO::getVersion, version);
-//        query.eq(TableCacheDO::getDataSourceId, param.getDataSourceId());
-//        if (StringUtils.isNotBlank(param.getDatabaseName())) {
-//            query.eq(TableCacheDO::getDatabaseName, param.getDatabaseName());
-//        }
-//        if (StringUtils.isNotBlank(param.getSchemaName())) {
-//            query.eq(TableCacheDO::getSchemaName, param.getSchemaName());
-//        }
-//        if (StringUtils.isNotBlank(param.getSearchKey())) {
-//            query.like(TableCacheDO::getTableName, param.getSearchKey());
-//        }
         Page<TableCacheDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         // page.setSearchCount(param.getEnableReturnCount());
-        IPage<TableCacheDO> iPage = tableCacheMapper.pageQuery(page, param.getDataSourceId(),param.getDatabaseName(),param.getSchemaName(),param.getSearchKey());
+        IPage<TableCacheDO> iPage = tableCacheMapper.pageQuery(page, param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), param.getSearchKey());
         List<Table> tables = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
             for (TableCacheDO tableCacheDO : iPage.getRecords()) {
@@ -206,6 +356,9 @@ public class TableServiceImpl implements TableService {
                 tables.add(t);
             }
         }
+        if (param.getPageNo() <= 1) {
+            tables = pinTable(tables, param);
+        }
         return PageResult.of(tables, total, param);
     }
 
@@ -215,7 +368,7 @@ public class TableServiceImpl implements TableService {
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
         TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
-        if(versionDO == null){
+        if (versionDO == null) {
             return ListResult.of(Lists.newArrayList());
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();
@@ -252,7 +405,7 @@ public class TableServiceImpl implements TableService {
         Connection connection = Chat2DBContext.getConnection();
         long n = 0;
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
-                new String[]{"TABLE","SYSTEM TABLE"})) {
+                new String[]{"TABLE", "SYSTEM TABLE"})) {
             List<TableCacheDO> cacheDOS = new ArrayList<>();
             while (resultSet.next()) {
                 TableCacheDO tableCacheDO = new TableCacheDO();
@@ -387,7 +540,17 @@ public class TableServiceImpl implements TableService {
     @Override
     public TableMeta queryTableMeta(TypeQueryParam param) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        return metaSchema.getTableMeta(null, null, null);
+        TableMeta tableMeta = metaSchema.getTableMeta(null, null, null);
+        if (tableMeta != null) {
+            //filter primary key
+            List<IndexType> indexTypes = tableMeta.getIndexTypes();
+            if (CollectionUtils.isNotEmpty(indexTypes)) {
+                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equals(indexType.getTypeName())).collect(Collectors.toList());
+                tableMeta.setIndexTypes(types);
+            }
+        }
+        return tableMeta;
+
     }
 
     @Override

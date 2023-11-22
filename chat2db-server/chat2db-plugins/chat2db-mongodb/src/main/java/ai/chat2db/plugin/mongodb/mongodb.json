@@ -1,0 +1,18 @@
+{
+  "dbType": "MONGODB",
+  "supportDatabase": false,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:mongodb://localhost:27017",
+      "defaultDriver":true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/mongo-jdbc-standalone-1.18.jar"
+      ],
+      "jdbcDriver": "mongo-jdbc-standalone-1.18.jar",
+      "jdbcDriverClass": "com.dbschema.MongoJdbcDriver"
+    }
+  ],
+  "name": "Mongodb"
+}

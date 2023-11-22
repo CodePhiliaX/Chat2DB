@@ -1,9 +1,9 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import i18n, { isEn } from '@/i18n';
 import { Outlet } from 'umi';
-import { ConfigProvider, theme, Spin } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
-import { getAntdThemeConfig, injectThemeVar } from '@/theme';
+import { getAntdThemeConfig } from '@/theme';
 import { IVersionResponse } from '@/typings';
 import miscService from '@/service/misc';
 import antdEnUS from 'antd/locale/en_US';
@@ -19,6 +19,7 @@ import MyNotification from '@/components/MyNotification';
 // import Iconfont from '@/components/Iconfont';
 // import Setting from '@/blocks/Setting';
 import indexedDB from '@/indexedDB';
+import useCopyFocusData from '@/hooks/useFocusData';
 
 declare global {
   interface Window {
@@ -52,8 +53,6 @@ const initConfig = () => {
 initConfig();
 
 window._Lang = getLang();
-
-const { useToken } = theme;
 
 export const colorSchemeListeners: {
   [key: string]: (theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) => void;
@@ -90,6 +89,7 @@ function AppContainer() {
   const [appTheme, setAppTheme] = useTheme();
   const [startSchedule, setStartSchedule] = useState(0); // 0 初始状态 1 服务启动中 2 启动成功
   const [serviceFail, setServiceFail] = useState(false);
+  useCopyFocusData();
 
   useLayoutEffect(() => {
     collectInitApp();
@@ -184,17 +184,6 @@ function AppContainer() {
           {startSchedule < 2 && (
             <div className={styles.loadingBox}>
               <Spin spinning={!serviceFail} size="large" />
-              {/* 状态等于1时，说明没服务起来需要轮训接口，这时可能服务配置又问题，需要设置来修改 */}
-              {/* {startSchedule === 1 && (
-                <Setting
-                  render={
-                    <div className={styles.settingBox}>
-                      <Iconfont code="&#xe630;" />
-                    </div>
-                  }
-                  noLogin
-                />
-              )} */}
               {serviceFail && (
                 <>
                   <div className={styles.github}>

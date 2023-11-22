@@ -1,0 +1,18 @@
+{
+  "dbType": "OCEANBASE",
+  "supportDatabase": false,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:oceanbase://localhost:2883/",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/oceanbase-client-2.4.2.jar"
+      ],
+      "jdbcDriver": "oceanbase-client-2.4.2.jar",
+      "jdbcDriverClass": "com.oceanbase.jdbc.Driver"
+    }
+  ],
+  "name": "OceanBase"
+}

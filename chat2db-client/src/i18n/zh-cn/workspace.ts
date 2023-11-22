@@ -1,8 +1,9 @@
 export default {
+  'workspace.title': '工作台',
   'workspace.cascader.placeholder': '请选择',
   'workspace.ai.input.placeholder': '在这里输入纯文本语句',
   'workspace.title.saved': '保存记录',
-  'workspace.menu.exportDDL': '导出DDL',
+  'workspace.menu.ViewDDL': '查看DDL',
   'workspace.menu.deleteTable': '删除表',
   'workspace.menu.editTable': '修改表',
   'workspace.menu.pin': '置顶',

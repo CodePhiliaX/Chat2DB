@@ -5,7 +5,7 @@ import Iconfont from '@/components/Iconfont';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
 import i18n from '@/i18n';
 import { Button } from 'antd';
-import { formatSql } from '@/utils';
+import { formatSql } from '@/utils/sql';
 import sqlService, { IExecuteSqlParams } from '@/service/sql';
 import { DatabaseTypeCode } from '@/constants';
 

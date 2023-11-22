@@ -18,12 +18,15 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaTokenConsts;
 import cn.hutool.crypto.digest.DigestUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 /**
  * 登录授权服务
@@ -48,7 +51,27 @@ public class OauthController {
     public DataResult login(@Validated @RequestBody LoginRequest request) {
         //   查询用户
         User user = userService.query(request.getUserName()).getData();
-        if (user == null) {
+        this.validateUser(user);
+
+        // Successfully logged in without modifying the administrator password
+        if (this.validateAdmin(user)) {
+            return DataResult.of(doLogin(user));
+        }
+
+        if (!DigestUtil.bcryptCheck(request.getPassword(), user.getPassword())) {
+            throw new BusinessException("oauth.passwordIncorrect");
+        }
+
+        return DataResult.of(doLogin(user));
+    }
+
+    private boolean validateAdmin(final @NotNull User user) {
+        return RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId()) && RoleCodeEnum.ADMIN.getPassword().equals(
+                user.getPassword());
+    }
+
+    private void validateUser(final User user) {
+        if (Objects.isNull(user)) {
             throw new BusinessException("oauth.userNameNotExits");
         }
         if (!ValidStatusEnum.VALID.getCode().equals(user.getStatus())) {
@@ -57,16 +80,6 @@ public class OauthController {
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
             throw new BusinessException("oauth.IllegalUserName");
         }
-        // Successfully logged in without modifying the administrator password
-        if (RoleCodeEnum.ADMIN.getDefaultUserId().equals(user.getId()) && RoleCodeEnum.ADMIN.getPassword().equals(
-            user.getPassword())) {
-            return DataResult.of(doLogin(user));
-        }
-
-        if (!DigestUtil.bcryptCheck(request.getPassword(), user.getPassword())) {
-            throw new BusinessException("oauth.passwordIncorrect");
-        }
-        return DataResult.of(doLogin(user));
     }
 
     private Object doLogin(User user) {
@@ -106,11 +119,7 @@ public class OauthController {
     }
 
     private LoginUser getLoginUser() {
-        LoginUser loginUser = ContextUtils.queryLoginUser();
-        if (loginUser == null) {
-            return null;
-        }
-        return loginUser;
+        return ContextUtils.queryLoginUser();
     }
 
 }

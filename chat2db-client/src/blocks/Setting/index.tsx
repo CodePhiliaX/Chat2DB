@@ -12,7 +12,7 @@ import { IAIState } from '@/models/ai';
 import { IAiConfig } from '@/typings';
 import styles from './index.less';
 import { ILatestVersion } from '@/service/config';
-import UpdateDetection,{IUpdateDetectionRef,UpdatedStatusEnum} from '@/blocks/Setting/UpdateDetection';
+import UpdateDetection, { IUpdateDetectionRef, UpdatedStatusEnum } from '@/blocks/Setting/UpdateDetection';
 
 interface IProps {
   aiConfig: IAiConfig;
@@ -120,14 +120,17 @@ function Setting(props: IProps) {
 
   return (
     <>
-      <div
-        className={classnames(className, styles.box)}
-        onClick={() => {
-          showModal();
-        }}
-      >
-        {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
-      </div>
+      <Tooltip placement="right" title={i18n('setting.title.setting')}>
+        <div
+          className={classnames(className, styles.box)}
+          onClick={() => {
+            showModal();
+          }}
+        >
+          {props.render ? props.render : <Iconfont className={styles.settingIcon} code="&#xe630;" />}
+        </div>
+      </Tooltip>
+
       <UpdateDetection
         setUpdateDetectionData={setUpdateDetectionData}
         updateDetectionData={updateDetectionData}

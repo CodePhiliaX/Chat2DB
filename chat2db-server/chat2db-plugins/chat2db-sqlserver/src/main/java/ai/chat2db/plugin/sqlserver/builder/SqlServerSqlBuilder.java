@@ -130,6 +130,9 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
             if (versions.length > 0 && Integer.parseInt(versions[0]) >= 11) {
                 StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
                 sqlBuilder.append(sql);
+                if(!sql.toLowerCase().contains("order by")){
+                    sqlBuilder.append("\n ORDER BY (SELECT NULL)");
+                }
                 sqlBuilder.append("\n OFFSET ");
                 sqlBuilder.append(offset);
                 sqlBuilder.append(" ROWS ");

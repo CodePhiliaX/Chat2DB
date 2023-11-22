@@ -78,6 +78,10 @@ export interface IHistoryRecord {
   * 使用时长
   */
  useTime?: number | null;
+  /**
+  * 创建时间
+  */
+ gmtCreate: string;
 }
 
 const saveConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });

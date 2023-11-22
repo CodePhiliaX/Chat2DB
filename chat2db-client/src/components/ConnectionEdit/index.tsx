@@ -1,18 +1,16 @@
-import React, { memo, useEffect, useMemo, useState, Fragment, forwardRef, ForwardedRef, useImperativeHandle, useCallback, useLayoutEffect } from 'react';
+import React, { useEffect, useMemo, useState, Fragment, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
 import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import lodash from 'lodash';
 import { connect } from 'umi';
 import connectionService from '@/service/connection';
-import { DatabaseTypeCode, ConnectionEnvType, databaseMap } from '@/constants';
+import { ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
 import { IConnectionConfig, IFormItem, ISelect } from './config/types';
-import { AuthenticationType } from './config/enum';
-import { IConnectionDetails } from '@/typings';
 import { InputType } from './config/enum';
+import { IConnectionDetails } from '@/typings';
 import { deepClone } from '@/utils';
-import { Select, Form, Input, message, Table, Button, Collapse, Modal } from 'antd';
+import { Select, Form, Input, message, Table, Button, Collapse } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
@@ -33,7 +31,7 @@ interface IProps {
   className?: string;
   closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
-  submitCallback?: Function;
+  submitCallback?: any;
   submit?: (data: IConnectionDetails) => void;
   connectionModel: IConnectionModelType['state'];
 }
@@ -42,7 +40,7 @@ export interface ICreateConnectionFunction {
   getData: () => IConnectionDetails;
 }
 
-const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) {
+const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) => {
   const { className, closeCreateConnection, submitCallback, connectionData, submit, connectionModel } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
@@ -52,31 +50,34 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
     confirmButton: false,
     testButton: false,
     backfillDataLoading: false,
-    sshTestLoading: false
+    sshTestLoading: false,
   });
   const { connectionEnvList } = connectionModel;
-  const [envList, setEnvList] = useState<{ value: number, label: string }[]>([]);
+  const [envList, setEnvList] = useState<{ value: number; label: string }[]>([]);
 
   useEffect(() => {
-    setEnvList(connectionEnvList?.map(t => {
-      return {
-        value: t.id,
-        label: t.name
-      }
-    }));
+    setEnvList(
+      connectionEnvList?.map((t) => {
+        return {
+          value: t.id,
+          label: t.name,
+          color: t.color,
+        };
+      }),
+    );
   }, [connectionEnvList]);
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
-    const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs)
+    const deepCloneDataSourceFormConfigs = deepClone(dataSourceFormConfigs);
     const data = deepCloneDataSourceFormConfigs.find((t: IConnectionConfig) => {
-      return t.type === backfillData.type
+      return t.type === backfillData.type;
     });
     data.baseInfo.items.forEach((t: IFormItem) => {
       if (t.name === 'environmentId' && envList?.length) {
         t.selects = envList;
         t.defaultValue = envList[0].value;
       }
-    })
+    });
     return data;
   }, [backfillData, envList]);
 
@@ -93,25 +94,28 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
   function getConnectionDetails(id: number) {
     setLoading({
       ...loadings,
-      backfillDataLoading: true
-    })
-    connectionService.getDetails({ id }).then((res) => {
-      if (!res) {
-        return;
-      }
-      setBackfillData(res);
-    }).finally(() => {
-      setTimeout(() => {
-        setLoading({
-          ...loadings,
-          backfillDataLoading: false
-        })
-      }, 100)
+      backfillDataLoading: true,
     });
+    connectionService
+      .getDetails({ id })
+      .then((res) => {
+        if (!res) {
+          return;
+        }
+        setBackfillData(res);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setLoading({
+            ...loadings,
+            backfillDataLoading: false,
+          });
+        }, 100);
+      });
   }
 
   function driverFormChange(data: any) {
-    setDriveData(data)
+    setDriveData(data);
   }
 
   const getItems = () => [
@@ -119,7 +123,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       forceRender: true,
       key: 'driver',
       label: i18n('connection.title.driver'),
-      children: <Driver backfillData={backfillData} onChange={driverFormChange}></Driver>,
+      children: <Driver backfillData={backfillData} onChange={driverFormChange} />,
     },
     {
       key: 'ssh',
@@ -134,7 +138,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
             tab="ssh"
           />
           <div className={styles.testSSHConnect}>
-            {loadings.sshTestLoading && <LoadingGracile></LoadingGracile>}
+            {loadings.sshTestLoading && <LoadingGracile />}
             <div onClick={testSSH} className={styles.testSSHConnectText}>
               {i18n('connection.message.testSshConnection')}
             </div>
@@ -148,7 +152,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       label: i18n('connection.label.advancedConfiguration'),
       children: (
         <div className={styles.extendInfoBox}>
-          <RenderExtendTable backfillData={backfillData!}></RenderExtendTable>
+          <RenderExtendTable backfillData={backfillData!} />
         </div>
       ),
     },
@@ -156,7 +160,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
 
   useImperativeHandle(ref, () => ({
     getData,
-  }))
+  }));
 
   function getData() {
     const ssh = sshForm.getFieldsValue();
@@ -178,7 +182,7 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       extendInfo,
       connectionEnvType: ConnectionEnvType.DAILY,
       type: backfillData.type,
-    }
+    };
 
     if (backfillData.id) {
       data.id = backfillData.id;
@@ -196,13 +200,13 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
     }
 
     // TODO: 如果用户没选环境,默认选第一个。这里应该直接默认给用户选上的，但是动态表单现在有点问题，后续解决
-    if(!p.environmentId){
-      p.environmentId = envList[0].value
+    if (!p.environmentId) {
+      p.environmentId = envList[0].value;
     }
 
     if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
       submit?.(p);
-      return
+      return;
     }
 
     const api: any = connectionService[type](p);
@@ -213,34 +217,36 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       [loadingsButton]: true,
     });
 
-    api.then((res: any) => {
-      if (type === submitType.TEST) {
-        message.success(
-          res === false
-            ? i18n('connection.message.testConnectResult', i18n('common.text.failure'))
-            : i18n('connection.message.testConnectResult', i18n('common.text.successful')),
-        );
-      } else {
-        message.success(
-          type === submitType.UPDATE
-            ? i18n('common.message.modifySuccessfully')
-            : i18n('common.message.addedSuccessfully'),
-        );
+    api
+      .then((res: any) => {
+        if (type === submitType.TEST) {
+          message.success(
+            res === false
+              ? i18n('connection.message.testConnectResult', i18n('common.text.failure'))
+              : i18n('connection.message.testConnectResult', i18n('common.text.successful')),
+          );
+        } else {
+          message.success(
+            type === submitType.UPDATE
+              ? i18n('common.message.modifySuccessfully')
+              : i18n('common.message.addedSuccessfully'),
+          );
 
-        if (type === submitType.SAVE) {
-          setBackfillData({
-            ...backfillData,
-            id: res,
-          });
+          if (type === submitType.SAVE) {
+            setBackfillData({
+              ...backfillData,
+              id: res,
+            });
+          }
+          submitCallback?.();
         }
-        submitCallback?.();
-      }
-    }).finally(() => {
-      setLoading({
-        ...loadings,
-        [loadingsButton]: false,
+      })
+      .finally(() => {
+        setLoading({
+          ...loadings,
+          [loadingsButton]: false,
+        });
       });
-    });
   }
 
   function onCancel() {
@@ -249,20 +255,22 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
   }
 
   function testSSH() {
-
     let p = sshForm.getFieldsValue();
     setLoading({
       ...loadings,
-      sshTestLoading: true
-    })
-    connectionService.testSSH(p).then((res) => {
-      message.success(i18n('connection.message.testConnectResult', i18n('common.text.successful')));
-    }).finally(() => {
-      setLoading({
-        ...loadings,
-        sshTestLoading: false
-      })
+      sshTestLoading: true,
     });
+    connectionService
+      .testSSH(p)
+      .then(() => {
+        message.success(i18n('connection.message.testConnectResult', i18n('common.text.successful')));
+      })
+      .finally(() => {
+        setLoading({
+          ...loadings,
+          sshTestLoading: false,
+        });
+      });
   }
 
   return (
@@ -270,11 +278,16 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
         <div className={styles.connectionBox}>
           <div className={styles.title}>
-            <Iconfont code={databaseMap[backfillData.type]?.icon}></Iconfont>
+            <Iconfont code={databaseMap[backfillData.type]?.icon} />
             <div>{databaseMap[backfillData.type]?.name}</div>
           </div>
           <div className={styles.baseInfoBox}>
-            <RenderForm dataSourceFormConfigProps={dataSourceFormConfigPropsMemo} backfillData={backfillData!} form={baseInfoForm} tab="baseInfo" />
+            <RenderForm
+              dataSourceFormConfigProps={dataSourceFormConfigPropsMemo}
+              backfillData={backfillData!}
+              form={baseInfoForm}
+              tab="baseInfo"
+            />
           </div>
           <Collapse defaultActiveKey={['driver']} items={getItems()} />
           <div className={styles.formFooter}>
@@ -307,35 +320,36 @@ const CreateConnection = forwardRef(function (props: IProps, ref: ForwardedRef<I
       </LoadingContent>
     </div>
   );
-})
+});
 
-export default connect(
-  ({ connection }: { connection: IConnectionModelType;}) => ({
-    connectionModel: connection,
-  }),
-)(CreateConnection);
+export default connect(({ connection }: { connection: IConnectionModelType }) => ({
+  connectionModel: connection,
+}))(CreateConnection);
 
 interface IRenderFormProps {
   tab: ITabsType;
   form: any;
   backfillData: IConnectionDetails;
-  dataSourceFormConfigProps: IConnectionConfig
+  dataSourceFormConfigProps: IConnectionConfig;
 }
 
 function RenderForm(props: IRenderFormProps) {
   const { tab, form, backfillData, dataSourceFormConfigProps } = props;
-  useEffect(() => {
-    form.resetFields();
-    changeDataSourceFormConfig(backfillData);
-  }, [backfillData.id, backfillData.type])
 
   let aliasChanged = false;
 
   const [dataSourceFormConfig, setDataSourceFormConfig] = useState<IConnectionConfig>(dataSourceFormConfigProps);
+  const formDataRef = React.useRef<any>(null);
+
+  useEffect(() => {
+    form.resetFields();
+    changeDataSourceFormConfig(backfillData);
+    formDataRef.current = backfillData;
+  }, [backfillData.id, backfillData.type]);
 
   useEffect(() => {
     setDataSourceFormConfig(dataSourceFormConfigProps);
-  }, [dataSourceFormConfigProps])
+  }, [dataSourceFormConfigProps]);
 
   const initialValuesMemo = useMemo(() => {
     return initialFormData(dataSourceFormConfigProps[tab]?.items);
@@ -350,7 +364,6 @@ function RenderForm(props: IRenderFormProps) {
     if (tab === 'baseInfo') {
       regEXFormatting({ url: backfillData.url }, backfillData);
     }
-
     if (tab === 'ssh') {
       regEXFormatting({}, backfillData.ssh || {});
     }
@@ -359,24 +372,31 @@ function RenderForm(props: IRenderFormProps) {
     }
   }, [backfillData]);
 
-  function changeDataSourceFormConfig(backfillData: any) {
-    // TODO: select 联动下级只处理了ssh和baseInfo 这种方法也待改造
+  function changeDataSourceFormConfig(_backfillData: any) {
+    // 这里应该循环一遍所有的
     dataSourceFormConfig.ssh.items.forEach((t: IFormItem) => {
       if (t.selects) {
-        t.defaultValue = backfillData?.ssh?.[t.name] || 'password'
+        t.defaultValue = _backfillData?.ssh?.[t.name] || t.defaultValue;
       }
     });
     dataSourceFormConfig.baseInfo.items.forEach((t: IFormItem) => {
       if (t.selects) {
-        // console.log('backfillData[t.name]', backfillData[t.name])
-        t.defaultValue = backfillData[t.name] || AuthenticationType.USERANDPASSWORD
+        t.defaultValue = _backfillData[t.name] || t.defaultValue;
+        t.selects.forEach((selectItem: ISelect) => {
+          // 调用select内的回掉函数
+          if (selectItem.value === t.defaultValue) {
+            if(selectItem.onChange){
+              setDataSourceFormConfig(selectItem.onChange({...dataSourceFormConfig}))
+            }
+          }
+        });
       }
     });
   }
 
-  function initialFormData(dataSourceFormConfig: IFormItem[] | undefined) {
+  function initialFormData(_dataSourceFormConfig: IFormItem[] | undefined) {
     let initValue: any = {};
-    dataSourceFormConfig?.map((t) => {
+    _dataSourceFormConfig?.map((t) => {
       initValue[t.name] = t.defaultValue;
       if (t.selects?.length) {
         t.selects?.map((item) => {
@@ -390,15 +410,6 @@ function RenderForm(props: IRenderFormProps) {
       }
     });
     return initValue;
-  }
-
-  function selectChange(t: { name: string; value: any }) {
-    dataSourceFormConfig[tab]?.items.map((j, i) => {
-      if (j.name === t.name) {
-        j.defaultValue = t.value;
-      }
-    });
-    setDataSourceFormConfig({ ...dataSourceFormConfig });
   }
 
   function onFieldsChange(data: any, datas: any) {
@@ -415,9 +426,17 @@ function RenderForm(props: IRenderFormProps) {
     datas.map((t: any) => {
       dataObj[t.name[0]] = t.value;
     });
+
+    const finalData = {
+      ...(formDataRef.current || {}),
+      ...dataObj,
+    }
+
+    formDataRef.current = finalData;
+
     // 正则拆分url/组建url
     if (tab === 'baseInfo') {
-      regEXFormatting(variableData, dataObj);
+      regEXFormatting(variableData, finalData);
     }
   }
 
@@ -440,11 +459,16 @@ function RenderForm(props: IRenderFormProps) {
     return newExtract;
   }
 
-  function regEXFormatting(variableData: { [key: string]: any }, dataObj: { [key: string]: any }) {
-    const { template, pattern } = dataSourceFormConfig.baseInfo;
+  function regEXFormatting(
+    variableData: { [key: string]: any },
+    dataObj: { [key: string]: any },
+    _dataSourceFormConfig?: IConnectionConfig,
+  ) {
+    const { template, pattern } = (_dataSourceFormConfig || dataSourceFormConfig).baseInfo;
     const keyName = Object.keys(variableData)[0];
     const keyValue = variableData[Object.keys(variableData)[0]];
     let newData: any = {};
+
     if (keyName === 'url') {
       //先判断url是否符合规定的正则
       if (pattern.test(keyValue)) {
@@ -456,12 +480,13 @@ function RenderForm(props: IRenderFormProps) {
       // 改变上边url动
       let url = template;
       Object.keys(dataObj).map((t) => {
-        url = url.replace(`{${t}}`, dataObj[t]);
+        url = url.replace(`{${t}}`, dataObj[t] || '');
       });
       newData = {
         url,
       };
     }
+    
     if (keyName === 'host' && !aliasChanged) {
       newData.alias = '@' + keyValue;
     }
@@ -503,12 +528,33 @@ function RenderForm(props: IRenderFormProps) {
             placeholder={placeholder}
             value={t.defaultValue}
             onChange={(e) => {
-              selectChange({ name: name, value: e });
+              t.selects?.forEach((selectItem) => {
+                if (selectItem.value === e) {
+                  let _dataSourceFormConfig = { ...dataSourceFormConfigProps };
+                  if (selectItem.onChange) {
+                    _dataSourceFormConfig = selectItem.onChange(_dataSourceFormConfig);
+                  }
+
+                  _dataSourceFormConfig[tab]?.items.map((j) => {
+                    if (j.name === name) {
+                      j.defaultValue = selectItem.value;
+                    }
+                  });
+                  setDataSourceFormConfig(_dataSourceFormConfig);
+                  regEXFormatting({ [name]: e }, formDataRef.current , _dataSourceFormConfig);
+                }
+              });
             }}
           >
-            {t.selects?.map((t: ISelect) => (
-              <Option key={t.value?.toString()} value={t.value}>
-                {t.label}
+            {t.selects?.map((selectItem: any) => (
+              <Option  key={selectItem.value?.toString()} value={selectItem.value}>
+                <div className={styles.optionItem}>
+                  {
+                    selectItem?.color &&
+                    <div className={styles.envTag} style={{ background: selectItem?.color.toLocaleLowerCase() }} />
+                  }
+                  {selectItem.label}
+                </div>
               </Option>
             ))}
           </Select>
@@ -539,7 +585,7 @@ function RenderForm(props: IRenderFormProps) {
         {t.selects?.map((item) => {
           if (t.defaultValue === item.value) {
             return item.items?.map((t) => {
-              return renderFormItem(t)
+              return renderFormItem(t);
             });
           }
         })}
@@ -558,9 +604,7 @@ function RenderForm(props: IRenderFormProps) {
       labelAlign="left"
       onFieldsChange={onFieldsChange}
     >
-      {
-        dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))
-      }
+      {dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))}
     </Form>
   );
 }
@@ -572,9 +616,9 @@ interface IRenderExtendTableProps {
 let extendTableData: any = [];
 
 interface IExtendTable {
-  key: number,
-  label: string,
-  value: string
+  key: number;
+  label: string;
+  value: string;
 }
 
 function RenderExtendTable(props: IRenderExtendTableProps) {
@@ -588,18 +632,21 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
   }, [backfillData.type]);
 
   useEffect(() => {
-    const extendInfoList = backfillData?.extendInfo?.length ? backfillData?.extendInfo : dataSourceFormConfigMemo.extendInfo;
+    const extendInfoList = backfillData?.extendInfo?.length
+      ? backfillData?.extendInfo
+      : dataSourceFormConfigMemo.extendInfo;
 
-    const extendInfo = extendInfoList?.map((t, i) => {
-      return {
-        key: i,
-        label: t.key,
-        value: t.value,
-      };
-    }) || [];
+    const extendInfo =
+      extendInfoList?.map((t, i) => {
+        return {
+          key: i,
+          label: t.key,
+          value: t.value,
+        };
+      }) || [];
 
-    setData([...extendInfo, { key: extendInfo.length, label: '', value: '' }])
-  }, [dataSourceFormConfigMemo, backfillData])
+    setData([...extendInfo, { key: extendInfo.length, label: '', value: '' }]);
+  }, [dataSourceFormConfigMemo, backfillData]);
 
   useEffect(() => {
     extendTableData = data;
@@ -653,7 +700,7 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
               placeholder={index === data.length - 1 ? i18n('common.text.custom') : ''}
               onChange={change}
               value={value}
-            ></Input>
+            />
           );
         } else {
           return <span>{value}</span>;
@@ -675,12 +722,12 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
           setData(newData);
         }
 
-        function blur() { }
+        function blur() {}
 
         if (index === data.length - 1) {
-          return <Input onBlur={blur} disabled placeholder="<value>" onChange={change} value={value}></Input>;
+          return <Input onBlur={blur} disabled placeholder="<value>" onChange={change} value={value} />;
         } else {
-          return <Input onChange={change} value={value}></Input>;
+          return <Input onChange={change} value={value} />;
         }
       },
     },

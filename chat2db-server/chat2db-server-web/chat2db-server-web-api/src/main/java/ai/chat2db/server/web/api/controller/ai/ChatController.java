@@ -20,6 +20,7 @@ import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatRole;
 import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
 import ai.chat2db.server.web.api.controller.ai.baichuan.listener.BaichuanChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.chat2db.listener.Chat2dbAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.claude.client.ClaudeAIClient;
 import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatCompletionsOptions;
@@ -321,7 +322,7 @@ public class ChatController {
         messages.add(currentMessage);
         buildSseEmitter(sseEmitter, uid);
 
-        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
+        Chat2dbAIEventSourceListener openAIEventSourceListener = new Chat2dbAIEventSourceListener(sseEmitter);
         Chat2dbAIClient.getInstance().streamCompletions(messages, openAIEventSourceListener);
         LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
@@ -479,6 +480,9 @@ public class ChatController {
     private SseEmitter chatWithWenxinAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = buildPrompt(queryRequest);
         List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        if (messages.size() >= 2 && messages.size() % 2 == 0) {
+            messages.remove(messages.size() - 1);
+        }
 
         buildSseEmitter(sseEmitter, uid);
 
@@ -622,7 +626,8 @@ public class ChatController {
             default:
                 break;
         }
-        return schemaProperty;
+        String cleanedInput = schemaProperty.replaceAll("[\r\t]", "");
+        return cleanedInput;
     }
 
     /**

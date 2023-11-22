@@ -3,7 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.request;
 import ai.chat2db.server.domain.api.param.SelectResultOperation;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsoleRequestInfo;
-import ai.chat2db.server.web.api.controller.rdb.vo.HeaderVO;
+import ai.chat2db.spi.model.Header;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -16,7 +16,7 @@ public class SelectResultUpdateRequest extends DataSourceBaseRequest implements 
     /**
      * 展示头的列表
      */
-    private List<HeaderVO> headerList;
+    private List<Header> headerList;
 
     /**
      * 修改后数据的列表

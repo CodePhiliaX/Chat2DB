@@ -1,7 +1,7 @@
-import { IInviteQrCode, ILoginAndQrCode, IRemainingUse } from '@/typings/ai';
 import createRequest from './base';
+import { IInviteQrCode, ILoginAndQrCode, IRemainingUse } from '@/typings/ai';
 
-const getRemainingUse = createRequest<{}, IRemainingUse>('/api/ai/config/remaininguses', {
+const getRemainingUse = createRequest<void, IRemainingUse>('/api/ai/config/remaininguses', {
   errorLevel: false,
 });
 
@@ -11,6 +11,6 @@ const getLoginStatus = createRequest<{ token?: string }, ILoginAndQrCode>('/api/
   errorLevel: false,
 });
 
-const getInviteQrCode = createRequest<{}, IInviteQrCode>('/api/ai/config/getInviteQrCode');
+const getInviteQrCode = createRequest<void, IInviteQrCode>('/api/ai/config/getInviteQrCode');
 
 export default { getRemainingUse, getLoginQrCode, getLoginStatus, getInviteQrCode };

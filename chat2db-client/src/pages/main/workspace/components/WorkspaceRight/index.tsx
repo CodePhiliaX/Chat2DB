@@ -29,6 +29,7 @@ import indexedDB from '@/indexedDB';
 import { osNow } from '@/utils';
 import { compatibleDataBaseName } from '@/utils/database';
 import lodash from 'lodash';
+import { registerIntelliSenseView } from '@/utils/IntelliSense/view';
 
 interface IProps {
   className?: string;
@@ -48,6 +49,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
     workspaceModel;
 
   const tableList = useRef<Array<string>>([]);
+  const viewList = useRef<Array<string>>([]);
 
   useEffect(() => {
     setActiveConsoleId(null);
@@ -380,6 +382,26 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       });
   }, [workspaceModel.curTableList]); //当curTableList变化时（比如手动刷新，切换databaseName、schemaName），重新注册表名提示
 
+  useEffect(() => {
+    const { dataSourceId, dataSourceName, databaseName, schemaName, databaseType } = curWorkspaceParams;
+    // debugger
+    if (!dataSourceId || !(databaseName || schemaName)) {
+      return;
+    }
+    sqlService
+      .getViewList({
+        dataSourceId,
+        dataSourceName,
+        databaseName,
+        schemaName,
+        databaseType,
+      })
+      .then((res) => {
+        viewList.current = (res.data || []).map((item: any) => item.name);
+        registerIntelliSenseView(viewList.current, databaseName);
+      });
+  }, [curWorkspaceParams.dataSourceId, curWorkspaceParams.databaseName, curWorkspaceParams.schemaName]);
+
   function createConsole(params: {
     doubleClickTreeNodeData: any;
     workSpaceTabType: WorkspaceTabType;
@@ -445,17 +467,25 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   }
 
   // 删除 新增tab
-  const onEdit = (action: 'add' | 'remove', data: ITabItem) => {
+  const onEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
     if (action === 'remove') {
-      setWorkspaceTabList(workspaceTabList.filter((t) => t.id !== data.key));
-      const editData = workspaceTabList?.find((t) => t.id === data.key);
-      if (
-        editData?.type !== WorkspaceTabType.EditTable &&
-        editData?.type !== WorkspaceTabType.CreateTable &&
-        editData?.type !== WorkspaceTabType.EditTableData
-      ) {
-        closeWindowTab(data.key as number);
-      }
+      setWorkspaceTabList(
+        workspaceTabList.filter((t) => {
+          return data.findIndex((item) => item.key === t.id) === -1;
+        }),
+      );
+      data.forEach((item) => {
+        const editData = workspaceTabList?.find((t) => t.id === item.key);
+        if (
+          editData?.type !== WorkspaceTabType.EditTable &&
+          editData?.type !== WorkspaceTabType.CreateTable &&
+          editData?.type !== WorkspaceTabType.EditTableData
+        ) {
+          closeWindowTab(item.key as number);
+        }
+      })
+
+      
     }
     if (action === 'add') {
       addConsole();
@@ -620,7 +650,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
             items={tabsList}
           />
         </div>
-        {/* <WorkspaceExtend curWorkspaceParams={curWorkspaceParams} className={styles.workspaceExtend} /> */}
+        <WorkspaceExtend curWorkspaceParams={curWorkspaceParams} className={styles.workspaceExtend} />
       </LoadingContent>
     </div>
   );

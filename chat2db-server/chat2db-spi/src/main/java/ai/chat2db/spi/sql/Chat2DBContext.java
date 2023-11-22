@@ -67,6 +67,10 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(dbType).getMetaData();
     }
 
+    public static DBConfig getDBConfig(String dbType) {
+        return PLUGIN_MAP.get(dbType).getDBConfig();
+    }
+
     public static DBConfig getDBConfig() {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBConfig();
     }
@@ -81,9 +85,13 @@ public class Chat2DBContext {
         if (connection == null) {
             synchronized (connectInfo) {
                 connection = connectInfo.getConnection();
-                if (connection != null) {
-                    return connection;
-                } else {
+                try {
+                    if (connection != null && !connection.isClosed()) {
+                        return connection;
+                    } else {
+                        connection = getDBManage().getConnection(connectInfo);
+                    }
+                } catch (SQLException e) {
                     connection = getDBManage().getConnection(connectInfo);
                 }
             }

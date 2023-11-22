@@ -1,5 +1,7 @@
 import React, { memo, useRef, useState, createContext, useEffect, useMemo } from 'react';
 import { Button, Modal, message } from 'antd';
+import i18n from '@/i18n';
+import lodash from 'lodash';
 import styles from './index.less';
 import classnames from 'classnames';
 import IndexList, { IIndexListRef } from './IndexList';
@@ -9,8 +11,7 @@ import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import ExecuteSQL from '@/components/ExecuteSQL';
 import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
 import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
-import i18n from '@/i18n';
-import lodash from 'lodash';
+import LoadingContent  from '@/components/Loading/LoadingContent';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
@@ -53,6 +54,7 @@ export interface IDatabaseSupportField {
   charsets: IOption[];
   collations: IOption[];
   indexTypes: IOption[];
+  defaultValues: IOption[];
 }
 
 export default memo((props: IProps) => {
@@ -92,7 +94,9 @@ export default memo((props: IProps) => {
     charsets: [],
     collations: [],
     indexTypes: [],
+    defaultValues: [],
   });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   function changeTab(item: ITabItem) {
     setCurrentTab(item);
@@ -103,7 +107,7 @@ export default memo((props: IProps) => {
       getTableDetails();
     }
     getDatabaseFieldTypeList();
-  }, []);
+  }, [])
 
   // 获取数据库字段类型列表
   const getDatabaseFieldTypeList = () => {
@@ -146,14 +150,23 @@ export default memo((props: IProps) => {
             };
           }) || [];
 
+        const defaultValues =
+            res?.defaultValues?.map((i) => {
+              return {
+                value: i.defaultValue,
+                label: i.defaultValue,
+              };
+            }) || [];
+
         setDatabaseSupportField({
           columnTypes,
           charsets,
           collations,
           indexTypes,
+          defaultValues,
         });
       });
-  };
+  }
 
   const getTableDetails = (myParams?: { tableNameProps?: string }) => {
     const { tableNameProps } = myParams || {};
@@ -166,13 +179,17 @@ export default memo((props: IProps) => {
         schemaName,
         refresh: true,
       };
+      setIsLoading(true);
       sqlService.getTableDetails(params).then((res) => {
         const newTableDetails = lodash.cloneDeep(res);
         setTableDetails(newTableDetails || {});
         setOldTableDetails(res);
-      });
+      })
+      .finally(()=>{
+        setIsLoading(false);
+      })
     }
-  };
+  }
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
@@ -218,7 +235,7 @@ export default memo((props: IProps) => {
         },
       });
     }
-  };
+  }
 
   return (
     <Context.Provider
@@ -232,7 +249,7 @@ export default memo((props: IProps) => {
         databaseType,
       }}
     >
-      <div className={classnames(styles.box)}>
+      <LoadingContent coverLoading isLoading={isLoading} className={classnames(styles.box)}>
         <div className={styles.header}>
           <div className={styles.tabList} style={{ '--i': currentTab.index } as any}>
             {tabList.map((item) => {
@@ -262,7 +279,8 @@ export default memo((props: IProps) => {
             );
           })}
         </div>
-      </div>
+      </LoadingContent>
+
       <Modal
         title={i18n('editTable.title.sqlPreview')}
         open={!!viewSqlModal}

@@ -63,13 +63,16 @@ public class BaichuanAIClient {
 
     public static void refresh() {
         String apiKey = "";
-        String apiHost = "https://api.baichuan-ai.com/v1/chat/";
+        String apiHost = "https://api.baichuan-ai.com/v1/stream/chat";
         String model = "Baichuan2-53B";
         String secretKey = "";
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config apiHostConfig = configService.find(BAICHUAN_HOST).getData();
         if (apiHostConfig != null && StringUtils.isNotBlank(apiHostConfig.getContent())) {
             apiHost = apiHostConfig.getContent();
+            if (apiHost.endsWith("/")) {
+                apiHost = apiHost.substring(0, apiHost.length() - 1);
+            }
         }
         Config config = configService.find(BAICHUAN_API_KEY).getData();
         if (config != null && StringUtils.isNotBlank(config.getContent())) {

@@ -16,7 +16,7 @@ import com.deepoove.poi.data.Rows;
 import com.deepoove.poi.data.Tables;
 import lombok.SneakyThrows;
 
-import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,9 +45,8 @@ public class ExportWordSuperService extends DatabaseExportService {
     @Override
     public void export(OutputStream outputStream, ExportOptions exportOptions) {
         boolean isExportIndex = exportOptions.getIsExportIndex();
-        String filePath = GlobalDict.templateDir + GlobalDict.TEMPLATE_FILE.get(1);
-        String subFile = GlobalDict.templateDir + GlobalDict.TEMPLATE_FILE.get(2);
-        File importWordFile = new File(filePath);
+        InputStream filePath = this.getClass().getClassLoader().getResourceAsStream("template/" + GlobalDict.TEMPLATE_FILE.get(1));
+        InputStream subFile = this.getClass().getClassLoader().getResourceAsStream("template/" + GlobalDict.TEMPLATE_FILE.get(2));
         Map<String, List<Map.Entry<String, List<TableParameter>>>> allMap = listMap.entrySet()
                 .stream().collect(Collectors.groupingBy(v -> v.getKey().split("---")[0]));
         List<Map<String, Object>> list = new ArrayList<>();
@@ -86,9 +85,9 @@ public class ExportWordSuperService extends DatabaseExportService {
                 list.add(tableData);
             }
         }
-        myDataMap.put("mydata", Includes.ofLocal(subFile).setRenderModel(list).create());
+        myDataMap.put("mydata", Includes.ofStream(subFile).setRenderModel(list).create());
         /*根据模板生成文档*/
-        XWPFTemplate template = XWPFTemplate.compile(importWordFile).render(myDataMap);
+        XWPFTemplate template = XWPFTemplate.compile(filePath).render(myDataMap);
         AddToTopic.generateTOC(template.getXWPFDocument(), outputStream);
     }
 

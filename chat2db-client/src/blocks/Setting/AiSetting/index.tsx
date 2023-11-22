@@ -29,8 +29,8 @@ export default function SettingAI(props: IProps) {
     try {
       const res = await getUser();
       // 向cookie中写入当前用户id
-      // const date = new Date('2030-12-30 12:30:00').toUTCString();
-      // document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
+      const date = new Date('2030-12-30 12:30:00').toUTCString();
+      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
       setUserInfo(res);
     } finally {
       setLoading(false);
@@ -98,11 +98,16 @@ export default function SettingAI(props: IProps) {
 
       <Form layout="vertical">
         {Object.keys(AIFormConfig[aiConfig?.aiSqlSource]).map((key: string) => (
-          <Form.Item key={key} label={capitalizeFirstLetter(key)} className={styles.title}>
+          <Form.Item
+            key={key}
+            required={key === 'apiKey' || key === 'secretKey'}
+            label={capitalizeFirstLetter(key)}
+            className={styles.title}
+          >
             <Input
               autoComplete="off"
               value={aiConfig[key]}
-              defaultValue={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
+              placeholder={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
               onChange={(e) => {
                 setAiConfig({ ...aiConfig, [key]: e.target.value });
               }}

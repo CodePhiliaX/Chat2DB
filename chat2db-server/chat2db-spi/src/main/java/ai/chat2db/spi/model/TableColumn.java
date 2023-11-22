@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.Objects;
+
 /**
  * 列信息
  *
@@ -30,13 +32,13 @@ public class TableColumn {
     /**
      * 列名
      */
-    @JsonAlias({"COLUMN_NAME"})
+    @JsonAlias({"COLUMN_NAME","column_name"})
     private String name;
 
     /**
      * 表名
      */
-    @JsonAlias({"TABLE_NAME"})
+    @JsonAlias({"TABLE_NAME","table_name"})
     private String tableName;
 
     /**
@@ -44,7 +46,7 @@ public class TableColumn {
      * 比如 varchar(100) ,double(10,6)
      */
 
-    @JsonAlias({"TYPE_NAME"})
+    @JsonAlias({"TYPE_NAME","type_name"})
     private String columnType;
 
     /**
@@ -52,7 +54,7 @@ public class TableColumn {
      * 比如 varchar ,double
      */
 
-    @JsonAlias({"DATA_TYPE"})
+    @JsonAlias({"DATA_TYPE","data_type"})
     private Integer dataType;
 
 
@@ -60,7 +62,7 @@ public class TableColumn {
      * 默认值
      */
 
-    @JsonAlias({"COLUMN_DEF"})
+    @JsonAlias({"COLUMN_DEF","column_def"})
     private String defaultValue;
 
 
@@ -74,7 +76,7 @@ public class TableColumn {
     /**
      * 注释
      */
-    @JsonAlias({"REMARKS"})
+    @JsonAlias({"REMARKS","remarks"})
     private String comment;
 
     /**
@@ -82,28 +84,40 @@ public class TableColumn {
      */
     private Boolean primaryKey;
 
+
+    /**
+     * 主键名
+     */
+    private String primaryKeyName;
+
+
+    /**
+     * 主键顺序
+     */
+    private int primaryKeyOrder;
+
     /**
      * 空间名
      */
-    @JsonAlias({"TABLE_SCHEM"})
+    @JsonAlias({"TABLE_SCHEM","table_schem"})
     private String schemaName;
 
     /**
      * 数据库名
      */
-    @JsonAlias({"TABLE_CAT"})
+    @JsonAlias({"TABLE_CAT","table_cat"})
     private String databaseName;
 
-    /**
-     * Data source dependent type name, for a UDT the type name is fully qualified
-     */
-    private String typeName;
+//    /**
+//     * Data source dependent type name, for a UDT the type name is fully qualified
+//     */
+//    private String typeName;
 
     /**
      * column size.
      */
 
-    @JsonAlias({"COLUMN_SIZE"})
+    @JsonAlias({"COLUMN_SIZE","column_size"})
     private Integer columnSize;
 
     /**
@@ -115,14 +129,14 @@ public class TableColumn {
      * the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
      */
 
-    @JsonAlias({"DECIMAL_DIGITS"})
+    @JsonAlias({"DECIMAL_DIGITS","decimal_digits"})
     private Integer decimalDigits;
 
     /**
      * Radix (typically either 10 or 2)
      */
 
-    @JsonAlias({"NUM_PREC_RADIX"})
+    @JsonAlias({"NUM_PREC_RADIX","num_prec_radix"})
     private Integer numPrecRadix;
 
 
@@ -146,14 +160,14 @@ public class TableColumn {
      * index of column in table (starting at 1)
      */
 
-    @JsonAlias({"ORDINAL_POSITION"})
+    @JsonAlias({"ORDINAL_POSITION","ordinal_position"})
     private Integer ordinalPosition;
 
     /**
      * ISO rules are used to determine the nullability for a column.
      */
 
-    @JsonAlias({"NULLABLE"})
+    @JsonAlias({"NULLABLE","nullable"})
     private Integer nullable;
 
     /**
@@ -184,4 +198,17 @@ public class TableColumn {
 
     // sqlserver
     private String defaultConstraintName;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TableColumn that = (TableColumn) o;
+        return Objects.equals(name, that.name) && Objects.equals(tableName, that.tableName) && Objects.equals(columnType, that.columnType) && Objects.equals(defaultValue, that.defaultValue) && Objects.equals(autoIncrement, that.autoIncrement) && Objects.equals(comment, that.comment) && Objects.equals(columnSize, that.columnSize) && Objects.equals(decimalDigits, that.decimalDigits) && Objects.equals(numPrecRadix, that.numPrecRadix) && Objects.equals(sqlDataType, that.sqlDataType) && Objects.equals(ordinalPosition, that.ordinalPosition) && Objects.equals(nullable, that.nullable) && Objects.equals(extent, that.extent) && Objects.equals(charSetName, that.charSetName) && Objects.equals(collationName, that.collationName) && Objects.equals(value, that.value) && Objects.equals(unit, that.unit) && Objects.equals(sparse, that.sparse) && Objects.equals(defaultConstraintName, that.defaultConstraintName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, tableName, columnType, defaultValue, autoIncrement, comment, columnSize, decimalDigits, numPrecRadix, sqlDataType, ordinalPosition, nullable, extent, charSetName, collationName, value, unit, sparse, defaultConstraintName);
+    }
 }

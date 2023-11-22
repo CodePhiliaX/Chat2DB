@@ -16,6 +16,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
         script.append("CREATE TABLE ");
+        if(StringUtils.isNotBlank(table.getDatabaseName())) {
+            script.append("`").append(table.getDatabaseName()).append("`").append(".");
+        }
         script.append("`").append(table.getName()).append("`").append(" (").append("\n");
 
         // append column
@@ -71,7 +74,11 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildModifyTaleSql(Table oldTable, Table newTable) {
         StringBuilder script = new StringBuilder();
-        script.append("ALTER TABLE ").append("`").append(oldTable.getName()).append("`").append("\n");
+        script.append("ALTER TABLE ");
+        if(StringUtils.isNotBlank(oldTable.getDatabaseName())) {
+            script.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+        }
+        script.append("`").append(oldTable.getName()).append("`").append("\n");
         if (!StringUtils.equalsIgnoreCase(oldTable.getName(), newTable.getName())) {
             script.append("\t").append("RENAME TO ").append("`").append(newTable.getName()).append("`").append(",\n");
         }

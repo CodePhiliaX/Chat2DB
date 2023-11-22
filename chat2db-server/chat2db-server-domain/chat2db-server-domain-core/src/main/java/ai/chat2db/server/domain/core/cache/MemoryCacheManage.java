@@ -1,17 +1,14 @@
 package ai.chat2db.server.domain.core.cache;
 
 import java.io.Serializable;
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.Weigher;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ehcache.Cache;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ExpiryPolicyBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.ehcache.config.units.MemoryUnit;
 import org.springframework.cache.support.NullValue;
 
 /**
@@ -22,20 +19,14 @@ import org.springframework.cache.support.NullValue;
 public class MemoryCacheManage {
 
     private static final byte[] NULL_BYTES = SerializationUtils.serialize((NullValue)NullValue.INSTANCE);
-    private static final String CACHE = "memory_cache";
     private static final String SYNCHRONIZED_PREFIX = "MemoryCache:";
 
-    private static Cache<String, byte[]> cache;
-
-    static {
-        cache = CacheManagerBuilder.newCacheManagerBuilder()
-            .build(true)
-            .createCache(CACHE,
-                CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, byte[].class,
-                        ResourcePoolsBuilder.newResourcePoolsBuilder()
-                            .offheap(5, MemoryUnit.MB))
-                    .withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(10))));
-    }
+    private static final Cache<String, byte[]> CACHE = CacheBuilder.newBuilder()
+        // 5M
+        .maximumWeight(5 * 1024 * 1024)
+        .weigher((Weigher<String, byte[]>)(key, value) -> value.length)
+        .expireAfterAccess(10, TimeUnit.MINUTES)
+        .build();
 
     /**
      * Retrieve a value from the cache, and if not, query it
@@ -78,7 +69,7 @@ public class MemoryCacheManage {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-        byte[] bytes = cache.get(key);
+        byte[] bytes = CACHE.getIfPresent(key);
         if (bytes == null) {
             return null;
         }
@@ -101,9 +92,9 @@ public class MemoryCacheManage {
             return;
         }
         if (value == null) {
-            cache.put(key, NULL_BYTES);
+            CACHE.put(key, NULL_BYTES);
         } else {
-            cache.put(key, SerializationUtils.serialize(value));
+            CACHE.put(key, SerializationUtils.serialize(value));
         }
     }
 

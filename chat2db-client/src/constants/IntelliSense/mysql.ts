@@ -222,6 +222,7 @@ export default {
     'SQL_BIG_RESULT',
     'SQL_CALC_FOUND_ROWS',
     'SQL_SMALL_RESULT',
+    'SQL_NO_CACHE',
     'SSL',
     'STARTING',
     'STORED',
