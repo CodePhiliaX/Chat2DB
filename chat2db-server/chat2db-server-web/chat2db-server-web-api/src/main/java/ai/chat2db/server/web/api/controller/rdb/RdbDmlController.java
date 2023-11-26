@@ -6,12 +6,14 @@ import java.util.List;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
+import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DmlRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.DmlTableRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.SelectResultUpdateRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.spi.model.ExecuteResult;
@@ -55,6 +57,25 @@ public class RdbDmlController {
         return ListResult.of(resultVOS);
     }
 
+    /**
+     * 查询表结构信息
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/execute_table", method = {RequestMethod.POST, RequestMethod.PUT})
+    public ListResult<ExecuteResultVO> executeTable(@RequestBody DmlTableRequest request) {
+        DlExecuteParam param = rdbWebConverter.request2param(request);
+        // 解析sql
+        String type = Chat2DBContext.getConnectInfo().getDbType();
+        if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
+            param.setSql("db." + request.getTableName() + ".find()");
+        } else {
+            param.setSql("select * from " + request.getTableName());
+        }
+        return dlTemplateService.execute(param)
+            .map(rdbWebConverter::dto2vo);
+    }
 
     /**
      * update 查询结果
@@ -63,21 +84,21 @@ public class RdbDmlController {
      * @return
      */
     @RequestMapping(value = "/execute_update", method = {RequestMethod.POST, RequestMethod.PUT})
-    public  DataResult<ExecuteResultVO> executeSelectResultUpdate(@RequestBody DmlRequest request) {
+    public DataResult<ExecuteResultVO> executeSelectResultUpdate(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        DataResult<ExecuteResult>  result = dlTemplateService.executeUpdate(param);
-        if(!result.success()){
-            return DataResult.error(result.getErrorCode(),result.getErrorMessage());
+        DataResult<ExecuteResult> result = dlTemplateService.executeUpdate(param);
+        if (!result.success()) {
+            return DataResult.error(result.getErrorCode(), result.getErrorMessage());
         }
-       return DataResult.of(rdbWebConverter.dto2vo(result.getData()));
+        return DataResult.of(rdbWebConverter.dto2vo(result.getData()));
 
     }
+
     @RequestMapping(value = "/get_update_sql", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<String> getUpdateSelectResultSql(@RequestBody SelectResultUpdateRequest request) {
         UpdateSelectResultParam param = rdbWebConverter.request2param(request);
         return dlTemplateService.updateSelectResult(param);
     }
-
 
     /**
      * 增删改查等数据运维
@@ -109,7 +130,7 @@ public class RdbDmlController {
                 if (flag) {
                     //connection.commit();
                     return DataResult.of(resultVOS.get(0));
-                }else {
+                } else {
                     //connection.rollback();
                     return DataResult.of(executeResult);
                 }
