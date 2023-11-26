@@ -2,18 +2,14 @@ package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import ai.chat2db.server.domain.api.param.*;
-import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
-import ai.chat2db.server.domain.api.service.OperationLogService;
-import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.domain.core.util.MetaNameUtils;
-import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.ValueHandler;
-import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.sql.ConnectInfo;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
@@ -21,16 +17,34 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.ParserException;
 
+import ai.chat2db.server.domain.api.param.DlCountParam;
+import ai.chat2db.server.domain.api.param.DlExecuteParam;
+import ai.chat2db.server.domain.api.param.SelectResultOperation;
+import ai.chat2db.server.domain.api.param.TableQueryParam;
+import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
+import ai.chat2db.server.domain.api.service.OperationLogService;
+import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.domain.core.util.MetaNameUtils;
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
+import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.I18nUtils;
+import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.enums.SqlTypeEnum;
+import ai.chat2db.spi.model.ExecuteResult;
+import ai.chat2db.spi.model.Header;
+import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.TableIndexColumn;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.SqlUtils;
@@ -71,7 +85,6 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
         List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
 
-
         if (CollectionUtils.isEmpty(sqlList)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
@@ -98,7 +111,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         dataResult.setSuccess(true);
         RemoveSpecialGO(param);
         DbType dbType =
-                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
         Connection connection = Chat2DBContext.getConnection();
         try {
@@ -127,29 +140,34 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         param.setSql(sql);
     }
 
-
     private ExecuteResult executeSQL(String originalSql, DbType dbType, DlExecuteParam param) {
         int pageNo = 1;
         int pageSize = 0;
         Integer offset = null;
         Integer count = null;
         String sqlType = SqlTypeEnum.UNKNOWN.getCode();
-
+        // 解析sql
+        String type = Chat2DBContext.getConnectInfo().getDbType();
+        boolean supportDruid = !DataSourceTypeEnum.MONGODB.getCode().equals(type);
         // 解析sql分页
-        SQLStatement sqlStatement;
-        try {
-            sqlStatement = SQLUtils.parseSingleStatement(originalSql, dbType);
-            // 是否需要代码帮忙分页
-            if (sqlStatement instanceof SQLSelectStatement) {
-                pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
-                pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
-                offset = (pageNo - 1) * pageSize;
-                count = pageSize;
-                sqlType = SqlTypeEnum.SELECT.getCode();
+        SQLStatement sqlStatement = null;
+        if (supportDruid) {
+            try {
+                sqlStatement = SQLUtils.parseSingleStatement(originalSql, dbType);
+            } catch (ParserException e) {
+                log.warn("解析sql失败:{}", originalSql, e);
             }
-        } catch (ParserException e) {
-            log.warn("解析sql失败:{}", originalSql, e);
         }
+
+        // Mongodb is currently unable to recognize it, so every time a page is transmitted
+        if (!supportDruid || (sqlStatement instanceof SQLSelectStatement)) {
+            pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
+            pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
+            offset = (pageNo - 1) * pageSize;
+            count = pageSize;
+            sqlType = SqlTypeEnum.SELECT.getCode();
+        }
+
         ExecuteResult executeResult = null;
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType) && !SqlUtils.hasPageLimit(originalSql, dbType)) {
             String pageLimit = Chat2DBContext.getSqlBuilder().pageLimit(originalSql, offset, pageNo, pageSize);
@@ -161,19 +179,23 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             executeResult = execute(originalSql, offset, count);
         }
 
-
         executeResult.setSqlType(sqlType);
         executeResult.setOriginalSql(originalSql);
-        try {
-            SqlUtils.buildCanEditResult(originalSql, dbType, executeResult);
-        } catch (Exception e) {
-            log.warn("buildCanEditResult error", e);
+
+        boolean supportJsqlParser = !DataSourceTypeEnum.MONGODB.getCode().equals(type);
+        if (supportJsqlParser) {
+            try {
+                SqlUtils.buildCanEditResult(originalSql, dbType, executeResult);
+            } catch (Exception e) {
+                log.warn("buildCanEditResult error", e);
+            }
         }
+
         if (SqlTypeEnum.SELECT.getCode().equals(sqlType)) {
             executeResult.setPageNo(pageNo);
             executeResult.setPageSize(pageSize);
             executeResult.setHasNextPage(
-                    CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
+                CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
         } else {
             executeResult.setPageNo(pageNo);
             executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
@@ -181,13 +203,14 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
 
         List<Header> headers = executeResult.getHeaderList();
-        if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)){
-            headers = setColumnInfo(headers, executeResult.getTableName(), param.getSchemaName(), param.getDatabaseName());
+        if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)) {
+            headers = setColumnInfo(headers, executeResult.getTableName(), param.getSchemaName(),
+                param.getDatabaseName());
         }
         Header rowNumberHeader = Header.builder()
-                .name(I18nUtils.getMessage("sqlResult.rowNumber"))
-                .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                        .getCode()).build();
+            .name(I18nUtils.getMessage("sqlResult.rowNumber"))
+            .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
+                .getCode()).build();
 
         executeResult.setHeaderList(EasyCollectionUtils.union(Arrays.asList(rowNumberHeader), headers));
         if (executeResult.getDataList() != null) {
@@ -223,7 +246,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         DbType dbType =
-                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
         // 解析sql分页
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
@@ -238,11 +261,11 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         String count = EasyCollectionUtils.stream(executeResult.getDataList())
-                .findFirst()
-                .orElse(Collections.emptyList())
-                .stream()
-                .findFirst()
-                .orElse("0");
+            .findFirst()
+            .orElse(Collections.emptyList())
+            .stream()
+            .findFirst()
+            .orElse("0");
         return DataResult.of(Long.valueOf(count));
     }
 
@@ -285,7 +308,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return keyColumns;
     }
 
-    private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema, List<String> keyColumns) {
+    private String getDeleteSql(UpdateSelectResultParam param, List<String> row, MetaData metaSchema,
+        List<String> keyColumns) {
         StringBuilder script = new StringBuilder();
         script.append("DELETE FROM ").append(param.getTableName()).append("");
 
@@ -303,12 +327,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
                 if (value == null) {
                     script.append(metaSchema.getMetaDataName(header.getName()))
-                            .append(" is null and ");
+                        .append(" is null and ");
                 } else {
                     script.append(metaSchema.getMetaDataName(header.getName()))
-                            .append(" = ")
-                            .append(value)
-                            .append(" and ");
+                        .append(" = ")
+                        .append(value)
+                        .append(" and ");
                 }
             }
         } else {
@@ -320,12 +344,12 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                     String value = SqlUtils.getSqlValue(oldValue, header.getDataType());
                     if (value == null) {
                         script.append(metaSchema.getMetaDataName(columnName))
-                                .append(" is null and ");
+                            .append(" is null and ");
                     } else {
                         script.append(metaSchema.getMetaDataName(columnName))
-                                .append(" = ")
-                                .append(value)
-                                .append(" and ");
+                            .append(" = ")
+                            .append(value)
+                            .append(" and ");
                     }
                 }
             }
@@ -340,23 +364,23 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         }
         StringBuilder script = new StringBuilder();
         script.append("INSERT INTO ").append(param.getTableName())
-                .append(" (");
+            .append(" (");
         for (int i = 1; i < row.size(); i++) {
             Header header = param.getHeaderList().get(i);
             //String newValue = row.get(i);
             //if (newValue != null) {
-                script.append(metaSchema.getMetaDataName(header.getName()))
-                        .append(",");
-           // }
+            script.append(metaSchema.getMetaDataName(header.getName()))
+                .append(",");
+            // }
         }
         script.deleteCharAt(script.length() - 1);
         script.append(") VALUES (");
         for (int i = 1; i < row.size(); i++) {
             String newValue = row.get(i);
             //if (newValue != null) {
-                Header header = param.getHeaderList().get(i);
-                script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
-                        .append(",");
+            Header header = param.getHeaderList().get(i);
+            script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
+                .append(",");
             //}
         }
         script.deleteCharAt(script.length() - 1);
@@ -365,9 +389,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
     }
 
-
-    private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow, MetaData metaSchema,
-                                List<String> keyColumns, boolean copy) {
+    private String getUpdateSql(UpdateSelectResultParam param, List<String> row, List<String> odlRow,
+        MetaData metaSchema,
+        List<String> keyColumns, boolean copy) {
         StringBuilder script = new StringBuilder();
         if (CollectionUtils.isEmpty(row) || CollectionUtils.isEmpty(odlRow)) {
             return "";
@@ -382,9 +406,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             Header header = param.getHeaderList().get(i);
             String newSqlValue = SqlUtils.getSqlValue(newValue, header.getDataType());
             script.append(metaSchema.getMetaDataName(header.getName()))
-                    .append(" = ")
-                    .append(newSqlValue)
-                    .append(",");
+                .append(" = ")
+                .append(newSqlValue)
+                .append(",");
         }
         script.deleteCharAt(script.length() - 1);
         script.append(buildWhere(param.getHeaderList(), odlRow, metaSchema, keyColumns));
@@ -402,7 +426,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             if (CollectionUtils.isEmpty(columns)) {
                 return headers;
             }
-            Map<String, TableColumn> columnMap = columns.stream().collect(Collectors.toMap(TableColumn::getName, tableColumn -> tableColumn));
+            Map<String, TableColumn> columnMap = columns.stream().collect(
+                Collectors.toMap(TableColumn::getName, tableColumn -> tableColumn));
             List<TableIndex> tableIndices = tableService.queryIndexes(tableQueryParam);
             if (!CollectionUtils.isEmpty(tableIndices)) {
                 for (TableIndex tableIndex : tableIndices) {
@@ -431,8 +456,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 }
             }
 
-        }catch (Exception e){
-            log.error("setColumnInfo error:",e);
+        } catch (Exception e) {
+            log.error("setColumnInfo error:", e);
         }
         return headers;
     }
@@ -441,14 +466,15 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         ExecuteResult executeResult;
         try {
             ValueHandler valueHandler = Chat2DBContext.getMetaData().getValueHandler();
-            executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count,valueHandler);
+            executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count,
+                valueHandler);
         } catch (SQLException e) {
             log.warn("执行sql:{}异常", sql, e);
             executeResult = ExecuteResult.builder()
-                    .sql(sql)
-                    .success(Boolean.FALSE)
-                    .message(e.getMessage())
-                    .build();
+                .sql(sql)
+                .success(Boolean.FALSE)
+                .message(e.getMessage())
+                .build();
         }
         return executeResult;
     }
@@ -467,7 +493,8 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             createParam.setSchemaName(connectInfo.getSchemaName());
             createParam.setUseTime(executeResult.getDuration());
             createParam.setType(connectInfo.getDbType());
-            createParam.setOperationRows(executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()) : null);
+            createParam.setOperationRows(
+                executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()) : null);
             operationLogService.create(createParam);
         } catch (Exception e) {
             log.error("addOperationLog error:", e);

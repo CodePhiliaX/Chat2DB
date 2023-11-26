@@ -102,7 +102,7 @@ function CascaderDB(props: IProps) {
     if (curDataSourceId === undefined) {
       return;
     }
-    const databaseList = await connection.getDBList({
+    const databaseList = await connection.getDatabaseList({
       dataSourceId: curDataSourceId,
     });
 

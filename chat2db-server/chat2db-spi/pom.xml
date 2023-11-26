@@ -79,5 +79,11 @@
             <artifactId>jts-core</artifactId>
             <version>1.19.0</version> <!-- 确保使用最新的版本 -->
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+        </dependency>
     </dependencies>
 </project>

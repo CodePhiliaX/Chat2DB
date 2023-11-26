@@ -10,7 +10,8 @@ interface IProps {
   boundInfo: {
     databaseName: string;
     dataSourceId: number;
-    type: DatabaseTypeCode;
+    dataSourceName: string;
+    databaseType: DatabaseTypeCode;
     schemaName?: string;
     consoleId: number;
     status: ConsoleStatus;
@@ -18,18 +19,6 @@ interface IProps {
   initDDL: string;
   // 异步加载sql
   loadSQL: () => Promise<string>;
-}
-
-interface IContext {
-  boundInfoContext: {
-    databaseName: string;
-    dataSourceId: number;
-    type: DatabaseTypeCode;
-    schemaName?: string;
-    consoleId: number;
-    status: ConsoleStatus;
-  };
-  setBoundInfoContext: (boundInfo: IContext['boundInfoContext']) => void;
 }
 
 const SQLExecute = memo<IProps>((props) => {

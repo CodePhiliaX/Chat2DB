@@ -42,6 +42,7 @@ export const createConsole = (params: ICreateConsoleParams)=>{
     ddl: params.ddl || '',
     status: ConsoleStatus.DRAFT,
     operationType: WorkspaceTabType.CONSOLE,
+    type: params.databaseType
   };
 
   return new Promise((resolve) => {

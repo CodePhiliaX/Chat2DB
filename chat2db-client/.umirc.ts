@@ -25,8 +25,24 @@ export default defineConfig({
       component: '@/layouts/GlobalLayout',
       routes: [
         {
-          path: '/',
+          path: '/connections',
           component: 'main',
+        },
+        {
+          path: '/dashboard',
+          component: 'main',
+        },
+        {
+          path: '/team',
+          component: 'main',
+        },
+        {
+          path: '/workspace',
+          component: 'main',
+        },
+        {
+          path: '/',
+          redirect: '/connections',
         },
       ],
     },

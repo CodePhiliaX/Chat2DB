@@ -38,9 +38,9 @@ export type IAppendValue = {
 export interface IBoundInfo {
   consoleId: number;
   consoleName: string;
-  dataSourceId?: number;
-  dataSourceName?: string;
-  type?: DatabaseTypeCode;
+  dataSourceId: number;
+  dataSourceName: string;
+  databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
   status?: ConsoleStatus;
@@ -421,13 +421,11 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           ref={editorRef as any}
           className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
           addAction={addAction}
-          databaseType={boundInfo.type}
+          // databaseType={boundInfo.databaseType}
           onSave={saveConsole}
           onExecute={executeSQL}
           options={props.editorOptions}
         />
-
-        {/* <NewEditor id={uid} dataSource={props.boundInfo.type} database={props.boundInfo.databaseName} /> */}
 
         <Drawer
           open={isAiDrawerOpen}

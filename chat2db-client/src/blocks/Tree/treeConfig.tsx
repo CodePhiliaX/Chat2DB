@@ -125,7 +125,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         const _extraParams = params.extraParams;
         delete params.extraParams;
         connectionService
-          .getDBList(params)
+          .getDatabaseList(params)
           .then((res) => {
             const data: ITreeNode[] = res.map((t: any) => {
               return {

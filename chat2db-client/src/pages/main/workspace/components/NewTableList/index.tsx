@@ -32,11 +32,11 @@ export default memo<IProps>((props) => {
     treeConfig['dataSource']
       .getChildren?.({
         dataSourceId: currentConnectionDetails.id,
-        dataSourceName: currentConnectionDetails.name,
+        dataSourceName: currentConnectionDetails.alias,
         refresh: refresh,
         extraParams: {
           dataSourceId: currentConnectionDetails.id,
-          dataSourceName: currentConnectionDetails.name,
+          dataSourceName: currentConnectionDetails.alias,
           databaseType: currentConnectionDetails.type,
         },
       })

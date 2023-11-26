@@ -124,7 +124,8 @@ export const useGetRightClickMenu = (props: IProps) => {
           createConsole({
             name: 'create console',
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-            type: treeNodeData.extraParams!.databaseType!,
+            dataSourceName: treeNodeData.extraParams!.dataSourceName!,
+            databaseType: treeNodeData.extraParams!.databaseType!,
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
           });

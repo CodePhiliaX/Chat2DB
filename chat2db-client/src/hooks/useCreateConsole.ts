@@ -10,7 +10,7 @@ interface ICreateConsoleParams {
   dataSourceName?: string;
   databaseName?: string;
   schemaName?: string;
-  type?: DatabaseTypeCode;
+  databaseType?: DatabaseTypeCode;
   operationType?: string;
 }
 
@@ -29,7 +29,7 @@ function useCreateConsole() {
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       operationType: WorkspaceTabType.CONSOLE,
-      type: params.type,
+      databaseType: params.databaseType,
       dataSourceId: params.dataSourceId,
       dataSourceName: params.dataSourceName,
     };
