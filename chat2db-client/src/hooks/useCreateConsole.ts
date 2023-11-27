@@ -10,7 +10,7 @@ interface ICreateConsoleParams {
   dataSourceName?: string;
   databaseName?: string;
   schemaName?: string;
-  databaseType?: DatabaseTypeCode;
+  type?: DatabaseTypeCode;
   operationType?: string;
 }
 
@@ -24,12 +24,11 @@ function useCreateConsole() {
   const createConsole = (params: ICreateConsoleParams) => {
     const newConsole = {
       ...params,
-      name: params.name || 'create console',
+      name: params.name || 'new console',
       ddl: params.ddl || '',
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       operationType: WorkspaceTabType.CONSOLE,
-      databaseType: params.databaseType,
       dataSourceId: params.dataSourceId,
       dataSourceName: params.dataSourceName,
     };
@@ -40,7 +39,10 @@ function useCreateConsole() {
           id: res,
           title: newConsole.name,
           type: newConsole.operationType,
-          uniqueData: newConsole,
+          uniqueData: {
+            ...newConsole,
+            databaseType: newConsole.type,
+          },
         },
       ];
       setWorkspaceTabList(newList);

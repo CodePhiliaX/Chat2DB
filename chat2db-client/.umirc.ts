@@ -25,6 +25,10 @@ export default defineConfig({
       component: '@/layouts/GlobalLayout',
       routes: [
         {
+          path: '/demo',
+          component: '@/pages/demo',
+        },
+        {
           path: '/connections',
           component: 'main',
         },

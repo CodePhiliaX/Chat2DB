@@ -2,7 +2,7 @@ import { useWorkspaceStore } from './index';
 import { IConsole, ICreateConsoleParams } from '@/typings';
 import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
-import { ConsoleStatus, WorkspaceTabType } from '@/constants'
+import { ConsoleStatus, WorkspaceTabType } from '@/constants';
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
@@ -38,7 +38,7 @@ export const createConsole = (params: ICreateConsoleParams)=>{
   const workspaceTabList = useWorkspaceStore.getState().workspaceTabList;
   const newConsole = {
     ...params,
-    name: params.name || 'create console',
+    name: params.name || 'new console',
     ddl: params.ddl || '',
     status: ConsoleStatus.DRAFT,
     operationType: WorkspaceTabType.CONSOLE,

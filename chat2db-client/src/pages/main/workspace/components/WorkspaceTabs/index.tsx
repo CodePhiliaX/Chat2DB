@@ -84,7 +84,7 @@ const WorkspaceTabs = memo(() => {
     createConsole({
       dataSourceId: currentConnectionDetails?.id,
       dataSourceName: currentConnectionDetails?.alias,
-      databaseType: currentConnectionDetails?.type,
+      type: currentConnectionDetails?.type,
     });
   };
 
@@ -174,7 +174,7 @@ const WorkspaceTabs = memo(() => {
   // 渲染搜索结果
   const renderSearchResult = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} />;
+    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} concealTabHeader />;
   };
 
   // 根据不同的tab类型渲染不同的内容

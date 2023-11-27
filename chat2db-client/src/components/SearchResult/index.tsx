@@ -29,6 +29,7 @@ interface IProps {
   className?: string;
   sql?: string;
   executeSqlParams: any;
+  concealTabHeader?: boolean;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -50,7 +51,7 @@ interface IContext {
 export const Context = createContext<IContext>({} as any);
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
-  const { className, sql, executeSqlParams } = props;
+  const { className, sql, executeSqlParams, concealTabHeader } = props;
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
@@ -206,7 +207,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
                 onChange={onChange as any}
                 onEdit={onEdit as any}
                 items={tabsList}
-                concealTabHeader={tabsList.length === 1}
+                concealTabHeader={concealTabHeader}
               />
             ) : (
               <div className={styles.noData}>

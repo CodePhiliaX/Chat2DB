@@ -7,6 +7,7 @@ import historyService from '@/service/history';
 import Iconfont from '@/components/Iconfont';
 import { databaseMap } from '@/constants/database';
 import styles from './index.less';
+import { setRegisterProvider } from '@/store/monaco'
 
 import {
   // registerIntelliSenseField,
@@ -50,6 +51,7 @@ const SelectBoundInfo = memo(
     // 当数据源变化时，重新获取数据库列表
     useEffect(() => {
       getDatabaseList();
+      setSchemaList([]);
     }, [boundInfo.dataSourceId]);
       
     // 当数据库名变化时，重新获取schema列表
@@ -79,8 +81,9 @@ const SelectBoundInfo = memo(
         if (!_databaseNameList.length) {
           getSchemaList();
         }
+        setRegisterProvider(boundInfo.dataSourceId, editorDatabaseTips);
         setDatabaseNameList(_databaseNameList);
-        registerIntelliSenseDatabase(editorDatabaseTips);
+        // registerIntelliSenseDatabase(editorDatabaseTips);
       });
     }
 
@@ -108,7 +111,6 @@ const SelectBoundInfo = memo(
     // 选择数据源
     const changeDataSource = (item) => {
       const currentData = dataSourceList.find((i) => i.key === item.key)!;
-
       setBoundInfo({
         ...boundInfo,
         dataSourceId: currentData.value,
@@ -117,6 +119,11 @@ const SelectBoundInfo = memo(
         databaseName: void 0,
         schemaName: void 0,
       });
+      historyService.updateSavedConsole({
+        id: boundInfo.consoleId,
+        dataSourceId: currentData.value,
+        dataSourceName: currentData.label
+      })
     };
   
     // 选择数据库
@@ -146,11 +153,10 @@ const SelectBoundInfo = memo(
         schemaName: _schemaName,
       })
     };
-
-    console.log(boundInfo)
   
     return (
       <div className={styles.consoleOptionsRight}>
+        <div  className={styles.boundInfoBoxSpacer} />
         <Dropdown
           menu={{
             items: dataSourceList,

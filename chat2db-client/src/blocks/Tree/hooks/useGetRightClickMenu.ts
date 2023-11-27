@@ -122,7 +122,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue619',
         handle: () => {
           createConsole({
-            name: 'create console',
+            name: 'new console',
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
             dataSourceName: treeNodeData.extraParams!.dataSourceName!,
             databaseType: treeNodeData.extraParams!.databaseType!,
