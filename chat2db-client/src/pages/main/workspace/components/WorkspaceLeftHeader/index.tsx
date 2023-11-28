@@ -37,10 +37,10 @@ export default memo<IProps>((props) => {
   const renderConnectionLabel = (item: IConnectionListItem) => {
     return (
       <div className={classnames(styles.menuLabel)}>
-        {/* <Tag className={styles.menuLabelTag} color={item.environment.color}>
+        <Tag className={styles.menuLabelTag} color={item.environment.color.toLocaleLowerCase()}>
           {item.environment.shortName}
-        </Tag> */}
-        <span className={styles.envTag} style={{ background: item.environment.color.toLocaleLowerCase() }} />
+        </Tag>
+        {/* <span className={styles.envTag} style={{ background: item.environment.color.toLocaleLowerCase() }} /> */}
         <div className={styles.menuLabelIconBox}>
           <Iconfont className={classnames(styles.menuLabelIcon)} code={databaseMap[item.type]?.icon} />
         </div>

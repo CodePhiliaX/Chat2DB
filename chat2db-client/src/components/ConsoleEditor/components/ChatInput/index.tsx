@@ -18,7 +18,6 @@ interface IProps {
   syncTableModel: number;
   selectedTables?: string[];
   aiType: AIType;
-  remainingBtnLoading: boolean;
   disabled?: boolean;
   isStream?: boolean;
   onPressEnter: (value: string) => void;
@@ -113,26 +112,12 @@ const ChatInput = (props: IProps) => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
         >
-        
         </Tooltip> */}
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottomLeft">
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-
-        {/* {props.aiType === AIType.CHAT2DBAI && (
-          <Spin spinning={!!props.remainingBtnLoading} size="small">
-            <div
-              className={styles.remainBlock}
-              onClick={() => {
-                // props.onClickRemainBtn && props.onClickRemainBtn();
-              }}
-            >
-              {i18n('chat.input.remain', remainCnt)}
-            </div>
-          </Spin>
-        )} */}
       </div>
     );
   };

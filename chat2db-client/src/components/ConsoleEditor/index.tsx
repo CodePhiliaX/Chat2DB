@@ -47,13 +47,12 @@ export type IAppendValue = {
 
 export interface IBoundInfo {
   consoleId: number;
-  consoleName: string;
   dataSourceId: number;
   dataSourceName: string;
   databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
-  status?: ConsoleStatus;
+  status: ConsoleStatus;
 }
 
 interface IProps {
@@ -74,9 +73,7 @@ interface IProps {
   boundInfo: IBoundInfo;
   setBoundInfo: (params: IBoundInfo) => void;
   editorOptions?: IEditorOptions;
-  remainingBtnLoading: boolean;
   onExecuteSQL: (sql: string) => void;
-  onConsoleSave: () => void;
 }
 
 export interface IConsoleRef {
@@ -385,7 +382,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
               isStream={isStream}
               disabled={isLoading}
               aiType={aiConfig?.aiSqlSource}
-              remainingBtnLoading={props.remainingBtnLoading}
               tables={tableNameList}
               onPressEnter={(value: string) => {
                 handleAiChat(value, IPromptType.NL_2_SQL);
@@ -418,7 +414,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             onExecute={executeSQL}
             options={props.editorOptions}
           />
-
           <Drawer
             open={isAiDrawerOpen}
             getContainer={false}

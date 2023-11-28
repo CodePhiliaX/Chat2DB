@@ -1,7 +1,6 @@
 @import '../../../../../styles/var.less';
 
-.splitViewLeft{
-  
+.splitViewLeft {
 }
 
 .selectConnection {
@@ -12,19 +11,20 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  .menuLabel{
+  .menuLabel {
     flex: 1;
     width: 0px;
   }
-  .dropDownArrow{
+  .dropDownArrow {
     transform: rotate(90deg);
+    color: var(--color-text-secondary);
   }
   &:hover {
     background: var(--color-hover-bg);
   }
 }
 
-.dropdownOverlay{
+.dropdownOverlay {
   max-width: 500px;
   :global {
     .ant-dropdown-menu-item {
@@ -36,7 +36,7 @@
 .menuLabel {
   display: flex;
   align-items: center;
-  .menuLabelIconBox{
+  .menuLabelIconBox {
     width: 22px;
     display: flex;
     align-items: center;
@@ -44,7 +44,7 @@
   .menuLabelIcon {
     color: var(--color-primary);
   }
-  .menuLabelTag{
+  .menuLabelTag {
     margin-right: 10px;
   }
   .menuLabelTitle {

@@ -8,13 +8,13 @@ import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 
 interface IProps {
   boundInfo: {
-    databaseName: string;
     dataSourceId: number;
     dataSourceName: string;
     databaseType: DatabaseTypeCode;
+    databaseName?: string;
     schemaName?: string;
-    consoleId: number;
     status: ConsoleStatus;
+    consoleId: number;
   };
   initDDL: string;
   // 异步加载sql
@@ -49,6 +49,7 @@ const SQLExecute = memo<IProps>((props) => {
             setBoundInfo={setBoundInfo}
             hasAiChat={true}
             hasAi2Lang={true}
+            isActive={true}
             onExecuteSQL={(sql) => {
               searchResultRef.current?.handleExecuteSQL(sql);
             }}
