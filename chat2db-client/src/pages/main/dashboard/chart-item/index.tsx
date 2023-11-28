@@ -7,12 +7,11 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select, Spin } from 'antd';
+import { Button, Cascader, Dropdown, Form, message, Select, Spin } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
-import { data } from '../../../../../mock/sqlResult.json';
-import Console from '@/components/ConsoleEditor';
+import ConsoleEditor from '@/components/ConsoleEditor';
 import Iconfont from '@/components/Iconfont';
-import sqlService, { IExecuteSqlParams, MetaSchemaVO } from '@/service/sql';
+import sqlService, { IExecuteSqlParams } from '@/service/sql';
 import { Option } from '@/typings/common';
 import { handleDatabaseAndSchema } from '@/utils/database';
 import i18n from '@/i18n';
@@ -359,7 +358,7 @@ function ChartItem(props: IChartItemProps) {
       <div className={styles.editBlock}>
         <div className={styles.editorBlock}>
           <div className={styles.editor}>
-            <Console
+            <ConsoleEditor
               appendValue={initDDLMemo}
               executeParams={chartData}
               hasAiChat={true}
@@ -374,8 +373,6 @@ function ChartItem(props: IChartItemProps) {
                     ? EditorThemeType.DashboardLightTheme
                     : EditorThemeType.DashboardBlackTheme,
               }}
-              tables={tableList || []}
-              remainingUse={remainingUse}
             />
 
             <Cascader

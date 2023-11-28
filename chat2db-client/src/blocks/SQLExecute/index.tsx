@@ -37,10 +37,6 @@ const SQLExecute = memo<IProps>((props) => {
     }
   }, []);
 
-  // useUpdateEffect(() => {
-  //   consoleRef.current?.editorRef?.setValue(initDDL, 'cover');
-  // }, [initDDL]);
-
   return (
     <div className={classnames(styles.sqlExecute)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
@@ -56,9 +52,6 @@ const SQLExecute = memo<IProps>((props) => {
             onExecuteSQL={(sql) => {
               searchResultRef.current?.handleExecuteSQL(sql);
             }}
-            // isActive={isActive}
-            // tables={curTableList || []}
-            // remainingUse={aiModel.remainingUse}
           />
         </div>
         <div className={styles.boxRightResult}>

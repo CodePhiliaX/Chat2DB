@@ -8,6 +8,7 @@ import Iconfont from '@/components/Iconfont';
 import { databaseMap } from '@/constants/database';
 import styles from './index.less';
 import { setRegisterProvider } from '@/store/monaco'
+import sqlService from '@/service/sql';
 
 import {
   // registerIntelliSenseField,
@@ -59,6 +60,26 @@ const SelectBoundInfo = memo(
       getSchemaList();
     }, [boundInfo.databaseName]);
 
+    const getAllTableNameList = ({
+      dataSourceId,
+      databaseName,
+      schemaName,
+    }) => {
+      sqlService
+      .getAllTableList({
+        dataSourceId,
+        databaseName,
+        schemaName,
+      })
+      .then((data) => {
+        const tableNameListTemp = data.map((t) => t.name);
+        // setTableNameList(tableNameListTemp);
+        // if (selectedTables.length === 0) {
+        //   setSelectedTables(tableNameListTemp.slice(0, 1));
+        // }
+      });
+    }
+
     // 获取数据库列表
     const getDatabaseList = () => {
       connectionService
@@ -92,6 +113,11 @@ const SelectBoundInfo = memo(
       if (boundInfo.databaseName === null || boundInfo.databaseName === undefined) {
         return;
       }
+      getAllTableNameList({
+        dataSourceId: boundInfo.dataSourceId,
+        databaseName: boundInfo.databaseName,
+        schemaName: boundInfo.schemaName,
+      });
       connectionService
         .getSchemaList({
           dataSourceId: boundInfo.dataSourceId!,
@@ -136,6 +162,7 @@ const SelectBoundInfo = memo(
         databaseName: _databaseName,
         schemaName: void 0,
       });
+
       historyService.updateSavedConsole({
         id: boundInfo.consoleId,
         databaseName: _databaseName,
