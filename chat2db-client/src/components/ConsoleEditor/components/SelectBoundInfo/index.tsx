@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState, memo } from 'react';
-import { IBoundInfo } from '../../index';
+import React, { useEffect, useMemo, useState, memo, useContext } from 'react';
+import { IBoundInfo, IntelligentEditorContext } from '../../index';
 import { Dropdown } from 'antd';
 import { useConnectionStore } from '@/pages/main/store/connection';
 import connectionService from '@/service/connection';
@@ -36,6 +36,7 @@ const emptyOption = {
 
 const SelectBoundInfo = memo((props: IProps) => {
   const { boundInfo, setBoundInfo } = props;
+  const { selectedTables, setSelectedTables, setTableNameList } = useContext(IntelligentEditorContext);
   const connectionList = useConnectionStore((state) => state.connectionList);
   const [databaseNameList, setDatabaseNameList] = useState<IOption<string>[]>([emptyOption]);
   const [schemaList, setSchemaList] = useState<IOption<string>[]>([emptyOption]);
@@ -213,10 +214,9 @@ const SelectBoundInfo = memo((props: IProps) => {
           boundInfo.databaseName,
           boundInfo.schemaName,
         );
-        // setTableNameList(tableNameListTemp);
-        // if (selectedTables.length === 0) {
-        //   setSelectedTables(tableNameListTemp.slice(0, 1));
-        // }
+
+        setTableNameList(tableNameListTemp);
+        setSelectedTables(tableNameListTemp.slice(0, 1));
       });
   };
 

@@ -26,11 +26,10 @@ import configService from '@/service/config';
 import styles from './index.less';
 
 // ----- hooks -----
-import { useModuleData } from './hooks/useModuleData';
 import { useSaveEditorData } from './hooks/useSaveEditorData';
 
 // ----- store -----
-import { useSettingStore, fetchRemainingUse, setAiConfig  } from '@/store/setting';
+import { useSettingStore, fetchRemainingUse, setAiConfig } from '@/store/setting';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -81,9 +80,11 @@ export interface IConsoleRef {
 }
 
 interface IIntelligentEditorContext {
-  boundInfo: IBoundInfo;
-  setBoundInfo: (params: IBoundInfo) => void;
   isActive: boolean;
+  tableNameList: string[];
+  setTableNameList: (tables: string[]) => void;
+  selectedTables: string[];
+  setSelectedTables: (tables: string[]) => void;
 }
 
 export const IntelligentEditorContext = createContext<IIntelligentEditorContext>({} as any);
@@ -112,16 +113,15 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [isStream, setIsStream] = useState(false);
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
-  const {aiConfig,hasWhite,remainingUse} = useSettingStore(state => {
+  const { aiConfig, hasWhite, remainingUse } = useSettingStore((state) => {
     return {
       aiConfig: state.aiConfig,
       hasWhite: state.hasWhite,
       remainingUse: state.remainingUse,
-    }
+    };
   });
 
   // ---------------- new-code ----------------
-  const { tableNameList, selectedTables, setSelectedTables } = useModuleData({ boundInfo: props.boundInfo });
   const { saveConsole } = useSaveEditorData({
     editorRef,
     boundInfo: props.boundInfo,
@@ -134,10 +134,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   /**
    * 当前选择的AI类型是Chat2DBAI
    */
-  const isChat2DBAI = useMemo(
-    () => aiConfig?.aiSqlSource === AIType.CHAT2DBAI,
-    [aiConfig?.aiSqlSource],
-  );
+  const isChat2DBAI = useMemo(() => aiConfig?.aiSqlSource === AIType.CHAT2DBAI, [aiConfig?.aiSqlSource]);
 
   useEffect(() => {
     handleSelectTableSyncModel();
@@ -179,13 +176,13 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           }
           if (apiKey) {
             setPopularizeModal(false);
-            
+
             setAiConfig({
               ...(aiConfig || {}),
-                apiKey,
+              apiKey,
             });
 
-            fetchRemainingUse(apiKey)
+            fetchRemainingUse(apiKey);
           }
         }, 3000);
       }
@@ -235,7 +232,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           closeEventSource.current();
           setIsStream(false);
           if (isChat2DBAI) {
-            fetchRemainingUse(apiKey)
+            fetchRemainingUse(apiKey);
           }
           if (isNL2SQL) {
             editorRef?.current?.setValue('\n');
@@ -273,7 +270,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           setIsLoading(false);
           hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
           // hasErrorToInvite && handleClickRemainBtn();
-          fetchRemainingUse(apiKey)
+          fetchRemainingUse(apiKey);
           return;
         }
 
@@ -367,12 +364,17 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     setSyncTableModel(hasAiAccess ? SyncModelType.AUTO : SyncModelType.MANUAL);
   };
 
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [tableNameList, setTableNameList] = useState<string[]>([]);
+
   return (
     <IntelligentEditorContext.Provider
       value={{
-        boundInfo,
-        setBoundInfo,
         isActive,
+        tableNameList,
+        setTableNameList,
+        selectedTables,
+        setSelectedTables,
       }}
     >
       <div className={styles.console} ref={ref as any}>
