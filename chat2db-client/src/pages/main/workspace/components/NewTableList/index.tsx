@@ -21,8 +21,7 @@ export default memo<IProps>((props) => {
 
   const [searchValue, setSearchValue] = useState<string>('');
 
-
-  const currentConnectionDetails  = useWorkspaceStore((state) => state.currentConnectionDetails);
+  const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
 
   const getTreeData = (refresh = false) => {
     if (!currentConnectionDetails?.id) {
@@ -42,8 +41,11 @@ export default memo<IProps>((props) => {
       })
       .then((res) => {
         setTreeData(res);
+      })
+      .catch(() => {
+        setTreeData([]);
       });
-  }
+  };
 
   useEffect(() => {
     getTreeData();
@@ -51,10 +53,8 @@ export default memo<IProps>((props) => {
 
   return (
     <div className={classnames(styles.treeContainer, className)}>
-      <div>
-        <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue}  />
-      </div>
-      <Tree className={styles.treeBox} searchValue={searchValue} initialData={treeData} />
+      <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue} />
+      <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} />
     </div>
   );
 });

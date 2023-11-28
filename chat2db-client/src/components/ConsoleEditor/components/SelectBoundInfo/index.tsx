@@ -122,7 +122,8 @@ const SelectBoundInfo = memo(
       historyService.updateSavedConsole({
         id: boundInfo.consoleId,
         dataSourceId: currentData.value,
-        dataSourceName: currentData.label
+        dataSourceName: currentData.label,
+        type: currentData.type,
       })
     };
   
