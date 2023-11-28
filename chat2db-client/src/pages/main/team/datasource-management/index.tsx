@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Table, Popconfirm, message, Drawer } from 'antd';
 import { SearchOutlined, PlusOutlined } from '@ant-design/icons';
-import ConnectionServer from '@/service/connection'
+import ConnectionServer from '@/service/connection';
 import { createDataSource, deleteDataSource, getDataSourceList, updateDataSource } from '@/service/team';
 import { IConnectionDetails } from '@/typings';
 import { AffiliationType, IDataSourceVO } from '@/typings/team';
@@ -23,13 +23,13 @@ function DataSourceManagement() {
     showQuickJumper: true,
     // pageSizeOptions: ['10', '20', '30', '40'],
   });
-  const [showCreateConnection, setShowCreateConnection] = useState(false)
-  const connectionInfo = useRef<IConnectionDetails>(null);
+  const [showCreateConnection, setShowCreateConnection] = useState(false);
+  const connectionInfo = useRef<IConnectionDetails | null>(null);
 
   const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type: AffiliationType; id?: number }>({
     open: false,
-    type: AffiliationType['DATASOURCE_USER/TEAM']
-  })
+    type: AffiliationType['DATASOURCE_USER/TEAM'],
+  });
 
   const columns = useMemo(
     () => [
@@ -49,18 +49,24 @@ function DataSourceManagement() {
         width: 300,
         render: (_: any, record: IDataSourceVO) => (
           <>
-            <Button type='link' onClick={() => {
-              handleEdit(record)
-            }}>
+            <Button
+              type="link"
+              onClick={() => {
+                handleEdit(record);
+              }}
+            >
               {i18n('common.button.edit')}
             </Button>
-            <Button type='link' onClick={() => {
-              setDrawerInfo({
-                ...drawerInfo,
-                open: true,
-                id: record.id,
-              })
-            }}>
+            <Button
+              type="link"
+              onClick={() => {
+                setDrawerInfo({
+                  ...drawerInfo,
+                  open: true,
+                  id: record.id,
+                });
+              }}
+            >
               {i18n('team.action.rightManagement')}
             </Button>
             <Popconfirm
@@ -86,9 +92,13 @@ function DataSourceManagement() {
 
   const queryDataSourceList = async () => {
     const { searchKey, current: pageNo, pageSize } = pagination;
-    let res = await getDataSourceList({ searchKey, pageNo, pageSize });
+    const res = await getDataSourceList({ searchKey, pageNo, pageSize });
     if (res) {
       setDataSource(res?.data ?? []);
+      setPagination({
+        ...pagination,
+        total: res?.total ?? 0,
+      } as any);
     }
   };
 
@@ -100,7 +110,6 @@ function DataSourceManagement() {
   };
 
   const handleTableChange = (p: any) => {
-
     setPagination({
       ...pagination,
       ...p,
@@ -110,7 +119,7 @@ function DataSourceManagement() {
   const handleAddDataSource = () => {
     connectionInfo.current = null;
     setShowCreateConnection(true);
-  }
+  };
 
   const handleEdit = async (record: IDataSourceVO) => {
     const { id } = record;
@@ -118,36 +127,35 @@ function DataSourceManagement() {
       return;
     }
 
-    let detail = await ConnectionServer.getDetails({ id })
+    const detail = await ConnectionServer.getDetails({ id });
     connectionInfo.current = detail;
-    setShowCreateConnection(true)
-  }
+    setShowCreateConnection(true);
+  };
 
   const handleDelete = async (id?: number) => {
     if (isNumber(id)) {
-      await deleteDataSource({ id })
+      await deleteDataSource({ id });
       message.success(i18n('common.text.successfullyDelete'));
       queryDataSourceList();
     }
   };
 
-  const handleConfirmConnection = async (data: IConnectionDetails) => {
+  const handleConfirmConnection = (data: IConnectionDetails) => {
     if (JSON.stringify(connectionInfo.current) === '{}') {
-      return;
+      return new Promise((resolve) => {
+        resolve(true);
+      });
     }
     connectionInfo.current = data;
 
     const isUpdate = isValid(connectionInfo?.current?.id);
     const requestApi = isUpdate ? updateDataSource : createDataSource;
-    try {
-      await requestApi({ ...connectionInfo.current })
-      message.success(isUpdate ? i18n('common.tips.updateSuccess') : i18n('common.tips.createSuccess'))
-      setShowCreateConnection(false)
-      queryDataSourceList()
-    } catch {
-
-    }
-  }
+    return requestApi({ ...connectionInfo.current }).then(() => {
+      message.success(isUpdate ? i18n('common.tips.updateSuccess') : i18n('common.tips.createSuccess'));
+      setShowCreateConnection(false);
+      queryDataSourceList();
+    });
+  };
 
   return (
     <div>
@@ -163,6 +171,11 @@ function DataSourceManagement() {
         </Button>
       </div>
       <Table
+        style={{
+          maxHeight: '82vh',
+          overflow: 'auto',
+        }}
+        sticky
         rowKey={'id'}
         dataSource={dataSource}
         columns={columns}
@@ -185,11 +198,11 @@ function DataSourceManagement() {
         onClose={() => {
           setDrawerInfo({
             ...drawerInfo,
-            open: false
-          })
+            open: false,
+          });
         }}
       />
-    </div >
+    </div>
   );
 }
 

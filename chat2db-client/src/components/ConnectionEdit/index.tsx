@@ -15,7 +15,7 @@ import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 
 // ----- store -----
-import { useConnectionStore } from '@/store/connection';
+import { useConnectionStore } from '@/pages/main/store/connection';
 
 const { Option } = Select;
 
@@ -31,7 +31,7 @@ interface IProps {
   closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
   submitCallback?: any;
-  submit?: (data: IConnectionDetails) => void;
+  submit?: (data: IConnectionDetails) => Promise<any>;
 }
 
 export interface ICreateConnectionFunction {
@@ -170,7 +170,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
 
   // 测试、保存、修改连接
   function saveConnection(type: submitType) {
-    let p = getData();
+    const p = getData();
 
     if (type !== submitType.SAVE) {
       p.id = backfillData.id;
@@ -181,18 +181,24 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
       p.environmentId = envList[0].value;
     }
 
-    if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
-      submit?.(p);
-      return;
-    }
-
-    const api: any = connectionService[type](p);
     const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
 
     setLoading({
       ...loadings,
       [loadingsButton]: true,
     });
+
+    if ((type === submitType.SAVE) && submit) {
+      submit?.(p).finally(() => {
+        setLoading({
+          ...loadings,
+          [loadingsButton]: false,
+        });
+      });
+      return;
+    }
+
+    const api: any = connectionService[type](p);
 
     api
       .then((res: any) => {
@@ -209,13 +215,14 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
               : i18n('common.message.addedSuccessfully'),
           );
 
+          setBackfillData({
+            ...backfillData,
+            id: res,
+          });
+
           if (type === submitType.SAVE) {
-            setBackfillData({
-              ...backfillData,
-              id: res,
-            });
+            submitCallback?.();
           }
-          submitCallback?.();
         }
       })
       .finally(() => {

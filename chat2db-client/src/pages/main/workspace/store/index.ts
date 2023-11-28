@@ -1,20 +1,20 @@
 import { UseBoundStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
-import { devtools,persist } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { StoreApi } from 'zustand';
 
 import { initConfigStore, IConfigStore } from './config';
-import { consoleStore, IConsoleStore } from './console';
+import { initConsoleStore, IConsoleStore } from './console';
 import { initCommonStore, ICommonStore } from './common';
-import { initModalStore , IModalStore } from './modal';
+import { initModalStore, IModalStore } from './modal';
 
 export type IStore = IConfigStore & IConsoleStore & ICommonStore & IModalStore;
 
 export const useWorkspaceStore: UseBoundStoreWithEqualityFn<StoreApi<IStore>> = createWithEqualityFn(
   devtools(
     persist(
-      (set) => ({
-        ...consoleStore(set),
+      () => ({
+        ...initConsoleStore,
         ...initConfigStore,
         ...initCommonStore,
         ...initModalStore,
@@ -24,15 +24,15 @@ export const useWorkspaceStore: UseBoundStoreWithEqualityFn<StoreApi<IStore>> = 
         name: 'workspace-store',
         getStorage: () => localStorage,
         // 工作区的状态只保存 layout布局信息
-        partialize: (state: IStore) => ({ 
+        partialize: (state: IStore) => ({
           layout: state.layout,
           currentConnectionDetails: state.currentConnectionDetails,
         }),
       },
     ),
     {
-      name: "workspaceStore"
-    }
+      name: 'workspaceStore',
+    },
   ),
-  shallow
+  shallow,
 );

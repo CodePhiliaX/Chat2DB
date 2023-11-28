@@ -29,7 +29,7 @@ const OperationLine = (props: IProps) => {
       sql = editorRef?.current?.getAllContent() || '';
       setValueType = 'cover';
     }
-    formatSql(sql, boundInfo.type!).then((res) => {
+    formatSql(sql, boundInfo.databaseType!).then((res) => {
       editorRef?.current?.setValue(res, setValueType);
     });
   };
@@ -54,9 +54,7 @@ const OperationLine = (props: IProps) => {
           {i18n('common.button.format')}
         </Button>
       </div>
-      <div>
-        {/* <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} /> */}
-      </div>
+      <SelectBoundInfo setBoundInfo={setBoundInfo} boundInfo={boundInfo} />
     </div>
   );
 };

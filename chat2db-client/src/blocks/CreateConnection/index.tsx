@@ -13,14 +13,16 @@ type IEditConnectionDetail = IConnectionDetails | null | Pick<IConnectionDetails
 
 interface IProps {
   className?: string;
-  onSubmit?: (data: IConnectionDetails) => void; // 点击保存或修改的回调，我会把数据给你
-  connectionDetail: IEditConnectionDetail;
+  onSubmit?: (data: IConnectionDetails) => Promise<any>; // 点击保存或修改的回调，我会把数据给你
+  connectionDetail: IEditConnectionDetail | null | undefined;
   noPermission?: boolean;
 }
 
 export default memo<IProps>((props) => {
   const { className, onSubmit, connectionDetail: externalConnectionDetail } = props;
-  const [connectionDetail, setConnectionDetail] = useState<IEditConnectionDetail>(externalConnectionDetail);
+  const [connectionDetail, setConnectionDetail] = useState<IEditConnectionDetail | null | undefined>(
+    externalConnectionDetail,
+  );
 
   useEffect(() => {
     setConnectionDetail(externalConnectionDetail);
@@ -32,9 +34,9 @@ export default memo<IProps>((props) => {
     });
   }
 
-  function handleSubmit(data: IConnectionDetails) {
-    onSubmit?.(data);
-  }
+  // function handleSubmit(data: IConnectionDetails) {
+  //   return onSubmit?.(data);
+  // }
 
   return (
     <div className={classnames(styles.box, className)}>
@@ -49,11 +51,11 @@ export default memo<IProps>((props) => {
               setConnectionDetail(null);
             }}
             connectionData={connectionDetail as any}
-            submit={handleSubmit}
+            submit={onSubmit}
           />
         </div>
       )}
-      {!connectionDetail && (
+      {connectionDetail === null && (
         <div className={styles.dataBaseListBox}>
           <div className={styles.dataBaseList}>
             {databaseTypeList.map((t) => {

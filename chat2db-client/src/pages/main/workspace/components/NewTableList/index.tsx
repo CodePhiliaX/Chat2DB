@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
-import { useWorkspaceStore } from '@/store/workspace';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ----- components -----
 import OperationLine from '../OperationLine';
@@ -21,8 +21,7 @@ export default memo<IProps>((props) => {
 
   const [searchValue, setSearchValue] = useState<string>('');
 
-
-  const currentConnectionDetails  = useWorkspaceStore((state) => state.currentConnectionDetails);
+  const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
 
   const getTreeData = (refresh = false) => {
     if (!currentConnectionDetails?.id) {
@@ -32,18 +31,21 @@ export default memo<IProps>((props) => {
     treeConfig['dataSource']
       .getChildren?.({
         dataSourceId: currentConnectionDetails.id,
-        dataSourceName: currentConnectionDetails.name,
+        dataSourceName: currentConnectionDetails.alias,
         refresh: refresh,
         extraParams: {
           dataSourceId: currentConnectionDetails.id,
-          dataSourceName: currentConnectionDetails.name,
+          dataSourceName: currentConnectionDetails.alias,
           databaseType: currentConnectionDetails.type,
         },
       })
       .then((res) => {
         setTreeData(res);
+      })
+      .catch(() => {
+        setTreeData([]);
       });
-  }
+  };
 
   useEffect(() => {
     getTreeData();
@@ -51,10 +53,8 @@ export default memo<IProps>((props) => {
 
   return (
     <div className={classnames(styles.treeContainer, className)}>
-      <div>
-        <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue}  />
-      </div>
-      <Tree className={styles.treeBox} searchValue={searchValue} initialData={treeData} />
+      <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue} />
+      <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} />
     </div>
   );
 });

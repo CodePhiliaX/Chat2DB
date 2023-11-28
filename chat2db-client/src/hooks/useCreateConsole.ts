@@ -1,4 +1,5 @@
-import { setWorkspaceTabList, useConsoleStore, setActiveConsoleId } from '@/store/console';
+import { setWorkspaceTabList, setActiveConsoleId } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { ConsoleStatus, ConsoleOpenedStatus, WorkspaceTabType, DatabaseTypeCode } from '@/constants'
 import historyService from '@/service/history';
 
@@ -14,7 +15,7 @@ interface ICreateConsoleParams {
 }
 
 function useCreateConsole() {
-  const { workspaceTabList } = useConsoleStore(state => {
+  const { workspaceTabList } = useWorkspaceStore(state => {
     return {
       workspaceTabList: state.workspaceTabList,
     }
@@ -23,12 +24,11 @@ function useCreateConsole() {
   const createConsole = (params: ICreateConsoleParams) => {
     const newConsole = {
       ...params,
-      name: params.name || 'create console',
+      name: params.name || 'new console',
       ddl: params.ddl || '',
       status: ConsoleStatus.DRAFT,
       tabOpened: ConsoleOpenedStatus.IS_OPEN,
       operationType: WorkspaceTabType.CONSOLE,
-      type: params.type,
       dataSourceId: params.dataSourceId,
       dataSourceName: params.dataSourceName,
     };
@@ -39,7 +39,10 @@ function useCreateConsole() {
           id: res,
           title: newConsole.name,
           type: newConsole.operationType,
-          uniqueData: newConsole,
+          uniqueData: {
+            ...newConsole,
+            databaseType: newConsole.type,
+          },
         },
       ];
       setWorkspaceTabList(newList);

@@ -8,7 +8,7 @@ import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
 import { DatabaseTypeCode } from '@/constants';
-import { setOpenCreateDatabaseModal } from '@/store/workspace/modal';
+import { setOpenCreateDatabaseModal } from '@/pages/main/workspace/store/modal';
 
 interface IProps {
   relyOnParams: {

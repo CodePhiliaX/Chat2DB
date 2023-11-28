@@ -41,6 +41,15 @@ public abstract class RdbWebConverter {
      */
     public abstract DlExecuteParam request2param(DmlRequest request);
 
+
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract DlExecuteParam request2param(DmlTableRequest request);
+
     /**
      * 参数转换
      *

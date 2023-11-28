@@ -12,8 +12,8 @@ import { ITreeConfigItem, treeConfig } from '../treeConfig';
 import { useMemo } from 'react';
 
 // ----- store -----
-import { createConsole, addWorkspaceTab } from '@/store/console';
-import { useWorkspaceStore } from '@/store/workspace';
+import { createConsole, addWorkspaceTab } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ---- functions -----
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
@@ -122,9 +122,10 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue619',
         handle: () => {
           createConsole({
-            name: 'create console',
+            name: 'new console',
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-            type: treeNodeData.extraParams!.databaseType!,
+            dataSourceName: treeNodeData.extraParams!.dataSourceName!,
+            databaseType: treeNodeData.extraParams!.databaseType!,
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
           });

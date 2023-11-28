@@ -1,7 +1,7 @@
 import React, { memo, useRef } from 'react';
 import classnames from 'classnames';
 
-import { useWorkspaceStore } from '@/store/workspace';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';

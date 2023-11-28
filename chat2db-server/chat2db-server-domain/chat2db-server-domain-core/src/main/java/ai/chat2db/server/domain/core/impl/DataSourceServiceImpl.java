@@ -95,7 +95,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceDO.setUserId(ContextUtils.getUserId());
-        dataSourceDO.setExtendInfo(null);
+        //dataSourceDO.setExtendInfo(null);
 
         dataSourceMapper.insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());

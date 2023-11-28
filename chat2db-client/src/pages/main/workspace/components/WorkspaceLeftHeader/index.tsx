@@ -4,15 +4,17 @@ import classnames from 'classnames';
 import styles from './index.less';
 
 // ---- store ----
-import { useConnectionStore } from '@/store/connection';
-import { useWorkspaceStore } from '@/store/workspace';
-import { setCurrentConnectionDetails } from '@/store/workspace/common';
+import { useConnectionStore } from '@/pages/main/store/connection';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';
 
 // ----- constants/typings -----
 import { databaseMap } from '@/constants';
+
+import { IConnectionListItem } from '@/typings/connection';
 
 interface IProps {
   className?: string;
@@ -32,12 +34,13 @@ export default memo<IProps>((props) => {
     };
   });
 
-  const renderConnectionLabel = (item: { id: number; alias: string; type: string }) => {
+  const renderConnectionLabel = (item: IConnectionListItem) => {
     return (
       <div className={classnames(styles.menuLabel)}>
-        <Tag className={styles.menuLabelTag} color="blue">
-          开发
+        <Tag className={styles.menuLabelTag} color={item.environment.color.toLocaleLowerCase()}>
+          {item.environment.shortName}
         </Tag>
+        {/* <span className={styles.envTag} style={{ background: item.environment.color.toLocaleLowerCase() }} /> */}
         <div className={styles.menuLabelIconBox}>
           <Iconfont className={classnames(styles.menuLabelIcon)} code={databaseMap[item.type]?.icon} />
         </div>

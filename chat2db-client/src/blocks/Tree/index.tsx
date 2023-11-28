@@ -15,7 +15,7 @@ import LoadingContent from '@/components/Loading/LoadingContent';
 
 interface IProps {
   className?: string;
-  initialData: ITreeNode[] | null;
+  treeData: ITreeNode[] | null;
   searchValue: string;
 }
 interface TreeNodeIProps {
@@ -31,12 +31,12 @@ interface IContext {
 export const Context = createContext<IContext>({} as any);
 
 const Tree = (props: IProps) => {
-  const { className, initialData, searchValue } = props;
+  const { className, treeData: outerTreeData, searchValue } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
 
   useEffect(() => {
-    setTreeData(initialData);
-  }, [initialData]);
+    setTreeData(outerTreeData);
+  }, [outerTreeData]);
 
   const treeNodes = useMemo(() => {
     return treeData?.map((item, index) => {

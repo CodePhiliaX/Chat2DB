@@ -1,3 +1,35 @@
-.consoleOptionsRight{
+@import '../../../../styles/var.less';
+
+.consoleOptionsRight {
+  flex: 1;
   display: flex;
+  justify-content: flex-end;
+}
+
+.boundInfoBoxSpacer {
+  flex: 1;
+}
+
+.boundInfoBox {
+  max-width: 160px;
+  display: flex;
+  align-items: center;
+  padding: 5px 6px 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  .boundInfoName {
+    .f-single-line();
+    margin: 0px 6px 0px 4px;
+  }
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+  }
+}
+
+:global {
+  .ant-dropdown-menu-title-content {
+    height: 20px;
+  }
 }

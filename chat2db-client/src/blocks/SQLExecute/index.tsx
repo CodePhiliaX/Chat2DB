@@ -8,28 +8,17 @@ import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 
 interface IProps {
   boundInfo: {
-    databaseName: string;
     dataSourceId: number;
-    type: DatabaseTypeCode;
+    dataSourceName: string;
+    databaseType: DatabaseTypeCode;
+    databaseName?: string;
     schemaName?: string;
-    consoleId: number;
     status: ConsoleStatus;
+    consoleId: number;
   };
   initDDL: string;
   // 异步加载sql
   loadSQL: () => Promise<string>;
-}
-
-interface IContext {
-  boundInfoContext: {
-    databaseName: string;
-    dataSourceId: number;
-    type: DatabaseTypeCode;
-    schemaName?: string;
-    consoleId: number;
-    status: ConsoleStatus;
-  };
-  setBoundInfoContext: (boundInfo: IContext['boundInfoContext']) => void;
 }
 
 const SQLExecute = memo<IProps>((props) => {
@@ -48,10 +37,6 @@ const SQLExecute = memo<IProps>((props) => {
     }
   }, []);
 
-  // useUpdateEffect(() => {
-  //   consoleRef.current?.editorRef?.setValue(initDDL, 'cover');
-  // }, [initDDL]);
-
   return (
     <div className={classnames(styles.sqlExecute)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
@@ -64,12 +49,10 @@ const SQLExecute = memo<IProps>((props) => {
             setBoundInfo={setBoundInfo}
             hasAiChat={true}
             hasAi2Lang={true}
+            isActive={true}
             onExecuteSQL={(sql) => {
               searchResultRef.current?.handleExecuteSQL(sql);
             }}
-            // isActive={isActive}
-            // tables={curTableList || []}
-            // remainingUse={aiModel.remainingUse}
           />
         </div>
         <div className={styles.boxRightResult}>

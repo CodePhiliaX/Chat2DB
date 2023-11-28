@@ -1,11 +1,10 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './index.less';
 import AIImg from '@/assets/img/ai.svg';
-import { Button, Checkbox, Dropdown, Input, Modal, Popover, Select, Spin, Tooltip, Radio, Space } from 'antd';
+import { Button, Input, Popover, Select, Radio, Space } from 'antd';
 import i18n from '@/i18n/';
 import Iconfont from '@/components/Iconfont';
-import { WarningOutlined } from '@ant-design/icons';
-import { AIType, IRemainingUse } from '@/typings/ai';
+import { AIType } from '@/typings/ai';
 
 export const enum SyncModelType {
   AUTO = 0,
@@ -18,15 +17,13 @@ interface IProps {
   tables?: string[];
   syncTableModel: number;
   selectedTables?: string[];
-  remainingUse?: IRemainingUse;
   aiType: AIType;
-  remainingBtnLoading: boolean;
   disabled?: boolean;
   isStream?: boolean;
   onPressEnter: (value: string) => void;
   onSelectTableSyncModel: (model: number) => void;
   onSelectTables?: (tables: string[]) => void;
-  onClickRemainBtn: Function;
+  // onClickRemainBtn: Function;
   onCancelStream: () => void;
 }
 
@@ -45,7 +42,7 @@ const ChatInput = (props: IProps) => {
   };
 
   const renderSelectTable = () => {
-    const { tables, syncTableModel, onSelectTableSyncModel, selectedTables, onSelectTables } = props;
+    const { tables, onSelectTableSyncModel, selectedTables, onSelectTables } = props;
     const options = (tables || []).map((t) => ({ value: t, label: t }));
     return (
       <div className={styles.aiSelectedTable}>
@@ -83,8 +80,6 @@ const ChatInput = (props: IProps) => {
   };
 
   const renderSuffix = () => {
-    // const remainCnt = props?.remainingUse?.remainingUses ?? '-';
-    const hasBubble = localStorage.getItem('syncTableBubble');
     return (
       <div className={styles.suffixBlock}>
         {props.isStream ? (
@@ -117,26 +112,12 @@ const ChatInput = (props: IProps) => {
             localStorage.setItem('syncTableBubble', 'true');
           }}
         >
-        
         </Tooltip> */}
         <div className={styles.tableSelectBlock}>
           <Popover content={renderSelectTable()} placement="bottomLeft">
             <Iconfont code="&#xe618;" />
           </Popover>
         </div>
-
-        {/* {props.aiType === AIType.CHAT2DBAI && (
-          <Spin spinning={!!props.remainingBtnLoading} size="small">
-            <div
-              className={styles.remainBlock}
-              onClick={() => {
-                // props.onClickRemainBtn && props.onClickRemainBtn();
-              }}
-            >
-              {i18n('chat.input.remain', remainCnt)}
-            </div>
-          </Spin>
-        )} */}
       </div>
     );
   };

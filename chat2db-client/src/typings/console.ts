@@ -4,7 +4,8 @@ export interface ICreateConsoleParams {
   name?: string;
   ddl?: string;
   dataSourceId: number;
-  type: DatabaseTypeCode;
+  dataSourceName: string;
+  databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
   operationType?: string;

@@ -20,8 +20,8 @@ import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
-import { useConsoleStore, getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/store/console';
-import { useWorkspaceStore } from '@/store/workspace';
+import { getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ----- services -----
 import historyService from '@/service/history';
@@ -29,7 +29,8 @@ import historyService from '@/service/history';
 import indexedDB from '@/indexedDB';
 
 const WorkspaceTabs = memo(() => {
-  const { activeConsoleId, consoleList, workspaceTabList } = useConsoleStore((state) => {
+  
+  const { activeConsoleId, consoleList, workspaceTabList } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
       activeConsoleId: state.activeConsoleId,
@@ -56,6 +57,7 @@ const WorkspaceTabs = memo(() => {
           title: item.name,
           uniqueData: {
             dataSourceId: item.dataSourceId,
+            dataSourceName: item.dataSourceName,
             databaseType: item.type,
             databaseName: item.databaseName,
             schemaName: item.schemaName,
@@ -139,8 +141,9 @@ const WorkspaceTabs = memo(() => {
       <SQLExecute
         boundInfo={{
           dataSourceId: uniqueData.dataSourceId,
+          dataSourceName: uniqueData.dataSourceName,
           databaseName: uniqueData?.databaseName,
-          type: uniqueData.databaseType,
+          databaseType: uniqueData.databaseType,
           schemaName: uniqueData?.schemaName,
           consoleId: item.id as number,
           status: uniqueData.status,
@@ -171,7 +174,7 @@ const WorkspaceTabs = memo(() => {
   // 渲染搜索结果
   const renderSearchResult = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} />;
+    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} concealTabHeader />;
   };
 
   // 根据不同的tab类型渲染不同的内容

@@ -22,7 +22,10 @@ import MenuLabel from '@/components/MenuLabel';
 import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
 
 // ----- store -----
-import { useConnectionStore, getConnectionList } from '@/store/connection';
+import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
+import { setMainPageActiveTab } from '@/pages/main/store/main';
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
+
 
 import styles from './index.less';
 
@@ -35,18 +38,19 @@ const ConnectionsPage = () => {
   const volatileRef = useRef<any>();
   const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
   const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false);
-  const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null>(null);
+  const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
 
   // 处理列表单击事件
   const handleMenuItemSingleClick = (t: IConnectionListItem) => {
     if (connectionActiveId !== t.id) {
       setConnectionActiveId(t.id);
     }
-  }
+  };
 
   // 处理列表双击事件
   const handleMenuItemDoubleClick = (t: IConnectionListItem) => {
-    setConnectionActiveId(t.id);
+    setCurrentConnectionDetails(t);
+    setMainPageActiveTab('workspace')
   };
 
   // 处理列表单击和双击事件
@@ -57,7 +61,7 @@ const ConnectionsPage = () => {
     if (!connectionActiveId) {
       return;
     }
-    setConnectionDetail(null);
+    setConnectionDetail(undefined);
     connectionService
       .getDetails({ id: connectionActiveId })
       .then((res) => {
@@ -68,8 +72,8 @@ const ConnectionsPage = () => {
       });
   }, [connectionActiveId]);
 
-  // 
-  const createDropdownItems = (t) =>  {
+  //
+  const createDropdownItems = (t) => {
     const handelDelete = (e) => {
       // 禁止冒泡到menuItem
       e.domEvent?.stopPropagation?.();
@@ -79,12 +83,12 @@ const ConnectionsPage = () => {
           setConnectionActiveId(null);
         }
       });
-    }
+    };
 
     const enterWorkSpace = (e) => {
       e.domEvent?.stopPropagation?.();
       handleMenuItemDoubleClick(t);
-    }
+    };
 
     return [
       {
@@ -95,11 +99,11 @@ const ConnectionsPage = () => {
       {
         key: 'delete',
         label: <MenuLabel icon="&#xe6a7;" label={i18n('connection.button.remove')} />,
-        onClick: handelDelete
+        onClick: handelDelete,
       },
-    ]
-  } 
-  
+    ];
+  };
+
   const renderConnectionMenuList = () => {
     return connectionList?.map((t) => {
       return (
@@ -114,7 +118,9 @@ const ConnectionsPage = () => {
             className={classnames(styles.menuItem, {
               [styles.menuItemActive]: connectionActiveId === t.id,
             })}
-            onClick={()=>{handleClickConnectionMenu(t)} }
+            onClick={() => {
+              handleClickConnectionMenu(t);
+            }}
           >
             <div className={classnames(styles.menuItemsTitle)}>
               <span className={styles.envTag} style={{ background: t.environment.color.toLocaleLowerCase() }} />
@@ -133,13 +139,15 @@ const ConnectionsPage = () => {
   };
 
   const onSubmit = (data) => {
-    connectionService.save({
-      ...data,
-    }).then((res) => {
-      getConnectionList();
-      setConnectionActiveId(res);
-    });
-  }
+    return connectionService
+      .save({
+        ...data,
+      })
+      .then((res) => {
+        getConnectionList();
+        setConnectionActiveId(res);
+      });
+  };
 
   return (
     <>
@@ -160,9 +168,15 @@ const ConnectionsPage = () => {
             </Button>
           )}
         </div>
-        <LoadingContent className={styles.layoutRight} isLoading={!connectionDetail && !!connectionActiveId}>
+        <LoadingContent
+          className={styles.layoutRight}
+          isLoading={connectionDetail === undefined && !!connectionActiveId}
+        >
           <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
         </LoadingContent>
+        {/* <div className={styles.layoutRight}>
+          <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
+        </div> */}
       </div>
 
       <FileUploadModal

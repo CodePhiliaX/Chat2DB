@@ -43,7 +43,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 活跃的TabID
   const [activeConsoleId, setActiveConsoleId] = useState<number | string | null>(null);
   // 工作台tab列表
-  const [workspaceTabList, setWorkspaceTabList] = useState<IWorkspaceTab[]>([]);
+  const [workspaceTabList, setWorkspaceTabL] = useState<IWorkspaceTab[]>([]);
 
   const { curWorkspaceParams, doubleClickTreeNodeData, createTabIntro, openConsoleList, createConsoleIntro } =
     workspaceModel;
@@ -53,7 +53,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
 
   useEffect(() => {
     setActiveConsoleId(null);
-    setWorkspaceTabList([]);
+    setWorkspaceTabL([]);
   }, [curWorkspaceParams]);
 
   // 根据保存的console列表生成tab列表
@@ -81,9 +81,9 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           newAddList.push(t);
         }
       });
-      setWorkspaceTabList([...newWorkspaceTabList, ...newAddList]);
+      setWorkspaceTabL([...newWorkspaceTabList, ...newAddList]);
     } else {
-      setWorkspaceTabList(newTabList || []);
+      setWorkspaceTabL(newTabList || []);
     }
     if (!activeConsoleId) {
       setActiveConsoleId(newTabList[0]?.id);
@@ -113,7 +113,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   useEffect(() => {
     if (createConsoleIntro) {
       if (workspaceTabList.findIndex((t) => t.id === createConsoleIntro.id) === -1) {
-        setWorkspaceTabList([...workspaceTabList, createConsoleIntro]);
+        setWorkspaceTabL([...workspaceTabList, createConsoleIntro]);
       }
       setActiveConsoleId(createConsoleIntro.id);
     }
@@ -145,7 +145,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
           tableName: createTabIntro.treeNodeData.name,
         },
       };
-      setWorkspaceTabList([...workspaceTabList, newData]);
+      setWorkspaceTabL([...workspaceTabList, newData]);
       setActiveConsoleId(id);
 
       // 用完之后就清掉createTabIntro
@@ -188,7 +188,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               }
               return t;
             });
-            setWorkspaceTabList(newList || []);
+            setWorkspaceTabL(newList || []);
           });
       };
       const name = doubleClickTreeNodeData.name;
@@ -227,7 +227,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               }
               return t;
             });
-            setWorkspaceTabList(newList || []);
+            setWorkspaceTabL(newList || []);
           });
       };
       createConsole({
@@ -264,7 +264,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               }
               return t;
             });
-            setWorkspaceTabList(newList || []);
+            setWorkspaceTabL(newList || []);
           });
       };
       createConsole({
@@ -301,7 +301,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
               }
               return t;
             });
-            setWorkspaceTabList(newList || []);
+            setWorkspaceTabL(newList || []);
           });
       };
       createConsole({
@@ -327,7 +327,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
         }
       });
       if (!flag) {
-        setWorkspaceTabList([
+        setWorkspaceTabL([
           ...(workspaceTabList || []),
           {
             id,
@@ -434,7 +434,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   //         uniqueData: newConsole,
   //       },
   //     ];
-  //     setWorkspaceTabList(newList);
+  //     setWorkspaceTabL(newList);
   //     callback?.(res, newList);
   //     setActiveConsoleId(res);
   //   });
@@ -469,7 +469,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   // 删除 新增tab
   // const onEdit = (action: 'add' | 'remove', data: ITabItem[]) => {
   //   if (action === 'remove') {
-  //     setWorkspaceTabList(
+  //     setWorkspaceTabL(
   //       workspaceTabList.filter((t) => {
   //         return data.findIndex((item) => item.key === t.id) === -1;
   //       }),
@@ -515,7 +515,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
   //         uniqueData: newConsole,
   //       },
   //     ];
-  //     setWorkspaceTabList(newList);
+  //     setWorkspaceTabL(newList);
   //     setActiveConsoleId(res);
   //   });
   // };
@@ -583,7 +583,7 @@ const WorkspaceRight = memo<IProps>((props: IProps) => {
       }
       return t;
     });
-    setWorkspaceTabList(list);
+    setWorkspaceTabL(list);
   };
 
   const tabsList = useMemo(() => {

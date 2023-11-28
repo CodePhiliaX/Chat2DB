@@ -7,7 +7,6 @@ import DraggableContainer from '@/components/DraggableContainer';
 import Iconfont from '@/components/Iconfont';
 import ChartItem from './chart-item';
 // import { ReactSortable, Store } from 'react-sortablejs';
-// import { GlobalState } from '@/models/global';
 import {
   createChart,
   createDashboard,

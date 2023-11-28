@@ -55,7 +55,7 @@ const remove = createRequest<{ id: number }, void>('/api/connection/datasource/:
 
 const clone = createRequest<{ id: number }, void>('/api/connection/datasource/clone', { method: 'post' });
 
-const getDBList = createRequest<{ dataSourceId: number; refresh?: boolean }, any>('/api/rdb/database/list', {
+const getDatabaseList = createRequest<{ dataSourceId: number; refresh?: boolean }, any>('/api/rdb/database/list', {
   method: 'get',
 });
 
@@ -69,7 +69,6 @@ const getDriverList = createRequest<IDriverParams, IDriverResponse>('/api/jdbc/d
   method: 'get',
 });
 const downloadDriver = createRequest<{ dbType: string }, void>('/api/jdbc/driver/download', {
-  errorLevel: false,
   method: 'get',
 });
 
@@ -96,7 +95,7 @@ export default {
   update,
   remove,
   clone,
-  getDBList,
+  getDatabaseList,
   getSchemaList,
   close,
   testSSH,

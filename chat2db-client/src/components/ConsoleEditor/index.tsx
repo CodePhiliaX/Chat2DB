@@ -1,5 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
-import { connect } from 'umi';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useImperativeHandle,
+  ForwardedRef,
+  forwardRef,
+  createContext,
+} from 'react';
 import { formatParams } from '@/utils/url';
 import connectToEventSource from '@/utils/eventSource';
 import { Spin, Drawer, Modal } from 'antd';
@@ -9,7 +17,6 @@ import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { IAiConfig } from '@/typings';
-import { IAIState } from '@/models/ai';
 import Popularize from '@/components/Popularize';
 import OperationLine from './components/OperationLine';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
@@ -19,8 +26,10 @@ import configService from '@/service/config';
 import styles from './index.less';
 
 // ----- hooks -----
-import { useModuleData } from './hooks/useModuleData';
 import { useSaveEditorData } from './hooks/useSaveEditorData';
+
+// ----- store -----
+import { useSettingStore, fetchRemainingUse, setAiConfig } from '@/store/setting';
 
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
@@ -37,20 +46,19 @@ export type IAppendValue = {
 
 export interface IBoundInfo {
   consoleId: number;
-  consoleName: string;
-  dataSourceId?: number;
-  dataSourceName?: string;
-  type?: DatabaseTypeCode;
+  dataSourceId: number;
+  dataSourceName: string;
+  databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
-  status?: ConsoleStatus;
+  status: ConsoleStatus;
 }
 
 interface IProps {
   /** 调用来源 */
   source: 'workspace';
-  /** 是否是活跃的console，用于快捷键 */
-  isActive?: boolean;
+  // isActive
+  isActive: boolean;
   /** 添加或修改的内容 */
   appendValue?: IAppendValue;
   defaultValue?: string;
@@ -64,27 +72,31 @@ interface IProps {
   boundInfo: IBoundInfo;
   setBoundInfo: (params: IBoundInfo) => void;
   editorOptions?: IEditorOptions;
-  aiModel: IAIState;
-  dispatch: any;
-  remainingBtnLoading: boolean;
   onExecuteSQL: (sql: string) => void;
-  onConsoleSave: () => void;
 }
 
 export interface IConsoleRef {
   editorRef: IExportRefFunction | undefined;
 }
 
-function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
+interface IIntelligentEditorContext {
+  isActive: boolean;
+  tableNameList: string[];
+  setTableNameList: (tables: string[]) => void;
+  selectedTables: string[];
+  setSelectedTables: (tables: string[]) => void;
+}
+
+export const IntelligentEditorContext = createContext<IIntelligentEditorContext>({} as any);
+
+function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const {
     hasAiChat = true,
     boundInfo,
     setBoundInfo,
     appendValue,
-    isActive,
     hasSaveBtn = true,
-    aiModel,
-    dispatch,
+    isActive,
     source,
     defaultValue,
   } = props;
@@ -101,9 +113,15 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [isStream, setIsStream] = useState(false);
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
+  const { aiConfig, hasWhite, remainingUse } = useSettingStore((state) => {
+    return {
+      aiConfig: state.aiConfig,
+      hasWhite: state.hasWhite,
+      remainingUse: state.remainingUse,
+    };
+  });
 
   // ---------------- new-code ----------------
-  const { tableNameList, selectedTables, setSelectedTables } = useModuleData({ boundInfo: props.boundInfo });
   const { saveConsole } = useSaveEditorData({
     editorRef,
     boundInfo: props.boundInfo,
@@ -116,14 +134,11 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   /**
    * 当前选择的AI类型是Chat2DBAI
    */
-  const isChat2DBAI = useMemo(
-    () => aiModel.aiConfig?.aiSqlSource === AIType.CHAT2DBAI,
-    [aiModel.aiConfig?.aiSqlSource],
-  );
+  const isChat2DBAI = useMemo(() => aiConfig?.aiSqlSource === AIType.CHAT2DBAI, [aiConfig?.aiSqlSource]);
 
   useEffect(() => {
     handleSelectTableSyncModel();
-  }, [aiModel.hasWhite, localStorage.getItem('syncTableModel')]);
+  }, [hasWhite, localStorage.getItem('syncTableModel')]);
 
   useEffect(() => {
     if (appendValue) {
@@ -162,19 +177,12 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           if (apiKey) {
             setPopularizeModal(false);
 
-            await dispatch({
-              type: 'ai/setAiConfig',
-              payload: {
-                ...(aiModel.aiConfig || {}),
-                apiKey,
-              },
+            setAiConfig({
+              ...(aiConfig || {}),
+              apiKey,
             });
-            await dispatch({
-              type: 'ai/fetchRemainingUse',
-              payload: {
-                apiKey,
-              },
-            });
+
+            fetchRemainingUse(apiKey);
           }
         }, 3000);
       }
@@ -184,12 +192,12 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   };
 
   const handleAIChatInEditor = async (content: string, promptType: IPromptType, ext?: string) => {
-    const aiConfig = await configService.getAiSystemConfig({});
-    handleAiChat(content, promptType, aiConfig, ext);
+    const _aiConfig = await configService.getAiSystemConfig({});
+    handleAiChat(content, promptType, _aiConfig, ext);
   };
 
-  const handleAiChat = async (content: string, promptType: IPromptType, aiConfig?: IAiConfig, ext?: string) => {
-    const { apiKey } = aiConfig || props.aiModel?.aiConfig || {};
+  const handleAiChat = async (content: string, promptType: IPromptType, _aiConfig?: IAiConfig, ext?: string) => {
+    const { apiKey } = _aiConfig || aiConfig || {};
     if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);
       return;
@@ -204,6 +212,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
       setIsAiDrawerOpen(true);
       setIsAiDrawerLoading(true);
     }
+
     const params = formatParams({
       message: content,
       promptType,
@@ -223,12 +232,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           closeEventSource.current();
           setIsStream(false);
           if (isChat2DBAI) {
-            dispatch({
-              type: 'ai/fetchRemainingUse',
-              payload: {
-                apiKey,
-              },
-            });
+            fetchRemainingUse(apiKey);
           }
           if (isNL2SQL) {
             editorRef?.current?.setValue('\n');
@@ -266,12 +270,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
           setIsLoading(false);
           hasErrorToLogin && handleApiKeyEmptyOrGetQrCode(true);
           // hasErrorToInvite && handleClickRemainBtn();
-          dispatch({
-            type: 'ai/fetchRemainingUse',
-            payload: {
-              apiKey,
-            },
-          });
+          fetchRemainingUse(apiKey);
           return;
         }
 
@@ -337,17 +336,6 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     },
   ];
 
-  const handleClickRemainBtn = async () => {
-    if (!isChat2DBAI) return;
-
-    // chat2dbAi模型下，没有key，就需要登录
-    if (!aiModel.aiConfig?.apiKey) {
-      handleApiKeyEmptyOrGetQrCode(true);
-      return;
-    }
-    handlePopUp();
-  };
-
   /**
    * 弹框 关注公众号
    */
@@ -357,7 +345,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
         'http://oss.sqlgpt.cn/static/chat2db-wechat.jpg?x-oss-process=image/auto-orient,1/resize,m_lfit,w_256/quality,Q_80/format,webp',
       tip: (
         <>
-          {aiModel.remainingUse?.remainingUses === 0 && <p>Key次数用完或者过期</p>}
+          {remainingUse?.remainingUses === 0 && <p>Key次数用完或者过期</p>}
           <p>微信扫描二维码并关注公众号获得 AI 使用机会。</p>
         </>
       ),
@@ -367,7 +355,7 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
   const handleSelectTableSyncModel = () => {
     const syncModel = localStorage.getItem('syncTableModel');
-    const hasAiAccess = aiModel.hasWhite;
+    const hasAiAccess = hasWhite;
     if (syncModel !== null) {
       setSyncTableModel(Number(syncModel));
       return;
@@ -376,111 +364,99 @@ function Console(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     setSyncTableModel(hasAiAccess ? SyncModelType.AUTO : SyncModelType.MANUAL);
   };
 
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [tableNameList, setTableNameList] = useState<string[]>([]);
+
   return (
-    <div className={styles.console} ref={ref as any}> 
-      <Spin spinning={isLoading} style={{ height: '100%' }}>
-        {hasAiChat && (
-          <ChatInput
-            isStream={isStream}
-            disabled={isLoading}
-            aiType={aiModel.aiConfig?.aiSqlSource}
-            remainingUse={aiModel.remainingUse}
-            remainingBtnLoading={props.remainingBtnLoading}
-            tables={tableNameList}
-            onPressEnter={(value: string) => {
-              // editorRef?.current?.toFocus();
-              handleAiChat(value, IPromptType.NL_2_SQL);
-            }}
-            selectedTables={selectedTables}
-            onSelectTables={(tables: string[]) => {
-              // if (tables.length > 8) {
-              //   message.warning({
-              //     content: i18n('chat.input.tableSelect.error.TooManyTable'),
-              //   });
-              //   return;
-              // }
-              setSelectedTables(tables);
-            }}
-            onClickRemainBtn={handleClickRemainBtn}
-            syncTableModel={syncTableModel}
-            onSelectTableSyncModel={(model: number) => {
-              setSyncTableModel(model);
-              localStorage.setItem('syncTableModel', String(model));
-            }}
-            onCancelStream={() => {
-              closeEventSource.current();
-              setIsStream(false);
-              setIsLoading(false);
-            }}
+    <IntelligentEditorContext.Provider
+      value={{
+        isActive,
+        tableNameList,
+        setTableNameList,
+        selectedTables,
+        setSelectedTables,
+      }}
+    >
+      <div className={styles.console} ref={ref as any}>
+        <Spin spinning={isLoading} style={{ height: '100%' }}>
+          {hasAiChat && (
+            <ChatInput
+              isStream={isStream}
+              disabled={isLoading}
+              aiType={aiConfig?.aiSqlSource}
+              tables={tableNameList}
+              onPressEnter={(value: string) => {
+                handleAiChat(value, IPromptType.NL_2_SQL);
+              }}
+              selectedTables={selectedTables}
+              onSelectTables={(tables: string[]) => {
+                setSelectedTables(tables);
+              }}
+              // onClickRemainBtn={handleClickRemainBtn}
+              syncTableModel={syncTableModel}
+              onSelectTableSyncModel={(model: number) => {
+                setSyncTableModel(model);
+                localStorage.setItem('syncTableModel', String(model));
+              }}
+              onCancelStream={() => {
+                closeEventSource.current();
+                setIsStream(false);
+                setIsLoading(false);
+              }}
+            />
+          )}
+          <MonacoEditor
+            id={uid}
+            defaultValue={defaultValue}
+            // isActive={isActive}
+            ref={editorRef as any}
+            className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
+            addAction={addAction}
+            onSave={saveConsole}
+            onExecute={executeSQL}
+            options={props.editorOptions}
           />
-        )}
-        <MonacoEditor
-          id={uid}
-          defaultValue={defaultValue}
-          isActive={isActive}
-          ref={editorRef as any}
-          className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
-          addAction={addAction}
-          databaseType={boundInfo.type}
-          onSave={saveConsole}
-          onExecute={executeSQL}
-          options={props.editorOptions}
+          <Drawer
+            open={isAiDrawerOpen}
+            getContainer={false}
+            mask={false}
+            onClose={() => {
+              try {
+                setIsAiDrawerOpen(false);
+                setIsAiDrawerLoading(false);
+                setIsStream(false);
+                closeEventSource.current && closeEventSource.current();
+              } catch (error) {
+                console.log('close drawer', error);
+              }
+            }}
+          >
+            <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
+              <div className={styles.aiBlock}>{aiContent}</div>
+            </Spin>
+          </Drawer>
+        </Spin>
+        <OperationLine
+          boundInfo={boundInfo}
+          saveConsole={saveConsole}
+          executeSQL={executeSQL}
+          editorRef={editorRef}
+          setBoundInfo={setBoundInfo}
+          hasSaveBtn={hasSaveBtn}
         />
-
-        {/* <NewEditor id={uid} dataSource={props.boundInfo.type} database={props.boundInfo.databaseName} /> */}
-
-        <Drawer
-          open={isAiDrawerOpen}
-          getContainer={false}
-          mask={false}
-          onClose={() => {
-            try {
-              setIsAiDrawerOpen(false);
-              setIsAiDrawerLoading(false);
-              setIsStream(false);
-              closeEventSource.current && closeEventSource.current();
-            } catch (error) {
-              console.log('close drawer', error);
-            }
+        <Modal
+          open={popularizeModal}
+          footer={false}
+          onCancel={() => {
+            aiFetchIntervalRef.current && clearInterval(aiFetchIntervalRef.current);
+            setPopularizeModal(false);
           }}
         >
-          <Spin spinning={isAiDrawerLoading} style={{ height: '100%' }}>
-            <div className={styles.aiBlock}>{aiContent}</div>
-          </Spin>
-        </Drawer>
-      </Spin>
-      <OperationLine
-        boundInfo={boundInfo}
-        saveConsole={saveConsole}
-        executeSQL={executeSQL}
-        editorRef={editorRef}
-        setBoundInfo={setBoundInfo}
-        hasSaveBtn={hasSaveBtn}
-      />
-      <Modal
-        open={popularizeModal}
-        footer={false}
-        onCancel={() => {
-          aiFetchIntervalRef.current && clearInterval(aiFetchIntervalRef.current);
-          setPopularizeModal(false);
-        }}
-      >
-        <Popularize {...modalProps} />
-      </Modal>
-    </div>
+          <Popularize {...modalProps} />
+        </Modal>
+      </div>
+    </IntelligentEditorContext.Provider>
   );
 }
 
-const dvaModel = connect(
-  ({ ai, loading }: { ai: IAIState; loading: any }) => {
-    return {
-      aiModel: ai,
-      remainingBtnLoading: loading.effects['ai/fetchRemainingUse'],
-    };
-  },
-  null,
-  null,
-  { forwardRef: true },
-);
-
-export default dvaModel(forwardRef(Console));
+export default forwardRef(ConsoleEditor);

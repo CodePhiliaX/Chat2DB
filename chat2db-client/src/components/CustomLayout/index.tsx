@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { useWorkspaceStore } from '@/store/workspace';
-import { togglePanelLeft, togglePanelRight } from '@/store/workspace/config';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { togglePanelLeft, togglePanelRight } from '@/pages/main/workspace/store/config';
 
 interface IProps {
   className?: string;
