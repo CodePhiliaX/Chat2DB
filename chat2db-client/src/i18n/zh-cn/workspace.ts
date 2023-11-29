@@ -12,6 +12,7 @@ export default {
   'workspace.menu.unPin': '取消置顶',
   'workspace.menu.editTableData': '编辑表数据',
   'workspace.menu.queryConsole': '新建查询',
+  'workspace.menu.viewAllTable': '查看所有表',
   'workspace.menu.createDatabase': '创建数据库',
   'workspace.menu.createSchema': '创建Schema',
   'workspace.menu.deleteTablePlaceHolder': '请输入你要删除的表名',

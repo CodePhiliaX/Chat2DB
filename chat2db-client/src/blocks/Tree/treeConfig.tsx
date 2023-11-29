@@ -274,7 +274,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.CreateTable, OperationColumn.Refresh],
+    operationColumn: [
+      OperationColumn.CreateConsole,
+      OperationColumn.ViewAllTable,
+      OperationColumn.CreateTable,
+      OperationColumn.Refresh,
+    ],
   },
 
   [TreeNodeType.TABLE]: {

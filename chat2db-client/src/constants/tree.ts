@@ -44,4 +44,5 @@ export enum OperationColumn {
   OpenTrigger = 'openTrigger', // 打开触发器
   CreateSchema = 'createSchema', // 新建schema
   CreateDatabase = 'createDatabase', // 新建database
+  ViewAllTable = 'viewAllTable', // 查看所有的表
 }

@@ -45,7 +45,11 @@ export const createConsole = (params: ICreateConsoleParams)=>{
     type: params.databaseType
   };
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, j) => {
+    if ((workspaceTabList?.length || 0) > 20) {
+      j('tab数量超过上限');
+      return 
+    }
     historyService.createConsole(newConsole).then((res) => {
       const newList = [
         ...(workspaceTabList||[]),

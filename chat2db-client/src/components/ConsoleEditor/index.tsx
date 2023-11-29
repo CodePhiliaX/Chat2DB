@@ -60,7 +60,7 @@ export interface IBoundInfo {
 interface IProps {
   /** 调用来源 */
   source: 'workspace';
-  consoleIsActive: boolean;
+  isActive: boolean;
   /** 添加或修改的内容 */
   appendValue?: IAppendValue;
   defaultValue?: string;
@@ -82,6 +82,7 @@ export interface IConsoleRef {
 }
 
 interface IIntelligentEditorContext {
+  isActive: boolean;
   tableNameList: string[];
   setTableNameList: (tables: string[]) => void;
   selectedTables: string[];
@@ -99,7 +100,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     hasSaveBtn = true,
     source,
     defaultValue,
-    consoleIsActive,
+    isActive,
   } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
@@ -125,8 +126,8 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   // ---------------- new-code ----------------
   const { saveConsole } = useSaveEditorData({
     editorRef,
+    isActive,
     boundInfo: props.boundInfo,
-    // isActive,
     source,
     defaultValue,
   });
@@ -391,6 +392,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   return (
     <IntelligentEditorContext.Provider
       value={{
+        isActive,
         tableNameList,
         setTableNameList,
         selectedTables,
@@ -412,7 +414,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
               onSelectTables={(tables: string[]) => {
                 setSelectedTables(tables);
               }}
-              // onClickRemainBtn={handleClickRemainBtn}
               syncTableModel={syncTableModel}
               onSelectTableSyncModel={(model: number) => {
                 setSyncTableModel(model);
@@ -425,7 +426,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
               }}
             />
           )}
-
           <MonacoEditor
             id={uid}
             defaultValue={defaultValue}
@@ -434,9 +434,8 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             addAction={addAction}
             options={props.editorOptions}
             shortcutKey={registerShortcutKey}
-            conceal={!consoleIsActive}
+            isActive={isActive}
           />
-
           <Drawer
             open={isAiDrawerOpen}
             getContainer={false}

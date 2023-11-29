@@ -25,7 +25,6 @@ const databaseTypeList = Object.keys(DatabaseTypeCode).map((d) => ({
 
 interface IProps {
   id: string;
-  conceal?: boolean;
   language?: string;
   className?: string;
   options?: IEditorOptions;
@@ -35,6 +34,7 @@ interface IProps {
   appendValue?: IAppendValue;
   didMount?: (editor: IEditorIns) => any;
   shortcutKey?: (editor, monaco) => void;
+  isActive?: boolean;
 }
 
 export interface IExportRefFunction {
@@ -45,7 +45,17 @@ export interface IExportRefFunction {
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const { id, className, language = 'sql', didMount, options, conceal, defaultValue, appendValue, shortcutKey } = props;
+  const {
+    id,
+    className,
+    language = 'sql',
+    didMount,
+    options,
+    isActive,
+    defaultValue,
+    appendValue,
+    shortcutKey,
+  } = props;
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
   const [appTheme] = useTheme();
@@ -99,13 +109,13 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   }, []);
 
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && isActive) {
       // eg:
       // editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
       // });
       shortcutKey?.(editorRef.current, monaco);
     }
-  }, [editorRef.current]);
+  }, [editorRef.current, isActive]);
 
   useEffect(() => {
     // 监听浏览器窗口大小变化，重新渲染编辑器
@@ -205,8 +215,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   return <div ref={ref as any} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;
 }
-
-// , { [styles.concealEditor]: conceal }
 
 // text 需要添加的文本
 // range 添加到的位置

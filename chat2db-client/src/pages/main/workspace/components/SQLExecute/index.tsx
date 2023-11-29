@@ -42,21 +42,19 @@ const SQLExecute = memo<IProps>((props) => {
     <div className={classnames(styles.sqlExecute)}>
       <DraggableContainer layout="column" className={styles.boxRightCenter}>
         <div ref={draggableRef} className={styles.boxRightConsole}>
-          {
-            <ConsoleEditor
-              ref={consoleRef}
-              source="workspace"
-              defaultValue={initDDL}
-              boundInfo={boundInfo}
-              setBoundInfo={setBoundInfo}
-              hasAiChat={true}
-              hasAi2Lang={true}
-              consoleIsActive={activeConsoleId === boundInfo.consoleId}
-              onExecuteSQL={(sql) => {
-                searchResultRef.current?.handleExecuteSQL(sql);
-              }}
-            />
-          }
+          <ConsoleEditor
+            ref={consoleRef}
+            source="workspace"
+            defaultValue={initDDL}
+            boundInfo={boundInfo}
+            setBoundInfo={setBoundInfo}
+            hasAiChat={true}
+            hasAi2Lang={true}
+            isActive={activeConsoleId === boundInfo.consoleId}
+            onExecuteSQL={(sql) => {
+              searchResultRef.current?.handleExecuteSQL(sql);
+            }}
+          />
         </div>
         <div className={styles.boxRightResult}>
           <SearchResult ref={searchResultRef} executeSqlParams={boundInfo} />

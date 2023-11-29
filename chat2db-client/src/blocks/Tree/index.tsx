@@ -178,7 +178,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
 
   // 双击节点
   const handelDoubleClickTreeNode = () => {
-    rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick();
+    rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick(treeNodeData);
   };
 
   // 递归渲染
