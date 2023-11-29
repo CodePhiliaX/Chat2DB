@@ -1,11 +1,9 @@
-import React, { memo, useEffect, useState, useMemo, Fragment, useRef } from 'react';
-import i18n from '@/i18n';
+import React, { memo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
 // ----- components -----
 import WorkspaceTabs from '../WorkspaceTabs';
-
 
 const WorkspaceRight = memo(() => {
   return (

@@ -8,14 +8,14 @@ import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { IWorkspaceTab } from '@/typings';
 // import WorkspaceExtend from '../WorkspaceExtend';
 
-// ---- hooks -----
-import useCreateConsole from '@/hooks/useCreateConsole';
+// ---- function -----
+import createConsole from '../../functions/createConsole';
 
 // ----- components -----
 import Tabs, { ITabItem } from '@/components/Tabs';
 import SearchResult from '@/components/SearchResult';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
-import SQLExecute from '@/blocks/SQLExecute';
+import SQLExecute from '../SQLExecute';
 import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
@@ -29,7 +29,6 @@ import historyService from '@/service/history';
 import indexedDB from '@/indexedDB';
 
 const WorkspaceTabs = memo(() => {
-  
   const { activeConsoleId, consoleList, workspaceTabList } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
@@ -39,8 +38,6 @@ const WorkspaceTabs = memo(() => {
   });
 
   const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
-
-  const { createConsole } = useCreateConsole();
 
   // 获取console
   useEffect(() => {

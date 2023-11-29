@@ -31,6 +31,9 @@ import { useSaveEditorData } from './hooks/useSaveEditorData';
 // ----- store -----
 import { useSettingStore, fetchRemainingUse, setAiConfig } from '@/store/setting';
 
+// ----- function -----
+import { handelCreateConsole } from '@/pages/main/workspace/functions/shortcutKeyCreateConsole';
+
 enum IPromptType {
   NL_2_SQL = 'NL_2_SQL',
   SQL_EXPLAIN = 'SQL_EXPLAIN',
@@ -57,8 +60,7 @@ export interface IBoundInfo {
 interface IProps {
   /** 调用来源 */
   source: 'workspace';
-  // isActive
-  isActive: boolean;
+  consoleIsActive: boolean;
   /** 添加或修改的内容 */
   appendValue?: IAppendValue;
   defaultValue?: string;
@@ -80,7 +82,6 @@ export interface IConsoleRef {
 }
 
 interface IIntelligentEditorContext {
-  isActive: boolean;
   tableNameList: string[];
   setTableNameList: (tables: string[]) => void;
   selectedTables: string[];
@@ -96,9 +97,9 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     setBoundInfo,
     appendValue,
     hasSaveBtn = true,
-    isActive,
     source,
     defaultValue,
+    consoleIsActive,
   } = props;
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
@@ -125,7 +126,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const { saveConsole } = useSaveEditorData({
     editorRef,
     boundInfo: props.boundInfo,
-    isActive,
+    // isActive,
     source,
     defaultValue,
   });
@@ -367,10 +368,29 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [tableNameList, setTableNameList] = useState<string[]>([]);
 
+  // 注册快捷键
+  const registerShortcutKey = (editor, monaco) => {
+    // 保存
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      const value = editor?.getValue();
+      saveConsole(value || '');
+    });
+
+    // 执行
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
+      const value = editorRef.current?.getCurrentSelectContent();
+      executeSQL(value);
+    });
+
+    // 执行
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+      handelCreateConsole();
+    });
+  };
+
   return (
     <IntelligentEditorContext.Provider
       value={{
-        isActive,
         tableNameList,
         setTableNameList,
         selectedTables,
@@ -405,17 +425,18 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
               }}
             />
           )}
+
           <MonacoEditor
             id={uid}
             defaultValue={defaultValue}
-            // isActive={isActive}
             ref={editorRef as any}
             className={hasAiChat ? styles.consoleEditorWithChat : styles.consoleEditor}
             addAction={addAction}
-            onSave={saveConsole}
-            onExecute={executeSQL}
             options={props.editorOptions}
+            shortcutKey={registerShortcutKey}
+            conceal={!consoleIsActive}
           />
+
           <Drawer
             open={isAiDrawerOpen}
             getContainer={false}

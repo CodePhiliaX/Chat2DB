@@ -36,7 +36,7 @@ const emptyOption = {
 
 const SelectBoundInfo = memo((props: IProps) => {
   const { boundInfo, setBoundInfo } = props;
-  const { selectedTables, setSelectedTables, setTableNameList } = useContext(IntelligentEditorContext);
+  const { setSelectedTables, setTableNameList } = useContext(IntelligentEditorContext);
   const connectionList = useConnectionStore((state) => state.connectionList);
   const [databaseNameList, setDatabaseNameList] = useState<IOption<string>[]>([emptyOption]);
   const [schemaList, setSchemaList] = useState<IOption<string>[]>([emptyOption]);
@@ -82,13 +82,13 @@ const SelectBoundInfo = memo((props: IProps) => {
     if (supportSchema) {
       getSchemaList();
     }
-    if (!supportSchema) {
+    if (!supportSchema && boundInfo.databaseName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName);
     }
   }, [boundInfo.databaseName]);
 
   useEffect(() => {
-    if (supportSchema) {
+    if (supportSchema && boundInfo.schemaName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName, boundInfo.schemaName);
     }
   }, [boundInfo.schemaName]);

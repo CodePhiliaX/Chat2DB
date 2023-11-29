@@ -25,7 +25,7 @@ const databaseTypeList = Object.keys(DatabaseTypeCode).map((d) => ({
 
 interface IProps {
   id: string;
-  isActive?: boolean;
+  conceal?: boolean;
   language?: string;
   className?: string;
   options?: IEditorOptions;
@@ -33,10 +33,8 @@ interface IProps {
   addAction?: Array<{ id: string; label: string; action: (selectedText: string, ext?: string) => void }>;
   defaultValue?: string;
   appendValue?: IAppendValue;
-  // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
-  onSave?: (value: string) => void; // 快捷键保存的回调
-  onExecute?: (value: string) => void; // 快捷键执行的回调
+  shortcutKey?: (editor, monaco) => void;
 }
 
 export interface IExportRefFunction {
@@ -47,18 +45,7 @@ export interface IExportRefFunction {
 }
 
 function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
-  const {
-    id,
-    className,
-    language = 'sql',
-    didMount,
-    options,
-    isActive,
-    onSave,
-    onExecute,
-    defaultValue,
-    appendValue,
-  } = props;
+  const { id, className, language = 'sql', didMount, options, conceal, defaultValue, appendValue, shortcutKey } = props;
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
   const [appTheme] = useTheme();
@@ -112,29 +99,13 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   }, []);
 
   useEffect(() => {
-    if (isActive && editorRef.current) {
-      // 自定义快捷键
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-        const value = editorRef.current?.getValue();
-        onSave?.(value || '');
-      });
-
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
-        const value = getCurrentSelectContent();
-        onExecute?.(value);
-      });
-
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
-        const value = getCurrentSelectContent();
-        onExecute?.(value);
-      });
-
-      // 注册快捷键command+shift+L新建console
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
-        // onShortcutKeyCallback?.(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, keyCode: 76 }));
-      });
+    if (editorRef.current) {
+      // eg:
+      // editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+      // });
+      shortcutKey?.(editorRef.current, monaco);
     }
-  }, [editorRef.current, isActive]);
+  }, [editorRef.current]);
 
   useEffect(() => {
     // 监听浏览器窗口大小变化，重新渲染编辑器
@@ -234,6 +205,8 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   return <div ref={ref as any} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;
 }
+
+// , { [styles.concealEditor]: conceal }
 
 // text 需要添加的文本
 // range 添加到的位置
