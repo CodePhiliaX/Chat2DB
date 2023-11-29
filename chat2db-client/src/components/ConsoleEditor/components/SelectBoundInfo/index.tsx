@@ -67,6 +67,9 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 当数据源变化时，重新获取数据库列表
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
     if (supportDatabase) {
       setSchemaList([]);
       setDatabaseNameList([]);
@@ -79,6 +82,9 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 当数据库名变化时，重新获取schema列表
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
     if (supportSchema) {
       getSchemaList();
     }
@@ -88,6 +94,9 @@ const SelectBoundInfo = memo((props: IProps) => {
   }, [boundInfo.databaseName]);
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
     if (supportSchema && boundInfo.schemaName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName, boundInfo.schemaName);
     }
