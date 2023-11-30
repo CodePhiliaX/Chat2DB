@@ -78,7 +78,7 @@ const SelectBoundInfo = memo((props: IProps) => {
       setSchemaList([]);
       getSchemaList();
     }
-  }, [boundInfo.dataSourceId]);
+  }, [boundInfo.dataSourceId, isActive]);
 
   // 当数据库名变化时，重新获取schema列表
   useEffect(() => {
@@ -91,7 +91,7 @@ const SelectBoundInfo = memo((props: IProps) => {
     if (!supportSchema && boundInfo.databaseName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName);
     }
-  }, [boundInfo.databaseName]);
+  }, [boundInfo.databaseName, isActive]);
 
   useEffect(() => {
     if (!isActive) {
@@ -100,7 +100,7 @@ const SelectBoundInfo = memo((props: IProps) => {
     if (supportSchema && boundInfo.schemaName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName, boundInfo.schemaName);
     }
-  }, [boundInfo.schemaName]);
+  }, [boundInfo.schemaName, isActive]);
 
   // 获取数据库列表
   const getDatabaseList = () => {
