@@ -167,7 +167,15 @@ public class ConnectInfo {
 
 
     public LinkedHashMap<String,Object> getExtendMap() {
+
         if (ObjectUtils.isEmpty(extendInfo)) {
+            if(driverConfig!= null) {
+                extendInfo = driverConfig.getExtendInfo();
+            }else {
+                return new LinkedHashMap<>();
+            }
+        }
+        if(ObjectUtils.isEmpty(extendInfo)){
             return new LinkedHashMap<>();
         }
         LinkedHashMap<String,Object> map = new LinkedHashMap<>();
