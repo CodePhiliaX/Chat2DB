@@ -261,13 +261,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
                 },
               };
             });
-            r(tableList);
-            // {
-            //   data: tableList,
-            //   pageNo: res.pageNo,
-            //   pageSize: res.pageSize,
-            //   total: res.total,
-            // }
+            r({
+              data: tableList,
+              pageNo: res.pageNo,
+              pageSize: res.pageSize,
+              total: res.total,
+            } as any);
           })
           .catch((error) => {
             j(error);
@@ -276,7 +275,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     },
     operationColumn: [
       OperationColumn.CreateConsole,
-      OperationColumn.ViewAllTable,
+      // OperationColumn.ViewAllTable,
       OperationColumn.CreateTable,
       OperationColumn.Refresh,
     ],

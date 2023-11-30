@@ -48,7 +48,7 @@ export type IAppendValue = {
 };
 
 export interface IBoundInfo {
-  consoleId: number;
+  consoleId?: number;
   dataSourceId: number;
   dataSourceName: string;
   databaseType: DatabaseTypeCode;
@@ -59,7 +59,7 @@ export interface IBoundInfo {
 
 interface IProps {
   /** 调用来源 */
-  source: 'workspace';
+  source?: 'workspace';
   isActive: boolean;
   /** 添加或修改的内容 */
   appendValue?: IAppendValue;

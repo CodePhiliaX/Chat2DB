@@ -29,6 +29,10 @@ export interface ITreeNode {
   loadData?: (params:{refresh: boolean}) => void; // 加载数据的方法
   // 父元素
   parentNode?: ITreeNode;
+  // 分页
+  page?: number;
+  pageSize?: number;
+  total?: number;
 }
 
 // 视图  函数  触发器  过程 通用的返回结果

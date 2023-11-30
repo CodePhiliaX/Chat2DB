@@ -85,13 +85,22 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         },
         refresh: _props?.refresh || false,
       })
-      .then((res) => {
-        if (res.length) {
+      .then((res: any) => {
+        if (res.length || res.data) {
           setTimeout(() => {
-            setTreeNodeData({
-              ...treeNodeData,
-              children: res,
-            });
+            console.log(res);
+            if (res.data) {
+              setTreeNodeData({
+                ...treeNodeData,
+                children: res.data,
+                total: res.total,
+              });
+            } else {
+              setTreeNodeData({
+                ...treeNodeData,
+                children: res,
+              });
+            }
             setIsLoading(false);
           }, 200);
         } else {
@@ -274,11 +283,21 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     );
   }, [isFocus, isLoading, rightClickMenu]);
 
+  const sectionHeight = useMemo(() => {
+    console.log(treeNodeData.total);
+
+    if (treeNodeData.total) {
+      return `${treeNodeData.total * 26}px`;
+    } else {
+      return 'auto';
+    }
+  }, [treeNodeData.total]);
+
   return (
-    <>
+    <div style={{ height: sectionHeight }}>
       {(showTreeNode || showParentNode) && treeNodeDom}
       {treeNodes}
-    </>
+    </div>
   );
 });
 

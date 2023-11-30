@@ -1,9 +1,7 @@
-import React, { ForwardedRef, LegacyRef, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { ForwardedRef, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import * as charts from 'echarts';
 import ReactEcharts from 'echarts-for-react';
 import './index.less';
-import { Button } from 'antd';
-import { forwardRef } from 'react';
 type EChartsOption = charts.EChartsOption;
 
 interface IProps {
@@ -24,7 +22,6 @@ const PieChart = (props: IProps, ref: ForwardedRef<{ getEchartsInstance: Functio
         type: 'scroll', //分页类型
       },
 
-
       series: [
         {
           type: 'pie',
@@ -38,12 +35,11 @@ const PieChart = (props: IProps, ref: ForwardedRef<{ getEchartsInstance: Functio
             label: {
               show: true,
               fontSize: 16,
-              fontWeight: 'bold'
-            }
+              fontWeight: 'bold',
+            },
           },
         },
       ],
-
     }),
     [props.data],
   );
