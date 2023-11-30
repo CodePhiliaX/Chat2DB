@@ -104,8 +104,7 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 
 ### CONFIGURE CUSTOM AI
 
-* [Refer here to deploy your ChatGLM-6B model](https://github.com/chat2db/chat2db-chatglm-6b-deploy)
-* [Refer here to deploy your sqlcoder model](https://github.com/chat2db/chat2db-sqlcoder-deploy)
+* The rest api format for Custom AI is same as ChatGPT.
 
 ## 📦 Docker installation
 
