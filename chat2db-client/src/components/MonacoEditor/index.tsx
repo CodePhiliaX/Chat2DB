@@ -25,7 +25,6 @@ const databaseTypeList = Object.keys(DatabaseTypeCode).map((d) => ({
 
 interface IProps {
   id: string;
-  isActive?: boolean;
   language?: string;
   className?: string;
   options?: IEditorOptions;
@@ -33,10 +32,9 @@ interface IProps {
   addAction?: Array<{ id: string; label: string; action: (selectedText: string, ext?: string) => void }>;
   defaultValue?: string;
   appendValue?: IAppendValue;
-  // onChange?: (v: string, e?: IEditorContentChangeEvent) => void;
   didMount?: (editor: IEditorIns) => any;
-  onSave?: (value: string) => void; // 快捷键保存的回调
-  onExecute?: (value: string) => void; // 快捷键执行的回调
+  shortcutKey?: (editor, monaco) => void;
+  isActive?: boolean;
 }
 
 export interface IExportRefFunction {
@@ -54,10 +52,9 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     didMount,
     options,
     isActive,
-    onSave,
-    onExecute,
     defaultValue,
     appendValue,
+    shortcutKey,
   } = props;
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
@@ -112,27 +109,11 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   }, []);
 
   useEffect(() => {
-    if (isActive && editorRef.current) {
-      // 自定义快捷键
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-        const value = editorRef.current?.getValue();
-        onSave?.(value || '');
-      });
-
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
-        const value = getCurrentSelectContent();
-        onExecute?.(value);
-      });
-
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR, () => {
-        const value = getCurrentSelectContent();
-        onExecute?.(value);
-      });
-
-      // 注册快捷键command+shift+L新建console
-      editorRef.current.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
-        // onShortcutKeyCallback?.(new KeyboardEvent('keydown', { ctrlKey: true, shiftKey: true, keyCode: 76 }));
-      });
+    if (editorRef.current && isActive) {
+      // eg:
+      // editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
+      // });
+      shortcutKey?.(editorRef.current, monaco);
     }
   }, [editorRef.current, isActive]);
 

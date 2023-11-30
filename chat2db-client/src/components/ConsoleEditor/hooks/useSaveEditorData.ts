@@ -9,7 +9,7 @@ import { getCookie } from '@/utils';
 
 interface IProps {
   isActive?: boolean;
-  source: string;
+  source?: string;
   editorRef: any;
   boundInfo: any;
   defaultValue?: string;

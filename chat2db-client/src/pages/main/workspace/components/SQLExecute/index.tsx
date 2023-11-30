@@ -5,6 +5,7 @@ import DraggableContainer from '@/components/DraggableContainer';
 import ConsoleEditor, { IConsoleRef } from '@/components/ConsoleEditor';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IProps {
   boundInfo: {
@@ -27,10 +28,10 @@ const SQLExecute = memo<IProps>((props) => {
   const searchResultRef = useRef<ISearchResultRef>(null);
   const consoleRef = useRef<IConsoleRef>(null);
   const [boundInfo, setBoundInfo] = useState(_boundInfo);
-
+  const activeConsoleId = useWorkspaceStore((state) => state.activeConsoleId);
 
   useEffect(() => {
-    if(loadSQL){
+    if (loadSQL) {
       loadSQL().then((sql) => {
         consoleRef.current?.editorRef?.setValue(sql, 'cover');
       });
@@ -49,7 +50,7 @@ const SQLExecute = memo<IProps>((props) => {
             setBoundInfo={setBoundInfo}
             hasAiChat={true}
             hasAi2Lang={true}
-            isActive={true}
+            isActive={activeConsoleId === boundInfo.consoleId}
             onExecuteSQL={(sql) => {
               searchResultRef.current?.handleExecuteSQL(sql);
             }}

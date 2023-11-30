@@ -12,6 +12,7 @@ export default {
   'workspace.menu.unPin': 'Unpin',
   'workspace.menu.editTableData': 'Edit Table Data',
   'workspace.menu.queryConsole': 'Query console',
+  'workspace.menu.viewAllTable': 'View all table',
   'workspace.menu.createDatabase': 'Create database',
   'workspace.menu.createSchema': 'Create schema',
   'workspace.menu.deleteTablePlaceHolder': 'Please enter the name of the table you want to delete',

@@ -14,6 +14,7 @@ export enum WorkspaceTabType {
   EditTable = 'editTable',
   CreateTable = 'createTable',
   EditTableData = 'editTableData',
+  ViewAllTable = 'viewAllTable',
 }
 
 // 工作台Tab的类型对应的一些配置
@@ -45,6 +46,9 @@ export const workspaceTabConfig: {
   },
   [WorkspaceTabType.EditTableData]: {
     icon: '\ue618'
-  }
+  },
+  [WorkspaceTabType.ViewAllTable]: {
+    icon: '\ue611'
+  },
 }
 

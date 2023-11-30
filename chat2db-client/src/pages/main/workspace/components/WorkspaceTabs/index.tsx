@@ -8,19 +8,22 @@ import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { IWorkspaceTab } from '@/typings';
 // import WorkspaceExtend from '../WorkspaceExtend';
 
-// ---- hooks -----
-import useCreateConsole from '@/hooks/useCreateConsole';
-
 // ----- components -----
 import Tabs, { ITabItem } from '@/components/Tabs';
 import SearchResult from '@/components/SearchResult';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
-import SQLExecute from '@/blocks/SQLExecute';
+import SQLExecute from '../SQLExecute';
+import ViewAllTable from '../ViewAllTable';
 import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
-import { getSavedConsoleList, setActiveConsoleId, setWorkspaceTabList } from '@/pages/main/workspace/store/console';
+import {
+  getSavedConsoleList,
+  setActiveConsoleId,
+  setWorkspaceTabList,
+  createConsole,
+} from '@/pages/main/workspace/store/console';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ----- services -----
@@ -29,7 +32,6 @@ import historyService from '@/service/history';
 import indexedDB from '@/indexedDB';
 
 const WorkspaceTabs = memo(() => {
-  
   const { activeConsoleId, consoleList, workspaceTabList } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
@@ -39,8 +41,6 @@ const WorkspaceTabs = memo(() => {
   });
 
   const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
-
-  const { createConsole } = useCreateConsole();
 
   // 获取console
   useEffect(() => {
@@ -62,6 +62,7 @@ const WorkspaceTabs = memo(() => {
             databaseName: item.databaseName,
             schemaName: item.schemaName,
             status: item.status,
+            ddl: item.ddl,
           },
         };
       }) || [];
@@ -81,11 +82,13 @@ const WorkspaceTabs = memo(() => {
   };
 
   const createNewConsole = () => {
-    createConsole({
-      dataSourceId: currentConnectionDetails?.id,
-      dataSourceName: currentConnectionDetails?.alias,
-      type: currentConnectionDetails?.type,
-    });
+    if (currentConnectionDetails) {
+      createConsole({
+        dataSourceId: currentConnectionDetails.id,
+        dataSourceName: currentConnectionDetails.alias,
+        databaseType: currentConnectionDetails.type,
+      });
+    }
   };
 
   // 删除 新增tab
@@ -177,6 +180,12 @@ const WorkspaceTabs = memo(() => {
     return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} concealTabHeader />;
   };
 
+  // 渲染所有表
+  const renderViewAllTable = (item: IWorkspaceTab) => {
+    const { uniqueData } = item;
+    return <ViewAllTable />;
+  };
+
   // 根据不同的tab类型渲染不同的内容
   const workspaceTabConnectionMap = (item: IWorkspaceTab) => {
     switch (item.type) {
@@ -191,6 +200,8 @@ const WorkspaceTabs = memo(() => {
         return renderTableEditor(item);
       case WorkspaceTabType.EditTableData:
         return renderSearchResult(item);
+      case WorkspaceTabType.ViewAllTable:
+        return renderViewAllTable(item);
       default:
         return <div>未知类型</div>;
     }

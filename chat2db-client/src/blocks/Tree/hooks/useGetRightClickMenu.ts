@@ -122,13 +122,29 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue619',
         handle: () => {
           createConsole({
-            name: 'new console',
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
             dataSourceName: treeNodeData.extraParams!.dataSourceName!,
             databaseType: treeNodeData.extraParams!.databaseType!,
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
           });
+        },
+      },
+
+      // 查看所有表
+      [OperationColumn.ViewAllTable]: {
+        text: i18n('workspace.menu.viewAllTable'),
+        icon: '\ue611',
+        handle: () => {
+          addWorkspaceTab({
+            id: uuid(),
+            type: WorkspaceTabType.ViewAllTable,
+            title: `${treeNodeData.extraParams!.databaseName!}-tables`,
+            uniqueData: {
+
+            },
+          })
+          
         },
       },
 

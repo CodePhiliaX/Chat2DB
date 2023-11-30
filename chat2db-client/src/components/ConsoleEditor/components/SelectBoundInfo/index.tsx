@@ -7,7 +7,6 @@ import historyService from '@/service/history';
 import Iconfont from '@/components/Iconfont';
 import { databaseMap } from '@/constants/database';
 import styles from './index.less';
-import { setRegisterProvider } from '@/store/monaco';
 import sqlService from '@/service/sql';
 
 import {
@@ -36,10 +35,11 @@ const emptyOption = {
 
 const SelectBoundInfo = memo((props: IProps) => {
   const { boundInfo, setBoundInfo } = props;
-  const { selectedTables, setSelectedTables, setTableNameList } = useContext(IntelligentEditorContext);
+  const { setSelectedTables, setTableNameList, isActive } = useContext(IntelligentEditorContext);
   const connectionList = useConnectionStore((state) => state.connectionList);
   const [databaseNameList, setDatabaseNameList] = useState<IOption<string>[]>([emptyOption]);
   const [schemaList, setSchemaList] = useState<IOption<string>[]>([emptyOption]);
+  const [allTableList, setAllTableList] = useState<any>([]);
 
   const dataSourceList = useMemo(() => {
     return (
@@ -67,6 +67,9 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 当数据源变化时，重新获取数据库列表
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
     if (supportDatabase) {
       setSchemaList([]);
       setDatabaseNameList([]);
@@ -75,23 +78,29 @@ const SelectBoundInfo = memo((props: IProps) => {
       setSchemaList([]);
       getSchemaList();
     }
-  }, [boundInfo.dataSourceId]);
+  }, [boundInfo.dataSourceId, isActive]);
 
   // 当数据库名变化时，重新获取schema列表
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
     if (supportSchema) {
       getSchemaList();
     }
-    if (!supportSchema) {
+    if (!supportSchema && boundInfo.databaseName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName);
     }
-  }, [boundInfo.databaseName]);
+  }, [boundInfo.databaseName, isActive]);
 
   useEffect(() => {
-    if (supportSchema) {
+    if (!isActive) {
+      return;
+    }
+    if (supportSchema && boundInfo.schemaName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName, boundInfo.schemaName);
     }
-  }, [boundInfo.schemaName]);
+  }, [boundInfo.schemaName, isActive]);
 
   // 获取数据库列表
   const getDatabaseList = () => {
@@ -115,9 +124,7 @@ const SelectBoundInfo = memo((props: IProps) => {
         if (!_databaseNameList.length) {
           getSchemaList();
         }
-        setRegisterProvider(boundInfo.dataSourceId, editorDatabaseTips);
         setDatabaseNameList([emptyOption, ..._databaseNameList]);
-        registerIntelliSenseDatabase(editorDatabaseTips);
       });
   };
 
@@ -141,6 +148,37 @@ const SelectBoundInfo = memo((props: IProps) => {
       });
   };
 
+  // 注册表名
+  useEffect(() => {
+    if (isActive) {
+      const tableNameListTemp = allTableList.map((t) => t.name);
+      setTableNameList(tableNameListTemp);
+      registerIntelliSenseTable(
+        allTableList,
+        boundInfo.databaseType,
+        boundInfo.dataSourceId,
+        boundInfo.databaseName,
+        boundInfo.schemaName,
+      );
+      registerIntelliSenseField(
+        tableNameListTemp,
+        boundInfo.dataSourceId,
+        boundInfo.databaseName,
+        boundInfo.schemaName,
+      );
+      setSelectedTables(tableNameListTemp.slice(0, 1));
+    }
+  }, [allTableList, isActive]);
+
+  // 注册数据库名
+  useEffect(() => {
+    const editorDatabaseTips = databaseNameList.map((item) => ({
+      name: item.value,
+      dataSourceName: boundInfo.dataSourceName,
+    }));
+    registerIntelliSenseDatabase(editorDatabaseTips);
+  }, [databaseNameList]);
+
   // 选择数据源
   const changeDataSource = (item) => {
     const currentData = dataSourceList.find((i) => i.key === item.key)!;
@@ -152,12 +190,14 @@ const SelectBoundInfo = memo((props: IProps) => {
       databaseName: void 0,
       schemaName: void 0,
     });
-    historyService.updateSavedConsole({
-      id: boundInfo.consoleId,
-      dataSourceId: currentData.value,
-      dataSourceName: currentData.label,
-      type: currentData.type,
-    });
+    if (boundInfo.consoleId) {
+      historyService.updateSavedConsole({
+        id: boundInfo.consoleId,
+        dataSourceId: currentData.value,
+        dataSourceName: currentData.label,
+        type: currentData.type,
+      });
+    }
   };
 
   // 选择数据库
@@ -170,10 +210,12 @@ const SelectBoundInfo = memo((props: IProps) => {
       schemaName: void 0,
     });
 
-    historyService.updateSavedConsole({
-      id: boundInfo.consoleId,
-      databaseName: _databaseName,
-    });
+    if (boundInfo.consoleId) {
+      historyService.updateSavedConsole({
+        id: boundInfo.consoleId,
+        databaseName: _databaseName,
+      });
+    }
   };
 
   // 选择schema
@@ -184,10 +226,12 @@ const SelectBoundInfo = memo((props: IProps) => {
       schemaName: _schemaName,
     });
 
-    historyService.updateSavedConsole({
-      id: boundInfo.consoleId,
-      schemaName: _schemaName,
-    });
+    if (boundInfo.consoleId) {
+      historyService.updateSavedConsole({
+        id: boundInfo.consoleId,
+        schemaName: _schemaName,
+      });
+    }
   };
 
   const getAllTableNameList = (dataSourceId, databaseName, schemaName?) => {
@@ -198,25 +242,7 @@ const SelectBoundInfo = memo((props: IProps) => {
         schemaName,
       })
       .then((data) => {
-        const tableNameListTemp = data.map((t) => t.name);
-
-        registerIntelliSenseTable(
-          data,
-          boundInfo.databaseType,
-          boundInfo.dataSourceId,
-          boundInfo.databaseName,
-          boundInfo.schemaName,
-        );
-
-        registerIntelliSenseField(
-          tableNameListTemp,
-          boundInfo.dataSourceId,
-          boundInfo.databaseName,
-          boundInfo.schemaName,
-        );
-
-        setTableNameList(tableNameListTemp);
-        setSelectedTables(tableNameListTemp.slice(0, 1));
+        setAllTableList(data);
       });
   };
 

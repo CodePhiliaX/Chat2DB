@@ -1,13 +1,14 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
-import NewWorkspaceRight from './components/NewWorkspaceRight';
+import NewWorkspaceRight from './components/WorkspaceRight';
 
 import useMonacoTheme from '@/components/MonacoEditor/useMonacoTheme';
+import shortcutKeyCreateConsole from './functions/shortcutKeyCreateConsole';
 
 import styles from './index.less';
 
@@ -17,11 +18,16 @@ const workspacePage = memo(() => {
     return {
       panelLeft: state.layout.panelLeft,
       panelLeftWidth: state.layout.panelLeftWidth,
-    }
+    };
   });
 
   // 编辑器的主题
   useMonacoTheme();
+  // 快捷键
+
+  useEffect(() => {
+    shortcutKeyCreateConsole();
+  }, []);
 
   return (
     <div className={styles.workspace}>
