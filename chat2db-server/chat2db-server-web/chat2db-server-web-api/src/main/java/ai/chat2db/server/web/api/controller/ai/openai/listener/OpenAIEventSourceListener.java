@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.entity.chat.Message;
 import lombok.SneakyThrows;
@@ -54,6 +55,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             return;
         }
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 读取Json
         ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class);
         String text = completionResponse.getChoices().get(0).getDelta() == null

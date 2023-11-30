@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.rest.model.RestAiCompletion;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.sse.ConsoleEventSourceListener;
 import lombok.Getter;
@@ -102,6 +103,7 @@ public class RestAiStreamClient {
         try {
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(completion);
             Request request = new Request.Builder()
                 .url(this.apiUrl)
@@ -128,6 +130,7 @@ public class RestAiStreamClient {
         }
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(completion);
             Request request = new Request.Builder()
                 .url(this.apiUrl)
