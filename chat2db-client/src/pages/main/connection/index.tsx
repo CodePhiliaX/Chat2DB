@@ -26,7 +26,6 @@ import { useConnectionStore, getConnectionList } from '@/pages/main/store/connec
 import { setMainPageActiveTab } from '@/pages/main/store/main';
 import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 
-
 import styles from './index.less';
 
 const ConnectionsPage = () => {
@@ -50,7 +49,7 @@ const ConnectionsPage = () => {
   // 处理列表双击事件
   const handleMenuItemDoubleClick = (t: IConnectionListItem) => {
     setCurrentConnectionDetails(t);
-    setMainPageActiveTab('workspace')
+    setMainPageActiveTab('workspace');
   };
 
   // 处理列表单击和双击事件
@@ -81,6 +80,7 @@ const ConnectionsPage = () => {
         getConnectionList();
         if (connectionActiveId === t.id) {
           setConnectionActiveId(null);
+          setConnectionDetail(null);
         }
       });
     };

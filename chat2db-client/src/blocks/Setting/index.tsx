@@ -7,19 +7,16 @@ import BaseSetting from './BaseSetting';
 import AISetting from './AiSetting';
 import ProxySetting from './ProxySetting';
 import About from './About';
-import { IAiConfig } from '@/typings';
 import styles from './index.less';
 import { ILatestVersion } from '@/service/config';
 import UpdateDetection, { IUpdateDetectionRef, UpdatedStatusEnum } from '@/blocks/Setting/UpdateDetection';
 
 // ---- store -----
-import { useSettingStore, getAiSystemConfig, setAiSystemConfig } from '@/store/setting'
+import { useSettingStore, getAiSystemConfig, setAiSystemConfig } from '@/store/setting';
 
 interface IProps {
-  aiConfig: IAiConfig;
   className?: string;
   render?: ReactNode;
-  dispatch: (params: any) => void;
   noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
   defaultArouse?: boolean; // 是否默认弹出
   defaultMenu?: number; // 默认选中的菜单
@@ -35,7 +32,7 @@ function Setting(props: IProps) {
   const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
   const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
   const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
-  const aiConfig = useSettingStore(state => state.aiConfig);
+  const aiConfig = useSettingStore((state) => state.aiConfig);
 
   useEffect(() => {
     if (defaultArouse) {
@@ -166,9 +163,4 @@ function Setting(props: IProps) {
   );
 }
 
-// export default connect(({ ai }: { ai: IAIState }) => ({
-//   aiConfig: ai.aiConfig,
-// }))();
-
 export default Setting;
-

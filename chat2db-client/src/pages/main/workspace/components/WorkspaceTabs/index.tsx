@@ -63,6 +63,7 @@ const WorkspaceTabs = memo(() => {
             schemaName: item.schemaName,
             status: item.status,
             ddl: item.ddl,
+            connectable: item.connectable,
           },
         };
       }) || [];
@@ -150,6 +151,7 @@ const WorkspaceTabs = memo(() => {
           schemaName: uniqueData?.schemaName,
           consoleId: item.id as number,
           status: uniqueData.status,
+          connectable: uniqueData.connectable,
         }}
         initDDL={uniqueData.ddl}
         loadSQL={uniqueData.loadSQL}
@@ -183,6 +185,7 @@ const WorkspaceTabs = memo(() => {
   // 渲染所有表
   const renderViewAllTable = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
+    console.log('uniqueData', uniqueData);
     return <ViewAllTable />;
   };
 

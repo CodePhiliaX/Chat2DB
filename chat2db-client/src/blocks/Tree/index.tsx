@@ -283,18 +283,17 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     );
   }, [isFocus, isLoading, rightClickMenu]);
 
-  const sectionHeight = useMemo(() => {
-    console.log(treeNodeData.total);
-
-    if (treeNodeData.total) {
-      return `${treeNodeData.total * 26}px`;
-    } else {
-      return 'auto';
-    }
-  }, [treeNodeData.total]);
+  // const sectionHeight = useMemo(() => {
+  //   if (treeNodeData.total && treeNodeData.children) {
+  //     return `${treeNodeData.total * 26}px`;
+  //   } else {
+  //     return 'auto';
+  //   }
+  // }, [treeNodeData.total, treeNodeData.children]);
 
   return (
-    <div style={{ height: sectionHeight }}>
+    // style={{ height: sectionHeight }}
+    <div>
       {(showTreeNode || showParentNode) && treeNodeDom}
       {treeNodes}
     </div>

@@ -55,20 +55,6 @@ export const createConsole = (params: ICreateConsoleParams) => {
     }
     useWorkspaceStore.setState({ createConsoleLoading: true });
     historyService.createConsole(newConsole).then((res) => {
-      // 找到活跃的id的位置
-      // const activeIndex = workspaceTabList?.findIndex(
-      //   (item) => item?.id === useWorkspaceStore.getState().activeConsoleId,
-      // );
-      // // 向活跃的位置后插入数据
-      // if (activeIndex !== -1) {
-      //   workspaceTabList?.splice(activeIndex + 1, 0, {
-      //     id: res,
-      //     title: newConsole.name,
-      //     type: newConsole.operationType,
-      //     uniqueData: newConsole,
-      //   });
-      // }
-
       const newList = [
         ...(workspaceTabList || []),
         {

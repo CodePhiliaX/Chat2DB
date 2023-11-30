@@ -4,19 +4,11 @@ import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import ConsoleEditor, { IConsoleRef } from '@/components/ConsoleEditor';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
-import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { IBoundInfo } from '@/typings';
 
 interface IProps {
-  boundInfo: {
-    dataSourceId: number;
-    dataSourceName: string;
-    databaseType: DatabaseTypeCode;
-    databaseName?: string;
-    schemaName?: string;
-    status: ConsoleStatus;
-    consoleId: number;
-  };
+  boundInfo: IBoundInfo;
   initDDL: string;
   // 异步加载sql
   loadSQL: () => Promise<string>;
@@ -27,7 +19,7 @@ const SQLExecute = memo<IProps>((props) => {
   const draggableRef = useRef<any>();
   const searchResultRef = useRef<ISearchResultRef>(null);
   const consoleRef = useRef<IConsoleRef>(null);
-  const [boundInfo, setBoundInfo] = useState(_boundInfo);
+  const [boundInfo, setBoundInfo] = useState<IBoundInfo>(_boundInfo);
   const activeConsoleId = useWorkspaceStore((state) => state.activeConsoleId);
 
   useEffect(() => {
