@@ -66,4 +66,11 @@ public class SqliteMetaData extends DefaultMetaService implements MetaData {
     public String getMetaDataName(String... names) {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
+
+    @Override
+    public TableMeta getTableCollation(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .collations(SqliteCollationEnum.getCollations())
+                .build();
+    }
 }

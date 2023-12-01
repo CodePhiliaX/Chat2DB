@@ -302,4 +302,10 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .build();
     }
 
+    @Override
+    public TableMeta getTableCollation(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .collations(PostgreSQLCollationEnum.getCollations())
+                .build();
+    }
 }

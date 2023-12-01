@@ -99,6 +99,7 @@ export default {
   'common.Button.addSchema': '添加Schema',
   'common.label.comment': '备注',
   'common.label.name': '名称',
+  'common.label.collation': '排序规则',
   'common.title.create': '创建',
   'common.title.executiveLogging': '执行记录',
   'common.text.executionTime': '{1}ms 执行完毕',

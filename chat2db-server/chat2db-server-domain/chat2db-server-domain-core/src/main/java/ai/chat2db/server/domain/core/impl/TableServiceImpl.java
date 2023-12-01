@@ -577,4 +577,19 @@ public class TableServiceImpl implements TableService {
         }
         return DataResult.of(false);
     }
+
+    @Override
+    public TableMeta queryTableCollation(TypeQueryParam param) {
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        TableMeta tableMeta = metaSchema.getTableCollation(null, null, null);
+        if (tableMeta != null) {
+            //filter primary key
+            List<IndexType> indexTypes = tableMeta.getIndexTypes();
+            if (CollectionUtils.isNotEmpty(indexTypes)) {
+                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equals(indexType.getTypeName())).collect(Collectors.toList());
+                tableMeta.setIndexTypes(types);
+            }
+        }
+        return tableMeta;
+    }
 }

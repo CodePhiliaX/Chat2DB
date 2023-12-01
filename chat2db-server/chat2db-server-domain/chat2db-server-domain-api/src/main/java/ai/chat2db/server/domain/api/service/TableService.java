@@ -129,4 +129,6 @@ public interface TableService {
      * @return
      */
     DataResult<Boolean> checkTableVector(TableVectorParam param);
+
+    TableMeta queryTableCollation(TypeQueryParam param);
 }

@@ -214,4 +214,6 @@ public interface MetaData {
      */
     ValueHandler getValueHandler();
 
+    TableMeta getTableCollation(String databaseName, String schemaName, String tableName);
+
 }

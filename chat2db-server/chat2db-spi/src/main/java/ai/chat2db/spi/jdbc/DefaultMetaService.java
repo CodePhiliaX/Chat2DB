@@ -136,4 +136,9 @@ public class DefaultMetaService implements MetaData {
     public ValueHandler getValueHandler() {
         return new DefaultValueHandler();
     }
+
+    @Override
+    public TableMeta getTableCollation(String databaseName, String schemaName, String tableName) {
+        return null;
+    }
 }
