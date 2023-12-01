@@ -5,6 +5,11 @@ import { StoreApi } from 'zustand';
 
 import { IConnectionListItem, IConnectionEnv } from '@/typings/connection';
 import connectionService from '@/service/connection';
+
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { getOpenConsoleList } from '@/pages/main/workspace/store/console';
+
 export interface IConnectionStore {
   connectionList: IConnectionListItem[] | null;
   connectionEnvList: IConnectionEnv[] | null;
@@ -17,7 +22,7 @@ export const initConnectionStore = {
 
 export const useConnectionStore: UseBoundStoreWithEqualityFn<StoreApi<IConnectionStore>> = createWithEqualityFn(
   devtools(() => initConnectionStore),
-  shallow
+  shallow,
 );
 
 export const setConnectionList = (connectionList: IConnectionListItem[]) => {
@@ -27,8 +32,10 @@ export const setConnectionList = (connectionList: IConnectionListItem[]) => {
 export const setConnectionEnvList = (connectionEnvList: IConnectionEnv[]) => {
   return useConnectionStore.setState({ connectionEnvList });
 };
+
 export const getConnectionList: () => Promise<IConnectionListItem[]> = () => {
   return new Promise((resolve, reject) => {
+    const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
     connectionService
       .getList({
         pageNo: 1,
@@ -39,6 +46,26 @@ export const getConnectionList: () => Promise<IConnectionListItem[]> = () => {
         const connectionList = res?.data || [];
         useConnectionStore.setState({ connectionList });
         resolve(connectionList);
+        // 连接删除后需要更新下 consoleList
+        getOpenConsoleList();
+
+        // 如果连接列表为空，则设置当前连接为空
+        if (connectionList.length === 0) {
+          setCurrentConnectionDetails(null);
+          return;
+        }
+
+        // 如果当前连接不存在，则设置当前连接为第一个连接
+        if (!currentConnectionDetails?.id) {
+          setCurrentConnectionDetails(connectionList[0]);
+          return;
+        }
+
+        // 如果存在但是不在列表中，则设置当前连接为第一个连接
+        const currentConnection = connectionList.find((item) => item.id === currentConnectionDetails?.id);
+        if (!currentConnection) {
+          setCurrentConnectionDetails(connectionList[0]);
+        }
       })
       .catch(() => {
         useConnectionStore.setState({ connectionList: [] });

@@ -12,10 +12,11 @@ import { INavItem } from '@/typings/main';
 import { ILoginUser, IRole } from '@/typings/user';
 
 // ----- hooks -----
-import getConnection from '@/hooks/getConnection';
+import getConnectionEnvList from './functions/getConnection';
 
 // ----- store -----
 import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
+import { getConnectionList } from '@/pages/main/store/connection';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -66,16 +67,17 @@ function MainPage() {
   const navigate = useNavigate();
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
-  const mainPageActiveTab = useMainStore(state=> state.mainPageActiveTab)
+  const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
   const [activeNavKey, setActiveNavKey] = useState<string>(window.location.pathname.split('/')[1] || mainPageActiveTab);
 
   useEffect(() => {
     handleInitPage();
-    getConnection();
+    getConnectionList();
+    getConnectionEnvList();
   }, []);
 
   useUpdateEffect(() => {
-    switchingNav(mainPageActiveTab)
+    switchingNav(mainPageActiveTab);
   }, [mainPageActiveTab]);
 
   // 切换tab
@@ -117,7 +119,7 @@ function MainPage() {
 
   const switchingNav = (key: string) => {
     setActiveNavKey(key);
-    setMainPageActiveTab(key)
+    setMainPageActiveTab(key);
   };
 
   const handleLogout = () => {

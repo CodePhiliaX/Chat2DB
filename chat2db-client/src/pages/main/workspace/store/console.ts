@@ -6,6 +6,7 @@ import { ConsoleStatus, WorkspaceTabType } from '@/constants';
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
+  savedConsoleList: IConsole[] | null;
   activeConsoleId: string | number | null;
   workspaceTabList: IWorkspaceTab[] | null;
   createConsoleLoading: boolean
@@ -13,14 +14,16 @@ export interface IConsoleStore {
 
 export const initConsoleStore = {
   consoleList: null,
+  savedConsoleList: null,
   activeConsoleId: null,
   workspaceTabList: null,
-  createConsoleLoading: false
+  createConsoleLoading: false,
+
 };
 
-export const getSavedConsoleList = () => {
+export const getOpenConsoleList = () => {
   historyService
-    .getSavedConsoleList({
+    .getConsoleList({
       tabOpened: 'y',
       pageNo: 1,
       pageSize: 20,
@@ -29,6 +32,18 @@ export const getSavedConsoleList = () => {
       useWorkspaceStore.setState({ consoleList: res?.data });
     });
 };
+
+export const getSavedConsoleList = () => { 
+  historyService
+    .getConsoleList({
+      pageNo: 1,
+      pageSize: 100,
+      status: ConsoleStatus.RELEASE,
+    })
+    .then((res) => {
+      useWorkspaceStore.setState({ savedConsoleList: res?.data });
+    });
+}
 
 export const setActiveConsoleId = (id: IConsoleStore['activeConsoleId']) => {
   useWorkspaceStore.setState({ activeConsoleId: id });
@@ -55,20 +70,6 @@ export const createConsole = (params: ICreateConsoleParams) => {
     }
     useWorkspaceStore.setState({ createConsoleLoading: true });
     historyService.createConsole(newConsole).then((res) => {
-      // 找到活跃的id的位置
-      // const activeIndex = workspaceTabList?.findIndex(
-      //   (item) => item?.id === useWorkspaceStore.getState().activeConsoleId,
-      // );
-      // // 向活跃的位置后插入数据
-      // if (activeIndex !== -1) {
-      //   workspaceTabList?.splice(activeIndex + 1, 0, {
-      //     id: res,
-      //     title: newConsole.name,
-      //     type: newConsole.operationType,
-      //     uniqueData: newConsole,
-      //   });
-      // }
-
       const newList = [
         ...(workspaceTabList || []),
         {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, memo, useContext } from 'react';
-import { IBoundInfo, IntelligentEditorContext } from '../../index';
+import { IntelligentEditorContext } from '../../index';
 import { Dropdown } from 'antd';
 import { useConnectionStore } from '@/pages/main/store/connection';
 import connectionService from '@/service/connection';
@@ -8,6 +8,7 @@ import Iconfont from '@/components/Iconfont';
 import { databaseMap } from '@/constants/database';
 import styles from './index.less';
 import sqlService from '@/service/sql';
+import { IBoundInfo } from '@/typings';
 
 import {
   registerIntelliSenseField,
@@ -67,7 +68,7 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 当数据源变化时，重新获取数据库列表
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || boundInfo.connectable === false) {
       return;
     }
     if (supportDatabase) {
@@ -82,7 +83,7 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 当数据库名变化时，重新获取schema列表
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || boundInfo.connectable === false) {
       return;
     }
     if (supportSchema) {
@@ -94,7 +95,7 @@ const SelectBoundInfo = memo((props: IProps) => {
   }, [boundInfo.databaseName, isActive]);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive || boundInfo.connectable === false) {
       return;
     }
     if (supportSchema && boundInfo.schemaName) {

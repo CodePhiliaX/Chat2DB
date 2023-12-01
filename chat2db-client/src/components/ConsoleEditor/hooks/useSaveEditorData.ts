@@ -5,6 +5,7 @@ import indexedDB from '@/indexedDB';
 import historyServer from '@/service/history';
 import i18n from '@/i18n';
 import { getCookie } from '@/utils';
+import { getSavedConsoleList } from '@/pages/main/workspace/store/console';
 
 
 interface IProps {
@@ -30,6 +31,7 @@ export const useSaveEditorData = (props: IProps) => {
     };
 
     historyServer.updateSavedConsole(p).then(() => {
+      getSavedConsoleList();
       indexedDB.deleteData('chat2db', 'workspaceConsoleDDL', boundInfo.consoleId!);
       lastSyncConsole.current = value;
       setSaveStatus(ConsoleStatus.RELEASE);

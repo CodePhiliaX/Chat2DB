@@ -15,8 +15,7 @@ import ChatInput, { SyncModelType } from './components/ChatInput';
 import MonacoEditor, { IEditorOptions, IExportRefFunction, IRangeType } from '../MonacoEditor';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
-import { DatabaseTypeCode, ConsoleStatus } from '@/constants';
-import { IAiConfig } from '@/typings';
+import { IAiConfig, IBoundInfo } from '@/typings';
 import Popularize from '@/components/Popularize';
 import OperationLine from './components/OperationLine';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
@@ -46,16 +45,6 @@ export type IAppendValue = {
   text: any;
   range?: IRangeType;
 };
-
-export interface IBoundInfo {
-  consoleId?: number;
-  dataSourceId: number;
-  dataSourceName: string;
-  databaseType: DatabaseTypeCode;
-  databaseName?: string;
-  schemaName?: string;
-  status: ConsoleStatus;
-}
 
 interface IProps {
   /** 调用来源 */

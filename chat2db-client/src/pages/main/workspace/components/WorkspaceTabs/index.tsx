@@ -19,7 +19,7 @@ import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
 import {
-  getSavedConsoleList,
+  getOpenConsoleList,
   setActiveConsoleId,
   setWorkspaceTabList,
   createConsole,
@@ -44,7 +44,7 @@ const WorkspaceTabs = memo(() => {
 
   // 获取console
   useEffect(() => {
-    getSavedConsoleList();
+    getOpenConsoleList();
   }, []);
 
   // consoleList 先转换为通用的 workspaceTabList
@@ -63,6 +63,7 @@ const WorkspaceTabs = memo(() => {
             schemaName: item.schemaName,
             status: item.status,
             ddl: item.ddl,
+            connectable: item.connectable,
           },
         };
       }) || [];
@@ -150,6 +151,7 @@ const WorkspaceTabs = memo(() => {
           schemaName: uniqueData?.schemaName,
           consoleId: item.id as number,
           status: uniqueData.status,
+          connectable: uniqueData.connectable,
         }}
         initDDL={uniqueData.ddl}
         loadSQL={uniqueData.loadSQL}
@@ -183,6 +185,7 @@ const WorkspaceTabs = memo(() => {
   // 渲染所有表
   const renderViewAllTable = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
+    console.log('uniqueData', uniqueData);
     return <ViewAllTable />;
   };
 

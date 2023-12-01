@@ -4,6 +4,7 @@ import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.claude.interceptor.ClaudeHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -167,6 +168,7 @@ public class ClaudeAiStreamClient {
             claudeChatMessage.setConversation_uuid(this.userId);
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(claudeChatMessage);
 
             Request request = new Request.Builder()

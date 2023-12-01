@@ -117,4 +117,5 @@ export default {
   'common.button.closeOthers': '关闭其他',
   'common.label.tcp': '线上',
   'common.label.LocalFile': '本地',
+  'common.text.rename': '重命名',
 };

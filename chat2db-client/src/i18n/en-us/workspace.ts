@@ -2,7 +2,7 @@ export default {
   'workspace.title': 'Workspace',
   'workspace.cascader.placeholder': 'Select Here',
   'workspace.ai.input.placeholder': 'Enter your plain text statement here',
-  'workspace.title.saved': 'Saved',
+  'workspace.title.savedConsole': 'Saved console',
   'workspace.menu.ViewDDL': 'View DDL',
   'workspace.menu.deleteTable': 'Delete Table',
   'workspace.menu.openTable': 'Open Table',
@@ -31,4 +31,5 @@ export default {
   'workspace.tree.search.placeholder': 'Search in the expand node',
   'workspace.tree.delete.tip': 'I understand that this operation is permanently deleted',
   'workspace.tree.delete.table.tip': 'Are you sure you want to delete the table {1}?',
+  'workspace.tips.noConnection': 'You have not created a connection yet',
 };

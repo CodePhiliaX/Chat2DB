@@ -25,6 +25,7 @@ export default memo<IProps>((props) => {
 
   const getTreeData = (refresh = false) => {
     if (!currentConnectionDetails?.id) {
+      setTreeData([]);
       return;
     }
     setTreeData(null);

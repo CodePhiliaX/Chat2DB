@@ -16,12 +16,7 @@ import { databaseMap } from '@/constants';
 
 import { IConnectionListItem } from '@/typings/connection';
 
-interface IProps {
-  className?: string;
-}
-
-export default memo<IProps>((props) => {
-  const { className } = props;
+export default memo(() => {
   const { connectionList } = useConnectionStore((state) => {
     return {
       connectionList: state.connectionList,
@@ -33,6 +28,8 @@ export default memo<IProps>((props) => {
       currentConnectionDetails: state.currentConnectionDetails,
     };
   });
+
+  console.log('currentConnectionDetails', currentConnectionDetails);
 
   const renderConnectionLabel = (item: IConnectionListItem) => {
     return (
@@ -64,15 +61,13 @@ export default memo<IProps>((props) => {
   }, [connectionList, currentConnectionDetails]);
 
   return (
-    <div className={classnames(styles.workspaceLeftHeader, className)}>
-      <Dropdown menu={{ items: connectionItems }} trigger={['click']} overlayClassName={styles.dropdownOverlay}>
-        <div className={styles.selectConnection}>
-          {currentConnectionDetails && renderConnectionLabel(currentConnectionDetails)}
-          <div className={styles.dropDownArrow}>
-            <Iconfont code="&#xe641;" />
-          </div>
+    <Dropdown menu={{ items: connectionItems }} trigger={['click']} overlayClassName={styles.dropdownOverlay}>
+      <div className={styles.selectConnection}>
+        {currentConnectionDetails && renderConnectionLabel(currentConnectionDetails)}
+        <div className={styles.dropDownArrow}>
+          <Iconfont code="&#xe641;" />
         </div>
-      </Dropdown>
-    </div>
+      </div>
+    </Dropdown>
   );
 });

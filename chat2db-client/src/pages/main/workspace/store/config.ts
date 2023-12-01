@@ -10,7 +10,7 @@ export interface IConfigStore {
 export const initConfigStore: IConfigStore = {
   layout: {
     panelLeft: true,
-    panelRight: false,
+    panelRight: true,
     panelLeftWidth: 220,
   },
 }
