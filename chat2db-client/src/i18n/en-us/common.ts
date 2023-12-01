@@ -100,6 +100,7 @@ export default {
   'common.Button.addSchema': 'Add schema',
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
+  'common.label.collation': 'Collation',
   'common.title.create': 'Create',
   'common.title.executiveLogging': 'Executive logging',
   'common.text.executionTime': 'Affected in {1} ms',

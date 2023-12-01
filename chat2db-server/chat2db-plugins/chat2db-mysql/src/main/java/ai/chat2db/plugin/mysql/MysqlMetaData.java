@@ -297,4 +297,11 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public ValueHandler getValueHandler() {
         return new MysqlValueHandler();
     }
+
+    @Override
+    public TableMeta getTableCollation(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .collations(MysqlCollationEnum.getCollations())
+                .build();
+    }
 }

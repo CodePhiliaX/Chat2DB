@@ -1,18 +1,23 @@
-import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import React, {ForwardedRef, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState} from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Form, Input, Modal } from 'antd';
-import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
-import { v4 as uuid } from 'uuid';
+import {Form, Input, Modal, Select} from 'antd';
+import MonacoEditor, {IExportRefFunction} from '@/components/Console/MonacoEditor';
+import {v4 as uuid} from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';
-import { debounce } from 'lodash';
-import { DatabaseTypeCode } from '@/constants';
+import {debounce} from 'lodash';
+import {DatabaseTypeCode} from '@/constants';
 
 interface IProps {
   className?: string;
   curWorkspaceParams: any;
   executedCallback?: () => void;
+}
+
+interface IOption {
+  label: string;
+  value: string | number | null;
 }
 
 export type CreateType = 'database' | 'schema';
@@ -27,8 +32,14 @@ export interface ICreateDatabase {
   comment?: string;
 }
 
+export interface IDatabaseCollationList {
+    collations: IOption[];
+}
+
 // 创建database不支持注释的数据库
 const noCommentDatabase = [DatabaseTypeCode.MYSQL];
+// 支持collation的数据库
+const supportCollation = [DatabaseTypeCode.MYSQL,DatabaseTypeCode.POSTGRESQL,DatabaseTypeCode.SQLITE];
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
   const { className, curWorkspaceParams, executedCallback } = props;
@@ -41,6 +52,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
   );
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [createType, setCreateType] = useState<CreateType>('database');
+  const [databaseCollationList, setDatabaseCollationList] = useState<IDatabaseCollationList>({
+    collations: [],
+  });
 
   useEffect(() => {
     if (!open) {
@@ -49,6 +63,29 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
       monacoEditorRef.current?.setValue('', 'cover');
     }
   }, [open]);
+
+  useEffect(() => {
+    if (curWorkspaceParams.databaseType && databaseCollationList.collations.length === 0) {
+      getDatabaseCollationList();
+    }
+  }, [curWorkspaceParams])
+
+  const getDatabaseCollationList = () => {
+    sqlService
+        .getDatabaseCollationList(curWorkspaceParams)
+        .then((res) => {
+          const collations =
+              res?.collations?.map((i) => {
+                return {
+                  label: i.collationName,
+                  value: i.collationName,
+                };
+              }) || [];
+          setDatabaseCollationList({
+                collations,
+          });
+        });
+  }
 
   const config = useMemo(() => {
     return createType === 'database'
@@ -127,7 +164,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
     executeUpdateDataSql(sql);
   };
 
-  return (
+    return (
     <Modal
       onCancel={() => {
         setOpen(false);
@@ -143,6 +180,17 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
           <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
           </Form.Item>
+          {!supportCollation.includes(curWorkspaceParams.databaseType) ? null :(
+              <Form.Item label={i18n('common.label.collation')} name="collation">
+                  <Select
+                      bordered={false}
+                      placeholder="请选择排序顺序"
+                      showSearch
+                      popupMatchSelectWidth={false}
+                      options={databaseCollationList.collations}
+                  />
+              </Form.Item>
+          )}
           {noCommentDatabase.includes(curWorkspaceParams.databaseType) ? null : (
             <Form.Item label={i18n('common.label.comment')} name="comment">
               <Input autoComplete="off" />

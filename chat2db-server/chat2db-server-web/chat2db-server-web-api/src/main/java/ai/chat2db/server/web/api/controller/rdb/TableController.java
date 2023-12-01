@@ -239,6 +239,13 @@ public class TableController extends EmbeddingController {
         return DataResult.of(tableMeta);
     }
 
+    @GetMapping("/table_collation")
+    public DataResult<TableMeta> tableCollation(@Valid TypeQueryRequest request) {
+        TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        TableMeta tableMeta = tableService.queryTableCollation(typeQueryParam);
+        return DataResult.of(tableMeta);
+    }
+
     /**
      * 删除表
      *
