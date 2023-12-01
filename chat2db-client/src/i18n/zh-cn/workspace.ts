@@ -2,7 +2,7 @@ export default {
   'workspace.title': '工作台',
   'workspace.cascader.placeholder': '请选择',
   'workspace.ai.input.placeholder': '在这里输入纯文本语句',
-  'workspace.title.saved': '保存记录',
+  'workspace.title.savedConsole': '保存记录',
   'workspace.menu.ViewDDL': '查看DDL',
   'workspace.menu.deleteTable': '删除表',
   'workspace.menu.openTable': '打开表',

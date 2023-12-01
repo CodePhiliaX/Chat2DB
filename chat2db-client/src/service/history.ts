@@ -89,7 +89,7 @@ const getWindowTab = createRequest<{ id: number, orderByDesc: boolean }, number>
 
 const updateSavedConsole = createRequest<Partial<IConsole> & {id: number}, number>('/api/operation/saved/update', { method: 'post' });
 
-const getSavedConsoleList = createRequest<IGetSavedListParams, IPageResponse<IConsole>>('/api/operation/saved/list', {});
+const getConsoleList = createRequest<IGetSavedListParams, IPageResponse<IConsole>>('/api/operation/saved/list', {});
 
 const deleteSavedConsole = createRequest<{ id: number }, string>('/api/operation/saved/:id', { method: 'delete' });
 
@@ -98,7 +98,7 @@ const createHistory = createRequest<ISaveBasicInfo, void>('/api/operation/log/cr
 const getHistoryList = createRequest<IGetHistoryListParams, IPageResponse<IHistoryRecord>>('/api/operation/log/list', {});
 
 export default {
-  getSavedConsoleList,
+  getConsoleList,
   updateSavedConsole,
   getHistoryList,
   createConsole,

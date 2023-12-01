@@ -2,7 +2,7 @@ export default {
   'workspace.title': 'Workspace',
   'workspace.cascader.placeholder': 'Select Here',
   'workspace.ai.input.placeholder': 'Enter your plain text statement here',
-  'workspace.title.saved': 'Saved',
+  'workspace.title.savedConsole': 'Saved console',
   'workspace.menu.ViewDDL': 'View DDL',
   'workspace.menu.deleteTable': 'Delete Table',
   'workspace.menu.openTable': 'Open Table',

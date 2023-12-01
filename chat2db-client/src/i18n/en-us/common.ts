@@ -118,4 +118,5 @@ export default {
   'common.button.closeOthers': 'Close others',
   'common.label.tcp': 'TCP',
   'common.label.LocalFile': 'LocalFile',
+  'common.text.rename': 'Rename',
 };  

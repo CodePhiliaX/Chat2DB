@@ -19,7 +19,7 @@ import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
 import {
-  getSavedConsoleList,
+  getOpenConsoleList,
   setActiveConsoleId,
   setWorkspaceTabList,
   createConsole,
@@ -44,7 +44,7 @@ const WorkspaceTabs = memo(() => {
 
   // 获取console
   useEffect(() => {
-    getSavedConsoleList();
+    getOpenConsoleList();
   }, []);
 
   // consoleList 先转换为通用的 workspaceTabList

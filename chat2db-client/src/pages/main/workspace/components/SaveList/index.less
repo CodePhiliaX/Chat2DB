@@ -2,6 +2,9 @@
 
 .saveModule {
   flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .leftModuleTitle {
@@ -11,6 +14,7 @@
   height: 32px;
   display: flex;
   align-items: center;
+  border-bottom: 1px solid var(--color-border);
   .leftModuleTitleText {
     width: 100%;
     display: flex;
@@ -51,8 +55,9 @@
 }
 
 .saveBoxList {
-  padding: 0px 10px;
-  height: calc(26px * 3 + 6px);
+  flex: 1;
+  height: 0px;
+  padding: 0px 4px;
   overflow-y: hidden;
   &:hover {
     overflow-y: auto;
@@ -89,17 +94,9 @@
       .f-single-line();
     }
   }
-  .moreButton {
-    flex-shrink: 0;
-    display: none;
-    transform: rotate(90deg);
-  }
 
   &:hover {
     background-color: var(--color-hover-bg);
     color: var(--color-primary);
-    .moreButton {
-      display: block;
-    }
   }
 }
