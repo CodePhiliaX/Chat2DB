@@ -90,11 +90,23 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           setTimeout(() => {
             console.log(res);
             if (res.data) {
-              setTreeNodeData({
-                ...treeNodeData,
-                children: res.data,
-                total: res.total,
-              });
+              // res.data每次只插入200条数据，间隔30ms
+              const count = res.data.length / 200;
+              for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                  setTreeNodeData({
+                    ...treeNodeData,
+                    children: res.data.slice(0, (i + 1) * 50),
+                    total: res.total,
+                  });
+                }, 100 * i);
+              }
+
+              // setTreeNodeData({
+              //   ...treeNodeData,
+              //   children: res.data,
+              //   total: res.total,
+              // });
             } else {
               setTreeNodeData({
                 ...treeNodeData,

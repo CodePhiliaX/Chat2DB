@@ -105,7 +105,7 @@ export default function TableBox(props: ITableProps) {
   const { className, outerQueryResultData, tableBoxId } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [, contextHolder] = message.useMessage();
-  const { activeTabIdRef } = useContext(Context);
+  const { activeTabId } = useContext(Context);
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
   // sql查询结果
   const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
@@ -1098,7 +1098,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {activeTabIdRef?.current === tableBoxId && renderContent()}
+      {activeTabId === tableBoxId && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

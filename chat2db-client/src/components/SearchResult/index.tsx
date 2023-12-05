@@ -46,7 +46,7 @@ export interface ISearchResultRef {
 
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
-  activeTabIdRef: React.MutableRefObject<null | string>;
+  activeTabId: string;
 }
 
 export const Context = createContext<IContext>({} as any);
@@ -56,7 +56,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
-  const activeTabIdRef = useRef<null | string>(null);
+  const [activeTabId, setActiveTabId] = useState<string>('');
 
   useEffect(() => {
     if (sql) {
@@ -102,7 +102,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   };
 
   const onChange = useCallback((uuid) => {
-    activeTabIdRef.current = uuid;
+    // activeTabIdRef.current = uuid;
+    setActiveTabId(uuid);
   }, []);
 
   const renderResult = (queryResultData) => {
@@ -189,7 +190,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   return (
     <Context.Provider
       value={{
-        activeTabIdRef: activeTabIdRef,
+        activeTabId: activeTabId,
       }}
     >
       <div className={classnames(className, styles.searchResult)}>
