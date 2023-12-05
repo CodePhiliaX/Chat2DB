@@ -154,6 +154,9 @@ function ChartItem(props: IChartItemProps) {
     setIsLoading(true);
 
     const res = await getChartById({ id: props.id });
+    if (!res.dataSourceId) {
+      res.connectable = undefined;
+    }
     setChartData(res);
 
     // 设置级联value
@@ -165,7 +168,7 @@ function ChartItem(props: IChartItemProps) {
     const formValue = JSON.parse(res.schema || '{}');
     form.setFieldsValue(formValue);
 
-    if (res.ddl) {
+    if (res.ddl && res.connectable) {
       setInitDDL(res.ddl);
       handleExecuteSQL(res.ddl, res);
       // let p: IExecuteSqlParams = {
