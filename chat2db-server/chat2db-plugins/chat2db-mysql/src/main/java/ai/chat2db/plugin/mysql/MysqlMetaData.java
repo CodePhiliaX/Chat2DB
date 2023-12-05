@@ -297,4 +297,11 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public ValueHandler getValueHandler() {
         return new MysqlValueHandler();
     }
+
+    @Override
+    public TableMeta getTableCharset(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .charsets(MysqlCharsetEnum.getCharsets())
+                .build();
+    }
 }

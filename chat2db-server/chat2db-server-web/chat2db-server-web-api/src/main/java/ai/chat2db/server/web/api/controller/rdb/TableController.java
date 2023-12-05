@@ -250,4 +250,17 @@ public class TableController extends EmbeddingController {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
     }
+
+    /**
+     * 数据库支持的字符集
+     * @param request
+     * @return
+     */
+    @GetMapping("/table_charset")
+    public DataResult<TableMeta> tableCharset(@Valid TypeQueryRequest request) {
+        TypeQueryParam typeQueryParam = TypeQueryParam.builder().dataSourceId(request.getDataSourceId()).build();
+        TableMeta tableMeta = tableService.queryTableCharset(typeQueryParam);
+        return DataResult.of(tableMeta);
+    }
+
 }

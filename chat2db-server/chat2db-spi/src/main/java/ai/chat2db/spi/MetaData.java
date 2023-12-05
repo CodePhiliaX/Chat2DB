@@ -214,4 +214,5 @@ public interface MetaData {
      */
     ValueHandler getValueHandler();
 
+    TableMeta getTableCharset(String databaseName, String schemaName, String tableName);
 }

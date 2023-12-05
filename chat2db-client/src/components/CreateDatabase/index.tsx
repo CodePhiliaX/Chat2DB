@@ -1,7 +1,7 @@
 import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Form, Input, Modal } from 'antd';
+import {Form, Input, Modal, Select} from 'antd';
 import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
 import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
@@ -13,6 +13,11 @@ interface IProps {
   className?: string;
   curWorkspaceParams: any;
   executedCallback?: () => void;
+}
+
+interface IOption {
+  label: string;
+  value: string | number | null;
 }
 
 export type CreateType = 'database' | 'schema';
@@ -27,8 +32,14 @@ export interface ICreateDatabase {
   comment?: string;
 }
 
+export interface IDatabaseCharsetList {
+  charsets: IOption[];
+}
+
 // 创建database不支持注释的数据库
 const noCommentDatabase = [DatabaseTypeCode.MYSQL];
+// 支持charset的数据库
+const supportCharset = [DatabaseTypeCode.MYSQL];
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
   const { className, curWorkspaceParams, executedCallback } = props;
@@ -41,6 +52,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
   );
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [createType, setCreateType] = useState<CreateType>('database');
+  const [databaseCharsetList, setDatabaseCharsetList] = useState<IDatabaseCharsetList>({
+    charsets: [],
+  });
 
   useEffect(() => {
     if (!open) {
@@ -49,6 +63,33 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
       monacoEditorRef.current?.setValue('', 'cover');
     }
   }, [open]);
+
+  useEffect(() => {
+    if (curWorkspaceParams.databaseType && databaseCharsetList.charsets.length === 0) {
+      getDatabaseCharsetList();
+    }
+  }, [curWorkspaceParams])
+
+  const initialOption = {
+    label: '',
+    value: '',
+  };
+  const getDatabaseCharsetList = () => {
+    sqlService
+        .getDatabaseCharsetList(curWorkspaceParams)
+        .then((res) => {
+          const charsets = [initialOption,
+              ...(res?.charsets?.map((i) => {
+                return {
+                  label: i.charsetName,
+                  value: i.charsetName,
+                };
+              }) || [])];
+          setDatabaseCharsetList({
+            charsets,
+          });
+        });
+  }
 
   const config = useMemo(() => {
     return createType === 'database'
@@ -142,6 +183,15 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         <Form labelAlign="left" form={form} labelCol={labelCol} onFieldsChange={handleFieldsChange} name="create">
           <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
+          </Form.Item>
+          <Form.Item label={i18n('common.label.charset')} name="charset">
+            <Select
+                bordered={false}
+                placeholder="请选择字符集"
+                showSearch
+                popupMatchSelectWidth={false}
+                options={databaseCharsetList.charsets}
+            />
           </Form.Item>
           {noCommentDatabase.includes(curWorkspaceParams.databaseType) ? null : (
             <Form.Item label={i18n('common.label.comment')} name="comment">
