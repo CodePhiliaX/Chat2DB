@@ -2,12 +2,18 @@ package ai.chat2db.server.web.api.http;
 
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.common.config.Chat2dbProperties;
 import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.WhiteListRequest;
 import ai.chat2db.server.web.api.http.response.*;
-import com.dtflys.forest.annotation.*;
+import com.dtflys.forest.Forest;
+import com.dtflys.forest.utils.TypeReference;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 
 /**
@@ -15,17 +21,28 @@ import com.dtflys.forest.annotation.*;
  *
  * @author Jiaju Zhuang
  */
-@BaseRequest(
-    baseURL = "{gatewayBaseUrl}"
-)
-public interface GatewayClientService {
+//@BaseRequest(
+//    baseURL = "{gatewayBaseUrl}"
+//)
+@Service
+public class GatewayClientService {
+
+    @Resource
+    private Chat2dbProperties chat2dbProperties;
+
     /**
      * 获取公众号的二维码
      *
      * @return
      */
-    @Get("/api/client/loginQrCode")
-    DataResult<QrCodeResponse> getLoginQrCode();
+    public DataResult<QrCodeResponse> getLoginQrCode() {
+        DataResult<QrCodeResponse> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/loginQrCode")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * Refresh login
@@ -33,8 +50,16 @@ public interface GatewayClientService {
      * @param token
      * @return
      */
-    @Get("/api/client/loginStatus")
-    DataResult<QrCodeResponse> getLoginStatus(@Query("token") String token);
+    public DataResult<QrCodeResponse> getLoginStatus(String token) {
+        DataResult<QrCodeResponse> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/loginStatus")
+                .connectTimeout(Duration.ofMillis(5000))
+                .addQuery("token", token)
+                .readTimeout(Duration.ofMillis(10000))
+                .execute(new TypeReference<>() {
+                });
+        return result;
+
+    }
 
     /**
      * 返回剩余次数
@@ -42,8 +67,15 @@ public interface GatewayClientService {
      * @param key
      * @return
      */
-    @Get("/api/client/remaininguses/{key}")
-    DataResult<ApiKeyResponse> remaininguses(@Var("key") String key);
+    public DataResult<ApiKeyResponse> remaininguses(String key) {
+        DataResult<ApiKeyResponse> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/remaininguses/" + key)
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .execute(new TypeReference<>() {
+                });
+        return result;
+
+    }
 
 
     /**
@@ -52,9 +84,17 @@ public interface GatewayClientService {
      * @param apiKey
      * @return
      */
-    @Get("/api/client/inviteQrCode")
-    DataResult<InviteQrCodeResponse> getInviteQrCode(@Query("apiKey") String apiKey);
+    public DataResult<InviteQrCodeResponse> getInviteQrCode(String apiKey) {
+        DataResult<InviteQrCodeResponse> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/inviteQrCode")
+                .connectTimeout(Duration.ofMillis(5000))
+                .addQuery("apiKey", apiKey)
+                .readTimeout(Duration.ofMillis(10000))
+                .execute(new TypeReference<>() {
+                });
+        return result;
 
+
+    }
 
     /**
      * save knowledge vector
@@ -62,8 +102,18 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post(url = "/api/client/milvus/knowledge/save", contentType = "application/json")
-    ActionResult knowledgeVectorSave(@Body KnowledgeRequest request);
+    public ActionResult knowledgeVectorSave(KnowledgeRequest request) {
+
+        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/milvus/knowledge/save")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+
+    }
 
     /**
      * save table schema vector
@@ -71,8 +121,16 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post(url = "/api/client/milvus/schema/save", contentType = "application/json")
-    ActionResult schemaVectorSave(@Body TableSchemaRequest request);
+    public ActionResult schemaVectorSave(TableSchemaRequest request) {
+        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/milvus/schema/save")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * save table schema vector
@@ -80,8 +138,16 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post(url = "/api/client/es/schema/save", contentType = "application/json")
-    ActionResult schemaEsSave(@Body EsTableSchemaRequest request);
+    public ActionResult schemaEsSave(EsTableSchemaRequest request) {
+        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/es/schema/save")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * save knowledge vector
@@ -89,8 +155,16 @@ public interface GatewayClientService {
      * @param searchVectors
      * @return
      */
-    @Post(url = "/api/client/milvus/knowledge/search", contentType = "application/json")
-    DataResult<KnowledgeResponse> knowledgeVectorSearch(@Body KnowledgeRequest searchVectors);
+    public DataResult<KnowledgeResponse> knowledgeVectorSearch(KnowledgeRequest searchVectors) {
+        DataResult<KnowledgeResponse> result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/milvus/knowledge/search")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(searchVectors)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * save table schema vector
@@ -98,8 +172,16 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post(url = "/api/client/milvus/schema/search", contentType = "application/json")
-    DataResult<TableSchemaResponse> schemaVectorSearch(@Body TableSchemaRequest request);
+    public DataResult<TableSchemaResponse> schemaVectorSearch(TableSchemaRequest request) {
+        DataResult<TableSchemaResponse> result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/milvus/schema/search")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * save table schema vector
@@ -107,8 +189,16 @@ public interface GatewayClientService {
      * @param request
      * @return
      */
-    @Post(url = "/api/client/es/schema/search", contentType = "application/json")
-    DataResult<EsTableSchemaResponse> schemaEsSearch(@Body EsTableSchemaRequest request);
+    public DataResult<EsTableSchemaResponse> schemaEsSearch(EsTableSchemaRequest request) {
+        DataResult<EsTableSchemaResponse> result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/es/schema/search")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
     /**
      * check in white list
@@ -116,7 +206,14 @@ public interface GatewayClientService {
      * @param whiteListRequest
      * @return
      */
-    @Get("/api/client/whitelist/check")
-    DataResult<Boolean> checkInWhite(@Query WhiteListRequest whiteListRequest);
+    public DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest) {
+        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .addQuery(whiteListRequest)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 
 }

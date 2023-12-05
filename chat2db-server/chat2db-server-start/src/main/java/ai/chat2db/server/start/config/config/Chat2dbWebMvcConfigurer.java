@@ -23,9 +23,6 @@ import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.I18nUtils;
-import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.util.SaFoxUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -60,10 +57,6 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
 
     @Resource
     private UserService userService;
-    @Resource
-    private TeamUserService teamUserService;
-    @Resource
-    private Chat2dbProperties chat2dbProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -73,27 +66,12 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                     @NotNull Object handler) {
-                    String userIdString = (String)StpUtil.getLoginIdDefaultNull();
-                    Long userId;
-                    // 未登录
-                    if (!StringUtils.isNumeric(userIdString)) {
-                        if (chat2dbProperties.getMode() == ModeEnum.DESKTOP) {
-                            userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
-                        } else {
-                            return true;
-                        }
-                    } else {
-                        userId = Long.parseLong(userIdString);
-                    }
+                    Long userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
                     Long finalUserId = userId;
                     LoginUser loginUser = MemoryCacheManage.computeIfAbsent(CacheKey.getLoginUserKey(userId), () -> {
                         User user = userService.query(finalUserId).getData();
                         if (user == null) {
                             return null;
-                        }
-                        if (!ValidStatusEnum.VALID.getCode().equals(user.getStatus())) {
-                            StpUtil.logout();
-                            throw new BusinessException("oauth.invalidUserName");
                         }
                         boolean admin = RoleCodeEnum.ADMIN.getCode().equals(user.getRoleCode());
 
@@ -128,71 +106,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
             .excludePathPatterns(FRONT_PERMIT_ALL);
 
         // 校验登录信息
-        registry.addInterceptor(new AsyncHandlerInterceptor() {
-                @Override
-                public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-                    @NotNull Object handler) throws IOException {
-                    Context context = ContextUtils.queryContext();
-                    // 校验登录信息
-                    if (context == null) {
-                        log.info("访问{},{}需要登录", buildHeaderString(request), SaHolder.getRequest().getUrl());
-
-                        String path = SaHolder.getRequest().getRequestPath();
-//                        if(path.startsWith("/login")){
-//                            return true;
-//                        }
-                        if (path.startsWith(API_PREFIX)) {
-                            response.getWriter().println(JSON.toJSONString(
-                                ActionResult.fail("common.needLoggedIn", I18nUtils.getMessage("common.needLoggedIn"),
-                                    "")));
-                            return false;
-                        } else {
-                            throw new RedirectBusinessException(
-                                "/login?callback=" + SaFoxUtil.joinParam(request.getRequestURI(),
-                                    request.getQueryString()));
-                        }
-                    }
-                    return true;
-                }
-            })
-            .order(2)
-            .addPathPatterns("/**")
-            // 前端需要放行的链接
-            .excludePathPatterns(FRONT_PERMIT_ALL)
-            // -a结尾的统一放行
-            .excludePathPatterns("/**/*-a")
-            // _a结尾的统一放行
-            .excludePathPatterns("/**/*_a");
-
-        // 校验权限
-        registry.addInterceptor(new AsyncHandlerInterceptor() {
-                @Override
-                public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
-                    @NotNull Object handler) throws IOException {
-                    LoginUser loginUser = ContextUtils.getLoginUser();
-                    if (BooleanUtils.isNotTrue(loginUser.getAdmin())) {
-                        throw new PermissionDeniedBusinessException();
-                    }
-                    return true;
-                }
-            })
-            .order(3)
-            .addPathPatterns("/api/admin/**")
-            .addPathPatterns("/admin/**")
-        ;
 
     }
 
-    private String buildHeaderString(HttpServletRequest request) {
-        StringBuilder stringBuilder = new StringBuilder();
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headName = headerNames.nextElement();
-            stringBuilder.append(headName);
-            stringBuilder.append(SymbolConstant.COLON);
-            stringBuilder.append(request.getHeader(headName));
-            stringBuilder.append(SymbolConstant.COMMA);
-        }
-        return stringBuilder.toString();
-    }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Configure information on the user side
@@ -78,13 +79,49 @@ public class ConfigUtils {
     private static String getAppPath() {
         try {
             String jarPath = System.getProperty("project.path");
-            log.info("user home: {}", System.getProperty("user.home"));
-            log.info("project.path: {}", System.getProperty("project.path"));
-            log.info("jarPath: {}", jarPath);
+//            log.info("user home: {}", System.getProperty("user.home"));
+//            log.info("project.path: {}", System.getProperty("project.path"));
+//            log.info("jarPath: {}", jarPath);
             return FileUtil.getParent(jarPath, 4);
         } catch (Exception e) {
             log.error("getAppPath error", e);
             return null;
         }
+    }
+
+    public static void pid() {
+        try {
+
+            ProcessHandle currentProcess = ProcessHandle.current();
+            long pid = currentProcess.pid();
+            String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
+            File pidFile = new File(CONFIG_BASE_PATH + File.separator + "config" + File.separator + environment + "pid");
+            if (!pidFile.exists()) {
+                FileUtil.writeUtf8String(String.valueOf(pid), pidFile);
+            } else {
+                String oldPid = FileUtil.readUtf8String(pidFile);
+                if (StringUtils.isNotBlank(oldPid)) {
+                    Optional<ProcessHandle> processHandle = ProcessHandle.of(Long.parseLong(oldPid));
+                    processHandle.ifPresent(handle -> {
+                        ProcessHandle.Info info = handle.info();
+                        String[] arguments = info.arguments().orElse(null);
+                        if (arguments == null) {
+                            return;
+                        }
+                        for (String argument : arguments) {
+                            if (StringUtils.equals("chat2db-server-start.jar", argument)) {
+                                handle.destroy();
+                                break;
+                            }
+                        }
+                    });
+                }
+                FileUtil.writeUtf8String(String.valueOf(pid), pidFile);
+            }
+
+        }catch (Exception e){
+            log.error("updatePid error",e);
+        }
+
     }
 }

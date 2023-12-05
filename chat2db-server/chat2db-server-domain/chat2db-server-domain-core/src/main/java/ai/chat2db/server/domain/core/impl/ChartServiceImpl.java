@@ -16,6 +16,7 @@ import ai.chat2db.server.domain.api.service.ChartService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.core.converter.ChartConverter;
 import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.ChartDO;
 import ai.chat2db.server.domain.repository.entity.DashboardChartRelationDO;
 import ai.chat2db.server.domain.repository.mapper.ChartMapper;
@@ -44,9 +45,6 @@ import org.springframework.stereotype.Service;
 public class ChartServiceImpl implements ChartService {
 
     @Autowired
-    private ChartMapper chartMapper;
-
-    @Autowired
     private DataSourceService dataSourceService;
 
     @Autowired
@@ -62,7 +60,7 @@ public class ChartServiceImpl implements ChartService {
         param.setDeleted(YesOrNoEnum.NO.getLetter());
         param.setUserId(ContextUtils.getUserId());
         ChartDO chartDO = chartConverter.param2do(param);
-        chartMapper.insert(chartDO);
+        getMapper().insert(chartDO);
         return DataResult.of(chartDO.getId());
     }
 
@@ -73,13 +71,13 @@ public class ChartServiceImpl implements ChartService {
 
         param.setGmtModified(LocalDateTime.now());
         ChartDO chartDO = chartConverter.updateParam2do(param);
-        chartMapper.updateById(chartDO);
+        getMapper().updateById(chartDO);
         return ActionResult.isSuccess();
     }
 
     @Override
     public DataResult<Chart> find(Long id) {
-        ChartDO chartDO = chartMapper.selectById(id);
+        ChartDO chartDO = getMapper().selectById(id);
         if (YesOrNoEnum.YES.getLetter().equals(chartDO.getDeleted())) {
             return DataResult.empty();
         }
@@ -95,7 +93,7 @@ public class ChartServiceImpl implements ChartService {
             .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
             .eqWhenPresent(ChartDO::getId, param.getId())
             .eqWhenPresent(ChartDO::getUserId, param.getUserId());
-        IPage<ChartDO> page = chartMapper.selectPage(new Page<>(1, 1), queryWrapper);
+        IPage<ChartDO> page = getMapper().selectPage(new Page<>(1, 1), queryWrapper);
         if (CollectionUtils.isEmpty(page.getRecords())) {
             throw new DataNotFoundException();
         }
@@ -120,7 +118,7 @@ public class ChartServiceImpl implements ChartService {
             .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
             .inWhenPresent(ChartDO::getId, param.getIdList())
             .eqWhenPresent(ChartDO::getUserId, param.getUserId());
-        List<ChartDO> queryList = chartMapper.selectList(queryWrapper);
+        List<ChartDO> queryList = getMapper().selectList(queryWrapper);
         List<Chart> list = chartConverter.do2model(queryList);
         setDataSourceInfo(list);
         return ListResult.of(list);
@@ -134,7 +132,7 @@ public class ChartServiceImpl implements ChartService {
         ChartDO chartDO = new ChartDO();
         chartDO.setId(id);
         chartDO.setDeleted(YesOrNoEnum.YES.getLetter());
-        chartMapper.updateById(chartDO);
+        getMapper().updateById(chartDO);
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DashboardChartRelationDO::getChartId, id);
         List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
@@ -150,7 +148,7 @@ public class ChartServiceImpl implements ChartService {
         if (CollectionUtils.isEmpty(ids)) {
             return ListResult.empty();
         }
-        List<ChartDO> chartDOS = chartMapper.selectBatchIds(ids);
+        List<ChartDO> chartDOS = getMapper().selectBatchIds(ids);
         List<Chart> charts = chartConverter.do2model(chartDOS);
         List<Chart> result = charts.stream().filter(o -> YesOrNoEnum.NO.getLetter().equals(o.getDeleted())).toList();
         setDataSourceInfo(result);
@@ -172,5 +170,9 @@ public class ChartServiceImpl implements ChartService {
                 o.setDataSourceName(dataSourceMap.get(o.getDataSourceId()).getAlias());
             }
         });
+    }
+
+    private ChartMapper getMapper() {
+        return Dbutils.getMapper(ChartMapper.class);
     }
 }

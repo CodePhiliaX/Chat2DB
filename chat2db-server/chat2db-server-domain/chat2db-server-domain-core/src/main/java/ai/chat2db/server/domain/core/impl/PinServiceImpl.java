@@ -3,6 +3,7 @@ package ai.chat2db.server.domain.core.impl;
 import ai.chat2db.server.domain.api.param.PinTableParam;
 import ai.chat2db.server.domain.api.service.PinService;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.PinTableDO;
 import ai.chat2db.server.domain.repository.mapper.PinTableMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -25,14 +26,15 @@ public class PinServiceImpl implements PinService {
     @Autowired
     private PinTableConverter pinTableConverter;
 
-    @Autowired
-    private PinTableMapper pinTableMapper;
+    private PinTableMapper getMapper() {
+        return Dbutils.getMapper(PinTableMapper.class);
+    }
 
     @Override
     public ActionResult pinTable(PinTableParam param) {
         PinTableDO entity = pinTableConverter.param2do(param);
         entity.setUserId(ContextUtils.getUserId());
-        pinTableMapper.insert(entity);
+        getMapper().insert(entity);
         return ActionResult.isSuccess();
     }
 
@@ -51,7 +53,7 @@ public class PinServiceImpl implements PinService {
         if (StringUtils.isNotBlank(param.getTableName())) {
             updateWrapper.eq(PinTableDO::getTableName, param.getTableName());
         }
-        pinTableMapper.delete(updateWrapper);
+        getMapper().delete(updateWrapper);
         return ActionResult.isSuccess();
     }
 
@@ -71,7 +73,7 @@ public class PinServiceImpl implements PinService {
             queryWrapper.eq(PinTableDO::getTableName, param.getTableName());
         }
         queryWrapper.orderByDesc(PinTableDO::getGmtModified);
-        List<PinTableDO> list = pinTableMapper.selectList(queryWrapper);
+        List<PinTableDO> list = getMapper().selectList(queryWrapper);
         if (!CollectionUtils.isEmpty(list)) {
             result = list.stream().map(pinTableDO -> pinTableDO.getTableName()).collect(Collectors.toList());
         }
