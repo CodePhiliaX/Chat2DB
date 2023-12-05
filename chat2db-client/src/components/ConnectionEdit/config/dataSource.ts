@@ -2070,11 +2070,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /mongodb:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'mongodb://{host}:{port}/{database}',
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable,OperationColumn.EditTable]
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
+    extendInfo: [],
     type: DatabaseTypeCode.MONGODB
   },
 ];

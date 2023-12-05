@@ -11,7 +11,6 @@ import { approximateList } from '@/utils';
 import { addWorkspaceTab, getSavedConsoleList } from '@/pages/main/workspace/store/console';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import MenuLabel from '@/components/MenuLabel';
-import { set } from 'lodash';
 
 const SaveList = () => {
   const [searching, setSearching] = useState<boolean>(false);

@@ -105,7 +105,7 @@ export default function TableBox(props: ITableProps) {
   const { className, outerQueryResultData, tableBoxId } = props;
   const [viewTableCellData, setViewTableCellData] = useState<IViewTableCellData | null>(null);
   const [, contextHolder] = message.useMessage();
-  const { activeTabIdRef } = useContext(Context);
+  const { activeTabId } = useContext(Context);
   const [paginationConfig, setPaginationConfig] = useState<IResultConfig>(defaultPaginationConfig);
   // sql查询结果
   const [queryResultData, setQueryResultData] = useState<IManageResultData>(outerQueryResultData);
@@ -295,8 +295,13 @@ export default function TableBox(props: ITableProps) {
     setCurOperationRowNo(null);
     // 当前聚焦或者编辑的单元格的数据
     setEditingData(value);
+    // 如果数据不支持修改，则该单元格不支持编辑
+    if (!queryResultData.canEdit) {
+      setEditingCell([colId, rowId, false]);
+    } else {
+      setEditingCell([colId, rowId, isEditing]);
+    }
     // 当前聚焦或者编辑的单元格的坐标
-    setEditingCell([colId, rowId, isEditing]);
     // 如果是编辑状态，则需要聚焦到input
     if (isEditing) {
       setTimeout(() => {
@@ -611,7 +616,7 @@ export default function TableBox(props: ITableProps) {
               className={styles.allSelectBox}
               onClick={() => {
                 setEditingCell(null);
-                if(curOperationRowNo){
+                if (curOperationRowNo) {
                   setCurOperationRowNo(null);
                   return;
                 }
@@ -888,16 +893,6 @@ export default function TableBox(props: ITableProps) {
   };
 
   const rowRightClickMenu = useMemo(() => {
-    // const allSupportedMenus = {
-    //   [AllSupportedMenusType.CopyCell]: copyCell,
-    //   [AllSupportedMenusType.CopyRow]: copyRow,
-    //   [AllSupportedMenusType.CloneRow]: cloneRow,
-    //   [AllSupportedMenusType.DeleteRow]: deleteRow,
-    //   [AllSupportedMenusType.SetDefault]: setDefault,
-    //   [AllSupportedMenusType.SetNull]: setNull,
-    //   [AllSupportedMenusType.ViewData]: viewData,
-    // }
-
     let rightClickMenu: any = [];
     if (curOperationRowNo) {
       rightClickMenu = [copyRow, cloneRow, deleteRow];
@@ -1103,7 +1098,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {activeTabIdRef?.current === tableBoxId && renderContent()}
+      {activeTabId === tableBoxId && renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

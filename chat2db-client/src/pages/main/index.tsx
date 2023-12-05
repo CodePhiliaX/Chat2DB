@@ -25,6 +25,9 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
+// ----- utils -----
+import { generateUrl } from '@/utils/url';
+
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
 
@@ -68,7 +71,9 @@ function MainPage() {
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
   const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
-  const [activeNavKey, setActiveNavKey] = useState<string>(window.location.pathname.split('/')[1] || mainPageActiveTab);
+  const [activeNavKey, setActiveNavKey] = useState<string>(
+    __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
+  );
 
   useEffect(() => {
     handleInitPage();
@@ -87,9 +92,10 @@ function MainPage() {
     if (activeIndex > -1) {
       navConfig[activeIndex].isLoad = true;
       setNavConfig([...navConfig]);
-      // 桌面端跳转这里应该要换TODO:
-      const href = window.location.origin + '/' + activeNavKey;
-      window.history.pushState({}, '', href);
+      if (__ENV__ !== 'desktop') {
+        const href = window.location.origin + '/' + activeNavKey;
+        window.history.pushState({}, '', href);
+      }
     }
   }, [activeNavKey]);
 

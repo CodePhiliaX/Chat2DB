@@ -242,6 +242,7 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseType: treeNodeData.extraParams!.databaseType!,
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
+              tableName: treeNodeData.name,
               sql: 'select * from ' + databaseName,
             },
           });

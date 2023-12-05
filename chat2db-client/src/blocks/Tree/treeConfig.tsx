@@ -243,6 +243,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
+      params.pageNo = 1;
+      params.pageSize = 1000;
       return new Promise((r, j) => {
         mysqlServer
           .getTableList(params, options)
