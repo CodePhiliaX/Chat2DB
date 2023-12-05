@@ -14,6 +14,7 @@ import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
 import ai.chat2db.server.domain.core.converter.TableConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.*;
 import ai.chat2db.server.domain.repository.mapper.TableCacheMapper;
 import ai.chat2db.server.domain.repository.mapper.TableCacheVersionMapper;
@@ -57,17 +58,24 @@ public class TableServiceImpl implements TableService {
     @Autowired
     private PinTableConverter pinTableConverter;
 
-    @Autowired
-    private TableCacheMapper tableCacheMapper;
+
+    private TableCacheMapper getTableCacheMapper() {
+        return Dbutils.getMapper(TableCacheMapper.class);
+    }
 
     @Autowired
     private TableConverter tableConverter;
 
-    @Autowired
-    private TableCacheVersionMapper tableCacheVersionMapper;
 
-    @Autowired
-    private TableVectorMappingMapper mappingMapper;
+
+    private TableCacheVersionMapper getVersionMapper() {
+        return Dbutils.getMapper(TableCacheVersionMapper.class);
+    }
+
+
+    private TableVectorMappingMapper getTableVectorMapper() {
+        return Dbutils.getMapper(TableVectorMappingMapper.class);
+    }
 
     @Override
     public DataResult<String> showCreateTable(ShowCreateTableParam param) {
@@ -307,7 +315,7 @@ public class TableServiceImpl implements TableService {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
-        TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
+        TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         long total = 0;
         long version = 0L;
         if (param.isRefresh() || versionDO == null) {
@@ -319,7 +327,7 @@ public class TableServiceImpl implements TableService {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
                     }
-                    versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
+                    versionDO = getVersionMapper().selectOne(queryWrapper);
                     if (versionDO != null && "1".equals(versionDO.getStatus())) {
                         version = versionDO.getVersion();
                         total = versionDO.getTableCount();
@@ -332,7 +340,7 @@ public class TableServiceImpl implements TableService {
                 TableCacheVersionDO versionDO1 = new TableCacheVersionDO();
                 versionDO1.setStatus("1");
                 versionDO1.setTableCount(total);
-                tableCacheVersionMapper.update(versionDO1, queryWrapper);
+                getVersionMapper().update(versionDO1, queryWrapper);
             }
         } else {
             if ("2".equals(versionDO.getStatus())) {
@@ -344,7 +352,7 @@ public class TableServiceImpl implements TableService {
         }
         Page<TableCacheDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         // page.setSearchCount(param.getEnableReturnCount());
-        IPage<TableCacheDO> iPage = tableCacheMapper.pageQuery(page, param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), param.getSearchKey());
+        IPage<TableCacheDO> iPage = getTableCacheMapper().pageQuery(page, param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), param.getSearchKey());
         List<Table> tables = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
             for (TableCacheDO tableCacheDO : iPage.getRecords()) {
@@ -367,7 +375,7 @@ public class TableServiceImpl implements TableService {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
-        TableCacheVersionDO versionDO = tableCacheVersionMapper.selectOne(queryWrapper);
+        TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
             return ListResult.of(Lists.newArrayList());
         }
@@ -386,7 +394,7 @@ public class TableServiceImpl implements TableService {
 
         for (int i = 0; i < versionDO.getTableCount() / 500 + 1; i++) {
             Page<TableCacheDO> page = new Page<>(i + 1, 500);
-            IPage<TableCacheDO> iPage = tableCacheMapper.selectPage(page, query);
+            IPage<TableCacheDO> iPage = getTableCacheMapper().selectPage(page, query);
             if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
                 for (TableCacheDO tableCacheDO : iPage.getRecords()) {
                     SimpleTable t = new SimpleTable();
@@ -418,13 +426,13 @@ public class TableServiceImpl implements TableService {
                 tableCacheDO.setKey(key);
                 cacheDOS.add(tableCacheDO);
                 if (cacheDOS.size() >= 500) {
-                    tableCacheMapper.batchInsert(cacheDOS);
+                    getTableCacheMapper().batchInsert(cacheDOS);
                     cacheDOS = new ArrayList<>();
                 }
                 n++;
             }
             if (!CollectionUtils.isEmpty(cacheDOS)) {
-                tableCacheMapper.batchInsert(cacheDOS);
+                getTableCacheMapper().batchInsert(cacheDOS);
             }
             LambdaQueryWrapper<TableCacheDO> q = new LambdaQueryWrapper();
             q.eq(TableCacheDO::getDataSourceId, dataSourceId);
@@ -435,7 +443,7 @@ public class TableServiceImpl implements TableService {
             if (StringUtils.isNotBlank(schemaName)) {
                 q.eq(TableCacheDO::getSchemaName, schemaName);
             }
-            tableCacheMapper.delete(q);
+            getTableCacheMapper().delete(q);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -454,9 +462,10 @@ public class TableServiceImpl implements TableService {
             versionDO.setVersion(0L);
             versionDO.setTableCount(0L);
             try {
-                tableCacheVersionMapper.insert(versionDO);
+                getVersionMapper().insert(versionDO);
                 return 0L;
             } catch (Exception e) {
+                e.printStackTrace();
                 return -1L;
             }
         } else {
@@ -466,7 +475,7 @@ public class TableServiceImpl implements TableService {
             queryWrapper.eq(TableCacheVersionDO::getVersion, versionDO.getVersion());
             versionDO.setVersion(version);
             versionDO.setStatus("2");
-            int n = tableCacheVersionMapper.update(versionDO, queryWrapper);
+            int n = getVersionMapper().update(versionDO, queryWrapper);
             if (n == 1) {
                 return version;
             } else {
@@ -560,7 +569,7 @@ public class TableServiceImpl implements TableService {
         }
         TableVectorMappingDO mappingDO = tableConverter.toTableVectorMappingDO(param);
         mappingDO.setStatus(TableVectorEnum.SAVED.getCode());
-        mappingMapper.insert(mappingDO);
+        getTableVectorMapper().insert(mappingDO);
         return ActionResult.isSuccess();
     }
 
@@ -571,7 +580,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableVectorMappingDO::getDataSourceId, param.getDataSourceId());
         queryWrapper.eq(TableVectorMappingDO::getDatabase, param.getDatabase());
         queryWrapper.eq(TableVectorMappingDO::getSchema, param.getSchema());
-        TableVectorMappingDO mappingDO = mappingMapper.selectOne(queryWrapper);
+        TableVectorMappingDO mappingDO = getTableVectorMapper().selectOne(queryWrapper);
         if (Objects.nonNull(mappingDO) && TableVectorEnum.SAVED.getCode().equals(mappingDO.getStatus())) {
             return DataResult.of(true);
         }

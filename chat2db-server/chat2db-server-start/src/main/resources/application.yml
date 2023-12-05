@@ -4,9 +4,7 @@ spring:
     active: dev
   main:
     allow-bean-definition-overriding: true
-  jpa:
-    # 展示sql
-    show-sql: true
+    lazy-initialization: true
   messages:
     basename: i18n/messages
     encoding: UTF-8
@@ -52,20 +50,6 @@ logging:
           domain:
             repository:
               mapper: debug
-# 登录功能
-sa-token:
-  # token名称 (同时也是cookie名称)
-  token-name: CHAT2DB
-  timeout: 2592000
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-  is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-  is-share: true
-  # token风格
-  token-style: uuid
-  # 是否输出操作日志
-  is-log: true
-  is-write-header: true
 
 chatgpt:
   apiKey: sk-xxxx
@@ -79,10 +63,11 @@ chatgpt:
 logbook:
   include:
     - /api/**
+#server:
+#  undertow:
+#    io-threads: 8
+#    worker-threads: 200
+#    buffer-size: 1024
+#    direct-buffers: true
+#    max-http-post-size: 0
 
-# Http Client
-forest:
-  connect-timeout: 30000
-  log-response-content: true
-  read-timeout: 30000
-  timeout: 30000

@@ -17,7 +17,9 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.OperationService;
 import ai.chat2db.server.domain.core.converter.OperationConverter;
 import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.OperationSavedDO;
+import ai.chat2db.server.domain.repository.mapper.OperationLogMapper;
 import ai.chat2db.server.domain.repository.mapper.OperationSavedMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -44,8 +46,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class OperationServiceImpl implements OperationService {
 
-    @Autowired
-    private OperationSavedMapper operationSavedMapper;
+
+    private OperationSavedMapper getMapper() {
+        return Dbutils.getMapper(OperationSavedMapper.class);
+    }
 
     @Autowired
     private OperationConverter operationConverter;
@@ -59,7 +63,7 @@ public class OperationServiceImpl implements OperationService {
         userSavedDdlDO.setGmtCreate(LocalDateTime.now());
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
         userSavedDdlDO.setUserId(ContextUtils.getUserId());
-        operationSavedMapper.insert(userSavedDdlDO);
+        getMapper().insert(userSavedDdlDO);
         return DataResult.of(userSavedDdlDO.getId());
     }
 
@@ -70,13 +74,13 @@ public class OperationServiceImpl implements OperationService {
 
         OperationSavedDO userSavedDdlDO = operationConverter.param2do(param);
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
-        operationSavedMapper.updateById(userSavedDdlDO);
+        getMapper().updateById(userSavedDdlDO);
         return ActionResult.isSuccess();
     }
 
     @Override
     public DataResult<Operation> find(Long id) {
-        OperationSavedDO operationSavedDO = operationSavedMapper.selectById(id);
+        OperationSavedDO operationSavedDO = getMapper().selectById(id);
         List<Long> dataSourceIds = Lists.newArrayList(operationSavedDO.getDataSourceId());
         Map<Long, DataSource> dataSourceMap = getDataSourceInfo(dataSourceIds);
         Operation operation = operationConverter.do2dto(operationSavedDO);
@@ -99,7 +103,7 @@ public class OperationServiceImpl implements OperationService {
         EasyLambdaQueryWrapper<OperationSavedDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper.eqWhenPresent(OperationSavedDO::getId, param.getId())
             .eqWhenPresent(OperationSavedDO::getUserId, param.getUserId());
-        IPage<OperationSavedDO> page = operationSavedMapper.selectPage(new Page<>(1, 1), queryWrapper);
+        IPage<OperationSavedDO> page = getMapper().selectPage(new Page<>(1, 1), queryWrapper);
         if (CollectionUtils.isEmpty(page.getRecords())) {
             throw new DataNotFoundException();
         }
@@ -111,7 +115,7 @@ public class OperationServiceImpl implements OperationService {
         Operation data = queryExistent(id).getData();
         PermissionUtils.checkOperationPermission(data.getUserId());
 
-        operationSavedMapper.deleteById(id);
+        getMapper().deleteById(id);
         return ActionResult.isSuccess();
     }
 
@@ -149,7 +153,7 @@ public class OperationServiceImpl implements OperationService {
         if (Objects.nonNull(param.getOrderByCreateDesc()) && param.getOrderByCreateDesc()) {
             queryWrapper.orderByDesc("gmt_create");
         }
-        IPage<OperationSavedDO> iPage = operationSavedMapper.selectPage(page, queryWrapper);
+        IPage<OperationSavedDO> iPage = getMapper().selectPage(page, queryWrapper);
         List<Operation> userSavedDdlDOS = operationConverter.do2dto(iPage.getRecords());
         if (CollectionUtils.isEmpty(userSavedDdlDOS)) {
             return PageResult.empty(param.getPageNo(), param.getPageSize());

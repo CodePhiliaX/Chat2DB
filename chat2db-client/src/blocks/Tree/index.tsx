@@ -90,8 +90,8 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           setTimeout(() => {
             console.log(res);
             if (res.data) {
-              // res.data每次只插入200条数据，间隔30ms
-              const count = res.data.length / 200;
+              // res.data每次只插入50条数据，间隔50ms
+              const count = res.data.length / 50;
               for (let i = 0; i < count; i++) {
                 setTimeout(() => {
                   setTreeNodeData({

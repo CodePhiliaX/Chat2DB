@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    # 配置自带数据库的相对路径
+    url: jdbc:h2:~/.chat2db/db/chat2db_test;MODE=MYSQL
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        trace: true
+        web-allow-others: true
+# 端口号
+server:
+  port: 10822
+
+chat2db:
+  gateway:
+    base-url: http://test.sqlgpt.cn/gateway
+    model-base-url: http://test.sqlgpt.cn/gateway
