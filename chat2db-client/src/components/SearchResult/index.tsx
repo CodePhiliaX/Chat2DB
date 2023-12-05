@@ -30,6 +30,7 @@ interface IProps {
   sql?: string;
   executeSqlParams: any;
   concealTabHeader?: boolean;
+  viewTable?: boolean;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -45,13 +46,13 @@ export interface ISearchResultRef {
 
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
-  activeTabIdRef: React.MutableRefObject<null | string>
+  activeTabIdRef: React.MutableRefObject<null | string>;
 }
 
 export const Context = createContext<IContext>({} as any);
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
-  const { className, sql, executeSqlParams, concealTabHeader } = props;
+  const { className, sql, executeSqlParams, concealTabHeader, viewTable } = props;
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
@@ -73,19 +74,20 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
    */
   const handleExecuteSQL = (_sql: string) => {
     setTableLoading(true);
+    const api = viewTable ? sqlServer.viewTable : sqlServer.executeSql;
 
     const executeSQLParams: IExecuteSqlParams = {
       sql: _sql,
+      tableName: executeSqlParams?.tableName,
       ...defaultResultConfig,
       ...executeSqlParams,
     };
 
     controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-    sqlServer
-      .executeSql(executeSQLParams, {
-        signal: controllerRef.current.signal,
-      })
+    api(executeSQLParams, {
+      signal: controllerRef.current.signal,
+    })
       .then((res) => {
         const sqlResult = res.map((_res) => ({
           ..._res,

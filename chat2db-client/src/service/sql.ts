@@ -48,6 +48,8 @@ const getTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('
 
 const executeSql = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute', { method: 'post', delayTime: 10 });
 
+const viewTable = createRequest<IExecuteSqlParams, IManageResultData[]>('/api/rdb/dml/execute_table', { method: 'post', delayTime: 10 });
+
 const connectConsole = createRequest<IConnectConsoleParams, void>('/api/connection/console/connect', { method: 'get' });
 
 //表操作
@@ -322,12 +324,13 @@ export default {
   getViewList,
   getTableList,
   executeSql,
+  executeTable,
   connectConsole,
   deleteTable,
   createTableExample,
   updateTableExample,
   exportCreateTableSql,
-  executeTable,
+  viewTable,
   getColumnList,
   getIndexList,
   getKeyList,
