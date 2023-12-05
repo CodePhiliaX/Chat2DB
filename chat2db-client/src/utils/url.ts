@@ -82,7 +82,7 @@ export function formatParams(obj: { [key: string]: any }) {
 
 export function generateUrl(key: string) { 
   if (__ENV__ === 'desktop') {
-    return window.location.href + '/#/' + key;
+    return window.location.href.split('/#/')[0] + '/#/' + key;
   }
   return window.location.origin + '/' + key;
 }
