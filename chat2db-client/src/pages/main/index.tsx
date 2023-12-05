@@ -25,9 +25,6 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
-// ----- utils -----
-import { generateUrl } from '@/utils/url';
-
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
 
@@ -124,8 +121,12 @@ function MainPage() {
   };
 
   const switchingNav = (key: string) => {
-    setActiveNavKey(key);
-    setMainPageActiveTab(key);
+    if (key === 'github') {
+      window.open('https://github.com/chat2db/Chat2DB/', '_blank');
+    } else {
+      setActiveNavKey(key);
+      setMainPageActiveTab(key);
+    }
   };
 
   const handleLogout = () => {

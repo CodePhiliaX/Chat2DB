@@ -1,7 +1,7 @@
 {
   "dbType": "MONGODB",
-  "supportDatabase": false,
-  "supportSchema": false,
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:mongodb://localhost:27017",
