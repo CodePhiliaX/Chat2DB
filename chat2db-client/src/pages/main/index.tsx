@@ -92,9 +92,10 @@ function MainPage() {
     if (activeIndex > -1) {
       navConfig[activeIndex].isLoad = true;
       setNavConfig([...navConfig]);
-      // 桌面端跳转这里应该要换TODO:
-      const href = generateUrl(activeNavKey);
-      window.history.pushState({}, '', href);
+      if (__ENV__ !== 'desktop') {
+        const href = window.location.origin + '/' + activeNavKey;
+        window.history.pushState({}, '', href);
+      }
     }
   }, [activeNavKey]);
 
