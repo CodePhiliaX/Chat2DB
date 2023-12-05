@@ -5,12 +5,11 @@ CREATE TABLE IF NOT EXISTS `environment`
     `gmt_modified`     datetime            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
     `create_user_id`   bigint(20) unsigned NOT NULL COMMENT '创建人用户id',
     `modified_user_id` bigint(20) unsigned NOT NULL COMMENT '修改人用户id',
-    `name`             varchar(128)                 DEFAULT NOT NULL COMMENT '环境名称',
+    `name`             varchar(128)                 NOT NULL COMMENT '环境名称',
     `short_name`       varchar(128)                 DEFAULT NULL COMMENT '环境缩写',
     `color`            varchar(32)                  DEFAULT NULL COMMENT '颜色',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='数据库连接环境'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT ='数据库连接环境'
 ;
 
 INSERT INTO `environment`
@@ -30,7 +29,7 @@ ALTER TABLE `data_source`
     ADD COLUMN `kind` varchar(32) NOT NULL DEFAULT 'PRIVATE' COMMENT '连接类型';
 
 update data_source
-set user_id= 1;
+set `user_id`= 1;
 
 ALTER TABLE `dbhub_user`
     ADD COLUMN `role_code` varchar(32) DEFAULT NULL COMMENT '角色编码';
@@ -45,11 +44,11 @@ ALTER TABLE `dbhub_user`
     ADD `modified_user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '修改人用户id';
 
 update dbhub_user
-set role_code= 'DESKTOP',user_name='_desktop_default_user_name',password='_desktop_default_user_name',nick_name='Desktop User'
-where id = 1;
-INSERT INTO DBHUB_USER (USER_NAME, PASSWORD, NICK_NAME, EMAIL, ROLE_CODE) VALUES ('chat2db', 'chat2db', 'Administrator', null, 'ADMIN');
+set `role_code`= 'DESKTOP',`user_name`='_desktop_default_user_name',`password`='_desktop_default_user_name',`nick_name`='Desktop User'
+where `id` = 1;
+INSERT INTO dbhub_user (`user_name`, `password`, `nick_name`, `email`, `role_code`) VALUES ('chat2db', 'chat2db', 'Administrator', null, 'ADMIN');
 
-create UNIQUE INDEX uk_user_user_name on dbhub_user (user_name);
+create UNIQUE INDEX uk_user_user_name on dbhub_user (`user_name`);
 
 
 CREATE TABLE IF NOT EXISTS `team`
@@ -59,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `team`
     `gmt_modified`     datetime            NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
     `create_user_id`   bigint(20) unsigned NOT NULL COMMENT '创建人用户id',
     `modified_user_id` bigint(20) unsigned NOT NULL COMMENT '修改人用户id',
-    `code`             varchar(128)                 DEFAULT NOT NULL COMMENT '团队编码',
+    `code`             varchar(128)                 NOT NULL COMMENT '团队编码',
     `name`             varchar(512)                 DEFAULT NULL COMMENT '团队名称',
     `status`           varchar(32)         NOT NULL DEFAULT 'VALID' COMMENT '团队状态',
     `description`      text                         DEFAULT NULL COMMENT '团队描述',
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `team`
   DEFAULT CHARSET = utf8mb4 COMMENT ='团队'
 ;
 
-create UNIQUE INDEX uk_team_code on team (code);
+create UNIQUE INDEX uk_team_code on team (`code`);
 
 
 CREATE TABLE IF NOT EXISTS `team_user`
@@ -112,22 +111,22 @@ ALTER TABLE `operation_saved`
     modify COLUMN  `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
 
 update operation_saved
-set user_id= 1;
+set `user_id`= 1;
 
 ALTER TABLE `operation_log`
     modify COLUMN  `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
 
 update operation_log
-set user_id= 1;
+set `user_id`= 1;
 
 ALTER TABLE `dashboard`
     modify   `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
 update dashboard
-set user_id= 1;
+set `user_id`= 1;
 
 
 ALTER TABLE `chart`
     modify `user_id` bigint(20) unsigned NOT NULL DEFAULT 1 COMMENT '用户id';
 update chart
-set user_id= 1;
+set `user_id`= 1;
 
