@@ -301,6 +301,14 @@ const getCreateSchemaSql = createRequest<{
   schemaName?: string;
 }, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
 
+const getDatabaseCharsetList = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+}, IDatabaseSupportField>(
+    '/api/rdb/table/table_charset',
+    { method: 'get' },
+);
+
 export default {
   getCreateSchemaSql,
   getCreateDatabaseSql,
@@ -339,4 +347,5 @@ export default {
   // exportResultTable
   getAllTableList,
   getAllFieldByTable,
+  getDatabaseCharsetList,
 };
