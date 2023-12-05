@@ -179,7 +179,7 @@ const WorkspaceTabs = memo(() => {
   // 渲染搜索结果
   const renderSearchResult = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} concealTabHeader />;
+    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} viewTable concealTabHeader />;
   };
 
   // 渲染所有表
