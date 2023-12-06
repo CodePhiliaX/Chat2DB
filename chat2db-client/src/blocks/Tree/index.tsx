@@ -88,11 +88,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       .then((res: any) => {
         if (res.length || res.data) {
           setTimeout(() => {
-            console.log(res);
             if (res.data) {
               // res.data每次只插入50条数据，间隔50ms
               const count = res.data.length / 50;
-              for (let i = 0; i < count; i++) {
+              for (let i = 0; i <= count; i++) {
                 setTimeout(() => {
                   setTreeNodeData({
                     ...treeNodeData,
@@ -101,12 +100,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
                   });
                 }, 100 * i);
               }
-
-              // setTreeNodeData({
-              //   ...treeNodeData,
-              //   children: res.data,
-              //   total: res.total,
-              // });
             } else {
               setTreeNodeData({
                 ...treeNodeData,
@@ -152,9 +145,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   }, [searchValue]);
 
   useEffect(() => {
-    if (showTreeNode) {
-      _setShowParentNode?.(true);
-    }
+    _setShowParentNode?.(showTreeNode);
   }, [showTreeNode]);
 
   useEffect(() => {
@@ -199,7 +190,17 @@ const TreeNode = memo((props: TreeNodeIProps) => {
 
   // 双击节点
   const handelDoubleClickTreeNode = () => {
-    rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick(treeNodeData);
+    if (
+      treeNodeData.treeNodeType === TreeNodeType.TABLE ||
+      treeNodeData.treeNodeType === TreeNodeType.VIEW ||
+      treeNodeData.treeNodeType === TreeNodeType.PROCEDURE ||
+      treeNodeData.treeNodeType === TreeNodeType.FUNCTION ||
+      treeNodeData.treeNodeType === TreeNodeType.TRIGGER
+    ) {
+      rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick(treeNodeData);
+    } else {
+      handleClick();
+    }
   };
 
   // 递归渲染
@@ -295,16 +296,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     );
   }, [isFocus, isLoading, rightClickMenu]);
 
-  // const sectionHeight = useMemo(() => {
-  //   if (treeNodeData.total && treeNodeData.children) {
-  //     return `${treeNodeData.total * 26}px`;
-  //   } else {
-  //     return 'auto';
-  //   }
-  // }, [treeNodeData.total, treeNodeData.children]);
-
   return (
-    // style={{ height: sectionHeight }}
     <div>
       {(showTreeNode || showParentNode) && treeNodeDom}
       {treeNodes}

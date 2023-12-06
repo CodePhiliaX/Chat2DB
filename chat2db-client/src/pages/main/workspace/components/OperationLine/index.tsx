@@ -45,31 +45,25 @@ const OperationLine = (props: IProps) => {
       },
       executedCallback: () => {
         getTreeData(true);
-      }
+      },
     });
-  }
+  };
 
-  const showCreate = useMemo(()=>{
-    if(currentConnectionDetails?.supportDatabase){
-      return !notSupportCreateDatabaseType.includes(currentConnectionDetails!.type!)
+  const showCreate = useMemo(() => {
+    if (currentConnectionDetails?.supportDatabase) {
+      return !notSupportCreateDatabaseType.includes(currentConnectionDetails!.type!);
     }
-    if(currentConnectionDetails?.supportSchema){
-      return !notSupportCreateSchemaType.includes(currentConnectionDetails!.type!)
+    if (currentConnectionDetails?.supportSchema) {
+      return !notSupportCreateSchemaType.includes(currentConnectionDetails!.type!);
     }
-  },[currentConnectionDetails])
+  }, [currentConnectionDetails]);
 
   return (
     <>
       <div className={styles.operationLine}>
         <div className={styles.operationLineLeft}>
-          { showCreate && (
-            <Iconfont
-              onClick={handelOpenCreateDatabaseModal}
-              code="&#xeb78;"
-              box
-              boxSize={20}
-              size={15}
-            />
+          {showCreate && (
+            <Iconfont onClick={handelOpenCreateDatabaseModal} code="&#xeb78;" box boxSize={20} size={15} />
           )}
           <Iconfont
             onClick={() => {
@@ -84,6 +78,7 @@ const OperationLine = (props: IProps) => {
             <Iconfont
               onClick={() => {
                 setSearchIng(false);
+                setSearchValue('');
               }}
               box
               boxSize={20}
