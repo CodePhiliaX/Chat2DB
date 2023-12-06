@@ -256,7 +256,6 @@ export default function TableBox(props: ITableProps) {
           let newRowDataList: any = [];
           newTableData.forEach((i) => {
             if (i[colNoCode] === rowId) {
-              // TODO:colId 的逻辑对不对
               i[colId] = editorData;
               newRowDataList = Object.keys(i).map((_i) => i[_i]);
             }
@@ -1098,7 +1097,7 @@ export default function TableBox(props: ITableProps) {
 
   return (
     <div className={classnames(className, styles.tableBox, { [styles.noDataTableBox]: !tableData.length })}>
-      {activeTabId === tableBoxId && renderContent()}
+      {renderContent()}
       <Modal
         title={viewTableCellData?.name}
         open={!!viewTableCellData?.name}

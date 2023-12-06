@@ -91,6 +91,7 @@ export default memo<IProps>((props) => {
   }, []);
 
   useEffect(() => {
+    onChange?.(internalActiveTab);
     // 聚焦的时候，聚焦的tab要在第一个
     if (tabListBoxRef.current) {
       const activeTab = tabListBoxRef.current.querySelector(`.${styles.activeTab}`);
@@ -98,8 +99,6 @@ export default memo<IProps>((props) => {
         activeTab.scrollIntoView({ block: 'nearest' });
       }
     }
-
-    onChange?.(internalActiveTab);
   }, [internalActiveTab]);
 
   useEffect(() => {
