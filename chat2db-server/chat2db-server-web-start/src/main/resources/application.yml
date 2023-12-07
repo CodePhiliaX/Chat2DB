@@ -4,7 +4,6 @@ spring:
     active: dev
   main:
     allow-bean-definition-overriding: true
-    lazy-initialization: true
   messages:
     basename: i18n/messages
     encoding: UTF-8
