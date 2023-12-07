@@ -1,5 +1,11 @@
 package ai.chat2db.server.domain.repository;
 
+import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
+import ai.chat2db.server.tools.common.model.ConfigJson;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
+import cn.hutool.core.lang.UUID;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
@@ -20,6 +26,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -29,11 +36,28 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 @Slf4j
 public class Dbutils {
+
+    private static final ThreadLocal<SqlSession> SQL_SESSION_THREAD_LOCAL = new ThreadLocal<>();
+
+    public static void setSession() {
+        SqlSession session = sqlSessionFactory.openSession(true);
+        SQL_SESSION_THREAD_LOCAL.set(session);
+    }
+
+    public static void removeSession() {
+        SqlSession session = SQL_SESSION_THREAD_LOCAL.get();
+        if (session != null) {
+            session.close();
+        }
+        SQL_SESSION_THREAD_LOCAL.remove();
+    }
 
     private static SqlSessionFactory sqlSessionFactory;
 
@@ -44,6 +68,7 @@ public class Dbutils {
             log.error("Dbutils error", e);
         }
     }
+
 
     private static void before() throws IOException {
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
@@ -65,14 +90,32 @@ public class Dbutils {
         globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
         //设置超类mapper
         globalConfig.setSuperMapperClass(BaseMapper.class);
-        Environment environment = new Environment("1", new JdbcTransactionFactory(), initDataSource());
+        DataSource dataSource = initDataSource();
+        Environment environment = new Environment("1", new JdbcTransactionFactory(), dataSource);
         configuration.setEnvironment(environment);
         //设置数据源
         registryMapperXml(configuration, "mapper");
         //构建sqlSessionFactory
         sqlSessionFactory = builder.build(configuration);
+
+        initFlyway(dataSource);
         //创建session
 
+    }
+
+    private static void initFlyway(DataSource dataSource) {
+        String currentVersion = ConfigUtils.getLocalVersion();
+        ConfigJson configJson = ConfigUtils.getConfig();
+        // Represents that the current version has been successfully launched
+        if (StringUtils.isNotBlank(currentVersion) && configJson != null && StringUtils.equals(currentVersion,
+                configJson.getLatestStartupSuccessVersion())) {
+            return;
+        }
+        Flyway flyway = Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/migration")
+                .load();
+        flyway.migrate();
     }
 
     /**
@@ -95,19 +138,20 @@ public class Dbutils {
     private static DataSource initDataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
-        if("dev".equalsIgnoreCase(environment)) {
-            dataSource.setJdbcUrl("jdbc:h2:~/.chat2db/db/chat2db_dev;FILE_LOCK=NO;MODE=MYSQL");
-        }else {
+        if ("dev".equalsIgnoreCase(environment)) {
+            dataSource.setJdbcUrl("jdbc:h2:file:~/.chat2db/db/chat2db_dev;MODE=MYSQL");
+        } else {
             dataSource.setJdbcUrl("jdbc:h2:~/.chat2db/db/chat2db;MODE=MYSQL;FILE_LOCK=NO");
         }
         dataSource.setDriverClassName("org.h2.Driver");
         dataSource.setIdleTimeout(60000);
         dataSource.setAutoCommit(true);
-        dataSource.setMaximumPoolSize(5);
+        dataSource.setMaximumPoolSize(500);
         dataSource.setMinimumIdle(1);
         dataSource.setMaxLifetime(60000 * 10);
         dataSource.setConnectionTestQuery("SELECT 1");
         return dataSource;
+
     }
 
     /**
@@ -122,7 +166,7 @@ public class Dbutils {
         PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
         paginationInnerInterceptor.setDbType(DbType.H2);
         paginationInnerInterceptor.setOverflow(true);
-        paginationInnerInterceptor.setMaxLimit(500L);
+        paginationInnerInterceptor.setMaxLimit(2000L);
         interceptor.addInnerInterceptor(paginationInnerInterceptor);
         return interceptor;
     }
@@ -167,7 +211,22 @@ public class Dbutils {
     }
 
     public static <T> T getMapper(Class<T> clazz) {
-        SqlSession session = sqlSessionFactory.openSession();
+        SqlSession session = SQL_SESSION_THREAD_LOCAL.get();
         return session.getMapper(clazz);
     }
+
+//    public static void main(String[] args) {
+//
+//        ExecutorService e = Executors.newCachedThreadPool();
+//        for (int i = 0; i < 20; i++) {
+//            e.execute(() -> {
+//                SqlSession session = sqlSessionFactory.openSession();
+//                DataSourceMapper mapper = session.getMapper(DataSourceMapper.class);
+//                DataSourceDO dataSourceDO = mapper.selectById(1);
+//                session.close();
+//                System.out.println(JSON.toJSONString(dataSourceDO));
+//            });
+//        }
+//
+//    }
 }

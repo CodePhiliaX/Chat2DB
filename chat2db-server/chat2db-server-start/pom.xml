@@ -28,10 +28,6 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-web-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-server-admin-api</artifactId>
-        </dependency>
         <!-- 需要加载的服务 -->
         <dependency>
             <groupId>ai.chat2db</groupId>

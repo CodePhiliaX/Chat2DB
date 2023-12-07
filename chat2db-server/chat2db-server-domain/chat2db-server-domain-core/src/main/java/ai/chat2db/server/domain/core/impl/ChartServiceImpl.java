@@ -1,11 +1,5 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.domain.api.chart.ChartCreateParam;
 import ai.chat2db.server.domain.api.chart.ChartListQueryParam;
 import ai.chat2db.server.domain.api.chart.ChartQueryParam;
@@ -36,6 +30,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
  * @author moji
  * @version ChartServiceImpl.java, v 0.1 2023年06月09日 16:06 moji Exp $
@@ -47,8 +47,11 @@ public class ChartServiceImpl implements ChartService {
     @Autowired
     private DataSourceService dataSourceService;
 
-    @Autowired
-    private DashboardChartRelationMapper dashboardChartRelationMapper;
+
+    private DashboardChartRelationMapper getDashboardMapper() {
+        return Dbutils.getMapper(DashboardChartRelationMapper.class);
+    }
+
 
     @Autowired
     private ChartConverter chartConverter;
@@ -135,10 +138,10 @@ public class ChartServiceImpl implements ChartService {
         getMapper().updateById(chartDO);
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DashboardChartRelationDO::getChartId, id);
-        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
+        List<DashboardChartRelationDO> relationDO = getDashboardMapper().selectList(queryWrapper);
         List<Long> relationIds = relationDO.stream().map(DashboardChartRelationDO::getId).toList();
         if (CollectionUtils.isNotEmpty(relationIds)) {
-            dashboardChartRelationMapper.deleteBatchIds(relationIds);
+            getDashboardMapper().deleteBatchIds(relationIds);
         }
         return ActionResult.isSuccess();
     }

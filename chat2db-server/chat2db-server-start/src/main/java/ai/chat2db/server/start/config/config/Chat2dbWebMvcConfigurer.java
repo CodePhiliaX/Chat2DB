@@ -3,6 +3,7 @@ package ai.chat2db.server.start.config.config;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import ai.chat2db.server.domain.repository.Dbutils;
 import com.alibaba.fastjson2.JSON;
 
 import ai.chat2db.server.domain.api.enums.RoleCodeEnum;
@@ -53,7 +54,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
      * 全局放行的url
      */
     private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**",
-        "/api/system", "/login", "/api/system/get_latest_version"};
+        "/api/system", "/login"};
 
     @Resource
     private UserService userService;
@@ -66,6 +67,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                     @NotNull Object handler) {
+                    Dbutils.setSession();
                     Long userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
                     Long finalUserId = userId;
                     LoginUser loginUser = MemoryCacheManage.computeIfAbsent(CacheKey.getLoginUserKey(userId), () -> {
@@ -99,6 +101,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                     Exception ex) throws Exception {
                     // 移除登录信息
                     ContextUtils.removeContext();
+                    Dbutils.removeSession();
                 }
             })
             .order(1)
