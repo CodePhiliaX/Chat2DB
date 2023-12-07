@@ -44,7 +44,7 @@ export default memo<IProps>((props) => {
   useEffect(() => {
     getTable({
       pageNo: 1,
-      pageSize: 200,
+      pageSize: 1000,
     });
   }, []);
 
@@ -89,7 +89,7 @@ export default memo<IProps>((props) => {
   const paginationChange = (pageNo: number) => {
     getTable({
       pageNo,
-      pageSize: 200,
+      pageSize: 1000,
     });
   };
 
@@ -179,7 +179,7 @@ export default memo<IProps>((props) => {
   const onSearch = (value: string) => {
     getTable({
       pageNo: 1,
-      pageSize: 200,
+      pageSize: 1000,
       searchKey: value,
     });
   };
@@ -200,7 +200,7 @@ export default memo<IProps>((props) => {
             onClick={() => {
               getTable({
                 pageNo: 1,
-                pageSize: 200,
+                pageSize: 1000,
                 refresh: true,
               });
             }}
@@ -210,7 +210,7 @@ export default memo<IProps>((props) => {
           />
         </div>
         <div className={styles.headerBoxRight}>
-          <Search size="small" placeholder="input search text" onSearch={onSearch} style={{ width: 150 }} />
+          <Search size="small" placeholder={i18n('common.text.search')} onSearch={onSearch} style={{ width: 150 }} />
         </div>
       </div>
       <div ref={tableBoxRef} className={styles.tableBox}>
@@ -249,14 +249,14 @@ export default memo<IProps>((props) => {
           </div>
         </Dropdown>
       </div>
-      {/* {tableDataTotal > 200 && (
+      {/* {tableDataTotal > 1000 && (
       )} */}
       <div className={styles.pagingBox}>
         <Pagination
           onChange={paginationChange}
           showSizeChanger={false}
           current={currentPageNo}
-          pageSize={200}
+          pageSize={1000}
           total={tableDataTotal}
         />
       </div>
