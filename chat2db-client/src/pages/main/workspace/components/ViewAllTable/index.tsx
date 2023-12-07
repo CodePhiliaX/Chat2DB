@@ -2,7 +2,7 @@ import React, { memo, useEffect, useMemo } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Table, Dropdown, Input, Pagination } from 'antd';
+import { Table, Dropdown, Input, Pagination, ConfigProvider } from 'antd';
 import { DatabaseTypeCode, TreeNodeType, OperationColumn, WorkspaceTabType } from '@/constants';
 import sqlServer from '@/service/sql';
 import Iconfont from '@/components/Iconfont';
@@ -185,6 +185,13 @@ export default memo<IProps>((props) => {
   };
 
   return (
+    // <ConfigProvider
+    //   theme={{
+    //     token: {
+    //       motion: false,
+    //     },
+    //   }}
+    // >
     <div className={classnames(styles.allTable, className)}>
       <div className={styles.headerBox}>
         <div className={styles.headerBoxLeft}>
@@ -206,40 +213,42 @@ export default memo<IProps>((props) => {
           <Search size="small" placeholder="input search text" onSearch={onSearch} style={{ width: 150 }} />
         </div>
       </div>
-      <Dropdown
-        open={openDropdown}
-        menu={{
-          items: dropdownItems,
-        }}
-        trigger={['contextMenu']}
-        onOpenChange={(_open) => {
-          setOpenDropdown(_open);
-        }}
-      >
-        <div ref={tableBoxRef} className={styles.tableBox}>
-          <Table
-            loading={tableLoading}
-            onRow={(row) => {
-              return {
-                onClick: () => {
-                  setActiveIds([row.key]);
-                },
-                onContextMenu: (event) => {
-                  event.preventDefault();
-                  setActiveIds([row.key]);
-                  setOpenDropdown(true);
-                  setDropdownItems(getDropdownsItems(tableData?.find((t) => t.key === row.key)));
-                },
-              };
-            }}
-            virtual
-            scroll={{ x: allTableWidth - 10, y: allTableHeight - 25 }}
-            columns={columns}
-            pagination={false}
-            dataSource={tableData || []}
-          />
-        </div>
-      </Dropdown>
+      <div ref={tableBoxRef} className={styles.tableBox}>
+        <Dropdown
+          open={openDropdown}
+          menu={{
+            items: dropdownItems,
+          }}
+          trigger={['contextMenu']}
+          onOpenChange={(_open) => {
+            setOpenDropdown(_open);
+          }}
+        >
+          <div>
+            <Table
+              loading={tableLoading}
+              onRow={(row) => {
+                return {
+                  onClick: () => {
+                    setActiveIds([row.key]);
+                  },
+                  onContextMenu: (event) => {
+                    event.preventDefault();
+                    setActiveIds([row.key]);
+                    setOpenDropdown(true);
+                    setDropdownItems(getDropdownsItems(tableData?.find((t) => t.key === row.key)));
+                  },
+                };
+              }}
+              virtual
+              scroll={{ x: allTableWidth - 10, y: allTableHeight - 25 }}
+              columns={columns}
+              pagination={false}
+              dataSource={tableData || []}
+            />
+          </div>
+        </Dropdown>
+      </div>
       {/* {tableDataTotal > 200 && (
       )} */}
       <div className={styles.pagingBox}>
