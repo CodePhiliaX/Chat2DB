@@ -1,0 +1,179 @@
+@import '../../styles/var.less';
+
+.treeBox {
+  padding: 2px 6px 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+  overflow-y: auto;
+  height: 100%;
+}
+
+// 如果treeBox滚动的高度>0那么久加一个上边框
+.treeBoxScroll {
+  border-top: 1px solid var(--color-border-secondary);
+}
+
+.leftModuleTitleShadow{
+  border-top: 1px solid red;
+}
+
+.treeNode {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  height: 26px;
+  border-radius: 4px;
+  opacity: 1;
+  cursor: pointer;
+  transition: opacity 0.05s ease-in, height 0.1s ease-in;
+  user-select: none;
+  padding-right: 6px;
+
+  &:hover {
+  }
+}
+
+.treeNodeFocus {
+  // background-color: var(--color-hover-bg);
+  // background-color: var(--color-primary-bg-hover);
+  background-color: var(--color-primary-hover);
+  // background-color: var(--color-primary);
+  .right {
+    // color: var(--color-primary);
+    color: var(--color-bg-base);
+  }
+  .indent {
+    &::before {
+      opacity: 0;
+    }
+  }
+  .type {
+    color: var(--color-bg-base);
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 4px;
+  border-radius: 2px;
+  .moreBox {
+    width: 22px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+  }
+
+  .moreButton {
+    flex-shrink: 0;
+    transform: rotate(90deg);
+  }
+}
+
+.arrows {
+  flex-shrink: 0;
+  height: 20px;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease-in;
+}
+
+.loadingArrows {
+  display: flex;
+}
+
+.arrowsIcon {
+  display: inline-block;
+  transform: rotate(0deg);
+  font-size: 12px;
+}
+
+.rotateArrowsIcon {
+  transform: rotate(90deg);
+}
+
+.dblclickArea {
+  display: flex;
+  flex: 1;
+  height: 26px;
+}
+
+.typeIcon {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  width: 20px;
+}
+
+.typeImg {
+  height: 20px;
+  width: 20px;
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+}
+
+.contentText {
+  width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.name {
+  .f-lines(1);
+  line-height: 20px;
+}
+
+.type {
+  font-size: 11px;
+  flex-shrink: 0;
+  line-height: 20px;
+  color: var(--color-text-tertiary);
+  margin-left: 10px;
+}
+
+.describe {
+  flex: 1;
+  font-size: 10px;
+  margin-left: 20px;
+  color: var(--color-text-tertiary);
+  .f-single-line();
+}
+
+.indent {
+  width: 20px;
+  height: 100%;
+  position: relative;
+  &::before {
+    position: absolute;
+    top: 0;
+    right: 9px;
+    bottom: -4px;
+    border-right: 1px solid var(--color-border);
+    content: '';
+  }
+}
+
+.hiddenTreeNode {
+  height: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-in, height 0.1s ease-in;
+
+  .arrows {
+    transform: rotate(0deg);
+    transition: transform 0.2s ease-in;
+  }
+}

@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Dropdown, Form, Input, Modal, message } from 'antd';
-import { connect, Dispatch } from 'umi';
 import cs from 'classnames';
-import { IChartItem, IConnectionDetails, IDashboardItem, ITreeNode } from '@/typings';
+import { IChartItem, IDashboardItem } from '@/typings';
 import DraggableContainer from '@/components/DraggableContainer';
 import Iconfont from '@/components/Iconfont';
 import ChartItem from './chart-item';
 // import { ReactSortable, Store } from 'react-sortablejs';
-// import { GlobalState } from '@/models/global';
 import {
   createChart,
   createDashboard,
@@ -17,18 +15,15 @@ import {
   updateDashboard,
 } from '@/service/dashboard';
 import i18n from '@/i18n';
-import { IConnectionModelState } from '@/models/connection';
 import styles from './index.less';
-import { IWorkspaceModelState } from '@/models/workspace';
-import { IAIState } from '@/models/ai';
-import { IRemainingUse } from '@/typings/ai';
+// import { IConnectionModelState } from '@/models/connection';
+// import { IWorkspaceModelState } from '@/models/workspace';
+// import { IAIState } from '@/models/ai';
+import { useConnectionStore } from '../store/connection';
+import { useSettingStore } from '@/store/setting';
 
 interface IProps {
   className?: string;
-  connectionList: IConnectionDetails[];
-  curTableList: ITreeNode[];
-  remainingUse: IRemainingUse;
-  dispatch: Dispatch;
 }
 
 export const initChartItem: IChartItem = {
@@ -39,23 +34,20 @@ export const initChartItem: IChartItem = {
 };
 
 function Chart(props: IProps) {
-  const { className, connectionList, curTableList, remainingUse, dispatch } = props;
+  const { className } = props;
   const [dashboardList, setDashboardList] = useState<IDashboardItem[]>([]);
   const [curDashboard, setCurDashboard] = useState<IDashboardItem>();
   const [openAddDashboard, setOpenAddDashboard] = useState(false);
+  const connectionList = useConnectionStore((state) => state.connectionList);
+  const remainingUse = useSettingStore((state) => state.remainingUse);
 
   const [form] = Form.useForm(); // 创建一个表单实例
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi] = message.useMessage();
   const draggableRef = useRef<any>();
 
   useEffect(() => {
     // 获取列表数据
     queryDashboardList();
-
-    // 如果没有连接池，触发一次请求
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
   }, []);
 
   useEffect(() => {
@@ -69,19 +61,19 @@ function Chart(props: IProps) {
   }, [curDashboard]);
 
   const queryDashboardList = async () => {
-    let res = await getDashboardList({});
+    const res = await getDashboardList({});
     const { data } = res;
     if (Array.isArray(data) && data.length > 0) {
       setDashboardList(data);
-      let curDashboard = await getDashboardById({ id: data[0].id });
-      setCurDashboard(curDashboard);
+      const _curDashboard = await getDashboardById({ id: data[0].id });
+      setCurDashboard(_curDashboard);
     }
   };
 
   const initCreateChart = async (dashboard?: IDashboardItem) => {
     if (!dashboard) return;
 
-    let chartId = await createChart({});
+    const chartId = await createChart({});
     const newDashboard = {
       ...dashboard,
       schema: JSON.stringify([[chartId]]),
@@ -96,7 +88,7 @@ function Chart(props: IProps) {
     if (curDashboard?.id === id) {
       return;
     }
-    let res = await getDashboardById({ id });
+    const res = await getDashboardById({ id });
     setCurDashboard(res);
   };
 
@@ -154,7 +146,7 @@ function Chart(props: IProps) {
     const { id, schema, chartIds = [] } = curDashboard || {};
 
     const chartList: number[][] = JSON.parse(schema || '') || [[]];
-    let chartId = await createChart({});
+    const chartId = await createChart({});
     switch (type) {
       case 'top':
         chartList.splice(rowIndex, 0, [chartId]);
@@ -196,7 +188,7 @@ function Chart(props: IProps) {
       id: id!,
       ...curDashboard,
       schema: JSON.stringify(chartList),
-      chartIds: chartIds?.filter((id) => id !== chartId),
+      chartIds: chartIds?.filter((_id) => _id !== chartId),
     };
     await updateDashboard(newDashboard);
     setCurDashboard(newDashboard);
@@ -219,7 +211,11 @@ function Chart(props: IProps) {
           {chartList.map((rowData: number[], rowIndex: number) => (
             <div key={rowIndex} className={styles.boxRightContentRow}>
               {rowData.map((chartId: number, colIndex: number) => (
-                <div className={styles.boxRightContentColumn} style={{ width: `${100 / rowData.length}%` }}>
+                <div
+                  key={colIndex}
+                  className={styles.boxRightContentColumn}
+                  style={{ width: `${100 / rowData.length}%` }}
+                >
                   <ChartItem
                     id={chartId}
                     key={chartId}
@@ -230,7 +226,6 @@ function Chart(props: IProps) {
                     addChartRight={() => onAddChart('right', rowIndex, colIndex)}
                     onDelete={(id: number) => onDeleteChart(id, rowIndex, colIndex)}
                     connectionList={connectionList || []}
-                    tableList={curTableList || []}
                     remainingUse={remainingUse}
                   />
                 </div>
@@ -262,7 +257,7 @@ function Chart(props: IProps) {
         open={openAddDashboard}
         onOk={async () => {
           try {
-            const values = await form.validateFields();
+            await form.validateFields();
             const formValue = form.getFieldsValue(true);
             const { id } = formValue;
 
@@ -302,18 +297,4 @@ function Chart(props: IProps) {
   );
 }
 
-export default connect(
-  ({
-    connection,
-    workspace,
-    ai,
-  }: {
-    connection: IConnectionModelState;
-    workspace: IWorkspaceModelState;
-    ai: IAIState;
-  }) => ({
-    connectionList: connection.connectionList,
-    curTableList: workspace.curTableList,
-    remainingUse: ai.remainingUse,
-  }),
-)(Chart);
+export default Chart;

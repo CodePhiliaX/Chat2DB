@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 public class Chat2DBContext {
-
     private static final ThreadLocal<ConnectInfo> CONNECT_INFO_THREAD_LOCAL = new ThreadLocal<>();
 
     public static Map<String, Plugin> PLUGIN_MAP = new ConcurrentHashMap<>();
@@ -67,6 +66,10 @@ public class Chat2DBContext {
         return PLUGIN_MAP.get(dbType).getMetaData();
     }
 
+    public static DBConfig getDBConfig(String dbType) {
+        return PLUGIN_MAP.get(dbType).getDBConfig();
+    }
+
     public static DBConfig getDBConfig() {
         return PLUGIN_MAP.get(getConnectInfo().getDbType()).getDBConfig();
     }
@@ -81,9 +84,13 @@ public class Chat2DBContext {
         if (connection == null) {
             synchronized (connectInfo) {
                 connection = connectInfo.getConnection();
-                if (connection != null) {
-                    return connection;
-                } else {
+                try {
+                    if (connection != null && !connection.isClosed()) {
+                        return connection;
+                    } else {
+                        connection = getDBManage().getConnection(connectInfo);
+                    }
+                } catch (SQLException e) {
                     connection = getDBManage().getConnection(connectInfo);
                 }
             }
@@ -140,8 +147,6 @@ public class Chat2DBContext {
                 log.error("close connection error", e);
             }
 
-            CONNECT_INFO_THREAD_LOCAL.remove();
-
             Session session = connectInfo.getSession();
             if (session != null && session.isConnected() && connectInfo.getSsh() != null
                     && connectInfo.getSsh().isUse()) {
@@ -150,6 +155,7 @@ public class Chat2DBContext {
                 } catch (JSchException e) {
                 }
             }
+            CONNECT_INFO_THREAD_LOCAL.remove();
         }
     }
 

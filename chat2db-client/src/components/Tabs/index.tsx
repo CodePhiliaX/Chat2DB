@@ -83,7 +83,7 @@ export default memo<IProps>((props) => {
           tabsNavRef.current.scrollLeft -= e.deltaY;
         }
       }
-    }
+    };
     tabsNavRef.current?.addEventListener('wheel', fn);
     return () => {
       tabsNavRef.current?.removeEventListener('wheel', fn);
@@ -91,19 +91,15 @@ export default memo<IProps>((props) => {
   }, []);
 
   useEffect(() => {
+    onChange?.(internalActiveTab);
     // 聚焦的时候，聚焦的tab要在第一个
     if (tabListBoxRef.current) {
       const activeTab = tabListBoxRef.current.querySelector(`.${styles.activeTab}`);
       if (activeTab) {
-        setTimeout(() => {
-          activeTab.scrollIntoView({ behavior: 'smooth', inline: 'start' });
-        }, 100);
+        activeTab.scrollIntoView({ block: 'nearest' });
       }
     }
-
-    onChange?.(internalActiveTab);
   }, [internalActiveTab]);
-
 
   useEffect(() => {
     // from copilot
@@ -272,8 +268,7 @@ export default memo<IProps>((props) => {
           )}
           {
             <div className={styles.rightBox}>
-              {
-                showMoreTabs &&
+              {showMoreTabs && (
                 <div className={styles.moreTabs}>
                   <Dropdown
                     menu={{
@@ -282,7 +277,7 @@ export default memo<IProps>((props) => {
                       selectable: true,
                       selectedKeys: [`${internalActiveTab}`],
                       onClick: (v) => {
-                        const key = moreTabsMenu.find((t) => t?.key === v.key)?.value || null
+                        const key = moreTabsMenu.find((t) => t?.key === v.key)?.value || null;
                         changeTab(key);
                       },
                     }}
@@ -293,8 +288,8 @@ export default memo<IProps>((props) => {
                     </a>
                   </Dropdown>
                 </div>
-              }
-               {!hideAdd && (
+              )}
+              {!hideAdd && (
                 <div
                   className={classnames(styles.addIcon, {
                     [styles.addIconDisabled]: internalTabs.length >= MAX_TABS,

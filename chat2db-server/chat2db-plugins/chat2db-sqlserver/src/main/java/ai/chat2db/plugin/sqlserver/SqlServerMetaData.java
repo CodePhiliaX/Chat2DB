@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.sqlserver.builder.SqlServerSqlBuilder;
 import ai.chat2db.plugin.sqlserver.type.SqlServerColumnTypeEnum;
+import ai.chat2db.plugin.sqlserver.type.SqlServerDefaultValueEnum;
 import ai.chat2db.plugin.sqlserver.type.SqlServerIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -299,7 +300,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static final String INDEX_SQL = "SELECT ic.key_ordinal AS COLUMN_POSITION, ic.is_descending_key as DESCEND , ind.name AS INDEX_NAME, ind.is_unique AS IS_UNIQUE, col.name AS COLUMN_NAME, ind.type_desc AS INDEX_TYPE, CASE WHEN ic.key_ordinal = 0 THEN 'N' ELSE 'Y' END AS IS_PRIMARY FROM sys.indexes ind INNER JOIN sys.index_columns ic ON ind.object_id = ic.object_id and ind.index_id = ic.index_id INNER JOIN sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id INNER JOIN sys.tables t ON ind.object_id = t.object_id LEFT JOIN sys.key_constraints kc ON ind.object_id = kc.parent_object_id AND ind.index_id = kc.unique_index_id WHERE t.name = '%s' and t.schema_id= SCHEMA_ID('%s') ORDER BY t.name, ind.name, ind.index_id, ic.index_column_id";
+    private static final String INDEX_SQL = "SELECT ic.key_ordinal AS COLUMN_POSITION, ic.is_descending_key as DESCEND , ind.name AS INDEX_NAME, ind.is_unique AS IS_UNIQUE, col.name AS COLUMN_NAME, ind.type_desc AS INDEX_TYPE, ind.is_primary_key AS IS_PRIMARY FROM sys.indexes ind INNER JOIN sys.index_columns ic ON ind.object_id = ic.object_id and ind.index_id = ic.index_id and ic.key_ordinal>0 INNER JOIN sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id INNER JOIN sys.tables t ON ind.object_id = t.object_id LEFT JOIN sys.key_constraints kc ON ind.object_id = kc.parent_object_id AND ind.index_id = kc.unique_index_id WHERE t.name = '%s' and t.schema_id= SCHEMA_ID('%s') ORDER BY t.name, ind.name, ind.index_id, ic.index_column_id";
 
     @Override
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -331,7 +332,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                     tableIndexColumns.add(getTableIndexColumn(resultSet));
                     index.setColumnList(tableIndexColumns);
                     String indexType = resultSet.getString("INDEX_TYPE");
-                    if ("Y".equalsIgnoreCase(resultSet.getString("IS_PRIMARY"))) {
+                    if (resultSet.getBoolean("IS_PRIMARY")) {
                         index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
                     }else if("CLUSTERED".equalsIgnoreCase(indexType)){
                         if(index.getUnique()){
@@ -382,6 +383,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 .charsets(null)
                 .collations(null)
                 .indexTypes(SqlServerIndexTypeEnum.getIndexTypes())
+                .defaultValues(SqlServerDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

@@ -1,0 +1,18 @@
+{
+  "dbType": "SQLITE",
+  "supportDatabase": false,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:sqlite:identifier.sqlite",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/sqlite-jdbc-3.39.3.0.jar"
+      ],
+      "jdbcDriver": "sqlite-jdbc-3.39.3.0.jar",
+      "jdbcDriverClass": "org.sqlite.JDBC"
+    }
+  ],
+  "name": "SQLite"
+}

@@ -100,8 +100,7 @@ Redis和MongoDB得到部分支持，Hbase、Elasticsearch、openGauss、TiDB、I
 ### 使用Chat2DB AI 上手即用
 
 ### 使用自定义大模型
-- [参考这里部署本地ChatGLM-6B模型](https://github.com/chat2db/chat2db-chatglm-6b-deploy/blob/main/README_CN.md)
-- [参考这里部署本地sqlcoder模型](https://github.com/chat2db/chat2db-sqlcoder-deploy/blob/main/README_CN.md)
+- 使用自定义大模型，接口格式需要和open ai的接口格式保持一致
 
 ## 📦 Docker 部署
 

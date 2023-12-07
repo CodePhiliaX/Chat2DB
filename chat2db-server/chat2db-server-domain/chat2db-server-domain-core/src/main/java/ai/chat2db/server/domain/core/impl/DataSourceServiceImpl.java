@@ -18,6 +18,7 @@ import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
 import ai.chat2db.server.domain.core.converter.EnvironmentConverter;
 import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
@@ -35,6 +36,7 @@ import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.tools.common.util.EasySqlUtils;
+import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.DataSourceConnect;
 import ai.chat2db.spi.model.Database;
@@ -65,20 +67,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class DataSourceServiceImpl implements DataSourceService {
 
-    @Autowired
-    private DataSourceMapper dataSourceMapper;
+
+    private DataSourceMapper getMapper() {
+        return Dbutils.getMapper(DataSourceMapper.class);
+    }
 
     @Autowired
     private DataSourceConverter dataSourceConverter;
 
     @Autowired
     private DatabaseService databaseService;
-    @Resource
-    private DataSourceCustomMapper dataSourceCustomMapper;
+
+
+    private DataSourceCustomMapper getCustomMapper() {
+        return Dbutils.getMapper(DataSourceCustomMapper.class);
+    }
     @Resource
     private EnvironmentConverter environmentConverter;
-    @Resource
-    private DataSourceAccessMapper dataSourceAccessMapper;
+    private DataSourceAccessMapper getAccessMapper() {
+        return Dbutils.getMapper(DataSourceAccessMapper.class);
+    }
 
     @Override
     public DataResult<Long> createWithPermission(DataSourceCreateParam param) {
@@ -89,11 +97,14 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (dataSourceKind == DataSourceKindEnum.SHARED && !ContextUtils.getLoginUser().getAdmin()) {
             throw new PermissionDeniedBusinessException();
         }
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
         dataSourceDO.setUserId(ContextUtils.getUserId());
-        dataSourceMapper.insert(dataSourceDO);
+        //dataSourceDO.setExtendInfo(null);
+
+        getMapper().insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
         return DataResult.of(dataSourceDO.getId());
     }
@@ -125,9 +136,10 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSource dataSource = queryExistent(param.getId(), null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
+        JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(DateUtil.date());
-        dataSourceMapper.updateById(dataSourceDO);
+        getMapper().updateById(dataSourceDO);
         return DataResult.of(dataSourceDO.getId());
     }
 
@@ -137,18 +149,18 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSource dataSource = queryExistent(id, null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
-        dataSourceMapper.deleteById(id);
+        getMapper().deleteById(id);
 
         LambdaQueryWrapper<DataSourceAccessDO> dataSourceAccessQueryWrapper = new LambdaQueryWrapper<>();
         dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getDataSourceId, id)
         ;
-        dataSourceAccessMapper.delete(dataSourceAccessQueryWrapper);
+        getAccessMapper().delete(dataSourceAccessQueryWrapper);
         return ActionResult.isSuccess();
     }
 
     @Override
     public DataResult<DataSource> queryById(Long id) {
-        DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
+        DataSourceDO dataSourceDO = getMapper().selectById(id);
         return DataResult.of(dataSourceConverter.do2dto(dataSourceDO));
     }
 
@@ -169,13 +181,13 @@ public class DataSourceServiceImpl implements DataSourceService {
         DataSource dataSource = queryExistent(id, null).getData();
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
-        DataSourceDO dataSourceDO = dataSourceMapper.selectById(id);
+        DataSourceDO dataSourceDO = getMapper().selectById(id);
         dataSourceDO.setId(null);
         String alias = dataSourceDO.getAlias() + "Copy";
         dataSourceDO.setAlias(alias);
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
-        dataSourceMapper.insert(dataSourceDO);
+        getMapper().insert(dataSourceDO);
         return DataResult.of(dataSourceDO.getId());
     }
 
@@ -190,7 +202,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<DataSourceDO> page = new Page<>(start, offset);
-        IPage<DataSourceDO> iPage = dataSourceMapper.selectPage(page, queryWrapper);
+        IPage<DataSourceDO> iPage = getMapper().selectPage(page, queryWrapper);
         List<DataSource> dataSources = dataSourceConverter.do2dto(iPage.getRecords());
 
         fillData(dataSources, selector);
@@ -202,7 +214,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     public PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector) {
         LoginUser loginUser = ContextUtils.getLoginUser();
 
-        IPage<DataSourceDO> iPage = dataSourceCustomMapper.selectPageWithPermission(
+        IPage<DataSourceDO> iPage = getCustomMapper().selectPageWithPermission(
                 new Page<>(param.getPageNo(), param.getPageSize()),
                 BooleanUtils.isTrue(loginUser.getAdmin()), loginUser.getId(), param.getSearchKey(), param.getKind(),
                 EasySqlUtils.orderBy(param.getOrderByList()));
@@ -225,7 +237,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (CollectionUtils.isEmpty(idList)) {
             return ListResult.empty();
         }
-        List<DataSourceDO> dataList = dataSourceMapper.selectBatchIds(idList);
+        List<DataSourceDO> dataList = getMapper().selectBatchIds(idList);
         List<DataSource> list = dataSourceConverter.do2dto(dataList);
 
         fillData(list, selector);
@@ -274,26 +286,26 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         fillEnvironment(list, selector);
 
-        fillExtendInfo(list);
+        fillSupportDatabase(list);
     }
 
-    private void fillExtendInfo(List<DataSource> list) {
-        for (DataSource dataSource : list) {
-            List<KeyValue> keyValues = dataSource.getExtendInfo();
-            if (CollectionUtils.isEmpty(keyValues)) {
-                continue;
-            }
-            for (KeyValue keyValue : keyValues) {
-                if (keyValue != null) {
-                    if ("serviceName".equalsIgnoreCase(keyValue.getKey())) {
+    private void fillSupportDatabase(List<DataSource> list) {
 
-                    }
+        if(CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        for (DataSource dataSource:list) {
+            String type = dataSource.getType();
+            if(StringUtils.isNotBlank(type)) {
+                DBConfig config = Chat2DBContext.getDBConfig(type);
+                if(config != null) {
+                    dataSource.setSupportDatabase(config.isSupportDatabase());
+                    dataSource.setSupportSchema(config.isSupportSchema());
                 }
             }
-
         }
-
     }
+
 
     private void fillEnvironment(List<DataSource> list, DataSourceSelector selector) {
         if (BooleanUtils.isNotTrue(selector.getEnvironment())) {

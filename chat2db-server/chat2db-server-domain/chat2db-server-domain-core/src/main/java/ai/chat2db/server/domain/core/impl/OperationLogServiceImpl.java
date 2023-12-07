@@ -14,6 +14,7 @@ import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.OperationLogService;
 import ai.chat2db.server.domain.core.converter.OperationLogConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.OperationLogDO;
 import ai.chat2db.server.domain.repository.mapper.OperationLogMapper;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -25,7 +26,6 @@ import ai.chat2db.server.tools.common.util.EasySqlUtils;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,8 +38,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class OperationLogServiceImpl implements OperationLogService {
 
-    @Autowired
-    private OperationLogMapper operationLogMapper;
+
+    private OperationLogMapper getMapper() {
+        return Dbutils.getMapper(OperationLogMapper.class);
+    }
 
     @Autowired
     private OperationLogConverter operationLogConverter;
@@ -53,7 +55,7 @@ public class OperationLogServiceImpl implements OperationLogService {
         userExecutedDdlDO.setGmtCreate(LocalDateTime.now());
         userExecutedDdlDO.setGmtModified(LocalDateTime.now());
         userExecutedDdlDO.setUserId(ContextUtils.getUserId());
-        operationLogMapper.insert(userExecutedDdlDO);
+        getMapper().insert(userExecutedDdlDO);
         return DataResult.of(userExecutedDdlDO.getId());
     }
 
@@ -71,7 +73,7 @@ public class OperationLogServiceImpl implements OperationLogService {
         Page<OperationLogDO> page = new Page<>(start, offset);
         page.setOptimizeCountSql(false);
         page.setOrders(Arrays.asList(OrderItem.desc("gmt_create")));
-        IPage<OperationLogDO> executedDdlDOIPage = operationLogMapper.selectPage(page, queryWrapper);
+        IPage<OperationLogDO> executedDdlDOIPage = getMapper().selectPage(page, queryWrapper);
         List<OperationLog> executedDdlDTOS = operationLogConverter.do2dto(executedDdlDOIPage.getRecords());
         if (CollectionUtils.isEmpty(executedDdlDTOS)) {
             return PageResult.empty(param.getPageNo(), param.getPageSize());

@@ -3,7 +3,7 @@ name: Build Test Client
 on:
   push:
     branches:
-      - "release_test"
+    - "release_test"
 
 jobs:
   release:
@@ -13,51 +13,74 @@ jobs:
         include:
           - os: windows-latest
             file_extension: ".exe"
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe"
+            build_arg: "--win --x64"
           - os: macos-latest
             arch: x86_64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg"
             file_extension: ".dmg"
+            build_arg: "--mac --x64"
           - os: macos-latest
             arch: arm64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg"
             file_extension: ".dmg"
+            build_arg: "--mac --arm64"
           - os: ubuntu-latest
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage"
             file_extension: ".AppImage"
+            build_arg: "--linux"
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Check out git repository
         uses: actions/checkout@main
 
+      # 安装JRE
       - name: Install JRE
         uses: actions/setup-java@main
         with:
           java-version: "17"
           distribution: "temurin"
           java-package: "jre"
-          architecture: ${{ matrix.arch }}
+          # architecture: ${{ matrix.arch == 'arm64' && 'aarch64' || 'x64' }}
 
+      # 开放TLS
       - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
-          elseif [[ "${{ runner.os }}" == "Linux" ]]; then
-            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
-          else
-            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "Linux" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
           fi
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
         shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
+      # JRE拷贝到前端静态目录
       - name: Copy JRE to static directory
         run: |
-          mkdir -p chat2db-client/static/jre
-          cp -r "${JAVA_HOME}" chat2db-client/static/jre
-          if [[ "${{ runner.os }}" != "Windows" ]]; then
+          mkdir -p chat2db-client/static
+          cp -r "$JAVA_HOME"/ chat2db-client/static/jre
+          if [ "${{ runner.os }}" != "Windows" ]; then
             chmod -R 777 chat2db-client/static/jre
           fi
+        shell: bash
         env:
-          JAVA_HOME: ${{ runner.os == 'Windows' && env.JAVA_HOME }} || $JAVA_HOME
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
+      # Linux中删除jre中相关文件
+      - if: ${{ runner.os == 'Linux' }}
+        name: Delete File on Linux
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
+
+      # 安装Node.js
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
@@ -65,6 +88,7 @@ jobs:
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
+      # 安装Java
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
@@ -72,19 +96,25 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      - name: Build and Copy Artifacts
+      # 打包Web前端资源
+      - name: Build FE Static
         run: |
           cd chat2db-client
-          yarn install 
+          yarn install --frozen-lockfile
           yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
           cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
-          mvn clean package -B '-Dmaven.test.skip=true' -f ../chat2db-server/pom.xml
-          mkdir -p versions/99.0.${{ github.run_id }}/static
-          echo "99.0.${{ github.run_id }}" > versions/version
-          cp -r versions/version ./versions/
+
+      # 打包后端工程 & 发送到前端
+      - name: Build BE Static
+        run: |
+          mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
+          mkdir -p chat2db-client/versions/99.0.${{ github.run_id }}/static
+          echo -n 99.0.${{ github.run_id }} > chat2db-client/version
+          cp -r chat2db-client/version chat2db-client/versions/
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
 
+      # 打包桌面端前端资源
       - name: Prepare Build Electron
         run: |
           cd chat2db-client
@@ -92,20 +122,24 @@ jobs:
           cp -r dist ./versions/99.0.${{ github.run_id }}/
           rm -r dist
 
+      # 打包Electron
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+          skip_build: true
           args: >
             -c.appId=com.chat2db.test
             -c.productName=Chat2DB-Test
             -c.win.publisherName=Chat2DB-Test
             -c.nsis.shortcutName=Chat2DB-Test
             -c.extraMetadata.version=99.0.${{ github.run_id }}-Test
-            --${{ matrix.os }} ${{ matrix.arch }}
+            ${{ matrix.build_arg}}
 
-      # Only for macOS x86_64
+      # 公证&签名 Mac App
       - name: Notarize MacOS x86_64 App
         if: matrix.os == 'macos-latest' && matrix.arch == 'x86_64'
         run: |
@@ -125,11 +159,13 @@ jobs:
           cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
+      # 准备发往OSS的文件
       - name: Prepare upload for OSS
         run: |
           mkdir -p oss_temp_file
           cp -r chat2db-client/release/*${{ matrix.file_extension }} ./oss_temp_file
 
+      # 设置OSS
       - name: Set up oss utils
         uses: yizhoumo/setup-ossutil@v1
         with:
@@ -138,10 +174,12 @@ jobs:
           access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           ossutil-version: "1.7.16"
 
+      # 上传到OSS
       - name: Upload to OSS
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
 
+      # 发送到DingTalk
       - name: Send dingtalk message
         uses: ghostoy/dingtalk-action@master
         with:
@@ -150,5 +188,18 @@ jobs:
           content: |
             {
               "title": "${{ matrix.os }}-test-打包完成通知",
-              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }}](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/${{ matrix.os }}-Test${{ matrix.file_extension }})"
+              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[${{matrix.file_name}}](${{matrix.file_name}})"
+            }
+
+      # 发送Jar包地址到DingTalk
+      - if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
+        name: Send dingtalk message
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "Jar-test-构建完成通知",
+              "text": "### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
             }

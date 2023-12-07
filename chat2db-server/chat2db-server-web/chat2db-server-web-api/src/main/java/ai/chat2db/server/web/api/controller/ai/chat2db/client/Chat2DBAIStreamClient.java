@@ -11,6 +11,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbed
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
@@ -204,6 +205,7 @@ public class Chat2DBAIStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletion);
             Request request = new Request.Builder()
                     .url(this.apiHost + "v1/chat/completions")
@@ -242,6 +244,7 @@ public class Chat2DBAIStreamClient {
     public FastChatEmbeddingResponse embeddings(FastChatEmbedding embedding) {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(embedding);
             Request request = new Request.Builder()
                     .url(this.apiHost + "v1/embeddings")

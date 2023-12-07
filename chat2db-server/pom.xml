@@ -35,6 +35,7 @@
         <module>chat2db-server-web</module>
         <module>chat2db-spi</module>
         <module>chat2db-plugins</module>
+        <module>chat2db-server-web-start</module>
     </modules>
 
     <dependencyManagement>
@@ -149,8 +150,13 @@
             <!-- mybatis-plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <artifactId>mybatis-plus</artifactId>
                 <version>3.5.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -192,7 +198,12 @@
             <!-- http -->
             <dependency>
                 <groupId>com.dtflys.forest</groupId>
-                <artifactId>forest-spring-boot3-starter</artifactId>
+                <artifactId>forest-spring</artifactId>
+                <version>1.5.32</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dtflys.forest</groupId>
+                <artifactId>forest-core</artifactId>
                 <version>1.5.32</version>
             </dependency>
 
@@ -294,6 +305,13 @@
                 <groupId>com.auth0</groupId>
                 <artifactId>java-jwt</artifactId>
                 <version>4.4.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>bson</artifactId>
+                <version>4.11.1</version>
             </dependency>
 
         </dependencies>

@@ -1,0 +1,18 @@
+{
+  "dbType": "MARIADB",
+  "supportDatabase": true,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:mariadb://localhost:3306/",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/mariadb-java-client-3.0.8.jar"
+      ],
+      "jdbcDriver": "mariadb-java-client-3.0.8.jar",
+      "jdbcDriverClass": "org.mariadb.jdbc.Driver"
+    }
+  ],
+  "name": "MariaDB"
+}

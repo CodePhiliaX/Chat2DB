@@ -1,0 +1,18 @@
+{
+  "dbType": "CLICKHOUSE",
+  "supportDatabase": false,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:clickhouse://localhost:8123/",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/clickhouse-jdbc-0.3.2-patch8-http.jar"
+      ],
+      "jdbcDriver": "clickhouse-jdbc-0.3.2-patch8-http.jar",
+      "jdbcDriverClass": "com.clickhouse.jdbc.ClickHouseDriver"
+    }
+  ],
+  "name": "ClickHouse"
+}

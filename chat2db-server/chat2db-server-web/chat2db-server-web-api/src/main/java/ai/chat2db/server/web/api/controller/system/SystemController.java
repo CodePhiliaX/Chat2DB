@@ -66,17 +66,17 @@ public class SystemController {
     public DataResult<AppVersionVO> getLatestVersion(String currentVersion) {
         String user = "";
         DataResult<Config> dataResult = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
-        if(dataResult.getData() != null){
+        if (dataResult.getData() != null) {
             user = dataResult.getData().getContent();
         }
         AppVersionVO appVersionVO = SystemUtils.getLatestVersion(currentVersion, "manual", user);
-        if(appVersionVO == null){
+        if (appVersionVO == null) {
             appVersionVO = new AppVersionVO();
             appVersionVO.setVersion(currentVersion);
             appVersionVO.setType("manual");
         }
         DataResult<Config> updateType = configService.find(UPDATE_TYPE);
-        if(updateType.getData() != null){
+        if (updateType.getData() != null) {
             appVersionVO.setType(updateType.getData().getContent());
         }
 
@@ -104,6 +104,7 @@ public class SystemController {
         }
         return DataResult.of(localVersion.equals(version));
     }
+
     @PostMapping("/set_update_type")
     public ActionResult setUpdateType(@RequestBody String updateType) {
         SystemConfigParam systemConfigParam = new SystemConfigParam();
@@ -128,12 +129,25 @@ public class SystemController {
      * 退出服务
      */
     @RequestMapping("/stop")
-    public DataResult<String> stop() {
+    public DataResult<String> stop(boolean forceQuit) {
         log.info("退出应用");
+        if (forceQuit) {
+            stop();
+        } else {
+            String clientVersion = System.getProperty("client.version");
+            String version = ConfigUtils.getLocalVersion();
+            if (!StringUtils.equals(clientVersion, version)) {
+                stop();
+            }
+        }
+        return DataResult.of("ok");
+    }
+
+    private void stop() {
         new Thread(() -> {
             // 会在100ms以后 退出后台
             try {
-                Thread.sleep(100L);
+                Thread.sleep(200L);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -153,6 +167,5 @@ public class SystemController {
             }
 
         }).start();
-        return DataResult.of("ok");
     }
 }

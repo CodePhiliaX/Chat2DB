@@ -73,8 +73,7 @@ public class OperationSavedController {
         OperationQueryParam param = new OperationQueryParam();
         param.setId(id);
         param.setUserId(ContextUtils.getUserId());
-        return operationService.queryExistent(param)
-            .map(operationWebConverter::dto2vo);
+        return operationService.queryExistent(param).map(operationWebConverter::dto2vo);
     }
 
     /**

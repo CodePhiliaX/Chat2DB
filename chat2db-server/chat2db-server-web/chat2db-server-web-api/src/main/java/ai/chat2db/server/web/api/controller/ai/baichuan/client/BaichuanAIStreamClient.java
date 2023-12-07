@@ -5,6 +5,7 @@ import ai.chat2db.server.web.api.controller.ai.baichuan.interceptor.BaichuanHead
 import ai.chat2db.server.web.api.controller.ai.baichuan.model.BaichuanChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -191,6 +192,7 @@ public class BaichuanAIStreamClient {
             chatCompletionsOptions.setMessages(chatMessages);
 
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
                 .url(apiHost)

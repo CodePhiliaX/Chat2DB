@@ -11,7 +11,7 @@ import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import ExecuteSQL from '@/components/ExecuteSQL';
 import { IEditTableInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
 import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
-import LoadingContent  from '@/components/Loading/LoadingContent';
+import LoadingContent from '@/components/Loading/LoadingContent';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
@@ -20,6 +20,7 @@ interface IProps {
   databaseType: DatabaseTypeCode;
   changeTabDetails: (data: IWorkspaceTab) => void;
   tabDetails: IWorkspaceTab;
+  submitCallback: () => void;
 }
 
 interface ITabItem {
@@ -54,10 +55,20 @@ export interface IDatabaseSupportField {
   charsets: IOption[];
   collations: IOption[];
   indexTypes: IOption[];
+  defaultValues: IOption[];
 }
 
 export default memo((props: IProps) => {
-  const { databaseName, dataSourceId, tableName, schemaName, changeTabDetails, tabDetails, databaseType } = props;
+  const {
+    databaseName,
+    dataSourceId,
+    tableName,
+    schemaName,
+    changeTabDetails,
+    tabDetails,
+    databaseType,
+    submitCallback,
+  } = props;
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
@@ -93,6 +104,7 @@ export default memo((props: IProps) => {
     charsets: [],
     collations: [],
     indexTypes: [],
+    defaultValues: [],
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -105,7 +117,7 @@ export default memo((props: IProps) => {
       getTableDetails();
     }
     getDatabaseFieldTypeList();
-  }, [])
+  }, []);
 
   // 获取数据库字段类型列表
   const getDatabaseFieldTypeList = () => {
@@ -148,14 +160,23 @@ export default memo((props: IProps) => {
             };
           }) || [];
 
+        const defaultValues =
+          res?.defaultValues?.map((i) => {
+            return {
+              value: i.defaultValue,
+              label: i.defaultValue,
+            };
+          }) || [];
+
         setDatabaseSupportField({
           columnTypes,
           charsets,
           collations,
           indexTypes,
+          defaultValues,
         });
       });
-  }
+  };
 
   const getTableDetails = (myParams?: { tableNameProps?: string }) => {
     const { tableNameProps } = myParams || {};
@@ -169,16 +190,18 @@ export default memo((props: IProps) => {
         refresh: true,
       };
       setIsLoading(true);
-      sqlService.getTableDetails(params).then((res) => {
-        const newTableDetails = lodash.cloneDeep(res);
-        setTableDetails(newTableDetails || {});
-        setOldTableDetails(res);
-      })
-      .finally(()=>{
-        setIsLoading(false);
-      })
+      sqlService
+        .getTableDetails(params)
+        .then((res) => {
+          const newTableDetails = lodash.cloneDeep(res);
+          setTableDetails(newTableDetails || {});
+          setOldTableDetails(res);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
-  }
+  };
 
   function submit() {
     if (baseInfoRef.current && columnListRef.current && indexListRef.current) {
@@ -224,7 +247,9 @@ export default memo((props: IProps) => {
         },
       });
     }
-  }
+    // 保存成功后，刷新左侧树
+    submitCallback();
+  };
 
   return (
     <Context.Provider

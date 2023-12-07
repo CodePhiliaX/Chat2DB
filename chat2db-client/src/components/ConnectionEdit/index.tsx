@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState, Fragment, forwardRef, ForwardedRef
 import { i18n, isEn } from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { connect } from 'umi';
 import connectionService from '@/service/connection';
 import { ConnectionEnvType, databaseMap } from '@/constants';
 import { dataSourceFormConfigs } from './config/dataSource';
@@ -12,10 +11,11 @@ import { IConnectionDetails } from '@/typings';
 import { deepClone } from '@/utils';
 import { Select, Form, Input, message, Table, Button, Collapse } from 'antd';
 import Iconfont from '@/components/Iconfont';
-import LoadingContent from '@/components/Loading/LoadingContent';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
-import { IConnectionModelType } from '@/models/connection';
+
+// ----- store -----
+import { useConnectionStore } from '@/pages/main/store/connection';
 
 const { Option } = Select;
 
@@ -28,20 +28,18 @@ export enum submitType {
 }
 
 interface IProps {
-  className?: string;
   closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
   submitCallback?: any;
-  submit?: (data: IConnectionDetails) => void;
-  connectionModel: IConnectionModelType['state'];
+  submit?: (data: IConnectionDetails) => Promise<any>;
 }
 
 export interface ICreateConnectionFunction {
   getData: () => IConnectionDetails;
 }
 
-const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) => {
-  const { className, closeCreateConnection, submitCallback, connectionData, submit, connectionModel } = props;
+const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) => {
+  const { closeCreateConnection, submitCallback, connectionData, submit } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
   const [driveData, setDriveData] = useState<any>({});
@@ -49,22 +47,29 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
   const [loadings, setLoading] = useState({
     confirmButton: false,
     testButton: false,
-    backfillDataLoading: false,
     sshTestLoading: false,
   });
-  const { connectionEnvList } = connectionModel;
+
+  const { connectionEnvList } = useConnectionStore((state) => {
+    return {
+      connectionEnvList: state.connectionEnvList,
+    };
+  });
+
   const [envList, setEnvList] = useState<{ value: number; label: string }[]>([]);
 
   useEffect(() => {
-    setEnvList(
-      connectionEnvList?.map((t) => {
-        return {
-          value: t.id,
-          label: t.name,
-          color: t.color,
-        };
-      }),
-    );
+    const _envList = connectionEnvList?.map((t) => {
+      return {
+        value: t.id,
+        label: t.name,
+        color: t.color,
+      };
+    })
+
+    if(_envList){
+      setEnvList(_envList);
+    }
   }, [connectionEnvList]);
 
   const dataSourceFormConfigPropsMemo = useMemo<IConnectionConfig>(() => {
@@ -85,34 +90,6 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
     setBackfillData(props.connectionData);
   }, [props.connectionData]);
 
-  useEffect(() => {
-    if (backfillData.id) {
-      getConnectionDetails(backfillData.id);
-    }
-  }, [backfillData.id]);
-
-  function getConnectionDetails(id: number) {
-    setLoading({
-      ...loadings,
-      backfillDataLoading: true,
-    });
-    connectionService
-      .getDetails({ id })
-      .then((res) => {
-        if (!res) {
-          return;
-        }
-        setBackfillData(res);
-      })
-      .finally(() => {
-        setTimeout(() => {
-          setLoading({
-            ...loadings,
-            backfillDataLoading: false,
-          });
-        }, 100);
-      });
-  }
 
   function driverFormChange(data: any) {
     setDriveData(data);
@@ -193,7 +170,7 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
 
   // 测试、保存、修改连接
   function saveConnection(type: submitType) {
-    let p = getData();
+    const p = getData();
 
     if (type !== submitType.SAVE) {
       p.id = backfillData.id;
@@ -204,18 +181,24 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
       p.environmentId = envList[0].value;
     }
 
-    if ((type === submitType.SAVE || type === submitType.UPDATE) && submit) {
-      submit?.(p);
-      return;
-    }
-
-    const api: any = connectionService[type](p);
     const loadingsButton = type === submitType.TEST ? 'testButton' : 'confirmButton';
 
     setLoading({
       ...loadings,
       [loadingsButton]: true,
     });
+
+    if ((type === submitType.SAVE) && submit) {
+      submit?.(p).finally(() => {
+        setLoading({
+          ...loadings,
+          [loadingsButton]: false,
+        });
+      });
+      return;
+    }
+
+    const api: any = connectionService[type](p);
 
     api
       .then((res: any) => {
@@ -232,13 +215,14 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
               : i18n('common.message.addedSuccessfully'),
           );
 
+          setBackfillData({
+            ...backfillData,
+            id: res,
+          });
+
           if (type === submitType.SAVE) {
-            setBackfillData({
-              ...backfillData,
-              id: res,
-            });
+            submitCallback?.();
           }
-          submitCallback?.();
         }
       })
       .finally(() => {
@@ -251,11 +235,10 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
 
   function onCancel() {
     closeCreateConnection();
-    // setEditDataSourceData(false)
   }
 
   function testSSH() {
-    let p = sshForm.getFieldsValue();
+    const p = sshForm.getFieldsValue();
     setLoading({
       ...loadings,
       sshTestLoading: true,
@@ -274,57 +257,51 @@ const CreateConnection = forwardRef((props: IProps, ref: ForwardedRef<ICreateCon
   }
 
   return (
-    <div ref={ref as any} className={classnames(styles.box, className)}>
-      <LoadingContent className={styles.loadingContent} data={!loadings.backfillDataLoading}>
-        <div className={styles.connectionBox}>
-          <div className={styles.title}>
-            <Iconfont code={databaseMap[backfillData.type]?.icon} />
-            <div>{databaseMap[backfillData.type]?.name}</div>
-          </div>
-          <div className={styles.baseInfoBox}>
-            <RenderForm
-              dataSourceFormConfigProps={dataSourceFormConfigPropsMemo}
-              backfillData={backfillData!}
-              form={baseInfoForm}
-              tab="baseInfo"
-            />
-          </div>
-          <Collapse defaultActiveKey={['driver']} items={getItems()} />
-          <div className={styles.formFooter}>
-            <div className={styles.test}>
-              {
-                <Button
-                  loading={loadings.testButton}
-                  onClick={saveConnection.bind(null, submitType.TEST)}
-                  className={styles.test}
-                >
-                  {i18n('connection.button.testConnection')}
-                </Button>
-              }
-            </div>
-            <div className={styles.rightButton}>
-              <Button onClick={onCancel} className={styles.cancel}>
-                {i18n('common.button.cancel')}
-              </Button>
-              <Button
-                className={styles.save}
-                type="primary"
-                loading={loadings.confirmButton}
-                onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
-              >
-                {backfillData.id ? i18n('common.button.modify') : i18n('common.button.save')}
-              </Button>
-            </div>
-          </div>
+    <div ref={ref as any}  className={styles.connectionBox}>
+      <div className={styles.title}>
+        <Iconfont code={databaseMap[backfillData.type]?.icon} />
+        <div>{databaseMap[backfillData.type]?.name}</div>
+      </div>
+      <div className={styles.baseInfoBox}>
+        <RenderForm
+          dataSourceFormConfigProps={dataSourceFormConfigPropsMemo}
+          backfillData={backfillData!}
+          form={baseInfoForm}
+          tab="baseInfo"
+        />
+      </div>
+      <Collapse defaultActiveKey={['driver']} items={getItems()} />
+      <div className={styles.formFooter}>
+        <div className={styles.test}>
+          {
+            <Button
+              loading={loadings.testButton}
+              onClick={saveConnection.bind(null, submitType.TEST)}
+              className={styles.test}
+            >
+              {i18n('connection.button.testConnection')}
+            </Button>
+          }
         </div>
-      </LoadingContent>
+        <div className={styles.rightButton}>
+          <Button onClick={onCancel} className={styles.cancel}>
+            {i18n('common.button.cancel')}
+          </Button>
+          <Button
+            className={styles.save}
+            type="primary"
+            loading={loadings.confirmButton}
+            onClick={saveConnection.bind(null, backfillData.id ? submitType.UPDATE : submitType.SAVE)}
+          >
+            {backfillData.id ? i18n('common.button.modify') : i18n('common.button.save')}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 });
 
-export default connect(({ connection }: { connection: IConnectionModelType }) => ({
-  connectionModel: connection,
-}))(CreateConnection);
+export default ConnectionEdit;
 
 interface IRenderFormProps {
   tab: ITabsType;

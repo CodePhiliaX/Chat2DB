@@ -12,6 +12,7 @@ import ai.chat2db.server.domain.api.param.dashboard.DashboardUpdateParam;
 import ai.chat2db.server.domain.api.service.DashboardService;
 import ai.chat2db.server.domain.core.converter.DashboardConverter;
 import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DashboardChartRelationDO;
 import ai.chat2db.server.domain.repository.entity.DashboardDO;
 import ai.chat2db.server.domain.repository.mapper.DashboardChartRelationMapper;
@@ -39,11 +40,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class DashboardServiceImpl implements DashboardService {
 
-    @Autowired
-    private DashboardMapper dashboardMapper;
 
-    @Autowired
-    private DashboardChartRelationMapper dashboardChartRelationMapper;
+    private DashboardMapper getMapper() {
+        return Dbutils.getMapper(DashboardMapper.class);
+    }
+    private DashboardChartRelationMapper getMapper1() {
+        return Dbutils.getMapper(DashboardChartRelationMapper.class);
+    }
+
 
     @Autowired
     private DashboardConverter dashboardConverter;
@@ -55,7 +59,7 @@ public class DashboardServiceImpl implements DashboardService {
         param.setDeleted(YesOrNoEnum.NO.getLetter());
         param.setUserId(ContextUtils.getUserId());
         DashboardDO dashboardDO = dashboardConverter.param2do(param);
-        dashboardMapper.insert(dashboardDO);
+        getMapper().insert(dashboardDO);
         insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
         return DataResult.of(dashboardDO.getId());
     }
@@ -67,7 +71,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         param.setGmtModified(LocalDateTime.now());
         DashboardDO dashboardDO = dashboardConverter.updateParam2do(param);
-        dashboardMapper.updateById(dashboardDO);
+        getMapper().updateById(dashboardDO);
         if (CollectionUtils.isEmpty(param.getChartIds())) {
             return ActionResult.isSuccess();
         }
@@ -78,14 +82,14 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public DataResult<Dashboard> find(Long id) {
-        DashboardDO dashboardDO = dashboardMapper.selectById(id);
+        DashboardDO dashboardDO = getMapper().selectById(id);
         if (YesOrNoEnum.YES.getLetter().equals(dashboardDO.getDeleted())) {
             return DataResult.empty();
         }
         Dashboard dashboard = dashboardConverter.do2model(dashboardDO);
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DashboardChartRelationDO::getDashboardId, id);
-        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
+        List<DashboardChartRelationDO> relationDO = getMapper1().selectList(queryWrapper);
         List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
         dashboard.setChartIds(chartIds);
         return DataResult.of(dashboard);
@@ -98,14 +102,14 @@ public class DashboardServiceImpl implements DashboardService {
             .eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter())
             .eqWhenPresent(DashboardDO::getId, param.getId())
             .eqWhenPresent(DashboardDO::getUserId, param.getUserId());
-        IPage<DashboardDO> page = dashboardMapper.selectPage(new Page<>(1, 1), queryWrapper);
+        IPage<DashboardDO> page = getMapper().selectPage(new Page<>(1, 1), queryWrapper);
         if (CollectionUtils.isEmpty(page.getRecords())) {
             throw new DataNotFoundException();
         }
         Dashboard data = dashboardConverter.do2model(page.getRecords().get(0));
         LambdaQueryWrapper<DashboardChartRelationDO> dashboardChartRelationQueryWrapper = new LambdaQueryWrapper<>();
         dashboardChartRelationQueryWrapper.eq(DashboardChartRelationDO::getDashboardId, param.getId());
-        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(
+        List<DashboardChartRelationDO> relationDO = getMapper1().selectList(
             dashboardChartRelationQueryWrapper);
         List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
         data.setChartIds(chartIds);
@@ -129,7 +133,7 @@ public class DashboardServiceImpl implements DashboardService {
         DashboardDO dashboardDO = new DashboardDO();
         dashboardDO.setId(id);
         dashboardDO.setDeleted(YesOrNoEnum.YES.getLetter());
-        dashboardMapper.updateById(dashboardDO);
+        getMapper().updateById(dashboardDO);
         deleteDashboardRelation(id);
         return ActionResult.isSuccess();
     }
@@ -142,10 +146,10 @@ public class DashboardServiceImpl implements DashboardService {
     private void deleteDashboardRelation(Long id) {
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DashboardChartRelationDO::getDashboardId, id);
-        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
+        List<DashboardChartRelationDO> relationDO = getMapper1().selectList(queryWrapper);
         List<Long> relationIds = relationDO.stream().map(DashboardChartRelationDO::getId).toList();
         if (CollectionUtils.isNotEmpty(relationIds)) {
-            dashboardChartRelationMapper.deleteBatchIds(relationIds);
+            getMapper1().deleteBatchIds(relationIds);
         }
     }
 
@@ -165,7 +169,7 @@ public class DashboardServiceImpl implements DashboardService {
             relationDO.setGmtModified(LocalDateTime.now());
             relationDO.setDashboardId(dashboardId);
             relationDO.setChartId(chartId);
-            dashboardChartRelationMapper.insert(relationDO);
+            getMapper1().insert(relationDO);
         });
     }
 
@@ -179,7 +183,7 @@ public class DashboardServiceImpl implements DashboardService {
         Integer start = param.getPageNo();
         Integer offset = param.getPageSize();
         Page<DashboardDO> page = new Page<>(start, offset);
-        IPage<DashboardDO> iPage = dashboardMapper.selectPage(page, queryWrapper);
+        IPage<DashboardDO> iPage = getMapper().selectPage(page, queryWrapper);
         List<Dashboard> dashboards = dashboardConverter.do2model(iPage.getRecords());
         return PageResult.of(dashboards, iPage.getTotal(), param);
     }

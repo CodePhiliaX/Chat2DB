@@ -6,6 +6,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.tongyi.model.TongyiChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.tongyi.model.TongyiChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -192,6 +193,7 @@ public class TongyiChatAIStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
                 .url(apiHost)

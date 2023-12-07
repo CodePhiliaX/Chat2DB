@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.oracle.builder.OracleSqlBuilder;
 import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
+import ai.chat2db.plugin.oracle.type.OracleDefaultValueEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -85,7 +86,12 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setSchemaName(schemaName);
                 tableColumn.setName(resultSet.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(resultSet.getString("DATA_TYPE"));
-                tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
+                Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
+                if(dataPrecision!=null) {
+                    tableColumn.setColumnSize(dataPrecision);
+                }else {
+                    tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
+                }
                 tableColumn.setDefaultValue(resultSet.getString("DATA_DEFAULT"));
                 tableColumn.setComment(resultSet.getString("COMMENTS"));
                 tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE")) ? 1 : 0);
@@ -290,6 +296,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 .charsets(Lists.newArrayList())
                 .collations(Lists.newArrayList())
                 .indexTypes(OracleIndexTypeEnum.getIndexTypes())
+                .defaultValues(OracleDefaultValueEnum.getDefaultValues())
                 .build();
     }
 

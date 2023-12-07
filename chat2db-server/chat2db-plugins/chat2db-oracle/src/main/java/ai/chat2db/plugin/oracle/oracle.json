@@ -1,0 +1,19 @@
+{
+  "dbType": "ORACLE",
+  "supportDatabase": false,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:oracle:thin:@localhost:1521:XE",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/ojdbc8-19.3.0.0.jar",
+        "https://oss.sqlgpt.cn/lib/orai18n-19.3.0.0.jar"
+      ],
+      "jdbcDriver": "ojdbc8-19.3.0.0.jar,orai18n-19.3.0.0.jar",
+      "jdbcDriverClass": "oracle.jdbc.driver.OracleDriver"
+    }
+  ],
+  "name": "Oracle"
+}

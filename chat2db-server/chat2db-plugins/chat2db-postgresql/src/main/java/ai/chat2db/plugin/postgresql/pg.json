@@ -1,0 +1,18 @@
+{
+  "dbType": "POSTGRESQL",
+  "supportDatabase": true,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:postgresql://localhost:5432/postgres",
+      "custom": false,
+      "defaultDriver": true,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/postgresql-42.5.1.jar"
+      ],
+      "jdbcDriver": "postgresql-42.5.1.jar",
+      "jdbcDriverClass": "org.postgresql.Driver"
+    }
+  ],
+  "name": "PostgreSQL"
+}

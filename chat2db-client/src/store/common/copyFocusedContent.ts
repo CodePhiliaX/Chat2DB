@@ -1,14 +1,12 @@
+import {useCommonStore} from './index'
 export interface ICopyFocusedContent {
   focusedContent: any[][]| any[] | string | null;
-  setFocusedContent: (content: any[][] | any[] | string | null) => void;
 }
 
-export const copyFocusedContent = (set): ICopyFocusedContent => ({
+export const initCopyFocusedContent = {
   focusedContent: null,
-  setFocusedContent: (focusedContent) => set((state) => {
-    return {
-      ...state,
-      focusedContent
-    }
-  })
-});
+}
+
+export const setFocusedContent: (content: any[][] | any[] | string | null) => void = (focusedContent) => {
+  return useCommonStore.setState({focusedContent})
+}

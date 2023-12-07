@@ -41,8 +41,9 @@ let intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql',
 const registerIntelliSenseKeyword = (databaseCode?: DatabaseTypeCode) => {
   intelliSenseKeyword.dispose();
   intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' ', '('],
+    triggerCharacters: [' ', '('], // 触发提示的字符
     provideCompletionItems: (model, position) => {
+      // 获取所有的编辑器实例
       const commonIntelliSense = Object.values(intelliSense).find((v) => v.type === databaseCode);
 
       if (commonIntelliSense) {

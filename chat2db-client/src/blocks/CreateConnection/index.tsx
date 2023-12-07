@@ -1,83 +1,107 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { IConnectionDetails, IDatabase } from '@/typings';
-import ConnectionEdit, { ICreateConnectionFunction } from '@/components/ConnectionEdit';
+import ConnectionEdit from '@/components/ConnectionEdit';
 import { databaseTypeList } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 
+// IConnectionDetails 全部信息代表修改
+// null 展示因增列表
+//  { type: string } 只有数据库类型代表新增
+type IEditConnectionDetail = IConnectionDetails | null | Pick<IConnectionDetails, 'type'>;
+
 interface IProps {
   className?: string;
-  onSubmit?: (data: IConnectionDetails) => void; // 点击保存或修改的回调，我会把数据给你
-  connectionDetail?: IConnectionDetails; // 如果你想编辑，就直接传入完成的数据就好
+  onSubmit?: (data: IConnectionDetails) => Promise<any>; // 点击保存或修改的回调，我会把数据给你
+  connectionDetail: IEditConnectionDetail | null | undefined;
+  noPermission?: boolean;
 }
 
 export default memo<IProps>((props) => {
-  const { className, onSubmit, connectionDetail } = props;
-  const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
-  const createConnectionRef = useRef<ICreateConnectionFunction>();
+  const { className, onSubmit, connectionDetail: externalConnectionDetail } = props;
+  const [connectionDetail, setConnectionDetail] = useState<IEditConnectionDetail | null | undefined>(
+    externalConnectionDetail,
+  );
 
   useEffect(() => {
-    if (connectionDetail) {
-      setCurConnection(connectionDetail);
-    } else {
-      setCurConnection({});
-    }
-  }, [connectionDetail]);
+    setConnectionDetail(externalConnectionDetail);
+  }, [externalConnectionDetail]);
 
   function handleCreateConnections(database: IDatabase) {
-    setCurConnection({
+    setConnectionDetail({
       type: database.code,
     });
   }
 
-  function handleSubmit(data: IConnectionDetails) {
-    onSubmit?.(data);
-  }
+  // function handleSubmit(data: IConnectionDetails) {
+  //   return onSubmit?.(data);
+  // }
 
   return (
     <div className={classnames(styles.box, className)}>
-      {curConnection && Object.keys(curConnection).length ? (
+      {connectionDetail && (
         <div
           className={classnames(styles.createConnections, {
-            [styles.showCreateConnections]: Object.keys(curConnection).length,
+            [styles.showCreateConnections]: connectionDetail,
           })}
         >
-          {
-            <ConnectionEdit
-              ref={createConnectionRef as any}
-              closeCreateConnection={() => {
-                setCurConnection({});
-              }}
-              connectionData={curConnection as any}
-              submit={handleSubmit}
-            />
-          }
+          <ConnectionEdit
+            closeCreateConnection={() => {
+              setConnectionDetail(null);
+            }}
+            connectionData={connectionDetail as any}
+            submit={onSubmit}
+          />
         </div>
-      ) : (
-        <div className={styles.dataBaseList}>
-          {databaseTypeList.map((t) => {
-            return (
-              <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                <div className={styles.databaseItemMain}>
-                  <div className={styles.databaseItemLeft}>
-                    <div className={styles.logoBox}>
-                      <Iconfont code={t.icon} />
+      )}
+      {connectionDetail === null && (
+        <div className={styles.dataBaseListBox}>
+          <div className={styles.dataBaseList}>
+            {databaseTypeList.map((t) => {
+              return (
+                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                  <div className={styles.databaseItemMain}>
+                    <div className={styles.databaseItemLeft}>
+                      <div className={styles.logoBox}>
+                        <Iconfont code={t.icon} />
+                      </div>
+                      {t.name}
                     </div>
-                    {t.name}
-                  </div>
-                  <div className={styles.databaseItemRight}>
-                    <Iconfont code="&#xe631;" />
+                    <div className={styles.databaseItemRight}>
+                      <Iconfont code="&#xe631;" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-          {Array.from({ length: 20 }).map((t, index) => {
-            return <div key={index} className={styles.databaseItemSpacer} />;
-          })}
+              );
+            })}
+            {Array.from({ length: 20 }).map((t, index) => {
+              return <div key={index} className={styles.databaseItemSpacer} />;
+            })}
+          </div>
         </div>
       )}
     </div>
   );
 });
+
+{
+  /* <div className={styles.notPermission}>
+  <div className={styles.notPermissionIconBox}>
+    <Iconfont className={styles.notPermissionIcon} code="&#xe658;" />
+  </div>
+  <div className={styles.notPermissionIconTips}>{i18n('connection.tips.noConnectionTips')}</div>
+  <div className={styles.connectButtonBox}>
+    <Button
+      type="primary"
+      className={styles.connectButton}
+      icon={<Iconfont code="&#xec57;" />}
+      onClick={() => {
+        handleMenuItemDoubleClick(curConnection);
+      }}
+    >
+      {i18n('connection.button.connect')}
+    </Button>
+  </div>
+</div> */
+}

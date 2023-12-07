@@ -7,4 +7,5 @@ export * from './theme';
 export * from './tree';
 export * from './workspace';
 export * from './editTable';
+export * from './console';
 

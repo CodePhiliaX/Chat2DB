@@ -7,18 +7,16 @@ import BaseSetting from './BaseSetting';
 import AISetting from './AiSetting';
 import ProxySetting from './ProxySetting';
 import About from './About';
-import { connect } from 'umi';
-import { IAIState } from '@/models/ai';
-import { IAiConfig } from '@/typings';
 import styles from './index.less';
 import { ILatestVersion } from '@/service/config';
 import UpdateDetection, { IUpdateDetectionRef, UpdatedStatusEnum } from '@/blocks/Setting/UpdateDetection';
 
+// ---- store -----
+import { useSettingStore, getAiSystemConfig, setAiSystemConfig } from '@/store/setting';
+
 interface IProps {
-  aiConfig: IAiConfig;
   className?: string;
   render?: ReactNode;
-  dispatch: (params: any) => void;
   noLogin?: boolean; // 用于在没有登录的页面使用，不显示ai设置等需要登录的功能
   defaultArouse?: boolean; // 是否默认弹出
   defaultMenu?: number; // 默认选中的菜单
@@ -29,11 +27,12 @@ export interface IUpdateDetectionData extends ILatestVersion {
 }
 
 function Setting(props: IProps) {
-  const { className, dispatch, noLogin = false, defaultArouse, defaultMenu = 0 } = props;
+  const { className, noLogin = false, defaultArouse, defaultMenu = 0 } = props;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
   const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
   const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
+  const aiConfig = useSettingStore((state) => state.aiConfig);
 
   useEffect(() => {
     if (defaultArouse) {
@@ -53,13 +52,6 @@ function Setting(props: IProps) {
     }
   }, []);
 
-  const getAiSystemConfig = () => {
-    /** 获取ai相关配置 */
-    dispatch({
-      type: 'ai/getAiSystemConfig',
-    });
-  };
-
   const showModal = (_currentMenu: number = 0) => {
     setCurrentMenu(_currentMenu);
     setIsModalVisible(true);
@@ -77,13 +69,6 @@ function Setting(props: IProps) {
     setCurrentMenu(t);
   }
 
-  const handleApplyAiConfig = (aiConfig: IAiConfig) => {
-    dispatch({
-      type: 'ai/setAiSystemConfig',
-      payload: aiConfig,
-    });
-  };
-
   const menusList = [
     {
       label: i18n('setting.nav.basic'),
@@ -94,7 +79,7 @@ function Setting(props: IProps) {
     {
       label: i18n('setting.nav.customAi'),
       icon: '\ue646',
-      body: <AISetting aiConfig={props.aiConfig} handleApplyAiConfig={handleApplyAiConfig} />,
+      body: <AISetting aiConfig={aiConfig} handleApplyAiConfig={setAiSystemConfig} />,
       code: 'ai',
     },
     {
@@ -178,6 +163,4 @@ function Setting(props: IProps) {
   );
 }
 
-export default connect(({ ai }: { ai: IAIState }) => ({
-  aiConfig: ai.aiConfig,
-}))(Setting);
+export default Setting;

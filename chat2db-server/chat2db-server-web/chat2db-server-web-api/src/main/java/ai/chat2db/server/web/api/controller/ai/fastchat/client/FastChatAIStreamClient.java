@@ -7,6 +7,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.interceptor.FastChatHead
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.Single;
 import lombok.Getter;
@@ -199,6 +200,7 @@ public class FastChatAIStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
                 .url(apiHost)
