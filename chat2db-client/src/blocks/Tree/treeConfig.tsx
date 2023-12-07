@@ -277,7 +277,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     },
     operationColumn: [
       OperationColumn.CreateConsole,
-      // OperationColumn.ViewAllTable,
+      OperationColumn.ViewAllTable,
       OperationColumn.CreateTable,
       OperationColumn.Refresh,
     ],
