@@ -97,6 +97,11 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.manticore-projects.jsqlformatter</groupId>
+            <artifactId>jsqlformatter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>
