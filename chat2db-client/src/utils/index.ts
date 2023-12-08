@@ -141,9 +141,9 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
 
 // 清理就版本不兼容的LocalStorage
 export function clearOlderLocalStorage() {
-  if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
+  if (localStorage.getItem('app-local-storage-versions') !== 'v4') {
     localStorage.clear();
-    localStorage.setItem('app-local-storage-versions', 'v3');
+    localStorage.setItem('app-local-storage-versions', 'v4');
   }
 }
 
