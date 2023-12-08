@@ -180,7 +180,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         result = _treeData[i];
         result.children = data;
         result.expanded = !!data;
-        setTreeData?.([...(treeData || [])]);
+        setTreeData?.(cloneDeep(treeData || []));
         break;
       } else {
         if (_treeData[i].children) {
