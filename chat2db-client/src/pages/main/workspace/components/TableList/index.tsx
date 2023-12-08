@@ -7,7 +7,8 @@ import { useWorkspaceStore } from '@/pages/main/workspace/store';
 // ----- components -----
 import OperationLine from '../OperationLine';
 
-import Tree from '@/blocks/Tree';
+// import Tree from '@/blocks/Tree';
+import NewTree from '@/blocks/NewTree';
 import { treeConfig } from '@/blocks/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
 
@@ -55,7 +56,8 @@ export default memo<IProps>((props) => {
   return (
     <div className={classnames(styles.treeContainer, className)}>
       <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue} />
-      <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} />
+      {/* <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} /> */}
+      <NewTree className={styles.treeBox} searchValue={searchValue} treeData={treeData} />
     </div>
   );
 });
