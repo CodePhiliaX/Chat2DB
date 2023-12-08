@@ -60,7 +60,7 @@ export const createConsole = (params: ICreateConsoleParams) => {
     name: params.name || 'new console',
     ddl: params.ddl || '',
     status: ConsoleStatus.DRAFT,
-    operationType: WorkspaceTabType.CONSOLE,
+    operationType: params.operationType || WorkspaceTabType.CONSOLE,
     type: params.databaseType,
   };
 

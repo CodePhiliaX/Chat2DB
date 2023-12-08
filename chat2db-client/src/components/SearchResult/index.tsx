@@ -81,6 +81,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
       tableName: executeSqlParams?.tableName,
       ...defaultResultConfig,
       ...executeSqlParams,
+      type: executeSqlParams.databaseType, // 兼容写法，希望后端可以统一把type改成databaseType
     };
 
     controllerRef.current = new AbortController();
