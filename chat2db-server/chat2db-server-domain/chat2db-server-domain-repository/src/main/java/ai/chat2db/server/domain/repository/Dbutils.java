@@ -199,7 +199,7 @@ public class Dbutils {
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry jarEntry = entries.nextElement();
-                    if (jarEntry.getName().endsWith(".xml")) {
+                    if (jarEntry.getName().endsWith("Mapper.xml")) {
                         InputStream in = jarFile.getInputStream(jarEntry);
                         XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(in, configuration, jarEntry.getName(), configuration.getSqlFragments());
                         xmlMapperBuilder.parse();
