@@ -94,12 +94,11 @@ const Tree = (props: IProps) => {
         const reg = new RegExp(searchValue, 'i');
         return reg.test(item.name || '');
       });
-      setScrollTop(0);
       setSearchTreeData(ls);
     } else {
-      setScrollTop(0);
       setSearchTreeData(null);
     }
+    setScrollTop(0);
   }, [searchValue]);
 
   return (
@@ -113,7 +112,10 @@ const Tree = (props: IProps) => {
             // });
           }}
         >
-          <div className={styles.treeListHolder} style={{ '--tree-node-count': smoothTreeData?.length } as any}>
+          <div
+            className={styles.treeListHolder}
+            style={{ '--tree-node-count': (searchTreeData || smoothTreeData)?.length } as any}
+          >
             <div style={{ height: top }} />
             {treeNodes}
           </div>
