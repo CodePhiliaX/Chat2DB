@@ -32,7 +32,7 @@ export interface ITreeNode {
   level?: number; // 层级
   // 是否展开
   expanded?: boolean;
-  parentId: string;
+  parentId?: string;
   // 分页
   page?: number;
   pageSize?: number;

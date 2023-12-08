@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "577312",
+      "name": "加号",
+      "font_class": "jiahao",
+      "unicode": "e726",
+      "unicode_decimal": 59174
+    },
+    {
+      "icon_id": "5961366",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "ec6b",
+      "unicode_decimal": 60523
+    },
+    {
+      "icon_id": "6318169",
+      "name": "减去",
+      "font_class": "jianqu",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
       "icon_id": "5729483",
       "name": "database",
       "font_class": "database",
@@ -67,34 +88,6 @@
       "font_class": "moxing-miaobian",
       "unicode": "e691",
       "unicode_decimal": 59025
-    },
-    {
-      "icon_id": "145699",
-      "name": "电话_填充",
-      "font_class": "dianhuatianchong",
-      "unicode": "e678",
-      "unicode_decimal": 59000
-    },
-    {
-      "icon_id": "3483765",
-      "name": "邮箱",
-      "font_class": "youxiang",
-      "unicode": "e672",
-      "unicode_decimal": 58994
-    },
-    {
-      "icon_id": "15933094",
-      "name": "微信",
-      "font_class": "weixin",
-      "unicode": "e65d",
-      "unicode_decimal": 58973
-    },
-    {
-      "icon_id": "19447816",
-      "name": "谷歌",
-      "font_class": "google",
-      "unicode": "eaa8",
-      "unicode_decimal": 60072
     },
     {
       "icon_id": "37968169",

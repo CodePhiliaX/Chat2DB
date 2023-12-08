@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, createContext, useContext } from 'react';
+import React, { memo, useEffect, useMemo, useState, createContext, useContext, useRef } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -107,9 +107,8 @@ const Tree = (props: IProps) => {
         <div
           className={classnames(styles.scrollBox)}
           onScroll={(e: any) => {
-            // flushSync(() => {
+            console.log(e.target.scrollTop);
             setScrollTop(e.target.scrollTop);
-            // });
           }}
         >
           <div
@@ -130,13 +129,18 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
   const { treeData, setTreeData } = useContext(Context);
+  // 当前节点是展开的
+  const isExpandedRef = useRef(false);
 
   // 加载数据
-  function loadData(_props?: { refresh: boolean; treeNodeData: ITreeNode }) {
+  function loadData(_props?: { refresh: boolean; pageNo: number; treeNodeData?: ITreeNode }) {
     const _treeNodeData = _props?.treeNodeData || props.data;
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
     setIsLoading(true);
-    insertData(treeData!, _treeNodeData.uuid!, null);
+    if (_props?.pageNo === 1 || !_props?.pageNo) {
+      insertData(treeData!, _treeNodeData.uuid!, null);
+    }
+
     treeNodeConfig
       .getChildren?.({
         ..._treeNodeData.extraParams,
@@ -144,11 +148,18 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           ..._treeNodeData.extraParams,
         },
         refresh: _props?.refresh || false,
+        pageNo: _props?.pageNo || 1,
       })
       .then((res: any) => {
         if (res.length || res.data) {
           if (res.data) {
             insertData(treeData!, _treeNodeData.uuid!, res.data);
+            if (res.hasNextPage && isExpandedRef.current) {
+              loadData({
+                refresh: _props?.refresh || false,
+                pageNo: res.pageNo + 1,
+              });
+            }
           } else {
             insertData(treeData!, _treeNodeData.uuid!, res);
           }
@@ -178,8 +189,13 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     for (let i = 0; i < _treeData?.length; i++) {
       if (_treeData[i].uuid === uuid) {
         result = _treeData[i];
-        result.children = data;
+        if (data && isExpandedRef.current) {
+          result.children = [...(result.children || []), ...(data || [])];
+        } else {
+          result.children = null;
+        }
         result.expanded = !!data;
+        // 这里没写错 就是要改变treeData的引用
         setTreeData?.(cloneDeep(treeData || []));
         break;
       } else {
@@ -197,9 +213,11 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   //展开-收起
   const handleClick = () => {
     if (treeNodeData.expanded) {
+      isExpandedRef.current = false;
       insertData(treeData!, treeNodeData.uuid!, null);
     } else {
       loadData();
+      isExpandedRef.current = true;
     }
   };
 
