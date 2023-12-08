@@ -29,6 +29,10 @@ export interface ITreeNode {
   loadData?: (params:{refresh: boolean}) => void; // 加载数据的方法
   // 父元素
   parentNode?: ITreeNode;
+  level?: number; // 层级
+  // 是否展开
+  expanded?: boolean;
+  parentId: string;
   // 分页
   page?: number;
   pageSize?: number;

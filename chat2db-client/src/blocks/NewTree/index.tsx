@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, forwardRef, createContext, useContext, useCallback } from 'react';
+import React, { memo, useEffect, useMemo, useState, createContext, useContext } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -12,112 +12,154 @@ import { setFocusId, useTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import { cloneDeep } from 'lodash';
+// import { flushSync } from 'react-dom';
 
 interface IProps {
   className?: string;
   treeData: ITreeNode[] | null;
   searchValue: string;
 }
+
 interface TreeNodeIProps {
   data: ITreeNode;
   level: number;
-  setShowParentNode?: (value: boolean) => void;
 }
 
 interface IContext {
-  searchValue?: string;
+  treeData: ITreeNode[];
+  setTreeData: (value: ITreeNode[] | null) => void;
 }
 
 export const Context = createContext<IContext>({} as any);
 
+// 树转平级
+const smoothTree = (treeData: ITreeNode[], result: ITreeNode[] = [], parentNode?: ITreeNode) => {
+  treeData.forEach((item) => {
+    if (parentNode) {
+      item.parentNode = parentNode;
+      item.level = (parentNode.level || 0) + 1;
+    }
+    result.push(item);
+    if (item.children) {
+      smoothTree(item.children, result, item);
+    }
+  });
+  return result;
+};
+
+const itemHeight = 26; // 每个 item 的高度
+const paddingCount = 2;
+
 const Tree = (props: IProps) => {
   const { className, treeData: outerTreeData, searchValue } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
+  const [smoothTreeData, setSmoothTreeData] = useState<ITreeNode[]>([]);
+  const [searchTreeData, setSearchTreeData] = useState<ITreeNode[] | null>(null); // 搜索结果
+  const [scrollTop, setScrollTop] = useState(0); // 滚动位置 // 继续需要渲染的 item 索引有哪些
+
+  const startIdx = useMemo(() => {
+    let _startIdx = Math.floor(scrollTop / itemHeight);
+    _startIdx = Math.max(_startIdx - paddingCount, 0); // 处理越界情况
+    return _startIdx;
+  }, [scrollTop]);
+
+  const top = itemHeight * startIdx; // 第一个渲染的 item 到顶部距离
 
   useEffect(() => {
     setTreeData(outerTreeData);
+    setScrollTop(0);
   }, [outerTreeData]);
 
-  const treeNodes = useMemo(() => {
-    return treeData?.map((item, index) => {
-      return <TreeNode key={item.name + index} level={0} data={item} />;
-    });
+  useEffect(() => {
+    if (treeData) {
+      const result: ITreeNode[] = [];
+      smoothTree(treeData, result);
+      setSmoothTreeData(result);
+    } else {
+      setSmoothTreeData([]);
+    }
   }, [treeData]);
-  // 如果treeBox滚动的高度>0那么久加一个上边框
-  const [treeBoxScrollTop, setTreeBoxScrollTop] = useState<number>(0);
-  const handleScroll = (e: any) => {
-    setTreeBoxScrollTop(e.target.scrollTop);
-  };
+
+  const treeNodes = useMemo(() => {
+    const realNodeList = (searchTreeData || smoothTreeData).slice(startIdx, startIdx + 50);
+    return realNodeList.map((item) => {
+      return <TreeNode key={item.uuid} level={item.level || 0} data={item} />;
+    });
+  }, [smoothTreeData, searchTreeData, startIdx]);
+
+  useEffect(() => {
+    if (searchValue) {
+      const ls = smoothTreeData.filter((item) => {
+        const reg = new RegExp(searchValue, 'i');
+        return reg.test(item.name || '');
+      });
+      setSearchTreeData(ls);
+    } else {
+      setSearchTreeData(null);
+    }
+    setScrollTop(0);
+  }, [searchValue]);
 
   return (
-    <Context.Provider value={{ searchValue }}>
-      <LoadingContent isLoading={!treeData} className={classnames(className)}>
+    <LoadingContent isLoading={!treeData} className={classnames(className)}>
+      <Context.Provider value={{ treeData: cloneDeep(treeData!), setTreeData: setTreeData! }}>
         <div
-          className={classnames(styles.treeBox, { [styles.treeBoxScroll]: treeBoxScrollTop > 0 })}
-          onScroll={handleScroll}
+          className={classnames(styles.scrollBox)}
+          onScroll={(e: any) => {
+            // flushSync(() => {
+            setScrollTop(e.target.scrollTop);
+            // });
+          }}
         >
-          {treeNodes}
+          <div
+            className={styles.treeListHolder}
+            style={{ '--tree-node-count': (searchTreeData || smoothTreeData)?.length } as any}
+          >
+            <div style={{ height: top }} />
+            {treeNodes}
+          </div>
         </div>
-      </LoadingContent>
-    </Context.Provider>
+      </Context.Provider>
+    </LoadingContent>
   );
 };
 
 const TreeNode = memo((props: TreeNodeIProps) => {
-  const { data: initData, level, setShowParentNode: _setShowParentNode } = props;
+  const { data: treeNodeData, level } = props;
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
-  const { searchValue } = useContext(Context);
+  const { treeData, setTreeData } = useContext(Context);
 
   // 加载数据
-  function loadData(_props?: { refresh: boolean }) {
-    const treeNodeConfig: ITreeConfigItem = treeConfig[treeNodeData.pretendNodeType || treeNodeData.treeNodeType];
+  function loadData(_props?: { refresh: boolean; treeNodeData: ITreeNode }) {
+    const _treeNodeData = _props?.treeNodeData || props.data;
+    const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
     setIsLoading(true);
-    setTreeNodeData({
-      ...treeNodeData,
-      children: null,
-    });
+    insertData(treeData!, _treeNodeData.uuid!, null);
     treeNodeConfig
       .getChildren?.({
-        ...treeNodeData.extraParams,
+        ..._treeNodeData.extraParams,
         extraParams: {
-          ...treeNodeData.extraParams,
+          ..._treeNodeData.extraParams,
         },
         refresh: _props?.refresh || false,
       })
       .then((res: any) => {
         if (res.length || res.data) {
-          setTimeout(() => {
-            if (res.data) {
-              // res.data每次只插入50条数据，间隔50ms
-              const count = res.data.length / 50;
-              for (let i = 0; i <= count; i++) {
-                setTimeout(() => {
-                  setTreeNodeData({
-                    ...treeNodeData,
-                    children: res.data.slice(0, (i + 1) * 50),
-                    total: res.total,
-                  });
-                }, 100 * i);
-              }
-            } else {
-              setTreeNodeData({
-                ...treeNodeData,
-                children: res,
-              });
-            }
-            setIsLoading(false);
-          }, 200);
+          if (res.data) {
+            insertData(treeData!, _treeNodeData.uuid!, res.data);
+          } else {
+            insertData(treeData!, _treeNodeData.uuid!, res);
+          }
+          setIsLoading(false);
         } else {
           // 处理树可能出现不连续的情况
           if (treeNodeConfig.next) {
-            treeNodeData.pretendNodeType = treeNodeConfig.next;
+            _treeNodeData.pretendNodeType = treeNodeConfig.next;
             loadData();
           } else {
-            setTreeNodeData({
-              ...treeNodeData,
-              children: [],
-            });
+            insertData(treeData!, _treeNodeData.uuid!, []);
             setIsLoading(false);
           }
         }
@@ -127,46 +169,37 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       });
   }
 
-  // 当前节点数据
-  const [treeNodeData, setTreeNodeData] = useState<ITreeNode>({
-    ...initData,
-    loadData,
-  });
-
   // 当前节点是否是focus
   const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
 
-  const [showTreeNode, setShowTreeNode] = useState<boolean>(true);
-  // 如果子节点是展开的，那么父节点也要展示
-  const [showParentNode, setShowParentNode] = useState<boolean>(false);
-
-  const handelSetShowParentNode = useCallback(() => {
-    setShowParentNode(true);
-  }, []);
-
-  useEffect(() => {
-    if (searchValue) {
-      const reg = new RegExp(searchValue, 'i');
-      const res = reg.test(treeNodeData.name || '');
-      setShowTreeNode(res);
-      _setShowParentNode?.(res);
-    } else {
-      setShowTreeNode(true);
+  //  在treeData中找到对应的节点，插入数据
+  const insertData = (_treeData: ITreeNode[], uuid: string, data: any): ITreeNode | null => {
+    let result: ITreeNode | null = null;
+    for (let i = 0; i < _treeData?.length; i++) {
+      if (_treeData[i].uuid === uuid) {
+        result = _treeData[i];
+        result.children = data;
+        result.expanded = !!data;
+        setTreeData?.(cloneDeep(treeData || []));
+        break;
+      } else {
+        if (_treeData[i].children) {
+          result = insertData(_treeData[i].children!, uuid, data);
+          if (result) {
+            break;
+          }
+        }
+      }
     }
-  }, [searchValue]);
+    return result;
+  };
 
   //展开-收起
   const handleClick = () => {
-    if (
-      treeConfig[treeNodeData.treeNodeType] &&
-      (treeNodeData.children === null || treeNodeData.children === undefined)
-    ) {
-      loadData();
+    if (treeNodeData.expanded) {
+      insertData(treeData!, treeNodeData.uuid!, null);
     } else {
-      setTreeNodeData({
-        ...treeNodeData,
-        children: null,
-      });
+      loadData();
     }
   };
 
@@ -203,23 +236,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       handleClick();
     }
   };
-
-  // 递归渲染
-  const treeNodes = useMemo(() => {
-    return treeNodeData.children?.map((item: any, index: number) => {
-      return (
-        <TreeNode
-          setShowParentNode={handelSetShowParentNode}
-          key={item.name + index}
-          level={level + 1}
-          data={{
-            ...item,
-            parentNode: treeNodeData,
-          }}
-        />
-      );
-    });
-  }, [treeNodeData]);
 
   const rightClickMenu = useGetRightClickMenu({
     treeNodeData,
@@ -297,14 +313,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     );
   }, [isFocus, isLoading, rightClickMenu]);
 
-  console.log(showTreeNode, showParentNode, treeNodeData.name);
-
-  return (
-    <div>
-      {(showTreeNode || showParentNode) && treeNodeDom}
-      {treeNodes}
-    </div>
-  );
+  return treeNodeDom;
 });
 
-export default memo(forwardRef(Tree));
+export default memo(Tree);
