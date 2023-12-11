@@ -49,7 +49,11 @@ const SQLExecute = memo<IProps>((props) => {
           />
         </div>
         <div className={styles.boxRightResult}>
-          <SearchResult ref={searchResultRef} executeSqlParams={boundInfo} />
+          <SearchResult
+            isActive={activeConsoleId === boundInfo.consoleId}
+            ref={searchResultRef}
+            executeSqlParams={boundInfo}
+          />
         </div>
       </DraggableContainer>
     </div>

@@ -1,8 +1,8 @@
-import React, { memo, useEffect, useMemo } from 'react';
+import React, { memo, useEffect } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Table, Dropdown, Input, Pagination, ConfigProvider } from 'antd';
+import { Table, Dropdown, Input, Pagination } from 'antd';
 import { DatabaseTypeCode, TreeNodeType, OperationColumn, WorkspaceTabType } from '@/constants';
 import sqlServer from '@/service/sql';
 import type { ColumnsType } from 'antd/es/table';
@@ -140,9 +140,7 @@ export default memo<IProps>((props) => {
 
   const renderCell = (text, record) => {
     return (
-      <div className={classnames(styles.tableCell, { [styles.activeTableCell]: activeId === record.key })}>
-        {text}
-      </div>
+      <div className={classnames(styles.tableCell, { [styles.activeTableCell]: activeId === record.key })}>{text}</div>
     );
   };
 
@@ -182,18 +180,17 @@ export default memo<IProps>((props) => {
   }, []);
 
   useEffect(() => {
-      const record = tableData?.find((t) => t.key === activeId);
-      if (record) {
-        sqlServer
-          .exportCreateTableSql({
-            ...uniqueData,
-            tableName: record.name,
-          } as any)
-          .then((res) => {
-            setViewDDLSql(res);
-          });
-      }
-  
+    const record = tableData?.find((t) => t.key === activeId);
+    if (record) {
+      sqlServer
+        .exportCreateTableSql({
+          ...uniqueData,
+          tableName: record.name,
+        } as any)
+        .then((res) => {
+          setViewDDLSql(res);
+        });
+    }
   }, [activeId]);
 
   const onSearch = (value: string) => {
@@ -269,9 +266,7 @@ export default memo<IProps>((props) => {
           </div>
         </Dropdown>
         <div className={styles.viewDDLBox}>
-          <div className={styles.viewDDLHeader}>
-            DDL
-          </div>
+          <div className={styles.viewDDLHeader}>DDL</div>
           <ViewDDL className={styles.viewDDL} sql={viewDDLSql} />
         </div>
       </div>

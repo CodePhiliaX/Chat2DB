@@ -18,7 +18,6 @@ export const initConsoleStore = {
   activeConsoleId: null,
   workspaceTabList: null,
   createConsoleLoading: false,
-
 };
 
 export const getOpenConsoleList = () => {
