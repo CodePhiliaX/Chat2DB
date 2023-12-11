@@ -5,12 +5,16 @@ import classnames from 'classnames';
 import { Table, Dropdown, Input, Pagination, ConfigProvider } from 'antd';
 import { DatabaseTypeCode, TreeNodeType, OperationColumn, WorkspaceTabType } from '@/constants';
 import sqlServer from '@/service/sql';
-import Iconfont from '@/components/Iconfont';
 import type { ColumnsType } from 'antd/es/table';
 import { IPageParams } from '@/typings';
-import { getRightClickMenu } from '@/blocks/Tree/hooks/useGetRightClickMenu';
 import { v4 as uuid } from 'uuid';
+
+// ----- components -----
+import Iconfont from '@/components/Iconfont';
+import { getRightClickMenu } from '@/blocks/Tree/hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
+import ViewDDL from '@/components/ViewDDL';
+
 // ----- store -----
 import { addWorkspaceTab } from '@/pages/main/workspace/store/console';
 
@@ -35,11 +39,12 @@ export default memo<IProps>((props) => {
   const [allTableWidth, setAllTableWidth] = React.useState(0);
   const [allTableHeight, setAllTableHeight] = React.useState(0);
   // 选中表
-  const [activeIds, setActiveIds] = React.useState<string[]>([]);
+  const [activeId, setActiveId] = React.useState<string>('');
   const [tableDataTotal, setTableDataTotal] = React.useState(0);
   const [currentPageNo, setCurrentPageNo] = React.useState(1);
   const [openDropdown, setOpenDropdown] = React.useState<boolean | undefined>(undefined);
   const [dropdownItems, setDropdownItems] = React.useState<any[]>([]);
+  const [viewDDLSql, setViewDDLSql] = React.useState<string>('');
 
   useEffect(() => {
     getTable({
@@ -135,7 +140,7 @@ export default memo<IProps>((props) => {
 
   const renderCell = (text, record) => {
     return (
-      <div className={classnames(styles.tableCell, { [styles.activeTableCell]: activeIds.includes(record.key) })}>
+      <div className={classnames(styles.tableCell, { [styles.activeTableCell]: activeId === record.key })}>
         {text}
       </div>
     );
@@ -176,6 +181,21 @@ export default memo<IProps>((props) => {
     resizeObserver.observe(tableBoxRef.current!);
   }, []);
 
+  useEffect(() => {
+      const record = tableData?.find((t) => t.key === activeId);
+      if (record) {
+        sqlServer
+          .exportCreateTableSql({
+            ...uniqueData,
+            tableName: record.name,
+          } as any)
+          .then((res) => {
+            setViewDDLSql(res);
+          });
+      }
+  
+  }, [activeId]);
+
   const onSearch = (value: string) => {
     getTable({
       pageNo: 1,
@@ -213,7 +233,7 @@ export default memo<IProps>((props) => {
           <Search size="small" placeholder={i18n('common.text.search')} onSearch={onSearch} style={{ width: 150 }} />
         </div>
       </div>
-      <div ref={tableBoxRef} className={styles.tableBox}>
+      <div className={styles.contentCenter}>
         <Dropdown
           open={openDropdown}
           menu={{
@@ -224,17 +244,17 @@ export default memo<IProps>((props) => {
             setOpenDropdown(_open);
           }}
         >
-          <div>
+          <div ref={tableBoxRef} className={styles.tableBox}>
             <Table
               loading={tableLoading}
               onRow={(row) => {
                 return {
                   onClick: () => {
-                    setActiveIds([row.key]);
+                    setActiveId(row.key);
                   },
                   onContextMenu: (event) => {
                     event.preventDefault();
-                    setActiveIds([row.key]);
+                    setActiveId(row.key);
                     setOpenDropdown(true);
                     setDropdownItems(getDropdownsItems(tableData?.find((t) => t.key === row.key)));
                   },
@@ -248,6 +268,12 @@ export default memo<IProps>((props) => {
             />
           </div>
         </Dropdown>
+        <div className={styles.viewDDLBox}>
+          <div className={styles.viewDDLHeader}>
+            DDL
+          </div>
+          <ViewDDL className={styles.viewDDL} sql={viewDDLSql} />
+        </div>
       </div>
       {/* {tableDataTotal > 1000 && (
       )} */}
