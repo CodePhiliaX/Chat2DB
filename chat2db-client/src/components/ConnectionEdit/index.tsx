@@ -113,6 +113,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
             backfillData={backfillData!}
             form={sshForm}
             tab="ssh"
+            disabled={backfillData.isAdmin === false}
           />
           <div className={styles.testSSHConnect}>
             {loadings.sshTestLoading && <LoadingGracile />}
@@ -268,6 +269,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
           backfillData={backfillData!}
           form={baseInfoForm}
           tab="baseInfo"
+          disabled={backfillData.isAdmin === false}
         />
       </div>
       <Collapse defaultActiveKey={['driver']} items={getItems()} />
@@ -308,6 +310,7 @@ interface IRenderFormProps {
   form: any;
   backfillData: IConnectionDetails;
   dataSourceFormConfigProps: IConnectionConfig;
+  disabled: boolean
 }
 
 function RenderForm(props: IRenderFormProps) {
@@ -580,6 +583,7 @@ function RenderForm(props: IRenderFormProps) {
       autoComplete="off"
       labelAlign="left"
       onFieldsChange={onFieldsChange}
+      disabled={props.disabled}
     >
       {dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))}
     </Form>
@@ -607,6 +611,8 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
       return t.type === databaseType;
     });
   }, [backfillData.type]);
+  // 禁止修改
+  const disabled = backfillData.isAdmin === false;
 
   useEffect(() => {
     const extendInfoList = backfillData?.extendInfo?.length
@@ -673,6 +679,7 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
         if (index === data.length - 1 || isCustomLabel) {
           return (
             <Input
+              disabled={disabled}
               onBlur={blur}
               placeholder={index === data.length - 1 ? i18n('common.text.custom') : ''}
               onChange={change}
@@ -699,12 +706,10 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
           setData(newData);
         }
 
-        function blur() {}
-
         if (index === data.length - 1) {
           return <Input onBlur={blur} disabled placeholder="<value>" onChange={change} value={value} />;
         } else {
-          return <Input onChange={change} value={value} />;
+          return <Input  disabled={disabled} onChange={change} value={value} />;
         }
       },
     },
