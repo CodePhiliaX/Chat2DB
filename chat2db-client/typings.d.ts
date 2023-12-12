@@ -27,6 +27,7 @@ declare global {
       quitApp: () => void;
       setBaseURL: (baseUrl: string) => void;
       registerAppMenu: (data: any) => void;
+      setForceQuitCode: (code: boolean) => void;
     };
   }
   const __APP_VERSION__: string;

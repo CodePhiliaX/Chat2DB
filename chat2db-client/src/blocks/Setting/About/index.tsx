@@ -1,14 +1,17 @@
 import React, { useEffect, useMemo } from 'react';
 import styles from './index.less';
 import i18n from '@/i18n';
+import classnames from 'classnames';
 import BrandLogo from '@/components/BrandLogo';
 import { APP_NAME, WEBSITE_DOC } from '@/constants/appConfig';
-import { Button, Radio, Space } from 'antd';
+import { Button, Radio, Space, Checkbox } from 'antd';
 import configService from '@/service/config';
 import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
 import Iconfont from '@/components/Iconfont';
+import {useSettingStore,setHoldingService} from '@/store/setting';
+
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
   updateDetectionRef: React.MutableRefObject<IUpdateDetectionRef> | null;
@@ -18,6 +21,14 @@ interface IProps {
 export default function AboutUs(props: IProps) {
   const { updateDetectionData, updateDetectionRef } = props;
   const [updateRule, setUpdateRule] = React.useState<'manual' | 'auto'>(updateDetectionData?.type || 'manual');
+
+  const {holdingService}  = useSettingStore((state)=>{
+    return {
+      holdingService:state.holdingService
+    }
+  });
+
+  console.log('holdingService',holdingService)
 
   const onChangeUpdateRul = (e) => {
     configService.setAppUpdateType(e.target.value).then(() => {
@@ -89,6 +100,11 @@ export default function AboutUs(props: IProps) {
     }
   }, [updateDetectionData]);
 
+  const changeHoldingService = (e) => {
+    setHoldingService(e.target.checked);
+    window.electronApi?.setForceQuitCode?.(e.target.checked);
+  }
+
   return (
     <div className={styles.aboutUs}>
       <div className={styles.versionsInfo}>
@@ -128,6 +144,10 @@ export default function AboutUs(props: IProps) {
             </Radio>
           </Space>
         </Radio.Group>
+      </div>
+      <div className={classnames(styles.updateRule, styles.holdingService) }>
+        <div className={styles.updateRuleTitle}>{i18n('setting.title.holdingService')}</div>
+        <Checkbox checked={holdingService} onChange={changeHoldingService}>{i18n('setting.text.holdingService')}</Checkbox>
       </div>
       {/* <div className={styles.brief}>
         <div className={styles.appName}>{APP_NAME}</div>
