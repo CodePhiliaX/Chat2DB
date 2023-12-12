@@ -49,7 +49,7 @@ contextBridge.exposeInMainWorld('electronApi', {
     ipcRenderer.send('set-base-url', baseUrl);
   },
   setForceQuitCode: (code) => {
-    ipcRenderer.send('set-force-quit-code', code);
+    ipcRenderer.send('set-force-quit-code', !code);
   },
   registerAppMenu: (menuProps) => {
     ipcRenderer.send('register-app-menu', menuProps);
