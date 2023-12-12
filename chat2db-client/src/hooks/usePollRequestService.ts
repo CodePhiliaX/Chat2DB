@@ -18,7 +18,7 @@ export enum ServiceStatus {
 /**
  * 轮询请求后端服务
  */
-const usePollRequestService = ({ maxAttempts = 200, interval = 100, loopService }: IProps) => {
+const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService }: IProps) => {
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>(ServiceStatus.PENDING);
   const [attempts, setAttempts] = useState(0);
   const [restart, setRestart] = useState(false);

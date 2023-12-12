@@ -6,6 +6,7 @@ export default {
   'setting.nav.aboutUs': 'About Us',
   'setting.title.backgroundColor': 'Background Color',
   'setting.title.themeColor': 'Theme Color',
+  'setting.title.sqlEditorFontSize': 'SQL Editor Font Size',
   'setting.label.blue': 'Blue',
   'setting.label.green': 'Green',
   'setting.label.violet': 'Violet',

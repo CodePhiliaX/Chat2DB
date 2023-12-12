@@ -146,15 +146,16 @@ export default memo<IProps>((props) => {
         ) : (
           <div />
         )}
-
-        <div
-          className={styles.uploadCustomDrive}
-          onClick={() => {
-            setUploadDriverModal(true);
-          }}
-        >
-          {i18n('connection.tips.customUpload')}
-        </div>
+        {backfillData.isAdmin !== false && (
+          <div
+            className={styles.uploadCustomDrive}
+            onClick={() => {
+              setUploadDriverModal(true);
+            }}
+          >
+            {i18n('connection.tips.customUpload')}
+          </div>
+        )}
       </div>
       <Modal
         destroyOnClose={true}

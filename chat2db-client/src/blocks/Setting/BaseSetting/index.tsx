@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { LangType, ThemeType } from '@/constants';
 import i18n, { currentLang } from '@/i18n';
-import React, { useState } from 'react';
 import classnames from 'classnames';
 import themeDarkImg from '@/assets/img/theme-dark.png';
 import themeLightImg from '@/assets/img/theme-light.png';
@@ -87,7 +87,6 @@ const colorList = [
 
 // baseBody 基础设置
 export default function BaseSetting() {
-  const [lang, setLang] = useState(currentLang);
   const [appTheme, setAppTheme] = useTheme();
   const [currentTheme, setCurrentTheme] = useState<ThemeType>(appTheme.backgroundColor);
   const [currentPrimaryColor, setCurrentPrimaryColor] = useState(localStorage.getItem('primary-color'));
@@ -111,13 +110,17 @@ export default function BaseSetting() {
     location.reload();
   }
 
-  // TODO: 这里写 ThemeType 为什么报错呢
   function handleChangeTheme(backgroundColor: any) {
     setAppTheme({
       ...appTheme,
       backgroundColor,
     });
     setCurrentTheme(backgroundColor);
+  }
+
+
+  const changeSqlEditorFontSize = (e: any) => {
+   
   }
 
   return (
@@ -139,7 +142,7 @@ export default function BaseSetting() {
       </ul>
       <div className={styles.title}>{i18n('setting.title.language')}</div>
       <div className={styles.langBox}>
-        <Radio.Group onChange={changeLang} value={lang}>
+        <Radio.Group onChange={changeLang} value={currentLang}>
           <Radio value={LangType.ZH_CN}>简体中文</Radio>
           <Radio value={LangType.EN_US}>English</Radio>
         </Radio.Group>
@@ -172,6 +175,15 @@ export default function BaseSetting() {
           </div>
         </ColorPicker> */}
       </ul>
+      {/* <div className={styles.title}>{i18n('setting.title.sqlEditorFontSize')}</div>
+      <div className={styles.sqlEditorFontSize}>
+        <Radio.Group onChange={changeSqlEditorFontSize}>
+          <Radio value={12}>12</Radio>
+          <Radio value={14}>14</Radio>
+          <Radio value={16}>16</Radio>
+        </Radio.Group>
+      </div> */}
+      
     </>
   );
 }

@@ -31,6 +31,7 @@ interface IProps {
   executeSqlParams: any;
   concealTabHeader?: boolean;
   viewTable?: boolean;
+  isActive?: boolean;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -52,7 +53,7 @@ interface IContext {
 export const Context = createContext<IContext>({} as any);
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
-  const { className, sql, executeSqlParams, concealTabHeader, viewTable } = props;
+  const { className, sql, executeSqlParams, concealTabHeader, viewTable, isActive } = props;
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
@@ -111,6 +112,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     function renderSuccessResult() {
       const needTable = queryResultData?.headerList?.length > 1;
       return (
+        isActive ?
         <div className={styles.successResult}>
           <div className={styles.successResultContent}>
             {needTable ? (
@@ -134,6 +136,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
             )}
           </div>
         </div>
+        :
+        false
       );
     }
     return (
@@ -168,7 +172,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         children: renderResult(queryResultData),
       };
     });
-  }, [resultDataList]);
+  }, [resultDataList, isActive]);
 
   const onEdit = useCallback(
     (type: 'add' | 'remove', data: ITabItem[]) => {
@@ -212,6 +216,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
                 onEdit={onEdit as any}
                 items={tabsList}
                 concealTabHeader={concealTabHeader}
+                destroyInactiveTabPane={true}
               />
             ) : (
               <div className={styles.noData}>

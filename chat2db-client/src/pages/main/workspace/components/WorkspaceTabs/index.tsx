@@ -152,6 +152,8 @@ const WorkspaceTabs = memo(() => {
           consoleId: item.id as number,
           status: uniqueData.status,
           connectable: uniqueData.connectable,
+          supportDatabase: uniqueData.supportDatabase,
+          supportSchema: uniqueData.supportSchema,
         }}
         initDDL={uniqueData.ddl}
         loadSQL={uniqueData.loadSQL}
@@ -179,7 +181,15 @@ const WorkspaceTabs = memo(() => {
   // 渲染搜索结果
   const renderSearchResult = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    return <SearchResult sql={uniqueData.sql} executeSqlParams={uniqueData} viewTable concealTabHeader />;
+    return (
+      <SearchResult
+        isActive={activeConsoleId === item.id}
+        sql={uniqueData.sql}
+        executeSqlParams={uniqueData}
+        viewTable
+        concealTabHeader
+      />
+    );
   };
 
   // 渲染所有表

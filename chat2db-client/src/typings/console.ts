@@ -9,7 +9,7 @@ export interface ICreateConsoleParams {
   databaseName?: string;
   schemaName?: string;
   operationType?: WorkspaceTabType;
-  loadSQL: () => Promise<string>;
+  loadSQL?: () => Promise<string>;
 }
 
 // 控制台详情

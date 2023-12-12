@@ -18,7 +18,6 @@ export const initConsoleStore = {
   activeConsoleId: null,
   workspaceTabList: null,
   createConsoleLoading: false,
-
 };
 
 export const getOpenConsoleList = () => {
@@ -55,6 +54,7 @@ export const setWorkspaceTabList = (items: IConsoleStore['workspaceTabList']) =>
 
 export const createConsole = (params: ICreateConsoleParams) => {
   const workspaceTabList = useWorkspaceStore.getState().workspaceTabList;
+  const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
   const newConsole = {
     ...params,
     name: params.name || 'new console',
@@ -62,6 +62,8 @@ export const createConsole = (params: ICreateConsoleParams) => {
     status: ConsoleStatus.DRAFT,
     operationType: params.operationType || WorkspaceTabType.CONSOLE,
     type: params.databaseType,
+    supportDatabase: currentConnectionDetails?.supportDatabase,
+    supportSchema: currentConnectionDetails?.supportSchema
   };
 
   return new Promise((resolve) => {
