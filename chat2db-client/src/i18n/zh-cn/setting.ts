@@ -6,6 +6,7 @@ export default {
   'setting.nav.aboutUs': '关于我们',
   'setting.title.backgroundColor': '背景色',
   'setting.title.themeColor': '主题色',
+  'setting.title.sqlEditorFontSize': 'SQL编辑器字体大小',
   'setting.label.blue': '蓝蓬釉',
   'setting.label.green': '极光绿',
   'setting.label.violet': '酱紫',

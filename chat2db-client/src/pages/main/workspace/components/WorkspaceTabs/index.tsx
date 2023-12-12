@@ -152,6 +152,8 @@ const WorkspaceTabs = memo(() => {
           consoleId: item.id as number,
           status: uniqueData.status,
           connectable: uniqueData.connectable,
+          supportDatabase: uniqueData.supportDatabase,
+          supportSchema: uniqueData.supportSchema,
         }}
         initDDL={uniqueData.ddl}
         loadSQL={uniqueData.loadSQL}
