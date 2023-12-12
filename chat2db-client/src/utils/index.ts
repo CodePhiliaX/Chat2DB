@@ -11,8 +11,8 @@ export function getOsTheme() {
 export function deepClone(target: any) {
   const map = new WeakMap();
 
-  function isObject(target: any) {
-    return (typeof target === 'object' && target) || typeof target === 'function';
+  function isObject(_target: any) {
+    return (typeof _target === 'object' && _target) || typeof _target === 'function';
   }
 
   function clone(data: any) {
@@ -141,9 +141,9 @@ export function findObjListValue<T, K extends keyof T>(list: T[], key: K, value:
 
 // 清理就版本不兼容的LocalStorage
 export function clearOlderLocalStorage() {
-  if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
+  if (localStorage.getItem('app-local-storage-versions') !== 'v4') {
     localStorage.clear();
-    localStorage.setItem('app-local-storage-versions', 'v3');
+    localStorage.setItem('app-local-storage-versions', 'v4');
   }
 }
 

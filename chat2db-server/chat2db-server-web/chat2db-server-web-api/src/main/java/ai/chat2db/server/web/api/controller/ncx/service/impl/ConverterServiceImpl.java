@@ -1,7 +1,9 @@
 package ai.chat2db.server.web.api.controller.ncx.service.impl;
 
 import ai.chat2db.server.domain.core.util.DesUtil;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.mapper.ChartMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.tools.common.util.ContextUtils;
@@ -79,8 +81,10 @@ public class ConverterServiceImpl implements ConverterService {
      **/
     private static final String connection = "#connection";
 
-    @Autowired
-    private DataSourceMapper dataSourceMapper;
+
+    private DataSourceMapper getDataSourceMapper(){
+        return Dbutils.getMapper(DataSourceMapper.class);
+    }
     /**
      * jdbc通用匹配ip和端口
      */
@@ -235,7 +239,7 @@ public class ConverterServiceImpl implements ConverterService {
                                 dataSourceDO.setPassword(encryptStr);
                             }
                             dataSourceDO.setType(dataBaseType.name());
-                            dataSourceMapper.insert(dataSourceDO);
+                            getDataSourceMapper().insert(dataSourceDO);
                         }
                     }
                 }
@@ -342,7 +346,7 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setUserName(username);
                 dataSourceDO.setDriver(driverName);
                 dataSourceDO.setType(type);
-                dataSourceMapper.insert(dataSourceDO);
+                getDataSourceMapper().insert(dataSourceDO);
             }
         }
         return vo;
@@ -406,7 +410,7 @@ public class ConverterServiceImpl implements ConverterService {
                 }
                 dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
                 log.info("begin insert:{}", JSON.toJSONString(dataSourceDO));
-                dataSourceMapper.insert(dataSourceDO);
+                getDataSourceMapper().insert(dataSourceDO);
             }
         }
     }

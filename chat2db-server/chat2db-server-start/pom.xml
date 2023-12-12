@@ -28,10 +28,6 @@
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-web-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-server-admin-api</artifactId>
-        </dependency>
         <!-- 需要加载的服务 -->
         <dependency>
             <groupId>ai.chat2db</groupId>
@@ -68,16 +64,6 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
-        <!-- 登录鉴权 -->
-        <dependency>
-            <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot3-starter</artifactId>
-        </dependency>
-        <!-- Sa-Token 整合 jwt -->
-        <dependency>
-            <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-jwt</artifactId>
-        </dependency>
 
         <!-- 模板引擎 -->
         <dependency>
@@ -104,9 +90,12 @@
         <!-- http -->
         <dependency>
             <groupId>com.dtflys.forest</groupId>
-            <artifactId>forest-spring-boot3-starter</artifactId>
+            <artifactId>forest-spring</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.dtflys.forest</groupId>
+            <artifactId>forest-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
             <artifactId>logbook-spring-boot-starter</artifactId>

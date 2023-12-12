@@ -29,6 +29,9 @@ interface IProps {
   className?: string;
   sql?: string;
   executeSqlParams: any;
+  concealTabHeader?: boolean;
+  viewTable?: boolean;
+  isActive?: boolean;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -44,17 +47,17 @@ export interface ISearchResultRef {
 
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
-  activeTabIdRef: React.MutableRefObject<null | string>
+  activeTabId: string;
 }
 
 export const Context = createContext<IContext>({} as any);
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
-  const { className, sql, executeSqlParams } = props;
+  const { className, sql, executeSqlParams, concealTabHeader, viewTable, isActive } = props;
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
-  const activeTabIdRef = useRef<null | string>(null);
+  const [activeTabId, setActiveTabId] = useState<string>('');
 
   useEffect(() => {
     if (sql) {
@@ -72,19 +75,21 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
    */
   const handleExecuteSQL = (_sql: string) => {
     setTableLoading(true);
+    const api = viewTable ? sqlServer.viewTable : sqlServer.executeSql;
 
     const executeSQLParams: IExecuteSqlParams = {
       sql: _sql,
+      tableName: executeSqlParams?.tableName,
       ...defaultResultConfig,
       ...executeSqlParams,
+      type: executeSqlParams.databaseType, // 兼容写法，希望后端可以统一把type改成databaseType
     };
 
     controllerRef.current = new AbortController();
     // 获取当前SQL的查询结果
-    sqlServer
-      .executeSql(executeSQLParams, {
-        signal: controllerRef.current.signal,
-      })
+    api(executeSQLParams, {
+      signal: controllerRef.current.signal,
+    })
       .then((res) => {
         const sqlResult = res.map((_res) => ({
           ..._res,
@@ -99,13 +104,15 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   };
 
   const onChange = useCallback((uuid) => {
-    activeTabIdRef.current = uuid;
+    // activeTabIdRef.current = uuid;
+    setActiveTabId(uuid);
   }, []);
 
   const renderResult = (queryResultData) => {
     function renderSuccessResult() {
       const needTable = queryResultData?.headerList?.length > 1;
       return (
+        isActive ?
         <div className={styles.successResult}>
           <div className={styles.successResultContent}>
             {needTable ? (
@@ -129,6 +136,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
             )}
           </div>
         </div>
+        :
+        false
       );
     }
     return (
@@ -163,7 +172,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         children: renderResult(queryResultData),
       };
     });
-  }, [resultDataList]);
+  }, [resultDataList, isActive]);
 
   const onEdit = useCallback(
     (type: 'add' | 'remove', data: ITabItem[]) => {
@@ -186,7 +195,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   return (
     <Context.Provider
       value={{
-        activeTabIdRef: activeTabIdRef,
+        activeTabId: activeTabId,
       }}
     >
       <div className={classnames(className, styles.searchResult)}>
@@ -206,7 +215,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
                 onChange={onChange as any}
                 onEdit={onEdit as any}
                 items={tabsList}
-                concealTabHeader={tabsList.length === 1}
+                concealTabHeader={concealTabHeader}
+                destroyInactiveTabPane={true}
               />
             ) : (
               <div className={styles.noData}>

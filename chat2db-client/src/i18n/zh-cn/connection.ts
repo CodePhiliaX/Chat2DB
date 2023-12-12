@@ -15,6 +15,7 @@ export default {
   'connection.label.sshConfiguration': 'SSH',
   'connection.button.addConnection': '新增连接',
   'connection.button.connect': '连接',
+  'connection.button.remove': '删除链接',
   'connection.message.testConnectResult': '测试连接{1}',
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',

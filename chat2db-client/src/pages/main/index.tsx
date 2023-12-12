@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { connect } from 'umi';
 import { Dropdown, Tooltip } from 'antd';
 import classnames from 'classnames';
 
 import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
 
-import { findObjListValue } from '@/utils';
+import i18n from '@/i18n';
 import { getUser, userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
 import { ILoginUser, IRole } from '@/typings/user';
-import i18n from '@/i18n';
 
-// ----- model -----
-import { IMainPageType } from '@/models/mainPage';
-import { IWorkspaceModelType } from '@/models/workspace';
-import { IConnectionModelType } from '@/models/connection';
+// ----- hooks -----
+import getConnectionEnvList from './functions/getConnection';
+
+// ----- store -----
+import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
+import { getConnectionList } from '@/pages/main/store/connection';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -25,10 +25,10 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
-import { getUrlParam, updateQueryStringParameter } from '@/utils/url';
 import styles from './index.less';
+import { useUpdateEffect } from '@/hooks';
 
-const navConfig: INavItem[] = [
+const initNavConfig: INavItem[] = [
   {
     key: 'workspace',
     icon: '\ue616',
@@ -63,99 +63,69 @@ const navConfig: INavItem[] = [
   },
 ];
 
-interface IProps {
-  mainModel: IMainPageType['state'];
-  workspaceModel: IWorkspaceModelType['state'];
-  connectionModel: IConnectionModelType['state'];
-  dispatch: any;
-}
-
-function MainPage(props: IProps) {
+function MainPage() {
   const navigate = useNavigate();
-  const { mainModel, dispatch } = props;
-  const { curPage } = mainModel;
-  const [activeNav, setActiveNav] = useState<INavItem | null>(null);
+  const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
   const [userInfo, setUserInfo] = useState<ILoginUser>();
+  const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
+  const [activeNavKey, setActiveNavKey] = useState<string>(
+    __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
+  );
 
   useEffect(() => {
     handleInitPage();
+    getConnectionList();
+    getConnectionEnvList();
   }, []);
 
-  useEffect(() => {
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
-    dispatch({
-      type: 'connection/fetchConnectionEnvList',
-    });
-  }, []);
+  useUpdateEffect(() => {
+    switchingNav(mainPageActiveTab);
+  }, [mainPageActiveTab]);
 
+  // 切换tab
   useEffect(() => {
-    if (!activeNav) {
-      return;
+    // 获取当前地址栏的tab
+    const activeIndex = navConfig.findIndex((t) => `${t.key}` === activeNavKey);
+    if (activeIndex > -1) {
+      navConfig[activeIndex].isLoad = true;
+      setNavConfig([...navConfig]);
+      if (__ENV__ !== 'desktop') {
+        const href = window.location.origin + '/' + activeNavKey;
+        window.history.pushState({}, '', href);
+      }
     }
-    // activeNav 发生变化，同步到全局状态管理
-    activeNav.isLoad = true;
-    dispatch({
-      type: 'mainPage/updateCurPage',
-      payload: activeNav.key,
-    });
-    // activeNav 发生变化 如果没有选中连接并且不在connections 那么需要跳转到 连接页面
-    // if (!curConnection?.id && activeNav.key !== 'connections') {
-    //   setActiveNav(navConfig[2]);
-    // }
-    // activeNav 变化 同步地址栏变化
-    // change url，but no page refresh
-    // window.history.pushState({}, "", `/#/${activeNav.key}`);
-  }, [activeNav]);
+  }, [activeNavKey]);
 
-  useEffect(() => {
-    // 全局状态curPage发生变化，activeNav 需要同步变化
-    if (curPage && curPage !== activeNav?.key) {
-      const newActiveNav = navConfig[findObjListValue(navConfig, 'key', curPage)];
-      setActiveNav(newActiveNav);
-    }
-    localStorage.setItem('curPage', curPage);
-  }, [curPage]);
-
+  // 这里如果社区版没有登陆可能需要后端来个重定向？
   const handleInitPage = async () => {
+    const cloneNavConfig = [...navConfig];
     const res = await getUser();
     if (res) {
       setUserInfo(res);
-      const hasTeamIcon = navConfig.find((i) => i.key === 'team');
+      const hasTeamIcon = cloneNavConfig.find((i) => i.key === 'team');
       if (res.admin && !hasTeamIcon) {
-        navConfig.splice(3, 0, {
+        cloneNavConfig.splice(3, 0, {
           key: 'team',
           icon: '\ue64b',
           iconFontSize: 24,
-          isLoad: false,
+          isLoad: activeNavKey === 'team', // 如果当前是team，直接加载
           component: <Team />,
           name: i18n('team.title'),
         });
-        if (localStorage.getItem('curPage') === 'team') {
-          setActiveNav(navConfig[3]);
-        }
       }
       if (!res.admin && hasTeamIcon) {
-        navConfig.splice(3, 1);
-        if (localStorage.getItem('curPage') === 'team') {
-          setActiveNav(navConfig[2]);
-        }
+        cloneNavConfig.splice(3, 1);
       }
     }
-
-    const initPage = localStorage.getItem('curPage');
-    const initPageIndex = navConfig.findIndex((t) => `${t.key}` === initPage);
-    const activeIndex = initPageIndex > -1 ? initPageIndex : 2;
-    navConfig[activeIndex].isLoad = true;
-    setActiveNav(navConfig[activeIndex]);
+    setNavConfig([...cloneNavConfig]);
   };
 
-  const switchingNav = (item: INavItem) => {
-    if (item.openBrowser) {
-      window.open(item.openBrowser, '_blank');
+  const switchingNav = (key: string) => {
+    if (key === 'github') {
+      window.open('https://github.com/chat2db/Chat2DB/', '_blank');
     } else {
-      setActiveNav(item);
+      setActiveNavKey(key);
+      setMainPageActiveTab(key);
     }
   };
 
@@ -202,15 +172,11 @@ function MainPage(props: IProps) {
               <Tooltip key={item.key} placement="right" title={item.name}>
                 <li
                   className={classnames({
-                    [styles.activeNav]: item.key == activeNav?.key,
+                    [styles.activeNav]: item.key == activeNavKey,
                   })}
-                  onClick={() => switchingNav(item)}
+                  onClick={() => switchingNav(item.key)}
                 >
-                  <Iconfont
-                    style={{ '--icon-size': item.iconFontSize + 'px' } as any}
-                    className={styles.icon}
-                    code={item.icon}
-                  />
+                  <Iconfont size={item.iconFontSize} className={styles.icon} code={item.icon} />
                 </li>
               </Tooltip>
             );
@@ -226,7 +192,7 @@ function MainPage(props: IProps) {
       <div className={styles.layoutRight}>
         {navConfig.map((item) => {
           return (
-            <div key={item.key} className={styles.componentBox} hidden={activeNav?.key !== item.key}>
+            <div key={item.key} className={styles.componentBox} hidden={activeNavKey !== item.key}>
               {item.isLoad ? item.component : null}
             </div>
           );
@@ -236,18 +202,4 @@ function MainPage(props: IProps) {
   );
 }
 
-export default connect(
-  ({
-    mainPage,
-    workspace,
-    connection,
-  }: {
-    mainPage: IMainPageType;
-    workspace: IWorkspaceModelType;
-    connection: IConnectionModelType;
-  }) => ({
-    mainModel: mainPage,
-    workspaceModel: workspace,
-    connectionModel: connection,
-  }),
-)(MainPage);
+export default MainPage;

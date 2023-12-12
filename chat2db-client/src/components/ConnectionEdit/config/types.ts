@@ -39,7 +39,6 @@ export type IConnectionConfig = {
     pattern: RegExp;
     template: string;
     excludes?: OperationColumn[];
-
   },
   driver?: {
     items: IFormItem[];

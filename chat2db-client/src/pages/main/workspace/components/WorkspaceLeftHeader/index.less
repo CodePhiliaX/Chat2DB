@@ -1,0 +1,69 @@
+@import '../../../../../styles/var.less';
+
+.splitViewLeft {
+}
+
+.selectConnection {
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-sizing: border-box;
+  height: 32px;
+  .menuLabel {
+    flex: 1;
+    width: 0px;
+  }
+  .dropDownArrow {
+    transform: rotate(90deg);
+    color: var(--color-text-secondary);
+  }
+  &:hover {
+    background: var(--color-hover-bg);
+  }
+}
+
+.dropdownOverlay {
+  max-width: 500px;
+  :global {
+    .ant-dropdown-menu-item {
+      padding: 4px 6px !important;
+    }
+  }
+}
+
+.menuLabel {
+  display: flex;
+  align-items: center;
+  .menuLabelIconBox {
+    width: 22px;
+    display: flex;
+    align-items: center;
+  }
+  .menuLabelIcon {
+    color: var(--color-primary);
+  }
+  .menuLabelTag {
+    margin-right: 10px;
+  }
+  .menuLabelTitle {
+    flex: 1;
+    width: 0px;
+    .f-single-line();
+  }
+  .envTag {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    margin-right: 8px;
+  }
+}
+
+.databaseTypeIcon {
+  margin-right: 10px;
+  font-weight: 400;
+  color: var(--color-primary);
+}

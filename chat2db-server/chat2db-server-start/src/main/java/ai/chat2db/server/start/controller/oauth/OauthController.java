@@ -13,9 +13,6 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 
-import cn.dev33.satoken.context.SaHolder;
-import cn.dev33.satoken.stp.StpUtil;
-import cn.dev33.satoken.util.SaTokenConsts;
 import cn.hutool.crypto.digest.DigestUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -50,19 +47,7 @@ public class OauthController {
     @PostMapping("login_a")
     public DataResult login(@Validated @RequestBody LoginRequest request) {
         //   查询用户
-        User user = userService.query(request.getUserName()).getData();
-        this.validateUser(user);
-
-        // Successfully logged in without modifying the administrator password
-        if (this.validateAdmin(user)) {
-            return DataResult.of(doLogin(user));
-        }
-
-        if (!DigestUtil.bcryptCheck(request.getPassword(), user.getPassword())) {
-            throw new BusinessException("oauth.passwordIncorrect");
-        }
-
-        return DataResult.of(doLogin(user));
+     return DataResult.of(null);
     }
 
     private boolean validateAdmin(final @NotNull User user) {
@@ -80,22 +65,6 @@ public class OauthController {
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(user.getId())) {
             throw new BusinessException("oauth.IllegalUserName");
         }
-    }
-
-    private Object doLogin(User user) {
-        StpUtil.login(user.getId());
-        return SaHolder.getStorage().get(SaTokenConsts.JUST_CREATED_NOT_PREFIX);
-    }
-
-    /**
-     * 登出
-     *
-     * @return
-     */
-    @PostMapping("logout_a")
-    public ActionResult logout() {
-        StpUtil.logout();
-        return ActionResult.isSuccess();
     }
 
     /**

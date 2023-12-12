@@ -2,7 +2,9 @@ package ai.chat2db.server.domain.core.impl;
 
 import ai.chat2db.server.domain.api.service.JdbcDriverService;
 import ai.chat2db.server.domain.core.converter.DriverConfigConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.JdbcDriverDO;
+import ai.chat2db.server.domain.repository.mapper.EnvironmentMapper;
 import ai.chat2db.server.domain.repository.mapper.JdbcDriverMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -34,17 +36,18 @@ import static ai.chat2db.spi.util.JdbcUtils.setDriverDefaultProperty;
 public class JdbcDriverServiceImpl implements JdbcDriverService {
 
     @Autowired
-    private JdbcDriverMapper jdbcDriverMapper;
-
-    @Autowired
     private DriverConfigConverter driverConfigConverter;
+
+    private JdbcDriverMapper getMapper() {
+        return Dbutils.getMapper(JdbcDriverMapper.class);
+    }
 
     @Override
     public DataResult<DBConfig> getDrivers(String dbType) {
         Map<String, DriverConfig> driverConfigMap = new LinkedHashMap<>();
         LambdaQueryWrapper<JdbcDriverDO> query = new LambdaQueryWrapper<JdbcDriverDO>();
         query.eq(JdbcDriverDO::getDbType, dbType);
-        List<JdbcDriverDO> driverDOS = jdbcDriverMapper.selectList(query);
+        List<JdbcDriverDO> driverDOS = getMapper().selectList(query);
         List<DriverConfig> driverConfigs = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(driverDOS)) {
             driverConfigs = driverDOS.stream().map(driverConfigConverter::do2Config).collect(Collectors.toList());
@@ -96,7 +99,7 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
         } catch (Exception e) {
             throw new RuntimeException("Driver error,please check the driver file", e);
         }
-        jdbcDriverMapper.insert(driverDO);
+        getMapper().insert(driverDO);
         return ActionResult.isSuccess();
     }
 

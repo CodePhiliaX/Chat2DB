@@ -1,50 +1,49 @@
 import React, { memo } from 'react';
+import i18n from '@/i18n';
 import classnames from 'classnames';
-import { connect } from 'umi';
-import { Divider } from 'antd';
-import { IConnectionModelType } from '@/models/connection';
-import { IWorkspaceModelType } from '@/models/workspace';
 import styles from './index.less';
 import TableList from '../TableList';
-import SaveList from '../SaveList';
-import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
-import { IExportParams } from '@/service/sql';
-import { downloadFile } from '@/utils/file';
+import WorkspaceLeftHeader from '../WorkspaceLeftHeader';
+import CreateDatabase from '@/components/CreateDatabase';
+import Iconfont from '@/components/Iconfont';
+import { useConnectionStore } from '@/pages/main/store/connection';
+import { setMainPageActiveTab } from '@/pages/main/store/main';
 
-interface IProps {
-  className?: string;
-  workspaceModel: IWorkspaceModelType['state'];
-  dispatch: any;
-}
-
-const dvaModel = connect(
-  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
-    connectionModel: connection,
-    workspaceModel: workspace,
-  }),
-);
-
-const WorkspaceLeft = memo<IProps>((props) => {
-  const { className, workspaceModel } = props;
-  const { curWorkspaceParams } = workspaceModel;
-
-  const handleExportTableStructure = async (exportType: ExportTypeEnum) => {
-    const params: IExportParams = {
-      ...curWorkspaceParams,
-      originalSql: '',
-      exportType,
-      exportSize: ExportSizeEnum.ALL,
+const WorkspaceLeft = memo(() => {
+  const { connectionList } = useConnectionStore((state) => {
+    return {
+      connectionList: state.connectionList,
     };
-    downloadFile(window._BaseURL + '/api/rdb/doc/export', params);
+  });
+
+  const jumpPage = () => {
+    setMainPageActiveTab('connections');
   };
 
   return (
-    <div className={classnames(styles.box, className)}>
-      <SaveList />
-      <Divider className={styles.divider} />
-      <TableList onExport={handleExportTableStructure} />
-    </div>
+    <>
+      <div className={classnames(styles.workspaceLeft)}>
+        {connectionList?.length ? (
+          <>
+            <WorkspaceLeftHeader />
+            <TableList />
+          </>
+        ) : (
+          <div className={styles.noConnectionList}>
+            <Iconfont className={styles.noConnectionListIcon} code="&#xe638;" />
+            <div className={styles.noConnectionListTips}>{i18n('workspace.tips.noConnection')}</div>
+            <div>
+              <span className={styles.create} onClick={jumpPage}>
+                {i18n('common.title.create')}
+              </span>
+              {i18n('connection.title.connections')}
+            </div>
+          </div>
+        )}
+      </div>
+      <CreateDatabase />
+    </>
   );
 });
 
-export default dvaModel(WorkspaceLeft);
+export default WorkspaceLeft;

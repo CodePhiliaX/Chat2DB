@@ -40,7 +40,12 @@ public class OperationPageQueryParam extends PageQueryParam {
     /**
      * orderBy modify time desc
      */
-    private boolean orderByDesc;
+    private Boolean orderByDesc;
+
+    /**
+     * orderBy create time desc
+     */
+    private Boolean orderByCreateDesc;
 
     /**
      * operation type

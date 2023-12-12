@@ -24,7 +24,7 @@ function DataSourceManagement() {
     // pageSizeOptions: ['10', '20', '30', '40'],
   });
   const [showCreateConnection, setShowCreateConnection] = useState(false);
-  const connectionInfo = useRef<IConnectionDetails>();
+  const connectionInfo = useRef<IConnectionDetails | null>(null);
 
   const [drawerInfo, setDrawerInfo] = useState<{ open: boolean; type: AffiliationType; id?: number }>({
     open: false,
@@ -92,7 +92,7 @@ function DataSourceManagement() {
 
   const queryDataSourceList = async () => {
     const { searchKey, current: pageNo, pageSize } = pagination;
-    let res = await getDataSourceList({ searchKey, pageNo, pageSize });
+    const res = await getDataSourceList({ searchKey, pageNo, pageSize });
     if (res) {
       setDataSource(res?.data ?? []);
       setPagination({
@@ -117,7 +117,7 @@ function DataSourceManagement() {
   };
 
   const handleAddDataSource = () => {
-    connectionInfo.current = undefined;
+    connectionInfo.current = null;
     setShowCreateConnection(true);
   };
 
@@ -127,7 +127,7 @@ function DataSourceManagement() {
       return;
     }
 
-    let detail = await ConnectionServer.getDetails({ id });
+    const detail = await ConnectionServer.getDetails({ id });
     connectionInfo.current = detail;
     setShowCreateConnection(true);
   };
@@ -140,20 +140,21 @@ function DataSourceManagement() {
     }
   };
 
-  const handleConfirmConnection = async (data: IConnectionDetails) => {
+  const handleConfirmConnection = (data: IConnectionDetails) => {
     if (JSON.stringify(connectionInfo.current) === '{}') {
-      return;
+      return new Promise((resolve) => {
+        resolve(true);
+      });
     }
     connectionInfo.current = data;
 
     const isUpdate = isValid(connectionInfo?.current?.id);
     const requestApi = isUpdate ? updateDataSource : createDataSource;
-    try {
-      await requestApi({ ...connectionInfo.current });
+    return requestApi({ ...connectionInfo.current }).then(() => {
       message.success(isUpdate ? i18n('common.tips.updateSuccess') : i18n('common.tips.createSuccess'));
       setShowCreateConnection(false);
       queryDataSourceList();
-    } catch {}
+    });
   };
 
   return (

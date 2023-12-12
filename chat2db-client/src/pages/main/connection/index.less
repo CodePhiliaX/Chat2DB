@@ -32,15 +32,6 @@
   overflow-y: auto;
   padding: 0px 8px;
 
-  .menu {
-    min-height: 100%;
-    background-color: var(--color-bg-medium);
-  }
-
-  .menuItemIcon {
-    color: var(--color-primary) !important;
-  }
-
   .menuItem {
     display: flex;
     justify-content: space-between;
@@ -91,6 +82,11 @@
     }
   }
 
+  .menuItemIcon {
+    color: var(--color-primary) !important;
+  }
+
+
   .menuItemActive {
     color: var(--color-primary);
     // background-color: var(--color-primary-bg);
@@ -119,29 +115,6 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  .notPermission {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .notPermissionIconTips {
-    color: var(--color-text-tertiary);
-    text-align: center;
-    width: 340px;
-  }
-  .notPermissionIconBox,
-  .connectButtonBox {
-    display: flex;
-    justify-content: center;
-  }
-  .notPermissionIcon {
-    font-size: 200px;
-    color: var(--color-text-quaternary);
-    margin: 20px 0px;
-  }
-  .connectButton {
-    margin-top: 20px;
-  }
 }
 
 .dataBaseList {

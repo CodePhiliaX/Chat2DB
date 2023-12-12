@@ -49,8 +49,8 @@ jobs:
           cd chat2db-client
           yarn install 
           yarn run build:web:prod --app_version=${{ steps.chat2db_version.outputs.substring }}
-          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
-          cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
+          cp -r dist ../chat2db-server/chat2db-server-web-start/src/main/resources/static/front
+          cp -r dist/index.html ../chat2db-server/chat2db-server-web-start/src/main/resources/thymeleaf/
 
       # 安装java
       - name: Install Java and Maven

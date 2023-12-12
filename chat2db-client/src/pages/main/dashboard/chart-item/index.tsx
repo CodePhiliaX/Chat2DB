@@ -1,4 +1,4 @@
-import { IChartItem, IChartType, IConnectionDetails, ITreeNode } from '@/typings';
+import { IChartItem, IChartType, IConnectionDetails } from '@/typings';
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import styles from './index.less';
 import addImage from '@/assets/img/add.svg';
@@ -7,18 +7,14 @@ import Line from '../chart/line';
 import Pie from '../chart/pie';
 import Bar from '../chart/bar';
 import { MoreOutlined } from '@ant-design/icons';
-import { Button, Cascader, Dropdown, Form, MenuProps, message, notification, Select, Spin } from 'antd';
+import { Button, Dropdown, Form, message, Select, Spin } from 'antd';
 import { deleteChart, getChartById, updateChart } from '@/service/dashboard';
-import { data } from '../../../../../mock/sqlResult.json';
-import Console from '@/components/Console';
+import ConsoleEditor from '@/components/ConsoleEditor';
 import Iconfont from '@/components/Iconfont';
-import sqlService, { IExecuteSqlParams, MetaSchemaVO } from '@/service/sql';
+import sqlService, { IExecuteSqlParams } from '@/service/sql';
 import { Option } from '@/typings/common';
 import { handleDatabaseAndSchema } from '@/utils/database';
 import i18n from '@/i18n';
-import { useTheme } from '@/hooks';
-import { EditorThemeType, ThemeType } from '@/constants';
-import { IRemainingUse } from '@/typings/ai';
 import { isValid } from '@/utils/check';
 
 const handleSQLResult2ChartData = (data) => {
@@ -55,9 +51,8 @@ interface IChartItemProps {
   id: number;
   isEditing?: boolean;
   canAddRowItem: boolean;
-  connectionList: IConnectionDetails[];
-  tableList: ITreeNode[];
-  remainingUse: IRemainingUse;
+  connectionList: any[];
+  remainingUse: any;
   onDelete?: (id: number) => void;
   addChartTop?: () => void;
   addChartBottom?: () => void;
@@ -66,20 +61,17 @@ interface IChartItemProps {
 }
 
 function ChartItem(props: IChartItemProps) {
-  const { connectionList, tableList, remainingUse } = props;
+  const { connectionList, id } = props;
   const [cascaderOption, setCascaderOption] = useState<Option[]>([]);
   const [curConnection, setCurConnection] = useState<IConnectionDetails>();
   const [chartData, setChartData] = useState<IChartItem>({});
   const [chartMetaData, setChartMetaData] = useState<any>();
-  const [cascaderValue, setCascaderValue] = useState<(string | number)[]>([]);
+  const [, setCascaderValue] = useState<(string | number)[]>([]);
   const [isEditing, setIsEditing] = useState<boolean>(props.isEditing ?? false);
   const [isLoading, setIsLoading] = useState(false);
   const [initDDL, setInitDDL] = useState('');
   const [form] = Form.useForm(); // 创建一个表单实例
   const chartRef = useRef<any>();
-  const [appTheme] = useTheme();
-
-  const { id } = props;
 
   useEffect(() => {
     if (id !== undefined) {
@@ -117,13 +109,6 @@ function ChartItem(props: IChartItemProps) {
     handleChartConfigChange();
   }, [chartData.sqlData]);
 
-  const loadData = (selectedOptions: any) => {
-    // 只选择了dataSource
-    const dataSourceId = selectedOptions[0].value;
-    const dataSource = connectionList.find((c) => c.id === dataSourceId);
-    setCurConnection(dataSource);
-  };
-
   const queryDatabaseAndSchemaList = async (dataSourceId: number) => {
     const res = await sqlService.getDatabaseSchemaList({ dataSourceId });
     const dataSource = (cascaderOption || []).find((c) => c.value === dataSourceId);
@@ -133,28 +118,28 @@ function ChartItem(props: IChartItemProps) {
     setCascaderOption([...cascaderOption]);
   };
 
-  const handleExecuteSQL = async (sql: string, chartData: IChartItem) => {
-    const { dataSourceId, databaseName } = chartData;
+  const handleExecuteSQL = async (sql: string, _chartData: IChartItem) => {
+    const { dataSourceId, databaseName } = _chartData;
     if (!isValid(dataSourceId)) {
       message.success(i18n('dashboard.editor.execute.noDataSource'));
       return;
     }
     setIsLoading(true);
     try {
-      let executeSQLParams: IExecuteSqlParams = {
+      const executeSQLParams: IExecuteSqlParams = {
         sql,
         dataSourceId,
         databaseName,
       };
       // 获取当前SQL的查询结果
-      let sqlResult = await sqlService.executeSql(executeSQLParams);
+      const sqlResult = await sqlService.executeSql(executeSQLParams);
 
       let sqlData;
       if (sqlResult && sqlResult[0]) {
         sqlData = handleSQLResult2ChartData(sqlResult[0]);
       }
       setChartData({
-        ...chartData,
+        ..._chartData,
         ddl: sql,
         sqlData,
       });
@@ -168,20 +153,22 @@ function ChartItem(props: IChartItemProps) {
   const queryChartData = async () => {
     setIsLoading(true);
 
-    const { id } = props;
-    let res = await getChartById({ id });
+    const res = await getChartById({ id: props.id });
+    if (!res.dataSourceId) {
+      res.connectable = undefined;
+    }
     setChartData(res);
 
     // 设置级联value
     const cascaderKey = ['dataSourceId', 'databaseName', 'schemaName'];
-    const cascaderValue = cascaderKey.map((k: string) => res[k]).filter((i) => !!i);
-    setCascaderValue(cascaderValue);
+    const _cascaderValue = cascaderKey.map((k: string) => res[k]).filter((i) => !!i);
+    setCascaderValue(_cascaderValue);
 
     // 设置Chart参数，eg ChartType、xAxis、yAxis
     const formValue = JSON.parse(res.schema || '{}');
     form.setFieldsValue(formValue);
 
-    if (res.ddl) {
+    if (res.ddl && res.connectable) {
       setInitDDL(res.ddl);
       handleExecuteSQL(res.ddl, res);
       // let p: IExecuteSqlParams = {
@@ -207,22 +194,22 @@ function ChartItem(props: IChartItemProps) {
 
   const onExport2Image = () => {
     const echartInstance = chartRef.current.getEchartsInstance();
-    let img = new Image();
+    const img = new Image();
     img.src = echartInstance.getDataURL({
       type: 'png',
       devicePixelRatio: 4,
       backgroundColor: '#FFF',
     });
     img.onload = function () {
-      let canvas = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
       canvas.width = img.width;
       canvas.height = img.height;
-      let ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0);
-      let dataURL = canvas.toDataURL('image/png');
+      const dataURL = canvas.toDataURL('image/png');
 
-      var a = document.createElement('a');
-      let event = new MouseEvent('click');
+      const a = document.createElement('a');
+      const event = new MouseEvent('click');
       a.download = 'image.png';
       a.href = dataURL;
       a.dispatchEvent(event);
@@ -230,9 +217,8 @@ function ChartItem(props: IChartItemProps) {
   };
 
   const onDeleteChart = () => {
-    const { id } = props;
-    deleteChart({ id });
-    props.onDelete && props.onDelete(id);
+    deleteChart({ id: props.id });
+    props.onDelete && props.onDelete(props.id);
   };
 
   const handleSaveChart = async () => {
@@ -271,7 +257,6 @@ function ChartItem(props: IChartItemProps) {
         xAxis: dimensionX,
         yAxis: dimensionY,
       });
-    } else {
     }
   };
 
@@ -351,6 +336,13 @@ function ChartItem(props: IChartItemProps) {
     };
   }, [initDDL]);
 
+  const setBoundInfo = (boundInfo) => {
+    setChartData({
+      ...chartData,
+      ...boundInfo,
+    });
+  };
+
   const renderEditorBlock = () => {
     const { sqlData = {} } = chartData || {};
     const options = Object.keys(sqlData).map((i) => ({ label: i, value: i }));
@@ -359,9 +351,10 @@ function ChartItem(props: IChartItemProps) {
       <div className={styles.editBlock}>
         <div className={styles.editorBlock}>
           <div className={styles.editor}>
-            <Console
-              appendValue={initDDLMemo}
-              executeParams={chartData}
+            <ConsoleEditor
+              defaultValue={initDDLMemo.text}
+              boundInfo={chartData as any}
+              setBoundInfo={setBoundInfo}
               hasAiChat={true}
               hasAi2Lang={false}
               hasSaveBtn={false}
@@ -369,16 +362,10 @@ function ChartItem(props: IChartItemProps) {
               onExecuteSQL={(sql: string) => handleExecuteSQL(sql, chartData)}
               editorOptions={{
                 lineNumbers: 'off',
-                theme:
-                  appTheme.backgroundColor === ThemeType.Light
-                    ? EditorThemeType.DashboardLightTheme
-                    : EditorThemeType.DashboardBlackTheme,
               }}
-              tables={tableList || []}
-              remainingUse={remainingUse}
+              isActive={true}
             />
-
-            <Cascader
+            {/* <Cascader
               options={cascaderOption}
               value={cascaderValue}
               loadData={loadData}
@@ -387,7 +374,7 @@ function ChartItem(props: IChartItemProps) {
                   dataSourceId: '',
                 };
                 //包含了dataSourceId、databaseName、schemaName
-                (selectedOptions || []).forEach((o) => {
+                (selectedOptions || []).forEach((o: any) => {
                   if (o.type) {
                     p[`${o.type}Name`] = o.value;
                   } else {
@@ -403,7 +390,7 @@ function ChartItem(props: IChartItemProps) {
               className={styles.dataSourceSelect}
               placeholder={i18n('dashboard.editor.cascader.placeholder')}
               // style={{ width: '100%' }}
-            />
+            /> */}
           </div>
           <div className={styles.chartParamsForm}>
             <div className={styles.chartParamsFormTitle}>Charts:</div>

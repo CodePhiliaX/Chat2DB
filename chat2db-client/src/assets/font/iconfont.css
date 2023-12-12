@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1699180324907') format('woff2'),
-       url('iconfont.woff?t=1699180324907') format('woff'),
-       url('iconfont.ttf?t=1699180324907') format('truetype');
+  src: url('iconfont.woff2?t=1702019801419') format('woff2'),
+       url('iconfont.woff?t=1702019801419') format('woff'),
+       url('iconfont.ttf?t=1702019801419') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,54 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-jiahao:before {
+  content: "\e726";
+}
+
+.icon-liebiao:before {
+  content: "\ec6b";
+}
+
+.icon-jianqu:before {
+  content: "\e65d";
+}
+
+.icon-database:before {
+  content: "\e669";
+}
+
+.icon-shaixuan1:before {
+  content: "\e888";
+}
+
+.icon-shuaxin2:before {
+  content: "\e668";
+}
+
+.icon-jiahao_o:before {
+  content: "\eb78";
+}
+
+.icon-jurassic_data:before {
+  content: "\e6a9";
+}
+
+.icon-quanxian:before {
+  content: "\e667";
+}
+
+.icon-sharpicons_add-database:before {
+  content: "\e816";
+}
+
+.icon-zuzhiguanli-:before {
+  content: "\e663";
+}
+
+.icon-moxing-miaobian:before {
+  content: "\e691";
 }
 
 .icon-xiajiantou1-copy:before {

@@ -10,13 +10,14 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--color-bg-subtle);
-    border-bottom: 1px solid var(--color-border);
-    line-height: 32px;
     display: flex;
     align-items: center;
-    font-size: 14px;
-    padding: 0px 4px;
+
+    background-color: var(--color-bg-subtle);
+    line-height: 32px;
+    padding: 0px 10px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--color-border);
     i {
       margin-right: 6px;
     }
@@ -31,7 +32,7 @@
         display: flex;
         align-items: center;
       }
-      .timeSpan{
+      .timeSpan {
         margin-right: 4px;
         font-weight: 500;
       }
@@ -42,7 +43,7 @@
           color: var(--color-success);
         }
       }
-      .failureIconBox{
+      .failureIconBox {
         i {
           color: var(--color-error);
         }
@@ -50,10 +51,11 @@
       > div {
         line-height: 22px;
       }
-      .sqlPlace{
+      .sqlPlace {
         color: var(--color-warning-text);
       }
-      .sqlPlace,.sqlBox{
+      .sqlPlace,
+      .sqlBox {
         padding-left: 18px;
       }
       padding: 2px 0px;

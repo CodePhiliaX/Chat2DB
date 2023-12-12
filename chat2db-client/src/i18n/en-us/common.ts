@@ -45,6 +45,7 @@ export default {
   'common.text.table': 'Table',
   'common.tips.saveSuccessfully': 'Save Successfully',
   'common.button.copy': 'Copy',
+  'common.button.copyName': 'Copy name',
   'common.button.copySuccessfully': 'Copy Successfully',
   'common.button.createConsole': 'Create Console',
   'common.button.exportWord': 'Export to Word',
@@ -96,8 +97,6 @@ export default {
   'common.text.noTableFoundDown': 'Switch databases at the top',
   'common.title.preview': 'Preview',
   'common.title.errorMessage': 'Error message',
-  'common.Button.addDatabase': 'Add database',
-  'common.Button.addSchema': 'Add schema',
   'common.label.comment': 'Comment',
   'common.label.name': 'Name',
   'common.title.create': 'Create',
@@ -119,4 +118,5 @@ export default {
   'common.button.closeOthers': 'Close others',
   'common.label.tcp': 'TCP',
   'common.label.LocalFile': 'LocalFile',
+  'common.text.rename': 'Rename',
 };  

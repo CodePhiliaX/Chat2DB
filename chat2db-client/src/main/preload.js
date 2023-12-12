@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('electronApi', {
     console.log('productName:', productName, isTest);
 
     const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
+        '-noverify',
       '-jar',
       '-Xmx1024M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
@@ -23,6 +24,7 @@ contextBridge.exposeInMainWorld('electronApi', {
       '-Dchat2db.mode=DESKTOP',
       `-Dproject.path=${javaPath}`,
       `-Dloader.path=${libPath}`,
+      `-Dclient.version=${readVersion()}`,
       javaPath,
     ]);
 
@@ -45,6 +47,9 @@ contextBridge.exposeInMainWorld('electronApi', {
   },
   setBaseURL: (baseUrl) => {
     ipcRenderer.send('set-base-url', baseUrl);
+  },
+  setForceQuitCode: (code) => {
+    ipcRenderer.send('set-force-quit-code', !code);
   },
   registerAppMenu: (menuProps) => {
     ipcRenderer.send('register-app-menu', menuProps);
