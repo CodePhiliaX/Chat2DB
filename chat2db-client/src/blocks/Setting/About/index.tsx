@@ -10,7 +10,8 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
 import Iconfont from '@/components/Iconfont';
-import {useSettingStore,setHoldingService} from '@/store/setting';
+import { useSettingStore, setHoldingService } from '@/store/setting';
+import s from '@/service/misc'
 
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
@@ -22,13 +23,13 @@ export default function AboutUs(props: IProps) {
   const { updateDetectionData, updateDetectionRef } = props;
   const [updateRule, setUpdateRule] = React.useState<'manual' | 'auto'>(updateDetectionData?.type || 'manual');
 
-  const {holdingService}  = useSettingStore((state)=>{
+  const { holdingService } = useSettingStore((state) => {
     return {
-      holdingService:state.holdingService
-    }
+      holdingService: state.holdingService,
+    };
   });
 
-  console.log('holdingService',holdingService)
+  console.log('holdingService', holdingService);
 
   const onChangeUpdateRul = (e) => {
     configService.setAppUpdateType(e.target.value).then(() => {
@@ -36,9 +37,9 @@ export default function AboutUs(props: IProps) {
     });
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     setUpdateRule(updateDetectionData?.type || 'manual');
-  },[updateDetectionData?.type])
+  }, [updateDetectionData?.type]);
 
   const jumpDoc = () => {
     window.open(WEBSITE_DOC, '_blank');
@@ -46,7 +47,7 @@ export default function AboutUs(props: IProps) {
 
   const restartApp = () => {
     window.electronApi?.quitApp();
-  }
+  };
 
   const updateButton = useMemo(() => {
     if (!updateDetectionData?.needUpdate) {
@@ -103,7 +104,7 @@ export default function AboutUs(props: IProps) {
   const changeHoldingService = (e) => {
     setHoldingService(e.target.checked);
     window.electronApi?.setForceQuitCode?.(e.target.checked);
-  }
+  };
 
   return (
     <div className={styles.aboutUs}>
@@ -116,10 +117,11 @@ export default function AboutUs(props: IProps) {
           </div>
           <div className={styles.newVersion}>
             {updateDetectionData?.needUpdate ? (
-              UpdatedStatusEnum.UPDATED === updateDetectionData?.updatedStatusEnum ?
-              <span>{i18n('setting.text.newEditionIsReady')}</span>
-              :
-              <span>{i18n('setting.text.discoverNewVersion', updateDetectionData?.version)}</span>
+              UpdatedStatusEnum.UPDATED === updateDetectionData?.updatedStatusEnum ? (
+                <span>{i18n('setting.text.newEditionIsReady')}</span>
+              ) : (
+                <span>{i18n('setting.text.discoverNewVersion', updateDetectionData?.version)}</span>
+              )
             ) : (
               <span>{i18n('setting.text.isLatestVersion')}</span>
             )}
@@ -145,10 +147,10 @@ export default function AboutUs(props: IProps) {
           </Space>
         </Radio.Group>
       </div>
-      <div className={classnames(styles.updateRule, styles.holdingService) }>
+      {/* <div className={classnames(styles.updateRule, styles.holdingService) }>
         <div className={styles.updateRuleTitle}>{i18n('setting.title.holdingService')}</div>
         <Checkbox checked={holdingService} onChange={changeHoldingService}>{i18n('setting.text.holdingService')}</Checkbox>
-      </div>
+      </div> */}
       {/* <div className={styles.brief}>
         <div className={styles.appName}>{APP_NAME}</div>
         <div className={styles.env}>
