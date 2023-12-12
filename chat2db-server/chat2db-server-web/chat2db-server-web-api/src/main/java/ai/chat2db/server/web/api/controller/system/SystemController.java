@@ -19,7 +19,6 @@ import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.system.util.SystemUtils;
 import ai.chat2db.server.web.api.controller.system.vo.AppVersionVO;
 import ai.chat2db.server.web.api.controller.system.vo.SystemVO;
-import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.spi.ssh.SSHManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +63,11 @@ public class SystemController {
 
     @GetMapping("/get_latest_version")
     public DataResult<AppVersionVO> getLatestVersion(String currentVersion) {
+        ModeEnum mode = EasyEnumUtils.getEnum(ModeEnum.class, System.getProperty("chat2db.mode"));
+        if (mode != ModeEnum.DESKTOP) {
+            // In this mode, no user login is required, so only local access is available
+            return DataResult.of(null);
+        }
         String user = "";
         DataResult<Config> dataResult = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
         if (dataResult.getData() != null) {
@@ -79,12 +83,8 @@ public class SystemController {
         if (updateType.getData() != null) {
             appVersionVO.setType(updateType.getData().getContent());
         }
-
-        ModeEnum mode = EasyEnumUtils.getEnum(ModeEnum.class, System.getProperty("chat2db.mode"));
-        if (mode == ModeEnum.DESKTOP) {
-            // In this mode, no user login is required, so only local access is available
-            appVersionVO.setDesktop(true);
-        }
+        // In this mode, no user login is required, so only local access is available
+        appVersionVO.setDesktop(true);
         return DataResult.of(appVersionVO);
     }
 

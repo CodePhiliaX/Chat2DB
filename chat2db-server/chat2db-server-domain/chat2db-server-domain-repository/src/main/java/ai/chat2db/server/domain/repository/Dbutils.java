@@ -36,8 +36,6 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -45,6 +43,9 @@ import java.util.jar.JarFile;
 public class Dbutils {
 
     private static final ThreadLocal<SqlSession> SQL_SESSION_THREAD_LOCAL = new ThreadLocal<>();
+
+    public static void init() {
+    }
 
     public static void setSession() {
         SqlSession session = sqlSessionFactory.openSession(true);

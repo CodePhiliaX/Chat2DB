@@ -1,5 +1,5 @@
 import { UseBoundStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
-import { devtools } from 'zustand/middleware';
+import { devtools, persist } from 'zustand/middleware';
 import { shallow } from 'zustand/shallow';
 import { StoreApi } from 'zustand';
 
@@ -15,6 +15,7 @@ export interface ISettingState {
   aiConfig: IAiConfig;
   remainingUse?: IRemainingUse;
   hasWhite: boolean;
+  holdingService: boolean;
 }
 
 const initSetting = {
@@ -23,10 +24,23 @@ const initSetting = {
     aiSqlSource: AIType.CHAT2DBAI,
   },
   hasWhite: false,
+  holdingService: true,
 }
 
 export const useSettingStore: UseBoundStoreWithEqualityFn<StoreApi<ISettingState>> = createWithEqualityFn(
-  devtools(() => (initSetting)),
+  devtools(
+    persist(
+      () => (initSetting),
+      {
+        name: 'global-setting',
+        getStorage: () => localStorage,
+        // 工作区的状态只保存 layout布局信息
+        partialize: (state: ISettingState) => ({
+          holdingService: state.holdingService,
+        }),
+      },
+    ),
+  ),
   shallow
 );
 
@@ -78,6 +92,10 @@ export const fetchRemainingUse = (apiKey)=>{
   aiService.getRemainingUse().then((res) => {
     setRemainUse(res);
   })
+}
+
+export const setHoldingService = (holdingService: boolean) => {
+  useSettingStore.setState({ holdingService });
 }
 
 
