@@ -53,10 +53,18 @@ public class SystemController {
      */
     @GetMapping
     public DataResult<SystemVO> get() {
-        ConfigJson configJson = ConfigUtils.getConfig();
-        return DataResult.of(SystemVO.builder()
-                .systemUuid(configJson.getSystemUuid())
-                .build());
+        String clientVersion = System.getProperty("client.version");
+        String version = ConfigUtils.getLatestLocalVersion();
+        log.error("clientVersion:{},version:{}", clientVersion, version);
+        if (!StringUtils.equals(clientVersion, version)) {
+            stop();
+            return null;
+        } else {
+            ConfigJson configJson = ConfigUtils.getConfig();
+            return DataResult.of(SystemVO.builder()
+                    .systemUuid(configJson.getSystemUuid())
+                    .build());
+        }
     }
 
     private static final String UPDATE_TYPE = "client_update_type";
@@ -134,11 +142,12 @@ public class SystemController {
         if (forceQuit) {
             stop();
         } else {
-            String clientVersion = System.getProperty("client.version");
-            String version = ConfigUtils.getLocalVersion();
-            if (!StringUtils.equals(clientVersion, version)) {
+//            String clientVersion = System.getProperty("client.version");
+//            String version = ConfigUtils.getLatestLocalVersion();
+//            log.error("clientVersion:{},version:{}", clientVersion, version);
+//            if (!StringUtils.equals(clientVersion, version)) {
                 stop();
-            }
+            //}
         }
         return DataResult.of("ok");
     }
