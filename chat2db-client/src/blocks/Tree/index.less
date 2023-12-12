@@ -1,11 +1,20 @@
 @import '../../styles/var.less';
 
-.treeBox {
+.scrollBox {
+  overflow-y: auto;
   padding: 2px 6px 10px;
   box-sizing: border-box;
-  overflow: hidden;
-  overflow-y: auto;
   height: 100%;
+}
+
+.treeBox {
+  overflow: hidden;
+  height: 100%;
+}
+
+.treeListHolder {
+  height: calc(var(--tree-node-count) * 26px);
+  min-height: 100%;
 }
 
 // 如果treeBox滚动的高度>0那么久加一个上边框
@@ -13,7 +22,7 @@
   border-top: 1px solid var(--color-border-secondary);
 }
 
-.leftModuleTitleShadow{
+.leftModuleTitleShadow {
   border-top: 1px solid red;
 }
 
