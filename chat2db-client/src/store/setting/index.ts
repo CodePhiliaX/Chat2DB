@@ -24,7 +24,7 @@ const initSetting = {
     aiSqlSource: AIType.CHAT2DBAI,
   },
   hasWhite: false,
-  holdingService: true,
+  holdingService: false,
 }
 
 export const useSettingStore: UseBoundStoreWithEqualityFn<StoreApi<ISettingState>> = createWithEqualityFn(

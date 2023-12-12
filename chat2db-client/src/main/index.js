@@ -79,7 +79,7 @@ app.on('before-quit', () => {
           'Content-Type': 'application/json',
         },
         method: 'POST',
-        url: `${baseUrl}/api/system/stop?forceQuit=true`,
+        url: `${baseUrl}/api/system/stop?forceQuit=${_forceQuitCode}`,
       });
       request.end();
     } catch (error) {}
