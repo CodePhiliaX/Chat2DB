@@ -110,12 +110,17 @@ public class Dbutils {
         if (StringUtils.isNotBlank(currentVersion) && configJson != null && StringUtils.equals(currentVersion,
                 configJson.getLatestStartupSuccessVersion())) {
             return;
+        }else {
+            Flyway flyway = Flyway.configure()
+                    .dataSource(dataSource)
+                    .locations("classpath:db/migration")
+                    .load();
+            flyway.migrate();
+
+
+            configJson.setLatestStartupSuccessVersion(currentVersion);
+            ConfigUtils.setConfig(configJson);
         }
-        Flyway flyway = Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .load();
-        flyway.migrate();
     }
 
     /**
