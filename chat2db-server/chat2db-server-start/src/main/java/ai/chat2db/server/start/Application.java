@@ -32,7 +32,7 @@ import org.springframework.stereotype.Indexed;
 public class Application {
 
     public static void main(String[] args) {
-        ConfigUtils.pid();
+        //ConfigUtils.pid();
         SpringApplication.run(Application.class, args);
     }
 }

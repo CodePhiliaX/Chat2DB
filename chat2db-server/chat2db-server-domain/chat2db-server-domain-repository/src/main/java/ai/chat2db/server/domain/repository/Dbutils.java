@@ -146,7 +146,9 @@ public class Dbutils {
         String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
         if ("dev".equalsIgnoreCase(environment)) {
             dataSource.setJdbcUrl("jdbc:h2:file:~/.chat2db/db/chat2db_dev;MODE=MYSQL");
-        } else {
+        } if ("test".equalsIgnoreCase(environment)) {
+            dataSource.setJdbcUrl("jdbc:h2:file:~/.chat2db/db/chat2db_test;MODE=MYSQL");
+        }else {
             dataSource.setJdbcUrl("jdbc:h2:~/.chat2db/db/chat2db;MODE=MYSQL;FILE_LOCK=NO");
         }
         dataSource.setDriverClassName("org.h2.Driver");
