@@ -65,7 +65,7 @@ export const updateAiWithWhite = (apiKey: string) => {
 export const getAiSystemConfig = () => {
   configService.getAiSystemConfig({}).then((res) => {
     setAiConfig(res);
-    if (res.aiSqlSource === AIType.CHAT2DBAI && res.apiKey) {
+    if (res?.aiSqlSource === AIType.CHAT2DBAI && res.apiKey) {
       updateAiWithWhite(res.apiKey);
     }
   });

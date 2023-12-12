@@ -243,7 +243,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
-      params.pageNo = 1;
       params.pageSize = 1000;
       return new Promise((r, j) => {
         mysqlServer
@@ -268,6 +267,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
               pageNo: res.pageNo,
               pageSize: res.pageSize,
               total: res.total,
+              hasNextPage: res.hasNextPage,
             } as any);
           })
           .catch((error) => {
