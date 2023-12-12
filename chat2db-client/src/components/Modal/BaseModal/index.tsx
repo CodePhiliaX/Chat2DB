@@ -37,7 +37,9 @@ const Modal = memo(() => {
         onOk: modalData.onOk,
       };
     } else {
-      return {};
+      return {
+        footer: false
+      };
     }
   }, [modalData]);
 
