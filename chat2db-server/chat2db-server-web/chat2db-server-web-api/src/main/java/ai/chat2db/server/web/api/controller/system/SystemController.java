@@ -56,7 +56,7 @@ public class SystemController {
         String clientVersion = System.getProperty("client.version");
         String version = ConfigUtils.getLatestLocalVersion();
         log.error("clientVersion:{},version:{}", clientVersion, version);
-        if (!StringUtils.equals(clientVersion, version)) {
+        if (!StringUtils.equals(clientVersion, version) && !StringUtils.isEmpty(clientVersion)) {
             stop();
             return null;
         } else {
@@ -146,7 +146,7 @@ public class SystemController {
 //            String version = ConfigUtils.getLatestLocalVersion();
 //            log.error("clientVersion:{},version:{}", clientVersion, version);
 //            if (!StringUtils.equals(clientVersion, version)) {
-                stop();
+            stop();
             //}
         }
         return DataResult.of("ok");

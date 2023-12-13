@@ -10,6 +10,7 @@ import OperationLine from '../OperationLine';
 import Tree from '@/blocks/Tree';
 import { treeConfig } from '@/blocks/Tree/treeConfig';
 import { ITreeNode } from '@/typings';
+import { TreeNodeType } from '@/constants';
 
 interface IProps {
   className?: string;
@@ -28,8 +29,9 @@ export default memo<IProps>((props) => {
       setTreeData([]);
       return;
     }
+    const treeNodeType = currentConnectionDetails.supportDatabase ? TreeNodeType.DATA_SOURCE : TreeNodeType.DATABASE;
     setTreeData(null);
-    treeConfig['dataSource']
+    treeConfig[treeNodeType]
       .getChildren?.({
         dataSourceId: currentConnectionDetails.id,
         dataSourceName: currentConnectionDetails.alias,
@@ -55,7 +57,6 @@ export default memo<IProps>((props) => {
   return (
     <div className={classnames(styles.treeContainer, className)}>
       <OperationLine getTreeData={getTreeData} searchValue={searchValue} setSearchValue={setSearchValue} />
-      {/* <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} /> */}
       <Tree className={styles.treeBox} searchValue={searchValue} treeData={treeData} />
     </div>
   );

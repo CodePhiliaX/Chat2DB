@@ -1,10 +1,20 @@
+## 3.1.1
+
+`2023-12-13`
+
+**Changelog**
+
+- 🐞【Fixed】Table blank problem when switching Tabs
+- 🐞【Fixed】DM or Oracle cannot display Schema
+- 🐞【Fixed】The import connection is lost. Procedure
+
 ## 3.1.0
 
 `2023-12-12`
 
-**更新日志**
+**Changelog**
 
-- 🔥🔥【Optimize】The first startup time has been increased by 60%, and the second startup time has been increased by 95% 
+- 🔥🔥【Optimize】The first startup time has been increased by 65%
 - 🔥🔥【Optimize】Changed the structure of the left tree 
 - 🔥🔥【Optimize】Optimized the tab switchover problem 
 - ⚡️ 【Optimize】All nodes are supported. The name of each node can be copied 

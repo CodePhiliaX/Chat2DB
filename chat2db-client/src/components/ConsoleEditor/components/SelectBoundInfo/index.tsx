@@ -105,6 +105,9 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 获取数据库列表
   const getDatabaseList = () => {
+    if(boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null){
+      return
+    }
     connectionService
       .getDatabaseList({
         dataSourceId: boundInfo.dataSourceId,
@@ -131,8 +134,8 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 获取schema列表
   const getSchemaList = () => {
-    if (boundInfo.databaseName === null || boundInfo.databaseName === undefined) {
-      return;
+    if(boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null){
+      return
     }
     connectionService
       .getSchemaList({

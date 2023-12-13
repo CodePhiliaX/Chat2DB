@@ -387,7 +387,6 @@ public class TableServiceImpl implements TableService {
         TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
             addCache(param,versionDO);
-        }else {
             versionDO = getVersionMapper().selectOne(queryWrapper);
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();

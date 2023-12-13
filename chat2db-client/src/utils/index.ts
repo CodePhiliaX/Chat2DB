@@ -227,17 +227,30 @@ export function getCookie(name: string) {
   return null;
 }
 
-// 注释出参的含义
+// 判断两个版本的大小
 export function compareVersion(version1: string, version2: string) {
-  const version1Arr = version1.split('.');
-  const version2Arr = version2.split('.');
-  const v1 = Number(version1Arr.join(''));
-  const v2 = Number(version2Arr.join(''));
-  if (v1 > v2) {
-    return 1;
-  } else if (v1 < v2) {
-    return -1;
+  const v1 = version1.split('.');
+  const v2 = version2.split('.');
+  const len = Math.max(v1.length, v2.length);
+  
+  while (v1.length < len) {
+    v1.push('0');
   }
+  while (v2.length < len) {
+    v2.push('0');
+  }
+
+  for (let i = 0; i < len; i++) {
+    const num1 = parseInt(v1[i]);
+    const num2 = parseInt(v2[i]);
+
+    if (num1 > num2) {
+      return 1;
+    } else if (num1 < num2) {
+      return -1;
+    }
+  }
+
   return 0;
 }
 

@@ -5,6 +5,9 @@ import { IConnectionDetails, IDatabase } from '@/typings';
 import ConnectionEdit from '@/components/ConnectionEdit';
 import { databaseTypeList } from '@/constants';
 import Iconfont from '@/components/Iconfont';
+import i18n from '@/i18n';
+import FileUploadModal from '@/components/ImportConnection';
+import {getConnectionList} from '@/pages/main/store/connection';
 
 // IConnectionDetails 全部信息代表修改
 // null 展示因增列表
@@ -23,6 +26,8 @@ export default memo<IProps>((props) => {
   const [connectionDetail, setConnectionDetail] = useState<IEditConnectionDetail | null | undefined>(
     externalConnectionDetail,
   );
+  const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false);
+
 
   useEffect(() => {
     setConnectionDetail(externalConnectionDetail);
@@ -39,49 +44,74 @@ export default memo<IProps>((props) => {
   // }
 
   return (
-    <div className={classnames(styles.box, className)}>
-      {connectionDetail && (
-        <div
-          className={classnames(styles.createConnections, {
-            [styles.showCreateConnections]: connectionDetail,
-          })}
-        >
-          <ConnectionEdit
-            closeCreateConnection={() => {
-              setConnectionDetail(null);
-            }}
-            connectionData={connectionDetail as any}
-            submit={onSubmit}
-          />
-        </div>
-      )}
-      {connectionDetail === null && (
-        <div className={styles.dataBaseListBox}>
-          <div className={styles.dataBaseList}>
-            {databaseTypeList.map((t) => {
-              return (
-                <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                  <div className={styles.databaseItemMain}>
-                    <div className={styles.databaseItemLeft}>
-                      <div className={styles.logoBox}>
-                        <Iconfont code={t.icon} />
+    <>
+      <div className={classnames(styles.box, className)}>
+        {connectionDetail && (
+          <div
+            className={classnames(styles.createConnections, {
+              [styles.showCreateConnections]: connectionDetail,
+            })}
+          >
+            <ConnectionEdit
+              closeCreateConnection={() => {
+                setConnectionDetail(null);
+              }}
+              connectionData={connectionDetail as any}
+              submit={onSubmit}
+            />
+          </div>
+        )}
+        {connectionDetail === null && (
+          <div className={styles.dataBaseListBox}>
+            <div className={styles.dataBaseList}>
+              {databaseTypeList.map((t) => {
+                return (
+                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
+                    <div className={styles.databaseItemMain}>
+                      <div className={styles.databaseItemLeft}>
+                        <div className={styles.logoBox}>
+                          <Iconfont code={t.icon} />
+                        </div>
+                        {t.name}
                       </div>
-                      {t.name}
-                    </div>
-                    <div className={styles.databaseItemRight}>
-                      <Iconfont code="&#xe631;" />
+                      <div className={styles.databaseItemRight}>
+                        <Iconfont code="&#xe631;" />
+                      </div>
                     </div>
                   </div>
+                );
+              })}
+              <div className={styles.databaseItem} onClick={() => {setIsFileUploadModalOpen(true)}}>
+                <div className={styles.databaseItemMain}>
+                  <div className={styles.databaseItemLeft}>
+                    <div className={styles.logoBox}>
+                      <Iconfont code="&#xe66c;" />
+                    </div>
+                    {i18n('connection.title.importConnection')}
+                  </div>
+                  <div className={styles.databaseItemRight}>
+                    <Iconfont code="&#xe631;" />
+                  </div>
                 </div>
-              );
-            })}
-            {Array.from({ length: 20 }).map((t, index) => {
-              return <div key={index} className={styles.databaseItemSpacer} />;
-            })}
+              </div>
+              {Array.from({ length: 20 }).map((t, index) => {
+                return <div key={index} className={styles.databaseItemSpacer} />;
+              })}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+      <FileUploadModal
+        open={isFileUploadModalOpen}
+        onClose={() => {
+          setIsFileUploadModalOpen(false);
+        }}
+        onConfirm={() => {
+          setIsFileUploadModalOpen(false);
+          getConnectionList()
+        }}
+      />
+    </>
   );
 });
 
