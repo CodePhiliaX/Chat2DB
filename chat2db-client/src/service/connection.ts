@@ -59,7 +59,7 @@ const getDatabaseList = createRequest<{ dataSourceId: number; refresh?: boolean 
   method: 'get',
 });
 
-const getSchemaList = createRequest<{ dataSourceId: number; databaseName: string; refresh?: boolean }, any>(
+const getSchemaList = createRequest<{ dataSourceId: number; databaseName?: string; refresh?: boolean }, any>(
   '/api/rdb/schema/list',
   { method: 'get' },
 );
