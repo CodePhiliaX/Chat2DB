@@ -17,14 +17,14 @@ contextBridge.exposeInMainWorld('electronApi', {
 
     const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
         '-noverify',
-      '-jar',
-      '-Xmx1024M',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
       '-Dchat2db.mode=DESKTOP',
       `-Dproject.path=${javaPath}`,
       `-Dloader.path=${libPath}`,
       `-Dclient.version=${readVersion()}`,
+      '-Xmx1024M',
+      '-jar',
       javaPath,
     ]);
 
