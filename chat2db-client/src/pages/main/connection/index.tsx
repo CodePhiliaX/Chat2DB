@@ -14,7 +14,6 @@ import { IConnectionDetails, IConnectionListItem } from '@/typings';
 // ----- components -----
 import CreateConnection from '@/blocks/CreateConnection';
 import Iconfont from '@/components/Iconfont';
-import FileUploadModal from '@/components/ImportConnection';
 import LoadingContent from '@/components/Loading/LoadingContent';
 import MenuLabel from '@/components/MenuLabel';
 
@@ -36,7 +35,6 @@ const ConnectionsPage = () => {
   });
   const volatileRef = useRef<any>();
   const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
-  const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false);
   const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
 
   // 处理列表单击事件
@@ -174,20 +172,7 @@ const ConnectionsPage = () => {
         >
           <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
         </LoadingContent>
-        {/* <div className={styles.layoutRight}>
-          <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
-        </div> */}
       </div>
-
-      <FileUploadModal
-        open={isFileUploadModalOpen}
-        onClose={() => {
-          setIsFileUploadModalOpen(false);
-        }}
-        onConfirm={() => {
-          setIsFileUploadModalOpen(false);
-        }}
-      />
     </>
   );
 };

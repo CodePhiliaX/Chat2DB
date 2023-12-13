@@ -24,6 +24,7 @@ import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { Spin } from 'antd';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IProps {
   className?: string;

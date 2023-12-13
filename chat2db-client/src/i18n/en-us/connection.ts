@@ -33,4 +33,5 @@ export default {
   'connection.button.createConnection': 'Create connection',
   'connection.tips.noConnection': 'You have not created any connections yet',
   'connection.tips.noConnectionTips': 'You do not have permission to view the connection details, but you can connect to the connection directly',
+  'connection.title.importTitle': 'Import file,.ncx(navicat) or.dbp(dbever)',
 };
