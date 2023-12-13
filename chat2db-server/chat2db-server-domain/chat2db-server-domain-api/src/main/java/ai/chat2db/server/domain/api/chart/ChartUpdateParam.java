@@ -53,6 +53,10 @@ public class ChartUpdateParam {
     private String databaseName;
 
     /**
+     * schema名称
+     */
+    private String schemaName;
+    /**
      * ddl内容
      */
     private String ddl;

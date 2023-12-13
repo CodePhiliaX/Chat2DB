@@ -69,6 +69,9 @@ public class ChartDO implements Serializable {
      */
     private String databaseName;
 
+
+    private String schemaName;
+
     /**
      * ddl内容
      */
