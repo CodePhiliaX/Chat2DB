@@ -1,3 +1,12 @@
+## 3.1.11
+
+`2023-12-13`
+
+**Changelog**
+
+- 🐞【Fixed】A chart with a Schema cannot be saved and executed
+- 🐞【Fixed】Failure to start after the upgrade
+
 ## 3.1.1
 
 `2023-12-13`
