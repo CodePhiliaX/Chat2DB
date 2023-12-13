@@ -216,7 +216,7 @@ const WorkspaceTabs = memo(() => {
       case WorkspaceTabType.ViewAllTable:
         return renderViewAllTable(item);
       default:
-        return <div>未知类型</div>;
+        return <div>Unknown</div>;
     }
   };
 
@@ -231,7 +231,7 @@ const WorkspaceTabs = memo(() => {
         children: <Fragment key={item.id}>{workspaceTabConnectionMap(item)}</Fragment>,
       };
     });
-  }, [workspaceTabList]);
+  }, [workspaceTabList, activeConsoleId]);
 
   function renderCreateConsoleButton() {
     return (
