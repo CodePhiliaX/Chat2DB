@@ -2,11 +2,11 @@
 
 `2023-12-13`
 
-**更新日志**
+**Changelog**
 
-- 🐞【修复】切换Tabs时，表空白问题
-- 🐞【修复】DM、Oracle无法显示Schema问题
-- 🐞【修复】导入链接丢失问题
+- 🐞【Fixed】Table blank problem when switching Tabs
+- 🐞【Fixed】DM or Oracle cannot display Schema
+- 🐞【Fixed】The import connection is lost. Procedure
 
 ## 3.1.0
 
