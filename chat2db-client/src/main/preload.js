@@ -6,8 +6,9 @@ const { readVersion } = require('./utils');
 
 contextBridge.exposeInMainWorld('electronApi', {
   startServerForSpawn: async () => {
-    const javaPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, `./static/${JAVA_APP_NAME}`);
-    const libPath = path.join(__dirname, '../..', `./versions/${readVersion()}`, './static/lib');
+    const appVersion = readVersion();
+    const javaPath = path.join(__dirname, '../..', `./versions/${appVersion}`, `./static/${JAVA_APP_NAME}`);
+    const libPath = path.join(__dirname, '../..', `./versions/${appVersion}`, './static/lib');
 
     const productName = await ipcRenderer.invoke('get-product-name');
 
@@ -22,7 +23,7 @@ contextBridge.exposeInMainWorld('electronApi', {
       '-Dchat2db.mode=DESKTOP',
       `-Dproject.path=${javaPath}`,
       `-Dloader.path=${libPath}`,
-      `-Dclient.version=${readVersion()}`,
+      `-Dclient.version=${appVersion}`,
       '-Xmx1024M',
       '-jar',
       javaPath,
