@@ -18,6 +18,11 @@ public class AIConfigCreateRequest {
     private String apiKey;
 
     /**
+     * SECRETKEY
+     */
+    private String secretKey;
+
+    /**
      * APIHOST
      */
     private String apiHost;

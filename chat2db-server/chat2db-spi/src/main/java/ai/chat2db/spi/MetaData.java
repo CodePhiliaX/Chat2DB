@@ -39,7 +39,7 @@ public interface MetaData {
      * @return
      */
     String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
-        @NotEmpty String tableName);
+                    @NotEmpty String tableName);
 
     /**
      * Querying all table under a schema.
@@ -114,7 +114,7 @@ public interface MetaData {
      * @return
      */
     List<TableColumn> columns(Connection connection, @NotEmpty String databaseName, String schemaName,
-        @NotEmpty String tableName);
+                              @NotEmpty String tableName);
 
     /**
      * Querying all columns under a table.
@@ -127,7 +127,7 @@ public interface MetaData {
      * @return
      */
     List<TableColumn> columns(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName,
-        String columnName);
+                              String columnName);
 
     /**
      * Querying all indexes under a table.
@@ -138,7 +138,7 @@ public interface MetaData {
      * @return
      */
     List<TableIndex> indexes(Connection connection, @NotEmpty String databaseName, String schemaName,
-        @NotEmpty String tableName);
+                             @NotEmpty String tableName);
 
     /**
      * Querying function detail under a schema.
@@ -171,5 +171,47 @@ public interface MetaData {
      * @param procedureName
      * @return
      */
-    Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,String procedureName);
+    Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName, String procedureName);
+
+
+    /**
+     * @param connection
+     * @return
+     */
+    List<Type> types(Connection connection);
+
+
+    /**
+     * Get sql builder.
+     *
+     * @return
+     */
+    SqlBuilder getSqlBuilder();
+
+
+    /**
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @return
+     */
+    TableMeta getTableMeta(String databaseName, String schemaName, String tableName);
+
+
+    /**
+     * Get meta data name.
+     *
+     * @param names
+     * @return
+     */
+    String getMetaDataName(String ...names);
+
+
+    /**
+     * Get column builder.
+     *
+     * @return
+     */
+    ValueHandler getValueHandler();
+
 }

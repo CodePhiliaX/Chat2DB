@@ -1,54 +1,23 @@
 @import '../../../../../styles/var.less';
 
-.box {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  :global {
-    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: var(--color-text) !important;
-      font-weight: 400;
-    }
-  }
-}
-
-.tabs {
-}
-
-.consoleBox {
-  position: absolute;
-  top: 32px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: none;
-}
-
-.tabBox {
-  height: 32px;
-  background-color: var(--color-bg-base);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.activeConsoleBox {
-  display: block;
-}
-
-.ears {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.workspaceRight {
+  position: relative;
+  flex: 1;
+  width: 0px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
 }
 
-.tab-item{
+.workspaceExtend {
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border);
   display: flex;
-  align-items: center;
+}
+
+.consoleTabsContainer {
+  height: 50%;
+}
+
+.searchResultContainer {
+  border-top: 1px solid var(--color-border-secondary);
+  flex: 1;
 }

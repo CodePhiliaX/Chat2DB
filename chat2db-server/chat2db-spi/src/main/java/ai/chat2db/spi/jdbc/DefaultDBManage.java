@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DefaultDBManage implements DBManage {
 
+
+
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {
         Connection connection = connectInfo.getConnection();
@@ -67,7 +69,7 @@ public class DefaultDBManage implements DBManage {
         }
         connectInfo.setSession(session);
         connectInfo.setConnection(connection);
-        if (StringUtils.isNotBlank(connectInfo.getDatabaseName())) {
+        if (StringUtils.isNotBlank(connectInfo.getDatabaseName()) || StringUtils.isNotBlank(connectInfo.getSchemaName())) {
             connectDatabase(connection, connectInfo.getDatabaseName());
         }
         return connection;

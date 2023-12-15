@@ -1,0 +1,89 @@
+.chatWrapper {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px 2px 20px;
+  height: 42px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.chatShortcut {
+  padding: 4px 8px;
+  color: #8a9099;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  background-color: #fffc;
+  border-radius: 4px;
+  border: 1px solid #d0d5d8;
+
+  margin-right: 10px;
+}
+
+.chatAi {
+  width: 16px;
+  height: 16px;
+  margin-right: 14px;
+}
+
+.suffixBlock {
+  display: flex;
+  align-items: center;
+}
+
+.enter {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  margin-right: 16px;
+
+  .enterIcon {
+    font-size: 12px;
+  }
+}
+
+.stop {
+  font-size: 16px;
+  color: red;
+  cursor: pointer;
+  padding: 2px 8px;
+  margin-right: 4px;
+  border-radius: 4px;
+  &:hover {
+    background-color: var(--color-hover-bg);
+  }
+}
+
+
+.tableSelectBlock {
+  // margin-right: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+
+  &:hover {
+    background-color: var(--color-bg-subtle);
+  }
+}
+
+.remainBlock {
+  border-radius: 16px;
+  background-color: var(--color-bg-subtle);
+  padding: 4px 12px;
+
+  &:hover {
+    //cursor: pointer;
+  }
+}
+
+.aiSelectedTable {
+  display: flex;
+  flex-direction: column;
+  max-width: 280px;
+}
+
+.aiSelectedTableTips {
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--color-border-secondary);
+  margin-bottom: 4px;
+}

@@ -7,4 +7,6 @@ export default {
   'dashboard.export2image': 'Export to image',
   'dashboard.delete': 'Delete',
   'dashboard.editor.cascader.placeholder': 'Please select a connection pool',
+  'dashboard.editor.execute.noDataSource': 'Please select a data source first',
+  'dashboard.editor.execute.success': 'Successful, Please select Chart Configuration',
 };

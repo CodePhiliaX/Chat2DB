@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
-import ai.chat2db.server.tools.base.enums.EnvTypeEnum;
 
 import lombok.Data;
 
@@ -57,7 +56,10 @@ public class DataSourceUpdateRequest {
      */
     private String envType;
 
-
+    /**
+     * 环境id
+     */
+    private Integer environmentId;
 
     /**
      * host
@@ -104,4 +106,14 @@ public class DataSourceUpdateRequest {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
 }

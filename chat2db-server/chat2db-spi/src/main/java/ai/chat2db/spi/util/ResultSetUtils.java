@@ -4,8 +4,16 @@ package ai.chat2db.spi.util;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import ai.chat2db.spi.model.*;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.google.common.collect.Lists;
+
 
 /**
  * @author jipengfei
@@ -13,98 +21,57 @@ import ai.chat2db.spi.model.*;
  */
 public class ResultSetUtils {
 
-    public static ai.chat2db.spi.model.Function buildFunction(ResultSet resultSet) {
-        ai.chat2db.spi.model.Function function
-            = new ai.chat2db.spi.model.Function();
+
+
+    private static List<String> getRsHeader(ResultSet rs) {
         try {
-            function.setDatabaseName(getString(resultSet, "FUNCTION_CAT"));
-            function.setSchemaName(getString(resultSet, "FUNCTION_SCHEM"));
-            function.setFunctionName(getString(resultSet, "FUNCTION_NAME"));
-            function.setRemarks(getString(resultSet, "REMARKS"));
-            function.setFunctionType(resultSet.getShort("FUNCTION_TYPE"));
-            function.setSpecificName(getString(resultSet, "SPECIFIC_NAME"));
+            ResultSetMetaData resultSetMetaData = rs.getMetaData();
+            int col = resultSetMetaData.getColumnCount();
+            List<String> headerList = Lists.newArrayListWithExpectedSize(col);
+            for (int i = 1; i <= col; i++) {
+                headerList.add(getColumnName(resultSetMetaData, i));
+            }
+            return headerList;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return function;
     }
 
-    public static Procedure buildProcedure(ResultSet resultSet) {
-        Procedure procedure = new Procedure();
+    /**
+     *
+     * @param rs
+     * @param clazz
+     * @return
+     * @param <T>
+     */
+    public static <T> List<T> toObjectList(ResultSet rs, Class<T> clazz) {
         try {
-            procedure.setDatabaseName(getString(resultSet, "PROCEDURE_CAT"));
-            procedure.setSchemaName(getString(resultSet, "PROCEDURE_SCHEM"));
-            procedure.setProcedureName(getString(resultSet, "PROCEDURE_NAME"));
-            procedure.setRemarks(getString(resultSet, "REMARKS"));
-            procedure.setProcedureType(resultSet.getShort("PROCEDURE_TYPE"));
-            procedure.setSpecificName(getString(resultSet, "SPECIFIC_NAME"));
+            if (rs == null || clazz == null) {
+                return Lists.newArrayList();
+            }
+            List<T> list = Lists.newArrayList();
+            ResultSetMetaData rsMetaData = rs.getMetaData();
+            int col = rsMetaData.getColumnCount();
+            List<String> headerList = getRsHeader(rs);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+            while (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                for (int i = 1; i <= col; i++) {
+                    map.put(headerList.get(i-1), rs.getObject(i));
+                }
+                T obj = mapper.convertValue(map, clazz);
+
+                list.add(obj);
+            }
+            return list;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return procedure;
     }
 
-
-    public static TableIndexColumn buildTableIndexColumn(ResultSet resultSet) throws SQLException {
-        TableIndexColumn tableIndexColumn = new TableIndexColumn();
-        tableIndexColumn.setColumnName(getString(resultSet, "COLUMN_NAME"));
-        tableIndexColumn.setIndexName(getString(resultSet, "INDEX_NAME"));
-        tableIndexColumn.setAscOrDesc(getString(resultSet, "ASC_OR_DESC"));
-        tableIndexColumn.setCardinality(resultSet.getLong("CARDINALITY"));
-        tableIndexColumn.setPages(resultSet.getLong("PAGES"));
-        tableIndexColumn.setFilterCondition(getString(resultSet, "FILTER_CONDITION"));
-        tableIndexColumn.setIndexQualifier(getString(resultSet, "INDEX_QUALIFIER"));
-        // tableIndexColumn.setIndexType(resultSet.getShort("TYPE"));
-        tableIndexColumn.setNonUnique(resultSet.getBoolean("NON_UNIQUE"));
-        tableIndexColumn.setOrdinalPosition(resultSet.getShort("ORDINAL_POSITION"));
-        tableIndexColumn.setDatabaseName(getString(resultSet, "TABLE_CAT"));
-        tableIndexColumn.setSchemaName(getString(resultSet, "TABLE_SCHEM"));
-        tableIndexColumn.setTableName(getString(resultSet, "TABLE_NAME"));
-        return tableIndexColumn;
-    }
-
-    public static TableColumn buildColumn(ResultSet resultSet) throws SQLException {
-        TableColumn tableColumn = new TableColumn();
-        tableColumn.setDatabaseName(getString(resultSet, "TABLE_CAT"));
-        tableColumn.setSchemaName(getString(resultSet, "TABLE_SCHEM"));
-        tableColumn.setTableName(getString(resultSet, "TABLE_NAME"));
-        tableColumn.setName(getString(resultSet, "COLUMN_NAME"));
-        tableColumn.setComment(getString(resultSet, "REMARKS"));
-        tableColumn.setDefaultValue(getString(resultSet, "COLUMN_DEF"));
-        tableColumn.setColumnType(getString(resultSet, "TYPE_NAME"));
-        tableColumn.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
-        tableColumn.setDataType(resultSet.getInt("DATA_TYPE"));
-        tableColumn.setNullable(resultSet.getInt("NULLABLE") == 1);
-        tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-        //tableColumn.setAutoIncrement("YES".equals(getString,resultSet,"IS_AUTOINCREMENT")));
-        //tableColumn.setGeneratedColumn("YES".equals(getString,resultSet,"IS_GENERATEDCOLUMN")));
-        tableColumn.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-        tableColumn.setDecimalDigits(resultSet.getInt("DECIMAL_DIGITS"));
-        tableColumn.setNumPrecRadix(resultSet.getInt("NUM_PREC_RADIX"));
-        tableColumn.setCharOctetLength(resultSet.getInt("CHAR_OCTET_LENGTH"));
-        return tableColumn;
-    }
-
-    public static Table buildTable(ResultSet resultSet) throws SQLException {
-        Table table = new Table();
-        table.setName(getString(resultSet, "TABLE_NAME"));
-        table.setComment(getString(resultSet, "REMARKS"));
-        table.setDatabaseName(getString(resultSet, "TABLE_CAT"));
-        table.setSchemaName(getString(resultSet, "TABLE_SCHEM"));
-        table.setType(getString(resultSet, "TABLE_TYPE"));
-        return table;
-    }
-
-    private static String getString(ResultSet resultSet, String name) {
-        if (resultSet == null) {
-            return null;
-        }
-        try {
-            return resultSet.getString(name);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     public static String getColumnName(ResultSetMetaData resultSetMetaData, int column) throws SQLException {
         String columnLabel = resultSetMetaData.getColumnLabel(column);

@@ -1,64 +1,29 @@
-import React, { memo, useState, useEffect, useRef, useContext, useMemo } from 'react';
-import classnames from 'classnames';
+import React, { useState, useEffect, useRef } from 'react';
 import i18n from '@/i18n';
-import { connect } from 'umi';
-import { Cascader, Divider, Input, Dropdown, Button, Spin } from 'antd';
+import { Input, Dropdown, Modal } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import LoadingContent from '@/components/Loading/LoadingContent';
-import { IConnectionModelType } from '@/models/connection';
-import { IWorkspaceModelType } from '@/models/workspace';
 import historyServer from '@/service/history';
-import { ConsoleStatus, ConsoleOpenedStatus } from '@/constants';
+import { ConsoleOpenedStatus, workspaceTabConfig } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
+import { addWorkspaceTab, getSavedConsoleList } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import MenuLabel from '@/components/MenuLabel';
 
-interface IProps {
-  className?: string;
-  workspaceModel: IWorkspaceModelType['state'],
-  dispatch: any;
-  tableLoading: boolean;
-  databaseLoading: boolean;
-}
-
-const dvaModel = connect(
-  ({ connection, workspace, loading }: { connection: IConnectionModelType; workspace: IWorkspaceModelType, loading: any }) => ({
-    connectionModel: connection,
-    workspaceModel: workspace,
-    tableLoading: loading.effects['workspace/fetchGetCurTableList'],
-    databaseLoading: loading.effects['workspace/fetchDatabaseAndSchema'],
-  }),
-);
-
-const SaveList = dvaModel(function (props: any) {
-  const { workspaceModel, dispatch } = props;
-  const { curWorkspaceParams, consoleList } = workspaceModel;
+const SaveList = () => {
   const [searching, setSearching] = useState<boolean>(false);
   const inputRef = useRef<any>();
   const [searchedList, setSearchedList] = useState<ITreeNode[] | undefined>();
+  const leftModuleTitleRef = useRef<any>(null);
+  const saveBoxListRef = useRef<any>(null);
+  const consoleList = useWorkspaceStore((state) => state.savedConsoleList);
+  const [editData, setEditData] = useState<any>(null);
 
   useEffect(() => {
-    if (!curWorkspaceParams.dataSourceId || !(curWorkspaceParams?.databaseName || curWorkspaceParams?.schemaName)) {
-      return
-    }
-    dispatch({
-      type: 'workspace/fetchGetSavedConsole',
-      payload: {
-        pageNo: 1,
-        pageSize: 999,
-        orderByDesc: true,
-        status: ConsoleStatus.RELEASE,
-        ...curWorkspaceParams,
-      },
-      callback: (res: any) => {
-        dispatch({
-          type: 'workspace/setConsoleList',
-          payload: res.data,
-        })
-      }
-    });
-  }, [curWorkspaceParams]);
-
+    getSavedConsoleList();
+  }, []);
 
   useEffect(() => {
     if (searching) {
@@ -66,8 +31,7 @@ const SaveList = dvaModel(function (props: any) {
         cursor: 'start',
       });
     }
-  }, [searching])
-
+  }, [searching]);
 
   function openSearch() {
     setSearching(true);
@@ -81,80 +45,53 @@ const SaveList = dvaModel(function (props: any) {
   }
 
   function onChange(value: string) {
-    setSearchedList(approximateList(consoleList, value,))
+    if (consoleList) {
+      setSearchedList(approximateList(consoleList as any, value));
+    }
   }
 
-  function openConsole(data: IConsole) {
-
-    let p: any = {
-      id: data.id,
-      tabOpened: ConsoleOpenedStatus.IS_OPEN
+  function openConsole(item: IConsole) {
+    const params: any = {
+      id: item.id,
+      tabOpened: ConsoleOpenedStatus.IS_OPEN,
     };
-    historyServer.updateSavedConsole(p).then((res) => {
-
-      dispatch({
-        type: 'workspace/setCurConsoleId',
-        payload: data.id,
-      });
-
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
-        payload: {
-          orderByDesc: false,
-          tabOpened: ConsoleOpenedStatus.IS_OPEN,
-          ...curWorkspaceParams
+    historyServer.updateSavedConsole(params).then(() => {
+      addWorkspaceTab({
+        id: item.id,
+        type: item.operationType,
+        title: item.name,
+        uniqueData: {
+          dataSourceId: item.dataSourceId,
+          dataSourceName: item.dataSourceName,
+          databaseType: item.type,
+          databaseName: item.databaseName,
+          schemaName: item.schemaName,
+          status: item.status,
+          ddl: item.ddl,
+          connectable: item.connectable,
         },
-        callback: (res: any) => {
-          dispatch({
-            type: 'workspace/setOpenConsoleList',
-            payload: res.data,
-          })
-        }
-      })
+      });
     });
   }
 
   function deleteSaved(data: IConsole) {
-    let p: any = {
+    const params: any = {
       id: data.id,
     };
-    historyServer.deleteSavedConsole(p).then((res) => {
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
-        payload: {
-          orderByDesc: true,
-          tabOpened: ConsoleOpenedStatus.IS_OPEN,
-          ...curWorkspaceParams
-        },
-        callback: (res: any) => {
-          dispatch({
-            type: 'workspace/setOpenConsoleList',
-            payload: res.data,
-          })
-        }
-      })
-      dispatch({
-        type: 'workspace/fetchGetSavedConsole',
-        payload: {
-          orderByDesc: true,
-          status: ConsoleStatus.RELEASE,
-          ...curWorkspaceParams
-        },
-        callback: (res: any) => {
-          dispatch({
-            type: 'workspace/setConsoleList',
-            payload: res.data,
-          })
-        }
-      })
+    historyServer.deleteSavedConsole(params).then(() => {
+      getSavedConsoleList();
     });
   }
 
+  const editSaved = (data: IConsole) => {
+    setEditData(data);
+  };
+
   return (
-    <div className={styles.saveModule}>
-      <div className={styles.leftModuleTitle}>
-        {
-          searching ?
+    <>
+      <div className={styles.saveModule}>
+        <div ref={leftModuleTitleRef} className={styles.leftModuleTitle}>
+          {searching ? (
             <div className={styles.leftModuleTitleSearch}>
               <Input
                 ref={inputRef}
@@ -166,10 +103,10 @@ const SaveList = dvaModel(function (props: any) {
                 allowClear
               />
             </div>
-            :
+          ) : (
             <div className={styles.leftModuleTitleText}>
-              <div className={styles.modelName}>{i18n('workspace.title.saved')}</div>
-              <div className={styles.iconBox} >
+              <div className={styles.modelName}>{i18n('workspace.title.savedConsole')}</div>
+              <div className={styles.iconBox}>
                 {/* <div className={styles.refreshIcon} onClick={() => refreshTableList()}>
                   <Iconfont code="&#xec08;" />
                 </div> */}
@@ -178,54 +115,87 @@ const SaveList = dvaModel(function (props: any) {
                 </div>
               </div>
             </div>
-        }
-      </div>
-      <div className={styles.saveBoxList}>
-        <LoadingContent data={consoleList} handleEmpty>
-          {(searchedList || consoleList)?.map((t: IConsole) => {
-            return (
-              <div
-                onDoubleClick={() => {
-                  openConsole(t)
-                }}
-                key={t.id}
-                className={styles.saveItem}
-              >
-                <div className={styles.saveItemText}>
-                  <span dangerouslySetInnerHTML={{ __html: t.name }} />
-                </div>
+          )}
+        </div>
+        <div ref={saveBoxListRef} className={styles.saveBoxList}>
+          <LoadingContent className={styles.loadingContent} data={consoleList} handleEmpty>
+            {(searchedList || consoleList)?.map((t) => {
+              return (
                 <Dropdown
+                  key={t.id}
+                  trigger={['contextMenu']}
                   menu={{
                     items: [
                       {
                         key: 'open',
-                        label: i18n('common.button.open'),
+                        label: <MenuLabel icon="&#xec83;" label={i18n('common.button.open')} />,
                         onClick: () => {
-                          openConsole(t)
-                        }
+                          openConsole(t);
+                        },
+                      },
+                      {
+                        key: 'edit',
+                        label: <MenuLabel icon="&#xe602;" label={i18n('common.text.rename')} />,
+                        onClick: () => {
+                          editSaved(t);
+                        },
                       },
                       {
                         key: 'delete',
-                        label: i18n('common.button.delete'),
+                        label: <MenuLabel icon="&#xe6a7;" label={i18n('common.button.delete')} />,
                         onClick: () => {
-                          deleteSaved(t)
+                          deleteSaved(t);
                         },
                       },
                     ],
                   }}
                 >
-                  <div className={styles.moreButton}>
-                    <Iconfont code="&#xe601;"></Iconfont>
+                  <div
+                    onDoubleClick={() => {
+                      openConsole(t);
+                    }}
+                    className={styles.saveItem}
+                  >
+                    <div className={styles.saveItemText}>
+                      <div className={styles.iconBox}>
+                        <Iconfont code={workspaceTabConfig[t.operationType]?.icon} />
+                      </div>
+                      <div className={styles.itemName} dangerouslySetInnerHTML={{ __html: t.name }} />
+                    </div>
                   </div>
                 </Dropdown>
-
-              </div>
-            );
-          })}
-        </LoadingContent>
-      </div >
-    </div >
+              );
+            })}
+          </LoadingContent>
+        </div>
+      </div>
+      <Modal
+        title={i18n('common.text.rename')}
+        open={!!editData}
+        onOk={() => {
+          const params: any = {
+            id: editData.id,
+            name: editData.name,
+          };
+          historyServer.updateSavedConsole(params).then(() => {
+            getSavedConsoleList();
+            setEditData(null);
+          });
+        }}
+        onCancel={() => setEditData(null)}
+      >
+        <Input
+          value={editData?.name}
+          onChange={(e) => {
+            setEditData({
+              ...editData,
+              name: e.target.value,
+            });
+          }}
+        />
+      </Modal>
+    </>
   );
-});
+};
 
-export default dvaModel(SaveList);
+export default SaveList;

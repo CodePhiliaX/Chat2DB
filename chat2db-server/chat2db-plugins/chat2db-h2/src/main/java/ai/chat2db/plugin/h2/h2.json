@@ -1,0 +1,18 @@
+{
+  "dbType": "H2",
+  "supportDatabase": true,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:h2:tcp://localhost:9092/",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://oss.sqlgpt.cn/lib/h2-2.1.214.jar"
+      ],
+      "jdbcDriver": "h2-2.1.214.jar",
+      "jdbcDriverClass": "org.h2.Driver"
+    }
+  ],
+  "name": "H2"
+}

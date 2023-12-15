@@ -7,17 +7,17 @@
   flex-direction: column;
 }
 
-.workspaceMain{
+.workspaceMain {
   height: 100%;
 }
 
-.loadingContent{
+.loadingContent {
   flex: 1;
-  height: 0px;
+  height: 0px !important;
 }
 
 .boxLeft {
-  width: 220px;
+  width: var(--panel-left-width);
   height: 100%;
   overflow: hidden;
   border-right: 1px solid var(--color-border-secondary);
@@ -86,4 +86,8 @@
       font-weight: 400 !important;
     }
   }
+}
+
+.hiddenPanelLeft {
+  display: none;
 }

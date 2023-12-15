@@ -8,8 +8,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * 自定义报表表 Mapper 接口
  * </p>
  *
- * @author ali-dbhub
- * @since 2023-06-09
+ * @author chat2db
+ * @since 2023-09-09
  */
 public interface ChartMapper extends BaseMapper<ChartDO> {
 

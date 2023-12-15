@@ -25,6 +25,12 @@ An intelligent and versatile general-purpose SQL client and reporting tool for d
 
 Languages： English | [中文](README_CN.md)
 
+Official website：[Chat2DB](https://sqlgpt.cn/en)
+
+<div style="display: flex; align-items: center;">
+  If you find Chat2DB helpful, please help<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>Click ⭐ Star and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get bette
+</div>
+
 </div>
 
 ## DEMO
@@ -49,7 +55,7 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 [Downloading installation package from GitHub](https://github.com/chat2db/Chat2DB/releases) 
 
 
-[Downloading installation package from official website](https://sqlgpt.cn/docs/guides/download) 
+[Downloading installation package from official website](https://sqlgpt.cn) 
 
 
 
@@ -61,9 +67,9 @@ Chat2DB supports connecting to the following databases:
 - H2
 - Oracle
 - SQLServer
-- SQLLite
+- SQLite
 - MariaDB
-- ClickHouseare
+- ClickHouse
 - DM
 - Presto
 - DB2
@@ -94,33 +100,11 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 
 ## 🔥 AI Configuration
 
-### CONFIGURE OPENAI
-
-Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions must be met:
-
-- You need an OPENAI_API_KEY.
-- The client's network can connect to the OPENAI website, and for users in China, a VPN is required. Note: If the local VPN is not fully effective, the network connectivity can be ensured by setting the network proxy HOST and PORT in the client.
-
-<img width="1717" alt="3" src="https://github.com/chat2db/Chat2DB/assets/22975773/95c8a766-cc6b-4767-90e6-a8b616a89bc7">
-
-
-Option 2 (recommended): We provide a unified proxy service.
-
-- No OPENAI_API_KEY is required.
-- No proxy or VPN is required, as long as the network is connected.
-
-To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY.
-
-<img width="1726" alt="4" src="https://github.com/chat2db/Chat2DB/assets/22975773/9236ff01-e49f-4e45-96b0-201e85fcd756">
-
+### Use Chat2DB AI to get started
 
 ### CONFIGURE CUSTOM AI
 
-- Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
-- DEMO for configuring customized stream output interface.
-- DEMO for configuring customized non-stream output interface.
-<img width="1722" alt="5" src="https://github.com/chat2db/Chat2DB/assets/22975773/aff8497e-3edb-449d-a7d4-bb0429abc67c">
-
+* The rest api format for Custom AI is same as ChatGPT.
 
 ## 📦 Docker installation
 
@@ -150,7 +134,7 @@ Note: If local debugging is required
 - git clone to local
 
 ```bash
-$ git clone git@github.com:alibaba/Chat2DB.git
+$ git clone git@github.com:chat2db/Chat2DB.git
 ```
 
 - Front-End debug
@@ -169,13 +153,20 @@ $ yarn run start:web
 $ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
 $ cd chat2db-server/chat2db-server-start/target/
-$ java -jar  -Dloader.path=/lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+$ java -jar  -Dloader.path=./lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  #java 17 or later must be installed, To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+```
+
+- If you need to deploy independently
+
+```bash
+$ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front / cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+# Repackage the back-end services
 ```
 
 ## 📑 Documentation
 
-- <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-- <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+- <a href="https://doc.sqlgpt.cn/">Official website document</a>
+- <a href="https://github.com/chat2db/Chat2DB/issues">Issue </a>
 
 ## Stargazers
 
@@ -187,12 +178,18 @@ $ java -jar  -Dloader.path=/lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar 
 
 ## ☎️ Contact Us
 
-Please star and fork on GitHub before joining the group.
-Follow our WeChat public account.
+### WeChat
 
 <a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="40%"/></a>
 
- Click and join <a href="https://discord.gg/dqae8nsC">discord server</a>
+### Discord
+<!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.gg/N6JscF7q)
+
+## LICENSE
+
+The primary license used by this software is the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), supplemented by the [Chat2DB License](./Chat2DB_LICENSE).
+
 
 ## ❤️ Acknowledgements
 

@@ -15,7 +15,7 @@
   justify-content: space-between;
   align-items: center;
   width: 68px;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   border-right: 1px solid var(--color-border-secondary);
   user-select: none;
   overflow: hidden;
@@ -34,7 +34,6 @@
 
 .brandLogo {
   flex-shrink: 0;
-  border-radius: 50%;
   overflow: hidden;
   margin: 20px auto;
   cursor: pointer;
@@ -61,7 +60,6 @@
     cursor: pointer;
 
     .icon {
-      font-size: 20px;
       color: var(--custom-color-icon);
     }
 
@@ -91,16 +89,31 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
+  .userBox {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+
+    .questionIcon {
+      font-size: 20px;
+      cursor: pointer;
+      transform: translateX(1px);
+      color: var(--custom-color-icon);
+    }
+    &:hover .questionIcon {
+      color: var(--color-primary);
+    }
+  }
 }
 
-.questionIcon {
-  font-size: 20px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  color: var(--custom-color-icon);
-  &:hover {
-    background-color: var(--color-hover-bg);
-    color: var(--color-primary);
+.userDropdown {
+  display: flex;
+  align-items: center;
+  i {
+    margin-right: 6px;
   }
 }
 

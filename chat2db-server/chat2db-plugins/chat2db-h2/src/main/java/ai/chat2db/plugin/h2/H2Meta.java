@@ -3,21 +3,27 @@ package ai.chat2db.plugin.h2;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import ai.chat2db.plugin.h2.builder.H2SqlBuilder;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Function;
-import ai.chat2db.spi.model.Procedure;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.SortUtils;
 import jakarta.validation.constraints.NotEmpty;
 
 public class H2Meta extends DefaultMetaService implements MetaData {
+
+
+    private List<String> systemSchemas = Arrays.asList("INFORMATION_SCHEMA");
+    @Override
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        return SortUtils.sortSchema(schemas, systemSchemas);
+    }
     @Override
     public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
         @NotEmpty String tableName) {
@@ -69,19 +75,13 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             createTableDDL.append(tableName).append(" (\n");
             createTableDDL.append(String.join(",\n", columnDefinitions));
             createTableDDL.append("\n);\n");
-
-            System.out.println("DDL建表语句：");
-            System.out.println(createTableDDL.toString());
-
             // 输出索引信息
-            System.out.println("\nDDL索引语句：");
             for (Map.Entry<String, List<String>> entry : indexMap.entrySet()) {
                 String indexName = entry.getKey();
                 List<String> columnList = entry.getValue();
                 String indexColumns = String.join(", ", columnList);
                 String createIndexDDL = String.format("CREATE INDEX %s ON %s (%s);", indexName, tableName,
                     indexColumns);
-                System.out.println(createIndexDDL);
                 createTableDDL.append(createIndexDDL);
             }
             return createTableDDL.toString();
@@ -193,4 +193,9 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             return table;
         });
     }
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new H2SqlBuilder();
+    }
+
 }

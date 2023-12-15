@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper">
+
+    <select id="selectPageWithPermission" resultType="ai.chat2db.server.domain.repository.entity.DataSourceDO">
+        select ds.*
+        from DATA_SOURCE ds
+        <where>
+            <choose>
+                <when test="kind == 'PRIVATE'">
+                    and ds.USER_ID = #{userId}
+                </when>
+                <otherwise>
+                    and (ds.USER_ID = #{userId}
+                    or exists(
+                    select 1 from DATA_SOURCE_ACCESS dsa where dsa.ACCESS_OBJECT_TYPE = 'USER'
+                    and dsa.ACCESS_OBJECT_ID = #{userId}
+                    and dsa.DATA_SOURCE_ID = ds.ID
+                    )
+                    or exists (
+                    select 1
+                    from DATA_SOURCE_ACCESS dsa
+                    LEFT JOIN TEAM_USER tu on tu.TEAM_ID = dsa.ACCESS_OBJECT_ID and dsa.ACCESS_OBJECT_TYPE = 'TEAM'
+                    left join TEAM t on t.id = tu.TEAM_ID
+                    where tu.USER_ID = #{userId}
+                    and dsa.DATA_SOURCE_ID = ds.ID
+                    and t.STATUS = 'VALID'
+                    )
+                    )
+                </otherwise>
+            </choose>
+            <if test="searchKey != '' and searchKey != null ">
+                and (ds.alias like concat('%',#{searchKey},'%') or ds.url like concat('%',#{searchKey},'%'))
+            </if>
+            <if test="kind != null">
+                and ds.kind = #{kind}
+            </if>
+            <if test="orderBy != null ">
+                ${orderBy}
+            </if>
+        </where>
+    </select>
+</mapper>

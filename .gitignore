@@ -11,6 +11,7 @@
 *.iws
 *.iml
 *.ipr
+.out
 
 ### Visual Studio Code ###
 package-lock.json
@@ -18,6 +19,7 @@ package-lock.json
 ### Mac
 .DS_Store
 /chat2db-server/ali-dbhub-server-start/src/main/resources/static/front/*
+/chat2db-server/ali-dbhub-server-start/src/main/resources/thymeleaf
 
 ### docker 数据不用上传
 /docker/redis/data/*
@@ -26,3 +28,4 @@ package-lock.json
 /chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/src/main/resources/lib/*
 /chat2db-server/ali-dbhub-server-domain/ali-dbhub-server-domain-support/lib/*
 /lib
+/out/*

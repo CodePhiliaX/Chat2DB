@@ -2,9 +2,9 @@ spring:
   # 默认开发环境
   profiles:
     active: dev
-  jpa:
-    # 展示sql
-    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+    lazy-initialization: true
   messages:
     basename: i18n/messages
     encoding: UTF-8
@@ -26,37 +26,25 @@ spring:
     resources:
       static-locations[0]: classpath:/static/
   #  用于数据库表结构版本管理
-  flyway:
-    locations: classpath:db/migration
   servlet:
     multipart:
       max-file-size: -1
       max-request-size: -1
-      
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
 chat2db:
   version: 1.0.0
 
 # flywaydb 输出执行sql的日志
 logging:
-  level:
-    org:
-      flywaydb: debug
-# 登录功能
-sa-token:
-  # token名称 (同时也是cookie名称)
-  token-name: DBHUB
-  timeout: 2592000
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-  is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-  is-share: true
-  # token风格
-  token-style: uuid
-  # 是否输出操作日志
-  is-log: true
-  # jwt秘钥 部署的时候需要改掉，不然可以随便破解登录
-  jwt-secret-key: jwt_dbhub
-  is-write-header: true
+    ai:
+      chat2db:
+        server:
+          domain:
+            repository:
+              mapper: debug
 
 chatgpt:
   apiKey: sk-xxxx
@@ -64,16 +52,17 @@ chatgpt:
   # 可以选择GPT3或GPT35
   version: GPT35
   context:
-    length: 4
+    length: 1
 
 # Print the HTTP log
 logbook:
   include:
     - /api/**
+#server:
+#  undertow:
+#    io-threads: 8
+#    worker-threads: 200
+#    buffer-size: 1024
+#    direct-buffers: true
+#    max-http-post-size: 0
 
-# Http Client
-forest:
-  connect-timeout: 30000
-  log-response-content: true
-  read-timeout: 30000
-  timeout: 30000

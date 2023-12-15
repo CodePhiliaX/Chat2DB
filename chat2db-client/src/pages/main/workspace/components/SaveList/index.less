@@ -2,22 +2,33 @@
 
 .saveModule {
   flex-shrink: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .leftModuleTitle {
   flex-shrink: 0;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
+  padding: 0px 10px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
   .leftModuleTitleText {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 26px;
     .modelName {
       font-weight: bold;
+      line-height: 100%;
     }
     .iconBox {
       display: flex;
       align-items: center;
+      height: 100%;
     }
     .refreshIcon {
       margin-right: 10px;
@@ -25,6 +36,9 @@
     .refreshIcon,
     .searchIcon {
       cursor: pointer;
+      height: 100%;
+      display: flex;
+      align-items: center;
       &:hover {
         color: var(--color-primary);
       }
@@ -35,38 +49,54 @@
   }
 }
 
+.loadingContent {
+  height: auto;
+  padding-bottom: 4px;
+}
+
 .saveBoxList {
-  margin: 0px -10px;
-  height: calc(26px * 3 + 6px);
-  overflow-y: auto;
+  flex: 1;
+  height: 0px;
+  padding: 0px 4px;
+  overflow-y: hidden;
+  &:hover {
+    overflow-y: auto;
+  }
+}
+
+.leftModuleTitleShadow {
+  // 地步加一点模糊
+  box-shadow: 0px 1px 2px 0px var(--color-border);
 }
 
 .saveItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 10px;
-  margin-bottom: 2px;
+  padding: 0px 6px;
+  height: 26px;
   line-height: 26px;
-  border-radius: 2px;
+  border-radius: 4px;
   user-select: none;
   cursor: pointer;
-  .saveItemText{
+  .saveItemText {
     width: 0px;
     flex: 1;
     .f-single-line();
-  }
-  .moreButton {
-    flex-shrink: 0;
-    display: none;
-    transform: rotate(90deg);
+    display: flex;
+    align-items: center;
+    .iconBox {
+      width: 20px;
+      flex-shrink: 0;
+    }
+    .itemName {
+      flex: 1;
+      .f-single-line();
+    }
   }
 
   &:hover {
     background-color: var(--color-hover-bg);
     color: var(--color-primary);
-    .moreButton {
-      display: block;
-    }
   }
 }

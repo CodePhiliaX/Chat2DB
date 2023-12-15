@@ -3,8 +3,8 @@ package ai.chat2db.server.domain.core.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Operation;
-import ai.chat2db.server.domain.api.param.OperationSavedParam;
-import ai.chat2db.server.domain.api.param.OperationUpdateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
+import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.domain.repository.entity.OperationSavedDO;
 
 import org.mapstruct.Mapper;

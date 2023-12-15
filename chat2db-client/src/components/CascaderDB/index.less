@@ -1,0 +1,42 @@
+.cascaderDB {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 16px;
+  padding: 4px 8px 4px 0;
+  background-color: var(--color-bg-subtle);
+
+  &:hover {
+    background-color: var(--color-hover-bg);
+  }
+}
+
+.optionItem {
+  display: flex;
+  align-items: center;
+  height: 26px;
+  cursor: pointer;
+  padding: 0px 6px;
+
+
+  .optionItemIcon {
+    margin-right: 10px;
+    font-weight: 400;
+    color: var(--color-primary);
+  }
+
+  .optionItemText {
+    font-weight: bold;
+  }
+
+
+}
+
+.select {
+  :global {
+    .ant-select-selector {
+      caret-color: var(--color-text-placeholder);
+      // caret-width: 4px;
+      // width: 4px;
+    }
+  }
+}

@@ -1,0 +1,57 @@
+@import '../../../styles/var.less';
+.versionText{
+  color: var(--color-primary);
+}
+
+.notificationBtnBox{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.updateReminder{
+  display: flex;
+  align-items: center;
+  .bell{
+    // 做个动画，当前div像铃铛一样摇晃，以div的上中心点为中心，动画循环10次以后停止
+    animation: shake 0.2s linear 10;
+    margin-right: 4px;
+  }
+  i{
+    color: var(--color-primary);
+  }
+}
+
+
+.notification{
+  z-index: 999 !important;
+  width: 300px !important;
+  font-size: 12px !important;
+  padding: 8px 12px !important;
+  :global{
+    .ant-notification-notice-close{
+      top: 10px !important;
+      inset-inline-end: 8px !important;
+    }
+  } 
+}
+// 做个动画，当前div像铃铛一样摇晃，以div的上中心点为中心，左右3px晃动
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(8deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-8deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+

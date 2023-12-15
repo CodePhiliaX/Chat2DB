@@ -24,6 +24,10 @@
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-server-common-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-server-domain-core</artifactId>
         </dependency>
         <dependency>
@@ -50,11 +54,53 @@
         <!-- http -->
         <dependency>
             <groupId>com.dtflys.forest</groupId>
-            <artifactId>forest-spring-boot3-starter</artifactId>
+            <artifactId>forest-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtflys.forest</groupId>
+            <artifactId>forest-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
+        </dependency>
+        <!--poi-tl-->
+        <dependency>
+            <groupId>com.deepoove</groupId>
+            <artifactId>poi-tl</artifactId>
+        </dependency>
+        <!--pdf-->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext-asian</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-spi</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.manticore-projects.jsqlformatter</groupId>
+            <artifactId>jsqlformatter</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

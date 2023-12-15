@@ -44,4 +44,6 @@ public class TableQueryParam extends QueryParam {
      * 空间名
      */
     private String schemaName;
+
+    private boolean refresh;
 }

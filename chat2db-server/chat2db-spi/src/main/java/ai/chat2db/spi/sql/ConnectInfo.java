@@ -129,11 +129,22 @@ public class ConnectInfo {
 
     public Connection connection;
 
-
+    /**
+     * Database version used for different database
+     */
+    private String dbVersion;
 
     
     private DriverConfig driverConfig;
 
+
+    public String getDbVersion() {
+        return dbVersion;
+    }
+
+    public void setDbVersion(String dbVersion) {
+        this.dbVersion = dbVersion;
+    }
 
     public DriverConfig getDriverConfig() {
         return driverConfig;
@@ -156,7 +167,15 @@ public class ConnectInfo {
 
 
     public LinkedHashMap<String,Object> getExtendMap() {
+
         if (ObjectUtils.isEmpty(extendInfo)) {
+            if(driverConfig!= null) {
+                extendInfo = driverConfig.getExtendInfo();
+            }else {
+                return new LinkedHashMap<>();
+            }
+        }
+        if(ObjectUtils.isEmpty(extendInfo)){
             return new LinkedHashMap<>();
         }
         LinkedHashMap<String,Object> map = new LinkedHashMap<>();

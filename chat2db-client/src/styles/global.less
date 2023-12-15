@@ -13,8 +13,8 @@ body {
 // 修改账号密码自动回填后input背景变色问题
 input:-webkit-autofill {
   -webkit-text-fill-color: var(--color-text) !important; // 填充状态下的字体颜色
-  transition: background-color 0s 9999999999s;
-  caret-color: var(--color-text); // 光标的颜色
+  transition: background-color 0s 9999999999s !important;
+  caret-color: var(--color-text) !important; // 光标的颜色
 }
 
 ::-webkit-scrollbar {
@@ -24,7 +24,7 @@ input:-webkit-autofill {
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-fill);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-button {
@@ -35,10 +35,17 @@ input:-webkit-autofill {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+  width: 0px;
+  cursor: pointer;
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+* {
+  scrollbar-width: 4px; // 宽度：auto（默认），thin（窄），none（隐藏）
+  scrollbar-color: var(--color-fill) transparent; // 颜色：第一个颜色是滑块颜色，第二个颜色是轨道颜色
 }
 
 html,
@@ -133,9 +140,8 @@ li {
   list-style: none;
 }
 
-
 // 覆盖antd 的一些样式
 
-button{
+button {
   box-shadow: none !important;
 }

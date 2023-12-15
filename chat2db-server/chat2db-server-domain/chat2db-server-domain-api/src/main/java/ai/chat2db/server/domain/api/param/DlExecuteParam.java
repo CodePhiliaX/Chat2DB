@@ -36,6 +36,12 @@ public class DlExecuteParam {
     @NotNull
     private String databaseName;
 
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
+
     /**
      * 分页编码
      * 只有select语句才有

@@ -1,9 +1,12 @@
 package ai.chat2db.server.start;
 
+import ai.chat2db.server.tools.common.enums.ModeEnum;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
-import com.dtflys.forest.springboot.annotation.ForestScan;
+import ai.chat2db.server.tools.common.util.EasyEnumUtils;
+import cn.hutool.core.lang.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -21,8 +24,6 @@ import org.springframework.stereotype.Indexed;
  */
 @SpringBootApplication
 @ComponentScan(value = {"ai.chat2db.server"})
-@MapperScan("ai.chat2db.server.domain.repository.mapper")
-@ForestScan(basePackages = "ai.chat2db.server.web.api.http")
 @Indexed
 @EnableCaching
 @EnableScheduling
@@ -31,15 +32,7 @@ import org.springframework.stereotype.Indexed;
 public class Application {
 
     public static void main(String[] args) {
-        String currentVersion = ConfigUtils.getLocalVersion();
-        ConfigJson configJson = ConfigUtils.getConfig();
-        // Represents that the current version has been successfully launched
-        if (StringUtils.isNotBlank(currentVersion) && StringUtils.equals(currentVersion, configJson.getLatestStartupSuccessVersion())) {
-            // Flyway doesn't need to start every time to increase startup speed
-            //args = ArrayUtils.add(args, "--spring.flyway.enabled=false");
-            log.info("The current version {} has been successfully launched once and will no longer load Flyway.",
-                currentVersion);
-        }
+        //ConfigUtils.pid();
         SpringApplication.run(Application.class, args);
     }
 }

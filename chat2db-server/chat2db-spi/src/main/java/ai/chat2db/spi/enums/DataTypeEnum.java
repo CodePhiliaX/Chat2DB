@@ -96,4 +96,63 @@ public enum DataTypeEnum implements BaseEnum<String> {
     public String getCode() {
         return this.name();
     }
+
+    public static DataTypeEnum getByCode(String code) {
+        for (DataTypeEnum value : DataTypeEnum.values()) {
+            if (value.getCode().equals(code)) {
+                return value;
+            }
+        }
+        return DataTypeEnum.UNKNOWN;
+    }
+
+    public String getSqlValue(String value) {
+        if (this == DataTypeEnum.BOOLEAN) {
+            if("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)){
+                return value;
+            }else {
+                return "'" + value + "'";
+            }
+        }
+        if (this == DataTypeEnum.NUMERIC) {
+            return value;
+        }
+        if (this == DataTypeEnum.STRING) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.DATETIME) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.BINARY) {
+            return "''";
+        }
+        if (this == DataTypeEnum.CONTENT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.STRUCT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.DOCUMENT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ARRAY) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.OBJECT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.REFERENCE) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ROWID) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ANY) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.UNKNOWN) {
+            return "'" + value + "'";
+        }
+        return "'" + value + "'";
+    }
 }

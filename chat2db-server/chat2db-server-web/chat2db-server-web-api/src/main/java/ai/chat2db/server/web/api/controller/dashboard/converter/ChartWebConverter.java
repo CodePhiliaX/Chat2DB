@@ -3,8 +3,8 @@ package ai.chat2db.server.web.api.controller.dashboard.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Chart;
-import ai.chat2db.server.domain.api.param.ChartCreateParam;
-import ai.chat2db.server.domain.api.param.ChartUpdateParam;
+import ai.chat2db.server.domain.api.chart.ChartCreateParam;
+import ai.chat2db.server.domain.api.chart.ChartUpdateParam;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartCreateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.request.ChartUpdateRequest;
 import ai.chat2db.server.web.api.controller.dashboard.vo.ChartVO;

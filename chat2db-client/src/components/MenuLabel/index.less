@@ -1,0 +1,23 @@
+@import '../../styles/var.less';
+
+.menuLabel {
+  display: flex;
+  align-items: center;
+  .menuLabelIconBox{
+    width: 22px;
+    display: flex;
+    align-items: center;
+  }
+  // .menuLabelIcon {
+  // }
+  // .menuLabelTitle {
+  // }
+  .menuLabelIconBright{
+    color: var(--color-primary);
+  }
+  :global {
+    .ant-dropdown {
+      z-index: 1080;
+    }
+  }
+}

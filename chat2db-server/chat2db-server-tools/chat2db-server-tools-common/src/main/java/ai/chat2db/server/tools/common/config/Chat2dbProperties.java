@@ -1,5 +1,6 @@
 package ai.chat2db.server.tools.common.config;
 
+import ai.chat2db.server.tools.common.enums.ModeEnum;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,11 @@ public class Chat2dbProperties {
      * gateway
      */
     private GatewayProperties gateway;
+
+    /**
+     * mode
+     */
+    private ModeEnum mode;
 
     @Data
     public static class GatewayProperties {

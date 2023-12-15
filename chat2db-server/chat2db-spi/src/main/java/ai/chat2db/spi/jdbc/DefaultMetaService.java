@@ -1,21 +1,18 @@
 package ai.chat2db.spi.jdbc;
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.Function;
-import ai.chat2db.spi.model.Procedure;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author jipengfei
@@ -24,35 +21,30 @@ import org.apache.commons.beanutils.BeanUtils;
 public class DefaultMetaService implements MetaData {
     @Override
     public List<Database> databases(Connection connection) {
-        List<String> dataBases = SQLExecutor.getInstance().databases(connection);
-        return dataBases.stream().map(str -> Database.builder().name(str).build()).collect(Collectors.toList());
-
+        return SQLExecutor.getInstance().databases(connection);
     }
 
     @Override
-    public List<Schema> schemas(Connection connection,String databaseName) {
-        List<Map<String, String>> maps = SQLExecutor.getInstance().schemas(connection, databaseName, null);
-        return maps.stream().map(map -> map2Schema(map)).collect(Collectors.toList());
-
-    }
-
-    private Schema map2Schema(Map<String, String> map) {
-        Schema schema = new Schema();
-        try {
-            BeanUtils.populate(schema, map);
-        } catch (Exception e) {
+    public List<Schema> schemas(Connection connection, String databaseName) {
+        List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
+        if(StringUtils.isNotBlank(databaseName) && CollectionUtils.isNotEmpty(schemas)){
+            for ( Schema schema : schemas) {
+                if(StringUtils.isBlank(schema.getDatabaseName())){
+                    schema.setDatabaseName(databaseName);
+                }
+            }
         }
-        return schema;
+        return schemas;
     }
 
     @Override
-    public String tableDDL(Connection connection,String databaseName, String schemaName, String tableName) {
+    public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         return null;
     }
 
     @Override
-    public List<Table> tables(Connection connection,String databaseName, String schemaName, String tableName) {
-        return SQLExecutor.getInstance().tables(connection,databaseName, schemaName, tableName, new String[]{"TABLE"});
+    public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().tables(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName, new String[]{"TABLE","SYSTEM TABLE"});
     }
 
     @Override
@@ -61,39 +53,48 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
-    public List<Table> views(Connection connection,String databaseName, String schemaName) {
-        return SQLExecutor.getInstance().tables(connection,databaseName, schemaName, null, new String[]{"VIEW"});
+    public List<Table> views(Connection connection, String databaseName, String schemaName) {
+        return SQLExecutor.getInstance().tables(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, null, new String[]{"VIEW"});
     }
 
     @Override
-    public List<Function> functions(Connection connection,String databaseName, String schemaName) {
-        return SQLExecutor.getInstance().functions(connection,databaseName, schemaName);
+    public List<Function> functions(Connection connection, String databaseName, String schemaName) {
+        List<Function> functions = SQLExecutor.getInstance().functions(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName);
+        if(CollectionUtils.isEmpty(functions)){
+            return functions;
+        }
+        return functions.stream().filter(function -> StringUtils.isNotBlank(function.getFunctionName())).collect(Collectors.toList());
     }
 
     @Override
-    public List<Trigger> triggers(Connection connection,String databaseName, String schemaName) {
+    public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         return null;
     }
 
     @Override
-    public List<Procedure> procedures(Connection connection,String databaseName, String schemaName) {
-        return SQLExecutor.getInstance().procedures(connection,databaseName, schemaName);
+    public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
+        List<Procedure> procedures =  SQLExecutor.getInstance().procedures(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName);
+
+        if(CollectionUtils.isEmpty(procedures)){
+            return procedures;
+        }
+        return procedures.stream().filter(function -> StringUtils.isNotBlank(function.getProcedureName())).collect(Collectors.toList());
     }
 
     @Override
-    public List<TableColumn> columns(Connection connection,String databaseName, String schemaName, String tableName) {
-        return SQLExecutor.getInstance().columns(connection,databaseName, schemaName, tableName, null);
+    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().columns(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName, null);
     }
 
     @Override
-    public List<TableColumn> columns(Connection connection,String databaseName, String schemaName, String tableName,
-        String columnName) {
-        return SQLExecutor.getInstance().columns(connection,databaseName, schemaName, tableName, columnName);
+    public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName,
+                                     String columnName) {
+        return SQLExecutor.getInstance().columns(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName, columnName);
     }
 
     @Override
-    public List<TableIndex> indexes(Connection connection,String databaseName, String schemaName, String tableName) {
-        return SQLExecutor.getInstance().indexes(connection,databaseName, schemaName, tableName);
+    public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().indexes(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName);
     }
 
     @Override
@@ -109,5 +110,30 @@ public class DefaultMetaService implements MetaData {
     @Override
     public Procedure procedure(Connection connection, String databaseName, String schemaName, String procedureName) {
         return null;
+    }
+
+    @Override
+    public List<Type> types(Connection connection) {
+        return SQLExecutor.getInstance().types(connection);
+    }
+
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new DefaultSqlBuilder();
+    }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return null;
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).collect(Collectors.joining("."));
+    }
+
+    @Override
+    public ValueHandler getValueHandler() {
+        return new DefaultValueHandler();
     }
 }
