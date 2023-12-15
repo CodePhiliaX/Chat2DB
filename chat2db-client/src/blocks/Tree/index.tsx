@@ -58,8 +58,9 @@ const isMatch = (target: string, searchValue: string) => {
 function searchTree(treeData: ITreeNode[], searchValue: string): ITreeNode[] {
   let result: ITreeNode[] = [];
   function dfs(node: ITreeNode, path: ITreeNode[] = []) {
+    console.log(node.name, searchValue, isMatch(node.name, searchValue));
     if (isMatch(node.name, searchValue)) {
-      result = [...path, node];
+      result = [...result,...path, node];
       return true;
     }
     if (!node.children) return false;
@@ -69,7 +70,9 @@ function searchTree(treeData: ITreeNode[], searchValue: string): ITreeNode[] {
     return false;
   }
 
-  treeData.some((node) => dfs(node));
+  treeData.forEach((node) => dfs(node));
+
+  console.log(result,'result')
 
   result.forEach((item) => {
     if(!isMatch(item.name, searchValue)){
@@ -124,12 +127,14 @@ const Tree = (props: IProps) => {
 
   useEffect(() => {
     if (searchValue && treeData) {
-      setSearchTreeData(searchTree(cloneDeep(treeData), searchValue));
+      const _searchTreeData = searchTree(cloneDeep(treeData), searchValue)
+      console.log(_searchTreeData)
+      setSearchTreeData(_searchTreeData);
     } else {
       setSearchTreeData(null);
     }
     setScrollTop(0);
-  }, [searchValue, smoothTreeData]);
+  }, [searchValue, smoothTreeData,treeData]);
 
   return (
     <LoadingContent isLoading={!treeData} className={classnames(className)}>
