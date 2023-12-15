@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, createContext, useContext, useRef } from 'react';
+import React, { memo, useEffect, useMemo, useState, createContext, useContext } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -48,6 +48,56 @@ const smoothTree = (treeData: ITreeNode[], result: ITreeNode[] = [], parentNode?
   return result;
 };
 
+// 判断是否匹配
+const isMatch = (target: string, searchValue: string) => {
+  const reg = new RegExp(searchValue, 'i');
+  return reg.test(target || '');
+};
+
+// 树结构搜索
+function searchTree(treeData: ITreeNode[], searchValue: string): ITreeNode[] {
+  let result: ITreeNode[] = [];
+
+  // 深度优先遍历
+  function dfs(node: ITreeNode, path: ITreeNode[] = []) {
+    if (isMatch(node.name, searchValue)) {
+      // debugger
+      result = [...result,...path, node];
+      // return true;
+    }
+    if (!node.children) return false;
+    for (const child of node.children) {
+      // debugger
+      if (dfs(child, [...path, node])){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 遍历树
+  treeData.forEach((node) => dfs(node));
+
+  // 如果不匹配，说明该节点为path，不需要保留该节点的子元素，就把children置空
+  result.forEach((item) => {
+    if(!isMatch(item.name, searchValue)){
+      item.children = null;
+    }
+  });
+
+  // tree转平级
+  const smoothTreeList: ITreeNode[] = []
+  smoothTree(result, smoothTreeList);
+
+  // 对smoothTreeList根据uuid去重
+  const deWeightList: ITreeNode[] = [];
+  smoothTreeList.forEach((item) => {
+    deWeightList.findIndex((i) => i.uuid === item.uuid) === -1 && deWeightList.push(item);
+  });
+
+  return deWeightList;
+}
+
 const itemHeight = 26; // 每个 item 的高度
 const paddingCount = 2;
 
@@ -89,17 +139,14 @@ const Tree = (props: IProps) => {
   }, [smoothTreeData, searchTreeData, startIdx]);
 
   useEffect(() => {
-    if (searchValue) {
-      const ls = smoothTreeData.filter((item) => {
-        const reg = new RegExp(searchValue, 'i');
-        return reg.test(item.name || '');
-      });
-      setSearchTreeData(ls);
+    if (searchValue && treeData) {
+      const _searchTreeData = searchTree(cloneDeep(treeData), searchValue)
+      setSearchTreeData(_searchTreeData);
+      setScrollTop(0);
     } else {
       setSearchTreeData(null);
     }
-    setScrollTop(0);
-  }, [searchValue]);
+  }, [searchValue, treeData]);
 
   return (
     <LoadingContent isLoading={!treeData} className={classnames(className)}>
@@ -107,7 +154,6 @@ const Tree = (props: IProps) => {
         <div
           className={classnames(styles.scrollBox)}
           onScroll={(e: any) => {
-            console.log(e.target.scrollTop);
             setScrollTop(e.target.scrollTop);
           }}
         >
