@@ -124,6 +124,17 @@ const WorkspaceTabs = memo(() => {
       name: t.label,
     };
     historyService.updateSavedConsole(_params);
+    
+    const _workspaceTabList:any = workspaceTabList?.map((item) => {
+      if (item.id === t.key) {
+        return {
+          ...item,
+          title: t.label,
+        };
+      }
+      return item;
+    }) || []
+    setWorkspaceTabList(_workspaceTabList)
   };
 
   // 修改tab详情
