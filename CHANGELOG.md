@@ -1,3 +1,13 @@
+## 3.1.13
+
+`2023-12-15`
+
+**更新日志**
+
+- 🐞【Fixed】Switching tab causes edit data reset problem
+- 🐞【Fixed】Rename is reset after switching tab
+
+
 ## 3.1.12
 
 `2023-12-15`

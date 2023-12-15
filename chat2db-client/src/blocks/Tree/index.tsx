@@ -57,29 +57,45 @@ const isMatch = (target: string, searchValue: string) => {
 // 树结构搜索
 function searchTree(treeData: ITreeNode[], searchValue: string): ITreeNode[] {
   let result: ITreeNode[] = [];
+
+  // 深度优先遍历
   function dfs(node: ITreeNode, path: ITreeNode[] = []) {
     if (isMatch(node.name, searchValue)) {
+      // debugger
       result = [...result,...path, node];
-      return true;
+      // return true;
     }
     if (!node.children) return false;
     for (const child of node.children) {
-      if (dfs(child, [...path, node])) return true;
+      // debugger
+      if (dfs(child, [...path, node])){
+        return true;
+      }
     }
     return false;
   }
 
+  // 遍历树
   treeData.forEach((node) => dfs(node));
 
+  // 如果不匹配，说明该节点为path，不需要保留该节点的子元素，就把children置空
   result.forEach((item) => {
     if(!isMatch(item.name, searchValue)){
       item.children = null;
     }
   });
 
+  // tree转平级
   const smoothTreeList: ITreeNode[] = []
   smoothTree(result, smoothTreeList);
-  return smoothTreeList;
+
+  // 对smoothTreeList根据uuid去重
+  const deWeightList: ITreeNode[] = [];
+  smoothTreeList.forEach((item) => {
+    deWeightList.findIndex((i) => i.uuid === item.uuid) === -1 && deWeightList.push(item);
+  });
+
+  return deWeightList;
 }
 
 const itemHeight = 26; // 每个 item 的高度
@@ -126,11 +142,11 @@ const Tree = (props: IProps) => {
     if (searchValue && treeData) {
       const _searchTreeData = searchTree(cloneDeep(treeData), searchValue)
       setSearchTreeData(_searchTreeData);
+      setScrollTop(0);
     } else {
       setSearchTreeData(null);
     }
-    setScrollTop(0);
-  }, [searchValue, smoothTreeData,treeData]);
+  }, [searchValue, treeData]);
 
   return (
     <LoadingContent isLoading={!treeData} className={classnames(className)}>
