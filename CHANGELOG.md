@@ -2,8 +2,9 @@
 
 `2023-12-15`
 
-**更新日志**
+**Changelog**
 
+- 🐞【Fixed】Tree structure search for bugs
 - 🐞【Fixed】Switching tab causes edit data reset problem
 - 🐞【Fixed】Rename is reset after switching tab
 
@@ -78,7 +79,7 @@
 
 `2023-11-13`
 
-**更新日志**
+**Changelog**
 
 - 🐞【Fixed】Copy as insert first row lost problem
 - 🐞【Fixed】DM database index bug
