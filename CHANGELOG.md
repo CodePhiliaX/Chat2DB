@@ -1,3 +1,12 @@
+## 3.1.12
+
+`2023-12-15`
+
+**Changelog**
+
+- ⚡️【Optimize】Optimized tree structure search
+- ⚡️【Optimize】Tree structure search box resident
+
 ## 3.1.11
 
 `2023-12-13`
