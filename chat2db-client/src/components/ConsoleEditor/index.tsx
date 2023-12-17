@@ -436,7 +436,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
                 setIsStream(false);
                 closeEventSource.current && closeEventSource.current();
               } catch (error) {
-                console.log('close drawer', error);
+                // console.log('close drawer', error);
               }
             }}
           >
