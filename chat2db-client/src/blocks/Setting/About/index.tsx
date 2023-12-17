@@ -29,8 +29,6 @@ export default function AboutUs(props: IProps) {
     };
   });
 
-  console.log('holdingService', holdingService);
-
   const onChangeUpdateRul = (e) => {
     configService.setAppUpdateType(e.target.value).then(() => {
       setUpdateRule(e.target.value);

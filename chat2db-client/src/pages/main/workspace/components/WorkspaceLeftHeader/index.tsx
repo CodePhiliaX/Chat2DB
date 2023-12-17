@@ -29,8 +29,6 @@ export default memo(() => {
     };
   });
 
-  console.log('currentConnectionDetails', currentConnectionDetails);
-
   const renderConnectionLabel = (item: IConnectionListItem) => {
     return (
       <div className={classnames(styles.menuLabel)}>

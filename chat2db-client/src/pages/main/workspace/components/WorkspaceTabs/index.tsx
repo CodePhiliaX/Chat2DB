@@ -206,7 +206,6 @@ const WorkspaceTabs = memo(() => {
   // 渲染所有表
   const renderViewAllTable = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    console.log('uniqueData', uniqueData);
     return <ViewAllTable uniqueData={uniqueData} />;
   };
 
