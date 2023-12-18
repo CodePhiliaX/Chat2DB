@@ -86,5 +86,6 @@
     "yapi",
     "yizhoumo",
     "zustand"
-  ]
+  ],
+  "java.compile.nullAnalysis.mode": "automatic"
 }
