@@ -102,7 +102,8 @@ const WorkspaceTabs = memo(() => {
       );
       data.forEach((item) => {
         const editData = workspaceTabList?.find((t) => t.id === item.key);
-        if (editData?.type === WorkspaceTabType.CONSOLE) {
+        // table 为了兼容老数据
+        if (editData?.type === WorkspaceTabType.CONSOLE || editData?.type === 'table' as any) {
           closeWindowTab(item.key as number);
         }
       });
@@ -212,6 +213,7 @@ const WorkspaceTabs = memo(() => {
   // 根据不同的tab类型渲染不同的内容
   const workspaceTabConnectionMap = (item: IWorkspaceTab) => {
     switch (item.type) {
+      case 'table' as any: // 为了兼容老数据
       case WorkspaceTabType.CONSOLE:
       case WorkspaceTabType.FUNCTION:
       case WorkspaceTabType.PROCEDURE:

@@ -152,7 +152,7 @@ const Tree = (props: IProps) => {
   const treeNodes = useMemo(() => {
     const realNodeList = (searchSmoothTreeData || smoothTreeData).slice(startIdx, startIdx + 50);
     return realNodeList.map((item) => {
-      return <TreeNode key={item.key} level={item.level || 0} data={item} />;
+      return <TreeNode key={item.uuid} level={item.level || 0} data={item} />;
     });
   }, [smoothTreeData, searchSmoothTreeData, startIdx]);
 
@@ -165,7 +165,6 @@ const Tree = (props: IProps) => {
       setSearchTreeData(null);
     }
   }, [searchValue]);
-
 
   return (
     <LoadingContent isLoading={!treeData} className={classnames(className)}>
@@ -230,7 +229,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
             if(searchTreeData){
               insertData(searchTreeData!, _treeNodeData.uuid!, res.data,[searchTreeData, setSearchTreeData]);
             }
-            // TODO:
             if (res.hasNextPage) {
               loadData({
                 refresh: _props?.refresh || false,
@@ -277,14 +275,11 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           data.map((item: any) => {
             item.parentNode = result;
           });
-          // result.children = [...(result.children || []), ...(data || [])];
-          result.children = [...(data || [])];
+          result.children = [...(result.children || []), ...(data || [])];
         } else {
           result.children = null;
         }
-        // result.expanded = !!data;
-        // 这里没写错 就是要改变treeData的引用
-        setOriginalData?.([...(originalData || [])]);
+        setOriginalData?.(cloneDeep([...(originalData || [])]));
         break;
       } else {
         if (_treeData[i].children) {
@@ -300,7 +295,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
 
   //展开-收起
   const handleClick = () => {
-    if (treeNodeData?.children?.length) {
+    if (treeNodeData?.children) {
       insertData(treeData!, treeNodeData.uuid!, null,[treeData, setTreeData]);
       if(searchTreeData){
         insertData(searchTreeData!, treeNodeData.uuid!, null,[searchTreeData, setSearchTreeData]);
@@ -359,7 +354,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         label: <MenuLabel icon={item.labelProps.icon} label={item.labelProps.label} />,
       };
     });
-
     return (
       <Dropdown
         trigger={['contextMenu']}
@@ -418,7 +412,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         </Tooltip>
       </Dropdown>
     );
-  }, [isFocus, isLoading, rightClickMenu, searchTreeData]);
+  }, [isFocus, isLoading, rightClickMenu, treeNodeData.children]);
 
   return treeNodeDom;
 });

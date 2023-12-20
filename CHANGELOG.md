@@ -1,3 +1,12 @@
+## 3.1.15
+
+`2023-12-18`
+
+**Changelog**
+
+- 🐞【Fixed】Every time I open the application, I occasionally cannot select the database problem
+- 🐞【Fixed】Compatible with old data types can not show deletion problems
+
 ## 3.1.14
 
 `2023-12-17`

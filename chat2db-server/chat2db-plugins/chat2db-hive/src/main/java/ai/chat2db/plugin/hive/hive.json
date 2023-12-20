@@ -1,6 +1,6 @@
 {
   "dbType": "HIVE",
-  "supportDatabase": false,
+  "supportDatabase": true,
   "supportSchema": false,
   "driverConfigList": [
     {

@@ -1,6 +1,6 @@
 {
   "dbType": "CLICKHOUSE",
-  "supportDatabase": false,
+  "supportDatabase": true,
   "supportSchema": false,
   "driverConfigList": [
     {

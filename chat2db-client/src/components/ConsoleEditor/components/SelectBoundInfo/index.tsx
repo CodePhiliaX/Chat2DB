@@ -55,11 +55,11 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   const supportDatabase = useMemo(() => {
     return connectionList?.find((item) => item.id === boundInfo.dataSourceId)?.supportDatabase;
-  }, [boundInfo.dataSourceId]);
+  }, [boundInfo.dataSourceId,connectionList]);
 
   const supportSchema = useMemo(() => {
     return connectionList?.find((item) => item.id === boundInfo.dataSourceId)?.supportSchema;
-  }, [boundInfo.dataSourceId]);
+  }, [boundInfo.dataSourceId,connectionList]);
 
   // 编辑器绑定的数据库类型变化时，重新注册智能提示
   useEffect(() => {
@@ -105,8 +105,8 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 获取数据库列表
   const getDatabaseList = () => {
-    if(boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null){
-      return
+    if (boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null) {
+      return;
     }
     connectionService
       .getDatabaseList({
@@ -134,8 +134,8 @@ const SelectBoundInfo = memo((props: IProps) => {
 
   // 获取schema列表
   const getSchemaList = () => {
-    if(boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null){
-      return
+    if (boundInfo.dataSourceId === undefined || boundInfo.dataSourceId === null) {
+      return;
     }
     connectionService
       .getSchemaList({
