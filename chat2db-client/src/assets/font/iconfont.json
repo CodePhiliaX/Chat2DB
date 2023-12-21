@@ -6,6 +6,90 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "577312",
+      "name": "加号",
+      "font_class": "jiahao",
+      "unicode": "e726",
+      "unicode_decimal": 59174
+    },
+    {
+      "icon_id": "5961366",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "ec6b",
+      "unicode_decimal": 60523
+    },
+    {
+      "icon_id": "6318169",
+      "name": "减去",
+      "font_class": "jianqu",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "5729483",
+      "name": "database",
+      "font_class": "database",
+      "unicode": "e669",
+      "unicode_decimal": 58985
+    },
+    {
+      "icon_id": "2076240",
+      "name": "筛选",
+      "font_class": "shaixuan1",
+      "unicode": "e888",
+      "unicode_decimal": 59528
+    },
+    {
+      "icon_id": "2787037",
+      "name": "刷新",
+      "font_class": "shuaxin2",
+      "unicode": "e668",
+      "unicode_decimal": 58984
+    },
+    {
+      "icon_id": "5387866",
+      "name": "加号_o",
+      "font_class": "jiahao_o",
+      "unicode": "eb78",
+      "unicode_decimal": 60280
+    },
+    {
+      "icon_id": "10594610",
+      "name": "数据库_jurassic",
+      "font_class": "jurassic_data",
+      "unicode": "e6a9",
+      "unicode_decimal": 59049
+    },
+    {
+      "icon_id": "12515461",
+      "name": "权限",
+      "font_class": "quanxian",
+      "unicode": "e667",
+      "unicode_decimal": 58983
+    },
+    {
+      "icon_id": "10573069",
+      "name": "sharpicons_add-database",
+      "font_class": "sharpicons_add-database",
+      "unicode": "e816",
+      "unicode_decimal": 59414
+    },
+    {
+      "icon_id": "6789097",
+      "name": "组织管理",
+      "font_class": "zuzhiguanli-",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "15568801",
+      "name": "空间",
+      "font_class": "moxing-miaobian",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
       "icon_id": "37968169",
       "name": "下箭头-copy",
       "font_class": "xiajiantou1-copy",

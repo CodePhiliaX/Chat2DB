@@ -53,6 +53,11 @@ public class Chart {
     private String dataSourceName;
 
     /**
+     * schema名称
+     */
+    private String schemaName;
+
+    /**
      * 数据库类型
      */
     private String type;

@@ -59,9 +59,15 @@
     //   }
     // }
 
-    .ant-cascader-dropdown .ant-cascader-menu {
-      height: auto;
-      max-height: 80vh;
+    .ant-dropdown{
+      .ant-dropdown-menu {
+        height: auto;
+        max-height: 50vh;
+        // overflow: hidden  ;
+        // &:hover {
+        // }
+        overflow: auto;
+      }
     }
 
     .ant-btn-link {

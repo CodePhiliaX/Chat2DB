@@ -626,7 +626,8 @@ public class ChatController {
             default:
                 break;
         }
-        return schemaProperty;
+        String cleanedInput = schemaProperty.replaceAll("[\r\t]", "");
+        return cleanedInput;
     }
 
     /**

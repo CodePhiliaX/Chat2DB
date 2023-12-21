@@ -45,6 +45,7 @@ export default {
   'common.text.table': '表',
   'common.tips.saveSuccessfully': '保存成功',
   'common.button.copy': '复制',
+  'common.button.copyName': '复制名称',
   'common.button.copySuccessfully': '复制成功',
   'common.button.createConsole': '新建控制台',
   'common.button.exportWord': '导出到Word',
@@ -95,8 +96,6 @@ export default {
   'common.text.updateNow' : '立即更新',
   'common.title.preview' : '预览',
   'common.title.errorMessage': '错误信息',
-  'common.Button.addDatabase': '添加数据库',
-  'common.Button.addSchema': '添加Schema',
   'common.label.comment': '备注',
   'common.label.name': '名称',
   'common.title.create': '创建',
@@ -118,4 +117,5 @@ export default {
   'common.button.closeOthers': '关闭其他',
   'common.label.tcp': '线上',
   'common.label.LocalFile': '本地',
+  'common.text.rename': '重命名',
 };

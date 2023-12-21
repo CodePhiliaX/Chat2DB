@@ -63,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
@@ -78,6 +78,12 @@
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>1.19.0</version> <!-- 确保使用最新的版本 -->
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
         </dependency>
     </dependencies>
 </project>

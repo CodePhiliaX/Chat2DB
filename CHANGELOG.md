@@ -1,3 +1,79 @@
+## 3.1.15
+
+`2023-12-18`
+
+**Changelog**
+
+- 🐞【Fixed】Every time I open the application, I occasionally cannot select the database problem
+- 🐞【Fixed】Compatible with old data types can not show deletion problems
+
+## 3.1.14
+
+`2023-12-17`
+
+**Changelog**
+
+- 🐞【Fixed】Tree structure search for bugs
+- 🐞【Fixed】Switching tab causes edit data reset problem
+- 🐞【Fixed】Rename is reset after switching tab
+
+
+## 3.1.12
+
+`2023-12-15`
+
+**Changelog**
+
+- ⚡️【Optimize】Optimized tree structure search
+- ⚡️【Optimize】Tree structure search box resident
+
+## 3.1.11
+
+`2023-12-13`
+
+**Changelog**
+
+- 🐞【Fixed】A chart with a Schema cannot be saved and executed
+- 🐞【Fixed】Failure to start after the upgrade
+
+## 3.1.1
+
+`2023-12-13`
+
+**Changelog**
+
+- 🐞【Fixed】Table blank problem when switching Tabs
+- 🐞【Fixed】DM or Oracle cannot display Schema
+- 🐞【Fixed】The import connection is lost. Procedure
+
+## 3.1.0
+
+`2023-12-12`
+
+**Changelog**
+
+- 🔥🔥【Optimize】The first startup time has been increased by 65%
+- 🔥🔥【Optimize】Changed the structure of the left tree 
+- 🔥🔥【Optimize】Optimized the tab switchover problem 
+- ⚡️ 【Optimize】All nodes are supported. The name of each node can be copied 
+- ⚡️【Optimize】The sql console input box supports switching databases, and will not change when the left database is switched 
+- ⭐ 【New function】Save records moved to the right toolbar, you can directly modify the name in the list 
+- ⭐【New feature】Support mongoDB 
+- ⭐【New function】Support for viewing all tables
+
+## 3.0.14
+
+`2023-11-20`
+
+**Changelog**
+
+- 🐞【Fixed】Team paging problem
+- 🐞【Fixed】Oracle service name bug
+- 🐞【Fixed】Oracle datatype error
+- 🐞【Fixed】Fixed an issue where MySQL changed table structure without displaying comments.
+- ⚡️【Optimize】Support database or schema
+- 【Developer】Friends don't worry, the company has some things recently, and is preparing 3.1.0, be patient
+
 ## 3.0.13
 
 `2023-11-15`
@@ -12,9 +88,14 @@
 
 `2023-11-13`
 
-**更新日志**
+**Changelog**
 
 - 🐞【Fixed】Copy as insert first row lost problem
+- 🐞【Fixed】DM database index bug
+- 🐞【Fixed】Point Garbled code problem
+- 🐞【Fixed】MariaDB connec database bug
+- 🐞【Fixed】Issues 792 NullPointerException
+- 🐞【Fixed】Kingbase8r6 error
 
 
 ## 3.0.11
@@ -24,7 +105,7 @@
 **Changelog**
 
 - ⭐【New Features】Oracle connections support the Service name mode
-- ⭐【New Features】[New function] Edit table data to support batch copy, clone, delete (click 1X1 cell to select/cancel, hold down shift/ctrl/cmd to select multiple)
+- ⭐【New Features】【New function】 Edit table data to support batch copy, clone, delete (click 1X1 cell to select/cancel, hold down shift/ctrl/cmd to select multiple)
 - ⚡️【Optimize】After the update is completed, click restart to close the problem that cannot be automatically opened (hot update cannot fix this problem, you need to download a new version to cover the client)
 - 🐞【Fixed】database and schema searches support case ambiguity matching
 - 🐞【Fixed】Where database was not displayed after being added
@@ -162,7 +243,7 @@
 - Fixed an issue where locally stored theme colors and background colors are incompatible with the new version, causing
   page crashes
 - Logs desensitize sensitive data
-- Fix the issue of 'CLOB' not displaying specific content [Issue #440](https://github.com/chat2db/Chat2DB/issues/440)
+- Fix the issue of 'CLOB' not displaying specific content 【Issue #440】(https://github.com/chat2db/Chat2DB/issues/440)
 - Fix the problem that non-Select does not display query results
 - Fix the problem that Oracle cannot query without schema
 - Fix the problem of special type of SQL execution error reporting
@@ -195,12 +276,12 @@
 
 ## 🐞 Bug Fixes
 
-- Repair the Scientific notation in some databases [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- Repair the Scientific notation in some databases 【Issue #378】(https://github.com/chat2db/Chat2DB/issues/378)
 - Fix some cases where data is not displayed
 
 ## 🐞 问题修复
 
-- 修复部分数据库出现科学计数法的情况 [Issue #378](https://github.com/chat2db/Chat2DB/issues/378)
+- 修复部分数据库出现科学计数法的情况 【Issue #378】(https://github.com/chat2db/Chat2DB/issues/378)
 - 修复部分情况数据不展示
 
 ## 2.0.7
@@ -211,14 +292,14 @@
 
 ## 🐞 Bug Fixes
 
-- Fixed ai config issues [Issue #346](https://github.com/chat2db/Chat2DB/issues/346)
+- Fixed ai config issues 【Issue #346】(https://github.com/chat2db/Chat2DB/issues/346)
 
 ## 2.0.6
 
 ## 🐞 Bug Fixes
 
 - Fixed: When there are too many tables under the selected library, the "New Console" button at the bottom
-  disappears [Issue #314](https://github.com/chat2db/Chat2DB/issues/314)
+  disappears 【Issue #314】(https://github.com/chat2db/Chat2DB/issues/314)
 
 ## 2.0.5
 
@@ -231,7 +312,7 @@
 
 ## 🐞 Bug Fixes
 
-- Default return alias for returned results [Issue #270](https://github.com/chat2db/Chat2DB/issues/270)
+- Default return alias for returned results 【Issue #270】(https://github.com/chat2db/Chat2DB/issues/270)
 - Fixed around 100 bugs, of course, many were repetitive bugs.
 
 ## 2.0.4
@@ -266,9 +347,9 @@
 ## 🐞 Bug Fixes
 
 - Fix bug where executing multiple SQL statements at once will prompt for exceptions
-- Fix getJDBCDriver error: null [Issue #123](https://github.com/chat2db/Chat2DB/issues/123)
+- Fix getJDBCDriver error: null 【Issue #123】(https://github.com/chat2db/Chat2DB/issues/123)
 - Fixing the Hive connection and then viewing columns results in an
-  error. [Issue #136](https://github.com/chat2db/Chat2DB/issues/136)
+  error. 【Issue #136】(https://github.com/chat2db/Chat2DB/issues/136)
 
 
 ## 2.0.0

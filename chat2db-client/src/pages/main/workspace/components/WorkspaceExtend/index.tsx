@@ -4,12 +4,12 @@ import classnames from 'classnames';
 import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import Output from '@/components/Output';
-import { useWorkspaceStore } from '@/store/workspace';
+import SaveList from '../SaveList';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
-  curWorkspaceParams: any;
 }
 
 interface IToolbar {
@@ -17,6 +17,7 @@ interface IToolbar {
   title: string;
   icon: string;
   components: any;
+  width: number;
 }
 
 export default memo<IProps>((props) => {
@@ -35,7 +36,15 @@ export default memo<IProps>((props) => {
       code: 'executiveLog',
       title: i18n('common.title.executiveLogging'),
       icon: '\ue8ad',
-      components: <Output curWorkspaceParams={props.curWorkspaceParams} />,
+      components: <Output />,
+      width: 400,
+    },
+    {
+      code: 'saveList',
+      title: i18n('workspace.title.savedConsole'),
+      icon: '\ue619',
+      components: <SaveList />,
+      width: 200,
     },
   ];
 
@@ -53,7 +62,11 @@ export default memo<IProps>((props) => {
         [styles.workspaceExtendActive]: panelRight,
       })}
     >
-      {activeExtend && <div className={styles.workspaceExtendMain}>{activeExtend?.components}</div>}
+      {activeExtend && (
+        <div style={{ width: `${activeExtend?.width || 400}px` }} className={styles.workspaceExtendMain}>
+          {activeExtend?.components}
+        </div>
+      )}
       <div className={styles.workspaceExtendBar}>
         {toolbarConfig.map((item, index) => {
           return (

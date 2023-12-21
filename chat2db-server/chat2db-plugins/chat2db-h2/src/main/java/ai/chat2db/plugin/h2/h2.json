@@ -1,5 +1,7 @@
 {
   "dbType": "H2",
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:h2:tcp://localhost:9092/",

@@ -62,6 +62,12 @@ public class ChartVO {
      */
     private String databaseName;
 
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
+
     /**
      * ddl内容
      */

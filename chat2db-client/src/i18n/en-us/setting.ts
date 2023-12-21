@@ -6,6 +6,7 @@ export default {
   'setting.nav.aboutUs': 'About Us',
   'setting.title.backgroundColor': 'Background Color',
   'setting.title.themeColor': 'Theme Color',
+  'setting.title.sqlEditorFontSize': 'SQL Editor Font Size',
   'setting.label.blue': 'Blue',
   'setting.label.green': 'Green',
   'setting.label.violet': 'Violet',
@@ -53,4 +54,6 @@ export default {
   'setting.text.newEditionIsReady': 'New version to download completed, restart the software will install the new version',
   'setting.button.goToUpdate': 'Go to update',
   'setting.text.UpdatedLatestVersion': 'Updated to the latest version {1}',
+  'setting.title.holdingService': 'Holding Service',
+  'setting.text.holdingService': 'Keep the service when exiting the application to speed up startup',
 };

@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.SQLUtils.FormatOption;
@@ -28,11 +27,11 @@ import ai.chat2db.server.domain.api.enums.ExportSizeEnum;
 import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
-import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
+import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
@@ -92,11 +91,17 @@ public class RdbDmlExportController {
             throw new ParamBusinessException("exportSize");
         }
         DbType dbType = JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
-        SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
-        if (!(sqlStatement instanceof SQLSelectStatement)) {
-            throw new BusinessException("dataSource.sqlAnalysisError");
+        String tableName;
+        if (dbType != null) {
+            SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
+            if (!(sqlStatement instanceof SQLSelectStatement)) {
+                throw new BusinessException("dataSource.sqlAnalysisError");
+            }
+            tableName = SqlUtils.getTableName(sql, dbType);
+        } else {
+            tableName = StringUtils.join(Lists.newArrayList(request.getDatabaseName(), request.getSchemaName()), "_");
         }
-        String tableName = SqlUtils.getTableName(sql, dbType);
+
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(
                 tableName + "_" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
@@ -108,7 +113,6 @@ public class RdbDmlExportController {
         } else {
             doExportInsert(sql, response, fileName, dbType, tableName);
         }
-        String SS = ConfigUtils.APP_PATH;
     }
 
     private void doExportCsv(String sql, HttpServletResponse response, String fileName)
@@ -131,7 +135,7 @@ public class RdbDmlExportController {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            }, false,new DefaultValueHandler());
+            }, false, new DefaultValueHandler());
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -162,7 +166,7 @@ public class RdbDmlExportController {
                     sqlInsertStatement.setValues(valuesClause);
 
                     printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                }, false,new DefaultValueHandler());
+                }, false, new DefaultValueHandler());
         }
     }
 

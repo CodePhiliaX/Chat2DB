@@ -33,6 +33,7 @@ const Team = () => {
   return (
     <div className={styles.teamWrapper}>
       <Tabs
+        className={styles.teamTabsBox}
         activeKey={activeKey}
         onChange={(activeKey) => setActiveKey(activeKey)}
         items={tabList.map((tab, index) => {

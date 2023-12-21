@@ -54,7 +54,11 @@
         <!-- http -->
         <dependency>
             <groupId>com.dtflys.forest</groupId>
-            <artifactId>forest-spring-boot3-starter</artifactId>
+            <artifactId>forest-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dtflys.forest</groupId>
+            <artifactId>forest-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -88,7 +92,16 @@
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>com.manticore-projects.jsqlformatter</groupId>
+            <artifactId>jsqlformatter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>

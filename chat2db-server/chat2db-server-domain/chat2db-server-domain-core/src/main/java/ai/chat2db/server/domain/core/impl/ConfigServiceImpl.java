@@ -7,7 +7,9 @@ import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.core.converter.ConfigConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.SystemConfigDO;
+import ai.chat2db.server.domain.repository.mapper.ChartMapper;
 import ai.chat2db.server.domain.repository.mapper.SystemConfigMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -23,8 +25,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConfigServiceImpl implements ConfigService {
 
-    @Autowired
-    private SystemConfigMapper systemConfigMapper;
+    private SystemConfigMapper getMapper() {
+        return Dbutils.getMapper(SystemConfigMapper.class);
+    }
 
     @Autowired
     private ConfigConverter configConverter;
@@ -34,7 +37,7 @@ public class ConfigServiceImpl implements ConfigService {
         SystemConfigDO systemConfigDO = configConverter.param2do(param);
         systemConfigDO.setGmtCreate(LocalDateTime.now());
         systemConfigDO.setGmtModified(LocalDateTime.now());
-        systemConfigMapper.insert(systemConfigDO);
+        getMapper().insert(systemConfigDO);
         return ActionResult.isSuccess();
     }
 
@@ -43,13 +46,13 @@ public class ConfigServiceImpl implements ConfigService {
         SystemConfigDO systemConfigDO = configConverter.param2do(param);
         UpdateWrapper<SystemConfigDO> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("code", param.getCode());
-        systemConfigMapper.update(systemConfigDO, updateWrapper);
+        getMapper().update(systemConfigDO, updateWrapper);
         return ActionResult.isSuccess();
     }
 
     @Override
     public ActionResult createOrUpdate(SystemConfigParam param) {
-        SystemConfigDO systemConfigDO = systemConfigMapper.selectOne(
+        SystemConfigDO systemConfigDO = getMapper().selectOne(
             new UpdateWrapper<SystemConfigDO>().eq("code", param.getCode()));
         if (systemConfigDO == null) {
             return create(param);
@@ -60,14 +63,14 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public DataResult<Config> find(String code) {
-        SystemConfigDO systemConfigDO = systemConfigMapper.selectOne(
+        SystemConfigDO systemConfigDO = getMapper().selectOne(
             new UpdateWrapper<SystemConfigDO>().eq("code", code));
         return DataResult.of(configConverter.do2model(systemConfigDO));
     }
 
     @Override
     public ActionResult delete(String code) {
-        systemConfigMapper.delete(new UpdateWrapper<SystemConfigDO>().eq("code", code));
+        getMapper().delete(new UpdateWrapper<SystemConfigDO>().eq("code", code));
         return ActionResult.isSuccess();
     }
 }

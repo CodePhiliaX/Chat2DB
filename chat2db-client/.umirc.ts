@@ -20,8 +20,40 @@ export default defineConfig({
   publicPath: '/',
   hash: true,
   routes: [
-    { path: '/login', component: '@/pages/login' },
-    { path: '/', component: 'main' },
+    {
+      path: '/',
+      component: '@/layouts/GlobalLayout',
+      routes: [
+        {
+          path: '/login',
+          component: '@/pages/login',
+        },
+        {
+          path: '/demo',
+          component: '@/pages/demo',
+        },
+        {
+          path: '/connections',
+          component: 'main',
+        },
+        {
+          path: '/dashboard',
+          component: 'main',
+        },
+        {
+          path: '/team',
+          component: 'main',
+        },
+        {
+          path: '/workspace',
+          component: 'main',
+        },
+        {
+          path: '/',
+          component: 'main',
+        },
+      ],
+    },
   ],
 
   npmClient: 'yarn',
@@ -47,9 +79,9 @@ export default defineConfig({
   // }],
   links: [{ rel: 'icon', type: 'image/ico', sizes: '32x32', href: '/static/front/logo.ico' }],
   headScripts: [
-    `if (localStorage.getItem('app-local-storage-versions') !== 'v3') {
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v4') {
       localStorage.clear();
-      localStorage.setItem('app-local-storage-versions', 'v3');
+      localStorage.setItem('app-local-storage-versions', 'v4');
     }`,
     `if (window.electronApi) { window.electronApi.startServerForSpawn() }`,
     // `if ("serviceWorker" in navigator) {

@@ -2,13 +2,16 @@ package ai.chat2db.server.domain.core.impl;
 
 import ai.chat2db.server.domain.api.service.JdbcDriverService;
 import ai.chat2db.server.domain.core.converter.DriverConfigConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.JdbcDriverDO;
+import ai.chat2db.server.domain.repository.mapper.EnvironmentMapper;
 import ai.chat2db.server.domain.repository.mapper.JdbcDriverMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.util.JdbcJarUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.common.collect.Lists;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +36,18 @@ import static ai.chat2db.spi.util.JdbcUtils.setDriverDefaultProperty;
 public class JdbcDriverServiceImpl implements JdbcDriverService {
 
     @Autowired
-    private JdbcDriverMapper jdbcDriverMapper;
-
-    @Autowired
     private DriverConfigConverter driverConfigConverter;
+
+    private JdbcDriverMapper getMapper() {
+        return Dbutils.getMapper(JdbcDriverMapper.class);
+    }
 
     @Override
     public DataResult<DBConfig> getDrivers(String dbType) {
         Map<String, DriverConfig> driverConfigMap = new LinkedHashMap<>();
         LambdaQueryWrapper<JdbcDriverDO> query = new LambdaQueryWrapper<JdbcDriverDO>();
         query.eq(JdbcDriverDO::getDbType, dbType);
-        List<JdbcDriverDO> driverDOS = jdbcDriverMapper.selectList(query);
+        List<JdbcDriverDO> driverDOS = getMapper().selectList(query);
         List<DriverConfig> driverConfigs = Lists.newArrayList();
         if (!CollectionUtils.isEmpty(driverDOS)) {
             driverConfigs = driverDOS.stream().map(driverConfigConverter::do2Config).collect(Collectors.toList());
@@ -58,7 +63,8 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
             boolean flag = driverExists(driverConfig);
             if (flag && driverConfigMap.get(driverConfig.getJdbcDriver()) == null) {
                 driverConfigMap.put(driverConfig.getJdbcDriver(), driverConfig);
-                setDriverDefaultProperty(driverConfig);
+                //TODO :临时解决方案，后续需要优化
+                //setDriverDefaultProperty(driverConfig);
             } else {
                 log.warn("Driver file not found: {}", driverConfig.getJdbcDriver());
             }
@@ -87,7 +93,13 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
         driverDO.setJdbcDriverClass(jdbcDriverClass);
         driverDO.setDbType(dbType);
         driverDO.setJdbcDriver(localPath);
-        jdbcDriverMapper.insert(driverDO);
+        DriverConfig driverConfig = driverConfigConverter.do2Config(driverDO);
+        try {
+            IDriverManager.getClassLoader(driverConfig);
+        } catch (Exception e) {
+            throw new RuntimeException("Driver error,please check the driver file", e);
+        }
+        getMapper().insert(driverDO);
         return ActionResult.isSuccess();
     }
 

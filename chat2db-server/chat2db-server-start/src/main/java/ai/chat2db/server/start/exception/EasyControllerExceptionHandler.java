@@ -20,7 +20,6 @@ import ai.chat2db.server.tools.common.exception.RedirectBusinessException;
 import com.google.common.collect.Maps;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -84,7 +83,7 @@ public class EasyControllerExceptionHandler {
      */
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, IllegalArgumentException.class,
         MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class,
-        BusinessException.class, MaxUploadSizeExceededException.class, ClientAbortException.class,
+        BusinessException.class, MaxUploadSizeExceededException.class,
         HttpRequestMethodNotSupportedException.class, HttpMediaTypeNotAcceptableException.class,
         MultipartException.class, MissingRequestHeaderException.class, HttpMediaTypeNotSupportedException.class,
         NeedLoggedInBusinessException.class})

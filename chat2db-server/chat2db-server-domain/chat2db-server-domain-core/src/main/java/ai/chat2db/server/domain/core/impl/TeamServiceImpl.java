@@ -12,6 +12,7 @@ import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.core.converter.TeamConverter;
 import ai.chat2db.server.domain.core.converter.UserConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.TeamDO;
 import ai.chat2db.server.domain.repository.entity.TeamUserDO;
@@ -46,12 +47,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class TeamServiceImpl implements TeamService {
 
-    @Resource
-    private TeamMapper teamMapper;
-    @Resource
-    private TeamUserMapper teamUserMapper;
-    @Resource
-    private DataSourceAccessMapper dataSourceAccessMapper;
+    private TeamMapper getTeamMapper() {
+        return Dbutils.getMapper(TeamMapper.class);
+    }
+
+    private TeamUserMapper getTeamUserMapper() {
+        return Dbutils.getMapper(TeamUserMapper.class);
+    }
+
+    private DataSourceAccessMapper getDataSourceAccessMapper() {
+        return Dbutils.getMapper(DataSourceAccessMapper.class);
+    }
     @Resource
     private TeamConverter teamConverter;
     @Resource
@@ -64,7 +70,7 @@ public class TeamServiceImpl implements TeamService {
         }
         LambdaQueryWrapper<TeamDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TeamDO::getId, idList);
-        List<TeamDO> dataList = teamMapper.selectList(queryWrapper);
+        List<TeamDO> dataList = getTeamMapper().selectList(queryWrapper);
         List<Team> list = teamConverter.do2dto(dataList);
         return ListResult.of(list);
     }
@@ -80,7 +86,7 @@ public class TeamServiceImpl implements TeamService {
         Page<TeamDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
         queryWrapper.orderBy(param.getOrderByList());
-        IPage<TeamDO> iPage = teamMapper.selectPage(page, queryWrapper);
+        IPage<TeamDO> iPage = getTeamMapper().selectPage(page, queryWrapper);
         List<Team> list = teamConverter.do2dto(iPage.getRecords());
 
         fillData(list, selector);
@@ -94,7 +100,7 @@ public class TeamServiceImpl implements TeamService {
         queryWrapper.eq(TeamDO::getCode, param.getCode());
         Page<TeamDO> page = new Page<>(1, 1);
         page.setSearchCount(false);
-        IPage<TeamDO> iPage = teamMapper.selectPage(page, queryWrapper);
+        IPage<TeamDO> iPage = getTeamMapper().selectPage(page, queryWrapper);
         if (CollectionUtils.isNotEmpty(iPage.getRecords())) {
             throw new DataAlreadyExistsBusinessException("code", param.getCode());
         }
@@ -103,30 +109,30 @@ public class TeamServiceImpl implements TeamService {
         }
 
         TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
-        teamMapper.insert(data);
+        getTeamMapper().insert(data);
         return DataResult.of(data.getId());
     }
 
     @Override
     public DataResult<Long> update(TeamUpdateParam param) {
         TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
-        teamMapper.updateById(data);
+        getTeamMapper().updateById(data);
         return DataResult.of(data.getId());
     }
 
     @Override
     public ActionResult delete(Long id) {
-        teamMapper.deleteById(id);
+        getTeamMapper().deleteById(id);
 
         LambdaQueryWrapper<TeamUserDO> teamUserQueryWrapper = new LambdaQueryWrapper<>();
         teamUserQueryWrapper.eq(TeamUserDO::getTeamId, id);
-        teamUserMapper.delete(teamUserQueryWrapper);
+        getTeamUserMapper().delete(teamUserQueryWrapper);
 
         LambdaQueryWrapper<DataSourceAccessDO>  dataSourceAccessQueryWrapper = new LambdaQueryWrapper<>();
         dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getAccessObjectId, id)
             .eq(DataSourceAccessDO::getAccessObjectType, AccessObjectTypeEnum.TEAM.getCode())
         ;
-        dataSourceAccessMapper.delete(dataSourceAccessQueryWrapper);
+        getDataSourceAccessMapper().delete(dataSourceAccessQueryWrapper);
         return ActionResult.isSuccess();
     }
 

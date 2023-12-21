@@ -29,7 +29,7 @@
     "@dnd-kit/modifiers": "^6.0.1",
     "ahooks": "^3.7.8",
     "ali-react-table": "^2.6.1",
-    "antd": "^5.6.0",
+    "antd": "^5.12.1",
     "copy-to-clipboard": "^3.3.3",
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",

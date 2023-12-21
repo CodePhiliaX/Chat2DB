@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef, useState, ForwardedRef } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import MonacoEditor, { IExportRefFunction, IRangeType } from '@/components/Console/MonacoEditor';
+import MonacoEditor, { IExportRefFunction, IRangeType } from '@/components/MonacoEditor';
 import { Modal } from 'antd'
 
 interface IProps {

@@ -1,12 +1,10 @@
 import createRequest from "./base";
 // import { IPageResponse,IPageParams,IHistoryRecord, IWindowTab, ISavedConsole } from '@/types';
-import { ConsoleOpenedStatus, DatabaseTypeCode, ConsoleStatus } from '@/constants'
+import { DatabaseTypeCode, ConsoleStatus } from '@/constants'
 import { ICreateConsole, IConsole, IPageResponse, IPageParams } from '@/typings';
 
 export interface IGetSavedListParams extends IPageParams {
-  dataSourceId?: number;
-  databaseName?: string;
-  tabOpened?: ConsoleOpenedStatus;
+  tabOpened?: 'y' | 'n';
   status?: ConsoleStatus
 }
 export interface IGetHistoryListParams extends IPageParams { 
@@ -84,14 +82,14 @@ export interface IHistoryRecord {
  gmtCreate: string;
 }
 
-const saveConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });
+const createConsole = createRequest<ICreateConsole, number>('/api/operation/saved/create', { method: 'post' });
 
 // orderByDesc true 降序
 const getWindowTab = createRequest<{ id: number, orderByDesc: boolean }, number>('/api/operation/saved/:id', { method: 'get' });
 
 const updateSavedConsole = createRequest<Partial<IConsole> & {id: number}, number>('/api/operation/saved/update', { method: 'post' });
 
-const getSavedConsoleList = createRequest<IGetSavedListParams, IPageResponse<IConsole>>('/api/operation/saved/list', {});
+const getConsoleList = createRequest<IGetSavedListParams, IPageResponse<IConsole>>('/api/operation/saved/list', {});
 
 const deleteSavedConsole = createRequest<{ id: number }, string>('/api/operation/saved/:id', { method: 'delete' });
 
@@ -100,10 +98,10 @@ const createHistory = createRequest<ISaveBasicInfo, void>('/api/operation/log/cr
 const getHistoryList = createRequest<IGetHistoryListParams, IPageResponse<IHistoryRecord>>('/api/operation/log/list', {});
 
 export default {
-  getSavedConsoleList,
+  getConsoleList,
   updateSavedConsole,
   getHistoryList,
-  saveConsole,
+  createConsole,
   deleteSavedConsole,
   createHistory,
   getWindowTab

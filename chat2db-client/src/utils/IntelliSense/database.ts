@@ -23,7 +23,7 @@ const checkTableContext = (text) => {
 const registerIntelliSenseDatabase = (databaseName: Array<{ name: string; dataSourceName: string }>) => {
   intelliSenseDatabase.dispose();
   intelliSenseDatabase = monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: [' '],
+    triggerCharacters: [' ', '.'],
     provideCompletionItems: (model, position) => {
       const lineContentUntilPosition = model.getValueInRange({
         startLineNumber: position.lineNumber,

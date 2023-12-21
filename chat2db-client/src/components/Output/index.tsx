@@ -9,7 +9,6 @@ import i18n from '@/i18n';
 
 interface IProps {
   className?: string;
-  curWorkspaceParams: any;
 }
 
 interface IDatasource extends IHistoryRecord {
@@ -22,11 +21,11 @@ export default memo<IProps>((props) => {
   const outputContentRef = React.useRef<HTMLDivElement>(null);
   const curPageRef = React.useRef(1);
   const finishedRef = React.useRef(false);
-  
+
   const getHistoryList = () => {
     return historyService
       .getHistoryList({
-        dataSourceId:props.curWorkspaceParams.dataSourceId,
+        // dataSourceId:props.curWorkspaceParams.dataSourceId,
         pageNo: curPageRef.current++,
         pageSize: 40,
       })
@@ -53,7 +52,7 @@ export default memo<IProps>((props) => {
   return (
     <div className={classnames(styles.output, className)}>
       <div className={styles.outputTitle}>
-        <Iconfont code="&#xe8ad;" />
+        {/* <Iconfont code="&#xe8ad;" /> */}
         {i18n('common.title.executiveLogging')}
       </div>
       <div className={styles.outputContent} ref={outputContentRef}>
@@ -74,7 +73,7 @@ export default memo<IProps>((props) => {
                     </div>
                     <span className={styles.timeSpan}>[{item.gmtCreate}]</span>
                     {/* {!!item.operationRows && <span>{item.operationRows} rows</span>} */}
-                    {!!item.useTime && <span>{i18n('common.text.executionTime',item.useTime)}</span>}
+                    {!!item.useTime && <span>{i18n('common.text.executionTime', item.useTime)}</span>}
                   </div>
                   <div className={styles.sqlPlace}>{nameList.filter((name) => name).join(' > ')}</div>
                   <div className={styles.sqlBox} dangerouslySetInnerHTML={{ __html: item.highlightedCode }} />

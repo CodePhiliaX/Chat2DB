@@ -1,5 +1,7 @@
 {
   "dbType": "SQLSERVER",
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:sqlserver://localhost:1433;database=master",

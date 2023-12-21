@@ -1,5 +1,7 @@
 {
   "dbType": "MARIADB",
+  "supportDatabase": true,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:mariadb://localhost:3306/",
