@@ -10,6 +10,9 @@ import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
@@ -104,6 +107,10 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
             }
         }
+
+        // append reorder column
+        script.append("\t").append(buildGenerateReorderColumnSql(oldTable, newTable));
+
         if(script.length()>2) {
             script = new StringBuilder(script.substring(0, script.length() - 2));
             script.append(";");
@@ -145,5 +152,38 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
         return sqlBuilder.toString();
     }
+    public String buildGenerateReorderColumnSql(Table oldTable, Table newTable) {
+        StringBuilder sql = new StringBuilder();
+        int n = 0;
+        for (int i = 0; i < newTable.getColumnList().size(); i++) {
+            TableColumn column = newTable.getColumnList().get(i);
+            //String columnName = newTable.getColumnList().get(i).getName();
+            // 获取oldTable.getColumnList()中name属性的list
+            List<String> oldColumnList = oldTable.getColumnList().stream()
+                    .map(TableColumn::getName)
+                    .collect(Collectors.toList());
 
+            if (i > oldColumnList.indexOf(column.getName())) {
+                if (n > 0) {
+                    sql.append("ALTER TABLE ");
+                    sql.append("`").append(column.getDatabaseName()).append("`").append(".");
+                    sql.append("`").append(oldTable.getName()).append("`").append("\n");
+                }
+                sql.append(" MODIFY COLUMN ");
+                MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
+                sql.append(typeEnum.buildColumn(column));
+                sql.append(" ");
+                if (i > 0) {
+                    sql.append(" AFTER ");
+                    sql.append(newTable.getColumnList().get(i - 1).getName());
+                } else {
+                    sql.append(" FIRST");
+                }
+                sql.append(";\n");
+                n++;
+            }
+
+        }
+        return sql.toString();
+    }
 }
