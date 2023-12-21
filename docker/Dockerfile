@@ -9,4 +9,4 @@ ADD chat2db-server/chat2db-server-web-start/target/chat2db-server-web-start.jar 
 # 让当前容器暴露10824
 EXPOSE 10824
 # 运行jar包
-ENTRYPOINT ["java","-Dloader.path=lib","-Dspring.profiles.active=release","-jar","chat2db-server-start.jar"]
+ENTRYPOINT ["java","-Dloader.path=lib","-Dspring.profiles.active=release","-jar","chat2db-server-web-start.jar"]
