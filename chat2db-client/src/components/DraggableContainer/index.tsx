@@ -4,7 +4,7 @@ import classnames from 'classnames';
 
 interface IProps {
   className?: string;
-  children: any; //TODO: TS，约定接受一个数组，第一项child需要携带ref
+  children: any; //TODO: TS，约定接受一个数组
   min?: number;
   layout?: 'row' | 'column';
   callback?: (data: any) => void;
@@ -13,7 +13,7 @@ interface IProps {
 
 export default memo<IProps>((props: IProps) => {
   const { children, showLine = true, callback, min, className, layout = 'row' } = props;
-  const volatileRef = children[0]?.ref;
+  const volatileRef = children[0]?.ref || children[1]?.ref;
 
   const DividerRef = useRef<HTMLDivElement | null>(null);
   const DividerLine = useRef<HTMLDivElement | null>(null);
@@ -47,7 +47,8 @@ export default memo<IProps>((props: IProps) => {
     const computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 
-    finalXY = volatileBoxXY + computedXY;
+    // children 如果第一个是可变的，那么就是+ 如果第二个是可变的，那么就是-
+    finalXY = children[0]?.ref ? volatileBoxXY + computedXY : volatileBoxXY - computedXY;
 
     if (min && finalXY < min) {
       return;
