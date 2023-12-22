@@ -201,7 +201,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
           if (_id === 'changeSQL') {
             ed.trigger('', quickInputCommand.current, (quickInput) => {
               quickInput.pick(databaseTypeList).then((selected) => {
-                console.log(selected);
                 runFn(selectedText, selected?.label);
               });
             });

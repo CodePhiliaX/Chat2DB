@@ -1,3 +1,42 @@
+## 3.1.15
+
+`2023-12-20`
+
+**Changelog**
+
+- 🐞【Fixed】Every time I open the application, I occasionally cannot select the database problem
+- 🐞【Fixed】Compatible with old data types can not show deletion problems
+- 🐞【Fixed】Some databases cannot display the database /Schema structure
+
+## 3.1.14
+
+`2023-12-17`
+
+**Changelog**
+
+- 🐞【Fixed】Tree structure search for bugs
+- 🐞【Fixed】Switching tab causes edit data reset problem
+- 🐞【Fixed】Rename is reset after switching tab
+
+
+## 3.1.12
+
+`2023-12-15`
+
+**Changelog**
+
+- ⚡️【Optimize】Optimized tree structure search
+- ⚡️【Optimize】Tree structure search box resident
+
+## 3.1.11
+
+`2023-12-13`
+
+**Changelog**
+
+- 🐞【Fixed】A chart with a Schema cannot be saved and executed
+- 🐞【Fixed】Failure to start after the upgrade
+
 ## 3.1.1
 
 `2023-12-13`
@@ -50,7 +89,7 @@
 
 `2023-11-13`
 
-**更新日志**
+**Changelog**
 
 - 🐞【Fixed】Copy as insert first row lost problem
 - 🐞【Fixed】DM database index bug

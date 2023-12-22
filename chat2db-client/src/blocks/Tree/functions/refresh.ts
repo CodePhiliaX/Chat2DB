@@ -4,5 +4,4 @@ export const refreshTreeNode = (props:{
   treeNodeData: ITreeNode;
 }) => {
   const { treeNodeData } = props;
-  console.log(treeNodeData)
 }
