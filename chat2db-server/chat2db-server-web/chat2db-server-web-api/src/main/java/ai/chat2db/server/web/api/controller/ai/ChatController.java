@@ -274,7 +274,8 @@ public class ChatController {
         buildSseEmitter(sseEmitter, uid);
 
         DifyChatAIEventSourceListener eventSourceListener = new DifyChatAIEventSourceListener(sseEmitter);
-        DifyChatAIClient.getInstance().streamCompletions(messages, eventSourceListener);
+        String conversationId = uid + "-" + queryRequest.getDataSourceId();
+        DifyChatAIClient.getInstance().streamCompletions(messages, eventSourceListener, uid, conversationId);
         LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
     }

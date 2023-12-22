@@ -70,7 +70,7 @@ public class DifyChatAIClient {
         }
 
         log.info("refresh dify chat apiHost:{} apikey:{}", apiHost, maskApiKey(apikey));
-        //DIFY_CHAT_STREAM_CLIENT = DifyChatAiStreamClient.builder().apiHost(apiHost).apiKey(apikey).build();
+        DIFY_CHAT_STREAM_CLIENT = DifyChatAiStreamClient.builder().apiHost(apiHost).apiKey(apikey).build();
 
     }
 
