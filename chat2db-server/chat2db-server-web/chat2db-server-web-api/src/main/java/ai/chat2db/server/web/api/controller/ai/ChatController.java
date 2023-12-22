@@ -364,6 +364,41 @@ public class ChatController {
     }
 
     /**
+     * chat with azure openai
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithDifyChat(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
+            log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
+                    prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
+            throw new ParamBusinessException();
+        }
+        List<AzureChatMessage> messages = (List<AzureChatMessage>)LocalCache.CACHE.get(uid);
+        if (CollectionUtils.isNotEmpty(messages)) {
+            if (messages.size() >= contextLength) {
+                messages = messages.subList(1, contextLength);
+            }
+        } else {
+            messages = Lists.newArrayList();
+        }
+        AzureChatMessage currentMessage = new AzureChatMessage(AzureChatRole.USER).setContent(prompt);
+        messages.add(currentMessage);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
+        AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
      * chat with fast chat openai
      *
      * @param queryRequest
