@@ -135,7 +135,7 @@ public class DifyChatAiStreamClient {
             DifyChatCompletionsOptions chatCompletionsOptions = new DifyChatCompletionsOptions();
             chatCompletionsOptions.setQuery(lastMessage);
             chatCompletionsOptions.setResponseMode("streaming");
-            //chatCompletionsOptions.setConversationId(conversationId);
+            chatCompletionsOptions.setConversationId(conversationId);
             chatCompletionsOptions.setUser(uid);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);

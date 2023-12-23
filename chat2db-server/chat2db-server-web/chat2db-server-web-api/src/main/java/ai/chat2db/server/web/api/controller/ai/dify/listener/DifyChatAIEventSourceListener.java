@@ -5,6 +5,8 @@ import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatChoice;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletions;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureCompletionsUsage;
+import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
+import ai.chat2db.server.web.api.controller.ai.dify.model.DifyChatConstant;
 import ai.chat2db.server.web.api.controller.ai.dify.model.DifyChatStreamEvent;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,11 +31,14 @@ public class DifyChatAIEventSourceListener extends EventSourceListener {
 
     private SseEmitter sseEmitter;
 
+    private String uid;
+
     private ObjectMapper mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
 
-    public DifyChatAIEventSourceListener(SseEmitter sseEmitter) {
+    public DifyChatAIEventSourceListener(SseEmitter sseEmitter, String uid) {
         this.sseEmitter = sseEmitter;
+        this.uid = uid;
     }
 
     @Override
@@ -54,7 +59,7 @@ public class DifyChatAIEventSourceListener extends EventSourceListener {
     public void onEvent(@NotNull EventSource eventSource, @Nullable String id, @Nullable String type, @NotNull String data) {
         log.info("DifyChatAI：{}", data);
         DifyChatStreamEvent event = mapper.readValue(data, DifyChatStreamEvent.class);
-        if ("message_end".equals(event.getEvent())) {
+        if (DifyChatConstant.EVENT_END_TAG.equals(event.getEvent())) {
             log.info("DifyChatAI返回数据结束了");
             sseEmitter.send(SseEmitter.event()
                     .id("[DONE]")
@@ -64,6 +69,7 @@ public class DifyChatAIEventSourceListener extends EventSourceListener {
         }
 
         String text = event.getAnswer();
+        LocalCache.CACHE.put(DifyChatConstant.CONVERSATION_CACHE_PREFIX + uid, event.getConversationId());
         log.info("Model ID={} is created at {}.", event.getId(), event.getCreatedAt());
         Message message = new Message();
         message.setContent(text);

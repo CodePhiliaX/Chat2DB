@@ -29,6 +29,7 @@ import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.dify.client.DifyChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.dify.listener.DifyChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.dify.model.DifyChatConstant;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
@@ -273,8 +274,8 @@ public class ChatController {
         messages.add(currentMessage);
         buildSseEmitter(sseEmitter, uid);
 
-        DifyChatAIEventSourceListener eventSourceListener = new DifyChatAIEventSourceListener(sseEmitter);
-        String conversationId = uid + "-" + queryRequest.getDataSourceId();
+        DifyChatAIEventSourceListener eventSourceListener = new DifyChatAIEventSourceListener(sseEmitter, uid);
+        String conversationId = (String) LocalCache.CACHE.get(DifyChatConstant.CONVERSATION_CACHE_PREFIX + uid);
         DifyChatAIClient.getInstance().streamCompletions(messages, eventSourceListener, uid, conversationId);
         LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
