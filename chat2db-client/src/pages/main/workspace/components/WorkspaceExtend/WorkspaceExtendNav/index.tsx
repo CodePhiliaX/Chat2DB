@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 // import i18n from '@/i18n';
@@ -6,7 +6,8 @@ import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import {extendConfig} from '../config';
 
-// import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IToolbar {
   code: string;
@@ -21,14 +22,18 @@ interface IProps {
 
 export default (props:IProps) => {
   const { className } = props;
-  const [activeExtend, setActiveExtend] = useState<IToolbar | null>(null);
+  const { currentWorkspaceExtend } = useWorkspaceStore((state) => {
+    return {
+      currentWorkspaceExtend: state.currentWorkspaceExtend,
+    };
+  });
 
   const changeExtend = (item: IToolbar) => {
-    if (activeExtend?.code === item.code) {
-      setActiveExtend(null);
+    if (currentWorkspaceExtend === item.code) {
+      setCurrentWorkspaceExtend(null);
       return;
     }
-    setActiveExtend(item);
+    setCurrentWorkspaceExtend(item.code);
   };
 
   return (
@@ -37,7 +42,7 @@ export default (props:IProps) => {
         return (
           <Popover mouseEnterDelay={0.8} key={index} placement="left" content={item.title}>
             <div className={styles.rightBarFront} onClick={changeExtend.bind(null, item)}>
-              <Iconfont code={item.icon} box size={18} active={activeExtend?.code === item.code} />
+              <Iconfont code={item.icon} box size={18} active={currentWorkspaceExtend === item.code} />
             </div>
           </Popover>
         );

@@ -15,18 +15,18 @@ export default memo<IProps>((props: IProps) => {
   const { children, showLine = true, callback, min, className, layout = 'row' } = props;
   const volatileRef = children[0]?.ref || children[1]?.ref;
 
-  const DividerRef = useRef<HTMLDivElement | null>(null);
-  const DividerLine = useRef<HTMLDivElement | null>(null);
+  const dividerRef = useRef<HTMLDivElement | null>(null);
+  const dividerLine = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const isRow = layout === 'row';
 
   useEffect(() => {
-    if (!DividerRef.current) {
+    if (!dividerRef.current) {
       return;
     }
 
-    DividerRef.current.onmousedown = (e) => {
+    dividerRef.current.onmousedown = (e) => {
       if (!volatileRef?.current) return;
       e.preventDefault();
       setDragging(true);
@@ -67,10 +67,10 @@ export default memo<IProps>((props: IProps) => {
       {
         <div
           style={{ display: showLine ? 'block' : 'none' }}
-          ref={DividerLine}
+          ref={dividerLine}
           className={classnames(styles.divider, { [styles.displayDivider]: !children[1] })}
         >
-          <div ref={DividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
+          <div ref={dividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
         </div>
       }
       {children[1]}
