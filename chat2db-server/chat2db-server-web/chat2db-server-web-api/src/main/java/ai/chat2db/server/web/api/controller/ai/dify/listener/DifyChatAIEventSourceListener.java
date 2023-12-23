@@ -1,10 +1,16 @@
 package ai.chat2db.server.web.api.controller.ai.dify.listener;
 
+
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatChoice;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletions;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureCompletionsUsage;
+import ai.chat2db.server.web.api.controller.ai.dify.model.DifyChatStreamEvent;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.unfbx.chatgpt.entity.chat.Message;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -22,6 +28,9 @@ import java.util.Objects;
 public class DifyChatAIEventSourceListener extends EventSourceListener {
 
     private SseEmitter sseEmitter;
+
+    private ObjectMapper mapper = new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
 
     public DifyChatAIEventSourceListener(SseEmitter sseEmitter) {
         this.sseEmitter = sseEmitter;
@@ -41,8 +50,27 @@ public class DifyChatAIEventSourceListener extends EventSourceListener {
     }
 
     @Override
+    @SneakyThrows
     public void onEvent(@NotNull EventSource eventSource, @Nullable String id, @Nullable String type, @NotNull String data) {
         log.info("DifyChatAI：{}", data);
+        DifyChatStreamEvent event = mapper.readValue(data, DifyChatStreamEvent.class);
+        if ("message_end".equals(event.getEvent())) {
+            log.info("DifyChatAI返回数据结束了");
+            sseEmitter.send(SseEmitter.event()
+                    .id("[DONE]")
+                    .data("[DONE]")
+                    .reconnectTime(3000));
+            return;
+        }
+
+        String text = event.getAnswer();
+        log.info("Model ID={} is created at {}.", event.getId(), event.getCreatedAt());
+        Message message = new Message();
+        message.setContent(text);
+        sseEmitter.send(SseEmitter.event()
+                .id(null)
+                .data(message)
+                .reconnectTime(3000));
 
     }
 

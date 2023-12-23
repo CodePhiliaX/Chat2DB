@@ -134,8 +134,8 @@ public class DifyChatAiStreamClient {
         try {
             DifyChatCompletionsOptions chatCompletionsOptions = new DifyChatCompletionsOptions();
             chatCompletionsOptions.setQuery(lastMessage);
-            chatCompletionsOptions.setResponse_mode("streaming");
-            chatCompletionsOptions.setConversation_id(conversationId);
+            chatCompletionsOptions.setResponseMode("streaming");
+            //chatCompletionsOptions.setConversationId(conversationId);
             chatCompletionsOptions.setUser(uid);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
@@ -148,6 +148,7 @@ public class DifyChatAiStreamClient {
             String url = this.apiHost + "v1/chat-messages";
             Request request = new Request.Builder()
                     .url(url)
+                    .header("Authorization","Bearer "+apiKey)
                     .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                     .build();
             //创建事件
