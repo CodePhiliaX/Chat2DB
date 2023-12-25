@@ -33,4 +33,5 @@ export default {
   'workspace.tree.delete.table.tip': 'Are you sure you want to delete the table {1}?',
   'workspace.tips.noConnection': 'You have not created a connection yet',
   'workspace.tips.maxConsole': 'You can only open up to 20 consoles',
+  'workspace.tips.openExecutiveLogging': 'Open this executive logging',
 };
