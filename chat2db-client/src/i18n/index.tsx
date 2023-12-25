@@ -15,6 +15,8 @@ export const isEn = currentLang === LangType.EN_US;
 
 export const isZH = currentLang === LangType.ZH_CN;
 
+export const isTR = currentLang === LangType.TR_TR;
+
 const langSet: Record<string, string> = locale[currentLang];
 
 function i18n(key: keyof typeof zhCN, ...args: any[]) {
