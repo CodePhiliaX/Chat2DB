@@ -145,6 +145,7 @@ export default function BaseSetting() {
         <Radio.Group onChange={changeLang} value={currentLang}>
           <Radio value={LangType.ZH_CN}>简体中文</Radio>
           <Radio value={LangType.EN_US}>English</Radio>
+          <Radio value={LangType.TR_TR}>Turkish</Radio>
         </Radio.Group>
       </div>
       <div className={styles.title}>{i18n('setting.title.themeColor')}</div>

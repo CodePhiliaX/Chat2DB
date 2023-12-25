@@ -71,7 +71,7 @@ export interface IHistoryRecord {
  /**
   * ddl语言类型
   */
- type?: null | string;
+ type?: DatabaseTypeCode | null;
  /**
   * 使用时长
   */

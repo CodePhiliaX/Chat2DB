@@ -1,3 +1,16 @@
+## 3.1.16
+
+`2023-12-25`
+
+**Changelog**
+
+- ⭐【New Features】Execute the Record sql Add replication button
+- ⭐【New Features】Execution records can be opened directly in the console
+- ⭐【New Features】The SQL column on the right of execution record and save can be expanded and dragged
+- 🐞【Fixed】Some databases could not display the Database/Schema structure
+- 🐞【Fixed】During web deployment, a page error occurs after the page switching page is refreshed
+- ⚡️【Optimize】The query result cancels in-cell scrolling and instead uses hover to view cell contents
+
 ## 3.1.15
 
 `2023-12-20`
@@ -58,9 +71,9 @@
 - 🔥🔥【Optimize】Optimized the tab switchover problem 
 - ⚡️ 【Optimize】All nodes are supported. The name of each node can be copied 
 - ⚡️【Optimize】The sql console input box supports switching databases, and will not change when the left database is switched 
-- ⭐ 【New function】Save records moved to the right toolbar, you can directly modify the name in the list 
-- ⭐【New feature】Support mongoDB 
-- ⭐【New function】Support for viewing all tables
+- ⭐ 【New Features】Save records moved to the right toolbar, you can directly modify the name in the list 
+- ⭐【New Features】Support mongoDB 
+- ⭐【New Features】Support for viewing all tables
 
 ## 3.0.14
 

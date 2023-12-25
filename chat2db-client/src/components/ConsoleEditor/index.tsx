@@ -94,6 +94,8 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const uid = useMemo(() => uuidv4(), []);
   const chatResult = useRef('');
   const editorRef = useRef<IExportRefFunction>();
+  const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [tableNameList, setTableNameList] = useState<string[]>([]);
   const [syncTableModel, setSyncTableModel] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [aiContent, setAiContent] = useState('');
@@ -354,9 +356,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
 
     setSyncTableModel(hasAiAccess ? SyncModelType.AUTO : SyncModelType.MANUAL);
   };
-
-  const [selectedTables, setSelectedTables] = useState<string[]>([]);
-  const [tableNameList, setTableNameList] = useState<string[]>([]);
 
   // 注册快捷键
   const registerShortcutKey = (editor, monaco) => {
