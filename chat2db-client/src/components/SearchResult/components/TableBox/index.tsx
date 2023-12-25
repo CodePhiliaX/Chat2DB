@@ -656,6 +656,7 @@ export default function TableBox(props: ITableProps) {
         // title: <div>{name}</div>,
         render: (value: any, rowData) => {
           const rowId = rowData[colNoCode];
+          const content = renderTableCellValue(value);
           return (
             <div
               data-chat2db-general-can-copy-element
@@ -679,7 +680,14 @@ export default function TableBox(props: ITableProps) {
                   }}
                 />
               ) : (
-                <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
+                <>
+                  <div className={styles.tableItemContent}>
+                    {content}
+                  </div>
+                  <div className={styles.previewTableItemContent}>
+                    {content}
+                  </div>
+                </>
               )}
             </div>
           );
