@@ -1,3 +1,12 @@
+## 3.1.17
+
+`2023-12-27`
+
+**Changelog**
+
+- 🐞【Fixed】Home connection cannot switch pages
+
+
 ## 3.1.16
 
 `2023-12-25`
