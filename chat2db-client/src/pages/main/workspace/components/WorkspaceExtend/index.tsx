@@ -1,6 +1,6 @@
-import React, { memo, useState } from 'react';
+import React, { useState } from 'react';
 import styles from './index.less';
-import classnames from 'classnames';
+// import classnames from 'classnames';
 import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import Output from '@/components/Output';
@@ -8,20 +8,14 @@ import SaveList from '../SaveList';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import i18n from '@/i18n';
 
-interface IProps {
-  className?: string;
-}
-
 interface IToolbar {
   code: string;
   title: string;
   icon: string;
   components: any;
-  width: number;
 }
 
-export default memo<IProps>((props) => {
-  const { className } = props;
+export const useWorkspaceExtend = () => {
   const [activeExtend, setActiveExtend] = useState<IToolbar | null>(null);
   const { panelRight } = useWorkspaceStore((state) => state.layout);
 
@@ -37,14 +31,12 @@ export default memo<IProps>((props) => {
       title: i18n('common.title.executiveLogging'),
       icon: '\ue8ad',
       components: <Output />,
-      width: 400,
     },
     {
       code: 'saveList',
       title: i18n('workspace.title.savedConsole'),
       icon: '\ue619',
       components: <SaveList />,
-      width: 200,
     },
   ];
 
@@ -56,28 +48,31 @@ export default memo<IProps>((props) => {
     setActiveExtend(item);
   };
 
-  return (
-    <div
-      className={classnames(styles.workspaceExtend, className, {
-        [styles.workspaceExtendActive]: panelRight,
+  // return (
+  //   <div
+  //     className={classnames(styles.workspaceExtend, className, {
+  //       [styles.workspaceExtendActive]: panelRight,
+  //     })}
+  //   >
+  //   </div>
+  // );
+
+  const extendBody = (
+    <>{activeExtend && <div className={styles.workspaceExtendMain}>{activeExtend?.components}</div>}</>
+  );
+  const extendNav = (
+    <div className={styles.workspaceExtendBar}>
+      {toolbarConfig.map((item, index) => {
+        return (
+          <Popover mouseEnterDelay={0.8} key={index} placement="left" content={item.title}>
+            <div className={styles.rightBarFront} onClick={changeExtend.bind(null, item)}>
+              <Iconfont code={item.icon} box size={18} active={activeExtend?.code === item.code} />
+            </div>
+          </Popover>
+        );
       })}
-    >
-      {activeExtend && (
-        <div style={{ width: `${activeExtend?.width || 400}px` }} className={styles.workspaceExtendMain}>
-          {activeExtend?.components}
-        </div>
-      )}
-      <div className={styles.workspaceExtendBar}>
-        {toolbarConfig.map((item, index) => {
-          return (
-            <Popover mouseEnterDelay={0.8} key={index} placement="left" content={item.title}>
-              <div className={styles.rightBarFront} onClick={changeExtend.bind(null, item)}>
-                <Iconfont code={item.icon} box size={18} active={activeExtend?.code === item.code} />
-              </div>
-            </Popover>
-          );
-        })}
-      </div>
     </div>
   );
-});
+
+  return [extendBody, extendNav];
+};

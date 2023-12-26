@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState, useRef } from 'react';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
-import { Popover, Dropdown, MenuProps } from 'antd';
+import { Popover, Dropdown } from 'antd';
 import i18n from '@/i18n';
 import { isValid } from '@/utils/check';
 import _ from 'lodash';

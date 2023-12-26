@@ -30,14 +30,17 @@
     }
   }
   :global {
+    .table{
+      overflow: hidden;
+    }
     .art-table {
       table colgroup col:nth-of-type(1) {
         min-width: 60px;
       }
-      th,
-      td {
-        overflow: hidden;
-      }
+      // th,
+      // td {
+      //   overflow: hidden;
+      // }
       .fnWppk {
         // word-break: break-all;
         // display: -webkit-box;
@@ -202,7 +205,6 @@
 
 .tableItem {
   height: 31px;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -210,6 +212,7 @@
   padding-left: 4px;
   user-select: none;
   background-color: var(--color-bg-base);
+  cursor: pointer;
 
   .tableItemContent {
     max-height: 31px;
@@ -218,15 +221,32 @@
     width: 100%;
     overflow: hidden;
     white-space: nowrap;
-    &:hover {
-      overflow-x: auto;
-      // line-height: 14px;
-    }
+    text-overflow: ellipsis;
+  }
+
+  .previewTableItemContent{
+    display: none;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    width: fit-content;
+    min-width: 100%;
+    padding: 0px 4px;
+    max-height: 31px;
+    line-height: 31px;
+    background-color: var(--color-bg-layout);
+    z-index: 2;
+    color: var(--color-text);
+    white-space: nowrap;
   }
 
   &:hover {
-    .tableHoverBox {
+    .previewTableItemContent {
       display: flex;
+    }
+    .previewTableItemContent {
+      display: block;
     }
   }
 
@@ -241,20 +261,24 @@
 
 .tableItemEdit {
   background-color: var(--color-success-bg);
-  .tableHoverBox {
+  .previewTableItemContent {
     background-color: var(--color-success-bg);
   }
+  
 }
 .tableItemHighlight {
   background-color: var(--color-bg-subtle);
-  .tableHoverBox {
+  .previewTableItemContent {
     background-color: var(--color-bg-subtle);
   }
 }
 .tableItemFocus {
   background-color: var(--color-primary-hover);
   color: var(--color-bg-base);
-  .tableHoverBox {
+  .previewTableItemContent {
+    background-color: var(--color-primary-hover);
+  }
+  .previewTableItemContent{
     background-color: var(--color-primary-hover);
   }
   .cellValueNull {
@@ -263,13 +287,13 @@
 }
 .tableItemSuccess {
   background-color: var(--color-success-bg);
-  .tableHoverBox {
+  .previewTableItemContent {
     background-color: var(--color-success-bg);
   }
 }
 .tableItemError {
   background-color: var(--color-error-bg);
-  .tableHoverBox {
+  .previewTableItemContent {
     background-color: var(--color-error-bg);
   }
 }
@@ -277,24 +301,6 @@
 .tableItemNo {
   width: 100%;
   text-align: center;
-}
-
-.tableHoverBox {
-  position: sticky;
-  height: 31px;
-  top: 0px;
-  bottom: 0px;
-  right: 0px;
-  width: 40px;
-  display: none;
-  align-items: center;
-  cursor: pointer;
-  background-color: var(--color-bg-base);
-
-  i {
-    font-size: 15px;
-    margin: 0px 2px;
-  }
 }
 
 .pagination {

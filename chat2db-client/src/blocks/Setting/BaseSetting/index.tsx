@@ -5,14 +5,12 @@ import classnames from 'classnames';
 import themeDarkImg from '@/assets/img/theme-dark.png';
 import themeLightImg from '@/assets/img/theme-light.png';
 import themeAutoImg from '@/assets/img/theme-auto.png';
-import { Radio, Select } from 'antd';
+import { Select } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import { setLang as setLangLocalStorage } from '@/utils/localStorage';
 import { useTheme } from '@/hooks/useTheme';
 
 import styles from './index.less';
-
-const { Option } = Select;
 
 const themeList = [
   {
@@ -41,6 +39,13 @@ const themeList = [
   //   img: 'https://img.alicdn.com/imgextra/i1/O1CN01KGCqY21uJpuFjEQW2_!!6000000006017-2-tps-181-135.png'
   // },
 ];
+
+const languageOptions = [
+  { value: LangType.ZH_CN, label: '简体中文' },
+  { value: LangType.EN_US, label: 'English' },
+  { value: LangType.TR_TR, label: 'Turkish' },
+  { value: LangType.JA_JP, label: '日本語' },
+]
 
 const colorList = [
   {
@@ -103,10 +108,10 @@ export default function BaseSetting() {
   };
 
   function changeLang(e: any) {
-    setLangLocalStorage(e.target.value);
+    setLangLocalStorage(e);
     //切换语言时，需要设置cookie，用来改变后台服务的Locale
     const date = new Date('2030-12-30 12:30:00').toUTCString();
-    document.cookie = `CHAT2DB.LOCALE=${e.target.value};Expires=${date}`;
+    document.cookie = `CHAT2DB.LOCALE=${e};Expires=${date}`;
     location.reload();
   }
 
@@ -118,10 +123,8 @@ export default function BaseSetting() {
     setCurrentTheme(backgroundColor);
   }
 
-
-  const changeSqlEditorFontSize = (e: any) => {
-   
-  }
+  // const changeSqlEditorFontSize = (e: any) => {
+  // }
 
   return (
     <>
@@ -142,10 +145,17 @@ export default function BaseSetting() {
       </ul>
       <div className={styles.title}>{i18n('setting.title.language')}</div>
       <div className={styles.langBox}>
-        <Radio.Group onChange={changeLang} value={currentLang}>
+        {/* <Radio.Group onChange={changeLang} value={currentLang}>
           <Radio value={LangType.ZH_CN}>简体中文</Radio>
           <Radio value={LangType.EN_US}>English</Radio>
-        </Radio.Group>
+          <Radio value={LangType.TR_TR}>Turkish</Radio>
+        </Radio.Group> */}
+        <Select
+          style={{ width: 120 }}
+          onChange={changeLang}
+          value={currentLang}
+          options={languageOptions}
+        />
       </div>
       <div className={styles.title}>{i18n('setting.title.themeColor')}</div>
       <ul className={styles.primaryColorList}>

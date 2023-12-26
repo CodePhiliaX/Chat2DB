@@ -24,7 +24,6 @@ import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { Spin } from 'antd';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IProps {
   className?: string;
@@ -113,11 +112,11 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     function renderSuccessResult() {
       const needTable = queryResultData?.headerList?.length > 1;
       return (
-        isActive ?
         <div className={styles.successResult}>
           <div className={styles.successResultContent}>
             {needTable ? (
               <TableBox
+                isActive={isActive}
                 tableBoxId={queryResultData.uuid}
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
@@ -137,8 +136,6 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
             )}
           </div>
         </div>
-        :
-        false
       );
     }
     return (

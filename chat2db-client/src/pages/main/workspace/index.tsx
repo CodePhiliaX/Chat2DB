@@ -5,7 +5,7 @@ import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
-import NewWorkspaceRight from './components/WorkspaceRight';
+import WorkspaceRight from './components/WorkspaceRight';
 
 import useMonacoTheme from '@/components/MonacoEditor/useMonacoTheme';
 import shortcutKeyCreateConsole from './functions/shortcutKeyCreateConsole';
@@ -39,7 +39,7 @@ const workspacePage = memo(() => {
         >
           <WorkspaceLeft />
         </div>
-        <NewWorkspaceRight />
+        <WorkspaceRight />
       </DraggableContainer>
     </div>
   );

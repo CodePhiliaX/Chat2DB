@@ -3,10 +3,7 @@ package ai.chat2db.server.web.api.http;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
-import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
-import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.WhiteListRequest;
+import ai.chat2db.server.web.api.http.request.*;
 import ai.chat2db.server.web.api.http.response.*;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.utils.TypeReference;
@@ -216,4 +213,14 @@ public class GatewayClientService {
         return result;
     }
 
+    public ActionResult addOperationLog(SqlExecuteHistoryCreateRequest request) {
+        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/sql/execute/history")
+                .connectTimeout(Duration.ofMillis(5000))
+                .readTimeout(Duration.ofMillis(10000))
+                .contentType("application/json")
+                .addBody(request)
+                .execute(new TypeReference<>() {
+                });
+        return result;
+    }
 }

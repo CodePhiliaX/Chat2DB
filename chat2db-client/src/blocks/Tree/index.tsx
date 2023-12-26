@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, createContext, useContext, useRef } from 'react';
+import React, { memo, useEffect, useMemo, useState, createContext, useContext } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import Iconfont from '@/components/Iconfont';
@@ -29,6 +29,8 @@ interface TreeNodeIProps {
 interface IContext {
   treeData: ITreeNode[];
   setTreeData: (value: ITreeNode[] | null) => void;
+  searchTreeData: ITreeNode[] | null;
+  setSearchTreeData: (value: ITreeNode[] | null) => void;
 }
 
 export const Context = createContext<IContext>({} as any);
@@ -48,6 +50,59 @@ const smoothTree = (treeData: ITreeNode[], result: ITreeNode[] = [], parentNode?
   return result;
 };
 
+// 平级转树
+function tranListToTreeData(list:ITreeNode[], rootValue) {
+  const arr:ITreeNode[] = []
+  list.forEach((item:ITreeNode) => {
+    if (item.parentNode?.uuid === rootValue) {
+      arr.push(item)
+      const children = tranListToTreeData(list, item.uuid)
+      if (children.length) {
+        item.children = children
+      }
+    }
+  })
+  return arr
+}
+
+// 判断是否匹配
+const isMatch = (target: string, searchValue: string) => {
+  const reg = new RegExp(searchValue, 'i');
+  return reg.test(target || '');
+};
+
+// 树结构搜索
+function searchTree(treeData: ITreeNode[], searchValue: string): ITreeNode[] {
+  let result: ITreeNode[] = [];
+
+  // 深度优先遍历
+  function dfs(node: ITreeNode, path: ITreeNode[] = []) {
+    if (isMatch(node.name, searchValue)) {
+      result = [...result, ...path, node];
+      return;
+    }
+    if (!node.children) return;
+    node.children.forEach((child) => {
+      dfs(child, [...path, node]);
+    });
+  }
+
+  // 遍历树
+  treeData.forEach((node) => dfs(node));
+
+  // 根据uuid去重
+  const deWeightList: ITreeNode[] = [];
+  result.forEach((item) => {
+    // 如果不匹配，说明该节点为path，不需要保留该节点的子元素，就把children置空
+    if (!isMatch(item.name, searchValue)) {
+      item.children = null;
+    }
+    deWeightList.findIndex((i) => i.uuid === item.uuid) === -1 && deWeightList.push(item);
+  });
+
+  return tranListToTreeData(deWeightList, undefined);
+}
+
 const itemHeight = 26; // 每个 item 的高度
 const paddingCount = 2;
 
@@ -56,6 +111,8 @@ const Tree = (props: IProps) => {
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
   const [smoothTreeData, setSmoothTreeData] = useState<ITreeNode[]>([]);
   const [searchTreeData, setSearchTreeData] = useState<ITreeNode[] | null>(null); // 搜索结果
+  const [searchSmoothTreeData, setSearchSmoothTreeData] = useState<ITreeNode[] | null>(null); // 搜索结果 平级
+
   const [scrollTop, setScrollTop] = useState(0); // 滚动位置 // 继续需要渲染的 item 索引有哪些
 
   const startIdx = useMemo(() => {
@@ -81,39 +138,53 @@ const Tree = (props: IProps) => {
     }
   }, [treeData]);
 
+  // 搜索结果转平级
+  useEffect(() => {
+    if (searchTreeData) {
+      const result: ITreeNode[] = [];
+      smoothTree(searchTreeData, result);
+      setSearchSmoothTreeData(result);
+    } else {
+      setSearchSmoothTreeData(null);
+    }
+  }, [searchTreeData]);
+
   const treeNodes = useMemo(() => {
-    const realNodeList = (searchTreeData || smoothTreeData).slice(startIdx, startIdx + 50);
+    const realNodeList = (searchSmoothTreeData || smoothTreeData).slice(startIdx, startIdx + 50);
     return realNodeList.map((item) => {
       return <TreeNode key={item.uuid} level={item.level || 0} data={item} />;
     });
-  }, [smoothTreeData, searchTreeData, startIdx]);
+  }, [smoothTreeData, searchSmoothTreeData, startIdx]);
 
   useEffect(() => {
-    if (searchValue) {
-      const ls = smoothTreeData.filter((item) => {
-        const reg = new RegExp(searchValue, 'i');
-        return reg.test(item.name || '');
-      });
-      setSearchTreeData(ls);
+    if (searchValue && treeData) {
+      const _searchTreeData = searchTree(cloneDeep(treeData), searchValue);
+      setSearchTreeData(_searchTreeData);
+      setScrollTop(0);
     } else {
       setSearchTreeData(null);
     }
-    setScrollTop(0);
   }, [searchValue]);
 
   return (
     <LoadingContent isLoading={!treeData} className={classnames(className)}>
-      <Context.Provider value={{ treeData: cloneDeep(treeData!), setTreeData: setTreeData! }}>
+      <Context.Provider
+        value={{
+          treeData: treeData!,
+          setTreeData: setTreeData!,
+          searchTreeData, 
+          setSearchTreeData
+        }}
+      >
         <div
           className={classnames(styles.scrollBox)}
           onScroll={(e: any) => {
-            console.log(e.target.scrollTop);
             setScrollTop(e.target.scrollTop);
           }}
         >
           <div
             className={styles.treeListHolder}
-            style={{ '--tree-node-count': (searchTreeData || smoothTreeData)?.length } as any}
+            style={{ '--tree-node-count': (searchSmoothTreeData || smoothTreeData)?.length } as any}
           >
             <div style={{ height: top }} />
             {treeNodes}
@@ -128,7 +199,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const { data: treeNodeData, level } = props;
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
-  const { treeData, setTreeData } = useContext(Context);
+  const { treeData, setTreeData, searchTreeData, setSearchTreeData } = useContext(Context);
 
   // 加载数据
   function loadData(_props?: { refresh: boolean; pageNo: number; treeNodeData?: ITreeNode }) {
@@ -136,7 +207,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
     setIsLoading(true);
     if (_props?.pageNo === 1 || !_props?.pageNo) {
-      insertData(treeData!, _treeNodeData.uuid!, null);
+      insertData(treeData!, _treeNodeData.uuid!, null,[treeData, setTreeData]);
+      if(searchTreeData){
+        insertData(searchTreeData!, _treeNodeData.uuid!, null,[searchTreeData, setSearchTreeData]);
+      }
     }
 
     treeNodeConfig
@@ -151,8 +225,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       .then((res: any) => {
         if (res.length || res.data) {
           if (res.data) {
-            insertData(treeData!, _treeNodeData.uuid!, res.data);
-            // TODO:
+            insertData(treeData!, _treeNodeData.uuid!, res.data, [treeData, setTreeData]);
+            if(searchTreeData){
+              insertData(searchTreeData!, _treeNodeData.uuid!, res.data,[searchTreeData, setSearchTreeData]);
+            }
             if (res.hasNextPage) {
               loadData({
                 refresh: _props?.refresh || false,
@@ -160,7 +236,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
               });
             }
           } else {
-            insertData(treeData!, _treeNodeData.uuid!, res);
+            insertData(treeData!, _treeNodeData.uuid!, res,[treeData, setTreeData]);
+            if(searchTreeData){
+              insertData(searchTreeData!, _treeNodeData.uuid!, res,[searchTreeData, setSearchTreeData]);
+            }
           }
           setIsLoading(false);
         } else {
@@ -169,7 +248,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
             _treeNodeData.pretendNodeType = treeNodeConfig.next;
             loadData();
           } else {
-            insertData(treeData!, _treeNodeData.uuid!, []);
+            insertData(treeData!, _treeNodeData.uuid!, [],[treeData, setTreeData]);
+            if(searchTreeData){
+              insertData(searchTreeData!, _treeNodeData.uuid!, [],[searchTreeData, setSearchTreeData]);
+            }
             setIsLoading(false);
           }
         }
@@ -183,23 +265,25 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
 
   //  在treeData中找到对应的节点，插入数据
-  const insertData = (_treeData: ITreeNode[], uuid: string, data: any): ITreeNode | null => {
+  const insertData = (_treeData: ITreeNode[], uuid: string, data: any, originalDataList:any): ITreeNode | null => {
+    const [originalData,setOriginalData] = originalDataList
     let result: ITreeNode | null = null;
     for (let i = 0; i < _treeData?.length; i++) {
       if (_treeData[i].uuid === uuid) {
         result = _treeData[i];
         if (data) {
+          data.map((item: any) => {
+            item.parentNode = result;
+          });
           result.children = [...(result.children || []), ...(data || [])];
         } else {
           result.children = null;
         }
-        result.expanded = !!data;
-        // 这里没写错 就是要改变treeData的引用
-        setTreeData?.(cloneDeep(treeData || []));
+        setOriginalData?.(cloneDeep([...(originalData || [])]));
         break;
       } else {
         if (_treeData[i].children) {
-          result = insertData(_treeData[i].children!, uuid, data);
+          result = insertData(_treeData[i].children!, uuid, data, originalDataList);
           if (result) {
             break;
           }
@@ -211,8 +295,11 @@ const TreeNode = memo((props: TreeNodeIProps) => {
 
   //展开-收起
   const handleClick = () => {
-    if (treeNodeData.expanded) {
-      insertData(treeData!, treeNodeData.uuid!, null);
+    if (treeNodeData?.children) {
+      insertData(treeData!, treeNodeData.uuid!, null,[treeData, setTreeData]);
+      if(searchTreeData){
+        insertData(searchTreeData!, treeNodeData.uuid!, null,[searchTreeData, setSearchTreeData]);
+      }
     } else {
       loadData();
     }
@@ -267,7 +354,6 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         label: <MenuLabel icon={item.labelProps.icon} label={item.labelProps.label} />,
       };
     });
-
     return (
       <Dropdown
         trigger={['contextMenu']}
@@ -326,7 +412,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         </Tooltip>
       </Dropdown>
     );
-  }, [isFocus, isLoading, rightClickMenu]);
+  }, [isFocus, isLoading, rightClickMenu, treeNodeData.children]);
 
   return treeNodeDom;
 });

@@ -31,5 +31,6 @@ export default {
   'workspace.tree.delete.tip': '我了解该操作是永久性删除',
   'workspace.tree.delete.table.tip': '确定要删除表{1}吗？',
   'workspace.tips.noConnection': '你还没有创建连接',
-
+  'workspace.tips.maxConsole': '最多只能打开20个控制台',
+  'workspace.tips.openExecutiveLogging': '打开执行记录',
 };
