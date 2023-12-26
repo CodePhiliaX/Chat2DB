@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/chat2db/Chat2DB"
+    "url": "https://github.com/leven-space/Chat2DB"
   },
   "author": "fjy, hexi",
   "main": "src/main/index.js",
