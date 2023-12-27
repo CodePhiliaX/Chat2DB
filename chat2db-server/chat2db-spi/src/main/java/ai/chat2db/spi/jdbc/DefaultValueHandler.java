@@ -36,7 +36,7 @@ public class DefaultValueHandler implements ValueHandler {
             } else if (obj instanceof Blob blob) {
                 return largeStringBlob(blob, limitSize);
             }
-            return rs.getString(index);
+            return obj.toString();
         } catch (Exception e) {
             log.warn("解析数失败:{},{}", index, obj, e);
             return obj.toString();
