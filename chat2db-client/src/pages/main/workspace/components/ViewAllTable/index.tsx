@@ -13,7 +13,7 @@ import { v4 as uuid } from 'uuid';
 import Iconfont from '@/components/Iconfont';
 import { getRightClickMenu } from '@/blocks/Tree/hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
-import ViewDDL from '@/components/ViewDDL';
+import { setCurrentWorkspaceGlobalExtend } from '@/pages/main/workspace/store/common';
 
 // ----- store -----
 import { addWorkspaceTab } from '@/pages/main/workspace/store/console';
@@ -44,7 +44,6 @@ export default memo<IProps>((props) => {
   const [currentPageNo, setCurrentPageNo] = React.useState(1);
   const [openDropdown, setOpenDropdown] = React.useState<boolean | undefined>(undefined);
   const [dropdownItems, setDropdownItems] = React.useState<any[]>([]);
-  const [viewDDLSql, setViewDDLSql] = React.useState<string>('');
 
   useEffect(() => {
     getTable({
@@ -179,19 +178,19 @@ export default memo<IProps>((props) => {
     resizeObserver.observe(tableBoxRef.current!);
   }, []);
 
-  useEffect(() => {
-    const record = tableData?.find((t) => t.key === activeId);
-    if (record) {
-      sqlServer
-        .exportCreateTableSql({
-          ...uniqueData,
-          tableName: record.name,
-        } as any)
-        .then((res) => {
-          setViewDDLSql(res);
-        });
-    }
-  }, [activeId]);
+  // useEffect(() => {
+  //   const record = tableData?.find((t) => t.key === activeId);
+  //   if (record) {
+  //     sqlServer
+  //       .exportCreateTableSql({
+  //         ...uniqueData,
+  //         tableName: record.name,
+  //       } as any)
+  //       .then((res) => {
+  //         setViewDDLSql(res);
+  //       });
+  //   }
+  // }, [activeId]);
 
   const onSearch = (value: string) => {
     getTable({
@@ -248,6 +247,13 @@ export default memo<IProps>((props) => {
                 return {
                   onClick: () => {
                     setActiveId(row.key);
+                    setCurrentWorkspaceGlobalExtend({
+                      code: 'viewDDL',
+                      uniqueData: {
+                        ...uniqueData,
+                        tableName: row.name,
+                      }
+                    });
                   },
                   onContextMenu: (event) => {
                     event.preventDefault();
@@ -265,10 +271,6 @@ export default memo<IProps>((props) => {
             />
           </div>
         </Dropdown>
-        <div className={styles.viewDDLBox}>
-          <div className={styles.viewDDLHeader}>DDL</div>
-          <ViewDDL className={styles.viewDDL} sql={viewDDLSql} />
-        </div>
       </div>
       {/* {tableDataTotal > 1000 && (
       )} */}

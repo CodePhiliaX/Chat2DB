@@ -119,4 +119,5 @@ export default {
   'common.label.tcp': 'TCP',
   'common.label.LocalFile': 'Yerel Dosya',
   'common.text.rename': 'Yeniden Adlandır',
+  'common.title.info': 'Bilgi',
 };

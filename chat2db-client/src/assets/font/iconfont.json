@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1727525",
+      "name": "305信息-线性圆框",
+      "font_class": "xinxi-xianxingyuankuang",
+      "unicode": "e8e8",
+      "unicode_decimal": 59624
+    },
+    {
       "icon_id": "577312",
       "name": "加号",
       "font_class": "jiahao",

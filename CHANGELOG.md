@@ -1,3 +1,14 @@
+## 3.1.17
+
+`2023-12-27`
+
+**Changelog**
+
+- ⭐【New Features】Connection replicable
+- ⚡️【Optimize】Select the table to view the DDL of the table in Information on the right expansion bar
+- 🐞【Fixed】Home connection cannot switch pages
+- 🐞【Fixed】Columns cannot be viewed or edited in some tables of the Oracle database
+
 ## 3.1.16
 
 `2023-12-25`

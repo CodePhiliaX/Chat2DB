@@ -118,4 +118,5 @@ export default {
   'common.label.tcp': 'オンライン',
   'common.label.LocalFile': 'ローカルファイル',
   'common.text.rename': '名前を変更',
+  'common.title.info': '情報',
 };
