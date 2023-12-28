@@ -4,6 +4,16 @@
 
 **Changelog**
 
+- 🐞【Fixed】 Modifying table sorting does not generate sorting SQL problems
+
+
+
+## 3.1.17
+
+`2023-12-27`
+
+**Changelog**
+
 - ⭐【New Features】Connection replicable
 - ⚡️【Optimize】Select the table to view the DDL of the table in Information on the right expansion bar
 - 🐞【Fixed】 Modifying table sorting does not generate sorting SQL problems
