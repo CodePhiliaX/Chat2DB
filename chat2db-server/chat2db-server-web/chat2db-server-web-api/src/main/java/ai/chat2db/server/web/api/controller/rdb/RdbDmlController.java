@@ -126,8 +126,7 @@ public class RdbDmlController {
         if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
             param.setSql("db." + request.getTableName() + ".find()");
         } else {
-            // 拼接`tableName`，避免关键字被占用问题
-            param.setSql("select * from " +"`"+ request.getTableName()+"`");
+            param.setSql("select * from " + request.getTableName());
         }
         return dlTemplateService.execute(param)
             .map(rdbWebConverter::dto2vo);

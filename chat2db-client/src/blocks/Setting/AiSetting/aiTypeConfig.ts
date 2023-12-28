@@ -14,7 +14,6 @@ const AITypeName = {
   [AIType.TONGYIQIANWENAI]: i18n('setting.tab.aiType.tongyiqianwen'),
   [AIType.OPENAI]: 'Open AI',
   [AIType.AZUREAI]: 'Azure AI',
-  [AIType.DIFYCHAT]: 'Dify AI',
   [AIType.RESTAI]: i18n('setting.tab.custom'),
 };
 
@@ -53,10 +52,6 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
     apiKey: true,
     apiHost: true,
     model: true,
-  },
-  [AIType.DIFYCHAT]: {
-    apiKey: true,
-    apiHost: true,
   },
   [AIType.RESTAI]: {
     apiKey: true,
