@@ -1,3 +1,11 @@
+## 3.1.18
+
+`2023-12-28`
+
+**Changelog**
+
+- 🐞【Fixed】 docker startup error
+
 ## 3.1.17
 
 `2023-12-27`
@@ -6,6 +14,7 @@
 
 - ⭐【New Features】Connection replicable
 - ⚡️【Optimize】Select the table to view the DDL of the table in Information on the right expansion bar
+- 🐞【Fixed】 Modifying table sorting does not generate sorting SQL problems
 - 🐞【Fixed】Home connection cannot switch pages
 - 🐞【Fixed】Columns cannot be viewed or edited in some tables of the Oracle database
 
