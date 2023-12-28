@@ -1,12 +1,10 @@
-## 3.1.17
+## 3.1.18
 
-`2023-12-27`
+`2023-12-28`
 
 **Changelog**
 
-- 🐞【Fixed】 Modifying table sorting does not generate sorting SQL problems
-
-
+- 🐞【Fixed】 docker startup error
 
 ## 3.1.17
 
