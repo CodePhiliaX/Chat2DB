@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.spi.SqlBuilder;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
@@ -17,11 +19,6 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.parser.ParserException;
 
-import ai.chat2db.server.domain.api.param.DlCountParam;
-import ai.chat2db.server.domain.api.param.DlExecuteParam;
-import ai.chat2db.server.domain.api.param.SelectResultOperation;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
-import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.OperationLogService;
@@ -292,6 +289,13 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             stringBuilder.append(sql + ";\n");
         }
         return DataResult.of(stringBuilder.toString());
+    }
+
+    @Override
+    public DataResult<String> getOrderBySql(OrderByParam param) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        String orderSql =  sqlBuilder.buildOrderBySql(param.getOriginSql(),param.getOrderByList());
+        return DataResult.of(orderSql);
     }
 
     private List<String> getPrimaryColumns(UpdateSelectResultParam param) {

@@ -43,7 +43,8 @@ public class ViewController {
     public WebPageResult<TableVO> list(@Valid TableBriefQueryRequest request) {
         ListResult<Table> tableDTOPageResult = viewService.views(request.getDatabaseName(), request.getSchemaName());
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
-        return WebPageResult.of(tableVOS, Long.valueOf(tableVOS.size()), 1, tableVOS.size());
+        Integer pageSize = tableDTOPageResult.getData() != null ? tableDTOPageResult.getData().size() : 0;
+        return WebPageResult.of(tableVOS, Long.valueOf(tableVOS.size()), 1, pageSize);
     }
 
 

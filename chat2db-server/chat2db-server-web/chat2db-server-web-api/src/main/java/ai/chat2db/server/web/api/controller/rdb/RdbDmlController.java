@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
+import ai.chat2db.server.domain.api.param.OrderByParam;
 import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
@@ -17,10 +18,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlCountRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.DmlRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.DmlTableRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.SelectResultUpdateRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.request.SqlExecuteHistoryCreateRequest;
@@ -165,6 +163,15 @@ public class RdbDmlController {
     public DataResult<String> getUpdateSelectResultSql(@RequestBody SelectResultUpdateRequest request) {
         UpdateSelectResultParam param = rdbWebConverter.request2param(request);
         return dlTemplateService.updateSelectResult(param);
+    }
+
+
+    @RequestMapping(value = "/get_order_by_sql", method = {RequestMethod.POST, RequestMethod.PUT})
+    public DataResult<String> getOrderBySql(@RequestBody OrderByRequest request) {
+
+        OrderByParam param = rdbWebConverter.request2param(request);
+
+        return dlTemplateService.getOrderBySql(param);
     }
 
     /**
