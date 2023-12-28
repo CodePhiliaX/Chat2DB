@@ -2,12 +2,28 @@
 
 .workspaceRight {
   position: relative;
+  display: flex;
   flex: 1;
   width: 0px;
-  display: flex;
+}
+
+.workspaceExtendNav{
+  border-left: 1px solid var(--color-border);
+}
+
+.draggableContainer{
+  flex: 1;
+  width: 0px;
+  overflow: hidden;
+}
+
+.workspaceExtendBody{
+  width: 300px;
+  border-left: 1px solid var(--color-border);
 }
 
 .workspaceExtend {
+  height: 100%;
   flex-shrink: 0;
   border-left: 1px solid var(--color-border);
   display: flex;

@@ -245,11 +245,10 @@ export default function TableBox(props: ITableProps) {
 
   function monacoEditorEditData() {
     const editorData = monacoEditorRef?.current?.getAllContent();
-    // 获取原始的该单元格的数据
-    // let _oldData = '';
     const { rowId, colId } = viewTableCellData!;
-    oldDataList.forEach((item) => {
-      if (item[0] === rowId) {
+    console.log('oldTableData', oldTableData);
+    oldTableData.forEach((item) => {
+      if (item[colNoCode] === rowId) {
         if (item[colId] !== editorData) {
           const newTableData = lodash.cloneDeep(tableData);
           let newRowDataList: any = [];
@@ -260,13 +259,12 @@ export default function TableBox(props: ITableProps) {
             }
           });
           setTableData(newTableData);
-
           // 添加更新记录
           setUpdateData([
             ...updateData,
             {
               type: CRUD.UPDATE,
-              oldDataList: item,
+              oldDataList: Object.keys(item).map((_i) => item[_i]),
               dataList: newRowDataList,
               rowId,
             },
@@ -658,6 +656,7 @@ export default function TableBox(props: ITableProps) {
         // title: <div>{name}</div>,
         render: (value: any, rowData) => {
           const rowId = rowData[colNoCode];
+          const content = renderTableCellValue(value);
           return (
             <div
               data-chat2db-general-can-copy-element
@@ -681,7 +680,14 @@ export default function TableBox(props: ITableProps) {
                   }}
                 />
               ) : (
-                <div className={styles.tableItemContent}>{renderTableCellValue(value)}</div>
+                <>
+                  <div className={styles.tableItemContent}>
+                    {content}
+                  </div>
+                  <div className={styles.previewTableItemContent}>
+                    {content}
+                  </div>
+                </>
               )}
             </div>
           );
@@ -1085,6 +1091,7 @@ export default function TableBox(props: ITableProps) {
             text: transformInputValue(viewTableCellData?.value),
             range: 'reset',
           }}
+          language="plaintext"
           options={{
             lineNumbers: 'off',
             readOnly: !queryResultData.canEdit,

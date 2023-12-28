@@ -7,6 +7,7 @@ import { ITreeNode } from '@/typings';
 import { TreeNodeType, databaseMap } from '@/constants';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
+import { setCurrentWorkspaceGlobalExtend } from '@/pages/main/workspace/store/common';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, useTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
@@ -321,6 +322,19 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     useCommonStore.setState({
       focusedContent: (treeNodeData.name || '') as any,
     });
+    if(treeNodeData.treeNodeType === TreeNodeType.TABLE){
+      setCurrentWorkspaceGlobalExtend({
+        code: 'viewDDL',
+        uniqueData: {
+          dataSourceId: treeNodeData.extraParams?.dataSourceId,
+          dataSourceName: treeNodeData.extraParams?.dataSourceName,
+          databaseName: treeNodeData.extraParams?.databaseName,
+          databaseType: treeNodeData.extraParams?.databaseType,
+          schemaName: treeNodeData.extraParams?.schemaName,
+          tableName: treeNodeData.name,
+        }
+      });
+    }
     setFocusId(treeNodeData.uuid || '');
   };
 

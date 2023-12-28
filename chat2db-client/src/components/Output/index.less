@@ -13,7 +13,6 @@
     display: flex;
     align-items: center;
 
-    background-color: var(--color-bg-subtle);
     line-height: 32px;
     padding: 0px 10px;
     font-weight: bold;
@@ -36,11 +35,15 @@
         margin-right: 4px;
         font-weight: 500;
       }
-      .iconBox {
+      .timeBoxIcon {
         transform: rotate(90deg);
         margin-right: 4px;
         i {
           color: var(--color-success);
+        }
+        &:hover {
+          cursor: default;
+          background-color: transparent;
         }
       }
       .failureIconBox {
@@ -51,16 +54,26 @@
       > div {
         line-height: 22px;
       }
-      .sqlPlace {
-        color: var(--color-warning-text);
-      }
-      .sqlPlace,
-      .sqlBox {
-        padding-left: 18px;
-      }
       padding: 2px 0px;
     }
   }
-  .sqlBox {
+
+  .executedDatabaseBox,.sqlBox{
+    display: flex;
+    .iconBox{
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
   }
+
+  .executedDatabaseBox{
+    .executedDatabase {
+      color: var(--color-warning-text);
+      white-space: nowrap;
+    }
+  }
+  // .sqlBox {
+  //   .sqlContent{
+  //   }
+  // }
 }

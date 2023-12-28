@@ -231,7 +231,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
   if (range === 'reset') {
-    editor.setValue(text);
+    editor.setValue(text || '');
     return;
   }
   let newText = text;

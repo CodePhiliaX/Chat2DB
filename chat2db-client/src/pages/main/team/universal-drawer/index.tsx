@@ -72,6 +72,7 @@ function UniversalDrawer(props: IProps) {
     showSizeChanger: true,
     showQuickJumper: true,
   });
+  const [total, setTotal] = useState(0);
 
   const managementMap: Record<AffiliationType, IAffiliationDetail> = useMemo(
     () => ({
@@ -322,6 +323,7 @@ function UniversalDrawer(props: IProps) {
       showSizeChanger: true,
       showQuickJumper: true,
     });
+    setTotal(0);
     setModalInfo({
       open: false,
       type: managementDataByType?.searchType,
@@ -346,6 +348,7 @@ function UniversalDrawer(props: IProps) {
     });
     if (res) {
       setDataSource(res?.data ?? []);
+      setTotal(res?.total ?? 0);
     }
   };
 
@@ -353,6 +356,13 @@ function UniversalDrawer(props: IProps) {
     setPagination({
       ...pagination,
       searchKey,
+    });
+  };
+
+  const handleTableChange = (p: any) => {
+    setPagination({
+      ...pagination,
+      ...p,
     });
   };
 
@@ -385,7 +395,16 @@ function UniversalDrawer(props: IProps) {
           {i18n('common.button.add')}
         </Button>
       </div>
-      <Table rowKey={'id'} columns={managementDataByType?.columns} dataSource={dataSource} />
+      <Table
+        rowKey={'id'}
+        pagination={{
+          ...pagination,
+          total,
+        }}
+        columns={managementDataByType?.columns}
+        dataSource={dataSource}
+        onChange={handleTableChange}
+      />
 
       <UniversalAddModal
         {...modalInfo}

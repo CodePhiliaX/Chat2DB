@@ -88,11 +88,24 @@ const ConnectionsPage = () => {
       handleMenuItemDoubleClick(t);
     };
 
+    const copyConnection = (e) => {
+      e.domEvent?.stopPropagation?.();
+      connectionService.clone({ id: t.id }).then((res) => {
+        getConnectionList();
+        setConnectionActiveId(res);
+      });
+    }
+
     return [
       {
         key: 'enterWorkSpace',
         label: <MenuLabel icon="&#xec57;" label={i18n('connection.button.connect')} />,
         onClick: enterWorkSpace,
+      },
+      {
+        key: 'copyConnection',
+        label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copy')} />,
+        onClick: copyConnection,
       },
       {
         key: 'delete',
