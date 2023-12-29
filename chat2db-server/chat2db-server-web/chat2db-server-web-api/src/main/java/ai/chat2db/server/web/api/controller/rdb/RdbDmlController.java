@@ -23,6 +23,7 @@ import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.request.SqlExecuteHistoryCreateRequest;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
+import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import com.google.common.collect.Lists;
@@ -124,11 +125,12 @@ public class RdbDmlController {
         if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
             param.setSql("db." + request.getTableName() + ".find()");
         } else {
+            MetaData metaData = Chat2DBContext.getMetaData();
             // 拼接`tableName`，避免关键字被占用问题
-            param.setSql("select * from " +"`"+ request.getTableName()+"`");
+            param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
         }
         return dlTemplateService.execute(param)
-            .map(rdbWebConverter::dto2vo);
+                .map(rdbWebConverter::dto2vo);
     }
 
     /**

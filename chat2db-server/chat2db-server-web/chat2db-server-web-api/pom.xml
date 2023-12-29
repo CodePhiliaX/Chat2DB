@@ -96,11 +96,9 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.manticore-projects.jsqlformatter</groupId>
-            <artifactId>jsqlformatter</artifactId>
-            <version>1.0.0</version>
+            <groupId>com.github.vertical-blank</groupId>
+            <artifactId>sql-formatter</artifactId>
         </dependency>
     </dependencies>
 

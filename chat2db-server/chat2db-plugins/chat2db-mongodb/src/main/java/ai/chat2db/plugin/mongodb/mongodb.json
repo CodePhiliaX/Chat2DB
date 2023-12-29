@@ -1,6 +1,6 @@
 {
   "dbType": "MONGODB",
-  "supportDatabase": true,
+  "supportDatabase": false,
   "supportSchema": true,
   "driverConfigList": [
     {
