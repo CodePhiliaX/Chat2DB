@@ -32,6 +32,10 @@ const getSQLFunctions = (functions: string[]) => {
   }));
 };
 
+export const resetSenseKeyword = () => {
+  intelliSenseKeyword.dispose(); 
+}
+
 let intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql', {
   provideCompletionItems: () => {
     return { suggestions: [] };
@@ -39,7 +43,7 @@ let intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql',
 });
 
 const registerIntelliSenseKeyword = (databaseCode?: DatabaseTypeCode) => {
-  intelliSenseKeyword.dispose();
+  resetSenseKeyword();
   intelliSenseKeyword = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '('], // 触发提示的字符
     provideCompletionItems: (model, position) => {

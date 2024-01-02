@@ -1,6 +1,10 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import i18n from '@/i18n';
 
+export const resetSenseDatabase = () => {
+  intelliSenseDatabase.dispose();
+}
+
 let intelliSenseDatabase = monaco.languages.registerCompletionItemProvider('sql', {
   provideCompletionItems: () => {
     return { suggestions: [] };
@@ -21,7 +25,7 @@ const checkTableContext = (text) => {
 };
 
 const registerIntelliSenseDatabase = (databaseName: Array<{ name: string; dataSourceName: string }>) => {
-  intelliSenseDatabase.dispose();
+  resetSenseDatabase();
   intelliSenseDatabase = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '.'],
     provideCompletionItems: (model, position) => {
