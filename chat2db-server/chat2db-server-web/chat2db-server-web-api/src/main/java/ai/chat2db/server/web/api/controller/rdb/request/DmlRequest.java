@@ -45,8 +45,4 @@ public class DmlRequest extends DataSourceBaseRequest implements DataSourceConso
      */
     private Boolean pageSizeAll;
 
-    /**
-     * 客户端id
-     */
-    private String clientId;
 }

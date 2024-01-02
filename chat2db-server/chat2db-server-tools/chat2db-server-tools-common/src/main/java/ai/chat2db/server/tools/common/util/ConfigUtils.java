@@ -2,6 +2,7 @@ package ai.chat2db.server.tools.common.util;
 
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.UUID;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,9 @@ public class ConfigUtils {
     public static File configFile;
     private static ConfigJson config = null;
 
+    public static File clientIdFile;
+    private static String clientId = null;
+
     static {
         String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
         if (APP_PATH != null) {
@@ -38,6 +42,14 @@ public class ConfigUtils {
                 CONFIG_BASE_PATH + File.separator + "config" + File.separator + "config_" + environment + ".json");
         if (!configFile.exists()) {
             FileUtil.writeUtf8String(JSON.toJSONString(new ConfigJson()), configFile);
+        }
+
+        clientIdFile = new File(
+                CONFIG_BASE_PATH + File.separator + "config" + File.separator + "client_uuid");
+        if (!clientIdFile.exists()) {
+            String uuid = UUID.fastUUID().toString(true);
+            FileUtil.writeUtf8String(uuid, clientIdFile);
+            clientId = uuid;
         }
     }
 
@@ -61,6 +73,7 @@ public class ConfigUtils {
         version = StringUtils.trim(FileUtil.readUtf8String(versionFile));
         return version;
     }
+
     public static String getLatestLocalVersion() {
         if (versionFile == null) {
             log.warn("VERSION_FILE is null");
@@ -77,6 +90,13 @@ public class ConfigUtils {
         return config;
     }
 
+    public static String getClientId() {
+        if (clientId == null) {
+            clientId = StringUtils.trim(FileUtil.readUtf8String(clientIdFile));
+        }
+        return clientId;
+    }
+
     public static void setConfig(ConfigJson config) {
         String stringConfigJson = JSON.toJSONString(config);
         FileUtil.writeUtf8String(stringConfigJson, configFile);
@@ -87,9 +107,6 @@ public class ConfigUtils {
     private static String getAppPath() {
         try {
             String jarPath = System.getProperty("project.path");
-//            log.info("user home: {}", System.getProperty("user.home"));
-//            log.info("project.path: {}", System.getProperty("project.path"));
-//            log.info("jarPath: {}", jarPath);
             return FileUtil.getParent(jarPath, 4);
         } catch (Exception e) {
             log.error("getAppPath error", e);
@@ -97,38 +114,36 @@ public class ConfigUtils {
         }
     }
 
-    public static void pid() {
+    public static void initProcess() {
         try {
-            log.error("pidinit");
             ProcessHandle currentProcess = ProcessHandle.current();
             long pid = currentProcess.pid();
-            log.error("pid:{}", pid);
             String environment = StringUtils.defaultString(System.getProperty("spring.profiles.active"), "dev");
-            File pidFile = new File(CONFIG_BASE_PATH + File.separator + "config" + File.separator + environment + "pid");
+            File pidFile = new File(CONFIG_BASE_PATH + File.separator + "config" + File.separator + environment + "app.pid");
             if (!pidFile.exists()) {
                 FileUtil.writeUtf8String(String.valueOf(pid), pidFile);
             } else {
                 String oldPid = FileUtil.readUtf8String(pidFile);
-                log.error("oldPid:{}", oldPid);
+                log.info("oldPid:{}", oldPid);
                 if (StringUtils.isNotBlank(oldPid)) {
                     Optional<ProcessHandle> processHandle = ProcessHandle.of(Long.parseLong(oldPid));
-                    log.error("processHandle:{}", JSON.toJSONString(processHandle));
+                    //log.error("processHandle:{}", JSON.toJSONString(processHandle));
                     processHandle.ifPresent(handle -> {
                         ProcessHandle.Info info = handle.info();
                         String[] arguments = info.arguments().orElse(null);
-                        log.error("arguments:{}", JSON.toJSONString(arguments));
+                        log.info("arguments:{}", JSON.toJSONString(arguments));
                         if (arguments == null) {
                             return;
                         }
                         for (String argument : arguments) {
                             if (StringUtils.equals("chat2db-server-start.jar", argument)) {
                                 handle.destroy();
-                                log.error("destroy old process--------");
+                                log.info("destroy old process--------");
                                 break;
                             }
-                            if (StringUtils.equals("application", argument)) {
+                            if (argument.contains("Application")) {
                                 handle.destroy();
-                                log.error("destroy old process--------");
+                                log.info("destroy old process--------");
                                 break;
                             }
                         }
@@ -138,8 +153,8 @@ public class ConfigUtils {
                 FileUtil.writeUtf8String(String.valueOf(pid), pidFile);
             }
 
-        }catch (Exception e){
-            log.error("updatePid error",e);
+        } catch (Exception e) {
+            log.error("updatePid error", e);
         }
 
     }

@@ -15,6 +15,7 @@ import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
@@ -70,7 +71,7 @@ public class RdbDmlController {
         ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
         List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
         String type = Chat2DBContext.getConnectInfo().getDbType();
-        String clientId = getClientId(request.getClientId());
+        String clientId = getClientId();
         String sqlContent = request.getSql();
         executorService.submit(() -> {
             try {
@@ -102,11 +103,11 @@ public class RdbDmlController {
      *
      * @return
      */
-    private String getClientId(String clientId) {
+    private String getClientId() {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
         if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
-            return clientId;
+            return ConfigUtils.getClientId();
         }
         return keyConfig.getContent();
     }
@@ -149,7 +150,7 @@ public class RdbDmlController {
         ExecuteResultVO executeResultVO = rdbWebConverter.dto2vo(result.getData());
         String type = Chat2DBContext.getConnectInfo().getDbType();
         String sqlContent = request.getSql();
-        String clientId = getClientId(request.getClientId());
+        String clientId = getClientId();
         executorService.submit(() -> {
             try {
                 addOperationLog(clientId, type, sqlContent, result.getErrorMessage(), result.getSuccess(), Lists.newArrayList(executeResultVO));

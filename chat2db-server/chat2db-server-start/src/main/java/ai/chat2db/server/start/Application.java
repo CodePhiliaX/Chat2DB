@@ -1,6 +1,7 @@
 package ai.chat2db.server.start;
 
 import ai.chat2db.server.domain.repository.Dbutils;
+import ai.chat2db.server.tools.common.util.ConfigUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 public class Application {
 
     public static void main(String[] args) {
-        //ConfigUtils.pid();
+        ConfigUtils.initProcess();
         CompletableFuture.runAsync(() -> {
             Dbutils.init();
         });
