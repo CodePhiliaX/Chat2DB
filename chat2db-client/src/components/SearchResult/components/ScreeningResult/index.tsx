@@ -63,7 +63,7 @@ export default memo<IProps>((props) => {
       };
     };
 
-    keywordHintRef.current = monaco.languages.registerCompletionItemProvider('sql', {
+    fieldHintRef.current = monaco.languages.registerCompletionItemProvider('sql', {
       provideCompletionItems,
       triggerCharacters: [],
     });
