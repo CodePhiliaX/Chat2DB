@@ -70,7 +70,7 @@ public class RdbDmlController {
         ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
         List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
         String type = Chat2DBContext.getConnectInfo().getDbType();
-        String clientId = getApiKey();
+        String clientId = getClientId(request.getClientId());
         String sqlContent = request.getSql();
         executorService.submit(() -> {
             try {
@@ -102,11 +102,11 @@ public class RdbDmlController {
      *
      * @return
      */
-    private String getApiKey() {
+    private String getClientId(String clientId) {
         ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
         Config keyConfig = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).getData();
         if (Objects.isNull(keyConfig) || StringUtils.isBlank(keyConfig.getContent())) {
-            return null;
+            return clientId;
         }
         return keyConfig.getContent();
     }
@@ -149,7 +149,7 @@ public class RdbDmlController {
         ExecuteResultVO executeResultVO = rdbWebConverter.dto2vo(result.getData());
         String type = Chat2DBContext.getConnectInfo().getDbType();
         String sqlContent = request.getSql();
-        String clientId = getApiKey();
+        String clientId = getClientId(request.getClientId());
         executorService.submit(() -> {
             try {
                 addOperationLog(clientId, type, sqlContent, result.getErrorMessage(), result.getSuccess(), Lists.newArrayList(executeResultVO));
