@@ -29,9 +29,9 @@ public class Application {
 
     public static void main(String[] args) {
         ConfigUtils.initProcess();
-        CompletableFuture.runAsync(() -> {
+        new Thread(() -> {
             Dbutils.init();
-        });
+        }).start();
         SpringApplication.run(Application.class, args);
     }
 }
