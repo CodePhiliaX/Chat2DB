@@ -15,7 +15,6 @@ import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
-import ai.chat2db.server.web.api.controller.ai.dify.client.DifyChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
@@ -48,7 +47,7 @@ public class ConfigController {
     @PostMapping("/system_config")
     public ActionResult systemConfig(@RequestBody SystemConfigRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(request.getCode()).content(request.getContent())
-                .build();
+            .build();
         configService.createOrUpdate(param);
         if (OpenAIClient.OPENAI_KEY.equals(request.getCode())) {
             OpenAIClient.refresh();
@@ -73,7 +72,7 @@ public class ConfigController {
             aiSqlSourceEnum = AiSqlSourceEnum.CHAT2DBAI;
         }
         SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.AI_SQL_SOURCE).content(sqlSource)
-                .build();
+            .build();
         configService.createOrUpdate(param);
 
         switch (Objects.requireNonNull(aiSqlSourceEnum)) {
@@ -104,21 +103,8 @@ public class ConfigController {
             case ZHIPUAI:
                 saveZhipuChatAIConfig(request);
                 break;
-            case DIFYCHAT:
-                saveDifyChatAIConfig(request);
-                break;
         }
         return ActionResult.isSuccess();
-    }
-
-    private void saveDifyChatAIConfig(AIConfigCreateRequest request) {
-        SystemConfigParam param = SystemConfigParam.builder().code(DifyChatAIClient.DIFYCHAT_API_KEY).content(
-                request.getApiKey()).build();
-        configService.createOrUpdate(param);
-        SystemConfigParam hostParam = SystemConfigParam.builder().code(DifyChatAIClient.DIFYCHAT_HOST).content(
-                request.getApiHost()).build();
-        configService.createOrUpdate(hostParam);
-        DifyChatAIClient.refresh();
     }
 
     /**
@@ -128,10 +114,10 @@ public class ConfigController {
      */
     private void saveChat2dbAIConfig(AIConfigCreateRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(Chat2dbAIClient.CHAT2DB_OPENAI_KEY).content(
-                request.getApiKey()).build();
+            request.getApiKey()).build();
         configService.createOrUpdate(param);
         SystemConfigParam hostParam = SystemConfigParam.builder().code(Chat2dbAIClient.CHAT2DB_OPENAI_HOST).content(
-                request.getApiHost()).build();
+            request.getApiHost()).build();
         configService.createOrUpdate(hostParam);
         SystemConfigParam modelParam = SystemConfigParam.builder().code(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL).content(
                 request.getModel()).build();
@@ -146,16 +132,16 @@ public class ConfigController {
      */
     private void saveOpenAIConfig(AIConfigCreateRequest request) {
         SystemConfigParam param = SystemConfigParam.builder().code(OpenAIClient.OPENAI_KEY).content(
-                request.getApiKey()).build();
+            request.getApiKey()).build();
         configService.createOrUpdate(param);
         SystemConfigParam hostParam = SystemConfigParam.builder().code(OpenAIClient.OPENAI_HOST).content(
-                request.getApiHost()).build();
+            request.getApiHost()).build();
         configService.createOrUpdate(hostParam);
         SystemConfigParam httpProxyHostParam = SystemConfigParam.builder().code(OpenAIClient.PROXY_HOST).content(
-                request.getHttpProxyHost()).build();
+            request.getHttpProxyHost()).build();
         configService.createOrUpdate(httpProxyHostParam);
         SystemConfigParam httpProxyPortParam = SystemConfigParam.builder().code(OpenAIClient.PROXY_PORT).content(
-                request.getHttpProxyPort()).build();
+            request.getHttpProxyPort()).build();
         configService.createOrUpdate(httpProxyPortParam);
         OpenAIClient.refresh();
     }
@@ -167,10 +153,10 @@ public class ConfigController {
      */
     private void saveRestAIConfig(AIConfigCreateRequest request) {
         SystemConfigParam restParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_URL).content(
-                request.getApiHost()).build();
+            request.getApiHost()).build();
         configService.createOrUpdate(restParam);
         SystemConfigParam methodParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_STREAM_OUT).content(
-                request.getStream().toString()).build();
+            request.getStream().toString()).build();
         configService.createOrUpdate(methodParam);
         RestAIClient.refresh();
     }
@@ -182,16 +168,16 @@ public class ConfigController {
      */
     private void saveAzureAIConfig(AIConfigCreateRequest request) {
         SystemConfigParam apikeyParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_API_KEY)
-                .content(
-                        request.getApiKey()).build();
+            .content(
+                request.getApiKey()).build();
         configService.createOrUpdate(apikeyParam);
         SystemConfigParam endpointParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_ENDPOINT)
-                .content(
-                        request.getApiHost()).build();
+            .content(
+                request.getApiHost()).build();
         configService.createOrUpdate(endpointParam);
         SystemConfigParam modelParam = SystemConfigParam.builder().code(AzureOpenAIClient.AZURE_CHATGPT_DEPLOYMENT_ID)
-                .content(
-                        request.getModel()).build();
+            .content(
+                request.getModel()).build();
         configService.createOrUpdate(modelParam);
         AzureOpenAIClient.refresh();
     }
@@ -322,9 +308,9 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(apiKey.getData()) ? apiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(apiHost.getData()) ? apiHost.getData().getContent() : "");
                 config.setHttpProxyHost(
-                        Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : "");
+                    Objects.nonNull(httpProxyHost.getData()) ? httpProxyHost.getData().getContent() : "");
                 config.setHttpProxyPort(
-                        Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : "");
+                    Objects.nonNull(httpProxyPort.getData()) ? httpProxyPort.getData().getContent() : "");
                 break;
             case CHAT2DBAI:
                 DataResult<Config> chat2dbApiKey = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_KEY);
@@ -332,7 +318,7 @@ public class ConfigController {
                 DataResult<Config> chat2dbModel = configService.find(Chat2dbAIClient.CHAT2DB_OPENAI_MODEL);
                 config.setApiKey(Objects.nonNull(chat2dbApiKey.getData()) ? chat2dbApiKey.getData().getContent() : "");
                 config.setApiHost(
-                        Objects.nonNull(chat2dbApiHost.getData()) ? chat2dbApiHost.getData().getContent() : "");
+                    Objects.nonNull(chat2dbApiHost.getData()) ? chat2dbApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(chat2dbModel.getData()) ? chat2dbModel.getData().getContent() : "");
                 break;
             case AZUREAI:
@@ -348,7 +334,7 @@ public class ConfigController {
                 DataResult<Config> restAiHttpMethod = configService.find(RestAIClient.REST_AI_STREAM_OUT);
                 config.setApiHost(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : "");
                 config.setStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
-                        restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
+                    restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
                 break;
             case FASTCHATAI:
                 DataResult<Config> fastChatApiKey = configService.find(FastChatAIClient.FASTCHAT_API_KEY);
@@ -389,12 +375,6 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(zhipuApiKey.getData()) ? zhipuApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(zhipuApiHost.getData()) ? zhipuApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(zhipuModel.getData()) ? zhipuModel.getData().getContent() : "");
-                break;
-            case DIFYCHAT:
-                DataResult<Config> difyChatApiKey = configService.find(DifyChatAIClient.DIFYCHAT_API_KEY);
-                DataResult<Config> difyChatApiHost = configService.find(DifyChatAIClient.DIFYCHAT_HOST);
-                config.setApiKey(Objects.nonNull(difyChatApiKey.getData()) ? difyChatApiKey.getData().getContent() : "");
-                config.setApiHost(Objects.nonNull(difyChatApiHost.getData()) ? difyChatApiHost.getData().getContent() : "");
                 break;
             default:
                 break;
