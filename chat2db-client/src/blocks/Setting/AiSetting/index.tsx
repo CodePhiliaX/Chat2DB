@@ -5,7 +5,7 @@ import { Alert, Button, Form, Input, Radio, RadioChangeEvent, Spin } from 'antd'
 import i18n from '@/i18n';
 import { IAiConfig } from '@/typings/setting';
 import { getUser } from '@/service/user';
-import { ILoginUser, IRole } from '@/typings/user';
+import { IUserVO, IRole } from '@/typings/user';
 import { AIFormConfig, AITypeName } from './aiTypeConfig';
 import styles from './index.less';
 
@@ -21,7 +21,7 @@ function capitalizeFirstLetter(string) {
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
   const [aiConfig, setAiConfig] = useState<IAiConfig>();
-  const [userInfo, setUserInfo] = useState<ILoginUser>();
+  const [userInfo, setUserInfo] = useState<IUserVO>();
   const [loading, setLoading] = useState(false);
 
   const queryUserInfo = async () => {
