@@ -26,7 +26,7 @@ export const useUserStore: UseBoundStoreWithEqualityFn<StoreApi<IUserStore>> = c
  * @param curUser 设置当前用户
  */
 
-export const setCurUser = (curUser: IUserVO) => {
+export const setCurUser = (curUser?: IUserVO) => {
   useUserStore.setState({ curUser });
 };
 
@@ -41,4 +41,5 @@ export const queryCurUser = async () => {
   // 向cookie中写入当前用户id
   const date = new Date('2030-12-30 12:30:00').toUTCString();
   document.cookie = `CHAT2DB.USER_ID=${curUser?.id};Expires=${date}`;
+  return curUser
 };
