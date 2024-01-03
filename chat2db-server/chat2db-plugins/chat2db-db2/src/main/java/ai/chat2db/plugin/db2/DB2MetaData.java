@@ -21,6 +21,7 @@ import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 public class DB2MetaData extends DefaultMetaService implements MetaData {
 
@@ -155,6 +156,10 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
                 .indexTypes(DB2IndexTypeEnum.getIndexTypes())
                 .defaultValues(DB2DefaultValueEnum.getDefaultValues())
                 .build();
+    }
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 
 }

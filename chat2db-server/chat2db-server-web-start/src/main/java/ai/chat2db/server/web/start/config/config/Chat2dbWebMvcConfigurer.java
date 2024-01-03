@@ -111,6 +111,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         return true;
                     }
 
+                    loginUser.setToken(StpUtil.getTokenValue());
                     ContextUtils.setContext(Context.builder()
                         .loginUser(loginUser)
                         .build());

@@ -119,4 +119,5 @@ export default {
   'common.label.tcp': 'TCP',
   'common.label.LocalFile': 'LocalFile',
   'common.text.rename': 'Rename',
+  'common.title.info': 'Info',
 };  

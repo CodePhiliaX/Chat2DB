@@ -318,6 +318,18 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         return columnType;
     }
 
+    public String buildColumn(TableColumn column) {
+        MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+
+        script.append("`").append(column.getName()).append("`").append(" ");
+        script.append(buildDataType(column, type)).append(" ");
+        return script.toString();
+    }
+
     private String unsignedDataType(String dataTypeName, String middle) {
         String[] split = dataTypeName.split(" ");
         if (split.length == 2) {

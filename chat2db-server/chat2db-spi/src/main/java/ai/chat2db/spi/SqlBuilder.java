@@ -1,8 +1,11 @@
 package ai.chat2db.spi;
 
 import ai.chat2db.spi.model.Database;
+import ai.chat2db.spi.model.OrderBy;
 import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.model.Table;
+
+import java.util.List;
 
 public interface SqlBuilder {
 
@@ -69,4 +72,12 @@ public interface SqlBuilder {
      * @return
      */
     String buildModifySchemaSql(String oldSchemaName, String newSchemaName);
+
+    /**
+     *
+     * @param originSql
+     * @param orderByList
+     * @return
+     */
+    String buildOrderBySql(String originSql, List<OrderBy> orderByList);
 }

@@ -1,11 +1,7 @@
 package ai.chat2db.server.domain.repository;
 
-import ai.chat2db.server.domain.repository.entity.DataSourceDO;
-import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
-import cn.hutool.core.lang.UUID;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
