@@ -204,13 +204,15 @@ public class GatewayClientService {
      * @return
      */
     public DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest) {
-        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
-                .connectTimeout(Duration.ofMillis(5000))
-                .readTimeout(Duration.ofMillis(10000))
-                .addQuery(whiteListRequest)
-                .execute(new TypeReference<>() {
-                });
-        return result;
+        // 去掉白名单
+        return DataResult.of(false);
+//        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
+//                .connectTimeout(Duration.ofMillis(5000))
+//                .readTimeout(Duration.ofMillis(10000))
+//                .addQuery(whiteListRequest)
+//                .execute(new TypeReference<>() {
+//                });
+//        return result;
     }
 
     public ActionResult addOperationLog(SqlExecuteHistoryCreateRequest request) {

@@ -44,4 +44,5 @@ public class DmlRequest extends DataSourceBaseRequest implements DataSourceConso
      * 只有select语句才有
      */
     private Boolean pageSizeAll;
+
 }

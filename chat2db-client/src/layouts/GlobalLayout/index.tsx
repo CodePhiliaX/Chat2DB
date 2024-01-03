@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import usePollRequestService, { ServiceStatus } from '@/hooks/usePollRequestService';
 import i18n, { isEn } from '@/i18n';
 import { Button, ConfigProvider, Spin, Tooltip } from 'antd';
@@ -14,10 +14,16 @@ import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons'
 import { ThemeType } from '@/constants';
 import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
+import { useUserStore, queryCurUser } from '@/store/user'
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();
   const [antdTheme, setAntdTheme] = useState<any>({});
+  const { curUser } = useUserStore((state)=> {
+    return {
+      curUser: state.curUser
+    }
+  })
 
   const { serviceStatus, restartPolling } = usePollRequestService({
     loopService: service.testService,
@@ -34,6 +40,12 @@ const GlobalLayout = () => {
     monitorOsTheme();
   }, []);
 
+  useEffect(() => {
+    if(serviceStatus === ServiceStatus.SUCCESS){
+      queryCurUser();
+    }
+  }, [serviceStatus]);
+
   // 监听系统(OS)主题变化
   const monitorOsTheme = () => {
     function change(e: any) {
@@ -49,7 +61,7 @@ const GlobalLayout = () => {
   };
 
   // 等待状态页面
-  if (serviceStatus === ServiceStatus.PENDING) {
+  if (serviceStatus === ServiceStatus.PENDING || curUser === null) {
     return <Spin className={styles.loadingBox} size="large" />;
   }
 

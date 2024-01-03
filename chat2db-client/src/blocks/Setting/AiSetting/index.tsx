@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import configService from '@/service/config';
 import { AIType } from '@/typings/ai';
-import { Alert, Button, Form, Input, Radio, RadioChangeEvent, Spin } from 'antd';
+import { Alert, Button, Form, Input, Radio, RadioChangeEvent } from 'antd';
 import i18n from '@/i18n';
 import { IAiConfig } from '@/typings/setting';
-import { getUser } from '@/service/user';
-import { ILoginUser, IRole } from '@/typings/user';
+import { IRole } from '@/typings/user';
 import { AIFormConfig, AITypeName } from './aiTypeConfig';
 import styles from './index.less';
+import { useUserStore } from '@/store/user'
 
 interface IProps {
   handleApplyAiConfig: (aiConfig: IAiConfig) => void;
@@ -21,33 +21,15 @@ function capitalizeFirstLetter(string) {
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
   const [aiConfig, setAiConfig] = useState<IAiConfig>();
-  const [userInfo, setUserInfo] = useState<ILoginUser>();
-  const [loading, setLoading] = useState(false);
-
-  const queryUserInfo = async () => {
-    setLoading(true);
-    try {
-      const res = await getUser();
-      // 向cookie中写入当前用户id
-      const date = new Date('2030-12-30 12:30:00').toUTCString();
-      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
-      setUserInfo(res);
-    } finally {
-      setLoading(false);
+  const { userInfo } = useUserStore(state => {
+    return {
+      userInfo: state.curUser
     }
-  };
-
-  useEffect(() => {
-    queryUserInfo();
-  }, []);
+  })
 
   useEffect(() => {
     setAiConfig(props.aiConfig);
   }, [props.aiConfig]);
-
-  if (loading) {
-    return <Spin spinning={loading} />;
-  }
 
   if (!aiConfig) {
     return <Alert description={i18n('setting.ai.tips')} type="warning" showIcon />;
@@ -84,7 +66,7 @@ export default function SettingAI(props: IProps) {
   };
 
   return (
-    <Spin spinning={loading}>
+    <>
       <div className={styles.aiSqlSource}>
         <div className={styles.aiSqlSourceTitle}>{i18n('setting.title.aiSource')}:</div>
         <Radio.Group onChange={handleAiTypeChange} value={aiConfig?.aiSqlSource}>
@@ -128,6 +110,6 @@ export default function SettingAI(props: IProps) {
       </div>
 
       {/* {aiConfig?.aiSqlSource === AIType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />} */}
-    </Spin>
+    </>
   );
 }

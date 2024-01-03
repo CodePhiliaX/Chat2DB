@@ -111,7 +111,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
 
         // append reorder column
-        script.append("\t").append(buildGenerateReorderColumnSql(oldTable, newTable));
+        script.append(buildGenerateReorderColumnSql(oldTable, newTable));
 
         if (script.length() > 2) {
             script = new StringBuilder(script.substring(0, script.length() - 2));

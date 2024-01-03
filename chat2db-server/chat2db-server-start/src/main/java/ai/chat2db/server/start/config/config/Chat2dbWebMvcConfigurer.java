@@ -89,6 +89,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         // 代表用户可能被删除了
                         return true;
                     }
+                    loginUser.setToken(userId.toString());
 
                     ContextUtils.setContext(Context.builder()
                         .loginUser(loginUser)

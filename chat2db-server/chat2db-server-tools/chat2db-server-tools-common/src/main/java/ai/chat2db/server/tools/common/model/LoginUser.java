@@ -44,4 +44,7 @@ public class LoginUser implements Serializable {
      * @see RoleCodeEnum
      */
     private String roleCode;
+
+
+    private String token;
 }

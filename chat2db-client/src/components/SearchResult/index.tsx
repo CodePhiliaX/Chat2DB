@@ -48,6 +48,7 @@ export interface ISearchResultRef {
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
   activeTabId: string;
+  notChangedSql: string;
 }
 
 export const Context = createContext<IContext>({} as any);
@@ -58,6 +59,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
   const [activeTabId, setActiveTabId] = useState<string>('');
+  const [notChangedSql, setNotChangedSql] = useState<string>('');
 
   useEffect(() => {
     if (sql) {
@@ -97,6 +99,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         }));
 
         setResultDataList(sqlResult);
+        if(!notChangedSql){
+          setNotChangedSql(_sql);
+        }
       })
       .finally(() => {
         setTableLoading(false);
@@ -121,6 +126,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
                 executeSqlParams={props.executeSqlParams}
+                concealTabHeader={concealTabHeader}
               />
             ) : (
               <div className={styles.updateCountBox}>
@@ -194,6 +200,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     <Context.Provider
       value={{
         activeTabId: activeTabId,
+        notChangedSql: notChangedSql,
       }}
     >
       <div className={classnames(className, styles.searchResult)}>
