@@ -9,7 +9,7 @@ import BrandLogo from '@/components/BrandLogo';
 import i18n from '@/i18n';
 import { getUser, userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
-import { ILoginUser, IRole } from '@/typings/user';
+import { IUserVO, IRole } from '@/typings/user';
 
 // ----- hooks -----
 import getConnectionEnvList from './functions/getConnection';
@@ -66,7 +66,7 @@ const initNavConfig: INavItem[] = [
 function MainPage() {
   const navigate = useNavigate();
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
-  const [userInfo, setUserInfo] = useState<ILoginUser>();
+  const [userInfo, setUserInfo] = useState<IUserVO>();
   const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
@@ -96,7 +96,6 @@ function MainPage() {
     }
   }, [activeNavKey]);
 
-  // 这里如果社区版没有登陆可能需要后端来个重定向？
   const handleInitPage = async () => {
     const cloneNavConfig = [...navConfig];
     const res = await getUser();

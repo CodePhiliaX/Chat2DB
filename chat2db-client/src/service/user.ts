@@ -1,6 +1,6 @@
 import createRequest from './base';
 import { IPageParams, IPageResponse } from '@/typings';
-import { ILoginUser, IUser } from '@/typings/user';
+import { IUserVO, IUser } from '@/typings/user';
 
 /** 用户登录接口 */
 const userLogin = createRequest<{ userName: string; password: string }, boolean>('/api/oauth/login_a', {
@@ -13,7 +13,7 @@ const userLogout = createRequest<void, void>('/api/oauth/logout_a', {
 });
 
 /** 获取用户信息 */
-const getUser = createRequest<void, ILoginUser>('/api/oauth/user_a', { method: 'get' });
+const getUser = createRequest<void, IUserVO>('/api/oauth/user_a', { method: 'get' });
 
 /** 获取用户列表信息 */
 const getUserList = createRequest<IPageParams, IPageResponse<IUser>>('/api/user/list', {

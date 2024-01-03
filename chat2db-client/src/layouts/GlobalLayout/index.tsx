@@ -14,10 +14,16 @@ import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons'
 import { ThemeType } from '@/constants';
 import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
+import { useUserStore } from '@/store/user'
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();
   const [antdTheme, setAntdTheme] = useState<any>({});
+  const { curUser } = useUserStore((state)=> {
+    return {
+      curUser: state.curUser
+    }
+  })
 
   const { serviceStatus, restartPolling } = usePollRequestService({
     loopService: service.testService,
@@ -49,7 +55,7 @@ const GlobalLayout = () => {
   };
 
   // 等待状态页面
-  if (serviceStatus === ServiceStatus.PENDING) {
+  if (serviceStatus === ServiceStatus.PENDING || curUser === null) {
     return <Spin className={styles.loadingBox} size="large" />;
   }
 
