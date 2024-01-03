@@ -13,7 +13,7 @@ const userLogout = createRequest<void, void>('/api/oauth/logout_a', {
 });
 
 /** 获取用户信息 */
-const getUser = createRequest<void, IUserVO>('/api/oauth/user_a', { method: 'get' });
+const getUser = createRequest<void, IUserVO | null>('/api/oauth/user_a', { method: 'get' });
 
 /** 获取用户列表信息 */
 const getUserList = createRequest<IPageParams, IPageResponse<IUser>>('/api/user/list', {
