@@ -1,5 +1,4 @@
 import { clearOlderLocalStorage } from '@/utils';
-import initLoginInfo from './initLoginInfo';
 import initIndexedDB from './initIndexedDB';
 import registerElectronApi from './registerElectronApi';
 import registerMessage from './registerMessage';
@@ -9,7 +8,6 @@ import { LangType } from '@/constants';
 
 const init = () => {
   clearOlderLocalStorage();
-  initLoginInfo();
 
   initLang();
   initIndexedDB();

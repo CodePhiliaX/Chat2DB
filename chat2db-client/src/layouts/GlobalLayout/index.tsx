@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import usePollRequestService, { ServiceStatus } from '@/hooks/usePollRequestService';
 import i18n, { isEn } from '@/i18n';
 import { Button, ConfigProvider, Spin, Tooltip } from 'antd';
@@ -14,7 +14,7 @@ import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons'
 import { ThemeType } from '@/constants';
 import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
-import { useUserStore } from '@/store/user'
+import { useUserStore, queryCurUser } from '@/store/user'
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();
@@ -39,6 +39,12 @@ const GlobalLayout = () => {
     init();
     monitorOsTheme();
   }, []);
+
+  useEffect(() => {
+    if(serviceStatus === ServiceStatus.SUCCESS){
+      queryCurUser();
+    }
+  }, [serviceStatus]);
 
   // 监听系统(OS)主题变化
   const monitorOsTheme = () => {
