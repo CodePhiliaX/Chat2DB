@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDateTime;
 
 @Slf4j
 public class DefaultValueHandler implements ValueHandler {
@@ -59,6 +60,9 @@ public class DefaultValueHandler implements ValueHandler {
             sqlObject = new SQLNumberExpr((Double) obj);
         } else if (obj instanceof Boolean) {
             sqlObject = new SQLBooleanExpr((Boolean) obj);
+        } else if (obj instanceof LocalDateTime) {
+            LocalDateTime localDateTime = (LocalDateTime) obj;
+            sqlObject = new SQLTimestampExpr(localDateTime.toString());
         } else if (obj instanceof Date) {
             sqlObject = new SQLDateExpr(((Date) obj).toString());
         } else if (obj instanceof Time) {
