@@ -26,23 +26,21 @@
 .app {
   width: 100vw;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+  .appTitleBar {
+    height: 30px;
+    background-color: var(--color-primary-bg);
+    display: flex;
+    align-items: center;
+    -webkit-app-region: drag;
+    -webkit-user-select: none;
+  }
+  .appBody {
+    flex: 1;
+    position: relative;
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 :global {
   #root {

@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('electronApi', {
     console.log('productName:', productName, isTest);
 
     const child = spawn(path.join(__dirname, '../..', `./static/${JAVA_PATH}`), [
-        '-noverify',
+      '-noverify',
       `-Dspring.profiles.active=${isTest ? 'test' : 'release'}`,
       '-Dserver.address=127.0.0.1',
       '-Dchat2db.mode=DESKTOP',
@@ -54,5 +54,8 @@ contextBridge.exposeInMainWorld('electronApi', {
   },
   registerAppMenu: (menuProps) => {
     ipcRenderer.send('register-app-menu', menuProps);
+  },
+  setMaximize: () => {
+    ipcRenderer.send('set-maximize');
   },
 });

@@ -4,6 +4,11 @@ const url = require('url');
 const { version } = require('os');
 const fs = require('fs');
 
+const isLinux = process.platform == 'linux';
+const isWin = process.platform == 'win32';
+const isMac = process.platform == 'darwin';
+const isProd = process.env.NODE_ENV == 'production';
+
 /**
  * 加载主进程前端资源
  * @param {*} mainWindow
@@ -27,7 +32,7 @@ function loadMainResource(mainWindow) {
 
 /**
  * 应该读取哪个版本的资源
- * @param {*} 
+ * @param {*}
  */
 function readVersion() {
   let version = '';
@@ -39,5 +44,9 @@ function readVersion() {
 
 module.exports = {
   loadMainResource,
-  readVersion
+  readVersion,
+  isLinux,
+  isWin,
+  isMac,
+  isProd,
 };

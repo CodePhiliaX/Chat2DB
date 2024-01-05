@@ -14,21 +14,22 @@ import { GithubOutlined, SyncOutlined, WechatOutlined } from '@ant-design/icons'
 import { ThemeType } from '@/constants';
 import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
-import { useUserStore, queryCurUser } from '@/store/user'
+import { useUserStore, queryCurUser } from '@/store/user';
+import AppTitleBar from '@/blocks/AppTitleBar';
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();
   const [antdTheme, setAntdTheme] = useState<any>({});
-  const { curUser } = useUserStore((state)=> {
+  const { curUser } = useUserStore((state) => {
     return {
-      curUser: state.curUser
-    }
-  })
+      curUser: state.curUser,
+    };
+  });
 
   const { serviceStatus, restartPolling } = usePollRequestService({
     loopService: service.testService,
   });
-  
+
   useCopyFocusData();
 
   useLayoutEffect(() => {
@@ -41,7 +42,7 @@ const GlobalLayout = () => {
   }, []);
 
   useEffect(() => {
-    if(serviceStatus === ServiceStatus.SUCCESS){
+    if (serviceStatus === ServiceStatus.SUCCESS) {
       queryCurUser();
     }
   }, [serviceStatus]);
@@ -90,9 +91,11 @@ const GlobalLayout = () => {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <div className={styles.app}>
-        <Outlet />
+        <AppTitleBar className={styles.appTitleBar} />
+        <div className={styles.appBody}>
+          <Outlet />
+        </div>
       </div>
-
       <GlobalComponent />
     </ConfigProvider>
   );
