@@ -74,7 +74,7 @@ const OperationLine = (props: IProps) => {
             boxSize={20}
             size={14}
           />
-          {searchIng ? (
+          {/* {searchIng ? (
             <Iconfont
               onClick={() => {
                 setSearchIng(false);
@@ -94,22 +94,22 @@ const OperationLine = (props: IProps) => {
               boxSize={20}
               size={14}
             />
-          )}
+          )} */}
         </div>
         {/* <div>1</div> */}
       </div>
-      {searchIng && (
-        <div className={styles.searchBox}>
-          <Input
-            size="small"
-            prefix={<Iconfont code="&#xe888;" />}
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            allowClear
-            placeholder={i18n('workspace.tree.search.placeholder')}
-          />
-        </div>
-      )}
+      {/* {searchIng && ( */}
+      <div className={styles.searchBox}>
+        <Input
+          size="small"
+          prefix={<Iconfont code="&#xe888;" />}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          allowClear
+          placeholder={i18n('workspace.tree.search.placeholder')}
+        />
+      </div>
+      {/* )} */}
     </>
   );
 };

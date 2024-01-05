@@ -1,7 +1,6 @@
 import { CreateTabIntroType, WorkspaceTabType, DatabaseTypeCode, ConsoleStatus } from '@/constants';
 import { ITreeNode } from '@/typings';
 
-
 export interface ICreateTabIntro {
   type: CreateTabIntroType;
   workspaceTabType: WorkspaceTabType;
@@ -24,5 +23,6 @@ export interface IBoundInfo {
   schemaName?: string;
   status: ConsoleStatus;
   connectable: boolean;
+  supportDatabase: boolean;
+  supportSchema: boolean;
 }
-

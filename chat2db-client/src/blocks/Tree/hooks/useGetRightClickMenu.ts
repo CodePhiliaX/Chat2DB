@@ -110,7 +110,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('common.button.refresh'),
         icon: '\uec08',
         handle: () => {
-          treeNodeData.loadData?.({
+          loadData?.({
             refresh: true,
           });
         },
@@ -166,7 +166,7 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseType: treeNodeData.extraParams!.databaseType!,
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
-              submitCallback: () => {treeNodeData.loadData?.({refresh: true})},
+              submitCallback: () => {loadData?.({refresh: true})},
             },
           });
         },
@@ -178,7 +178,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.deleteTable'),
         icon: '\ue6a7',
         handle: () => {
-          deleteTable(treeNodeData);
+          deleteTable(treeNodeData,loadData);
         },
       },
 
@@ -196,7 +196,12 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: treeNodeData.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
         icon: treeNodeData.pinned ? '\ue61d' : '\ue627',
         handle: () => {
-          handelPinTable({treeNodeData, loadData: treeNodeData.parentNode!.loadData!});
+          handelPinTable({
+            treeNodeData,
+            loadData: () => {
+              loadData({treeNodeData:treeNodeData.parentNode})
+            }
+          });
         },
       },
 
@@ -215,7 +220,13 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
               tableName: treeNodeData?.name,
-              submitCallback: () => {treeNodeData.parentNode?.loadData?.({refresh: true})},
+              submitCallback: () => {
+              
+                loadData({
+                  treeNodeData: treeNodeData.parentNode,
+                  refresh: true
+                })
+              },
             },
           });
         },
@@ -405,7 +416,7 @@ export const getRightClickMenu = (props: IProps) => {
       text: i18n('common.button.refresh'),
       icon: '\uec08',
       handle: () => {
-        treeNodeData.loadData?.({
+        loadData?.({
           refresh: true,
         });
       },

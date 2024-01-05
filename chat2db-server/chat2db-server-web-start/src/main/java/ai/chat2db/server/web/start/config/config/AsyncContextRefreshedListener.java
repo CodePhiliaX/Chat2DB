@@ -1,5 +1,6 @@
 package ai.chat2db.server.web.start.config.config;
 
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.tools.common.model.ConfigJson;
 import ai.chat2db.server.tools.common.util.ConfigUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,5 +29,6 @@ public class AsyncContextRefreshedListener implements ApplicationListener<Contex
             configJson.setLatestStartupSuccessVersion(currentVersion);
             ConfigUtils.setConfig(configJson);
         }
+        Dbutils.init();
     }
 }

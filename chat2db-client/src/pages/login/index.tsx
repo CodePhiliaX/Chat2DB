@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Form, Input, Tooltip } from 'antd';
-import { userLogin, getUser } from '@/service/user';
+import { userLogin } from '@/service/user';
 import LogoImg from '@/assets/logo/logo.png';
 import styles from './index.less';
 import Setting from '@/blocks/Setting';
@@ -8,6 +8,7 @@ import Iconfont from '@/components/Iconfont';
 import i18n from '@/i18n';
 // import { useNavigate } from 'react-router-dom';
 import { logoutClearSomeLocalStorage, navigate } from '@/utils';
+import { queryCurUser } from '@/store/user'
 
 interface IFormData {
   userName: string;
@@ -19,17 +20,12 @@ const Login: React.FC = () => {
     logoutClearSomeLocalStorage();
   }, []);
 
-  // const navigate = useNavigate();
   const handleLogin = async (formData: IFormData) => {
     const token = await userLogin(formData);
-    getUser().then((res) => {
-      // 向cookie中写入当前用户id
-      const date = new Date('2030-12-30 12:30:00').toUTCString();
-      document.cookie = `CHAT2DB.USER_ID=${res?.id};Expires=${date}`;
-      if (token && res) {
-        navigate('/');
-      }
-    });
+    const res = await queryCurUser();
+    if (token && res) {
+      navigate('/');
+    }
   };
 
   return (

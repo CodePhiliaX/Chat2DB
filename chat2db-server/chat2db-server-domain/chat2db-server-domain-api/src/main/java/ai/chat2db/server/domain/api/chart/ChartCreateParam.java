@@ -48,6 +48,11 @@ public class ChartCreateParam {
     private String databaseName;
 
     /**
+     *
+     */
+    private String schemaName;
+
+    /**
      * ddl内容
      */
     private String ddl;

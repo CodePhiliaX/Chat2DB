@@ -8,7 +8,8 @@ export interface ICreateConsoleParams {
   databaseType: DatabaseTypeCode;
   databaseName?: string;
   schemaName?: string;
-  operationType?: string;
+  operationType?: WorkspaceTabType;
+  loadSQL?: () => Promise<string>;
 }
 
 // 控制台详情

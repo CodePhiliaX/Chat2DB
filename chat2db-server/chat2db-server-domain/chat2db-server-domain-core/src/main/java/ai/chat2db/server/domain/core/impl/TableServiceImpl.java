@@ -319,29 +319,7 @@ public class TableServiceImpl implements TableService {
         long total = 0;
         long version = 0L;
         if (param.isRefresh() || versionDO == null) {
-            version = getLock(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), versionDO);
-            if (version == -1) {
-                int n = 0;
-                while (n < 100) {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                    }
-                    versionDO = getVersionMapper().selectOne(queryWrapper);
-                    if (versionDO != null && "1".equals(versionDO.getStatus())) {
-                        version = versionDO.getVersion();
-                        total = versionDO.getTableCount();
-                        break;
-                    }
-                    n++;
-                }
-            } else {
-                total = addDBCache(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), version);
-                TableCacheVersionDO versionDO1 = new TableCacheVersionDO();
-                versionDO1.setStatus("1");
-                versionDO1.setTableCount(total);
-                getVersionMapper().update(versionDO1, queryWrapper);
-            }
+           total = addCache(param,versionDO);
         } else {
             if ("2".equals(versionDO.getStatus())) {
                 version = versionDO.getVersion() - 1;
@@ -370,6 +348,37 @@ public class TableServiceImpl implements TableService {
         return PageResult.of(tables, total, param);
     }
 
+    private long addCache(TablePageQueryParam param,TableCacheVersionDO versionDO){
+        LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
+        String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
+        queryWrapper.eq(TableCacheVersionDO::getKey, key);
+        long total = 0;
+        long version = getLock(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), versionDO);
+        if (version == -1) {
+            int n = 0;
+            while (n < 100) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                }
+                versionDO = getVersionMapper().selectOne(queryWrapper);
+                if (versionDO != null && "1".equals(versionDO.getStatus())) {
+                    version = versionDO.getVersion();
+                    total = versionDO.getTableCount();
+                    break;
+                }
+                n++;
+            }
+        } else {
+            total = addDBCache(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), version);
+            TableCacheVersionDO versionDO1 = new TableCacheVersionDO();
+            versionDO1.setStatus("1");
+            versionDO1.setTableCount(total);
+            getVersionMapper().update(versionDO1, queryWrapper);
+        }
+        return total;
+    }
+
     @Override
     public ListResult<SimpleTable> queryTables(TablePageQueryParam param) {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
@@ -377,7 +386,8 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
         TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
-            return ListResult.of(Lists.newArrayList());
+            addCache(param,versionDO);
+            versionDO = getVersionMapper().selectOne(queryWrapper);
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();
 

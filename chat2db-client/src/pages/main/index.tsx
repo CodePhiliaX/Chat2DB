@@ -7,9 +7,9 @@ import Iconfont from '@/components/Iconfont';
 import BrandLogo from '@/components/BrandLogo';
 
 import i18n from '@/i18n';
-import { getUser, userLogout } from '@/service/user';
+import { userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
-import { ILoginUser, IRole } from '@/typings/user';
+import { IRole } from '@/typings/user';
 
 // ----- hooks -----
 import getConnectionEnvList from './functions/getConnection';
@@ -17,6 +17,7 @@ import getConnectionEnvList from './functions/getConnection';
 // ----- store -----
 import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
 import { getConnectionList } from '@/pages/main/store/connection';
+import { useUserStore, setCurUser } from '@/store/user';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -65,8 +66,12 @@ const initNavConfig: INavItem[] = [
 
 function MainPage() {
   const navigate = useNavigate();
+  const { userInfo } = useUserStore(state => {
+    return {
+      userInfo: state.curUser
+    }
+  });
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
-  const [userInfo, setUserInfo] = useState<ILoginUser>();
   const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
@@ -96,14 +101,11 @@ function MainPage() {
     }
   }, [activeNavKey]);
 
-  // 这里如果社区版没有登陆可能需要后端来个重定向？
   const handleInitPage = async () => {
     const cloneNavConfig = [...navConfig];
-    const res = await getUser();
-    if (res) {
-      setUserInfo(res);
+    if (userInfo) {
       const hasTeamIcon = cloneNavConfig.find((i) => i.key === 'team');
-      if (res.admin && !hasTeamIcon) {
+      if (userInfo.admin && !hasTeamIcon) {
         cloneNavConfig.splice(3, 0, {
           key: 'team',
           icon: '\ue64b',
@@ -113,7 +115,7 @@ function MainPage() {
           name: i18n('team.title'),
         });
       }
-      if (!res.admin && hasTeamIcon) {
+      if (!userInfo.admin && hasTeamIcon) {
         cloneNavConfig.splice(3, 1);
       }
     }
@@ -131,7 +133,7 @@ function MainPage() {
 
   const handleLogout = () => {
     userLogout().then(() => {
-      setUserInfo(undefined);
+      setCurUser(undefined);
       navigate('/login');
     });
   };

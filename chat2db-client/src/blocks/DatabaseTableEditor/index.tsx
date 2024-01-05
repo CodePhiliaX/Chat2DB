@@ -248,7 +248,7 @@ export default memo((props: IProps) => {
       });
     }
     // 保存成功后，刷新左侧树
-    submitCallback();
+    submitCallback?.();
   };
 
   return (

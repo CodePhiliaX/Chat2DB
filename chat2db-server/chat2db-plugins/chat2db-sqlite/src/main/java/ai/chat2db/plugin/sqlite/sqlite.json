@@ -1,6 +1,6 @@
 {
   "dbType": "SQLITE",
-  "supportDatabase": false,
+  "supportDatabase": true,
   "supportSchema": false,
   "driverConfigList": [
     {

@@ -31,6 +31,7 @@ export interface IConnectionDetails {
   environment: IConnectionEnv;
   type: DatabaseTypeCode;
 
+  isAdmin: boolean;
   url: string;
   user: string;
   password: string;

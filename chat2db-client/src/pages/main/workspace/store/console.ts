@@ -3,6 +3,8 @@ import { IConsole, ICreateConsoleParams } from '@/typings';
 import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
 import { ConsoleStatus, WorkspaceTabType } from '@/constants';
+import { message } from 'antd';
+import i18n from '@/i18n';
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
@@ -18,7 +20,6 @@ export const initConsoleStore = {
   activeConsoleId: null,
   workspaceTabList: null,
   createConsoleLoading: false,
-
 };
 
 export const getOpenConsoleList = () => {
@@ -55,17 +56,21 @@ export const setWorkspaceTabList = (items: IConsoleStore['workspaceTabList']) =>
 
 export const createConsole = (params: ICreateConsoleParams) => {
   const workspaceTabList = useWorkspaceStore.getState().workspaceTabList;
+  const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
   const newConsole = {
     ...params,
     name: params.name || 'new console',
     ddl: params.ddl || '',
     status: ConsoleStatus.DRAFT,
-    operationType: WorkspaceTabType.CONSOLE,
+    operationType: params.operationType || WorkspaceTabType.CONSOLE,
     type: params.databaseType,
+    supportDatabase: currentConnectionDetails?.supportDatabase,
+    supportSchema: currentConnectionDetails?.supportSchema
   };
 
   return new Promise((resolve) => {
-    if ((workspaceTabList?.length || 0) > 20) {
+    if ((workspaceTabList?.length || 0) >= 20) {
+      message.warning(i18n('workspace.tips.maxConsole'));
       return;
     }
     useWorkspaceStore.setState({ createConsoleLoading: true });

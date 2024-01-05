@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3633546 */
-  src: url('iconfont.woff2?t=1700381336886') format('woff2'),
-       url('iconfont.woff?t=1700381336886') format('woff'),
-       url('iconfont.ttf?t=1700381336886') format('truetype');
+  src: url('iconfont.woff2?t=1703676613329') format('woff2'),
+       url('iconfont.woff?t=1703676613329') format('woff'),
+       url('iconfont.ttf?t=1703676613329') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-xinxi-xianxingyuankuang:before {
+  content: "\e8e8";
+}
+
+.icon-jiahao:before {
+  content: "\e726";
+}
+
+.icon-liebiao:before {
+  content: "\ec6b";
+}
+
+.icon-jianqu:before {
+  content: "\e65d";
 }
 
 .icon-database:before {
@@ -47,22 +63,6 @@
 
 .icon-moxing-miaobian:before {
   content: "\e691";
-}
-
-.icon-dianhuatianchong:before {
-  content: "\e678";
-}
-
-.icon-youxiang:before {
-  content: "\e672";
-}
-
-.icon-weixin:before {
-  content: "\e65d";
-}
-
-.icon-google:before {
-  content: "\eaa8";
 }
 
 .icon-xiajiantou1-copy:before {

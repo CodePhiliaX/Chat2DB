@@ -53,13 +53,13 @@ const update = createRequest<IConnectionDetails, void>('/api/connection/datasour
 
 const remove = createRequest<{ id: number }, void>('/api/connection/datasource/:id', { method: 'delete' });
 
-const clone = createRequest<{ id: number }, void>('/api/connection/datasource/clone', { method: 'post' });
+const clone = createRequest<{ id: number }, number>('/api/connection/datasource/clone', { method: 'post' });
 
 const getDatabaseList = createRequest<{ dataSourceId: number; refresh?: boolean }, any>('/api/rdb/database/list', {
   method: 'get',
 });
 
-const getSchemaList = createRequest<{ dataSourceId: number; databaseName: string; refresh?: boolean }, any>(
+const getSchemaList = createRequest<{ dataSourceId: number; databaseName?: string; refresh?: boolean }, any>(
   '/api/rdb/schema/list',
   { method: 'get' },
 );

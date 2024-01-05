@@ -26,7 +26,7 @@ spring:
       static-locations[0]: classpath:/static/
   #  用于数据库表结构版本管理
   flyway:
-    locations: classpath:db/migration
+    enabled: false
   servlet:
     multipart:
       max-file-size: -1

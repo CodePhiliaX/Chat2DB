@@ -3,10 +3,7 @@ package ai.chat2db.server.web.api.http;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.config.Chat2dbProperties;
-import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.KnowledgeRequest;
-import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.WhiteListRequest;
+import ai.chat2db.server.web.api.http.request.*;
 import ai.chat2db.server.web.api.http.response.*;
 import com.dtflys.forest.Forest;
 import com.dtflys.forest.utils.TypeReference;
@@ -207,13 +204,25 @@ public class GatewayClientService {
      * @return
      */
     public DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest) {
-        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
+        // 去掉白名单
+        return DataResult.of(false);
+//        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
+//                .connectTimeout(Duration.ofMillis(5000))
+//                .readTimeout(Duration.ofMillis(10000))
+//                .addQuery(whiteListRequest)
+//                .execute(new TypeReference<>() {
+//                });
+//        return result;
+    }
+
+    public ActionResult addOperationLog(SqlExecuteHistoryCreateRequest request) {
+        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/sql/execute/history")
                 .connectTimeout(Duration.ofMillis(5000))
                 .readTimeout(Duration.ofMillis(10000))
-                .addQuery(whiteListRequest)
+                .contentType("application/json")
+                .addBody(request)
                 .execute(new TypeReference<>() {
                 });
         return result;
     }
-
 }

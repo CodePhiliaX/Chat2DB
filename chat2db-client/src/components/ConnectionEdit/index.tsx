@@ -15,7 +15,7 @@ import LoadingGracile from '@/components/Loading/LoadingGracile';
 import Driver from './components/Driver';
 
 // ----- store -----
-import { useConnectionStore } from '@/pages/main/store/connection';
+import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
 
 const { Option } = Select;
 
@@ -30,7 +30,6 @@ export enum submitType {
 interface IProps {
   closeCreateConnection: () => void;
   connectionData: IConnectionDetails;
-  submitCallback?: any;
   submit?: (data: IConnectionDetails) => Promise<any>;
 }
 
@@ -39,7 +38,7 @@ export interface ICreateConnectionFunction {
 }
 
 const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConnectionFunction>) => {
-  const { closeCreateConnection, submitCallback, connectionData, submit } = props;
+  const { closeCreateConnection, connectionData, submit } = props;
   const [baseInfoForm] = Form.useForm();
   const [sshForm] = Form.useForm();
   const [driveData, setDriveData] = useState<any>({});
@@ -113,6 +112,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
             backfillData={backfillData!}
             form={sshForm}
             tab="ssh"
+            disabled={backfillData.isAdmin === false}
           />
           <div className={styles.testSSHConnect}>
             {loadings.sshTestLoading && <LoadingGracile />}
@@ -199,7 +199,6 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
     }
 
     const api: any = connectionService[type](p);
-
     api
       .then((res: any) => {
         if (type === submitType.TEST) {
@@ -215,13 +214,13 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
               : i18n('common.message.addedSuccessfully'),
           );
 
-          setBackfillData({
-            ...backfillData,
-            id: res,
-          });
-
+          getConnectionList();
+          
           if (type === submitType.SAVE) {
-            submitCallback?.();
+            setBackfillData({
+              ...backfillData,
+              id: res,
+            });
           }
         }
       })
@@ -268,6 +267,7 @@ const ConnectionEdit = forwardRef((props: IProps, ref: ForwardedRef<ICreateConne
           backfillData={backfillData!}
           form={baseInfoForm}
           tab="baseInfo"
+          disabled={backfillData.isAdmin === false}
         />
       </div>
       <Collapse defaultActiveKey={['driver']} items={getItems()} />
@@ -308,6 +308,7 @@ interface IRenderFormProps {
   form: any;
   backfillData: IConnectionDetails;
   dataSourceFormConfigProps: IConnectionConfig;
+  disabled: boolean
 }
 
 function RenderForm(props: IRenderFormProps) {
@@ -580,6 +581,7 @@ function RenderForm(props: IRenderFormProps) {
       autoComplete="off"
       labelAlign="left"
       onFieldsChange={onFieldsChange}
+      disabled={props.disabled}
     >
       {dataSourceFormConfig[tab]!.items.map((t) => renderFormItem(t))}
     </Form>
@@ -607,6 +609,8 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
       return t.type === databaseType;
     });
   }, [backfillData.type]);
+  // 禁止修改
+  const disabled = backfillData.isAdmin === false;
 
   useEffect(() => {
     const extendInfoList = backfillData?.extendInfo?.length
@@ -673,6 +677,7 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
         if (index === data.length - 1 || isCustomLabel) {
           return (
             <Input
+              disabled={disabled}
               onBlur={blur}
               placeholder={index === data.length - 1 ? i18n('common.text.custom') : ''}
               onChange={change}
@@ -699,12 +704,10 @@ function RenderExtendTable(props: IRenderExtendTableProps) {
           setData(newData);
         }
 
-        function blur() {}
-
         if (index === data.length - 1) {
           return <Input onBlur={blur} disabled placeholder="<value>" onChange={change} value={value} />;
         } else {
-          return <Input onChange={change} value={value} />;
+          return <Input  disabled={disabled} onChange={change} value={value} />;
         }
       },
     },

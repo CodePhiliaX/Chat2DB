@@ -6,15 +6,15 @@ import { openModal } from '@/store/common/components';
 import styles from './deleteTable.less';
 import i18n from '@/i18n';
 
-export const deleteTable = (treeNodeData) => {
+export const deleteTable = (treeNodeData,loadData) => {
   openModal({
     width: '450px',
-    content: <DeleteModalContent treeNodeData={treeNodeData} openModal={openModal} />,
+    content: <DeleteModalContent treeNodeData={treeNodeData} loadData={loadData} openModal={openModal} />,
   });
 };
 
-export const DeleteModalContent = (params: { treeNodeData: any; openModal: any }) => {
-  const { treeNodeData } = params;
+export const DeleteModalContent = (params: { treeNodeData: any; openModal: any; loadData: any }) => {
+  const { treeNodeData,loadData } = params;
   // 禁用确定按钮
   const [userChecked, setUserChecked] = useState<boolean>(false);
 
@@ -26,8 +26,9 @@ export const DeleteModalContent = (params: { treeNodeData: any; openModal: any }
       tableName: treeNodeData.name,
     };
     mysqlService.deleteTable(p).then(() => {
-      treeNodeData.parentNode.loadData({
+      loadData({
         refresh: true,
+        treeNodeData: treeNodeData.parentNode
       });
       openModal(false);
     });

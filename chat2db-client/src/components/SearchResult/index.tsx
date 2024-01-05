@@ -31,6 +31,7 @@ interface IProps {
   executeSqlParams: any;
   concealTabHeader?: boolean;
   viewTable?: boolean;
+  isActive?: boolean;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -47,16 +48,18 @@ export interface ISearchResultRef {
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
   activeTabId: string;
+  notChangedSql: string;
 }
 
 export const Context = createContext<IContext>({} as any);
 
 export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
-  const { className, sql, executeSqlParams, concealTabHeader, viewTable } = props;
+  const { className, sql, executeSqlParams, concealTabHeader, viewTable, isActive } = props;
   const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
   const [activeTabId, setActiveTabId] = useState<string>('');
+  const [notChangedSql, setNotChangedSql] = useState<string>('');
 
   useEffect(() => {
     if (sql) {
@@ -81,6 +84,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
       tableName: executeSqlParams?.tableName,
       ...defaultResultConfig,
       ...executeSqlParams,
+      type: executeSqlParams.databaseType, // 兼容写法，希望后端可以统一把type改成databaseType
     };
 
     controllerRef.current = new AbortController();
@@ -95,6 +99,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         }));
 
         setResultDataList(sqlResult);
+        if(!notChangedSql){
+          setNotChangedSql(_sql);
+        }
       })
       .finally(() => {
         setTableLoading(false);
@@ -114,10 +121,12 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
           <div className={styles.successResultContent}>
             {needTable ? (
               <TableBox
+                isActive={isActive}
                 tableBoxId={queryResultData.uuid}
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
                 executeSqlParams={props.executeSqlParams}
+                concealTabHeader={concealTabHeader}
               />
             ) : (
               <div className={styles.updateCountBox}>
@@ -167,7 +176,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         children: renderResult(queryResultData),
       };
     });
-  }, [resultDataList]);
+  }, [resultDataList, isActive]);
 
   const onEdit = useCallback(
     (type: 'add' | 'remove', data: ITabItem[]) => {
@@ -191,6 +200,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     <Context.Provider
       value={{
         activeTabId: activeTabId,
+        notChangedSql: notChangedSql,
       }}
     >
       <div className={classnames(className, styles.searchResult)}>
@@ -211,6 +221,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
                 onEdit={onEdit as any}
                 items={tabsList}
                 concealTabHeader={concealTabHeader}
+                destroyInactiveTabPane={true}
               />
             ) : (
               <div className={styles.noData}>

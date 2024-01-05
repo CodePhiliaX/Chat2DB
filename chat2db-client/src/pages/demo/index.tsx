@@ -1,13 +1,15 @@
-import React from 'react';
-import styles from './index.less';
-import MonacoEditor from '@/components/MonacoEditor';
+import React, { useEffect } from 'react';
 
 function Test() {
-  return (
-    <div className={styles.introduce}>
-      <MonacoEditor language='sql' id='121212121' />
-    </div>
-  );
+  const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJsb2dpblR5cGUiOiJsb2dpbiIsImxvZ2luSWQiOjIsImRldmljZSI6ImRlZmF1bHQtZGV2aWNlIiwiZWZmIjoxNzA2ODU0NTMwMDI3LCJyblN0ciI6Ik1RcHRPOUVBVlJlbGRQa1RFN01MZUpLeG5KTGVwRFpaIn0.knOw08E6mwWF_GpkeQ8KflQlfQuNu4jd-_Bgh7EnCj4'
+  useEffect(() => {
+    const socket = new WebSocket(`ws://127.0.0.1:10821/api/ws/${token}`);
+    socket.onopen = () => {
+      console.log('open');
+      socket.send('hello');
+    };
+  }, []);
+  return (false);
 }
 
 export default Test;

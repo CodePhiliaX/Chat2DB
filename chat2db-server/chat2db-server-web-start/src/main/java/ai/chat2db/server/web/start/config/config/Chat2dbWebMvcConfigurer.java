@@ -7,6 +7,7 @@ import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.cache.CacheKey;
 import ai.chat2db.server.domain.core.cache.MemoryCacheManage;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.tools.base.constant.SymbolConstant;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -72,6 +73,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                     @NotNull Object handler) {
+                    Dbutils.setSession();
                     String userIdString = (String)StpUtil.getLoginIdDefaultNull();
                     Long userId;
                     // 未登录
@@ -109,6 +111,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                         return true;
                     }
 
+                    loginUser.setToken(StpUtil.getTokenValue());
                     ContextUtils.setContext(Context.builder()
                         .loginUser(loginUser)
                         .build());
@@ -120,6 +123,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                     Exception ex) throws Exception {
                     // 移除登录信息
                     ContextUtils.removeContext();
+                    Dbutils.removeSession();
                 }
             })
             .order(1)
