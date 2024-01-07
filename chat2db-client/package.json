@@ -106,7 +106,8 @@
       "!node_modules/**/*",
       "node_modules/uuid",
       "node_modules/electron-log",
-      "node_modules/node-machine-id"
+      "node_modules/node-machine-id",
+      "node_modules/electron-store"
     ],
     "nsis": {
       "oneClick": false,

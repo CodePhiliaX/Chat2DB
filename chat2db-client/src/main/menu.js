@@ -60,17 +60,16 @@ const registerAppMenu = (mainWindow, orgs) => {
       // label: i18n('menu.edit'),
       label: '视图',
       submenu: [
-        {
-          label: '刷新',
-          // accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
-          accelerator: 'CmdOrCtrl+Shift+R',
-          click() {
-            const focusedWindow = BrowserWindow.getFocusedWindow();
-            if (focusedWindow) {
-              focusedWindow.reload();
-            }
-          },
-        },
+        // {
+        //   label: '刷新',
+        //   accelerator: 'CmdOrCtrl+Shift+R',
+        //   click() {
+        //     const focusedWindow = BrowserWindow.getFocusedWindow();
+        //     if (focusedWindow) {
+        //       focusedWindow.reload();
+        //     }
+        //   },
+        // },
         { type: 'separator' },
         {
           label: '放大',
