@@ -102,8 +102,7 @@
       "static/",
       "src/main",
       "versions/**/*",
-      "package.json",
-      "!node_modules/**/*"
+      "package.json"
     ],
     "nsis": {
       "oneClick": false,
