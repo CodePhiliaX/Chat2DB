@@ -7,7 +7,7 @@ const registerAppMenu = require('./menu');
 const registerAnalysis = require('./analysis');
 const i18n = require('./i18n');
 const store = require('./store');
-const { loadMainResource } = require('./utils');
+const { loadMainResource, isMac } = require('./utils');
 
 let mainWindow = null;
 
@@ -46,12 +46,6 @@ function createWindow() {
   // 加载应用-----
   loadMainResource(mainWindow);
 
-  // 关闭window时触发下列事件.
-  mainWindow.on('closed', function (event) {
-    event.preventDefault();
-    app.hide();
-  });
-
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
@@ -75,17 +69,35 @@ app.on('ready', () => {
   createWindow();
   registerAppMenu(mainWindow);
   registerAnalysis();
-
-  app.on('activate', () => {
-    app.show();
-  });
 });
 
-app.on('window-all-closed', (event) => {
-  event.preventDefault();
-  if (process.platform !== 'darwin') {
-    app.quit();
+app.on('activate', () => {
+  if (!!mainWindow) {
+    createWindow();
+  } else {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    if (mainWindow.isVisible()) {
+      mainWindow.focus();
+    } else {
+      mainWindow.show();
+    }
   }
+});
+
+// app.on('window-all-closed', (event) => {
+//   event.preventDefault();
+//   console.log('window-all-closed', process);
+//   if (process.platform !== 'darwin') {
+//     app.quit();
+//   }
+// });
+
+app.on('window-all-closed', (e) => {
+  // 禁止默认行为
+  if (isMac) return;
+  app.quit();
 });
 
 app.on('before-quit', () => {
