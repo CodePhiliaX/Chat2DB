@@ -101,8 +101,10 @@
       "dist/**/*",
       "static/",
       "src/main",
+      "src/main/node_modules/**/*",
       "versions/**/*",
-      "package.json"
+      "package.json",
+      "!node_modules/**/*"
     ],
     "nsis": {
       "oneClick": false,
