@@ -3,12 +3,10 @@ import classnames from 'classnames';
 
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { setPanelLeftWidth } from '@/pages/main/workspace/store/config';
-import { setAppTitleBarRightComponent } from '@/store/common/appTitleBarConfig';
 
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
 import WorkspaceRight from './components/WorkspaceRight';
-import CustomLayout from '@/components/CustomLayout';
 
 import useMonacoTheme from '@/components/MonacoEditor/useMonacoTheme';
 import shortcutKeyCreateConsole from './functions/shortcutKeyCreateConsole';
@@ -26,13 +24,6 @@ const workspacePage = memo(() => {
 
   // 编辑器的主题
   useMonacoTheme();
-
-  useEffect(() => {
-    setAppTitleBarRightComponent(<CustomLayout />);
-    return () => {
-      setAppTitleBarRightComponent(null);
-    };
-  }, []);
 
   // 快捷键
   useEffect(() => {

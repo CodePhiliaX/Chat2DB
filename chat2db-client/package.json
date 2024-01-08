@@ -63,7 +63,6 @@
     "electron": "^22.3.0",
     "electron-builder": "^23.6.0",
     "electron-debug": "^3.2.0",
-    "electron-reload": "^2.0.0-alpha.1",
     "eslint": "^8.49.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.0.0",

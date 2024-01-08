@@ -29,6 +29,11 @@ declare global {
       registerAppMenu: (data: any) => void;
       setForceQuitCode: (code: boolean) => void;
       setMaximize: () => void;
+      getPlatform: () => {
+        isLinux: boolean,
+        isWin: boolean,
+        isLinux: boolean,
+      };
     };
   }
   const __APP_VERSION__: string;

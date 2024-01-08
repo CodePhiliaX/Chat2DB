@@ -5,11 +5,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 30px;
-  padding: 0px 10px;
-  .appName {
+  height: 34px;
+  .appTitleBarGlobal{
     flex: 1;
-    text-align: center;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0px 10px;
+    .appName {
+      flex: 1;
+      text-align: center;
+      font-weight: bold;
+    }
+  }
+  .spacer {
+    width: 126px;
+    flex-shrink: 0;
+  }
+  .windowsCloseBar {
+    display: flex;
+    height: 100%;
+    flex-shrink: 0;
+    width: 126px;
+    .windowsCloseBarItem {
+      width: 42px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      &:hover {
+        background-color: var(--color-hover-bg);
+      }
+    }
   }
 }

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build:dev": "cross-env NODE_ENV=development webpack",
     "build": "webpack"
   },
   "author": "",

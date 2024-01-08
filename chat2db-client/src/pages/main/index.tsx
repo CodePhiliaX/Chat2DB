@@ -18,6 +18,10 @@ import getConnectionEnvList from './functions/getConnection';
 import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
 import { getConnectionList } from '@/pages/main/store/connection';
 import { useUserStore, setCurUser } from '@/store/user';
+import { setAppTitleBarRightComponent } from '@/store/common/appTitleBarConfig';
+
+// ----- component -----
+import CustomLayout from '@/components/CustomLayout';
 
 // ----- block -----
 import Workspace from './workspace';
@@ -76,6 +80,18 @@ function MainPage() {
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
   );
+
+  // 当页面在workspace时，显示自定义布局
+  useEffect(() => {
+    if(mainPageActiveTab === 'workspace'){
+      setAppTitleBarRightComponent(<CustomLayout />);
+    }else{
+      setAppTitleBarRightComponent(false);
+    }
+    return () => {
+      setAppTitleBarRightComponent(false);
+    }
+  }, [mainPageActiveTab]);
 
   useEffect(() => {
     handleInitPage();
