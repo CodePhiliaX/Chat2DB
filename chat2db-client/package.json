@@ -97,7 +97,7 @@
     "files": [
       "dist/**/*",
       "src/main",
-      "src/main/main.js",
+      "static/",
       "versions/**/*",
       "package.json",
       "!node_modules/**/*"
