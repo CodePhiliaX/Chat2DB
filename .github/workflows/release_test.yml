@@ -106,6 +106,7 @@ jobs:
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
           cd src/main
           yarn
+          yarn run build
 
 
       # 打包后端工程 & 发送到前端

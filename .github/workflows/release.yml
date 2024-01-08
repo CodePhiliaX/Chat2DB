@@ -143,6 +143,7 @@ jobs:
           cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
           cd src/main
           yarn
+          yarn run build
 
       # 编译服务端java版本
       - name: Build Java
