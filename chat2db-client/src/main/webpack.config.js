@@ -4,7 +4,7 @@ module.exports = {
   entry: './index.js',
   output: {
     filename: 'main.js',
-    path: path.resolve(__dirname),
+    path: path.resolve(__dirname, 'dist'),
   },
-  target: 'electron-main'
+  target: 'electron-main',
 };
