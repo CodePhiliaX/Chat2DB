@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import CustomLayout from '@/components/CustomLayout';
-import Iconfont from '@/components/Iconfont';
+import { useCommonStore } from '@/store/common';
+
+// import Iconfont from '@/components/Iconfont';
 
 interface IProps {
   className?: string;
@@ -10,6 +11,12 @@ interface IProps {
 
 export default memo<IProps>((props) => {
   const { className } = props;
+
+  const { appTitleBarRightComponent } = useCommonStore((state) => {
+    return {
+      appTitleBarRightComponent: state.appTitleBarRightComponent,
+    };
+  });
 
   const handleDoubleClick = () => {
     window.electronApi?.setMaximize();
@@ -19,9 +26,7 @@ export default memo<IProps>((props) => {
     <div className={classnames(styles.appTitleBar, className)} onDoubleClick={handleDoubleClick}>
       <div />
       <div className={styles.appName}>Chat2DB Community</div>
-      <div>
-        <CustomLayout />
-      </div>
+      <div>{appTitleBarRightComponent}</div>
       {/* <div className={styles.windowsCloseBar}>
         <div>
           <Iconfont code="icon-minimize" />
