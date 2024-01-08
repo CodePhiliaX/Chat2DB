@@ -14,5 +14,9 @@
     "electron-store": "^8.1.0",
     "node-machine-id": "^1.1.12",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }
