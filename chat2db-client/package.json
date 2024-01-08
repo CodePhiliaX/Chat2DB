@@ -96,7 +96,7 @@
     "asar": false,
     "files": [
       "dist/**/*",
-      "src/main",
+      "src/main/dist/**/*",
       "versions/**/*",
       "package.json",
       "!node_modules/**/*"
