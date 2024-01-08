@@ -26,7 +26,7 @@ function createWindow() {
     minHeight: 720,
     show: false,
     frame: false, // 无边框
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
     webPreferences: {
       webSecurity: false,
       spellcheck: false, // 禁用拼写检查器
@@ -82,16 +82,7 @@ app.on('activate', () => {
   }
 });
 
-// app.on('window-all-closed', (event) => {
-//   event.preventDefault();
-//   console.log('window-all-closed', process);
-//   if (process.platform !== 'darwin') {
-//     app.quit();
-//   }
-// });
-
 app.on('window-all-closed', (e) => {
-  // 禁止默认行为
   if (isMac) return;
   app.quit();
 });

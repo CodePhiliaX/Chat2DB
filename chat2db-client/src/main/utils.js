@@ -17,7 +17,7 @@ function loadMainResource(mainWindow) {
     mainWindow.loadURL(DEV_WEB_URL);
     mainWindow.webContents.openDevTools();
     // 监听应用程序根路径下的所有文件，当文件发生修改时，自动刷新应用程序
-    require('electron-reload')(path.join(__dirname, '..'));
+    // require('electron-reload')(path.join(__dirname, '..'));
   } else {
     mainWindow.loadURL(
       url.format({

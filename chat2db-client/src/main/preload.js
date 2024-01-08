@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const { spawn } = require('child_process');
 const { JAVA_APP_NAME, JAVA_PATH } = require('./constants');
 const path = require('path');
-const { readVersion } = require('./utils');
+const { readVersion, isLinux, isWin } = require('./utils');
 
 contextBridge.exposeInMainWorld('electronApi', {
   startServerForSpawn: async () => {
@@ -57,5 +57,13 @@ contextBridge.exposeInMainWorld('electronApi', {
   },
   setMaximize: () => {
     ipcRenderer.send('set-maximize');
+  },
+  // 获取环境是mac还是windows还是linux
+  getPlatform: () => {
+    return {
+      isLinux,
+      isWin,
+      isLinux,
+    };
   },
 });
