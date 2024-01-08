@@ -7,7 +7,7 @@
     "url": "https://github.com/chat2db/Chat2DB"
   },
   "author": "fjy, hexi",
-  "main": "src/main/dist/index.js",
+  "main": "src/main/main.js",
   "scripts": {
     "build": "npm run build:web && npm run build:main",
     "build:desktop": "npm run build:web:desktop && npm run build:main:prod",
@@ -96,7 +96,8 @@
     "asar": false,
     "files": [
       "dist/**/*",
-      "src/main/dist/**/*",
+      "src/main/preload.js",
+      "src/main/main.js",
       "versions/**/*",
       "package.json",
       "!node_modules/**/*"
