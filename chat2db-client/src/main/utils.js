@@ -1,7 +1,6 @@
 const { DEV_WEB_URL } = require('./constants');
 const path = require('path');
 const url = require('url');
-const { version } = require('os');
 const fs = require('fs');
 
 const isLinux = process.platform == 'linux';

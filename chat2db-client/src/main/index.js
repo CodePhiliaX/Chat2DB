@@ -1,11 +1,7 @@
-const { app, BrowserWindow, Menu, shell, net, ipcMain, dialog } = require('electron');
-const { exec } = require('child_process');
+const { app, BrowserWindow, shell, net, ipcMain } = require('electron');
 const path = require('path');
-const os = require('os');
-const fs = require('fs');
 const registerAppMenu = require('./menu');
 const registerAnalysis = require('./analysis');
-const i18n = require('./i18n');
 const store = require('./store');
 const { loadMainResource, isMac } = require('./utils');
 
