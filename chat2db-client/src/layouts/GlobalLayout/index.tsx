@@ -63,26 +63,34 @@ const GlobalLayout = () => {
 
   // 等待状态页面
   if (serviceStatus === ServiceStatus.PENDING || curUser === null) {
-    return <Spin className={styles.loadingBox} size="large" />;
+    return (
+      <div className={styles.app}>
+        <AppTitleBar className={styles.appTitleBar} />
+        <Spin className={styles.loadingBox} size="large" />;
+      </div>
+    );
   }
 
   // 错误状态页面
   if (serviceStatus === ServiceStatus.FAILURE) {
     return (
-      <div className={styles.loadingBox}>
-        <Button type="primary" onClick={restartPolling} style={{ marginBottom: 20 }}>
-          <SyncOutlined />
-          {i18n('common.text.tryToRestart')}
-        </Button>
-        <div className={styles.contact}>
-          {i18n('common.text.contactUs')}：
-          <GithubOutlined className={styles.icon} onClick={() => window.open('https://github.com/chat2db/Chat2DB')} />
-          <Tooltip
-            placement="bottom"
-            title={<img style={{ width: 200, height: 200 }} src="https://sqlgpt.cn/_static/img/chat2db_wechat.png" />}
-          >
-            <WechatOutlined className={styles.icon} />
-          </Tooltip>
+      <div className={styles.app}>
+        <AppTitleBar className={styles.appTitleBar} />
+        <div className={styles.loadingBox}>
+          <Button type="primary" onClick={restartPolling} style={{ marginBottom: 20 }}>
+            <SyncOutlined />
+            {i18n('common.text.tryToRestart')}
+          </Button>
+          <div className={styles.contact}>
+            {i18n('common.text.contactUs')}：
+            <GithubOutlined className={styles.icon} onClick={() => window.open('https://github.com/chat2db/Chat2DB')} />
+            <Tooltip
+              placement="bottom"
+              title={<img style={{ width: 200, height: 200 }} src="https://sqlgpt.cn/_static/img/chat2db_wechat.png" />}
+            >
+              <WechatOutlined className={styles.icon} />
+            </Tooltip>
+          </div>
         </div>
       </div>
     );

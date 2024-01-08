@@ -26,7 +26,7 @@ function createWindow() {
     minHeight: 720,
     show: false,
     frame: false, // 无边框
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset',
     webPreferences: {
       webSecurity: false,
       spellcheck: false, // 禁用拼写检查器
