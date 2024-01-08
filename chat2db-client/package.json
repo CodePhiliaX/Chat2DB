@@ -34,7 +34,6 @@
     "echarts": "^5.4.2",
     "echarts-for-react": "^3.0.2",
     "electron-log": "^4.4.8",
-    "electron-store": "^8.1.0",
     "event-source-polyfill": "^1.0.31",
     "highlight.js": "^11.9.0",
     "lodash": "^4.17.21",
@@ -104,7 +103,7 @@
       "src/main/node_modules/**/*",
       "versions/**/*",
       "package.json",
-      "!node_modules/**/*"
+      "!./node_modules/**/*"
     ],
     "nsis": {
       "oneClick": false,
