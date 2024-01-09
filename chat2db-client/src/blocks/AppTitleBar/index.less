@@ -1,7 +1,7 @@
 @import '../../styles/var.less';
 
 .appTitleBar {
-  background-color: var(--color-primary-bg);
+  background-color: var(--color-bg-subtle);
   -webkit-app-region: drag;
   -webkit-user-select: none;
   border-bottom: 1px solid var(--color-border);
@@ -18,8 +18,9 @@
     height: 100%;
     .appName {
       flex: 1;
-      text-align: center;
+      text-align: start;
       font-weight: bold;
+      padding-left: 6px;
     }
     .rightSlot,.leftSlot{
       height: 100%;
