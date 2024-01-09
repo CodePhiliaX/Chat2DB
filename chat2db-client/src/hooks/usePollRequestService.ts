@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface IProps {
   /** 最大请求次数 */
@@ -15,50 +15,48 @@ export enum ServiceStatus {
   FAILURE = 'FAILURE',
 }
 
+let intervalId: NodeJS.Timeout;
+
 /**
  * 轮询请求后端服务
  */
 const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService }: IProps) => {
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>(ServiceStatus.PENDING);
-  const [attempts, setAttempts] = useState(0);
   const [restart, setRestart] = useState(false);
+  const attempts = useRef(0);
+
+  const serviceFn = async () => {
+    // 第一次请求失败，启动服务
+    if (attempts.current === 1 && ServiceStatus.SUCCESS !== serviceStatus) {
+      window.electronApi?.startServerForSpawn();
+    }
+    if (attempts.current >= maxAttempts) {
+      setServiceStatus(ServiceStatus.FAILURE);
+      clearInterval(intervalId);
+      return;
+    }
+    try {
+      attempts.current = attempts.current + 1;
+      await loopService();
+      setServiceStatus(ServiceStatus.SUCCESS);
+      clearInterval(intervalId);
+    } catch (error) {
+      // setAttempts(attempts + 1);
+    }
+  };
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout;
-
-    const serviceFn = async () => {
-      if (attempts >= maxAttempts) {
-        setServiceStatus(ServiceStatus.FAILURE);
-        clearInterval(intervalId);
-        return;
-      }
-      try {
-        setAttempts(attempts + 1);
-        await loopService();
-        setServiceStatus(ServiceStatus.SUCCESS);
-        clearInterval(intervalId);
-      } catch (error) {
-        // setAttempts(attempts + 1);
-      }
-    };
-
     serviceFn();
-
     if (serviceStatus !== ServiceStatus.SUCCESS) {
-      // 第一次请求失败，启动服务
-      if (attempts === 1) {
-        window.electronApi?.startServerForSpawn();
-      }
       intervalId = setInterval(serviceFn, interval);
     }
-
     return () => clearInterval(intervalId);
   }, [maxAttempts, interval, restart]);
 
   // 新增加的重置函数
   const restartPolling = () => {
     setServiceStatus(ServiceStatus.PENDING);
-    setAttempts(0);
+    attempts.current = 0;
     setRestart(!restart);
   };
 
