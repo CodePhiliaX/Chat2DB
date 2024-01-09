@@ -3,7 +3,7 @@ package ai.chat2db.server.web.api.controller.sql;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.sql.request.SqlFormatRequest;
-import com.manticore.jsqlformatter.JSQLFormatter;
+import com.github.vertical_blank.sqlformatter.SqlFormatter;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +27,7 @@ public class SqlController {
     public DataResult<String> list(@Valid SqlFormatRequest sqlFormatRequest) {
         String sql = sqlFormatRequest.getSql();
         try {
-            sql = JSQLFormatter.format(sql);
+            sql = SqlFormatter.format(sql);
         } catch (Exception e) {
             // ignore
         }

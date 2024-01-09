@@ -33,8 +33,8 @@ interface IProps {
   defaultValue?: string;
   appendValue?: IAppendValue;
   didMount?: (editor: IEditorIns) => any;
-  shortcutKey?: (editor, monaco) => void;
-  isActive?: boolean;
+  shortcutKey?: (editor, monaco, isActive: boolean) => void;
+  focusChange?: (isActive: boolean) => void;
 }
 
 export interface IExportRefFunction {
@@ -51,7 +51,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     language = 'sql',
     didMount,
     options,
-    isActive,
     defaultValue,
     appendValue,
     shortcutKey,
@@ -59,6 +58,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
   const [appTheme] = useTheme();
+  const [isActive, setIsActive] = React.useState(false);
 
   // init
   useEffect(() => {
@@ -108,12 +108,32 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     };
   }, []);
 
+  // 如果编辑器聚焦，就设置为true
   useEffect(() => {
-    if (editorRef.current && isActive) {
+    const focus = () => {
+      setIsActive(true);
+      props.focusChange && props.focusChange(true);
+    };
+    const blur = () => {
+      setIsActive(false);
+      props.focusChange && props.focusChange(false);
+    };
+    editorRef.current?.onDidFocusEditorText(focus);
+    editorRef.current?.onDidBlurEditorText(blur);
+    // 移除监听
+    // return () => {
+    //   editorRef.current?.removeEventListener('focus', focus);
+    //   editorRef.current?.removeEventListener('blur', blur);
+    // };
+  }, []);
+
+
+  useEffect(() => {
+    if (editorRef.current) {
       // eg:
       // editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyL, () => {
       // });
-      shortcutKey?.(editorRef.current, monaco);
+      shortcutKey?.(editorRef.current, monaco, isActive);
     }
   }, [editorRef.current, isActive]);
 
@@ -201,7 +221,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
           if (_id === 'changeSQL') {
             ed.trigger('', quickInputCommand.current, (quickInput) => {
               quickInput.pick(databaseTypeList).then((selected) => {
-                console.log(selected);
                 runFn(selectedText, selected?.label);
               });
             });
@@ -232,7 +251,7 @@ export const appendMonacoValue = (editor: any, text: any, range: IRangeType = 'e
   // 创建编辑操作，将当前文档内容替换为新内容
   let newRange: IRangeType = range;
   if (range === 'reset') {
-    editor.setValue(text);
+    editor.setValue(text || '');
     return;
   }
   let newText = text;

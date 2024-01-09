@@ -24,7 +24,6 @@ import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { Spin } from 'antd';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 interface IProps {
   className?: string;
@@ -49,6 +48,7 @@ export interface ISearchResultRef {
 interface IContext {
   // 这里不用ref的话，会导致切换时闪动
   activeTabId: string;
+  notChangedSql: string;
 }
 
 export const Context = createContext<IContext>({} as any);
@@ -59,6 +59,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   const [tableLoading, setTableLoading] = useState(false);
   const controllerRef = useRef<AbortController>();
   const [activeTabId, setActiveTabId] = useState<string>('');
+  const [notChangedSql, setNotChangedSql] = useState<string>('');
 
   useEffect(() => {
     if (sql) {
@@ -98,6 +99,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         }));
 
         setResultDataList(sqlResult);
+        if(!notChangedSql){
+          setNotChangedSql(_sql);
+        }
       })
       .finally(() => {
         setTableLoading(false);
@@ -113,15 +117,16 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     function renderSuccessResult() {
       const needTable = queryResultData?.headerList?.length > 1;
       return (
-        isActive ?
         <div className={styles.successResult}>
           <div className={styles.successResultContent}>
             {needTable ? (
               <TableBox
+                isActive={isActive}
                 tableBoxId={queryResultData.uuid}
                 key={queryResultData.uuid}
                 outerQueryResultData={queryResultData}
                 executeSqlParams={props.executeSqlParams}
+                concealTabHeader={concealTabHeader}
               />
             ) : (
               <div className={styles.updateCountBox}>
@@ -137,8 +142,6 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
             )}
           </div>
         </div>
-        :
-        false
       );
     }
     return (
@@ -197,6 +200,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
     <Context.Provider
       value={{
         activeTabId: activeTabId,
+        notChangedSql: notChangedSql,
       }}
     >
       <div className={classnames(className, styles.searchResult)}>

@@ -159,4 +159,13 @@ public class Chat2DBContext {
         }
     }
 
+    /**
+     * 设置context
+     */
+    public static void remove() {
+        ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();
+        if (connectInfo != null) {
+            CONNECT_INFO_THREAD_LOCAL.remove();
+        }
+    }
 }

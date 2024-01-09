@@ -302,4 +302,8 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .build();
     }
 
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
 }

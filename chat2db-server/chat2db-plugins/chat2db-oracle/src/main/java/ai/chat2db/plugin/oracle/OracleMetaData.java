@@ -1,5 +1,6 @@
 package ai.chat2db.plugin.oracle;
 
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,7 +74,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String SELECT_TAB_COLS = "SELECT atc.column_id , atc.column_name as COLUMN_NAME, atc.data_type as DATA_TYPE , atc.data_length as DATA_LENGTH , atc.data_type_mod , atc.nullable ,  atc.data_default ,  acc.comments ,  atc.DATA_PRECISION ,  atc.DATA_SCALE , atc.CHAR_USED  FROM  all_tab_columns atc, all_col_comments acc WHERE atc.owner = acc.owner AND atc.table_name = acc.table_name AND atc.column_name = acc.column_name AND atc.owner = '%s'  AND atc.table_name = '%s'  order by atc.column_id";
+    private static String SELECT_TAB_COLS = "SELECT atc.column_id , atc.column_name as COLUMN_NAME, atc.data_type as DATA_TYPE , atc.data_length as DATA_LENGTH , atc.data_type_mod , atc.nullable ,  atc.data_default as DATA_DEFAULT,  acc.comments ,  atc.DATA_PRECISION ,  atc.DATA_SCALE , atc.CHAR_USED  FROM  all_tab_columns atc, all_col_comments acc WHERE atc.owner = acc.owner AND atc.table_name = acc.table_name AND atc.column_name = acc.column_name AND atc.owner = '%s'  AND atc.table_name = '%s'  order by atc.column_id";
 
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -84,6 +85,21 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 TableColumn tableColumn = new TableColumn();
                 tableColumn.setTableName(tableName);
                 tableColumn.setSchemaName(schemaName);
+                try {
+                    //
+                    // Fields of the LONG type cannot be retrieved using getObject. They need to be accessed using getCharacterStream, and must be read first in the sequence.
+                    Reader reader = resultSet.getCharacterStream("DATA_DEFAULT");
+                    if(reader != null){
+                        StringBuilder sb = new StringBuilder();
+                        int charValue;
+                        while ((charValue = reader.read()) != -1) {
+                            sb.append((char) charValue);
+                        }
+                        tableColumn.setDefaultValue(sb.toString());
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 tableColumn.setName(resultSet.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(resultSet.getString("DATA_TYPE"));
                 Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
@@ -92,7 +108,14 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 }else {
                     tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
                 }
-                tableColumn.setDefaultValue(resultSet.getString("DATA_DEFAULT"));
+//                Object dataDefault = resultSet.getObject(7);
+//                if(dataDefault!=null) {
+//                    tableColumn.setDefaultValue(dataDefault.toString());
+//                }
+
+
+
+
                 tableColumn.setComment(resultSet.getString("COMMENTS"));
                 tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE")) ? 1 : 0);
                 tableColumn.setOrdinalPosition(resultSet.getInt("COLUMN_ID"));

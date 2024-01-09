@@ -119,7 +119,7 @@ function ChartItem(props: IChartItemProps) {
   };
 
   const handleExecuteSQL = async (sql: string, _chartData: IChartItem) => {
-    const { dataSourceId, databaseName } = _chartData;
+    const { dataSourceId, databaseName, schemaName } = _chartData;
     if (!isValid(dataSourceId)) {
       message.success(i18n('dashboard.editor.execute.noDataSource'));
       return;
@@ -130,6 +130,7 @@ function ChartItem(props: IChartItemProps) {
         sql,
         dataSourceId,
         databaseName,
+        schemaName
       };
       // 获取当前SQL的查询结果
       const sqlResult = await sqlService.executeSql(executeSQLParams);

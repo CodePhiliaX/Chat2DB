@@ -118,4 +118,6 @@ export default {
   'common.label.tcp': '线上',
   'common.label.LocalFile': '本地',
   'common.text.rename': '重命名',
+  'common.title.info': '信息',
+
 };

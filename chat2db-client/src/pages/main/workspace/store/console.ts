@@ -3,6 +3,8 @@ import { IConsole, ICreateConsoleParams } from '@/typings';
 import { IWorkspaceTab } from '@/typings/workspace';
 import historyService from '@/service/history';
 import { ConsoleStatus, WorkspaceTabType } from '@/constants';
+import { message } from 'antd';
+import i18n from '@/i18n';
 
 export interface IConsoleStore {
   consoleList: IConsole[] | null;
@@ -67,7 +69,8 @@ export const createConsole = (params: ICreateConsoleParams) => {
   };
 
   return new Promise((resolve) => {
-    if ((workspaceTabList?.length || 0) > 20) {
+    if ((workspaceTabList?.length || 0) >= 20) {
+      message.warning(i18n('workspace.tips.maxConsole'));
       return;
     }
     useWorkspaceStore.setState({ createConsoleLoading: true });

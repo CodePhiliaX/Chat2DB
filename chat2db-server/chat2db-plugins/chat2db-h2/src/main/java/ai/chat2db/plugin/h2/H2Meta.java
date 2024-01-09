@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.h2.builder.H2SqlBuilder;
 import ai.chat2db.spi.MetaData;
@@ -14,6 +15,7 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 public class H2Meta extends DefaultMetaService implements MetaData {
 
@@ -198,4 +200,9 @@ public class H2Meta extends DefaultMetaService implements MetaData {
         return new H2SqlBuilder();
     }
 
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
 }

@@ -102,7 +102,8 @@ const WorkspaceTabs = memo(() => {
       );
       data.forEach((item) => {
         const editData = workspaceTabList?.find((t) => t.id === item.key);
-        if (editData?.type === WorkspaceTabType.CONSOLE) {
+        // table 和 !editData?.type 为了兼容老数据
+        if (editData?.type === WorkspaceTabType.CONSOLE || editData?.type === 'table' as any || !editData?.type) {
           closeWindowTab(item.key as number);
         }
       });
@@ -124,6 +125,17 @@ const WorkspaceTabs = memo(() => {
       name: t.label,
     };
     historyService.updateSavedConsole(_params);
+    
+    const _workspaceTabList:any = workspaceTabList?.map((item) => {
+      if (item.id === t.key) {
+        return {
+          ...item,
+          title: t.label,
+        };
+      }
+      return item;
+    }) || []
+    setWorkspaceTabList(_workspaceTabList)
   };
 
   // 修改tab详情
@@ -195,13 +207,14 @@ const WorkspaceTabs = memo(() => {
   // 渲染所有表
   const renderViewAllTable = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
-    console.log('uniqueData', uniqueData);
     return <ViewAllTable uniqueData={uniqueData} />;
   };
 
   // 根据不同的tab类型渲染不同的内容
   const workspaceTabConnectionMap = (item: IWorkspaceTab) => {
     switch (item.type) {
+      case 'table' as any: // 为了兼容老数据
+      case null as any: // 为了兼容老数据
       case WorkspaceTabType.CONSOLE:
       case WorkspaceTabType.FUNCTION:
       case WorkspaceTabType.PROCEDURE:
