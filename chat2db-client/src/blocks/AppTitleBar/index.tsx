@@ -3,6 +3,7 @@ import styles from './index.less';
 import classnames from 'classnames';
 import { useCommonStore } from '@/store/common';
 import Iconfont from '@/components/Iconfont';
+import BrandLogo from '@/components/BrandLogo';
 
 interface IProps {
   className?: string;
@@ -18,8 +19,8 @@ export default memo<IProps>((props) => {
     };
   });
 
-  const isWin = useMemo(() => {
-    return window.electronApi?.getPlatform().isWin;
+  const isMac = useMemo(() => {
+    return window.electronApi?.getPlatform().isMac;
   }, []);
 
   // const isWin = true;
@@ -48,14 +49,16 @@ export default memo<IProps>((props) => {
   return (
     <div className={classnames(styles.appTitleBar, className)} onDoubleClick={handleDoubleClick}>
       <div className={styles.appTitleBarGlobal}>
-        <div className={classnames({ [styles.windowsSpacer]: isWin })} />
+        <div className={classnames({ [styles.windowsSpacer]: (!isMac && isMac !== void 0) }, styles.leftSlot)}>
+          {(!isMac && isMac !== void 0) && <BrandLogo size={20} className={styles.brandLogo} />}
+        </div>
         <div className={styles.appName}>Chat2DB Community</div>
-        <div>{appTitleBarRightComponent}</div>
+        <div className={styles.rightSlot}>{appTitleBarRightComponent}</div>
       </div>
-      {isWin && (
+      {(!isMac && isMac !== void 0) && (
         <div className={styles.windowsCloseBar}>
           <div className={styles.windowsCloseBarItem} onClick={handelMinimizeWindow}>
-            <Iconfont code="&#xe671;" />
+            <Iconfont size={16} code="&#xe671;" />
           </div>
           <div className={styles.windowsCloseBarItem} onClick={handelMaximize}>
             {isMaximized ? <Iconfont code="&#xe66e;" /> : <Iconfont code="&#xe66b;" />}

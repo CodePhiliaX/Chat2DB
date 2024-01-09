@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, Tooltip } from 'antd';
 import classnames from 'classnames';
@@ -32,6 +32,7 @@ import Setting from '@/blocks/Setting';
 
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
+
 
 const initNavConfig: INavItem[] = [
   {
@@ -70,10 +71,10 @@ const initNavConfig: INavItem[] = [
 
 function MainPage() {
   const navigate = useNavigate();
-  const { userInfo } = useUserStore(state => {
+  const { userInfo } = useUserStore((state) => {
     return {
-      userInfo: state.curUser
-    }
+      userInfo: state.curUser,
+    };
   });
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
   const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
@@ -81,16 +82,20 @@ function MainPage() {
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
   );
 
+  const isMac = useMemo(() => {
+    return window.electronApi?.getPlatform().isMac;
+  }, []);
+
   // 当页面在workspace时，显示自定义布局
   useEffect(() => {
-    if(mainPageActiveTab === 'workspace'){
+    if (mainPageActiveTab === 'workspace') {
       setAppTitleBarRightComponent(<CustomLayout />);
-    }else{
+    } else {
       setAppTitleBarRightComponent(false);
     }
     return () => {
       setAppTitleBarRightComponent(false);
-    }
+    };
   }, [mainPageActiveTab]);
 
   useEffect(() => {
@@ -183,7 +188,7 @@ function MainPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        <BrandLogo size={40} onClick={() => {}} className={styles.brandLogo} />
+        {(isMac || isMac === void 0) && <BrandLogo size={40} className={styles.brandLogo} />}
         <ul className={styles.navList}>
           {navConfig.map((item) => {
             return (
