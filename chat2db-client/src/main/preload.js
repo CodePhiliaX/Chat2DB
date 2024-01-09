@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 const { spawn } = require('child_process');
 const { JAVA_APP_NAME, JAVA_PATH } = require('./constants');
 const path = require('path');
-const { readVersion, isLinux, isWin } = require('./utils');
+const { readVersion, isLinux, isWin, isMac } = require('./utils');
 
 contextBridge.exposeInMainWorld('electronApi', {
   startServerForSpawn: async () => {
@@ -74,7 +74,7 @@ contextBridge.exposeInMainWorld('electronApi', {
     return {
       isLinux,
       isWin,
-      isLinux,
+      isMac,
     };
   },
 });
