@@ -26,6 +26,7 @@ export default memo<IProps>((props) => {
 
   const handleDoubleClick = () => {
     window.electronApi?.setMaximize();
+    setIsMaximize(!isMaximized);
   };
 
   const handelMinimizeWindow = (e) => {
@@ -54,7 +55,7 @@ export default memo<IProps>((props) => {
       {isWin && (
         <div className={styles.windowsCloseBar}>
           <div className={styles.windowsCloseBarItem} onClick={handelMinimizeWindow}>
-            <Iconfont code="&#xe644;" />
+            <Iconfont code="&#xe671;" />
           </div>
           <div className={styles.windowsCloseBarItem} onClick={handelMaximize}>
             {isMaximized ? <Iconfont code="&#xe66e;" /> : <Iconfont code="&#xe66b;" />}
