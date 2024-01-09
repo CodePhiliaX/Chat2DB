@@ -91,9 +91,6 @@ const SelectBoundInfo = memo((props: IProps) => {
       setSchemaList([]);
       setDatabaseNameList([]);
       getDatabaseList();
-    } else {
-      setSchemaList([]);
-      getSchemaList();
     }
   }, [boundInfo.dataSourceId, isActive]);
 
@@ -103,6 +100,7 @@ const SelectBoundInfo = memo((props: IProps) => {
       return;
     }
     if (supportSchema) {
+      setSchemaList([]);
       getSchemaList();
     }
     if (!supportSchema && boundInfo.databaseName) {

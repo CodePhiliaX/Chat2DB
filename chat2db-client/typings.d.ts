@@ -32,7 +32,7 @@ declare global {
       getPlatform: () => {
         isLinux: boolean,
         isWin: boolean,
-        isLinux: boolean,
+        isMac: boolean,
       };
       minimizeWindow: () => void;
       closeWindow: () => void;
