@@ -21,6 +21,7 @@ export default {
   'editTable.label.nullable': 'Nullable',
   'editTable.label.prefixLength': 'Prefix length',
   'editTable.label.defaultValue': 'Default value',
+  'editTable.label.onUpdate': 'Update based on current timestamp',
   'editTable.label.sparse': 'Sparse',
   'editTable.label.characterSet': 'Character set',
   'editTable.label.collation': 'Collation',

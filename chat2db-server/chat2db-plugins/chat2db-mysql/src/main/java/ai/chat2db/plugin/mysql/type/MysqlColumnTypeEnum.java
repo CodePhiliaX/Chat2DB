@@ -157,6 +157,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDefaultValue(column,type)).append(" ");
 
+        script.append(buildOnUpdate(column,type)).append(" ");
+
         script.append(buildExt(column,type)).append(" ");
 
         script.append(buildAutoIncrement(column,type)).append(" ");
@@ -252,6 +254,14 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
         return StringUtils.join("DEFAULT ",column.getDefaultValue());
+    }
+
+    private String buildOnUpdate(TableColumn column, MysqlColumnTypeEnum type) {
+        if (column.getOnUpdate() != null && column.getOnUpdate()) {
+            return StringUtils.join("ON UPDATE CURRENT_TIMESTAMP");
+
+        }
+        return "";
     }
 
     private String buildNullable(TableColumn column,MysqlColumnTypeEnum type) {

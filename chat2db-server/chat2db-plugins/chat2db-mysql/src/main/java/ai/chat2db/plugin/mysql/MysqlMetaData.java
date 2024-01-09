@@ -156,6 +156,9 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
                 column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
                 column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
                 column.setCollationName(resultSet.getString("COLLATION_NAME"));
+                if (resultSet.getString("extra").toLowerCase().contains("on update CURRENT_TIMESTAMP".toLowerCase())) {
+                    column.setOnUpdate(true);
+                }
                 setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
                 tableColumns.add(column);
             }
