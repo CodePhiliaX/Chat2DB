@@ -58,6 +58,17 @@ contextBridge.exposeInMainWorld('electronApi', {
   setMaximize: () => {
     ipcRenderer.send('set-maximize');
   },
+  // 获取当前窗口是否是最大化
+  isMaximized: () => {
+    ipcRenderer.send('is-maximized');
+  },
+  closeWindow: () => {
+    ipcRenderer.send('close-window');
+  },
+  // 最小化窗口
+  minimizeWindow: () => {
+    ipcRenderer.send('minimize-window');
+  },
   // 获取环境是mac还是windows还是linux
   getPlatform: () => {
     return {

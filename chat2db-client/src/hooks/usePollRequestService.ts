@@ -45,6 +45,10 @@ const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService 
     serviceFn();
 
     if (serviceStatus !== ServiceStatus.SUCCESS) {
+      // 第一次请求失败，启动服务
+      if (attempts === 1) {
+        window.electronApi?.startServerForSpawn();
+      }
       intervalId = setInterval(serviceFn, interval);
     }
 

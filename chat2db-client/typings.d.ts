@@ -34,6 +34,9 @@ declare global {
         isWin: boolean,
         isLinux: boolean,
       };
+      minimizeWindow: () => void;
+      closeWindow: () => void;
+      isMaximized: () => boolean;
     };
   }
   const __APP_VERSION__: string;

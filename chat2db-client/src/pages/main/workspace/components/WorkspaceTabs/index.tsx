@@ -88,6 +88,7 @@ const WorkspaceTabs = memo(() => {
         dataSourceId: currentConnectionDetails.id,
         dataSourceName: currentConnectionDetails.alias,
         databaseType: currentConnectionDetails.type,
+        // databaseName: currentConnectionDetails.databaseName,
       });
     }
   };

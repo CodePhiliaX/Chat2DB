@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { useCommonStore } from '@/store/common';
@@ -10,6 +10,7 @@ interface IProps {
 
 export default memo<IProps>((props) => {
   const { className } = props;
+  const [isMaximized, setIsMaximize] = useState(window.electronApi?.isMaximized());
 
   const { appTitleBarRightComponent } = useCommonStore((state) => {
     return {
@@ -25,11 +26,24 @@ export default memo<IProps>((props) => {
 
   const handleDoubleClick = () => {
     window.electronApi?.setMaximize();
+    setIsMaximize(!isMaximized);
   };
 
-  const handelMaximize = () => {
+  const handelMinimizeWindow = (e) => {
+    e.stopPropagation();
+    window.electronApi?.minimizeWindow();
+  };
+
+  const handelMaximize = (e) => {
+    e.stopPropagation();
     window.electronApi?.setMaximize();
-  }
+    setIsMaximize(!isMaximized);
+  };
+
+  const handelCloseWindow = (e) => {
+    e.stopPropagation();
+    window.electronApi?.closeWindow();
+  };
 
   return (
     <div className={classnames(styles.appTitleBar, className)} onDoubleClick={handleDoubleClick}>
@@ -40,14 +54,14 @@ export default memo<IProps>((props) => {
       </div>
       {isWin && (
         <div className={styles.windowsCloseBar}>
-          <div className={styles.windowsCloseBarItem}>
-            <Iconfont code="&#xeb78;" />
+          <div className={styles.windowsCloseBarItem} onClick={handelMinimizeWindow}>
+            <Iconfont code="&#xe671;" />
           </div>
           <div className={styles.windowsCloseBarItem} onClick={handelMaximize}>
-            <Iconfont code="&#xeb78;" />
+            {isMaximized ? <Iconfont code="&#xe66e;" /> : <Iconfont code="&#xe66b;" />}
           </div>
-          <div className={styles.windowsCloseBarItem}>
-            <Iconfont code="&#xeb78;" />
+          <div className={styles.windowsCloseBarItem} onClick={handelCloseWindow}>
+            <Iconfont code="&#xe66f;" />
           </div>
         </div>
       )}

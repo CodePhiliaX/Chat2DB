@@ -9,9 +9,9 @@ if (__ENV__ === 'local') {
   /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
   @font-face {
     font-family: 'iconfont';  /* Project id 3633546 */
-    src: url('//at.alicdn.com/t/c/font_3633546_yr9ay65j0fs.woff2?t=1703837870848') format('woff2'),
-         url('//at.alicdn.com/t/c/font_3633546_yr9ay65j0fs.woff?t=1703837870848') format('woff'),
-         url('//at.alicdn.com/t/c/font_3633546_yr9ay65j0fs.ttf?t=1703837870848') format('truetype');
+    src: url('//at.alicdn.com/t/c/font_3633546_ahqjb5vaa0m.woff2?t=1704776615855') format('woff2'),
+         url('//at.alicdn.com/t/c/font_3633546_ahqjb5vaa0m.woff?t=1704776615855') format('woff'),
+         url('//at.alicdn.com/t/c/font_3633546_ahqjb5vaa0m.ttf?t=1704776615855') format('truetype');
   }
   `;
   const style = document.createElement('style');

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, net, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, net, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const registerAppMenu = require('./menu');
 const registerAnalysis = require('./analysis');
@@ -54,6 +54,11 @@ function createWindow() {
   mainWindow.on('move', () => {
     store.set('windowBounds', mainWindow.getBounds());
   });
+
+  // 注册快捷键Ctrl+Shift+I打开开发者工具
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    mainWindow.webContents.openDevTools()
+  })
 }
 
 // const menu = Menu.buildFromTemplate(menuBar);
@@ -68,7 +73,7 @@ app.on('ready', () => {
 });
 
 app.on('activate', () => {
-  if (!!mainWindow) {
+  if (!mainWindow) {
     createWindow();
   } else {
     if (mainWindow.isMinimized()) {
@@ -83,6 +88,7 @@ app.on('activate', () => {
 });
 
 app.on('window-all-closed', (e) => {
+  mainWindow = null
   if (isMac) return;
   app.quit();
 });
@@ -133,4 +139,18 @@ ipcMain.on('set-base-url', (event, _baseUrl) => {
 
 ipcMain.on('set-force-quit-code', (event, _forceQuitCode) => {
   forceQuitCode = _forceQuitCode;
+});
+
+ipcMain.on('close-window', () => {
+  mainWindow.close();
+});
+
+// 最小化窗口
+ipcMain.on('minimize-window', () => {
+  mainWindow.minimize();
+});
+
+// 获取当前窗口是否是最大化
+ipcMain.on('is-maximized', () => {
+  return mainWindow.isMaximized();
 });
