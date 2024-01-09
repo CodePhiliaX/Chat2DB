@@ -106,7 +106,7 @@ const SelectBoundInfo = memo((props: IProps) => {
     if (!supportSchema && boundInfo.databaseName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName);
     }
-  }, [boundInfo.databaseName, isActive]);
+  }, [boundInfo.databaseName, isActive, supportSchema]);
 
   useEffect(() => {
     if (!isActive || boundInfo.connectable === false) {
@@ -115,7 +115,7 @@ const SelectBoundInfo = memo((props: IProps) => {
     if (supportSchema && boundInfo.schemaName) {
       getAllTableNameList(boundInfo.dataSourceId, boundInfo.databaseName, boundInfo.schemaName);
     }
-  }, [boundInfo.schemaName, isActive]);
+  }, [boundInfo.schemaName, isActive, supportSchema]);
 
   // 获取数据库列表
   const getDatabaseList = () => {
