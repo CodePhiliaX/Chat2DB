@@ -46,6 +46,10 @@ export default memo<IProps>((props) => {
     window.electronApi?.closeWindow();
   };
 
+  if(isMac === void 0){
+    return false
+  }
+
   return (
     <div className={classnames(styles.appTitleBar, className)} onDoubleClick={handleDoubleClick}>
       <div className={styles.appTitleBarGlobal}>
