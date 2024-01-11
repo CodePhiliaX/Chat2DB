@@ -188,7 +188,7 @@ function MainPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        {/* {(isMac || isMac === void 0) && <BrandLogo size={40} className={styles.brandLogo} />} */}
+        {(isMac === void 0) && <BrandLogo size={38} className={styles.brandLogo} />}
         <ul className={styles.navList}>
           {navConfig.map((item) => {
             return (
