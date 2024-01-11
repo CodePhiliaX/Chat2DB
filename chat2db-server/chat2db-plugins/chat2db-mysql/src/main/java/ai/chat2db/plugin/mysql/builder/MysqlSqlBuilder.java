@@ -94,11 +94,13 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             script.append("\t").append("AUTO_INCREMENT=").append(newTable.getIncrementValue()).append(",\n");
         }
 
+        boolean modifyFlag = false;
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
+                modifyFlag = true;
             }
         }
 
@@ -107,11 +109,18 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             if (StringUtils.isNotBlank(tableIndex.getEditStatus()) && StringUtils.isNotBlank(tableIndex.getType())) {
                 MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
+                modifyFlag = true;
             }
         }
 
         // append reorder column
-        script.append(buildGenerateReorderColumnSql(oldTable, newTable));
+        String reorderColumnSql = buildGenerateReorderColumnSql(oldTable, newTable, modifyFlag);
+        if (reorderColumnSql.length() > 0) {
+            script = new StringBuilder(script.substring(0, script.length() - 2));
+            script.append(";\n");
+        }
+        script.append(reorderColumnSql);
+
 
         if (script.length() > 2) {
             script = new StringBuilder(script.substring(0, script.length() - 2));
@@ -152,16 +161,16 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         return sqlBuilder.toString();
     }
 
-    public String buildGenerateReorderColumnSql(Table oldTable, Table newTable) {
+    public String buildGenerateReorderColumnSql(Table oldTable, Table newTable, boolean modifyFlag) {
         StringBuilder sql = new StringBuilder();
-        int n = 0;
+        int n = modifyFlag? 1 : 0;
         // Create a map to store the index of each column in the old table's column list
         Map<String, Integer> oldColumnIndexMap = new HashMap<>();
         for (int i = 0; i < oldTable.getColumnList().size(); i++) {
             oldColumnIndexMap.put(oldTable.getColumnList().get(i).getName(), i);
         }
         String[] oldColumnArray = oldTable.getColumnList().stream().map(TableColumn::getName).toArray(String[]::new);
-        String[] newColumnArray = newTable.getColumnList().stream().map(TableColumn::getName).toArray(String[]::new);
+        String[] newColumnArray = newTable.getColumnList().stream().map(TableColumn::getOldName).toArray(String[]::new);
 
         buildSql(oldColumnArray, newColumnArray, sql, oldTable, newTable, n);
 
@@ -172,20 +181,28 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         // 先完成首位移动
         if (!originalArray[0].equals(targetArray[0])) {
             int a = findIndex(originalArray, targetArray[0]);
-            TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, 0);
-            System.out.println(ArrayUtil.toString(newArray));
-            sql.append(" MODIFY COLUMN ");
-            MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
-            sql.append(typeEnum.buildColumn(column));
-            sql.append(" FIRST;\n");
-            n++;
-            if (Arrays.equals(newArray, targetArray)) {
-                return newArray;
-            }
-            String[] resultArray = buildSql(newArray, targetArray, sql, oldTable, newTable, n);
-            if (Arrays.equals(resultArray, targetArray)) {
-                return resultArray;
+            if (a != -1) {
+                TableColumn column = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), originalArray[a])).findFirst().get();
+                String[] newArray = moveElement(originalArray, a, 0);
+                if (n > 0) {
+                    sql.append("ALTER TABLE ");
+                    if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
+                        sql.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+                    }
+                    sql.append("`").append(oldTable.getName()).append("`").append("\n");
+                }
+                sql.append(" MODIFY COLUMN ");
+                MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
+                sql.append(typeEnum.buildColumn(column));
+                sql.append(" FIRST;\n");
+                n++;
+                if (Arrays.equals(newArray, targetArray)) {
+                    return newArray;
+                }
+                String[] resultArray = buildSql(newArray, targetArray, sql, oldTable, newTable, n);
+                if (Arrays.equals(resultArray, targetArray)) {
+                    return resultArray;
+                }
             }
         }
 
@@ -194,40 +211,44 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         if (!originalArray[max].equals(targetArray[max])) {
             int a = findIndex(originalArray, targetArray[max]);
             //System.out.println("Move " + originalArray[a] + " after " + (a > 0 ? originalArray[max] : "start"));
-            TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, max);
-            System.out.println(ArrayUtil.toString(newArray));
-            if (n > 0) {
-                sql.append("ALTER TABLE ");
-                if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
-                    sql.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+            if (a != -1) {
+                TableColumn column = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), originalArray[a])).findFirst().get();
+                String[] newArray = moveElement(originalArray, a, max);
+                //System.out.println(ArrayUtil.toString(newArray));
+                if (n > 0) {
+                    sql.append("ALTER TABLE ");
+                    if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
+                        sql.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+                    }
+                    sql.append("`").append(oldTable.getName()).append("`").append("\n");
                 }
-                sql.append("`").append(oldTable.getName()).append("`").append("\n");
-            }
-            sql.append(" MODIFY COLUMN ");
-            MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
-            sql.append(typeEnum.buildColumn(column));
-            sql.append(" ");
-            sql.append(" AFTER ");
-            sql.append(oldTable.getColumnList().get(max).getName());
-            sql.append(";\n");
-            n++;
-            if (Arrays.equals(newArray, targetArray)) {
-                return newArray;
-            }
-            String[] resultArray = buildSql(newArray, targetArray, sql, oldTable, newTable, n);
-            if (Arrays.equals(resultArray, targetArray)) {
-                return resultArray;
+                sql.append(" MODIFY COLUMN ");
+                MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
+                sql.append(typeEnum.buildColumn(column));
+                sql.append(" ");
+                sql.append(" AFTER ");
+                String oldMaxName = oldTable.getColumnList().get(max).getName();
+                TableColumn newOldColumn = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), oldMaxName)).findFirst().get();
+                sql.append(newOldColumn.getName());
+                sql.append(";\n");
+                n++;
+                if (Arrays.equals(newArray, targetArray)) {
+                    return newArray;
+                }
+                String[] resultArray = buildSql(newArray, targetArray, sql, oldTable, newTable, n);
+                if (Arrays.equals(resultArray, targetArray)) {
+                    return resultArray;
+                }
             }
         }
 
 
         for (int i = 0; i < originalArray.length; i++) {
             int a = findIndex(targetArray, originalArray[i]);
-            if (i != a && isMoveValid(originalArray, targetArray, i, a)) {
+            if (i != a && a != -1 && isMoveValid(originalArray, targetArray, i, a)) {
                 // oldTable.getColumnList中查找name为a
                 int finalI = i;
-                TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[finalI])).findFirst().get();
+                TableColumn column = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), originalArray[finalI])).findFirst().get();
                 if (n > 0) {
                     sql.append("ALTER TABLE ");
                     if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
@@ -241,9 +262,13 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
                 sql.append(" ");
                 sql.append(" AFTER ");
                 if (i < a) {
-                    sql.append(originalArray[a]);
+                    String oldName = oldTable.getColumnList().get(a).getName();
+                    TableColumn newOldColumn = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), oldName)).findFirst().get();
+                    sql.append(newOldColumn.getName());
                 } else {
-                    sql.append(originalArray[a - 1]);
+                    String oldName = oldTable.getColumnList().get(a - 1).getName();
+                    TableColumn newOldColumn = newTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getOldName(), oldName)).findFirst().get();
+                    sql.append(newOldColumn.getName());
                 }
 
                 sql.append(";\n");
@@ -271,7 +296,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     }
 
     private static boolean isMoveValid(String[] originalArray, String[] targetArray, int i, int a) {
-        System.out.println("i : " + i + " a:" + a);
         return (i == 0 || a == 0 || !originalArray[i - 1].equals(targetArray[a - 1])) &&
                 (i >= originalArray.length - 1 || a >= targetArray.length - 1 || !originalArray[i + 1].equals(targetArray[a + 1]));
     }
@@ -286,7 +310,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             System.arraycopy(originalArray, to, newArray, to + 1, from - to);
         }
         newArray[to] = temp;
-        System.out.println(ArrayUtil.toString(newArray));
         return newArray;
     }
 
