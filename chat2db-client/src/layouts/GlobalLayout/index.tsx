@@ -67,7 +67,7 @@ const GlobalLayout = () => {
   //   return (
   //     <div className={styles.app}>
   //       <AppTitleBar className={styles.appTitleBar} />
-  //       <OpenScreenAnimation />
+  //       <Spin className={styles.loadingBox} size="large" />
   //     </div>
   //   );
   // }
@@ -100,6 +100,7 @@ const GlobalLayout = () => {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <div className={styles.app}>
+        {/* Open screen animation  */}
         {(serviceStatus === ServiceStatus.PENDING || curUser === null) && <OpenScreenAnimation />}
         <AppTitleBar className={styles.appTitleBar} />
         <div className={styles.appBody}>
