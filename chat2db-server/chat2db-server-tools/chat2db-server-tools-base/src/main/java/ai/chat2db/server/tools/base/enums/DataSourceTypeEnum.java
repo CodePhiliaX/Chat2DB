@@ -26,6 +26,11 @@ public enum DataSourceTypeEnum implements BaseEnum<String> {
      */
     MONGODB("mongo数据库连接"),
 
+    /**
+     * oceanbase数据库连接
+     */
+    OCEANBASE("oceanbase数据库连接"),
+
     ;
 
     final String description;

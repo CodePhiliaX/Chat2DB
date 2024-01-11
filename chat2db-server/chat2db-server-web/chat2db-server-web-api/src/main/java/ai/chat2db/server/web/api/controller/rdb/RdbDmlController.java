@@ -128,7 +128,11 @@ public class RdbDmlController {
         } else {
             MetaData metaData = Chat2DBContext.getMetaData();
             // 拼接`tableName`，避免关键字被占用问题
-            param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
+            if (DataSourceTypeEnum.OCEANBASE.getCode().equals(type)) {
+                param.setSql("select * from " + metaData.getMetaDataName(request.getDatabaseName(), request.getTableName()));
+            } else {
+                param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
+            }
         }
         return dlTemplateService.execute(param)
                 .map(rdbWebConverter::dto2vo);
