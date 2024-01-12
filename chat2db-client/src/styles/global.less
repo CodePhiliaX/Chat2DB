@@ -2,12 +2,18 @@
 @import '../theme/custom/light.less';
 @import './antd.less';
 
+@font-face {
+  font-family: 'HarmonyOS_Sans';
+  src: url('../assets/font/HarmonyOS_Sans_Regular.woff2') format('woff2');
+}
+
 html,
 body {
   height: 100%;
   color: var(--color-text);
   font-size: var(--font-size);
   background-color: var(--color-bg-base);
+  font-family: 'HarmonyOS_Sans';
 }
 
 // 修改账号密码自动回填后input背景变色问题
