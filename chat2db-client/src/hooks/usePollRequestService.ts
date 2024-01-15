@@ -22,6 +22,7 @@ const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService 
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>(ServiceStatus.PENDING);
   const [restart, setRestart] = useState(false);
   const attempts = useRef(0);
+  const startupDate = useRef(new Date().getTime());
 
   const serviceFn = async () => {
     // The first request fails. Start the service
@@ -35,7 +36,10 @@ const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService 
     attempts.current = attempts.current + 1;
     loopService().then((res) => {
       if (res) {
-        setServiceStatus(ServiceStatus.SUCCESS);
+        const now = new Date().getTime();
+        setTimeout(() => {
+          setServiceStatus(ServiceStatus.SUCCESS);
+        }, startupDate.current + 1000 - now);
       }
     })
     .catch(() => {
