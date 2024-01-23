@@ -202,10 +202,10 @@ jobs:
           eval `ssh-agent -s`
           ssh-add ~/.ssh/id_rsa     
       # 上传到服务器
-      - name: Upload jar to server with retries
+      - name: Upload package
         run: |
-          ssh -t ${{ secrets.SERVER_DOWNLOAD_USERNAME }}@${{ secrets.SERVER_DOWNLOAD_HOST }} "mkdir -p ${{ secrets.SERVER_DOWNLOAD_PATH }}/test//99.0.${{ github.run_id }}" && break
-          scp ./oss_temp_file/ ${{ secrets.SERVER_DOWNLOAD_USERNAME }}@${{ secrets.SERVER_DOWNLOAD_HOST }}:${{ secrets.SERVER_DOWNLOAD_PATH }}/test//99.0.${{ github.run_id }}/ && break
+          ssh -t ${{ secrets.SERVER_DOWNLOAD_USERNAME }}@${{ secrets.SERVER_DOWNLOAD_HOST }} "mkdir -p ${{ secrets.SERVER_DOWNLOAD_PATH }}/test//99.0.${{ github.run_id }}" 
+          scp ./oss_temp_file/ ${{ secrets.SERVER_DOWNLOAD_USERNAME }}@${{ secrets.SERVER_DOWNLOAD_HOST }}:${{ secrets.SERVER_DOWNLOAD_PATH }}/test//99.0.${{ github.run_id }}/ 
               
 
       # 发送到DingTalk
