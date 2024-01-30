@@ -65,7 +65,7 @@ export const createConsole = (params: ICreateConsoleParams) => {
     operationType: params.operationType || WorkspaceTabType.CONSOLE,
     type: params.databaseType,
     supportDatabase: currentConnectionDetails?.supportDatabase,
-    supportSchema: currentConnectionDetails?.supportSchema
+    supportSchema: currentConnectionDetails?.supportSchema,
   };
 
   return new Promise((resolve) => {
