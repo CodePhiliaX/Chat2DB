@@ -18,7 +18,7 @@ import getConnectionEnvList from './functions/getConnection';
 import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
 import { getConnectionList } from '@/pages/main/store/connection';
 import { useUserStore, setCurUser } from '@/store/user';
-import { setAppTitleBarRightComponent } from '@/store/common/appTitleBarConfig';
+import { useGlobalStore } from '@/store/global';
 
 // ----- component -----
 import CustomLayout from '@/components/CustomLayout';
@@ -32,7 +32,6 @@ import Setting from '@/blocks/Setting';
 
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
-
 
 const initNavConfig: INavItem[] = [
   {
@@ -81,6 +80,8 @@ function MainPage() {
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
   );
+
+  const setAppTitleBarRightComponent = useGlobalStore((s) => s.setAppTitleBarRightComponent);
 
   const isMac = useMemo(() => {
     return window.electronApi?.getPlatform().isMac;
@@ -188,7 +189,7 @@ function MainPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        {(isMac === void 0) && <BrandLogo size={38} className={styles.brandLogo} />}
+        {isMac === void 0 && <BrandLogo size={38} className={styles.brandLogo} />}
         <ul className={styles.navList}>
           {navConfig.map((item) => {
             return (

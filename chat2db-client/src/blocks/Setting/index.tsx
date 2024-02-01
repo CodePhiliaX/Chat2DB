@@ -12,7 +12,7 @@ import { ILatestVersion } from '@/service/config';
 import UpdateDetection, { IUpdateDetectionRef, UpdatedStatusEnum } from '@/blocks/Setting/UpdateDetection';
 
 // ---- store -----
-import { useSettingStore, getAiSystemConfig, setAiSystemConfig } from '@/store/setting';
+import { useGlobalStore } from '@/store/global';
 
 interface IProps {
   className?: string;
@@ -32,7 +32,13 @@ function Setting(props: IProps) {
   const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
   const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
   const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
-  const aiConfig = useSettingStore((state) => state.aiConfig);
+  const { aiConfig, getAiSystemConfig, setAiSystemConfig } = useGlobalStore((state) => {
+    return {
+      aiConfig: state.aiConfig,
+      getAiSystemConfig: state.getAiSystemConfig,
+      setAiSystemConfig: state.setAiSystemConfig,
+    };
+  });
 
   useEffect(() => {
     if (defaultArouse) {
