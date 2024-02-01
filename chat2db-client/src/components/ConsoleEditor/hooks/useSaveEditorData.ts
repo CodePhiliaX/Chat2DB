@@ -5,7 +5,7 @@ import indexedDB from '@/indexedDB';
 import historyServer from '@/service/history';
 import i18n from '@/i18n';
 import { getCookie } from '@/utils';
-import { getSavedConsoleList } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/store/workspace/';
 
 
 interface IProps {
@@ -22,6 +22,7 @@ export const useSaveEditorData = (props: IProps) => {
     // 上一次同步的console数据
   const lastSyncConsole = useRef<any>(defaultValue);
   const [saveStatus, setSaveStatus] = useState<ConsoleStatus>(boundInfo.status || ConsoleStatus.DRAFT);
+  const getSavedConsoleList = useWorkspaceStore(s=>s.getSavedConsoleList);
 
   const saveConsole = (value?: string, noPrompting?: boolean) => {
     const p: any = {

@@ -3,8 +3,7 @@ import styles from './index.less';
 // import classnames from 'classnames';
 import WorkspaceExtendBody from '../WorkspaceExtend/WorkspaceExtendBody';
 import WorkspaceExtendNav from '../WorkspaceExtend/WorkspaceExtendNav';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
-import { setPanelRightWidth } from '@/pages/main/workspace/store/config';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ----- components -----
 import WorkspaceTabs from '../WorkspaceTabs';
@@ -13,11 +12,12 @@ import DraggableContainer from '@/components/DraggableContainer';
 const WorkspaceRight = memo(() => {
   const draggableRef = useRef<any>();
 
-  const { currentWorkspaceExtend, panelRight, panelRightWidth } = useWorkspaceStore((state) => {
+  const { currentWorkspaceExtend, panelRight, panelRightWidth,setPanelRightWidth } = useWorkspaceStore((state) => {
     return {
       currentWorkspaceExtend: state.currentWorkspaceExtend,
       panelRight: state.layout.panelRight,
       panelRightWidth: state.layout.panelRightWidth,
+      setPanelRightWidth: state.setPanelRightWidth,
     };
   });
 

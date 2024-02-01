@@ -8,8 +8,7 @@ import { ConsoleOpenedStatus, workspaceTabConfig } from '@/constants';
 import { IConsole, ITreeNode } from '@/typings';
 import styles from './index.less';
 import { approximateList } from '@/utils';
-import { addWorkspaceTab, getSavedConsoleList } from '@/pages/main/workspace/store/console';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 import MenuLabel from '@/components/MenuLabel';
 
 const SaveList = () => {
@@ -19,6 +18,8 @@ const SaveList = () => {
   const leftModuleTitleRef = useRef<any>(null);
   const saveBoxListRef = useRef<any>(null);
   const consoleList = useWorkspaceStore((state) => state.savedConsoleList);
+  const addWorkspaceTab = useWorkspaceStore((state) => state.addWorkspaceTab);
+  const getSavedConsoleList = useWorkspaceStore((state) => state.getSavedConsoleList);
   const [editData, setEditData] = useState<any>(null);
 
   useEffect(() => {

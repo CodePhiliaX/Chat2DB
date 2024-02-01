@@ -6,8 +6,7 @@ import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import {extendConfig} from '../config';
 
-import { setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import {  useWorkspaceStore } from '@/store/workspace';
 
 interface IToolbar {
   code: string;
@@ -22,9 +21,10 @@ interface IProps {
 
 export default (props:IProps) => {
   const { className } = props;
-  const { currentWorkspaceExtend } = useWorkspaceStore((state) => {
+  const { currentWorkspaceExtend,setCurrentWorkspaceExtend } = useWorkspaceStore((state) => {
     return {
       currentWorkspaceExtend: state.currentWorkspaceExtend,
+      setCurrentWorkspaceExtend: state.setCurrentWorkspaceExtend,
     };
   });
 

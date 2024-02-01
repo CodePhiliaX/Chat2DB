@@ -11,12 +11,8 @@ import { userLogout } from '@/service/user';
 import { INavItem } from '@/typings/main';
 import { IRole } from '@/typings/user';
 
-// ----- hooks -----
-import getConnectionEnvList from './functions/getConnection';
-
 // ----- store -----
-import { useMainStore, setMainPageActiveTab } from '@/pages/main/store/main';
-import { getConnectionList } from '@/pages/main/store/connection';
+import { getConnectionList, getConnectionEnvList } from '@/store/connection';
 import { useUserStore, setCurUser } from '@/store/user';
 import { useGlobalStore } from '@/store/global';
 
@@ -75,13 +71,17 @@ function MainPage() {
       userInfo: state.curUser,
     };
   });
+  const { mainPageActiveTab, setMainPageActiveTab, setAppTitleBarRightComponent } = useGlobalStore((s) => {
+    return {
+      mainPageActiveTab: s.mainPageActiveTab,
+      setMainPageActiveTab: s.setMainPageActiveTab,
+      setAppTitleBarRightComponent: s.setAppTitleBarRightComponent,
+    };
+  });
   const [navConfig, setNavConfig] = useState<INavItem[]>(initNavConfig);
-  const mainPageActiveTab = useMainStore((state) => state.mainPageActiveTab);
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
   );
-
-  const setAppTitleBarRightComponent = useGlobalStore((s) => s.setAppTitleBarRightComponent);
 
   const isMac = useMemo(() => {
     return window.electronApi?.getPlatform().isMac;

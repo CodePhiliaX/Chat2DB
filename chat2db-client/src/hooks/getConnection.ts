@@ -1,16 +1,15 @@
 import connectionService from '@/service/connection';
-import { setConnectionEnvList, getConnectionList } from '@/pages/main/store/connection';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { setConnectionEnvList, getConnectionList } from '@/store/connection';
+import { useWorkspaceStore } from '@/store/workspace';
 
 const getConnectionEnvList = () => {
   connectionService.getEnvList().then((res) => {
     setConnectionEnvList(res);
   });
 };
-import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
-
 const getConnection = () => {
   const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
+  const setCurrentConnectionDetails = useWorkspaceStore.getState().setCurrentConnectionDetails;
 
 
   getConnectionList().then((res) => {

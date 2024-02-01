@@ -16,10 +16,7 @@ import {
 } from '@/service/dashboard';
 import i18n from '@/i18n';
 import styles from './index.less';
-// import { IConnectionModelState } from '@/models/connection';
-// import { IWorkspaceModelState } from '@/models/workspace';
-// import { IAIState } from '@/models/ai';
-import { useConnectionStore } from '../store/connection';
+import { useConnectionStore } from '@/store/connection';
 import { useGlobalStore } from '@/store/global';
 
 interface IProps {

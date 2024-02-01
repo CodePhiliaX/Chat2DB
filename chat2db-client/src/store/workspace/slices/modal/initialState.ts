@@ -1,7 +1,7 @@
-import { useWorkspaceStore } from './index';
 import { DatabaseTypeCode } from '@/constants';
 import { CreateType } from '@/components/CreateDatabase';
-export interface IModalStore {
+
+export interface ModalState {
   openCreateDatabaseModal: ((params: {
     type: CreateType;
     relyOnParams: {
@@ -13,10 +13,6 @@ export interface IModalStore {
   }) => void) | null;
 }
 
-export const initModalStore: IModalStore = {
+export const initModalState = {
   openCreateDatabaseModal: null,
-};
-
-export const setOpenCreateDatabaseModal = (fn: any) => {
-  useWorkspaceStore.setState({ openCreateDatabaseModal: fn });
 };

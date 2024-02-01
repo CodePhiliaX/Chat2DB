@@ -1,14 +1,10 @@
 import React, { useMemo } from 'react';
 import {extendConfig} from '../config';
-import {useWorkspaceStore} from '@/pages/main/workspace/store';
+import {useWorkspaceStore} from '@/store/workspace';
 
 
 export default () => {
-  const {currentWorkspaceExtend} = useWorkspaceStore((state) => {
-    return {
-      currentWorkspaceExtend: state.currentWorkspaceExtend,
-    }
-  });
+  const currentWorkspaceExtend = useWorkspaceStore((state) => state.currentWorkspaceExtend);
   const Component = useMemo(() => {
     return extendConfig.find((item) => item.code === currentWorkspaceExtend)?.components 
   }, [currentWorkspaceExtend]);

@@ -1,10 +1,9 @@
-import { createConsole} from '../store/console'
-import { useWorkspaceStore } from '../store';
+import { useWorkspaceStore} from '@/store/workspace'
 
 export const handelCreateConsole = () => { 
   const params = useWorkspaceStore.getState().currentConnectionDetails;
   if (params) {
-    createConsole({
+    useWorkspaceStore.getState().createConsole({
       dataSourceId: params.id,
       dataSourceName: params.alias,
       databaseType: params.type,

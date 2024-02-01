@@ -17,14 +17,7 @@ import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
-import {
-  getOpenConsoleList,
-  setActiveConsoleId,
-  setWorkspaceTabList,
-  createConsole,
-} from '@/pages/main/workspace/store/console';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
-import { useTreeStore } from '@/blocks/Tree/treeStore';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ----- services -----
 import historyService from '@/service/history';
@@ -32,11 +25,23 @@ import historyService from '@/service/history';
 import indexedDB from '@/indexedDB';
 
 const WorkspaceTabs = memo(() => {
-  const { activeConsoleId, consoleList, workspaceTabList } = useWorkspaceStore((state) => {
+  const {
+    activeConsoleId,
+    consoleList,
+    workspaceTabList,
+    getOpenConsoleList,
+    setActiveConsoleId,
+    setWorkspaceTabList,
+    createConsole,
+  } = useWorkspaceStore((state) => {
     return {
       consoleList: state.consoleList,
       activeConsoleId: state.activeConsoleId,
       workspaceTabList: state.workspaceTabList,
+      getOpenConsoleList: state.getOpenConsoleList,
+      setActiveConsoleId: state.setActiveConsoleId,
+      setWorkspaceTabList: state.setWorkspaceTabList,
+      createConsole: state.createConsole,
     };
   });
 
@@ -83,14 +88,14 @@ const WorkspaceTabs = memo(() => {
   };
 
   const createNewConsole = () => {
-    const { databaseName, schemaName } =  useTreeStore.getState().focusTreeNode || {};
+    const { databaseName, schemaName } = useWorkspaceStore.getState().focusTreeNode || {};
     if (currentConnectionDetails) {
       createConsole({
         dataSourceId: currentConnectionDetails.id,
         dataSourceName: currentConnectionDetails.alias,
         databaseType: currentConnectionDetails.type,
         databaseName,
-        schemaName
+        schemaName,
       });
     }
   };

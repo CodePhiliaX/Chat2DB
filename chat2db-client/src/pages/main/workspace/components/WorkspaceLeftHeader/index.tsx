@@ -4,9 +4,8 @@ import classnames from 'classnames';
 import styles from './index.less';
 
 // ---- store ----
-import { useConnectionStore } from '@/pages/main/store/connection';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
-import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
+import { useConnectionStore } from '@/store/connection';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';
@@ -23,9 +22,10 @@ export default memo(() => {
     };
   });
 
-  const { currentConnectionDetails } = useWorkspaceStore((state) => {
+  const { currentConnectionDetails,setCurrentConnectionDetails } = useWorkspaceStore((state) => {
     return {
       currentConnectionDetails: state.currentConnectionDetails,
+      setCurrentConnectionDetails: state.setCurrentConnectionDetails,
     };
   });
 

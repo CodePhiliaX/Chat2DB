@@ -7,7 +7,7 @@ import { databaseTypeList } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 import i18n from '@/i18n';
 import FileUploadModal from '@/components/ImportConnection';
-import {getConnectionList} from '@/pages/main/store/connection';
+import { getConnectionList } from '@/store/connection';
 
 // IConnectionDetails 全部信息代表修改
 // null 展示因增列表
@@ -27,7 +27,6 @@ export default memo<IProps>((props) => {
     externalConnectionDetail,
   );
   const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false);
-
 
   useEffect(() => {
     setConnectionDetail(externalConnectionDetail);
@@ -81,7 +80,12 @@ export default memo<IProps>((props) => {
                   </div>
                 );
               })}
-              <div className={styles.databaseItem} onClick={() => {setIsFileUploadModalOpen(true)}}>
+              <div
+                className={styles.databaseItem}
+                onClick={() => {
+                  setIsFileUploadModalOpen(true);
+                }}
+              >
                 <div className={styles.databaseItemMain}>
                   <div className={styles.databaseItemLeft}>
                     <div className={styles.logoBox}>
@@ -108,7 +112,7 @@ export default memo<IProps>((props) => {
         }}
         onConfirm={() => {
           setIsFileUploadModalOpen(false);
-          getConnectionList()
+          getConnectionList();
         }}
       />
     </>
