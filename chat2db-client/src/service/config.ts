@@ -1,4 +1,4 @@
-import { IAiConfig } from '@/typings';
+import { IAIConfig } from '@/typings';
 import createRequest from './base';
 
 export interface ILatestVersion {
@@ -45,16 +45,16 @@ const setSystemConfig = createRequest<{ code: string; content: string }, void>('
   method: 'post',
 });
 
-const getAiSystemConfig = createRequest<{ aiSqlSource?: string }, IAiConfig>('/api/config/system_config/ai', {
+const getAISystemConfig = createRequest<{ aiSqlSource?: string }, IAIConfig>('/api/config/system_config/ai', {
   errorLevel: false,
 });
 
-const setAiSystemConfig = createRequest<IAiConfig, void>('/api/config/system_config/ai', {
+const setAISystemConfig = createRequest<IAIConfig, void>('/api/config/system_config/ai', {
   errorLevel: 'toast',
   method: 'post',
 });
 
-const getAiWhiteAccess = createRequest<{ apiKey: string }, boolean>('/api/ai/embedding/white/check', {
+const getAIWhiteAccess = createRequest<{ apiKey: string }, boolean>('/api/ai/embedding/white/check', {
   method: 'get',
 });
 
@@ -81,9 +81,9 @@ const setAppUpdateType = createRequest<ILatestVersion['type'], boolean>('/api/sy
 export default {
   getSystemConfig,
   setSystemConfig,
-  getAiSystemConfig,
-  setAiSystemConfig,
-  getAiWhiteAccess,
+  getAISystemConfig,
+  setAISystemConfig,
+  getAIWhiteAccess,
   getLatestVersion,
   isUpdateSuccess,
   updateDesktopVersion,

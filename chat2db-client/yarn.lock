@@ -7674,6 +7674,11 @@ image-size@~0.5.0:
   resolved "https://registry.npmmirror.com/image-size/-/image-size-0.5.5.tgz#09dfd4ab9d20e29eb1c3e80b8990378df9e3cb9c"
   integrity sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==
 
+immer@^10.0.3:
+  version "10.0.3"
+  resolved "https://registry.npmmirror.com/immer/-/immer-10.0.3.tgz#a8de42065e964aa3edf6afc282dfc7f7f34ae3c9"
+  integrity sha512-pwupu3eWfouuaowscykeckFmVTpqbzW+rXFCX8rQLkZzM9ftBmU/++Ra+o+L27mz03zJTlyV4UUr+fdKNffo4A==
+
 immer@^8.0.4:
   version "8.0.4"
   resolved "https://registry.npmmirror.com/immer/-/immer-8.0.4.tgz#3a21605a4e2dded852fb2afd208ad50969737b7a"
@@ -12193,6 +12198,11 @@ utila@~0.4:
   version "0.4.0"
   resolved "https://registry.npmmirror.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
   integrity sha512-Z0DbgELS9/L/75wZbro8xAnT50pBVFQZ+hUEueGDU5FN51YSCYM+jdxsfCiHjwNP/4LCDD0i/graKpeBnOXKRA==
+
+utility-types@^3.11.0:
+  version "3.11.0"
+  resolved "https://registry.npmmirror.com/utility-types/-/utility-types-3.11.0.tgz#607c40edb4f258915e901ea7995607fdf319424c"
+  integrity sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==
 
 uuid@^9.0.0:
   version "9.0.0"

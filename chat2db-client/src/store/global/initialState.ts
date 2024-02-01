@@ -1,7 +1,7 @@
 import { CommonState, initialCommonState } from './slices/common/initialState';
-import { SettingState, initialSettingState } from './slices/settings/initialState';
+import { GlobalSettingState, initialSettingState } from './slices/settings/initialState';
 
-export type GlobalState = CommonState & SettingState;
+export type GlobalState = CommonState & GlobalSettingState;
 
 export const initialState: GlobalState = {
   ...initialCommonState,

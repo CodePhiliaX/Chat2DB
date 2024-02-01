@@ -37,6 +37,7 @@
     "echarts-for-react": "^3.0.2",
     "event-source-polyfill": "^1.0.31",
     "highlight.js": "^11.9.0",
+    "immer": "^10.0.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.320.0",
     "markdown-it-link-attributes": "^4.0.1",
@@ -49,6 +50,7 @@
     "styled-components": "^6.0.1",
     "umi": "^4.0.87",
     "umi-request": "^1.4.0",
+    "utility-types": "^3.11.0",
     "uuid": "^9.0.0",
     "zustand": "^4.4.4"
   },

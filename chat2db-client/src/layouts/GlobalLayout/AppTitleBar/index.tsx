@@ -1,4 +1,4 @@
-import React, { memo, useState, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useCommonStore } from '@/store/common';
 import { IconButton, Logo } from '@chat2db/ui';
 import { Minus, Square, X } from 'lucide-react';
@@ -51,7 +51,7 @@ const AppBar = memo<AppBarProps>(({ className }) => {
         <Logo type="imageWithText" />
         <div className={styles.logoRightSolt}>{appTitleBarRightComponent}</div>
       </div>
-      {appBarType === 'Windows' && (
+      {appBarType !== 'Mac' && (
         <div className={styles.windowsActionBar}>
           <IconButton className={styles.windowsAction} icon={Minus} onClick={handelMinimizeWindow} />
           <IconButton className={styles.windowsAction} icon={Square} onClick={handelMaximizeWindow} />

@@ -3,15 +3,15 @@ import configService from '@/service/config';
 import { AIType } from '@/typings/ai';
 import { Alert, Button, Form, Input, Radio, RadioChangeEvent } from 'antd';
 import i18n from '@/i18n';
-import { IAiConfig } from '@/typings/setting';
+import { IAIConfig } from '@/typings/setting';
 import { IRole } from '@/typings/user';
 import { AIFormConfig, AITypeName } from './aiTypeConfig';
 import styles from './index.less';
 import { useUserStore } from '@/store/user'
 
 interface IProps {
-  handleApplyAiConfig: (aiConfig: IAiConfig) => void;
-  aiConfig: IAiConfig;
+  handleApplyAiConfig: (aiConfig: IAIConfig) => void;
+  aiConfig: IAIConfig;
 }
 
 function capitalizeFirstLetter(string) {
@@ -20,7 +20,7 @@ function capitalizeFirstLetter(string) {
 
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
-  const [aiConfig, setAiConfig] = useState<IAiConfig>();
+  const [aiConfig, setAiConfig] = useState<IAIConfig>();
   const { userInfo } = useUserStore(state => {
     return {
       userInfo: state.curUser

@@ -5,7 +5,7 @@ export * from './database';
 export * from './main';
 export * from './theme';
 export * from './tree';
-export * from './setting';
+export * from './settings';
 export * from './team';
 export * from './workspace';
 export * from './editTable';

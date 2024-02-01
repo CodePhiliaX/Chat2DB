@@ -15,7 +15,7 @@ import ChatInput, { SyncModelType } from './components/ChatInput';
 import MonacoEditor, { IEditorOptions, IExportRefFunction, IRangeType } from '../MonacoEditor';
 import aiServer from '@/service/ai';
 import { v4 as uuidv4 } from 'uuid';
-import { IAiConfig, IBoundInfo } from '@/typings';
+import { IAIConfig, IBoundInfo } from '@/typings';
 import Popularize from '@/components/Popularize';
 import OperationLine from './components/OperationLine';
 import { chatErrorForKey, chatErrorToLogin } from '@/constants/chat';
@@ -191,7 +191,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     handleAiChat(content, promptType, _aiConfig, ext);
   };
 
-  const handleAiChat = async (content: string, promptType: IPromptType, _aiConfig?: IAiConfig, ext?: string) => {
+  const handleAiChat = async (content: string, promptType: IPromptType, _aiConfig?: IAIConfig, ext?: string) => {
     const { apiKey } = _aiConfig || aiConfig || {};
     if (!apiKey && isChat2DBAI) {
       handleApiKeyEmptyOrGetQrCode(true);

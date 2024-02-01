@@ -1,21 +1,10 @@
-import { IAiConfig } from '@/typings/setting';
-import { IRemainingUse, AIType } from '@/typings/ai';
+import { GlobalSettings } from '@/typings/settings';
+import { DEFAULT_AI_SETTINGS, DEFAULT_BASE_SETTINGS, DEFAULT_SERVER_SETTINGS } from '@/constants/settings';
 
-export interface SettingState {
-  /**
-   *  APP title bar right component
-   */
-  aiConfig: IAiConfig;
-  remainingUse?: IRemainingUse;
-  hasWhite: boolean;
-  holdingService: boolean;
-}
+export interface GlobalSettingState extends GlobalSettings {}
 
-export const initialSettingState: SettingState = {
-  remainingUse: undefined,
-  aiConfig: {
-    aiSqlSource: AIType.CHAT2DBAI,
-  },
-  hasWhite: false,
-  holdingService: false,
+export const initialSettingState: GlobalSettingState = {
+  baseSetting: DEFAULT_BASE_SETTINGS,
+  aiSettings: DEFAULT_AI_SETTINGS,
+  serverSettings: DEFAULT_SERVER_SETTINGS,
 };

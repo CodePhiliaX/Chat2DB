@@ -1,9 +1,9 @@
 import i18n from '@/i18n';
-import { IAiConfig } from '@/typings';
+import { IAIConfig } from '@/typings';
 import { AIType } from '@/typings/ai';
 
 export type IAiConfigBooleans = {
-  [K in keyof IAiConfig]?: boolean | string;
+  [K in keyof IAIConfig]?: boolean | string;
 };
 
 const AITypeName = {

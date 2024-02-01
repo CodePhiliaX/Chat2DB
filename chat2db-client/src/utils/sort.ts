@@ -5,8 +5,7 @@
  * @returns
  */
 export function compareStrings(a: string, b: string) {
-  
-  if (!a  ) {
+  if (!a) {
     return -1;
   }
 

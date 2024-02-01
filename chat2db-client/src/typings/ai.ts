@@ -1,8 +1,8 @@
 export enum AIType {
   CHAT2DBAI = 'CHAT2DBAI',
   ZHIPUAI = 'ZHIPUAI',
-  BAICHUANAI='BAICHUANAI',
-  WENXINAI='WENXINAI',
+  BAICHUANAI = 'BAICHUANAI',
+  WENXINAI = 'WENXINAI',
   // TONGYIQIANWENAI='TONGYIQIANWENAI',
   OPENAI = 'OPENAI',
   AZUREAI = 'AZUREAI',
@@ -26,4 +26,15 @@ export interface ILoginAndQrCode {
 export interface IInviteQrCode {
   wechatQrCodeUrl: string;
   tip: string;
+}
+
+export interface IAIConfig {
+  aiSqlSource: AIType;
+  apiKey?: string;
+  apiHost?: string;
+  httpProxyHost?: string;
+  httpProxyPort?: string;
+  stream?: boolean;
+  secretKey?: string;
+  model?: string;
 }
