@@ -7,13 +7,18 @@ import { AIType } from '@/typings/ai';
 import { message } from 'antd';
 import i18n from '@/i18n';
 
-export interface SettingAction {
+export interface SettingsAction {
   setAiConfig: (aiConfig: SettingState['aiConfig']) => void;
   setRemainUse: (remainingUse?: SettingState['remainingUse']) => void;
   setAiWithWhite: (hasWhite: boolean) => void;
+  updateAiWithWhite: (apiKey?: string) => void;
+  getAiSystemConfig: () => void;
+  setAiSystemConfig: (aiConfig: SettingState['aiConfig']) => void;
+  fetchRemainingUse: (apiKey?: string) => void;
+  setHoldingService: (holdingService: boolean) => void;
 }
 
-export const createSettingAction: StateCreator<GlobalStore, [['zustand/devtools', never]], [], SettingAction> = (
+export const createSettingsAction: StateCreator<GlobalStore, [['zustand/devtools', never]], [], SettingsAction> = (
   set,
   get,
 ) => ({
@@ -45,8 +50,8 @@ export const createSettingAction: StateCreator<GlobalStore, [['zustand/devtools'
     }
   },
   fetchRemainingUse: (apiKey) => {
-    const currentState = get().getState();
-    if (!apiKey || currentState.aiConfig.aiSqlSource !== AIType.CHAT2DBAI) {
+    const aiSqlSource = get().aiConfig.aiSqlSource;
+    if (!apiKey || aiSqlSource !== AIType.CHAT2DBAI) {
       get().setRemainUse(undefined);
       return;
     }

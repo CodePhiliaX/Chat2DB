@@ -3,10 +3,8 @@
 
 // const a = (s) => merge(s.a, s.b);
 
-// export const commonSelectors = {
-//   a,
-// };
-
+export const settingSelectors = {
+};
 
 // method of application
 // import { useGlobalStore } from '@/store/global';

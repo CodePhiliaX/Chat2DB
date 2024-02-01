@@ -3,9 +3,8 @@
 
 // const a = (s) => merge(s.a, s.b);
 
-// export const commonSelectors = {
-//   a,
-// };
+export const commonSelectors = {
+};
 
 
 // method of application
