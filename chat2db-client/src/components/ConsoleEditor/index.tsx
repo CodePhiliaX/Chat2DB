@@ -28,7 +28,7 @@ import styles from './index.less';
 import { useSaveEditorData } from './hooks/useSaveEditorData';
 
 // ----- store -----
-import { useSettingStore, fetchRemainingUse, setAiConfig } from '@/store/setting';
+import { useGlobalStore } from '@/store/global';
 
 // ----- function -----
 import { handelCreateConsole } from '@/pages/main/workspace/functions/shortcutKeyCreateConsole';
@@ -106,11 +106,13 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const [isStream, setIsStream] = useState(false);
   const aiFetchIntervalRef = useRef<any>();
   const closeEventSource = useRef<any>();
-  const { aiConfig, hasWhite, remainingUse } = useSettingStore((state) => {
+  const { aiConfig, hasWhite, remainingUse, fetchRemainingUse, setAiConfig } = useGlobalStore((state) => {
     return {
       aiConfig: state.aiConfig,
       hasWhite: state.hasWhite,
       remainingUse: state.remainingUse,
+      fetchRemainingUse: state.fetchRemainingUse,
+      setAiConfig: state.setAiConfig,
     };
   });
 

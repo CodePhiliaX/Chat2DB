@@ -1,17 +1,15 @@
 import React, { useEffect, useMemo } from 'react';
 import styles from './index.less';
 import i18n from '@/i18n';
-import classnames from 'classnames';
 import BrandLogo from '@/components/BrandLogo';
 import { APP_NAME, WEBSITE_DOC } from '@/constants/appConfig';
-import { Button, Radio, Space, Checkbox } from 'antd';
+import { Button, Radio, Space } from 'antd';
 import configService from '@/service/config';
 import { DownloadOutlined } from '@ant-design/icons';
 import { IUpdateDetectionData } from '../index';
 import { IUpdateDetectionRef, UpdatedStatusEnum } from '../UpdateDetection';
 import Iconfont from '@/components/Iconfont';
-import { useSettingStore, setHoldingService } from '@/store/setting';
-import s from '@/service/misc'
+import { useGlobalStore } from '@/store/global';
 
 interface IProps {
   updateDetectionData: IUpdateDetectionData | null;
@@ -23,11 +21,10 @@ export default function AboutUs(props: IProps) {
   const { updateDetectionData, updateDetectionRef } = props;
   const [updateRule, setUpdateRule] = React.useState<'manual' | 'auto'>(updateDetectionData?.type || 'manual');
 
-  const { holdingService } = useSettingStore((state) => {
-    return {
-      holdingService: state.holdingService,
-    };
-  });
+  const [holdingService, setHoldingService] = useGlobalStore((state) => [
+    state.holdingService,
+    state.setHoldingService,
+  ]);
 
   const onChangeUpdateRul = (e) => {
     configService.setAppUpdateType(e.target.value).then(() => {

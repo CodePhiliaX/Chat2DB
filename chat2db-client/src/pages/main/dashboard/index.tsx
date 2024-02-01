@@ -20,7 +20,7 @@ import styles from './index.less';
 // import { IWorkspaceModelState } from '@/models/workspace';
 // import { IAIState } from '@/models/ai';
 import { useConnectionStore } from '../store/connection';
-import { useSettingStore } from '@/store/setting';
+import { useGlobalStore } from '@/store/global';
 
 interface IProps {
   className?: string;
@@ -39,7 +39,7 @@ function Chart(props: IProps) {
   const [curDashboard, setCurDashboard] = useState<IDashboardItem>();
   const [openAddDashboard, setOpenAddDashboard] = useState(false);
   const connectionList = useConnectionStore((state) => state.connectionList);
-  const remainingUse = useSettingStore((state) => state.remainingUse);
+  const remainingUse = useGlobalStore((state) => state.remainingUse);
 
   const [form] = Form.useForm(); // 创建一个表单实例
   const [messageApi] = message.useMessage();
