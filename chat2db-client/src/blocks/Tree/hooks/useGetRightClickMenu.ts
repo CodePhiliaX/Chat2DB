@@ -12,8 +12,7 @@ import { ITreeConfigItem, treeConfig } from '../treeConfig';
 import { useMemo } from 'react';
 
 // ----- store -----
-import { createConsole, addWorkspaceTab } from '@/pages/main/workspace/store/console';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ---- functions -----
 import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
@@ -51,20 +50,23 @@ interface IRightClickMenu {
 export const useGetRightClickMenu = (props: IProps) => {
   const { treeNodeData, loadData } = props;
 
-  const { openCreateDatabaseModal, currentConnectionDetails } = useWorkspaceStore((state) => {
-    return {
-      openCreateDatabaseModal: state.openCreateDatabaseModal,
-      currentConnectionDetails: state.currentConnectionDetails,
-    };
-  });
+  const { openCreateDatabaseModal, currentConnectionDetails, createConsole, addWorkspaceTab } = useWorkspaceStore(
+    (state) => {
+      return {
+        openCreateDatabaseModal: state.openCreateDatabaseModal,
+        currentConnectionDetails: state.currentConnectionDetails,
+        createConsole: state.createConsole,
+        addWorkspaceTab: state.addWorkspaceTab,
+      };
+    },
+  );
 
   const handelOpenCreateDatabaseModal = (type: 'database' | 'schema') => {
-
     const relyOnParams = {
       databaseType: treeNodeData.extraParams!.databaseType,
       dataSourceId: treeNodeData.extraParams!.dataSourceId!,
       databaseName: treeNodeData.name,
-    }
+    };
 
     openCreateDatabaseModal?.({
       type,
@@ -147,8 +149,7 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
             },
-          })
-          
+          });
         },
       },
 
@@ -166,11 +167,13 @@ export const useGetRightClickMenu = (props: IProps) => {
               databaseType: treeNodeData.extraParams!.databaseType!,
               databaseName: treeNodeData.extraParams?.databaseName,
               schemaName: treeNodeData.extraParams?.schemaName,
-              submitCallback: () => {loadData?.({refresh: true})},
+              submitCallback: () => {
+                loadData?.({ refresh: true });
+              },
             },
           });
         },
-        discard: (treeNodeData.treeNodeType === TreeNodeType.DATABASE && currentConnectionDetails?.supportSchema),
+        discard: treeNodeData.treeNodeType === TreeNodeType.DATABASE && currentConnectionDetails?.supportSchema,
       },
 
       // 删除表
@@ -178,7 +181,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.deleteTable'),
         icon: '\ue6a7',
         handle: () => {
-          deleteTable(treeNodeData,loadData);
+          deleteTable(treeNodeData, loadData);
         },
       },
 
@@ -187,7 +190,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.ViewDDL'),
         icon: '\ue665',
         handle: () => {
-          viewDDL(treeNodeData)
+          viewDDL(treeNodeData);
         },
       },
 
@@ -199,8 +202,8 @@ export const useGetRightClickMenu = (props: IProps) => {
           handelPinTable({
             treeNodeData,
             loadData: () => {
-              loadData({treeNodeData:treeNodeData.parentNode})
-            }
+              loadData({ treeNodeData: treeNodeData.parentNode });
+            },
           });
         },
       },
@@ -221,11 +224,10 @@ export const useGetRightClickMenu = (props: IProps) => {
               schemaName: treeNodeData.extraParams?.schemaName,
               tableName: treeNodeData?.name,
               submitCallback: () => {
-              
                 loadData({
                   treeNodeData: treeNodeData.parentNode,
-                  refresh: true
-                })
+                  refresh: true,
+                });
               },
             },
           });
@@ -271,7 +273,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           openView({
-            addWorkspaceTab,
             treeNodeData,
           });
         },
@@ -284,7 +285,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           openFunction({
-            addWorkspaceTab,
             treeNodeData,
           });
         },
@@ -297,7 +297,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           openProcedure({
-            addWorkspaceTab,
             treeNodeData,
           });
         },
@@ -310,7 +309,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           openTrigger({
-            addWorkspaceTab,
             treeNodeData,
           });
         },
@@ -362,16 +360,23 @@ export const useGetRightClickMenu = (props: IProps) => {
 export const getRightClickMenu = (props: IProps) => {
   const { treeNodeData, loadData } = props;
 
-  const openCreateDatabaseModal = useWorkspaceStore.getState().openCreateDatabaseModal;
-  const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
+  const { openCreateDatabaseModal, currentConnectionDetails, createConsole, addWorkspaceTab } = useWorkspaceStore(
+    (state) => {
+      return {
+        openCreateDatabaseModal: state.openCreateDatabaseModal,
+        currentConnectionDetails: state.currentConnectionDetails,
+        createConsole: state.createConsole,
+        addWorkspaceTab: state.addWorkspaceTab,
+      };
+    },
+  );
 
   const handelOpenCreateDatabaseModal = (type: 'database' | 'schema') => {
-
     const relyOnParams = {
       databaseType: treeNodeData.extraParams!.databaseType,
       dataSourceId: treeNodeData.extraParams!.dataSourceId!,
       databaseName: treeNodeData.name,
-    }
+    };
 
     openCreateDatabaseModal?.({
       type,
@@ -453,8 +458,7 @@ export const getRightClickMenu = (props: IProps) => {
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
           },
-        })
-        
+        });
       },
     },
 
@@ -472,11 +476,13 @@ export const getRightClickMenu = (props: IProps) => {
             databaseType: treeNodeData.extraParams!.databaseType!,
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
-            submitCallback: () => {treeNodeData.loadData?.({refresh: true})},
+            submitCallback: () => {
+              treeNodeData.loadData?.({ refresh: true });
+            },
           },
         });
       },
-      discard: (treeNodeData.treeNodeType === TreeNodeType.DATABASE && currentConnectionDetails?.supportSchema),
+      discard: treeNodeData.treeNodeType === TreeNodeType.DATABASE && currentConnectionDetails?.supportSchema,
     },
 
     // 删除表
@@ -493,7 +499,7 @@ export const getRightClickMenu = (props: IProps) => {
       text: i18n('workspace.menu.ViewDDL'),
       icon: '\ue665',
       handle: () => {
-        viewDDL(treeNodeData)
+        viewDDL(treeNodeData);
       },
     },
 
@@ -502,7 +508,7 @@ export const getRightClickMenu = (props: IProps) => {
       text: treeNodeData.pinned ? i18n('workspace.menu.unPin') : i18n('workspace.menu.pin'),
       icon: treeNodeData.pinned ? '\ue61d' : '\ue627',
       handle: () => {
-        handelPinTable({treeNodeData, loadData: treeNodeData.parentNode!.loadData!});
+        handelPinTable({ treeNodeData, loadData: treeNodeData.parentNode!.loadData! });
       },
     },
 
@@ -521,7 +527,9 @@ export const getRightClickMenu = (props: IProps) => {
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
             tableName: treeNodeData?.name,
-            submitCallback: () => {treeNodeData.parentNode?.loadData?.({refresh: true})},
+            submitCallback: () => {
+              treeNodeData.parentNode?.loadData?.({ refresh: true });
+            },
           },
         });
       },
@@ -566,7 +574,6 @@ export const getRightClickMenu = (props: IProps) => {
       doubleClickTrigger: true,
       handle: () => {
         openView({
-          addWorkspaceTab,
           treeNodeData,
         });
       },
@@ -579,7 +586,6 @@ export const getRightClickMenu = (props: IProps) => {
       doubleClickTrigger: true,
       handle: () => {
         openFunction({
-          addWorkspaceTab,
           treeNodeData,
         });
       },
@@ -592,7 +598,6 @@ export const getRightClickMenu = (props: IProps) => {
       doubleClickTrigger: true,
       handle: () => {
         openProcedure({
-          addWorkspaceTab,
           treeNodeData,
         });
       },
@@ -605,7 +610,6 @@ export const getRightClickMenu = (props: IProps) => {
       doubleClickTrigger: true,
       handle: () => {
         openTrigger({
-          addWorkspaceTab,
           treeNodeData,
         });
       },
@@ -633,7 +637,7 @@ export const getRightClickMenu = (props: IProps) => {
 
   // 根据配置生成右键菜单
   const finalList: IRightClickMenu[] = [];
-  excludeSomeOperation().forEach((t,i) => {
+  excludeSomeOperation().forEach((t, i) => {
     const concrete = operationColumnConfig[t];
     if (!concrete.discard) {
       finalList.push({

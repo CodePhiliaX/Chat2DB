@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useMemo } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import { Input } from 'antd';
@@ -10,7 +10,7 @@ import { DatabaseTypeCode } from '@/constants';
 import Iconfont from '@/components/Iconfont';
 
 // ----- store -----
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 
 interface IProps {
   searchValue: string;
@@ -25,7 +25,6 @@ const notSupportCreateDatabaseType = [DatabaseTypeCode.H2];
 const notSupportCreateSchemaType = [DatabaseTypeCode.ORACLE];
 
 const OperationLine = (props: IProps) => {
-  const [searchIng, setSearchIng] = useState<boolean>(false);
   const { searchValue, setSearchValue, getTreeData } = props;
   const { currentConnectionDetails, openCreateDatabaseModal } = useWorkspaceStore((state) => {
     return {

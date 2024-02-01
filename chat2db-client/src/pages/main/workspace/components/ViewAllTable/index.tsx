@@ -13,10 +13,11 @@ import { v4 as uuid } from 'uuid';
 import Iconfont from '@/components/Iconfont';
 import { getRightClickMenu } from '@/blocks/Tree/hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
-import { setCurrentWorkspaceGlobalExtend } from '@/pages/main/workspace/store/common';
 
 // ----- store -----
-import { addWorkspaceTab } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/store/workspace';
+
+
 
 const { Search } = Input;
 
@@ -44,6 +45,8 @@ export default memo<IProps>((props) => {
   const [currentPageNo, setCurrentPageNo] = React.useState(1);
   const [openDropdown, setOpenDropdown] = React.useState<boolean | undefined>(undefined);
   const [dropdownItems, setDropdownItems] = React.useState<any[]>([]);
+  const addWorkspaceTab = useWorkspaceStore((state) => state.addWorkspaceTab);
+  const setCurrentWorkspaceGlobalExtend = useWorkspaceStore((state) => state.setCurrentWorkspaceGlobalExtend);
 
   useEffect(() => {
     getTable({

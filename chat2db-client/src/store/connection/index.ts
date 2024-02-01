@@ -6,8 +6,7 @@ import { StoreApi } from 'zustand';
 import { IConnectionListItem, IConnectionEnv } from '@/typings/connection';
 import connectionService from '@/service/connection';
 
-import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 
 export interface IConnectionStore {
   connectionList: IConnectionListItem[] | null;
@@ -35,6 +34,8 @@ export const setConnectionEnvList = (connectionEnvList: IConnectionEnv[]) => {
 export const getConnectionList: () => Promise<IConnectionListItem[]> = () => {
   return new Promise((resolve, reject) => {
     const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
+    const setCurrentConnectionDetails = useWorkspaceStore.getState().setCurrentConnectionDetails;
+    
     connectionService
       .getList({
         pageNo: 1,
@@ -70,3 +71,9 @@ export const getConnectionList: () => Promise<IConnectionListItem[]> = () => {
       });
   });
 };
+
+export const getConnectionEnvList = () => {
+  connectionService.getEnvList().then((res) => {
+    setConnectionEnvList(res);
+  });
+}

@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 
 // ----- components -----
 import OperationLine from '../OperationLine';

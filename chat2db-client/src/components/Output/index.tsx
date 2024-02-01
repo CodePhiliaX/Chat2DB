@@ -7,7 +7,7 @@ import historyService, { IHistoryRecord } from '@/service/history';
 import * as monaco from 'monaco-editor';
 import i18n from '@/i18n';
 import { copy } from '@/utils';
-import { createConsole } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/store/workspace';
 import { Popover } from 'antd';
 
 interface IProps {
@@ -24,6 +24,7 @@ export default memo<IProps>((props) => {
   const outputContentRef = React.useRef<HTMLDivElement>(null);
   const curPageRef = React.useRef(1);
   const finishedRef = React.useRef(false);
+  const createConsole = useWorkspaceStore((state) => state.createConsole);
 
   const getHistoryList = () => {
     return historyService

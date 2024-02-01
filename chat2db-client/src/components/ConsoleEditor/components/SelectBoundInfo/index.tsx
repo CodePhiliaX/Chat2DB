@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, memo, useContext } from 'react';
 import { IntelligentEditorContext } from '../../index';
 import { Dropdown } from 'antd';
-import { useConnectionStore } from '@/pages/main/store/connection';
+import { useConnectionStore } from '@/store/connection';
 import connectionService from '@/service/connection';
 import historyService from '@/service/history';
 import Iconfont from '@/components/Iconfont';

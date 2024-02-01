@@ -8,7 +8,7 @@ import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
 import { DatabaseTypeCode } from '@/constants';
-import { setOpenCreateDatabaseModal } from '@/pages/main/workspace/store/modal';
+import { useWorkspaceStore } from '@/store/workspace';
 
 interface IProps {
   relyOnParams: {
@@ -42,6 +42,7 @@ const CreateDatabase = () => {
   const [createType, setCreateType] = useState<CreateType>('database');
   const [relyOnParams, setRelyOnParams] = useState<IProps['relyOnParams'] | null>(null);
   const executedCallbackRef = React.useRef<IProps['executedCallback']>();
+  const setOpenCreateDatabaseModal = useWorkspaceStore((state) => state.setOpenCreateDatabaseModal);
 
   useEffect(() => {
     if (!open) {

@@ -4,16 +4,26 @@ import { CommonState } from './initialState';
 
 export interface CommonAction {
   /**
-   * @param data - Set APP title bar right component
+   * Set APP title bar right component
    */
   setAppTitleBarRightComponent: (data: CommonState['appTitleBarRightComponent']) => void;
-  
+  /**
+   * Set main page active tab
+   */
+  setMainPageActiveTab: (data: CommonState['mainPageActiveTab']) => void;
 }
 
-export const createCommonAction: StateCreator<GlobalStore, [['zustand/devtools', never]], [], CommonAction> = (set) => ({
+export const createCommonAction: StateCreator<GlobalStore, [['zustand/devtools', never]], [], CommonAction> = (
+  set,
+) => ({
   setAppTitleBarRightComponent: (data) => {
     set({
       appTitleBarRightComponent: data,
+    });
+  },
+  setMainPageActiveTab: (data) => {
+    set({
+      mainPageActiveTab: data,
     });
   },
 });

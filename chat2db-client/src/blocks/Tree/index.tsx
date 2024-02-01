@@ -7,7 +7,7 @@ import { ITreeNode } from '@/typings';
 import { TreeNodeType, databaseMap } from '@/constants';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
-import { setCurrentWorkspaceGlobalExtend } from '@/pages/main/workspace/store/common';
+import { useWorkspaceStore } from '@/store/workspace'
 import LoadingGracile from '@/components/Loading/LoadingGracile';
 import { setFocusId, setFocusTreeNode, useTreeStore, clearTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
@@ -330,7 +330,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       focusedContent: (treeNodeData.name || '') as any,
     });
     if(treeNodeData.treeNodeType === TreeNodeType.TABLE){
-      setCurrentWorkspaceGlobalExtend({
+      useWorkspaceStore.getState().setCurrentWorkspaceGlobalExtend({
         code: 'viewDDL',
         uniqueData: {
           dataSourceId: treeNodeData.extraParams?.dataSourceId,

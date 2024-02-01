@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import DraggableContainer from '@/components/DraggableContainer';
 import ConsoleEditor, { IConsoleRef } from '@/components/ConsoleEditor';
 import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 import { IBoundInfo } from '@/typings';
 
 interface IProps {

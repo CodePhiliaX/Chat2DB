@@ -21,10 +21,9 @@ import MenuLabel from '@/components/MenuLabel';
 import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
 
 // ----- store -----
-import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
-import { setMainPageActiveTab } from '@/pages/main/store/main';
-import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
-import { getOpenConsoleList } from '@/pages/main/workspace/store/console';
+import { useConnectionStore, getConnectionList } from '@/store/connection';
+import { useGlobalStore } from '@/store/global';
+import { useWorkspaceStore } from '@/store/workspace';
 
 import styles from './index.less';
 
@@ -37,6 +36,9 @@ const ConnectionsPage = () => {
   const volatileRef = useRef<any>();
   const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
   const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
+  const getOpenConsoleList = useWorkspaceStore((state) => state.getOpenConsoleList);
+  const setCurrentConnectionDetails = useWorkspaceStore((state) => state.setCurrentConnectionDetails);
+
 
   // 处理列表单击事件
   const handleMenuItemSingleClick = (t: IConnectionListItem) => {
@@ -48,7 +50,7 @@ const ConnectionsPage = () => {
   // 处理列表双击事件
   const handleMenuItemDoubleClick = (t: IConnectionListItem) => {
     setCurrentConnectionDetails(t);
-    setMainPageActiveTab('workspace');
+    useGlobalStore.getState().setMainPageActiveTab('workspace');
   };
 
   // 处理列表单击和双击事件

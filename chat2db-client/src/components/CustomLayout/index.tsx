@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
-import { togglePanelLeft, togglePanelRight } from '@/pages/main/workspace/store/config';
+import { useWorkspaceStore } from '@/store/workspace';
 import Iconfont from '@/components/Iconfont';
 
 interface IProps {
@@ -11,10 +10,12 @@ interface IProps {
 
 export default memo<IProps>((props) => {
   const { className } = props;
-  const { panelLeft, panelRight } = useWorkspaceStore((state) => {
+  const { panelLeft, panelRight,togglePanelRight, togglePanelLeft } = useWorkspaceStore((state) => {
     return {
       panelLeft: state.layout.panelLeft,
       panelRight: state.layout.panelRight,
+      togglePanelLeft: state.togglePanelLeft,
+      togglePanelRight: state.togglePanelRight,
     };
   });
 

@@ -1,8 +1,7 @@
 import React, { memo, useCallback, useEffect, useRef } from 'react';
 import classnames from 'classnames';
 
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
-import { setPanelLeftWidth } from '@/pages/main/workspace/store/config';
+import { useWorkspaceStore } from '@/store/workspace';
 
 import DraggableContainer from '@/components/DraggableContainer';
 import WorkspaceLeft from './components/WorkspaceLeft';
@@ -15,10 +14,11 @@ import styles from './index.less';
 
 const workspacePage = memo(() => {
   const draggableRef = useRef<any>();
-  const { panelLeft, panelLeftWidth } = useWorkspaceStore((state) => {
+  const { panelLeft, panelLeftWidth, setPanelLeftWidth } = useWorkspaceStore((state) => {
     return {
       panelLeft: state.layout.panelLeft,
       panelLeftWidth: state.layout.panelLeftWidth,
+      setPanelLeftWidth: state.setPanelLeftWidth,
     };
   });
 

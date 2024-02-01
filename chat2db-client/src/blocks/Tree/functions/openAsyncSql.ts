@@ -1,13 +1,12 @@
 import { WorkspaceTabType } from '@/constants';
 import sqlService from '@/service/sql';
-import {createConsole} from '@/pages/main/workspace/store/console'
+import { useWorkspaceStore } from '@/store/workspace'
 
 export const openView = (props:{
-  addWorkspaceTab: any;
   treeNodeData: any;
 }) => {
   const { treeNodeData } = props;
-  createConsole({
+  useWorkspaceStore.getState().createConsole({
     name: treeNodeData.name,
     operationType: WorkspaceTabType.VIEW,
     dataSourceId: treeNodeData.extraParams!.dataSourceId!,
@@ -38,7 +37,7 @@ export const openFunction = (props:{
   treeNodeData: any;
 }) => {
   const { treeNodeData } = props;
-  createConsole({
+  useWorkspaceStore.getState().createConsole({
     name: treeNodeData.name,
     operationType: WorkspaceTabType.FUNCTION,
     dataSourceId: treeNodeData.extraParams!.dataSourceId!,
@@ -69,7 +68,7 @@ export const openProcedure = (props:{
   treeNodeData: any;
 }) => {
   const { treeNodeData } = props;
-  createConsole({
+  useWorkspaceStore.getState().createConsole({
     name: treeNodeData.name,
     operationType: WorkspaceTabType.PROCEDURE,
     dataSourceId: treeNodeData.extraParams!.dataSourceId!,
@@ -100,7 +99,7 @@ export const openTrigger = (props:{
   treeNodeData: any;
 }) => {
   const {treeNodeData } = props;
-  createConsole({
+  useWorkspaceStore.getState().createConsole({
     name: treeNodeData.name,
     operationType: WorkspaceTabType.TRIGGER,
     dataSourceId: treeNodeData.extraParams!.dataSourceId!,

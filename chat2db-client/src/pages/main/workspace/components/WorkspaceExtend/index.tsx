@@ -5,7 +5,7 @@ import { Popover } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import Output from '@/components/Output';
 import SaveList from '../SaveList';
-import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useWorkspaceStore } from '@/store/workspace';
 import i18n from '@/i18n';
 
 interface IToolbar {
