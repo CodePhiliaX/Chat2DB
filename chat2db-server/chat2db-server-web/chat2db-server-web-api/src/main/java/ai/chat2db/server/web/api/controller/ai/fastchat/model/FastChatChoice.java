@@ -30,8 +30,8 @@ public final class FastChatChoice {
     /*
      * The log probabilities model for tokens associated with this completions choice.
      */
-    @JsonProperty(value = "message")
-    private FastChatMessage message;
+    @JsonProperty(value = "delta")
+    private FastChatMessage delta;
 
     /*
      * Reason for finishing
@@ -44,18 +44,18 @@ public final class FastChatChoice {
      *
      * @param text the text value to set.
      * @param index the index value to set.
-     * @param message the message value to set
+     * @param delta the message value to set
      * @param finishReason the finishReason value to set.
      */
     @JsonCreator
     private FastChatChoice(
             @JsonProperty(value = "text") String text,
             @JsonProperty(value = "index") int index,
-            @JsonProperty(value = "message") FastChatMessage message,
+            @JsonProperty(value = "delta") FastChatMessage delta,
             @JsonProperty(value = "finish_reason") FastChatCompletionsFinishReason finishReason) {
         this.text = text;
         this.index = index;
-        this.message = message;
+        this.delta = delta;
         this.finishReason = finishReason;
     }
 
@@ -82,8 +82,8 @@ public final class FastChatChoice {
      *
      * @return the logprobs value.
      */
-    public FastChatMessage getMessage() {
-        return this.message;
+    public FastChatMessage getDelta() {
+        return this.delta;
     }
 
     /**
