@@ -7,9 +7,8 @@ import { ITreeNode } from '@/typings';
 import { TreeNodeType, databaseMap } from '@/constants';
 import { treeConfig, switchIcon, ITreeConfigItem } from './treeConfig';
 import { useCommonStore } from '@/store/common';
-import { useWorkspaceStore } from '@/store/workspace'
+import { useWorkspaceStore } from '@/store/workspace';
 import LoadingGracile from '@/components/Loading/LoadingGracile';
-import { setFocusId, setFocusTreeNode, useTreeStore, clearTreeStore } from './treeStore';
 import { useGetRightClickMenu } from './hooks/useGetRightClickMenu';
 import MenuLabel from '@/components/MenuLabel';
 import LoadingContent from '@/components/Loading/LoadingContent';
@@ -52,18 +51,18 @@ const smoothTree = (treeData: ITreeNode[], result: ITreeNode[] = [], parentNode?
 };
 
 // 平级转树
-function tranListToTreeData(list:ITreeNode[], rootValue) {
-  const arr:ITreeNode[] = []
-  list.forEach((item:ITreeNode) => {
+function tranListToTreeData(list: ITreeNode[], rootValue) {
+  const arr: ITreeNode[] = [];
+  list.forEach((item: ITreeNode) => {
     if (item.parentNode?.uuid === rootValue) {
-      arr.push(item)
-      const children = tranListToTreeData(list, item.uuid)
+      arr.push(item);
+      const children = tranListToTreeData(list, item.uuid);
       if (children.length) {
-        item.children = children
+        item.children = children;
       }
     }
-  })
-  return arr
+  });
+  return arr;
 }
 
 // 判断是否匹配
@@ -114,6 +113,14 @@ const Tree = (props: IProps) => {
   const [searchTreeData, setSearchTreeData] = useState<ITreeNode[] | null>(null); // 搜索结果
   const [searchSmoothTreeData, setSearchSmoothTreeData] = useState<ITreeNode[] | null>(null); // 搜索结果 平级
 
+  const {  clearTreeStore } = useWorkspaceStore(
+    (s) => {
+      return {
+        clearTreeStore: s.clearTreeStore,
+      };
+    },
+  );
+
   const [scrollTop, setScrollTop] = useState(0); // 滚动位置 // 继续需要渲染的 item 索引有哪些
 
   const startIdx = useMemo(() => {
@@ -128,7 +135,7 @@ const Tree = (props: IProps) => {
   useEffect(() => {
     return () => {
       clearTreeStore();
-    }
+    };
   }, [searchValue]);
 
   useEffect(() => {
@@ -180,8 +187,8 @@ const Tree = (props: IProps) => {
         value={{
           treeData: treeData!,
           setTreeData: setTreeData!,
-          searchTreeData, 
-          setSearchTreeData
+          searchTreeData,
+          setSearchTreeData,
         }}
       >
         <div
@@ -208,6 +215,17 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
   const { treeData, setTreeData, searchTreeData, setSearchTreeData } = useContext(Context);
+  const { setCurrentWorkspaceGlobalExtend, setFocusId, setFocusTreeNode, isFocus } = useWorkspaceStore(
+    (s) => {
+      return {
+        setCurrentWorkspaceGlobalExtend: s.setCurrentWorkspaceGlobalExtend,
+        setFocusId: s.setFocusId,
+        clearTreeStore: s.clearTreeStore,
+        setFocusTreeNode: s.setFocusTreeNode,
+        isFocus: s.focusId === treeNodeData.uuid,
+      };
+    },
+  );
 
   // 加载数据
   function loadData(_props?: { refresh: boolean; pageNo: number; treeNodeData?: ITreeNode }) {
@@ -215,9 +233,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
     setIsLoading(true);
     if (_props?.pageNo === 1 || !_props?.pageNo) {
-      insertData(treeData!, _treeNodeData.uuid!, null,[treeData, setTreeData]);
-      if(searchTreeData){
-        insertData(searchTreeData!, _treeNodeData.uuid!, null,[searchTreeData, setSearchTreeData]);
+      insertData(treeData!, _treeNodeData.uuid!, null, [treeData, setTreeData]);
+      if (searchTreeData) {
+        insertData(searchTreeData!, _treeNodeData.uuid!, null, [searchTreeData, setSearchTreeData]);
       }
     }
 
@@ -234,8 +252,8 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         if (res.length || res.data) {
           if (res.data) {
             insertData(treeData!, _treeNodeData.uuid!, res.data, [treeData, setTreeData]);
-            if(searchTreeData){
-              insertData(searchTreeData!, _treeNodeData.uuid!, res.data,[searchTreeData, setSearchTreeData]);
+            if (searchTreeData) {
+              insertData(searchTreeData!, _treeNodeData.uuid!, res.data, [searchTreeData, setSearchTreeData]);
             }
             if (res.hasNextPage) {
               loadData({
@@ -244,9 +262,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
               });
             }
           } else {
-            insertData(treeData!, _treeNodeData.uuid!, res,[treeData, setTreeData]);
-            if(searchTreeData){
-              insertData(searchTreeData!, _treeNodeData.uuid!, res,[searchTreeData, setSearchTreeData]);
+            insertData(treeData!, _treeNodeData.uuid!, res, [treeData, setTreeData]);
+            if (searchTreeData) {
+              insertData(searchTreeData!, _treeNodeData.uuid!, res, [searchTreeData, setSearchTreeData]);
             }
           }
           setIsLoading(false);
@@ -256,9 +274,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
             _treeNodeData.pretendNodeType = treeNodeConfig.next;
             loadData();
           } else {
-            insertData(treeData!, _treeNodeData.uuid!, [],[treeData, setTreeData]);
-            if(searchTreeData){
-              insertData(searchTreeData!, _treeNodeData.uuid!, [],[searchTreeData, setSearchTreeData]);
+            insertData(treeData!, _treeNodeData.uuid!, [], [treeData, setTreeData]);
+            if (searchTreeData) {
+              insertData(searchTreeData!, _treeNodeData.uuid!, [], [searchTreeData, setSearchTreeData]);
             }
             setIsLoading(false);
           }
@@ -269,12 +287,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       });
   }
 
-  // 当前节点是否是focus
-  const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
-
   //  在treeData中找到对应的节点，插入数据
-  const insertData = (_treeData: ITreeNode[], uuid: string, data: any, originalDataList:any): ITreeNode | null => {
-    const [originalData,setOriginalData] = originalDataList
+  const insertData = (_treeData: ITreeNode[], uuid: string, data: any, originalDataList: any): ITreeNode | null => {
+    const [originalData, setOriginalData] = originalDataList;
     let result: ITreeNode | null = null;
     for (let i = 0; i < _treeData?.length; i++) {
       if (_treeData[i].uuid === uuid) {
@@ -304,9 +319,9 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   //展开-收起
   const handleClick = () => {
     if (treeNodeData?.children) {
-      insertData(treeData!, treeNodeData.uuid!, null,[treeData, setTreeData]);
-      if(searchTreeData){
-        insertData(searchTreeData!, treeNodeData.uuid!, null,[searchTreeData, setSearchTreeData]);
+      insertData(treeData!, treeNodeData.uuid!, null, [treeData, setTreeData]);
+      if (searchTreeData) {
+        insertData(searchTreeData!, treeNodeData.uuid!, null, [searchTreeData, setSearchTreeData]);
       }
     } else {
       loadData();
@@ -329,8 +344,8 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     useCommonStore.setState({
       focusedContent: (treeNodeData.name || '') as any,
     });
-    if(treeNodeData.treeNodeType === TreeNodeType.TABLE){
-      useWorkspaceStore.getState().setCurrentWorkspaceGlobalExtend({
+    if (treeNodeData.treeNodeType === TreeNodeType.TABLE) {
+      setCurrentWorkspaceGlobalExtend({
         code: 'viewDDL',
         uniqueData: {
           dataSourceId: treeNodeData.extraParams?.dataSourceId,
@@ -339,7 +354,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           databaseType: treeNodeData.extraParams?.databaseType,
           schemaName: treeNodeData.extraParams?.schemaName,
           tableName: treeNodeData.name,
-        }
+        },
       });
     }
     setFocusId(treeNodeData.uuid || '');

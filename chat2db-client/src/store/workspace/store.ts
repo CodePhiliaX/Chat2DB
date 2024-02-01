@@ -7,8 +7,9 @@ import { CommonAction, createCommonAction } from './slices/common/action';
 import { ConfigAction, createConfigAction } from './slices/config/action';
 import { ConsoleAction, createConsoleAction } from './slices/console/action'
 import { ModalAction, createModalAction } from './slices/modal/action'
+import { TreeAction, createTreeAction } from './slices/tree/action'
 
-export type WorkspaceStore = WorkspaceState & CommonAction & ConfigAction & ConsoleAction & ModalAction;
+export type WorkspaceStore = WorkspaceState & CommonAction & ConfigAction & ConsoleAction & ModalAction & TreeAction;
 
 const createStore: StateCreator<WorkspaceStore, [['zustand/devtools', never]]> = (...parameters) => ({
   ...initialState,
@@ -16,6 +17,7 @@ const createStore: StateCreator<WorkspaceStore, [['zustand/devtools', never]]> =
   ...createConfigAction(...parameters),
   ...createConsoleAction(...parameters),
   ...createModalAction(...parameters),
+  ...createTreeAction(...parameters),
 });
 
 type GlobalPersist = Pick<WorkspaceStore, 'layout' | 'currentConnectionDetails'>;

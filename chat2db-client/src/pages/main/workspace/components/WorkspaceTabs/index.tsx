@@ -18,7 +18,6 @@ import ShortcutKey from '@/components/ShortcutKey';
 
 // ---- store -----
 import { useWorkspaceStore } from '@/store/workspace';
-import { useTreeStore } from '@/blocks/Tree/treeStore';
 
 // ----- services -----
 import historyService from '@/service/history';
@@ -89,7 +88,7 @@ const WorkspaceTabs = memo(() => {
   };
 
   const createNewConsole = () => {
-    const { databaseName, schemaName } = useTreeStore.getState().focusTreeNode || {};
+    const { databaseName, schemaName } = useWorkspaceStore.getState().focusTreeNode || {};
     if (currentConnectionDetails) {
       createConsole({
         dataSourceId: currentConnectionDetails.id,
