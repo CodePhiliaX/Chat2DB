@@ -44,7 +44,7 @@ export default function SettingAI(props: IProps) {
     const aiSqlSource = e.target.value;
 
     // 查询对应ai类型的配置
-    const res = await configService.getAiSystemConfig({
+    const res = await configService.getAISystemConfig({
       aiSqlSource,
     });
     setAiConfig(res);

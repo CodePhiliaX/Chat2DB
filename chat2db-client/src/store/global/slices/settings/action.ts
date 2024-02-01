@@ -52,6 +52,10 @@ export interface SettingsAction {
    */
   setAIWithWhite: (hasWhite: boolean) => void;
   /**
+   * 获取AI 模型配置
+   */
+  fetchAIConfig: () => void;
+  /**
    * 更新AI模型配置
    */
   updateAIConfig: (aiConfig: Partial<IAIConfig>) => void;
@@ -107,6 +111,14 @@ export const createSettingsAction: StateCreator<GlobalStore, [['zustand/devtools
   },
   setAIWithWhite: (hasWhite) => {
     get().setAISetting({ hasWhite });
+  },
+  fetchAIConfig: () => {
+    configService.getAISystemConfig({}).then((res) => {
+      get().setAIConfig(res);
+      if (res?.aiSqlSource === AIType.CHAT2DBAI && res.apiKey) {
+        get().updateAIWithWhite(res.apiKey);
+      }
+    });
   },
   updateAIConfig: (aiConfig) => {
     configService.setAISystemConfig(aiConfig).then(() => {

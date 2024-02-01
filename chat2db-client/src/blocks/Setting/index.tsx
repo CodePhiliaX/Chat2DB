@@ -32,11 +32,11 @@ function Setting(props: IProps) {
   const [currentMenu, setCurrentMenu] = useState<number>(defaultMenu);
   const [updateDetectionData, setUpdateDetectionData] = useState<IUpdateDetectionData | null>(null);
   const updateDetectionRef = React.useRef<IUpdateDetectionRef>(null);
-  const { aiConfig, getAiSystemConfig, setAiSystemConfig } = useGlobalStore((state) => {
+  const { aiConfig, fetchAIConfig, updateAIConfig } = useGlobalStore((state) => {
     return {
-      aiConfig: state.aiConfig,
-      getAiSystemConfig: state.getAiSystemConfig,
-      setAiSystemConfig: state.setAiSystemConfig,
+      aiConfig: state.aiSettings.aiConfig,
+      fetchAIConfig: state.fetchAIConfig,
+      updateAIConfig: state.updateAIConfig,
     };
   });
 
@@ -48,13 +48,13 @@ function Setting(props: IProps) {
 
   useEffect(() => {
     if (isModalVisible && !noLogin) {
-      getAiSystemConfig();
+      fetchAIConfig();
     }
   }, [isModalVisible]);
 
   useEffect(() => {
     if (!noLogin) {
-      getAiSystemConfig();
+      fetchAIConfig();
     }
   }, []);
 
@@ -85,7 +85,7 @@ function Setting(props: IProps) {
     {
       label: i18n('setting.nav.customAi'),
       icon: '\ue646',
-      body: <AISetting aiConfig={aiConfig} handleApplyAiConfig={setAiSystemConfig} />,
+      body: <AISetting aiConfig={aiConfig} handleApplyAiConfig={updateAIConfig} />,
       code: 'ai',
     },
     {

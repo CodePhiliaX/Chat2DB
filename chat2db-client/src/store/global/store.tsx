@@ -14,14 +14,14 @@ const createStore: StateCreator<GlobalStore, [['zustand/devtools', never]]> = (.
   ...createSettingsAction(...parameters),
 });
 
-type GlobalPersist = Pick<GlobalStore, 'mainPageActiveTab'>;
+// type GlobalPersist = Pick<GlobalStore, 'mainPageActiveTab'>;
 
 // local-storage Options
-const persistOptions: PersistOptions<GlobalStore, GlobalPersist> = {
+const persistOptions: PersistOptions<GlobalStore> = {
   name: 'Chat2DB_Global',
-  partialize: (state) => ({
-    mainPageActiveTab: state.mainPageActiveTab,
-  }),
+  // partialize: (state) => ({
+  //   mainPageActiveTab: state.mainPageActiveTab,
+  // }),
 };
 
 export const useGlobalStore = createWithEqualityFn<GlobalStore>()(
