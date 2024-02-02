@@ -132,7 +132,7 @@ public class SqlUtils {
     private static final String DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
 
     public static String getSqlValue(String value, String dataType) {
-        if (value == null) {
+        if (value == null || value == "") {
             return null;
         }
         if (DEFAULT_VALUE.equals(value)) {
