@@ -16,7 +16,7 @@ import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
 import { useUserStore, queryCurUser } from '@/store/user';
 import AppTitleBar from '@/layouts/GlobalLayout/AppTitleBar';
-import OpenScreenAnimation from '@/components/OpenScreenAnimation';
+import OpenScreenAnimation from '@/layouts/GlobalLayout/OpenScreenAnimation';
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();

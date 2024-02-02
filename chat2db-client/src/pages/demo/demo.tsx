@@ -7,6 +7,7 @@ import {
   Flex,
   Input,
   MenuProps,
+  Modal,
   Pagination,
   Popconfirm,
   Radio,
@@ -15,6 +16,7 @@ import {
   Skeleton,
   Tabs,
   TabsProps,
+  Tooltip,
   Typography,
 } from 'antd';
 import { createStyles } from 'antd-style';
@@ -81,6 +83,14 @@ export default () => {
   const { styles } = useStyles();
   return (
     <Flex vertical align="center" justify="center" gap={20} className={styles.container}>
+      <Modal>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+        <p>Some contents...</p>
+      </Modal>
+      <Tooltip title="Copy">
+        <Button>123123</Button>
+      </Tooltip>
       <Flex justify="start" align="center" gap={10}>
         <IconButton icon={Copy} size="large" />
       </Flex>

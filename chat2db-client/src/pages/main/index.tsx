@@ -190,7 +190,7 @@ function MainPage() {
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
         {isMac === void 0 && <BrandLogo size={38} className={styles.brandLogo} />}
-        <ul className={styles.navList}>
+        <div className={styles.navList}>
           {navConfig.map((item) => {
             return (
               <Tooltip key={item.key} placement="right" title={item.name}>
@@ -205,7 +205,7 @@ function MainPage() {
               </Tooltip>
             );
           })}
-        </ul>
+        </div>
         <div className={styles.footer}>
           <Tooltip placement="right" title="个人中心">
             {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
