@@ -99,10 +99,12 @@ public class RdbDmlController {
         DlExecuteParam param = rdbWebConverter.request2param(request);
         // 解析sql
         String type = Chat2DBContext.getConnectInfo().getDbType();
+        MetaData metaData = Chat2DBContext.getMetaData();
         if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
             param.setSql("db." + request.getTableName() + ".find()");
-        } else {
-            MetaData metaData = Chat2DBContext.getMetaData();
+        } else if (DataSourceTypeEnum.SQLSERVER.getCode().equals(type)){
+            param.setSql("select * from" + metaData.getMetaDataName(request.getSchemaName()) + "." + metaData.getMetaDataName(request.getTableName()));
+        }else {
             // 拼接`tableName`，避免关键字被占用问题
             param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
         }
