@@ -1,9 +1,10 @@
-import React from 'react';
+import type { LucideIcon } from 'lucide-react';
+import React, { ReactNode } from 'react';
 
 export interface INavItem {
   key: string;
-  icon: string;
-  component?: React.ReactNode;
+  icon: LucideIcon;
+  component?: ReactNode;
   openBrowser?: string;
   iconFontSize?: number;
   isLoad: boolean;

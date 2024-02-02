@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dropdown, Tooltip } from 'antd';
+import { Dropdown, Flex, Tooltip } from 'antd';
 import classnames from 'classnames';
 
 import Iconfont from '@/components/Iconfont';
-import BrandLogo from '@/components/BrandLogo';
 
 import i18n from '@/i18n';
 import { userLogout } from '@/service/user';
@@ -26,13 +25,16 @@ import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
 
-import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
+import { useStyle } from './style';
+import { IconButton, Logo } from '@chat2db/ui';
+import { isMac } from '@/utils/env';
+import { Database, Github, Image, User2, WorkflowIcon, Settings } from 'lucide-react';
 
 const initNavConfig: INavItem[] = [
   {
     key: 'workspace',
-    icon: '\ue616',
+    icon: WorkflowIcon,
     iconFontSize: 16,
     isLoad: false,
     component: <Workspace />,
@@ -40,7 +42,7 @@ const initNavConfig: INavItem[] = [
   },
   {
     key: 'dashboard',
-    icon: '\ue629',
+    icon: Image,
     iconFontSize: 24,
     isLoad: false,
     component: <Dashboard />,
@@ -48,7 +50,7 @@ const initNavConfig: INavItem[] = [
   },
   {
     key: 'connections',
-    icon: '\ue622',
+    icon: Database,
     iconFontSize: 20,
     isLoad: false,
     component: <Connection />,
@@ -56,7 +58,7 @@ const initNavConfig: INavItem[] = [
   },
   {
     key: 'github',
-    icon: '\ue885',
+    icon: Github,
     iconFontSize: 26,
     isLoad: false,
     openBrowser: 'https://github.com/chat2db/Chat2DB/',
@@ -66,6 +68,7 @@ const initNavConfig: INavItem[] = [
 
 function MainPage() {
   const navigate = useNavigate();
+  const { styles, cx } = useStyle({ isMac });
   const { userInfo } = useUserStore((state) => {
     return {
       userInfo: state.curUser,
@@ -82,10 +85,6 @@ function MainPage() {
   const [activeNavKey, setActiveNavKey] = useState<string>(
     __ENV__ === 'desktop' ? mainPageActiveTab : window.location.pathname.split('/')[1] || mainPageActiveTab,
   );
-
-  const isMac = useMemo(() => {
-    return window.electronApi?.getPlatform().isMac;
-  }, []);
 
   // 当页面在workspace时，显示自定义布局
   useEffect(() => {
@@ -187,40 +186,34 @@ function MainPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.layoutLeft}>
-        {isMac === void 0 && <BrandLogo size={38} className={styles.brandLogo} />}
-        <div className={styles.navList}>
-          {navConfig.map((item) => {
-            return (
-              <Tooltip key={item.key} placement="right" title={item.name}>
-                <li
-                  className={classnames({
-                    [styles.activeNav]: item.key == activeNavKey,
-                  })}
-                  onClick={() => switchingNav(item.key)}
-                >
-                  <Iconfont size={item.iconFontSize} className={styles.icon} code={item.icon} />
-                </li>
-              </Tooltip>
-            );
-          })}
+    <div className={styles.container}>
+      <div className={styles.leftContainer}>
+        <div className={styles.navContainer}>
+          <Logo size={36} className={styles.logo} />
+          {navConfig.map((item, index) => (
+            <IconButton
+              isActive={index === 0}
+              key={item.key}
+              size="large"
+              title={item.name}
+              icon={item.icon}
+              tooltipPlacement="right"
+              onClick={() => switchingNav(item.key)}
+            />
+          ))}
         </div>
-        <div className={styles.footer}>
-          <Tooltip placement="right" title="个人中心">
-            {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
-          </Tooltip>
-          <Setting className={styles.setIcon} />
+
+        <div className={styles.settingContainer}>
+          {userInfo?.roleCode !== IRole.DESKTOP && <IconButton title="个人中心" icon={User2} />}
+          <IconButton icon={Settings} onClick={() => switchingNav('setting')} />
         </div>
       </div>
-      <div className={styles.layoutRight}>
-        {navConfig.map((item) => {
-          return (
-            <div key={item.key} className={styles.componentBox} hidden={activeNavKey !== item.key}>
-              {item.isLoad ? item.component : null}
-            </div>
-          );
-        })}
+      <div className={styles.rightContianer}>
+        {navConfig.map((item) => (
+          <div key={item.key} className={styles.componentBox} hidden={activeNavKey !== item.key}>
+            {item.isLoad ? item.component : null}
+          </div>
+        ))}
       </div>
     </div>
   );
