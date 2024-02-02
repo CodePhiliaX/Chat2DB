@@ -1,12 +1,8 @@
-import { ReactNode, memo, useEffect } from 'react';
-import { ThemeAppearance } from 'antd-style';
-import { NeutralColors, PrimaryColors, ThemeProvider } from '@chat2db/ui';
-import { CHAT2DB_THEME_APPEARANCE, CHAT2DB_THEME_NEUTRAL_COLOR, CHAT2DB_THEME_PRIMARY_COLOR } from '@/constants';
-import { Button } from 'antd';
+import { ReactNode, memo } from 'react';
+import { ThemeProvider } from '@chat2db/ui';
 import AppTitleBar from './AppTitleBar';
 import { useGlobalStore } from '@/store/global';
 import { settingSelectors } from '@/store/global/selectors';
-import { setCookie } from '@/utils/cookie';
 
 export interface AppThemeProps {
   children?: ReactNode;

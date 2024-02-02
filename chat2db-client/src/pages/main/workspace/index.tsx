@@ -10,6 +10,7 @@ import WorkspaceRight from './components/WorkspaceRight';
 import useMonacoTheme from '@/components/MonacoEditor/useMonacoTheme';
 import shortcutKeyCreateConsole from './functions/shortcutKeyCreateConsole';
 
+import { createStyles } from 'antd-style';
 import styles from './index.less';
 
 const workspacePage = memo(() => {
@@ -23,7 +24,7 @@ const workspacePage = memo(() => {
   });
 
   // 编辑器的主题
-  useMonacoTheme();
+  // useMonacoTheme();
 
   // 快捷键
   useEffect(() => {
