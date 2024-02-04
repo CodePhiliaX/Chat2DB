@@ -54,11 +54,20 @@ import ai.chat2db.server.web.api.http.request.WhiteListRequest;
 import ai.chat2db.server.web.api.http.response.EsTableSchemaResponse;
 import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
+import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
+import com.unfbx.chatgpt.entity.chat.Parameters;
+import com.unfbx.chatgpt.entity.chat.tool.Tools;
+import com.unfbx.chatgpt.entity.chat.tool.ToolsFunction;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -171,7 +180,7 @@ public class ChatController {
     /**
      * 自定义模型非流式输出接口DEMO
      * <p>
-     *     Note:使用自己本地的飞流式输出自定义AI，接口输入和输出需与该样例保持一致
+     * Note:使用自己本地的飞流式输出自定义AI，接口输入和输出需与该样例保持一致
      * </p>
      *
      * @param queryRequest
@@ -276,11 +285,11 @@ public class ChatController {
      * @throws IOException
      */
     private SseEmitter chatWithOpenAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid)
-        throws IOException {
-        String prompt = buildPrompt(queryRequest);
+            throws IOException {
+        String prompt = buildPrompt2(queryRequest);
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
             log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
-                prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
+                    prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
 
@@ -290,9 +299,28 @@ public class ChatController {
         Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
         messages.add(currentMessage);
         buildSseEmitter(sseEmitter, uid);
-
-        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter);
-        OpenAIClient.getInstance().streamChatCompletion(messages, openAIEventSourceListener);
+        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+        OpenAIEventSourceListener openAIEventSourceListener = new OpenAIEventSourceListener(sseEmitter, messages, connectInfo, queryRequest);
+        ToolsFunction function = ToolsFunction.builder()
+                .name("get_table_columns")
+                .description("获取指定表的字段名，类型")
+                .parameters(Parameters.builder()
+                        .type("object")
+                        .properties(ImmutableMap.builder()
+                                .put("table_name", ImmutableMap.builder()
+                                        .put("type", "string")
+                                        .put("description", "表名，例如```User```")
+                                        .build())
+                                .build())
+                        .required(List.of("table_name"))
+                        .build())
+                .build();
+        ChatCompletion chatCompletion = ChatCompletion.builder()
+                .model("gpt-3.5-turbo-1106")
+                .tools(List.of(new Tools(Tools.Type.FUNCTION.getName(), function)))
+                .toolChoice("auto")
+                .messages(messages).stream(true).build();
+        OpenAIClient.getInstance().streamChatCompletion(chatCompletion, openAIEventSourceListener);
         LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
     }
@@ -631,6 +659,47 @@ public class ChatController {
     }
 
     /**
+     * 构建prompt
+     *
+     * @param queryRequest
+     * @return
+     */
+    private String buildPrompt2(ChatQueryRequest queryRequest) {
+        if (PromptType.TEXT_GENERATION.getCode().equals(queryRequest.getPromptType())) {
+            return queryRequest.getMessage();
+        }
+
+        // 查询schema信息
+        String dataSourceType = queryDatabaseType(queryRequest);
+        String properties = "";
+        if (CollectionUtils.isNotEmpty(queryRequest.getTableNames())) {
+            properties = queryRequest.getTableNames().stream().collect(Collectors.joining(","));
+        } else {
+            properties = queryDatabaseSchema2(queryRequest);
+        }
+        String prompt = queryRequest.getMessage();
+        String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
+                : queryRequest.getPromptType();
+        PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
+        String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
+        String schemaProperty = StringUtils.isNotEmpty(properties) ? String.format(
+                "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables:\n#\n# "
+                        + "%s\n#\n#\n### SQL input: %s", pType.getDescription(), ext, dataSourceType,
+                properties, prompt) : String.format("### 请根据以下SQL input%s. %s\n#\n### SQL input: %s",
+                pType.getDescription(), ext, prompt);
+        switch (pType) {
+            case SQL_2_SQL:
+                schemaProperty = StringUtils.isNotBlank(queryRequest.getDestSqlType()) ? String.format(
+                        "%s\n#\n### 目标SQL类型: %s", schemaProperty, queryRequest.getDestSqlType()) : String.format(
+                        "%s\n#\n### 目标SQL类型: %s", schemaProperty, dataSourceType);
+            default:
+                break;
+        }
+        String cleanedInput = schemaProperty.replaceAll("[\r\t]", "");
+        return cleanedInput;
+    }
+
+    /**
      * query chat2db apikey
      *
      * @return
@@ -723,6 +792,28 @@ public class ChatController {
             return res;
         } catch (Exception exception) {
             log.error("query table error, do nothing");
+            return "";
+        }
+    }
+
+
+    /**
+     * query database schema
+     *
+     * @param queryRequest
+     * @return
+     * @throws IOException
+     */
+    public String queryDatabaseSchema2(ChatQueryRequest queryRequest) {
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        try {
+            List<Table> tables = metaSchema.tables(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), null);
+            return tables.stream()
+                    .map(table -> StringUtils.isBlank(table.getComment()) ? table.getName()
+                            : table.getName() + "(" + table.getComment() + ")")
+                    .collect(Collectors.joining(","));
+        } catch (Exception e) {
+            log.error("query table error:{}, do nothing", e.getMessage());
             return "";
         }
     }
