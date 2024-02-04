@@ -1861,10 +1861,10 @@
   resolved "https://registry.npmmirror.com/@bloomberg/record-tuple-polyfill/-/record-tuple-polyfill-0.0.4.tgz#9ef3df44e472ceb9a0a2010d858a526f2021fefa"
   integrity sha512-h0OYmPR3A5Dfbetra/GzxBAzQk8sH7LhRkRUTdagX6nrtlUgJGYCTv4bBK33jsTQw9HDd8PE2x1Ma+iRKEDUsw==
 
-"@chat2db/ui@^1.8.1":
-  version "1.8.1"
-  resolved "https://registry.npmmirror.com/@chat2db/ui/-/ui-1.8.1.tgz#b3fa6c8190dbea725fd884ee441841be44959f12"
-  integrity sha512-4zda3cLigEODGIUnNpJnPsKtGcj81rlma1QSnu3NmfzaA9Oer803WFGMu39yhXgXMvMnRw/OoKPdrTpuGlBwGg==
+"@chat2db/ui@^1.8.3":
+  version "1.8.3"
+  resolved "https://registry.npmmirror.com/@chat2db/ui/-/ui-1.8.3.tgz#fd43752e31c7797b844c6e41bd23dcd7c9d863e4"
+  integrity sha512-iYa5hG5oJa9LrOAhrWnX2qwTiiP8YO09VG/6vYsujvXt+28488QY8Ax7aSsgYP09jfrZu1FzCXVHR8nMnr0zIw==
   dependencies:
     "@ant-design/charts" "^2.0.3"
     "@babel/runtime" "^7.23.9"

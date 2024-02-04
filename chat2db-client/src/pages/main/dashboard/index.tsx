@@ -18,6 +18,7 @@ import i18n from '@/i18n';
 import styles from './index.less';
 import { useConnectionStore } from '@/store/connection';
 import { useGlobalStore } from '@/store/global';
+import PageTitle from '@/components/PageTitle';
 
 interface IProps {
   className?: string;
@@ -239,10 +240,11 @@ function Chart(props: IProps) {
       <DraggableContainer className={cs(styles.box, className)}>
         <div ref={draggableRef} className={styles.dragBox}>
           <div className={styles.boxLeft}>
-            <div className={styles.boxLeftTitle}>
+            <PageTitle title={i18n('dashboard.title')} />
+            {/* <div className={styles.boxLeftTitle}>
               <div>{i18n('dashboard.title')}</div>
               <Iconfont code="&#xe631;" className={styles.plusIcon} onClick={() => setOpenAddDashboard(true)} />
-            </div>
+            </div> */}
             {renderLeft()}
           </div>
         </div>

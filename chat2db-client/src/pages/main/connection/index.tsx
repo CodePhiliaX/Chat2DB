@@ -27,7 +27,8 @@ import { useWorkspaceStore } from '@/store/workspace';
 
 import { useStyle } from './style';
 import PageTitle from '@/components/PageTitle';
-import { DraggablePanel } from '@chat2db/ui';
+import { DraggablePanel, ListItem } from '@chat2db/ui';
+import { CreativeCommons } from 'lucide-react';
 
 const ConnectionsPage = () => {
   const { styles, cx } = useStyle();
@@ -73,7 +74,6 @@ const ConnectionsPage = () => {
       });
   }, [connectionActiveId]);
 
-  //
   const createDropdownItems = (t) => {
     const handelDelete = (e) => {
       // 禁止冒泡到menuItem
@@ -128,24 +128,37 @@ const ConnectionsPage = () => {
         {(connectionList || [])?.map((t) => {
           const isActive = connectionActiveId === t.id;
           return (
-            <Dropdown
-              key={t.id}
-              trigger={['contextMenu']}
-              menu={{
-                items: createDropdownItems(t),
+            <ListItem
+              size='small'
+              isActive={isActive}
+              icon={CreativeCommons}
+              label={t.alias}
+              addonBefore={undefined}
+              addonAfter={undefined}
+              onClick={() => {
+                handleClickConnectionMenu(t);
               }}
-            >
-              <div
-                className={cx(styles.connectionItem, isActive && styles.activeConnectionItem)}
-                onClick={() => {
-                  handleClickConnectionMenu(t);
-                }}
-              >
-                <Iconfont className={styles.connectionItemIcon} code={databaseMap[t.type]?.icon} />
-                <span className={styles.connectionItemLabel}>{t.alias}</span>
-              </div>
-            </Dropdown>
+            />
           );
+          // return (
+          //   <Dropdown
+          //     key={t.id}
+          //     trigger={['contextMenu']}
+          //     menu={{
+          //       items: createDropdownItems(t),
+          //     }}
+          //   >
+          //     <div
+          //       className={cx(styles.connectionItem, isActive && styles.activeConnectionItem)}
+          //       onClick={() => {
+          //         handleClickConnectionMenu(t);
+          //       }}
+          //     >
+          //       <Iconfont className={styles.connectionItemIcon} code={databaseMap[t.type]?.icon} />
+          //       <span className={styles.connectionItemLabel}>{t.alias}</span>
+          //     </div>
+          //   </Dropdown>
+          // );
         })}
       </div>
     );
@@ -180,12 +193,12 @@ const ConnectionsPage = () => {
           </Button>
         )}
       </div>
-      <LoadingContent
+      <CreateConnection className={styles.containerRight} connectionDetail={connectionDetail} onSubmit={onSubmit} />
+      {/* <LoadingContent
         className={styles.containerRight}
         isLoading={connectionDetail === undefined && !!connectionActiveId}
       >
-        <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} className={styles.connectionDetail} />
-      </LoadingContent>
+      </LoadingContent> */}
     </DraggablePanel>
   );
 };

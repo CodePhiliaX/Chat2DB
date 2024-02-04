@@ -11,7 +11,7 @@ export const useStyle = createStyles(({ css, token }) => {
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background-color: ${token.colorBgBase};
+      /* background-color: ${token.colorBgBase}; */
       height: 100%;
     `,
 
@@ -54,8 +54,8 @@ export const useStyle = createStyles(({ css, token }) => {
       margin: 0 20px 10px;
     `,
 
-    containerRight: css``,
-    connectionDetail: css`
+    containerRight: css`
+      height: 100%;
       background-color: ${token.colorBgBase};
     `,
   };

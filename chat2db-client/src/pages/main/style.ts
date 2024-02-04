@@ -6,6 +6,7 @@ export const useStyle = createStyles(({ css, token }, { isMac }: { isMac: boolea
       display: flex;
       width: 100vw;
       height: 100vh;
+      /* background-color: ${token.colorBgLayout}; */
     `,
 
     leftContainer: css`
@@ -15,7 +16,8 @@ export const useStyle = createStyles(({ css, token }, { isMac }: { isMac: boolea
       justify-content: space-between;
       padding-top: ${isMac ? '20px' : '0'};
       border-right: 1px solid ${token.colorBorder};
-      background-color: ${token.colorBgBase};
+      background-color: ${token.colorBgLayout};
+      /* background-color: ${token.colorBgBase}; */
     `,
     logo: css`
       margin-bottom: 20px;
