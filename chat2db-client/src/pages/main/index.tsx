@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown, Flex, Tooltip } from 'antd';
+import { IconButton, Logo, CustomIcon } from '@chat2db/ui';
+import { Database, Github, Image, User2, WorkflowIcon, Settings } from 'lucide-react';
 import classnames from 'classnames';
 
 import Iconfont from '@/components/Iconfont';
@@ -27,14 +29,12 @@ import Setting from '@/blocks/Setting';
 
 import { useUpdateEffect } from '@/hooks';
 import { useStyle } from './style';
-import { IconButton, Logo } from '@chat2db/ui';
 import { isMac } from '@/utils/env';
-import { Database, Github, Image, User2, WorkflowIcon, Settings } from 'lucide-react';
 
 const initNavConfig: INavItem[] = [
   {
     key: 'workspace',
-    icon: WorkflowIcon,
+    icon: CustomIcon.Connection,
     iconFontSize: 16,
     isLoad: false,
     component: <Workspace />,
@@ -42,7 +42,7 @@ const initNavConfig: INavItem[] = [
   },
   {
     key: 'dashboard',
-    icon: Image,
+    icon: CustomIcon.Dashboard,
     iconFontSize: 24,
     isLoad: false,
     component: <Dashboard />,
@@ -68,6 +68,7 @@ const initNavConfig: INavItem[] = [
 
 function MainPage() {
   const navigate = useNavigate();
+  console.log('isMac', isMac);
   const { styles, cx } = useStyle({ isMac });
   const { userInfo } = useUserStore((state) => {
     return {
@@ -159,40 +160,40 @@ function MainPage() {
     });
   };
 
-  const renderUser = () => {
-    return (
-      <Dropdown
-        menu={{
-          items: [
-            {
-              key: '1',
-              label: (
-                <div className={styles.userDropdown} onClick={handleLogout}>
-                  <Iconfont code="&#xe6b2;" />
-                  {i18n('login.text.logout')}
-                </div>
-              ),
-            },
-          ],
-        }}
-        placement="bottomRight"
-        trigger={['click']}
-      >
-        <div className={styles.userBox}>
-          <Iconfont code="&#xe64c;" className={styles.questionIcon} />
-        </div>
-      </Dropdown>
-    );
-  };
+  // const renderUser = () => {
+  //   return (
+  //     <Dropdown
+  //       menu={{
+  //         items: [
+  //           {
+  //             key: '1',
+  //             label: (
+  //               <div className={styles.userDropdown} onClick={handleLogout}>
+  //                 <Iconfont code="&#xe6b2;" />
+  //                 {i18n('login.text.logout')}
+  //               </div>
+  //             ),
+  //           },
+  //         ],
+  //       }}
+  //       placement="bottomRight"
+  //       trigger={['click']}
+  //     >
+  //       <div className={styles.userBox}>
+  //         <Iconfont code="&#xe64c;" className={styles.questionIcon} />
+  //       </div>
+  //     </Dropdown>
+  //   );
+  // };
 
   return (
     <div className={styles.container}>
       <div className={styles.leftContainer}>
         <div className={styles.navContainer}>
           <Logo size={36} className={styles.logo} />
-          {navConfig.map((item, index) => (
+          {navConfig.map((item) => (
             <IconButton
-              isActive={index === 0}
+              isActive={item.key === activeNavKey}
               key={item.key}
               size="large"
               title={item.name}

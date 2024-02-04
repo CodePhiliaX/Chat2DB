@@ -25,20 +25,21 @@ import { useConnectionStore, getConnectionList } from '@/store/connection';
 import { useGlobalStore } from '@/store/global';
 import { useWorkspaceStore } from '@/store/workspace';
 
-import styles from './index.less';
+import { useStyle } from './style';
+import PageTitle from '@/components/PageTitle';
+import { DraggablePanel } from '@chat2db/ui';
 
 const ConnectionsPage = () => {
+  const { styles, cx } = useStyle();
   const { connectionList } = useConnectionStore((state) => {
     return {
       connectionList: state.connectionList,
     };
   });
-  const volatileRef = useRef<any>();
   const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
   const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
   const getOpenConsoleList = useWorkspaceStore((state) => state.getOpenConsoleList);
   const setCurrentConnectionDetails = useWorkspaceStore((state) => state.setCurrentConnectionDetails);
-
 
   // 处理列表单击事件
   const handleMenuItemSingleClick = (t: IConnectionListItem) => {
@@ -100,7 +101,7 @@ const ConnectionsPage = () => {
         getConnectionList();
         setConnectionActiveId(res);
       });
-    }
+    };
 
     return [
       {
@@ -122,37 +123,32 @@ const ConnectionsPage = () => {
   };
 
   const renderConnectionMenuList = () => {
-    return connectionList?.map((t) => {
-      return (
-        <Dropdown
-          key={t.id}
-          trigger={['contextMenu']}
-          menu={{
-            items: createDropdownItems(t),
-          }}
-        >
-          <div
-            className={classnames(styles.menuItem, {
-              [styles.menuItemActive]: connectionActiveId === t.id,
-            })}
-            onClick={() => {
-              handleClickConnectionMenu(t);
-            }}
-          >
-            <div className={classnames(styles.menuItemsTitle)}>
-              <span className={styles.envTag} style={{ background: t.environment.color.toLocaleLowerCase() }} />
-              <span className={styles.databaseTypeIcon}>
-                {<Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />}
-              </span>
-              <span className={styles.name}>{t.alias}</span>
-              {/* <Tag color={t.environment.color.toLocaleLowerCase()}>
-              {t.environment.shortName}
-            </Tag> */}
-            </div>
-          </div>
-        </Dropdown>
-      );
-    });
+    return (
+      <div className={styles.connectionListWrapper}>
+        {(connectionList || [])?.map((t) => {
+          const isActive = connectionActiveId === t.id;
+          return (
+            <Dropdown
+              key={t.id}
+              trigger={['contextMenu']}
+              menu={{
+                items: createDropdownItems(t),
+              }}
+            >
+              <div
+                className={cx(styles.connectionItem, isActive && styles.activeConnectionItem)}
+                onClick={() => {
+                  handleClickConnectionMenu(t);
+                }}
+              >
+                <Iconfont className={styles.connectionItemIcon} code={databaseMap[t.type]?.icon} />
+                <span className={styles.connectionItemLabel}>{t.alias}</span>
+              </div>
+            </Dropdown>
+          );
+        })}
+      </div>
+    );
   };
 
   const onSubmit = (data) => {
@@ -167,32 +163,30 @@ const ConnectionsPage = () => {
   };
 
   return (
-    <>
-      <div className={styles.box}>
-        <div ref={volatileRef} className={styles.layoutLeft}>
-          <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
-          <div className={styles.menuBox}>{renderConnectionMenuList()}</div>
-          {connectionActiveId && (
-            <Button
-              type="primary"
-              className={styles.addConnection}
-              onClick={() => {
-                setConnectionActiveId(null);
-                setConnectionDetail(null);
-              }}
-            >
-              {i18n('connection.button.addConnection')}
-            </Button>
-          )}
-        </div>
-        <LoadingContent
-          className={styles.layoutRight}
-          isLoading={connectionDetail === undefined && !!connectionActiveId}
-        >
-          <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
-        </LoadingContent>
+    <DraggablePanel direction={'horizontal'} className={styles.container} defaultSize={[15]} minSize={[15, 70]}>
+      <div className={styles.containerLeft}>
+        <PageTitle title={i18n('connection.title')} />
+        {renderConnectionMenuList()}
+        {connectionActiveId && (
+          <Button
+            type="primary"
+            className={styles.addConnection}
+            onClick={() => {
+              setConnectionActiveId(null);
+              setConnectionDetail(null);
+            }}
+          >
+            {i18n('connection.button.addConnection')}
+          </Button>
+        )}
       </div>
-    </>
+      <LoadingContent
+        className={styles.containerRight}
+        isLoading={connectionDetail === undefined && !!connectionActiveId}
+      >
+        <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} className={styles.connectionDetail} />
+      </LoadingContent>
+    </DraggablePanel>
   );
 };
 

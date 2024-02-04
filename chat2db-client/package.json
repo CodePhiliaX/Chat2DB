@@ -26,7 +26,7 @@
     "start:web:hot": "cross-env UMI_ENV=local cross-env APP_VERSION=${npm_config_app_version} umi dev"
   },
   "dependencies": {
-    "@chat2db/ui": "^1.4.1",
+    "@chat2db/ui": "^1.8.1",
     "@dnd-kit/modifiers": "^6.0.1",
     "ahooks": "^3.7.8",
     "ali-react-table": "^2.6.1",
