@@ -83,7 +83,7 @@ public class ConfigController {
                 saveChat2dbAIConfig(request);
                 break;
             case RESTAI:
-                saveRestAIConfig(request);
+                saveFastChatAIConfig(request);
                 break;
             case AZUREAI:
                 saveAzureAIConfig(request);
@@ -330,12 +330,6 @@ public class ConfigController {
                 config.setModel(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : "");
                 break;
             case RESTAI:
-                DataResult<Config> restAiUrl = configService.find(RestAIClient.REST_AI_URL);
-                DataResult<Config> restAiHttpMethod = configService.find(RestAIClient.REST_AI_STREAM_OUT);
-                config.setApiHost(Objects.nonNull(restAiUrl.getData()) ? restAiUrl.getData().getContent() : "");
-                config.setStream(Objects.nonNull(restAiHttpMethod.getData()) ? Boolean.valueOf(
-                    restAiHttpMethod.getData().getContent()) : Boolean.TRUE);
-                break;
             case FASTCHATAI:
                 DataResult<Config> fastChatApiKey = configService.find(FastChatAIClient.FASTCHAT_API_KEY);
                 DataResult<Config> fastChatApiHost = configService.find(FastChatAIClient.FASTCHAT_HOST);
