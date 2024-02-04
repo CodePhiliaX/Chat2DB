@@ -155,7 +155,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     public String buildGenerateReorderColumnSql(Table oldTable, Table newTable) {
         StringBuilder sql = new StringBuilder();
         int n = 0;
-        for (int i = 0; i < oldTable.getColumnList().size(); i++) {
+        for (int i = 0; i < newTable.getColumnList().size(); i++) {
             TableColumn column = newTable.getColumnList().get(i);
             //String columnName = newTable.getColumnList().get(i).getName();
             // 获取oldTable.getColumnList()中name属性的list
