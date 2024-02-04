@@ -34,7 +34,7 @@ public class DefaultValueHandler implements ValueHandler {
                 return largeString(rs, index, limitSize);
             } else if (obj instanceof Blob blob) {
                 return largeStringBlob(blob, limitSize);
-            } else if (obj instanceof Timestamp || obj instanceof LocalDateTime) {
+            } else if (obj instanceof Timestamp && obj instanceof LocalDateTime) {
                 return largeTime(obj);
             } else {
                 return obj.toString();
