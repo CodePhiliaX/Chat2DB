@@ -11,9 +11,7 @@ import ai.chat2db.spi.model.TableIndex;
 import cn.hutool.core.util.ArrayUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
@@ -162,6 +160,12 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
         String[] oldColumnArray = oldTable.getColumnList().stream().map(TableColumn::getName).toArray(String[]::new);
         String[] newColumnArray = newTable.getColumnList().stream().map(TableColumn::getName).toArray(String[]::new);
+
+        Set<String> oldColumnSet = new HashSet<>(Arrays.asList(oldColumnArray));
+        Set<String> newColumnSet = new HashSet<>(Arrays.asList(newColumnArray));
+        if (!oldColumnSet.equals(newColumnSet)) {
+            return "";
+        }
 
         buildSql(oldColumnArray, newColumnArray, sql, oldTable, newTable, n);
 
