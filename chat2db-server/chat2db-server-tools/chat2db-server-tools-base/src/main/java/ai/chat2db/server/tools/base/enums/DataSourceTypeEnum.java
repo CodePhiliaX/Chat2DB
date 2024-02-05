@@ -20,6 +20,10 @@ public enum DataSourceTypeEnum implements BaseEnum<String> {
      */
     REDIS("redis数据库连接"),
 
+    /**
+     * sqlserver数据库连接
+     */
+    SQLSERVER("sqlserver数据库连接"),
 
     /**
      * mongo数据库连接
