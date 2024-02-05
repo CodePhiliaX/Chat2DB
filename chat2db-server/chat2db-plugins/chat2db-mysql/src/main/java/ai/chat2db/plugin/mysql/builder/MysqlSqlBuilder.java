@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
@@ -26,53 +27,37 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
         script.append("`").append(table.getName()).append("`").append(" (").append("\n");
 
-        // append column
-        for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
-                continue;
-            }
-            MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
-            script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
+        // Append columns
+        String columnsScript = table.getColumnList().stream()
+                .filter(column -> StringUtils.isNotBlank(column.getName()) && StringUtils.isNotBlank(column.getColumnType()))
+                .map(column -> "\t" + MysqlColumnTypeEnum.getByType(column.getColumnType()).buildCreateColumnSql(column))
+                .collect(Collectors.joining(",\n"));
+        if (StringUtils.isNotBlank(columnsScript)) {
+            script.append(columnsScript);
+        }
+        // Append primary key and index
+        String indexesScript = table.getIndexList().stream()
+                .filter(index -> StringUtils.isNotBlank(index.getName()) && StringUtils.isNotBlank(index.getType()))
+                .map(index -> "\t" + MysqlIndexTypeEnum.getByType(index.getType()).buildIndexScript(index))
+                .collect(Collectors.joining(",\n"));
+
+        if (StringUtils.isNotBlank(indexesScript)) {
+            script.append(indexesScript);
+            // Remove trailing comma and newline
+            script.setLength(script.length() - 2);
         }
 
-        // append primary key and index
-        for (TableIndex tableIndex : table.getIndexList()) {
-            if (StringUtils.isBlank(tableIndex.getName()) || StringUtils.isBlank(tableIndex.getType())) {
-                continue;
-            }
-            MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
-            script.append("\t").append("").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
-        }
-
-        script = new StringBuilder(script.substring(0, script.length() - 2));
         script.append("\n)");
 
+        // Append table options
+        script.append(StringUtils.isNotBlank(table.getEngine()) ? " ENGINE=" + table.getEngine() : "");
+        script.append(StringUtils.isNotBlank(table.getCharset()) ? " DEFAULT CHARACTER SET=" + table.getCharset() : "");
+        script.append(StringUtils.isNotBlank(table.getCollate()) ? " COLLATE=" + table.getCollate() : "");
+        script.append(table.getIncrementValue() != null ? " AUTO_INCREMENT=" + table.getIncrementValue() : "");
+        script.append(StringUtils.isNotBlank(table.getComment()) ? " COMMENT='" + table.getComment() + "'" : "");
+        script.append(StringUtils.isNotBlank(table.getPartition()) ? " \n" + table.getPartition() : "");
 
-        if (StringUtils.isNotBlank(table.getEngine())) {
-            script.append(" ENGINE=").append(table.getEngine());
-        }
-
-        if (StringUtils.isNotBlank(table.getCharset())) {
-            script.append(" DEFAULT CHARACTER SET=").append(table.getCharset());
-        }
-
-        if (StringUtils.isNotBlank(table.getCollate())) {
-            script.append(" COLLATE=").append(table.getCollate());
-        }
-
-        if (table.getIncrementValue() != null) {
-            script.append(" AUTO_INCREMENT=").append(table.getIncrementValue());
-        }
-
-        if (StringUtils.isNotBlank(table.getComment())) {
-            script.append(" COMMENT='").append(table.getComment()).append("'");
-        }
-
-        if (StringUtils.isNotBlank(table.getPartition())) {
-            script.append(" \n").append(table.getPartition());
-        }
         script.append(";");
-
         return script.toString();
     }
 
