@@ -129,36 +129,15 @@ const ConnectionsPage = () => {
           const isActive = connectionActiveId === t.id;
           return (
             <ListItem
-              size='small'
+              size="small"
               isActive={isActive}
               icon={CreativeCommons}
               label={t.alias}
-              addonBefore={undefined}
-              addonAfter={undefined}
               onClick={() => {
                 handleClickConnectionMenu(t);
               }}
             />
           );
-          // return (
-          //   <Dropdown
-          //     key={t.id}
-          //     trigger={['contextMenu']}
-          //     menu={{
-          //       items: createDropdownItems(t),
-          //     }}
-          //   >
-          //     <div
-          //       className={cx(styles.connectionItem, isActive && styles.activeConnectionItem)}
-          //       onClick={() => {
-          //         handleClickConnectionMenu(t);
-          //       }}
-          //     >
-          //       <Iconfont className={styles.connectionItemIcon} code={databaseMap[t.type]?.icon} />
-          //       <span className={styles.connectionItemLabel}>{t.alias}</span>
-          //     </div>
-          //   </Dropdown>
-          // );
         })}
       </div>
     );

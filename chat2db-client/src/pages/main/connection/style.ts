@@ -19,6 +19,9 @@ export const useStyle = createStyles(({ css, token }) => {
       flex: 1;
       overflow-y: auto;
       padding: 0px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     `,
     connectionItem: css`
       display: flex;
