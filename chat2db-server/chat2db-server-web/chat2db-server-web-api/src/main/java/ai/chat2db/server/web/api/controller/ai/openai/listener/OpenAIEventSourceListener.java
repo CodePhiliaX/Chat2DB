@@ -19,6 +19,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
@@ -146,11 +147,17 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                         JSONObject arguments = JSONObject.parse(function.getArguments());
                         if ("get_table_columns".equals(functionName)) {
                             MetaData metaSchema = Chat2DBContext.getMetaData();
-                            String ddl = metaSchema.tableDDL(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), arguments.getString("table_name"));
+                            String content;
+                            try {
+                                content = metaSchema.tableDDL(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), arguments.getString("table_name"));
+                            }catch (Exception e){
+                                log.error("OpenAI查询表结构失败",e);
+                                content = StringUtils.defaultString(e.getMessage(), "OpenAI查询表结构失败");
+                            }
                             messages.add(Message.builder().role(BaseMessage.Role.TOOL)
                                     .toolCallId(callId)
                                     .name(functionName)
-                                    .content(ddl)
+                                    .content(content)
                                     .build());
                         }
                     }
