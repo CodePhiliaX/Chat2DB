@@ -1,15 +1,16 @@
 package ai.chat2db.server.web.api.controller.ai.openai.listener;
 
+import ai.chat2db.server.domain.repository.Dbutils;
+import ai.chat2db.server.tools.common.model.Context;
+import ai.chat2db.server.tools.common.model.LoginUser;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
-import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
+import ai.chat2db.server.web.api.controller.ai.utils.PromptService;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.unfbx.chatgpt.entity.chat.BaseMessage;
 import com.unfbx.chatgpt.entity.chat.Message;
 import com.unfbx.chatgpt.entity.chat.tool.ToolCallFunction;
 import com.unfbx.chatgpt.entity.chat.tool.ToolCalls;
@@ -19,7 +20,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
@@ -37,20 +37,20 @@ public class OpenAIEventSourceListener extends EventSourceListener {
 
     private final SseEmitter sseEmitter;
 
-    private final List<Message> messages;
-
-    private final ConnectInfo connectInfo;
+    private final PromptService promptService;;
 
     private final ChatQueryRequest queryRequest;
+
+    private final LoginUser loginUser;
 
     private List<ToolCalls> toolCalls = new ArrayList<>();
 
 
-    public OpenAIEventSourceListener(SseEmitter sseEmitter, List<Message> messages, ConnectInfo connectInfo, ChatQueryRequest queryRequest) {
+    public OpenAIEventSourceListener(SseEmitter sseEmitter, PromptService promptService, ChatQueryRequest queryRequest, LoginUser loginUser) {
         this.sseEmitter = sseEmitter;
-        this.messages = messages;
-        this.connectInfo = connectInfo;
+        this.promptService = promptService;
         this.queryRequest = queryRequest;
+        this.loginUser = loginUser;
     }
 
     public static List<ToolCalls> mergeToolCallsLists(List<ToolCalls> list1, List<ToolCalls> list2) {
@@ -134,37 +134,30 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                 sseEmitter.complete();
                 return;
             }
-            messages.add(Message.builder()
-                    .toolCalls(toolCalls)
-                    .role(BaseMessage.Role.ASSISTANT).build());
-            Chat2DBContext.putContext(connectInfo);
-            try {
-                for (ToolCalls toolCall : toolCalls) {
-                    String callId = toolCall.getId();
-                    ToolCallFunction function = toolCall.getFunction();
-                    if (function != null && Objects.nonNull(function.getArguments())) {
-                        String functionName = function.getName();
+            List<String> tableNames = new ArrayList<>();
+            for (ToolCalls toolCall : toolCalls) {
+                String callId = toolCall.getId();
+                ToolCallFunction function = toolCall.getFunction();
+                if (function != null && Objects.nonNull(function.getArguments())) {
+                    String functionName = function.getName();
+                    if ("get_table_columns".equals(functionName)) {
                         JSONObject arguments = JSONObject.parse(function.getArguments());
-                        if ("get_table_columns".equals(functionName)) {
-                            MetaData metaSchema = Chat2DBContext.getMetaData();
-                            String content;
-                            try {
-                                content = metaSchema.tableDDL(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), arguments.getString("table_name"));
-                            }catch (Exception e){
-                                log.error("OpenAI查询表结构失败",e);
-                                content = StringUtils.defaultString(e.getMessage(), "OpenAI查询表结构失败");
-                            }
-                            messages.add(Message.builder().role(BaseMessage.Role.TOOL)
-                                    .toolCallId(callId)
-                                    .name(functionName)
-                                    .content(content)
-                                    .build());
-                        }
+                        tableNames.add(arguments.getString("table_name"));
                     }
                 }
-            } finally {
-                Chat2DBContext.removeContext();
             }
+            List<Message> messages = new ArrayList<>();
+            queryRequest.setTableNames(tableNames);
+            ContextUtils.setContext(Context.builder()
+                .loginUser(loginUser)
+                .build());
+            Dbutils.setSession();
+            String prompt = promptService.buildPrompt(queryRequest);
+            Dbutils.removeSession();
+            prompt = prompt.replaceAll("#", "");
+            log.info(prompt);
+            Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
+            messages.add(currentMessage);
             OpenAIClient.getInstance().streamChatCompletion(messages, this);
             toolCalls.clear();
             return;
