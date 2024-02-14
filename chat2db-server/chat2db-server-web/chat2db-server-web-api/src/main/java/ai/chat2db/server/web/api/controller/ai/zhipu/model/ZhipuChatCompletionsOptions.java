@@ -5,15 +5,19 @@ package ai.chat2db.server.web.api.controller.ai.zhipu.model;
 
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * The configuration information for a chat completions request. Completions support a wide variety of tasks and
  * generate text that continues from or "completes" provided prompt data.
  */
 @Data
+@Builder
 public final class ZhipuChatCompletionsOptions {
 
     @JsonProperty(value = "request_id")
@@ -45,4 +49,60 @@ public final class ZhipuChatCompletionsOptions {
      */
     @JsonProperty(value = "model")
     private String model;
+
+
+
+    // 新添加的参数
+    @JsonProperty(value = "tool_choice")
+    private String toolChoice; // 工具选择策略
+
+    @JsonProperty(value = "tools")
+    private List<Tool> tools; // 工具列表
+
+    // 工具类
+    @Data
+    @Builder
+    public static class Tool {
+        @JsonProperty(value = "type")
+        private String type;
+
+        @JsonProperty(value = "function")
+        private Function function;
+
+        @Data
+        @Builder
+        public static class Function {
+            @JsonProperty(value = "name")
+            private String name;
+
+            @JsonProperty(value = "description")
+            private String description;
+
+            @JsonProperty(value = "parameters")
+            private Parameters parameters;
+
+            @Data
+            @Builder
+            public static class Parameters {
+                @JsonProperty(value = "type")
+                private String type;
+
+                @JsonProperty(value = "properties")
+                private Map<String,Property> properties;
+
+                @JsonProperty(value = "required")
+                private List<String> required;
+            }
+
+            @Data
+            @Builder
+            public static class Property {
+                @JsonProperty(value = "type")
+                private String type;
+
+                @JsonProperty(value = "description")
+                private String description;
+            }
+        }
+    }
 }

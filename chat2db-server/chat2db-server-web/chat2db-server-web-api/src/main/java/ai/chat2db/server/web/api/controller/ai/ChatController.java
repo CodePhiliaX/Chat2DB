@@ -426,7 +426,7 @@ public class ChatController {
      * @throws IOException
      */
     private SseEmitter chatWithZhipuChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
-        String prompt = promptService.buildPrompt(queryRequest);
+        String prompt = promptService.buildAutoPrompt(queryRequest);
         List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
