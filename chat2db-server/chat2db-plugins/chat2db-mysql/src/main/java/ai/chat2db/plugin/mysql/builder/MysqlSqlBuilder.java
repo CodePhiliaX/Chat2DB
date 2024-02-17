@@ -178,10 +178,12 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             int a = findIndex(originalArray, targetArray[0]);
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
             String[] newArray = moveElement(originalArray, a, 0);
-            System.out.println(ArrayUtil.toString(newArray));
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
+            if (StringUtils.isNotBlank(column.getComment())) {
+                sql.append(" COMMENT '").append(column.getComment()).append("'");
+            }
             sql.append(" FIRST;\n");
             n++;
             if (Arrays.equals(newArray, targetArray)) {
@@ -200,7 +202,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             //System.out.println("Move " + originalArray[a] + " after " + (a > 0 ? originalArray[max] : "start"));
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
             String[] newArray = moveElement(originalArray, a, max);
-            System.out.println(ArrayUtil.toString(newArray));
             if (n > 0) {
                 sql.append("ALTER TABLE ");
                 if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
@@ -211,7 +212,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
-            sql.append(" ");
+            if (StringUtils.isNotBlank(column.getComment())) {
+                sql.append(" COMMENT '").append(column.getComment()).append("'");
+            }
             sql.append(" AFTER ");
             sql.append(oldTable.getColumnList().get(max).getName());
             sql.append(";\n");
@@ -242,7 +245,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
                 sql.append(" MODIFY COLUMN ");
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
                 sql.append(typeEnum.buildColumn(column));
-                sql.append(" ");
+                if (StringUtils.isNotBlank(column.getComment())) {
+                    sql.append(" COMMENT '").append(column.getComment()).append("'");
+                }
                 sql.append(" AFTER ");
                 if (i < a) {
                     sql.append(originalArray[a]);
@@ -275,7 +280,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     }
 
     private static boolean isMoveValid(String[] originalArray, String[] targetArray, int i, int a) {
-        System.out.println("i : " + i + " a:" + a);
         return (i == 0 || a == 0 || !originalArray[i - 1].equals(targetArray[a - 1])) &&
                 (i >= originalArray.length - 1 || a >= targetArray.length - 1 || !originalArray[i + 1].equals(targetArray[a + 1]));
     }
@@ -290,7 +294,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             System.arraycopy(originalArray, to, newArray, to + 1, from - to);
         }
         newArray[to] = temp;
-        System.out.println(ArrayUtil.toString(newArray));
         return newArray;
     }
 
