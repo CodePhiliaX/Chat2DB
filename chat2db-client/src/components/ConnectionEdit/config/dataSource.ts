@@ -470,16 +470,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelTextAlign: 'right',
           selects: [
             {
-              value: 'THIN',
+              value: 'thin',
               label: 'thin',
             },
             {
-              value: 'OCI',
+              value: 'oci',
               label: 'oci',
             },
             {
 
-              value: 'OCI8',
+              value: 'oci8',
               label: 'oci8',
             },
           ],

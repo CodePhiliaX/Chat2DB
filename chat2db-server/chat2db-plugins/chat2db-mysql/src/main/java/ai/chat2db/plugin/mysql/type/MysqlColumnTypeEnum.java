@@ -327,6 +327,9 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
         script.append("`").append(column.getName()).append("`").append(" ");
         script.append(buildDataType(column, type)).append(" ");
+        if (StringUtils.isNoneBlank(column.getComment())) {
+            script.append("COMMENT").append(" ").append("'").append(column.getComment()).append("'").append(" ");
+        }
         return script.toString();
     }
 
