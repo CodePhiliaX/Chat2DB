@@ -1,5 +1,6 @@
 import 'umi/typings';
 import { IVersionResponse } from '@/typings';
+import { ChildProcess } from 'child_process';
 
 declare module 'monaco-editor/esm/vs/basic-languages/sql/sql';
 declare module 'monaco-editor/esm/vs/language/typescript/ts.worker.js';
@@ -23,7 +24,7 @@ declare global {
     _notificationApi: any;
     _indexedDB: any;
     electronApi?: {
-      startServerForSpawn: () => void;
+      startServerForSpawn: () => ChildProcess;
       quitApp: () => void;
       setBaseURL: (baseUrl: string) => void;
       registerAppMenu: (data: any) => void;

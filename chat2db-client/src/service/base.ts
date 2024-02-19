@@ -1,6 +1,7 @@
 import { extend, ResponseError, type RequestOptionsInit } from 'umi-request';
 import { message } from 'antd';
 import { navigate } from '@/utils';
+import {commandLineRequest} from './commandLine';
 
 export type IErrorLevel = 'toast' | 'prompt' | 'critical' | false;
 export interface IOptions {
@@ -185,6 +186,10 @@ export default function createRequest<P = void, R = void>(url: string, options?:
       if (dynamicUrl) {
         eventualUrl = params as string;
       }
+
+      commandLineRequest({ url: _url, method, data: { params } }).then((res) => {
+        console.log(res);
+      });
 
       request[method](eventualUrl, { [dataName]: params, ...restParams })
         .then((res) => {

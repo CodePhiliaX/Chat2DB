@@ -42,6 +42,8 @@ contextBridge.exposeInMainWorld('electronApi', {
     child.on('close', (code) => {
       console.log(`child process exited with code ${code}`);
     });
+
+    return child;
   },
   quitApp: () => {
     ipcRenderer.send('quit-app');

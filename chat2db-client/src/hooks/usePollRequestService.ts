@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useGlobalStore } from '@/store/global';
 
 interface IProps {
   /** Maximum number of requests */
@@ -27,7 +28,26 @@ const usePollRequestService = ({ maxAttempts = 200, interval = 200, loopService 
   const serviceFn = async () => {
     // The first request fails. Start the service
     if (attempts.current === 1 && ServiceStatus.SUCCESS !== serviceStatus) {
-      window.electronApi?.startServerForSpawn();
+      const child =  window.electronApi?.startServerForSpawn();
+
+      useGlobalStore.getState().setJavaServer(child);
+
+      child?.stdout?.on('data', (buffer) => {
+        const data = JSON.parse(buffer.toString('utf8'));
+        if (data.status === 'success'){
+          useGlobalStore.getState().commandLineRequestList[data.id]?.resolve(data);
+        }else {
+          useGlobalStore.getState().commandLineRequestList[data.id]?.reject(data);
+        }
+      });
+
+      // child?.stderr?.on('data', (data) => {
+      //   console.error(`stderr: ${data}`);
+      // });
+
+      // child?.on('close', (code) => {
+      //   console.log(`child process exited with code ${code}`);
+      // });
     }
     if (attempts.current >= maxAttempts) {
       setServiceStatus(ServiceStatus.FAILURE);

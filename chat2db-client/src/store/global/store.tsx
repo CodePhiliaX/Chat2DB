@@ -5,13 +5,15 @@ import { StateCreator } from 'zustand/vanilla';
 import { GlobalState, initialState } from './initialState';
 import { CommonAction, createCommonAction } from './slices/common/action';
 import { SettingsAction, createSettingsAction } from './slices/settings/action';
+import { RequestAction, createRequestAction } from './slices/request/action';
 
-export type GlobalStore = GlobalState & CommonAction & SettingsAction;
+export type GlobalStore = GlobalState & CommonAction & SettingsAction & RequestAction;
 
 const createStore: StateCreator<GlobalStore, [['zustand/devtools', never]]> = (...parameters) => ({
   ...initialState,
   ...createCommonAction(...parameters),
   ...createSettingsAction(...parameters),
+  ...createRequestAction(...parameters),
 });
 
 // type GlobalPersist = Pick<GlobalStore, 'mainPageActiveTab'>;
