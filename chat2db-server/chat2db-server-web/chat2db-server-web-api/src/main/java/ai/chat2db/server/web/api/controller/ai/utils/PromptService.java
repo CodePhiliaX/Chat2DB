@@ -10,10 +10,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson2.JSON;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.unfbx.chatgpt.entity.chat.Parameters;
+import com.unfbx.chatgpt.entity.chat.tool.ToolsFunction;
 
 import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.Config;
@@ -28,19 +32,19 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
+import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
 import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
-import ai.chat2db.server.web.api.http.model.EsTableSchema;
 import ai.chat2db.server.web.api.http.model.TableSchema;
-import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
 import ai.chat2db.server.web.api.http.request.WhiteListRequest;
-import ai.chat2db.server.web.api.http.response.EsTableSchemaResponse;
 import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.spi.MetaData;
@@ -54,6 +58,10 @@ import lombok.extern.slf4j.Slf4j;
 @ConnectionInfoAspect
 @Service
 public class PromptService {
+
+
+    @Value("${chatgpt.context.length}")
+    private Integer contextLength;
 
 
     @Autowired
@@ -292,7 +300,6 @@ public class PromptService {
         if (PromptType.TEXT_GENERATION.getCode().equals(queryRequest.getPromptType())) {
             return queryRequest.getMessage();
         }
-
         // 查询schema信息
         String dataSourceType = queryDatabaseType(queryRequest);
         String properties = "";
@@ -305,6 +312,10 @@ public class PromptService {
         String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
                 : queryRequest.getPromptType();
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
+        if (pType.equals(PromptType.NL_2_SQL)) {
+            pType = PromptType.FUNCTION_CALL;
+        }
+
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
         String schemaProperty = StringUtils.isNotEmpty(properties) ? String.format(
                 "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables:\n#\n# "
@@ -361,4 +372,42 @@ public class PromptService {
         }
     }
 
+    public static ToolsFunction getToolsFunction(){
+        return ToolsFunction.builder()
+                .name("get_table_columns")
+                .description("获取指定表的字段名，类型")
+                .parameters(Parameters.builder()
+                        .type("object")
+                        .properties(ImmutableMap.builder()
+                                .put("table_name", ImmutableMap.builder()
+                                        .put("type", "string")
+                                        .put("description", "表名，例如```User```")
+                                        .build())
+                                .build())
+                        .required(List.of("table_name"))
+                        .build())
+                .build();
+    }
+
+
+    /**
+     * get fast chat message
+     *
+     * @param uid
+     * @param prompt
+     * @return
+     */
+    public List<FastChatMessage> getFastChatMessage(String uid, String prompt) {
+        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
+        if (CollectionUtils.isNotEmpty(messages)) {
+            if (messages.size() >= contextLength) {
+                messages = messages.subList(1, contextLength);
+            }
+        } else {
+            messages = Lists.newArrayList();
+        }
+        FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
+        messages.add(currentMessage);
+        return messages;
+    }
 }

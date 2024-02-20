@@ -37,11 +37,11 @@ public class OpenAIEventSourceListener extends EventSourceListener {
 
     private final SseEmitter sseEmitter;
 
-    private final PromptService promptService;;
+    protected final PromptService promptService;;
 
     private final ChatQueryRequest queryRequest;
 
-    private final LoginUser loginUser;
+    public final LoginUser loginUser;
 
     private List<ToolCalls> toolCalls = new ArrayList<>();
 
@@ -117,6 +117,13 @@ public class OpenAIEventSourceListener extends EventSourceListener {
         log.info("OpenAI建立sse连接...");
     }
 
+
+    public void functionCall(String prompt){
+        List<Message> messages = new ArrayList<>();
+        Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
+        messages.add(currentMessage);
+        OpenAIClient.getInstance().streamChatCompletion(messages, this);
+    }
     /**
      * {@inheritDoc}
      */
@@ -146,7 +153,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                     }
                 }
             }
-            List<Message> messages = new ArrayList<>();
+            
             queryRequest.setTableNames(tableNames);
             ContextUtils.setContext(Context.builder()
                 .loginUser(loginUser)
@@ -156,9 +163,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             Dbutils.removeSession();
             prompt = prompt.replaceAll("#", "");
             log.info(prompt);
-            Message currentMessage = Message.builder().content(prompt).role(Message.Role.USER).build();
-            messages.add(currentMessage);
-            OpenAIClient.getInstance().streamChatCompletion(messages, this);
+            functionCall(prompt);
             toolCalls.clear();
             return;
         }

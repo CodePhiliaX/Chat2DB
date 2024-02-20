@@ -38,6 +38,12 @@ public enum PromptType implements BaseEnum<String> {
      * text generation
      */
     TEXT_GENERATION("文本生成"),
+
+
+    /**
+     * function call
+     */
+    FUNCTION_CALL("获取指定表的字段名，类型"),
     ;
 
     final String description;

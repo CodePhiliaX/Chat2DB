@@ -5,12 +5,12 @@ package ai.chat2db.server.web.api.controller.ai.zhipu.model;
 
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.unfbx.chatgpt.entity.chat.tool.Tools;
 
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The configuration information for a chat completions request. Completions support a wide variety of tasks and
@@ -24,11 +24,8 @@ public final class ZhipuChatCompletionsOptions {
     private String requestId;
 
     // sse-params
-    @JsonProperty(value = "incremental")
+    @JsonProperty(value = "stream")
     private Boolean stream = true;
-
-    @JsonProperty(value = "sseFormat")
-    private String sseFormat = "data";
 
 
     /*
@@ -37,8 +34,8 @@ public final class ZhipuChatCompletionsOptions {
      * the behavior of the assistant, followed by alternating messages between the User and
      * Assistant roles.
      */
-    @JsonProperty(value = "prompt")
-    private List<FastChatMessage> prompt;
+    @JsonProperty(value = "messages")
+    private List<FastChatMessage> messages;
 
 
     //
@@ -57,52 +54,6 @@ public final class ZhipuChatCompletionsOptions {
     private String toolChoice; // 工具选择策略
 
     @JsonProperty(value = "tools")
-    private List<Tool> tools; // 工具列表
+    private List<Tools> tools; // 工具列表
 
-    // 工具类
-    @Data
-    @Builder
-    public static class Tool {
-        @JsonProperty(value = "type")
-        private String type;
-
-        @JsonProperty(value = "function")
-        private Function function;
-
-        @Data
-        @Builder
-        public static class Function {
-            @JsonProperty(value = "name")
-            private String name;
-
-            @JsonProperty(value = "description")
-            private String description;
-
-            @JsonProperty(value = "parameters")
-            private Parameters parameters;
-
-            @Data
-            @Builder
-            public static class Parameters {
-                @JsonProperty(value = "type")
-                private String type;
-
-                @JsonProperty(value = "properties")
-                private Map<String,Property> properties;
-
-                @JsonProperty(value = "required")
-                private List<String> required;
-            }
-
-            @Data
-            @Builder
-            public static class Property {
-                @JsonProperty(value = "type")
-                private String type;
-
-                @JsonProperty(value = "description")
-                private String description;
-            }
-        }
-    }
 }

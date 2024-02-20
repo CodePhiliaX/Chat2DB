@@ -1,18 +1,11 @@
 package ai.chat2db.server.web.api.controller.ai.zhipu.client;
 
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
-import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.zhipu.interceptor.ZhipuChatHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions;
-import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions.Tool;
-import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions.Tool.Function;
-import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions.Tool.Function.Parameters;
-import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions.Tool.Function.Property;
 import cn.hutool.http.ContentType;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
@@ -22,11 +15,8 @@ import okhttp3.RequestBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
-import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -189,50 +179,20 @@ public class ZhipuChatAIStreamClient {
      * @param chatMessages
      * @param eventSourceListener
      */
-    public void streamCompletions(List<FastChatMessage> chatMessages, EventSourceListener eventSourceListener) {
-        if (CollectionUtils.isEmpty(chatMessages)) {
-            log.error("param error：Zhipu Chat Prompt cannot be empty");
-            throw new ParamBusinessException("prompt");
-        }
+    public void streamCompletions(ZhipuChatCompletionsOptions completionsOptions, EventSourceListener eventSourceListener) {
+        
         if (Objects.isNull(eventSourceListener)) {
             log.error("param error：Zhipu ChatEventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
-        log.info("Zhipu Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
+        completionsOptions.setModel(this.model);
         try {
-            String requestId = String.valueOf(System.currentTimeMillis());
-            // 建议直接查看demo包代码，这里更新可能不及时
-            ZhipuChatCompletionsOptions completionsOptions = ZhipuChatCompletionsOptions.builder()
-                    .requestId(requestId)
-                    .stream(true)
-                    .sseFormat("data")
-                    .model(this.model)
-                    .toolChoice("auto")
-                    .prompt(chatMessages)
-                    .tools(Arrays.asList(
-                            Tool.builder()
-                                    .type("function")
-                                    .function(Function.builder()
-                                            .name("get_table_columns")
-                                            .description("获取指定表的字段名，类型")
-                                            .parameters(Parameters.builder()
-                                                    .type("object")
-                                                    .properties(ImmutableMap.<String, Property>builder()
-                                                            .put("table_name", Property.builder()
-                                                                    .type("string")
-                                                                    .description("表名，例如```User```")
-                                                                    .build())
-                                                            .build())
-                                                    .required(Arrays.asList("table_name"))
-                                                    .build())
-                                            .build())
-                                    .build()))
-                    .build();
+            
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(completionsOptions);
 
-            String url = this.apiHost + "/" + this.model + "/" + "sse-invoke";
+            String url = this.apiHost;
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             Request request = new Request.Builder()
                     .url(url)

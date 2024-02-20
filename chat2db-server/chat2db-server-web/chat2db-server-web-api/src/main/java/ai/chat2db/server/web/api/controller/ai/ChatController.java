@@ -4,18 +4,10 @@ package ai.chat2db.server.web.api.controller.ai;
 
 import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.Config;
-import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
-import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.service.ConfigService;
-import ai.chat2db.server.domain.api.service.DataSourceService;
-import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.tools.base.enums.WhiteListTypeEnum;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
-import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
@@ -30,10 +22,7 @@ import ai.chat2db.server.web.api.controller.ai.claude.listener.ClaudeAIEventSour
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
-import ai.chat2db.server.web.api.controller.ai.converter.ChatConverter;
-import ai.chat2db.server.web.api.controller.ai.enums.PromptType;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
-import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
@@ -50,48 +39,31 @@ import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.listener.WenxinAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.zhipu.client.ZhipuChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.zhipu.listener.ZhipuChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions;
 import ai.chat2db.server.web.api.http.GatewayClientService;
-import ai.chat2db.server.web.api.http.model.EsTableSchema;
-import ai.chat2db.server.web.api.http.model.TableSchema;
-import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
-import ai.chat2db.server.web.api.http.request.WhiteListRequest;
-import ai.chat2db.server.web.api.http.response.EsTableSchemaResponse;
-import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
-import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson2.JSON;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
-import com.unfbx.chatgpt.entity.chat.Parameters;
 import com.unfbx.chatgpt.entity.chat.tool.Tools;
 import com.unfbx.chatgpt.entity.chat.tool.ToolsFunction;
-import com.unfbx.chatgpt.entity.chat.BaseChatCompletion.Model;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * 描述：
@@ -306,20 +278,7 @@ public class ChatController {
         ChatCompletion chatCompletion = ChatCompletion.builder()
                 .messages(messages).stream(true).build();
         if(queryRequest.getDatabaseName()!=null){
-            ToolsFunction function = ToolsFunction.builder()
-                .name("get_table_columns")
-                .description("获取指定表的字段名，类型")
-                .parameters(Parameters.builder()
-                        .type("object")
-                        .properties(ImmutableMap.builder()
-                                .put("table_name", ImmutableMap.builder()
-                                        .put("type", "string")
-                                        .put("description", "表名，例如```User```")
-                                        .build())
-                                .build())
-                        .required(List.of("table_name"))
-                        .build())
-                .build();
+            ToolsFunction function = PromptService.getToolsFunction();
             chatCompletion.setModel("gpt-3.5-turbo-0125");
             chatCompletion.setTools(List.of(new Tools(Tools.Type.FUNCTION.getName(), function)));
             chatCompletion.setToolChoice("auto");
@@ -406,7 +365,7 @@ public class ChatController {
      */
     private SseEmitter chatWithFastChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildPrompt(queryRequest);
-        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
 
@@ -427,12 +386,25 @@ public class ChatController {
      */
     private SseEmitter chatWithZhipuChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildAutoPrompt(queryRequest);
-        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
-
-        ZhipuChatAIEventSourceListener sourceListener = new ZhipuChatAIEventSourceListener(sseEmitter);
-        ZhipuChatAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        ZhipuChatAIEventSourceListener sourceListener = new ZhipuChatAIEventSourceListener(sseEmitter,promptService,queryRequest,loginUser);
+        String requestId = String.valueOf(System.currentTimeMillis());
+        // 建议直接查看demo包代码，这里更新可能不及时
+        ZhipuChatCompletionsOptions completionsOptions = ZhipuChatCompletionsOptions.builder()
+                .requestId(requestId)
+                .stream(true)
+                .toolChoice("auto")
+                .messages(messages)
+                .build();
+        if(queryRequest.getDatabaseName()!=null){
+            ToolsFunction function = PromptService.getToolsFunction();
+            completionsOptions.setTools(List.of(new Tools(Tools.Type.FUNCTION.getName(), function)));
+            completionsOptions.setToolChoice("auto");
+        }
+        ZhipuChatAIClient.getInstance().streamCompletions(completionsOptions, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
@@ -448,7 +420,7 @@ public class ChatController {
      */
     private SseEmitter chatWithTongyiChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildPrompt(queryRequest);
-        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
 
@@ -469,7 +441,7 @@ public class ChatController {
      */
     private SseEmitter chatWithBaichuanAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildPrompt(queryRequest);
-        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);
 
@@ -479,26 +451,7 @@ public class ChatController {
         return sseEmitter;
     }
 
-    /**
-     * get fast chat message
-     *
-     * @param uid
-     * @param prompt
-     * @return
-     */
-    private List<FastChatMessage> getFastChatMessage(String uid, String prompt) {
-        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
-        if (CollectionUtils.isNotEmpty(messages)) {
-            if (messages.size() >= contextLength) {
-                messages = messages.subList(1, contextLength);
-            }
-        } else {
-            messages = Lists.newArrayList();
-        }
-        FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
-        messages.add(currentMessage);
-        return messages;
-    }
+    
 
     /**
      * chat with wenxin chat openai
@@ -511,7 +464,7 @@ public class ChatController {
      */
     private SseEmitter chatWithWenxinAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildPrompt(queryRequest);
-        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+        List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
         if (messages.size() >= 2 && messages.size() % 2 == 0) {
             messages.remove(messages.size() - 1);
         }
