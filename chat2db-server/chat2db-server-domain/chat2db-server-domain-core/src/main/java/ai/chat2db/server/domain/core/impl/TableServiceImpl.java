@@ -423,7 +423,7 @@ public class TableServiceImpl implements TableService {
         Connection connection = Chat2DBContext.getConnection();
         long n = 0;
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
-                new String[]{"TABLE", "SYSTEM TABLE"})) {
+                new String[]{"TABLE", "SYSTEM TABLE","PARTITIONED TABLE"})) {
             List<TableCacheDO> cacheDOS = new ArrayList<>();
             while (resultSet.next()) {
                 TableCacheDO tableCacheDO = new TableCacheDO();
