@@ -422,8 +422,8 @@ public class TableServiceImpl implements TableService {
 
         Connection connection = Chat2DBContext.getConnection();
         long n = 0;
-        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
-                new String[]{"TABLE", "SYSTEM TABLE"})) {
+            try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
+                                                  getTableTypes(connection))) {
             List<TableCacheDO> cacheDOS = new ArrayList<>();
             while (resultSet.next()) {
                 TableCacheDO tableCacheDO = new TableCacheDO();
@@ -458,6 +458,18 @@ public class TableServiceImpl implements TableService {
             throw new RuntimeException(e);
         }
         return n;
+    }
+    public String[] getTableTypes(Connection connection) throws SQLException {
+        Set<String> tableTypes = new HashSet<>();
+        try (ResultSet resultSet = connection.getMetaData().getTableTypes()) {
+            while (resultSet.next()) {
+                String tableType = resultSet.getString("TABLE_TYPE");
+                if (tableType.toLowerCase().endsWith("table")) {
+                    tableTypes.add(tableType);
+                }
+            }
+        }
+        return tableTypes.toArray(new String[0]);
     }
 
     private Long getLock(Long dataSourceId, String databaseName, String schemaName, TableCacheVersionDO versionDO) {
