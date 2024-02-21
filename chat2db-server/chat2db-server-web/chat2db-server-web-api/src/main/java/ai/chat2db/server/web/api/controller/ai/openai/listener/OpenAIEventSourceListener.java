@@ -8,6 +8,8 @@ import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
 import ai.chat2db.server.web.api.controller.ai.utils.PromptService;
+
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -109,12 +111,16 @@ public class OpenAIEventSourceListener extends EventSourceListener {
         }
     }
 
+
+    public String getName() {
+        return "OpenAI";
+    }
     /**
      * {@inheritDoc}
      */
     @Override
     public void onOpen(EventSource eventSource, Response response) {
-        log.info("OpenAI建立sse连接...");
+        log.info("{}建立sse连接...",getName());
     }
 
 
@@ -124,16 +130,32 @@ public class OpenAIEventSourceListener extends EventSourceListener {
         messages.add(currentMessage);
         OpenAIClient.getInstance().streamChatCompletion(messages, this);
     }
+
+
+    public void handleTableNames(List<String> tableNames,Object instance){
+        if(instance instanceof JSONArray){
+            ((JSONArray)instance).forEach(tableName->{
+                handleTableNames(tableNames,tableName);
+            });
+        }else if (instance instanceof JSONObject) {
+            ((JSONObject)instance).entrySet().forEach(entrySet->{
+                handleTableNames(tableNames,entrySet.getValue());
+            });
+        }else if (instance instanceof String) {
+            tableNames.add((String)instance);
+        }
+    }
     /**
      * {@inheritDoc}
      */
     @SneakyThrows
     @Override
     public void onEvent(EventSource eventSource, String id, String type, String data) {
-        log.info("OpenAI返回数据：{}", data);
+        String scheme = getName();
+        log.info("{}返回数据：{}",scheme,data);
         if (data.equals("[DONE]")) {
             if (toolCalls.isEmpty()) {
-                log.info("OpenAI返回数据结束了");
+                log.info("{}返回数据结束了",scheme);
                 sseEmitter.send(SseEmitter.event()
                         .id("[DONE]")
                         .data("[DONE]")
@@ -149,7 +171,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                     String functionName = function.getName();
                     if ("get_table_columns".equals(functionName)) {
                         JSONObject arguments = JSONObject.parse(function.getArguments());
-                        tableNames.add(arguments.getString("table_name"));
+                        handleTableNames(tableNames,arguments.get("table_names"));
                     }
                 }
             }
@@ -162,7 +184,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             String prompt = promptService.buildPrompt(queryRequest);
             Dbutils.removeSession();
             prompt = prompt.replaceAll("#", "");
-            log.info(prompt);
+            log.info("{} 新提示词 ：{}",scheme,prompt);
             functionCall(prompt);
             toolCalls.clear();
             return;
@@ -196,6 +218,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
 
     @Override
     public void onFailure(EventSource eventSource, Throwable t, Response response) {
+        String scheme = getName();
         try {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
@@ -217,9 +240,9 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             String bodyString = null;
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("OpenAI  sse连接异常data：{}", bodyString, t);
+                log.error("{} sse连接异常data：{}",scheme, bodyString, t);
             } else {
-                log.error("OpenAI  sse连接异常data：{}", response, t);
+                log.error("{} sse连接异常data：{}",scheme, response, t);
             }
             eventSource.cancel();
             Message message = new Message();
@@ -232,7 +255,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                     .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("发送数据异常:", exception);
+            log.error("{}发送数据异常:", scheme,exception);
         }
     }
 }

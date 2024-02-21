@@ -386,6 +386,7 @@ public class ChatController {
      */
     private SseEmitter chatWithZhipuChatAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = promptService.buildAutoPrompt(queryRequest);
+        log.info("原始提示词{}",prompt);
         List<FastChatMessage> messages = promptService.getFastChatMessage(uid, prompt);
 
         buildSseEmitter(sseEmitter, uid);

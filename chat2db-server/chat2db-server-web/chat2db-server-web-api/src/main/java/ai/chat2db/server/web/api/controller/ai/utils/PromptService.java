@@ -304,7 +304,8 @@ public class PromptService {
         String dataSourceType = queryDatabaseType(queryRequest);
         String properties = "";
         if (CollectionUtils.isNotEmpty(queryRequest.getTableNames())) {
-            properties = queryRequest.getTableNames().stream().collect(Collectors.joining(","));
+            TableQueryParam queryParam = chatConverter.chat2tableQuery(queryRequest);
+            properties = buildTableColumn(queryParam, queryRequest.getTableNames());
         } else {
             properties = queryDatabaseTables(queryRequest);
         }
@@ -375,13 +376,15 @@ public class PromptService {
     public static ToolsFunction getToolsFunction(){
         return ToolsFunction.builder()
                 .name("get_table_columns")
-                .description("获取指定表的字段名，类型")
+                .description("获取指定表的属性")
                 .parameters(Parameters.builder()
                         .type("object")
                         .properties(ImmutableMap.builder()
-                                .put("table_name", ImmutableMap.builder()
-                                        .put("type", "string")
+                                .put("table_names", ImmutableMap.builder()
                                         .put("description", "表名，例如```User```")
+                                        .put("type", "array")
+                                        .put("items", ImmutableMap.of("type", "string"))
+                                        .put("uniqueItems", true)
                                         .build())
                                 .build())
                         .required(List.of("table_name"))

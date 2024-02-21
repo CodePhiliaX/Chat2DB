@@ -14,6 +14,9 @@ import java.util.Objects;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.unfbx.chatgpt.entity.chat.tool.Tools;
+import com.unfbx.chatgpt.entity.chat.tool.ToolsFunction;
+
 /**
  * 描述：OpenAIEventSourceListener
  *
@@ -28,18 +31,24 @@ public class ZhipuChatAIEventSourceListener extends OpenAIEventSourceListener {
         super(sseEmitter, promptService, queryRequest, loginUser);
     }
 
+    @Override
+    public String getName(){
+        return "Zhipu";
+    }
 
     @Override
     public void functionCall(String prompt){
         Long uid = loginUser.getId();
         List<FastChatMessage> messages = promptService.getFastChatMessage(Objects.toString(uid), prompt);
         String requestId = String.valueOf(System.currentTimeMillis());
+        ToolsFunction function = PromptService.getToolsFunction();
         ZhipuChatCompletionsOptions completionsOptions = ZhipuChatCompletionsOptions.builder()
                 .requestId(requestId)
                 .stream(true)
                 .toolChoice("auto")
+                .tools(List.of(new Tools(Tools.Type.FUNCTION.getName(), function)))
                 .messages(messages)
-                .build();
+                .build();  
         ZhipuChatAIClient.getInstance().streamCompletions(completionsOptions, this);
     }
 }
