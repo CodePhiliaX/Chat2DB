@@ -1,12 +1,5 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.domain.api.enums.TableVectorEnum;
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.PinService;
@@ -15,7 +8,9 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
 import ai.chat2db.server.domain.core.converter.TableConverter;
 import ai.chat2db.server.domain.repository.Dbutils;
-import ai.chat2db.server.domain.repository.entity.*;
+import ai.chat2db.server.domain.repository.entity.TableCacheDO;
+import ai.chat2db.server.domain.repository.entity.TableCacheVersionDO;
+import ai.chat2db.server.domain.repository.entity.TableVectorMappingDO;
 import ai.chat2db.server.domain.repository.mapper.TableCacheMapper;
 import ai.chat2db.server.domain.repository.mapper.TableCacheVersionMapper;
 import ai.chat2db.server.domain.repository.mapper.TableVectorMappingMapper;
@@ -39,6 +34,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static ai.chat2db.server.domain.core.cache.CacheKey.getColumnKey;
 import static ai.chat2db.server.domain.core.cache.CacheKey.getTableKey;
@@ -65,7 +67,6 @@ public class TableServiceImpl implements TableService {
 
     @Autowired
     private TableConverter tableConverter;
-
 
 
     private TableCacheVersionMapper getVersionMapper() {
@@ -216,7 +217,7 @@ public class TableServiceImpl implements TableService {
             return null;
         }
         return table.getColumnList().stream().filter(tableColumn ->
-                        tableColumn.getPrimaryKey() != null && tableColumn.getPrimaryKey())
+                                                             tableColumn.getPrimaryKey() != null && tableColumn.getPrimaryKey())
                 .collect(Collectors.toList());
     }
 
@@ -249,7 +250,7 @@ public class TableServiceImpl implements TableService {
             keyIndex.setSchemaName(newTable.getSchemaName());
             keyIndex.setDatabaseName(newTable.getDatabaseName());
             keyIndex.setEditStatus(status);
-            if(!EditStatus.ADD.name().equals(status)){
+            if (!EditStatus.ADD.name().equals(status)) {
                 keyIndex.setOldName(keyIndex.getName());
             }
             indexes.add(keyIndex);
@@ -319,7 +320,7 @@ public class TableServiceImpl implements TableService {
         long total = 0;
         long version = 0L;
         if (param.isRefresh() || versionDO == null) {
-           total = addCache(param,versionDO);
+            total = addCache(param, versionDO);
         } else {
             if ("2".equals(versionDO.getStatus())) {
                 version = versionDO.getVersion() - 1;
@@ -348,7 +349,7 @@ public class TableServiceImpl implements TableService {
         return PageResult.of(tables, total, param);
     }
 
-    private long addCache(TablePageQueryParam param,TableCacheVersionDO versionDO){
+    private long addCache(TablePageQueryParam param, TableCacheVersionDO versionDO) {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
@@ -386,7 +387,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
         TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
-            addCache(param,versionDO);
+            addCache(param, versionDO);
             versionDO = getVersionMapper().selectOne(queryWrapper);
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();
@@ -422,27 +423,32 @@ public class TableServiceImpl implements TableService {
 
         Connection connection = Chat2DBContext.getConnection();
         long n = 0;
-        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
-                new String[]{"TABLE", "SYSTEM TABLE"})) {
-            List<TableCacheDO> cacheDOS = new ArrayList<>();
-            while (resultSet.next()) {
-                TableCacheDO tableCacheDO = new TableCacheDO();
-                tableCacheDO.setDatabaseName(databaseName);
-                tableCacheDO.setSchemaName(schemaName);
-                tableCacheDO.setTableName(resultSet.getString("TABLE_NAME"));
-                tableCacheDO.setExtendInfo(resultSet.getString("REMARKS"));
-                tableCacheDO.setDataSourceId(dataSourceId);
-                tableCacheDO.setVersion(version);
-                tableCacheDO.setKey(key);
-                cacheDOS.add(tableCacheDO);
-                if (cacheDOS.size() >= 500) {
-                    getTableCacheMapper().batchInsert(cacheDOS);
-                    cacheDOS = new ArrayList<>();
+        try {
+            // 获取不同数据库所支持的表类型
+            Set<String> tableTypes = getTableTypes(connection);
+            String[] tableTypeArray = tableTypes.toArray(new String[0]);
+            // 使用getTables方法获取表信息
+            try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null, tableTypeArray)) {
+                List<TableCacheDO> cacheDOS = new ArrayList<>();
+                while (resultSet.next()) {
+                    TableCacheDO tableCacheDO = new TableCacheDO();
+                    tableCacheDO.setDatabaseName(databaseName);
+                    tableCacheDO.setSchemaName(schemaName);
+                    tableCacheDO.setTableName(resultSet.getString("TABLE_NAME"));
+                    tableCacheDO.setExtendInfo(resultSet.getString("REMARKS"));
+                    tableCacheDO.setDataSourceId(dataSourceId);
+                    tableCacheDO.setVersion(version);
+                    tableCacheDO.setKey(key);
+                    cacheDOS.add(tableCacheDO);
+                    if (cacheDOS.size() >= 500) {
+                        getTableCacheMapper().batchInsert(cacheDOS);
+                        cacheDOS = new ArrayList<>();
+                    }
                 }
-                n++;
-            }
-            if (!CollectionUtils.isEmpty(cacheDOS)) {
-                getTableCacheMapper().batchInsert(cacheDOS);
+                if (!CollectionUtils.isEmpty(cacheDOS)) {
+                    getTableCacheMapper().batchInsert(cacheDOS);
+
+                }
             }
             LambdaQueryWrapper<TableCacheDO> q = new LambdaQueryWrapper();
             q.eq(TableCacheDO::getDataSourceId, dataSourceId);
@@ -458,6 +464,19 @@ public class TableServiceImpl implements TableService {
             throw new RuntimeException(e);
         }
         return n;
+    }
+
+    public Set<String> getTableTypes(Connection connection) throws SQLException {
+        Set<String> tableTypes = new HashSet<>();
+        try (ResultSet resultSet = connection.getMetaData().getTableTypes()) {
+            while (resultSet.next()) {
+                String tableType = resultSet.getString("TABLE_TYPE");
+                if (tableType.toLowerCase().endsWith("table")) {
+                    tableTypes.add(tableType);
+                }
+            }
+        }
+        return tableTypes;
     }
 
     private Long getLock(Long dataSourceId, String databaseName, String schemaName, TableCacheVersionDO versionDO) {
@@ -539,8 +558,8 @@ public class TableServiceImpl implements TableService {
         String tableColumnKey = getColumnKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName(), param.getTableName());
         MetaData metaSchema = Chat2DBContext.getMetaData();
         return CacheManage.getList(tableColumnKey, TableColumn.class,
-                (key) -> param.isRefresh(), (key) ->
-                        metaSchema.columns(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
+                                   (key) -> param.isRefresh(), (key) ->
+                                           metaSchema.columns(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getTableName()));
     }
 
     @Override
