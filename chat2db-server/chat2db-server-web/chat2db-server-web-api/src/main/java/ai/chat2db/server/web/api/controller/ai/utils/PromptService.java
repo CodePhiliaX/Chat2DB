@@ -3,10 +3,14 @@ package ai.chat2db.server.web.api.controller.ai.utils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +53,7 @@ import ai.chat2db.server.web.api.http.response.TableSchemaResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -167,17 +172,16 @@ public class PromptService {
         if (CollectionUtils.isEmpty(tableNames)) {
             return "";
         }
-        List<String> schemaContent = Lists.newArrayList();
         try {
-             schemaContent = tableNames.stream().map(tableName -> {
+             return tableNames.stream().map(tableName -> {
                 tableQueryParam.setTableName(tableName);
                 return queryTableDdl(tableName, tableQueryParam);
-            }).collect(Collectors.toList());
+            }).collect(Collectors.joining(";\n"));
         } catch (Exception exception) {
             log.error("query table error, do nothing");
         }
 
-        return JSON.toJSONString(schemaContent);
+        return "";
     }
 
      /**
@@ -313,10 +317,9 @@ public class PromptService {
         String promptType = StringUtils.isBlank(queryRequest.getPromptType()) ? PromptType.NL_2_SQL.getCode()
                 : queryRequest.getPromptType();
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
-        if (pType.equals(PromptType.NL_2_SQL)) {
+        if (StringUtils.isNotEmpty(properties)) {
             pType = PromptType.GET_TABLE_COLUMNS;
         }
-
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
         String schemaProperty = StringUtils.isNotEmpty(properties) ? String.format(
                 "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables:\n#\n# "
@@ -352,6 +355,32 @@ public class PromptService {
         return dataSourceType;
     }
 
+
+    /**
+     * 根据给定的表对象找出所有可能的外键列
+     * @return 外键列名列表
+     */
+    public static List<String> findPossibleForeignKeys(List<TableColumn> columns) {
+        List<String> foreignKeys = new ArrayList<>();
+        for (TableColumn column : columns) {
+            String columnName = column.getName();
+            // 假设TableColumn类有一个getTableName方法可以获取列所属的表名
+            String tableName = column.getTableName(); 
+            Boolean primaryKey = column.getPrimaryKey();
+    
+            // 检查列名是否符合`关联表_id`的格式，并且列名前半部分不等于表名
+            if (columnName != null && columnName.matches(".+_id") && Boolean.FALSE.equals(primaryKey)) {
+                // 从列名中移除"_id"以获取可能的关联表名
+                String potentialForeignKeyTable = columnName.substring(0, columnName.length() - 3);
+                
+                if (!potentialForeignKeyTable.equals(tableName)) {
+                    foreignKeys.add(columnName);
+                }
+            }
+        }
+        return foreignKeys;
+    }
+    
     /**
      * query database schema
      *
@@ -363,10 +392,30 @@ public class PromptService {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         try {
             List<Table> tables = metaSchema.tables(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), null);
-            return tables.stream()
-                    .map(table -> StringUtils.isBlank(table.getComment()) ? table.getName()
-                            : table.getName() + "(" + table.getComment() + ")")
-                    .collect(Collectors.joining(","));
+            
+            return tables.stream().map(table -> {
+                StringBuilder sb = new StringBuilder(table.getName()); // 直接在初始化时加入表名
+                String comment = table.getComment();
+                List<TableColumn> columns = metaSchema.columns(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), table.getName());
+                List<String> foreignKeys = findPossibleForeignKeys(columns); // 假设这个方法已经被定义
+                
+                // 只有当有注释或外键时才添加额外信息
+                if(StringUtils.isNotEmpty(comment) || !foreignKeys.isEmpty()){
+                    sb.append("(").append(comment);
+                    
+                    // 如果存在外键，添加外键信息
+                    if(!foreignKeys.isEmpty()){
+                        // 如果注释和外键都存在，先添加一个分隔符
+                        if(StringUtils.isNotEmpty(comment)) {
+                            sb.append("; ");
+                        }
+                        sb.append("外键:").append(String.join(", ", foreignKeys)); // 优化外键的展示
+                    }
+                    sb.append(")");
+                }
+                return sb.toString(); // 在映射阶段直接转换为字符串
+            })
+            .collect(Collectors.joining(","));
         } catch (Exception e) {
             log.error("query table error:{}, do nothing", e.getMessage());
             return "";
