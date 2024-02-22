@@ -29,14 +29,14 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         if (tables.isEmpty()) {
             return tables;
         }
-        Set<String> parentTableNameSet = tables.stream().filter(table -> "PARTITIONED TABLE".equalsIgnoreCase(table.getType()))
-                .map(Table::getName).collect(Collectors.toSet());
-        if (parentTableNameSet.isEmpty()) {
+        String parentTableNames = tables.stream()
+                .filter(table -> "PARTITIONED TABLE".equalsIgnoreCase(table.getType()))
+                .map(table -> "'" + table.getName() + "'")
+                .collect(Collectors.joining(",", "(", ")"));
+        if (parentTableNames.isEmpty()) {
             return tables;
         }
         HashSet<String> childTableNameSet = new HashSet<>();
-        StringJoiner tableNamesJoiner = new StringJoiner(",", "(", ")");
-        parentTableNameSet.forEach(table_name -> tableNamesJoiner.add("'" + table_name + "'"));
         String sql = """
                      SELECT child.relname AS child_table_name
                      FROM pg_inherits
@@ -48,9 +48,9 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                                    ON nmsp_parent.oid = parent.relnamespace
                               JOIN pg_namespace nmsp_child
                                    ON nmsp_child.oid = child.relnamespace
-                     WHERE parent.relname IN""" + tableNamesJoiner + ";";
+                     WHERE parent.relname IN""" + parentTableNames + ";";
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            try (resultSet) {
+            try {
                 while (resultSet.next()) {
                     String childTableName = resultSet.getString("child_table_name");
                     childTableNameSet.add(childTableName);
