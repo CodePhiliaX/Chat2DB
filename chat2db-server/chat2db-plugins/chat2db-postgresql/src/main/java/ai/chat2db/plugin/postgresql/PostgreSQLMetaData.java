@@ -23,6 +23,18 @@ import static ai.chat2db.plugin.postgresql.consts.SQLConst.FUNCTION_SQL;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
+    private static String CHILD_TABLE_NAME_SET_SQL = """
+                     SELECT child.relname AS child_table_name
+                     FROM pg_inherits
+                              JOIN pg_class parent
+                                   ON pg_inherits.inhparent = parent.oid
+                              JOIN pg_class child
+                                   ON pg_inherits.inhrelid = child.oid
+                              JOIN pg_namespace nmsp_parent
+                                   ON nmsp_parent.oid = parent.relnamespace
+                              JOIN pg_namespace nmsp_child
+                                   ON nmsp_child.oid = child.relnamespace
+                     WHERE parent.relname IN %s;""";
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
         List<Table> tables = super.tables(connection, databaseName, schemaName, tableName);
@@ -37,18 +49,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
             return tables;
         }
         HashSet<String> childTableNameSet = new HashSet<>();
-        String sql = """
-                     SELECT child.relname AS child_table_name
-                     FROM pg_inherits
-                              JOIN pg_class parent
-                                   ON pg_inherits.inhparent = parent.oid
-                              JOIN pg_class child
-                                   ON pg_inherits.inhrelid = child.oid
-                              JOIN pg_namespace nmsp_parent
-                                   ON nmsp_parent.oid = parent.relnamespace
-                              JOIN pg_namespace nmsp_child
-                                   ON nmsp_child.oid = child.relnamespace
-                     WHERE parent.relname IN""" + parentTableNames + ";";
+        String sql = String.format(CHILD_TABLE_NAME_SET_SQL, parentTableNames);
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             try {
                 while (resultSet.next()) {
