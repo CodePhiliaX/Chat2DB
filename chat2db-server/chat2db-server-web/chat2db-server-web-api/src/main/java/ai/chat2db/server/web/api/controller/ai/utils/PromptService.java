@@ -314,7 +314,7 @@ public class PromptService {
                 : queryRequest.getPromptType();
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
         if (pType.equals(PromptType.NL_2_SQL)) {
-            pType = PromptType.FUNCTION_CALL;
+            pType = PromptType.GET_TABLE_COLUMNS;
         }
 
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
@@ -376,7 +376,7 @@ public class PromptService {
     public static ToolsFunction getToolsFunction(){
         return ToolsFunction.builder()
                 .name("get_table_columns")
-                .description("获取指定表的属性")
+                .description(PromptType.GET_TABLE_COLUMNS.getDescription())
                 .parameters(Parameters.builder()
                         .type("object")
                         .properties(ImmutableMap.builder()

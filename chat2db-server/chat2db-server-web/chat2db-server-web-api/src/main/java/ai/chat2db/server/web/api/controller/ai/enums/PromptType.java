@@ -41,9 +41,9 @@ public enum PromptType implements BaseEnum<String> {
 
 
     /**
-     * function call
+     * GET_TABLE_COLUMNS
      */
-    FUNCTION_CALL("获取指定表的字段名，类型"),
+    GET_TABLE_COLUMNS("获取指定表的属性"),
     ;
 
     final String description;
