@@ -422,6 +422,9 @@ public class TableServiceImpl implements TableService {
         Connection connection = Chat2DBContext.getConnection();
         MetaData metaData = Chat2DBContext.getMetaData();
         List<Table> tables = metaData.tables(connection, databaseName, schemaName, null);
+        if (tables.isEmpty()) {
+            return 0;
+        }
         List<List<Table>> tableLists = BatchUtil.batch(tables, 500);
         tableLists.forEach(tableList -> {
             List<TableCacheDO> cacheDOS = tableList.stream().map(table -> {

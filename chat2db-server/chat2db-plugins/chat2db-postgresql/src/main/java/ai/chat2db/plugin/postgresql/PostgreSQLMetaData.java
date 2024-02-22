@@ -26,6 +26,9 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
         List<Table> tables = super.tables(connection, databaseName, schemaName, tableName);
+        if (tables.isEmpty()) {
+            return tables;
+        }
         Set<String> tableNameSet = tables.stream().map(Table::getName).collect(Collectors.toSet());
         StringJoiner tableNamesJoiner = new StringJoiner(",", "(", ")");
         tableNameSet.forEach(table_name -> tableNamesJoiner.add("'" + table_name + "'"));
@@ -59,6 +62,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
 
     private List<String> systemDatabases = Arrays.asList("postgres");
+
     @Override
     public List<Database> databases(Connection connection) {
         List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT datname FROM pg_database;", resultSet -> {
@@ -78,15 +82,15 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
             }
             return databases;
         });
-        return sortDatabase(list, systemDatabases,connection);
+        return sortDatabase(list, systemDatabases, connection);
     }
 
-    private List<String> systemSchemas = Arrays.asList("pg_toast","pg_temp_1","pg_toast_temp_1","pg_catalog","information_schema");
+    private List<String> systemSchemas = Arrays.asList("pg_toast", "pg_temp_1", "pg_toast_temp_1", "pg_catalog", "information_schema");
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
         List<Schema> schemas = SQLExecutor.getInstance().execute(connection,
-                "SELECT catalog_name, schema_name FROM information_schema.schemata;", resultSet -> {
+                                                                 "SELECT catalog_name, schema_name FROM information_schema.schemata;", resultSet -> {
                     List<Schema> databases = new ArrayList<>();
                     while (resultSet.next()) {
                         Schema schema = new Schema();
@@ -134,7 +138,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         SQLExecutor.getInstance().execute(connection, FUNCTION_SQL.replaceFirst("tableSchema", schemaName),
-                resultSet -> null);
+                                          resultSet -> null);
         String ddlSql = "select showcreatetable('" + schemaName + "','" + tableName + "') as sql";
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
             try {
@@ -258,7 +262,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 TableIndex tableIndex = map.get(keyName);
                 if (tableIndex != null) {
                     List<TableIndexColumn> columnList = tableIndex.getColumnList();
-                    if(columnList == null){
+                    if (columnList == null) {
                         columnList = new ArrayList<>();
                         tableIndex.setColumnList(columnList);
                     }
