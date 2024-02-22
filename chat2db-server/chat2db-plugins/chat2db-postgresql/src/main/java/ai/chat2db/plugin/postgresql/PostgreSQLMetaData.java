@@ -29,9 +29,14 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         if (tables.isEmpty()) {
             return tables;
         }
-        Set<String> tableNameSet = tables.stream().map(Table::getName).collect(Collectors.toSet());
+        Set<String> parentTableNameSet = tables.stream().filter(table -> "PARTITIONED TABLE".equalsIgnoreCase(table.getType()))
+                .map(Table::getName).collect(Collectors.toSet());
+        if (parentTableNameSet.isEmpty()) {
+            return tables;
+        }
+        HashSet<String> childTableNameSet = new HashSet<>();
         StringJoiner tableNamesJoiner = new StringJoiner(",", "(", ")");
-        tableNameSet.forEach(table_name -> tableNamesJoiner.add("'" + table_name + "'"));
+        parentTableNameSet.forEach(table_name -> tableNamesJoiner.add("'" + table_name + "'"));
         String sql = """
                      SELECT child.relname AS child_table_name
                      FROM pg_inherits
@@ -45,15 +50,19 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                                    ON nmsp_child.oid = child.relnamespace
                      WHERE parent.relname IN""" + tableNamesJoiner + ";";
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            while (resultSet.next()) {
-                String childTableName = resultSet.getString("child_table_name");
-                tableNameSet.remove(childTableName);
+            try (resultSet) {
+                while (resultSet.next()) {
+                    String childTableName = resultSet.getString("child_table_name");
+                    childTableNameSet.add(childTableName);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            resultSet.close();
-            return null;
+            return childTableNameSet;
         });
-        if (!tableNameSet.isEmpty()) {
-            tables = tables.stream().filter(table -> tableNameSet.contains(table.getName())).collect(Collectors.toList());
+        if (!childTableNameSet.isEmpty()) {
+            tables = tables.stream().filter(table -> !childTableNameSet.contains(table.getName()))
+                                    .collect(Collectors.toList());
         }
         return tables;
     }
