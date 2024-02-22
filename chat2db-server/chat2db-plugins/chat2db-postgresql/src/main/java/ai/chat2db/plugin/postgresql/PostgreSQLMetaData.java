@@ -33,7 +33,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .filter(table -> "PARTITIONED TABLE".equalsIgnoreCase(table.getType()))
                 .map(table -> "'" + table.getName() + "'")
                 .collect(Collectors.joining(",", "(", ")"));
-        if (parentTableNames.isEmpty()) {
+        if (Objects.equals("()", parentTableNames)) {
             return tables;
         }
         HashSet<String> childTableNameSet = new HashSet<>();
