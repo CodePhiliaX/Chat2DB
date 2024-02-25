@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.IDriverManager;
@@ -130,6 +131,11 @@ public class DefaultDBManage implements DBManage {
 
     @Override
     public void dropProcedure(Connection connection, String databaseName, String schemaName, String triggerName) {
+
+    }
+
+    @Override
+    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) {
 
     }
 

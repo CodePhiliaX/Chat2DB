@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
@@ -74,6 +73,20 @@ public class SQLExecutor implements CommandExecutor {
             throw new RuntimeException(e);
         }
         return null;
+    }
+    public void execute(Connection connection, String sql, ResultSetConsumer consumer) {
+        log.info("execute:{}", sql);
+        try (Statement stmt = connection.createStatement()) {
+            boolean query = stmt.execute(sql);
+            // 代表是查询
+            if (query) {
+                try (ResultSet rs = stmt.getResultSet();) {
+                    consumer.accept(rs);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void execute(Connection connection, String sql, Consumer<List<Header>> headerConsumer,

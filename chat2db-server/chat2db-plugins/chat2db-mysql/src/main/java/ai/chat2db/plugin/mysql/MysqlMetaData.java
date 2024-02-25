@@ -1,12 +1,5 @@
 package ai.chat2db.plugin.mysql;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
 import ai.chat2db.plugin.mysql.type.*;
 import ai.chat2db.spi.MetaData;
@@ -18,15 +11,22 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class MysqlMetaData extends DefaultMetaService implements MetaData {
 
     private List<String> systemDatabases = Arrays.asList("information_schema", "performance_schema", "mysql", "sys");
+
     @Override
     public List<Database> databases(Connection connection) {
         List<Database> databases = SQLExecutor.getInstance().databases(connection);
-        return sortDatabase(databases,systemDatabases,connection);
+        return sortDatabase(databases, systemDatabases, connection);
     }
 
 
@@ -116,19 +116,25 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
                                String procedureName) {
-        String sql = String.format(ROUTINES_SQL, "PROCEDURE", databaseName, procedureName);
-        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            Procedure procedure = new Procedure();
-            procedure.setDatabaseName(databaseName);
-            procedure.setSchemaName(schemaName);
-            procedure.setProcedureName(procedureName);
+        String routinesSql = String.format(ROUTINES_SQL, "PROCEDURE", databaseName, procedureName);
+        String showCreateProcedureSql = "SHOW CREATE PROCEDURE " + procedureName;
+        Procedure procedure = SQLExecutor.getInstance().execute(connection, routinesSql, resultSet -> {
+            Procedure p = new Procedure();
+            p.setDatabaseName(databaseName);
+            p.setSchemaName(schemaName);
+            p.setProcedureName(procedureName);
             if (resultSet.next()) {
-                procedure.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                procedure.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
-                procedure.setProcedureBody(resultSet.getString("ROUTINE_DEFINITION"));
+                p.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                p.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
             }
-            return procedure;
+            return p;
         });
+        SQLExecutor.getInstance().execute(connection, showCreateProcedureSql, resultSet -> {
+            if (resultSet.next()) {
+                procedure.setProcedureBody(resultSet.getString("Create Procedure"));
+            }
+        });
+        return procedure;
     }
 
     private static String SELECT_TABLE_COLUMNS = "SELECT * FROM information_schema.COLUMNS  WHERE TABLE_SCHEMA =  '%s'  AND TABLE_NAME =  '%s'  order by ORDINAL_POSITION";
