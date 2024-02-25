@@ -27,12 +27,15 @@ import ai.chat2db.server.domain.api.enums.AiSqlSourceEnum;
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
+import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
+import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.service.ConfigService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.tools.base.enums.WhiteListTypeEnum;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
@@ -45,6 +48,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
+import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.model.TableSchema;
 import ai.chat2db.server.web.api.http.request.TableSchemaRequest;
@@ -82,6 +86,10 @@ public class PromptService {
 
     @Resource
     private GatewayClientService gatewayClientService;
+
+
+    @Autowired
+    private RdbWebConverter rdbWebConverter;
 
 
     /**
@@ -391,13 +399,16 @@ public class PromptService {
     public String queryDatabaseTables(ChatQueryRequest queryRequest) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         try {
-            List<Table> tables = metaSchema.tables(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), null);
-            
-            return tables.stream().map(table -> {
+            TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(queryRequest);
+            TableSelector tableSelector = new TableSelector();
+            tableSelector.setColumnList(true);
+            tableSelector.setIndexList(false);
+            PageResult<Table> tables = tableService.pageQuery(queryParam,tableSelector);
+            return tables.getData().stream().map(table -> {
                 StringBuilder sb = new StringBuilder(table.getName()); // 直接在初始化时加入表名
                 String comment = table.getComment();
-                List<TableColumn> columns = metaSchema.columns(Chat2DBContext.getConnection(), queryRequest.getDatabaseName(), queryRequest.getSchemaName(), table.getName());
-                List<String> foreignKeys = findPossibleForeignKeys(columns); // 假设这个方法已经被定义
+                List<TableColumn> columns = table.getColumnList();
+                List<String> foreignKeys = findPossibleForeignKeys(columns);
                 
                 // 只有当有注释或外键时才添加额外信息
                 if(StringUtils.isNotEmpty(comment) || !foreignKeys.isEmpty()){

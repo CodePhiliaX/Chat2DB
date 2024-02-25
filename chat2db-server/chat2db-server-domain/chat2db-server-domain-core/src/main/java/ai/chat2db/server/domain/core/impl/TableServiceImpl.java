@@ -339,6 +339,16 @@ public class TableServiceImpl implements TableService {
                 t.setComment(tableCacheDO.getExtendInfo());
                 t.setSchemaName(tableCacheDO.getSchemaName());
                 t.setDatabaseName(tableCacheDO.getDatabaseName());
+                if(Boolean.TRUE.equals(selector.getColumnList())){
+                    TableQueryParam tableQueryParam = new TableQueryParam();
+                    tableQueryParam.setDataSourceId(param.getDataSourceId());
+                    tableQueryParam.setDatabaseName(param.getDatabaseName());
+                    tableQueryParam.setSchemaName(param.getSchemaName());
+                    tableQueryParam.setTableName(tableCacheDO.getTableName());
+                    tableQueryParam.setRefresh(false);
+                    List<TableColumn> columns = queryColumns(tableQueryParam);
+                    t.setColumnList(columns);
+                }
                 tables.add(t);
             }
         }
@@ -433,6 +443,7 @@ public class TableServiceImpl implements TableService {
             tableCacheDO.setDataSourceId(dataSourceId);
             tableCacheDO.setVersion(version);
             tableCacheDO.setKey(key);
+            metaSchema.columns(connection, databaseName, schemaName, table.getName());
             cacheDOS.add(tableCacheDO);
             if (cacheDOS.size() >= 500) {
                 getTableCacheMapper().batchInsert(cacheDOS);
@@ -476,7 +487,7 @@ public class TableServiceImpl implements TableService {
             }
         } else {
             long version = versionDO.getVersion() + 1;
-            LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper();
+            LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(TableCacheVersionDO::getId, versionDO.getId());
             queryWrapper.eq(TableCacheVersionDO::getVersion, versionDO.getVersion());
             versionDO.setVersion(version);
