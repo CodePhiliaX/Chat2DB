@@ -397,7 +397,6 @@ public class PromptService {
      * @throws IOException
      */
     public String queryDatabaseTables(ChatQueryRequest queryRequest) {
-        MetaData metaSchema = Chat2DBContext.getMetaData();
         try {
             TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(queryRequest);
             TableSelector tableSelector = new TableSelector();
