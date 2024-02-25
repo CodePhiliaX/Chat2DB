@@ -1,17 +1,17 @@
-import React, { useContext, useEffect, useState, useRef, forwardRef, ForwardedRef, useImperativeHandle } from 'react';
+import React, {ForwardedRef, forwardRef, useContext, useEffect, useImperativeHandle, useRef, useState} from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { MenuOutlined } from '@ant-design/icons';
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Table, InputNumber, Input, Form, Select, Checkbox } from 'antd';
-import { v4 as uuidv4 } from 'uuid';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Context } from '../index';
-import { IColumnItemNew, IColumnTypes } from '@/typings';
+import {MenuOutlined} from '@ant-design/icons';
+import {DndContext, type DragEndEvent} from '@dnd-kit/core';
+import {restrictToVerticalAxis} from '@dnd-kit/modifiers';
+import {Checkbox, Form, Input, InputNumber, Select, Table} from 'antd';
+import {v4 as uuidv4} from 'uuid';
+import {arrayMove, SortableContext, useSortable, verticalListSortingStrategy} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
+import {Context} from '../index';
+import {IColumnItemNew, IColumnTypes} from '@/typings';
 import i18n from '@/i18n';
-import { EditColumnOperationType, DatabaseTypeCode, NullableType } from '@/constants';
+import {DatabaseTypeCode, EditColumnOperationType, NullableType} from '@/constants';
 import CustomSelect from '@/components/CustomSelect';
 import Iconfont from '@/components/Iconfont';
 
@@ -30,7 +30,7 @@ interface IEditingConfig extends IColumnTypes {
 export interface IColumnListRef {
   getColumnListInfo: () => IColumnItemNew[];
 }
-
+const onUpdateTypeName = ['TIMESTAMP', 'DATETIME'];
 const Row = ({ children, ...props }: RowProps) => {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: props['data-row-key'],
@@ -91,6 +91,7 @@ const createInitialData = () => {
     collationName: null,
     value: null,
     editStatus: EditColumnOperationType.Add,
+    onUpdate: false,
   };
 };
 
@@ -504,6 +505,14 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         {editingConfig?.supportDefaultValue && (
           <Form.Item labelCol={labelCol} label={i18n('editTable.label.defaultValue')} name="defaultValue">
             <CustomSelect options={databaseSupportField.defaultValues} />
+          </Form.Item>
+        )}
+        {editingConfig?.supportDefaultValue && databaseType === DatabaseTypeCode.MYSQL
+            && onUpdateTypeName.includes(editingConfig?.typeName) && (
+          <Form.Item labelCol={labelCol} label=""  name="onUpdate" valuePropName="checked" style={{paddingLeft: 100}}>
+            <Checkbox >
+              {i18n('editTable.label.onUpdate')}
+            </Checkbox>
           </Form.Item>
         )}
         {editingConfig?.supportCharset && (

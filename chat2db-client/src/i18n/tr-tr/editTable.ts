@@ -21,6 +21,7 @@ export default {
   'editTable.label.nullable': 'Boş bırakılabilir',
   'editTable.label.prefixLength': 'Önek uzunluğu',
   'editTable.label.defaultValue': 'Varsayılan değer',
+  'editTable.label.onUpdate': 'Geçerli zaman damgasına göre güncelleme',
   'editTable.label.sparse': 'Düzensiz',
   'editTable.label.characterSet': 'Karakter kümesi',
   'editTable.label.collation': 'Düzenleme',

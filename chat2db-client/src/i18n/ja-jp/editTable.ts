@@ -21,6 +21,7 @@ export default {
   'editTable.label.nullable': 'NULL可能',
   'editTable.label.prefixLength': '接頭辞の長さ',
   'editTable.label.defaultValue': 'デフォルト値',
+  'editTable.label.onUpdate': '現在のタイムスタンプに基づいて更新します',
   'editTable.label.sparse': 'スパース',
   'editTable.label.characterSet': '文字セット',
   'editTable.label.collation': '照合順序',

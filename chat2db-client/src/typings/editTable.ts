@@ -42,6 +42,7 @@ export interface IColumnItemNew {
   charSetName: string | null; // 字符集名
   collationName: string | null; // 排序规则名
   value: string | null; // 值
+  onUpdate: boolean | null; // 是否根据当前时间戳更新
 }
 
 // 
