@@ -47,7 +47,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
 
     FLOAT("FLOAT", true, false, true, false, false, false, true, true, false, false),
 
-    INT("INT", false, false, true, false, false, false, true, true, false, false),
+    INT("INT", false, false, true, true, false, false, true, true, false, false),
 
     // INTEGER("INTEGER", false, false, true, false, false, false, true, true, false, false),
 
@@ -159,11 +159,26 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDefaultValue(column, type)).append(" ");
 
+        script.append(buildAutoIncrement(column,type)).append(" ");
+
         script.append(buildNullable(column, type)).append(" ");
 
         return script.toString();
     }
 
+    private String buildAutoIncrement(TableColumn column, DMColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportAutoIncrement()){
+            return "";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()
+                && column.getSeed() != null && column.getSeed() > 0 && column.getIncrement() != null && column.getIncrement() > 0) {
+            return "IDENTITY(" + column.getSeed() + "," + column.getIncrement() + ")";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()) {
+            return "IDENTITY(1,1)";
+        }
+        return "";
+    }
 
     private String buildNullable(TableColumn column, DMColumnTypeEnum type) {
         if (!type.getColumnType().isSupportNullable()) {
