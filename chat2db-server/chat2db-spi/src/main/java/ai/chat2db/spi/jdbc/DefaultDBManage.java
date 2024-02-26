@@ -135,7 +135,7 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
-    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) {
+    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) throws SQLException {
 
     }
 

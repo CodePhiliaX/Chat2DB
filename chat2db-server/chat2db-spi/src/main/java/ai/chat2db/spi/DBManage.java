@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * @author jipengfei
@@ -119,5 +120,5 @@ public interface DBManage {
      * @param schemaName
      * @param procedure
      */
-    void updateProcedure(Connection connection, @NotEmpty String databaseName, String schemaName, @NotNull Procedure procedure);
+    void updateProcedure(Connection connection, @NotEmpty String databaseName, String schemaName, @NotNull Procedure procedure) throws SQLException;
 }

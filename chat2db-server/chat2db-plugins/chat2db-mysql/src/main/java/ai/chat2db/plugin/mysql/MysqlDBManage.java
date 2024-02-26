@@ -11,11 +11,18 @@ import java.sql.SQLException;
 
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
-    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) {
-        String sql = "DROP PROCEDURE " + procedure.getProcedureName();
-        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
-        String procedureBody = procedure.getProcedureBody();
-        SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {});
+    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) throws SQLException {
+        try {
+            connection.setAutoCommit(false);
+            String sql = "DROP PROCEDURE " + procedure.getProcedureName();
+            SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
+            String procedureBody = procedure.getProcedureBody();
+            SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {});
+            connection.commit();
+        } catch (Exception e) {
+            connection.rollback();
+            throw new RuntimeException(e);
+        }
 
     }
 
