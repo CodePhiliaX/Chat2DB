@@ -15,6 +15,8 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
+
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/procedure")
 @RestController
@@ -39,7 +41,7 @@ public class ProcedureController {
     }
 
     @PostMapping("/update")
-    public ActionResult update(@Valid @RequestBody ProcedureUpdateRequest request) {
+    public ActionResult update(@Valid @RequestBody ProcedureUpdateRequest request) throws SQLException {
         Procedure procedure = procedureConverter.request2param(request);
         return procedureService.update(request.getDatabaseName(), request.getSchemaName(), procedure);
     }
