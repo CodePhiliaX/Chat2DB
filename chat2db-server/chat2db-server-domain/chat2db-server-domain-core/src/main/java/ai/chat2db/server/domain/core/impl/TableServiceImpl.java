@@ -1,12 +1,5 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.domain.api.enums.TableVectorEnum;
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.PinService;
@@ -15,7 +8,9 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
 import ai.chat2db.server.domain.core.converter.TableConverter;
 import ai.chat2db.server.domain.repository.Dbutils;
-import ai.chat2db.server.domain.repository.entity.*;
+import ai.chat2db.server.domain.repository.entity.TableCacheDO;
+import ai.chat2db.server.domain.repository.entity.TableCacheVersionDO;
+import ai.chat2db.server.domain.repository.entity.TableVectorMappingDO;
 import ai.chat2db.server.domain.repository.mapper.TableCacheMapper;
 import ai.chat2db.server.domain.repository.mapper.TableCacheVersionMapper;
 import ai.chat2db.server.domain.repository.mapper.TableVectorMappingMapper;
@@ -39,6 +34,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static ai.chat2db.server.domain.core.cache.CacheKey.getColumnKey;
 import static ai.chat2db.server.domain.core.cache.CacheKey.getTableKey;
@@ -564,7 +566,7 @@ public class TableServiceImpl implements TableService {
             //filter primary key
             List<IndexType> indexTypes = tableMeta.getIndexTypes();
             if (CollectionUtils.isNotEmpty(indexTypes)) {
-                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equals(indexType.getTypeName())).collect(Collectors.toList());
+                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equalsIgnoreCase(indexType.getTypeName())).collect(Collectors.toList());
                 tableMeta.setIndexTypes(types);
             }
         }

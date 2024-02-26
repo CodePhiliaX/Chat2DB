@@ -1,5 +1,6 @@
 package ai.chat2db.server.domain.api.service;
 
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Procedure;
@@ -23,4 +24,12 @@ public interface ProcedureService {
      * @return
      */
     DataResult<Procedure> detail(String databaseName, String schemaName, String procedureName);
+
+    /**
+     * @param databaseName
+     * @param schemaName
+     * @param procedure
+     * @return
+     */
+    ActionResult update(String databaseName, String schemaName, Procedure procedure);
 }

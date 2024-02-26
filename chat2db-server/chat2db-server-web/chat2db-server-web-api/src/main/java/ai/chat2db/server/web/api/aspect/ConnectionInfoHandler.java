@@ -6,6 +6,7 @@ import ai.chat2db.server.domain.api.service.DataSourceAccessBusinessService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequestInfo;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsoleRequestInfo;
@@ -94,6 +95,7 @@ public class ConnectionInfoHandler {
         connectInfo.setUrl(dataSource.getUrl());
         connectInfo.setPort(StringUtils.isNotBlank(dataSource.getPort()) ? Integer.parseInt(dataSource.getPort()) : null);
         connectInfo.setHost(dataSource.getHost());
+        connectInfo.setLoginUser(ContextUtils.getLoginUser().getId()+"");
         DriverConfig driverConfig = dataSource.getDriverConfig();
         if (driverConfig != null && driverConfig.notEmpty()) {
             connectInfo.setDriverConfig(driverConfig);

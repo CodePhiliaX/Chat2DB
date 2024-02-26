@@ -186,7 +186,7 @@ public class WsServer {
                 wsResult.setMessage(actionResult);
                 SendMessage(session, wsResult);
             } finally {
-                Chat2DBContext.remove();
+                Chat2DBContext.removeContext();
                 ContextUtils.removeContext();
                 Dbutils.removeSession();
             }

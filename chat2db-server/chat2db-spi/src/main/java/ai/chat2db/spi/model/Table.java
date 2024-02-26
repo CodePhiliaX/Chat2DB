@@ -1,13 +1,12 @@
 package ai.chat2db.spi.model;
 
-import java.util.List;
-
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 /**
  * 表信息
@@ -77,7 +76,10 @@ public class Table {
      */
     private String ddl;
 
-
+    /**
+     * engine
+     */
+    @JsonAlias("TYPE_NAME")
     private String engine;
 
 

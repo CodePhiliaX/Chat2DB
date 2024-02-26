@@ -66,7 +66,7 @@ public class FastChatAIEventSourceListener extends EventSourceListener {
         log.info("Model={} is created at {}.", chatCompletions.getId(),
             chatCompletions.getCreated());
         for (FastChatChoice choice : chatCompletions.getChoices()) {
-            FastChatMessage message = choice.getMessage();
+            FastChatMessage message = choice.getDelta();
             if (message != null) {
                 log.info("Index: {}, Chat Role: {}", choice.getIndex(), message.getRole());
                 if (message.getContent() != null) {

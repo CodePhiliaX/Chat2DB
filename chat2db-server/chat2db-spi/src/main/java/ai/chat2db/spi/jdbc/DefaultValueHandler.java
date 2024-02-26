@@ -6,10 +6,9 @@ import cn.hutool.core.io.unit.DataSizeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class DefaultValueHandler implements ValueHandler {
@@ -35,8 +34,11 @@ public class DefaultValueHandler implements ValueHandler {
                 return largeString(rs, index, limitSize);
             } else if (obj instanceof Blob blob) {
                 return largeStringBlob(blob, limitSize);
+            } else if (obj instanceof Timestamp || obj instanceof LocalDateTime) {
+                return largeTime(obj);
+            } else {
+                return obj.toString();
             }
-            return obj.toString();
         } catch (Exception e) {
             log.warn("解析数失败:{},{}", index, obj, e);
             return obj.toString();
@@ -60,6 +62,26 @@ public class DefaultValueHandler implements ValueHandler {
                     + I18nUtils.getMessage("execute.exportCsv") + " ] " + result;
         }
         return result;
+    }
+
+    private String largeTime(Object obj) throws SQLException {
+        Object timeField = obj; // 假设为 Object 类型的时间字段
+
+        LocalDateTime localDateTime;
+
+        if (obj instanceof Timestamp) {
+            // 将 Object 类型的时间字段转换为 LocalDateTime 对象
+            localDateTime = ((Timestamp) timeField).toLocalDateTime();
+        } else {
+            localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        }
+
+        // 创建 DateTimeFormatter 实例，指定输出日期时间格式
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // 格式化日期时间
+        String formattedDateTime = dtf.format(localDateTime);
+        return formattedDateTime;
     }
 
     private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {
