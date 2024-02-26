@@ -1,5 +1,11 @@
 package ai.chat2db.plugin.postgresql;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import ai.chat2db.plugin.postgresql.builder.PostgreSQLSqlBuilder;
 import ai.chat2db.plugin.postgresql.type.*;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
@@ -12,12 +18,6 @@ import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.FUNCTION_SQL;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
@@ -37,7 +37,8 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                      WHERE parent.relname IN %s;""";
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
-        List<Table> tables = super.tables(connection, databaseName, schemaName, tableName);
+        List<Table> tables =  SQLExecutor.getInstance().tables(connection, databaseName,
+                                      schemaName, null, new String[]{"TABLE","SYSTEM TABLE","PARTITIONED TABLE"});
         if (tables.isEmpty()) {
             return tables;
         }
@@ -72,7 +73,6 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
 
     private List<String> systemDatabases = Arrays.asList("postgres");
-
     @Override
     public List<Database> databases(Connection connection) {
         List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT datname FROM pg_database;", resultSet -> {
@@ -272,7 +272,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 TableIndex tableIndex = map.get(keyName);
                 if (tableIndex != null) {
                     List<TableIndexColumn> columnList = tableIndex.getColumnList();
-                    if (columnList == null) {
+                    if(columnList == null){
                         columnList = new ArrayList<>();
                         tableIndex.setColumnList(columnList);
                     }

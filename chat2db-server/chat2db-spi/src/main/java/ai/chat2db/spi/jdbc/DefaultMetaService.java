@@ -1,5 +1,9 @@
 package ai.chat2db.spi.jdbc;
 
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -9,13 +13,6 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author jipengfei
@@ -47,18 +44,9 @@ public class DefaultMetaService implements MetaData {
 
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
-        Set<String> tableTypes = new HashSet<>();
-        try (ResultSet resultSet = connection.getMetaData().getTableTypes()) {
-            while (resultSet.next()) {
-                String tableType = resultSet.getString("TABLE_TYPE");
-                if (tableType.toLowerCase().endsWith("table")) {
-                    tableTypes.add(tableType);
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return SQLExecutor.getInstance().tables(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName, tableTypes.toArray(new String[0]));
+        return SQLExecutor.getInstance().tables(connection, StringUtils.isEmpty(databaseName) ? null : databaseName,
+                                                StringUtils.isEmpty(schemaName) ? null : schemaName, tableName,
+                                                new String[]{"TABLE","SYSTEM TABLE"});
     }
 
     @Override
