@@ -6,6 +6,8 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Procedure;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.sql.SQLException;
+
 public interface ProcedureService {
 
     /**
@@ -31,5 +33,5 @@ public interface ProcedureService {
      * @param procedure
      * @return
      */
-    ActionResult update(String databaseName, String schemaName, Procedure procedure);
+    ActionResult update(String databaseName, String schemaName, Procedure procedure) throws SQLException;
 }
