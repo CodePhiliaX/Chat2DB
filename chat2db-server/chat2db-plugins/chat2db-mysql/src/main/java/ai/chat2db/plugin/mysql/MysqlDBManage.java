@@ -1,14 +1,24 @@
 package ai.chat2db.plugin.mysql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
+import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.springframework.util.StringUtils;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
+    @Override
+    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) {
+        String sql = "DROP PROCEDURE " + procedure.getProcedureName();
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
+        String procedureBody = procedure.getProcedureBody();
+        SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {});
+
+    }
+
     @Override
     public void connectDatabase(Connection connection, String database) {
         if (StringUtils.isEmpty(database)) {
@@ -20,7 +30,6 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
             throw new RuntimeException(e);
         }
     }
-
 
 
     @Override
