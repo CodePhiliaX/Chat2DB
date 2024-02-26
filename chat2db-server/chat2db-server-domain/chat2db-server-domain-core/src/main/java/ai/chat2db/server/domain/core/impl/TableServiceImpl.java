@@ -557,7 +557,7 @@ public class TableServiceImpl implements TableService {
             //filter primary key
             List<IndexType> indexTypes = tableMeta.getIndexTypes();
             if (CollectionUtils.isNotEmpty(indexTypes)) {
-                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equals(indexType.getTypeName())).collect(Collectors.toList());
+                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equalsIgnoreCase(indexType.getTypeName())).collect(Collectors.toList());
                 tableMeta.setIndexTypes(types);
             }
         }
