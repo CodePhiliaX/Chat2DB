@@ -140,6 +140,12 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
+    public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
+        return null;
+    }
+
+
+    @Override
     public void dropTable(Connection connection,String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE "+ tableName ;
         SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);

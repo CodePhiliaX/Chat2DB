@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.SchemaOperationParam;
@@ -17,7 +18,6 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Schema;
@@ -175,6 +175,14 @@ public class DatabaseServiceImpl implements DatabaseService {
                 param.getSchemaName(),
                 param.getNewSchemaName());
         return ActionResult.isSuccess();
+    }
+
+    @Override
+    public String exportDatabase(DatabaseExportParam param) throws SQLException {
+       return Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
+                                                          param.getDatabaseName(),
+                                                          param.getSchemaName(),
+                                                          param.getContainData());
     }
 
 }

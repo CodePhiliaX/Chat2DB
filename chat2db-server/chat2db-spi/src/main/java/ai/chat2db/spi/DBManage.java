@@ -1,6 +1,5 @@
 package ai.chat2db.spi;
 
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.ConnectInfo;
 import jakarta.validation.constraints.NotEmpty;
@@ -121,4 +120,6 @@ public interface DBManage {
      * @param procedure
      */
     void updateProcedure(Connection connection, @NotEmpty String databaseName, String schemaName, @NotNull Procedure procedure) throws SQLException;
+
+    String exportDatabase(Connection connection, String databaseName, String schemaName,boolean containData) throws SQLException;
 }
