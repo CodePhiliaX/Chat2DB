@@ -2,11 +2,14 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+
+import java.sql.SQLException;
 
 /**
  * 数据源管理服务
@@ -87,4 +90,6 @@ public interface DatabaseService {
      * @return
      */
     ActionResult modifySchema( SchemaOperationParam request);
+
+    String exportDatabase(DatabaseExportParam param) throws SQLException;
 }
