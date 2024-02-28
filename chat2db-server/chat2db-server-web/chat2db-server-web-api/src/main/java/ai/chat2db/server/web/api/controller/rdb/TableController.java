@@ -18,17 +18,18 @@ import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ConnectionInfoAspect
@@ -265,7 +266,6 @@ public class TableController extends EmbeddingController {
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(false);
         PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
-        new ArrayList<>();
         List<ErDiagram.Node> entityList = tableDTOPageResult.getData().stream().map(table -> {
             ErDiagram.Node entity = new ErDiagram.Node(table.getName(),
                     StringUtils.defaultIfBlank(table.getComment(), table.getName()));
