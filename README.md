@@ -182,7 +182,7 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ### Discord
 <!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
-[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.gg/N6JscF7q)
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)]([https://discord.gg/N6JscF7q](https://discord.com/invite/Zn9dFQKSJa))
 
 ## LICENSE
 
