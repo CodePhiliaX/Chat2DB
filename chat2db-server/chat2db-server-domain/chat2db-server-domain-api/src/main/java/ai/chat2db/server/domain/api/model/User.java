@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 用户信息
+ * User Info
  *
  * @author Jiaju Zhuang
  */
@@ -21,44 +21,44 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class User {
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 用户名
+     * username
      */
     @NotNull
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     @NotNull
     private String password;
 
     /**
-     * 昵称
+     * Nick name
      */
     @NotNull
     private String nickName;
 
     /**
-     * 邮箱
+     * email
      */
     @NotNull
     private String email;
 
     /**
-     * 角色编码
+     * role coding
      *
      * @see RoleCodeEnum
      */
     private String roleCode;
 
     /**
-     * 用户状态
+     * user status
      *
      * @see ValidStatusEnum
      */
@@ -66,17 +66,17 @@ public class User {
     private String status;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 修改人用户
+     * Modifier user
      */
     private User modifiedUser;
 }

@@ -10,9 +10,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 排序的对象
+ * sorted objects
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @Builder
@@ -20,11 +20,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderBy implements Serializable {
     /**
-     * 排序字段
+     * sort field
      */
     private String orderConditionName;
     /**
-     * 排序方向
+     * Sorting direction
      */
     private OrderByDirectionEnum direction;
 

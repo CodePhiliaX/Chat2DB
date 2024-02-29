@@ -48,21 +48,21 @@ public class H2DialectProperties implements DialectProperties {
 
     @Override
     public String getCrateTableSql(String tableName) {
-        // TODO druid有sql解析的bug
+        // TODO druid has sql parsing bug
         String sql = "CREATE TABLE `" + tableName + "`\n\t"
             + "(\n\t"
-            + "    `id`     bigint PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '主键自增',\n\t"
-            + "    `date`   datetime                          not null COMMENT '日期',\n\t"
-            + "    `number` bigint COMMENT '长整型',\n\t"
-            + "    `string` VARCHAR(100) default 'DATA' COMMENT '名字'\n\t"
+            + "    `id`     bigint PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT 'Primary key auto-increment',\n\t"
+            + "    `date`   datetime                          not null COMMENT 'date',\n\t"
+            + "    `number` bigint COMMENT 'long integer',\n\t"
+            + "    `string` VARCHAR(100) default 'DATA' COMMENT 'name'\n\t"
             + ");\n\t";
-        sql += "comment on table " + tableName + " is '测试表';\n\t";
+        sql += "comment on table " + tableName + " is 'Test table';\n\t";
         sql += "create index " + tableName + "_idx_date on " + tableName + "(DATE desc);\n\t";
-        sql += "comment on index " + tableName + "_idx_date is '日期索引';\n\t";
+        sql += "comment on index " + tableName + "_idx_date is 'date index';\n\t";
         sql += "create unique index " + tableName + "_uk_number   on " + tableName + "(NUMBER);\n\t";
-        sql += "comment on index " + tableName + "_uk_number is '唯一索引';\n\t";
+        sql += "comment on index " + tableName + "_uk_number is 'unique index';\n\t";
         sql += "create index " + tableName + "_idx_number_string   on " + tableName + "(NUMBER, DATE);\n\t";
-        sql += "comment on index " + tableName + "_idx_number_string is '联合索引';\n\t";
+        sql += "comment on index " + tableName + "_idx_number_string is 'Union index';\n\t";
         return sql;
     }
 

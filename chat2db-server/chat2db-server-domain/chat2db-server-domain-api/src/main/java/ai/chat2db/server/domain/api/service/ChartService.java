@@ -15,12 +15,12 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * @author moji
- * @version ChartService.java, v 0.1 2023年06月09日 15:28 moji Exp $
+ * @version ChartService.java, v 0.1 June 9, 2023 15:28 moji Exp $
  * @date 2023/06/09
  */
 public interface ChartService {
     /**
-     * 保存报表
+     * Save report
      *
      * @param param
      * @return
@@ -28,7 +28,7 @@ public interface ChartService {
     DataResult<Long> createWithPermission(ChartCreateParam param);
 
     /**
-     * 更新报表
+     * Update report
      *
      * @param param
      * @return
@@ -36,7 +36,7 @@ public interface ChartService {
     ActionResult updateWithPermission(ChartUpdateParam param);
 
     /**
-     * 根据id查询
+     * Query based on id
      *
      * @param id
      * @return
@@ -44,7 +44,7 @@ public interface ChartService {
     DataResult<Chart> find(@NotNull Long id);
 
     /**
-     * 查询一条数据
+     * Query a piece of data
      *
      * @param param
      * @return
@@ -52,7 +52,7 @@ public interface ChartService {
     DataResult<Chart> queryExistent(@NotNull ChartQueryParam param);
 
     /**
-     * 查询一条数据
+     * Query a piece of data
      *
      * @param id
      * @return
@@ -60,7 +60,7 @@ public interface ChartService {
     DataResult<Chart> queryExistent(@NotNull Long id);
 
     /**
-     * 查询多条数据
+     * Query multiple pieces of data
      *
      * @param param
      * @return
@@ -68,7 +68,7 @@ public interface ChartService {
     ListResult<Chart> listQuery(@NotNull ChartListQueryParam param);
 
     /**
-     * 通过ID查询图表列表
+     * Query chart list by ID
      *
      * @param ids
      * @return
@@ -76,7 +76,7 @@ public interface ChartService {
     ListResult<Chart> queryByIds(@NotEmpty List<Long> ids);
 
     /**
-     * 删除
+     * delete
      *
      * @param id
      * @return

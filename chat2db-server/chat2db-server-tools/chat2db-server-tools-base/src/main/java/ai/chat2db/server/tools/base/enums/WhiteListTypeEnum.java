@@ -4,14 +4,14 @@ import lombok.Getter;
 
 /**
  * @author moji
- * @version WhiteListTypeEnum.java, v 0.1 2022年09月25日 16:57 moji Exp $
+ * @version WhiteListTypeEnum.java, v 0.1 September 25, 2022 16:57 moji Exp $
  * @date 2022/09/25
  */
 @Getter
 public enum WhiteListTypeEnum implements BaseEnum<String> {
 
     /**
-     * 向量接口
+     * vector interface
      */
     VECTOR("VECTOR"),
 

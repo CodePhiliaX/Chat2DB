@@ -6,8 +6,8 @@ import org.springframework.boot.context.event.ApplicationFailedEvent;
 import org.springframework.context.ApplicationListener;
 
 /**
- * 应用启动失败的监听器
- * 应用启动失败了只是停止了tomcat 并没有停止应用 这里停止xia
+ * Listener that failed to start application
+ * The application failed to start. It just stopped tomcat and did not stop the application. Stop xia here.
  *
  * @author Jiaju Zhuang
  */
@@ -16,7 +16,7 @@ public class FailedEventApplicationListener implements ApplicationListener<Appli
 
     @Override
     public void onApplicationEvent(ApplicationFailedEvent event) {
-        log.error("启动失败，停止应用", event.getException());
+        log.error("Failed to start, stop application", event.getException());
         SystemUtils.stop();
     }
 }

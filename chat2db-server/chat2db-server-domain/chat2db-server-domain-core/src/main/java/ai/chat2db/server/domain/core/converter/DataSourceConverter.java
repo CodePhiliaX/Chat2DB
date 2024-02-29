@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Lazy;
 
 /**
  * @author moji
- * @version DataSourceCoreConverter.java, v 0.1 2022年09月23日 15:53 moji Exp $
+ * @version DataSourceCoreConverter.java, v 0.1 September 23, 2022 15:53 moji Exp $
  * @date 2022/09/23
  */
 @Slf4j
@@ -39,7 +39,7 @@ public abstract class DataSourceConverter {
     private DataSourceService dataSourceService;
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -115,7 +115,7 @@ public abstract class DataSourceConverter {
     }
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -136,7 +136,7 @@ public abstract class DataSourceConverter {
     public abstract DataSourceDO param2do(DataSourceUpdateParam param);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -144,7 +144,7 @@ public abstract class DataSourceConverter {
     public abstract ConsoleCreateParam param2consoleParam(ConsoleConnectParam param);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param dataSourcePreConnectParam
      * @return
@@ -157,7 +157,7 @@ public abstract class DataSourceConverter {
         DataSourcePreConnectParam dataSourcePreConnectParam);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dataSourceDO
      * @return
@@ -184,7 +184,7 @@ public abstract class DataSourceConverter {
     public abstract DataSource do2dto(DataSourceDO dataSourceDO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dataSourceDOList
      * @return

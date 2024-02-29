@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Range;
 
 /**
- * 分页查询的参数
+ * Parameters of paging query
  *
  * @author zhuangjiaju
  * @date 2021/06/26
@@ -29,27 +29,27 @@ public class PageQueryParam implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 页码
+     * page number
      */
-    @NotNull(message = "分页页码不能为空")
-    @Min(value = 1, message = "分页页码必须大于0")
+    @NotNull(message = "Pagination page number cannot be empty")
+    @Min(value = 1, message = "Pagination page number must be greater than 0")
     private Integer pageNo;
     /**
-     * 分页大小
+     * Paging Size
      */
-    @NotNull(message = "分页大小不能为空")
+    @NotNull(message = "Paging size cannot be empty")
     @Range(min = 1, max = EasyToolsConstant.MAX_PAGE_SIZE,
-        message = "分页大小必须在1-" + EasyToolsConstant.MAX_PAGE_SIZE + "之间")
+        message = "Paging size must be between 1-" + EasyToolsConstant.MAX_PAGE_SIZE)
     private Integer pageSize;
 
     /**
-     * 是否返回总条数
-     * 默认不返回 提高性能
+     * Whether to return the total number of items
+     * Not returned by default to improve performance
      */
     private Boolean enableReturnCount;
 
     /**
-     * 排序
+     * sort
      */
     private List<OrderBy> orderByList;
 
@@ -60,7 +60,7 @@ public class PageQueryParam implements Serializable {
     }
 
     /**
-     * 查询全部数据
+     * Query all data
      */
     public void queryAll() {
         this.pageNo = 1;
@@ -68,7 +68,7 @@ public class PageQueryParam implements Serializable {
     }
 
     /**
-     * 查询1条加速
+     * Query 1 piece of data
      */
     public void queryOne() {
         this.pageNo = 1;
@@ -76,10 +76,10 @@ public class PageQueryParam implements Serializable {
     }
 
     /**
-     * 新增一个排序 并替换原有排序
+     * Add a new sort and replace the original sort
      *
-     * @param orderBy 排序
-     * @return 排序参数
+     * @param orderBy sort
+     * @return Sorting parameters
      */
     public PageQueryParam orderBy(OrderBy orderBy) {
         orderByList = new ArrayList<>();
@@ -88,31 +88,31 @@ public class PageQueryParam implements Serializable {
     }
 
     /**
-     * 新增一个排序 并替换原有排序
+     * Add a new sort and replace the original sort
      *
-     * @param orderConditionName 排序字段
-     * @param direction          排序方向
-     * @return 排序参数
+     * @param orderConditionName sort field
+     * @param direction          Sorting direction
+     * @return Sorting parameters
      */
     public PageQueryParam orderBy(String orderConditionName, OrderByDirectionEnum direction) {
         return orderBy(new OrderBy(orderConditionName, direction));
     }
 
     /**
-     * 新增一个排序 并替换原有排序
+     * Add a new sort and replace the original sort
      *
-     * @param orderCondition 排序条件
-     * @return 排序参数
+     * @param orderCondition Sorting conditions
+     * @return Sorting parameters
      */
     public PageQueryParam orderBy(OrderCondition orderCondition) {
         return orderBy(orderCondition.getOrderBy());
     }
 
     /**
-     * 新增一个排序
+     * Add a new sort
      *
-     * @param orderBy 排序
-     * @return 排序参数
+     * @param orderBy sort
+     * @return Sorting parameters
      */
     public PageQueryParam andOrderBy(OrderBy orderBy) {
         orderByList.add(orderBy);
@@ -120,21 +120,21 @@ public class PageQueryParam implements Serializable {
     }
 
     /**
-     * 新增一个排序
+     * Add a new sort
      *
-     * @param orderConditionName 排序字段
-     * @param direction          排序方向
-     * @return 排序参数
+     * @param orderConditionName sort field
+     * @param direction          Sorting direction
+     * @return Sorting parameters
      */
     public PageQueryParam andOrderBy(String orderConditionName, OrderByDirectionEnum direction) {
         return andOrderBy(new OrderBy(orderConditionName, direction));
     }
 
     /**
-     * 新增一个排序
+     * Add a new sort
      *
-     * @param orderCondition 排序条件
-     * @return 排序参数
+     * @param orderCondition Sorting conditions
+     * @return Sorting parameters
      */
     public PageQueryParam andOrderBy(OrderCondition orderCondition) {
         return andOrderBy(orderCondition.getOrderBy());

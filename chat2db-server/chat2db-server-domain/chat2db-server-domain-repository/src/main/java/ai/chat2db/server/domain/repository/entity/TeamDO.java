@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 团队
+ * Team
  * </p>
  *
  * @author chat2db
@@ -24,48 +24,48 @@ public class TeamDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 创建人用户id
+     * Creator user id
      */
     private Long createUserId;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 团队编码
+     * Team Coding
      */
     private String code;
 
     /**
-     * 团队名称
+     * Team Name
      */
     private String name;
 
     /**
-     * 团队状态
+     * Team Status
      */
     private String status;
 
     /**
-     * 团队描述
+     * Team Description
      */
     private String description;
 }

@@ -10,9 +10,9 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 /**
- * action的返回对象
+ * action return object
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -21,20 +21,20 @@ public class ActionResult implements Serializable, Result {
     @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 是否成功
+     * whether succeed
      *
      * @mock true
      */
     private Boolean success;
 
     /**
-     * 错误编码
+     * error coding
      *
      * @see CommonErrorEnum
      */
     private String errorCode;
     /**
-     * 错误信息
+     * error message
      */
     private String errorMessage;
 
@@ -58,9 +58,9 @@ public class ActionResult implements Serializable, Result {
     }
 
     /**
-     * 返回成功
+     * Return success
      *
-     * @return 运行结果
+     * @return operation result
      */
     public static ActionResult isSuccess() {
         return new ActionResult();
@@ -117,12 +117,12 @@ public class ActionResult implements Serializable, Result {
     }
 
     /**
-     * 返回失败
+     * Return failure
      *
      * @param errorCode    error code
      * @param errorMessage error message
      * @param errorDetail  error detail
-     * @return 运行结果
+     * @return operation result
      */
     public static ActionResult fail(String errorCode, String errorMessage, String errorDetail) {
         ActionResult result = new ActionResult();

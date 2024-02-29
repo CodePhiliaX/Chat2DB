@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 我的保存表
+ * My save list
  * </p>
  *
  * @author ali-dbhub
@@ -24,63 +24,63 @@ public class OperationSavedDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * db name
      */
     private String databaseName;
 
     /**
-     * 保存名称
+     * save name
      */
     private String name;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 
     /**
-     * schema名称
+     * schema name
      */
     private String dbSchemaName;
 

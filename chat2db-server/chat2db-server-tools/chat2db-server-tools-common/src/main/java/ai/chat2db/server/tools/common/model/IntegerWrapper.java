@@ -3,9 +3,9 @@ package ai.chat2db.server.tools.common.model;
 import java.io.Serializable;
 
 /**
- * 整形的封装类
+ * Plastic encapsulation class
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class IntegerWrapper extends Number implements Serializable {
     private static final long serialVersionUID = 1L;

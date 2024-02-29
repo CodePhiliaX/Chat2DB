@@ -18,29 +18,29 @@ import lombok.Data;
 public class DataSourcePreConnectParam {
 
     /**
-     * 连接别名
+     * Connection alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     @NotNull
     private String url;
 
     /**
-     * 连接用户
+     * Connect users
      */
     private String user;
 
     /**
-     * 密码
+     * password
      */
     @NotNull
     private String password;
 
     /**
-     * 连接类型
+     * Connection Type
      */
     @NotNull
     private String type;
@@ -78,17 +78,17 @@ public class DataSourcePreConnectParam {
 
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 }

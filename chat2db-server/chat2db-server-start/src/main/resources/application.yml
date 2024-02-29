@@ -1,5 +1,5 @@
 spring:
-  # 默认开发环境
+  # Default development environment
   profiles:
     active: dev
   main:
@@ -19,13 +19,13 @@ spring:
     servlet:
       content-type: text/html
     mode: HTML5
-  # 静态文件
+  # static files
   mvc:
     static-path-pattern: /static/**
   web:
     resources:
       static-locations[0]: classpath:/static/
-  #  用于数据库表结构版本管理
+  #  Used for database table structure version management
   servlet:
     multipart:
       max-file-size: -1
@@ -37,7 +37,7 @@ spring:
 chat2db:
   version: 1.0.0
 
-# flywaydb 输出执行sql的日志
+# flywaydb outputs the log of executing sql
 logging:
     ai:
       chat2db:
@@ -49,7 +49,7 @@ logging:
 chatgpt:
   apiKey: sk-xxxx
   apiHost: https://api.openai.com/
-  # 可以选择GPT3或GPT35
+  # You can choose GPT3 or GPT35
   version: GPT35
   context:
     length: 1

@@ -12,16 +12,16 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import java.sql.SQLException;
 
 /**
- * 数据源管理服务
+ * Data source management services
  *
  * @author moji
- * @version DataSourceCoreService.java, v 0.1 2022年09月23日 15:22 moji Exp $
+ * @version DataSourceCoreService.java, v 0.1 September 23, 2022 15:22 moji Exp $
  * @date 2022/09/23
  */
 public interface DatabaseService {
 
     /**
-     * 查询数据源下的所有database
+     * Query all databases under the data source
      *
      * @param param
      * @return
@@ -29,7 +29,7 @@ public interface DatabaseService {
     ListResult<Database> queryAll(DatabaseQueryAllParam param);
 
     /**
-     * 查询某个database下的schema
+     * Query the schema under a database
      * @param param
      * @return
      */
@@ -45,7 +45,7 @@ public interface DatabaseService {
 
 
     /**
-     * 删除数据库
+     * Delete database
      *
      * @param param
      * @return
@@ -53,7 +53,7 @@ public interface DatabaseService {
     ActionResult deleteDatabase(DatabaseCreateParam param);
 
     /**
-     * 创建database
+     * create database
      *
      * @param param
      * @return
@@ -61,14 +61,14 @@ public interface DatabaseService {
     DataResult<Sql> createDatabase(Database param);
 
     /**
-     * 修改database
+     * Modify database
      *
      * @return
      */
     ActionResult modifyDatabase( DatabaseCreateParam param) ;
 
     /**
-     * 删除schema
+     * Delete schema
      *
      * @param param
      * @return
@@ -76,7 +76,7 @@ public interface DatabaseService {
     ActionResult deleteSchema(SchemaOperationParam param) ;
 
     /**
-     * 创建schema
+     * Create schema
      *
      * @param schema
      * @return
@@ -84,7 +84,7 @@ public interface DatabaseService {
     DataResult<Sql> createSchema(Schema schema);
 
     /**
-     * 修改schema
+     * Modify schema
      *
      * @param request
      * @return

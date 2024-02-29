@@ -9,7 +9,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 /**
  * MethodArgumentTypeMismatchException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class MethodArgumentTypeMismatchExceptionConvertor
     implements ExceptionConvertor<MethodArgumentTypeMismatchException> {

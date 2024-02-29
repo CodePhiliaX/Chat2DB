@@ -33,7 +33,7 @@ public class LogUtils {
     public static final String TRACE_ID_HEADER = "X-Chat2DB-Trace-Id";
 
     /**
-     * 换行符
+     * newline character
      */
     private static final Pattern LINE_FEED_PATTERN = Pattern.compile("\r|\n");
 
@@ -56,7 +56,7 @@ public class LogUtils {
     }
 
     /**
-     * 去除换行符
+     * Remove newlines
      *
      * @param log
      * @return
@@ -69,7 +69,7 @@ public class LogUtils {
     }
 
     /**
-     * 裁切日志
+     * cut log
      *
      * @param log
      * @return
@@ -82,7 +82,7 @@ public class LogUtils {
     }
 
     /**
-     * 返回traceId
+     * Return traceId
      *
      * @return
      */

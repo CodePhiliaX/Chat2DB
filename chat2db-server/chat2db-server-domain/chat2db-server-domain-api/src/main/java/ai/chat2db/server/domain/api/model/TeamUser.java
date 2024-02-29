@@ -25,31 +25,31 @@ public class TeamUser implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 团队id
+     * team id
      */
     @NotNull
     private Long teamId;
 
     /**
-     * 团队
+     * team
      */
     @NotNull
     private Team team;
 
     /**
-     * 用户id
+     * user id
      */
     @NotNull
     private Long userId;
 
     /**
-     * 用户
+     * user
      */
     @NotNull
     private User user;

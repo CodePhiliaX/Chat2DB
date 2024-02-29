@@ -11,7 +11,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 我的执行记录表
+ * My execution record table
  * </p>
  *
  * @author chat2db
@@ -25,68 +25,68 @@ public class OperationLogDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * db name
      */
     private String databaseName;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 
     /**
-     * 状态
+     * status
      */
     private String status;
 
     /**
-     * 操作行数
+     * Number of operation lines
      */
     private Long operationRows;
 
     /**
-     * 使用时长
+     * Length of use
      */
     private Long useTime;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private String extendInfo;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 }

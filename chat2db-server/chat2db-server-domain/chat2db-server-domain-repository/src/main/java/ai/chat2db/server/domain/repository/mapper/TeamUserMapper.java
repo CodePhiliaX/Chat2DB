@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 用户团队表 Mapper 接口
+ * User team table Mapper interface
  * </p>
  *
  * @author chat2db

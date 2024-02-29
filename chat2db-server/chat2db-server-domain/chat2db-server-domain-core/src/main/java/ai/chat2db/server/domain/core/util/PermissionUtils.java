@@ -38,7 +38,7 @@ public class PermissionUtils {
     }
 
     /**
-     * 校验是否有查询权限
+     * Verify whether you have query permission
      *
      * @param createUserId
      * @return

@@ -34,7 +34,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author moji
- * @version DashboardServiceImpl.java, v 0.1 2023年06月09日 16:06 moji Exp $
+ * @version DashboardServiceImpl.java, v 0.1 June 9, 2023 16:06 moji Exp $
  * @date 2023/06/09
  */
 @Service

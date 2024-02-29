@@ -77,7 +77,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             SQLExecutor.getInstance().execute(connection, functionSQL.replace("tableSchema", schemaName),
                     resultSet -> null);
         } catch (Exception e) {
-            //log.error("创建函数失败", e);
+            //log.error("Failed to create function", e);
         }
 
         String ddlSql = "SELECT " + schemaName + ".ufn_GetCreateTableScript('" + schemaName + "', '" + tableName

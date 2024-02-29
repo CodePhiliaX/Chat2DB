@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class TypeQueryParam {
 
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;

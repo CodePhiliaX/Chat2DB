@@ -12,35 +12,35 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TableParameter {
     /**
-     * 序号
+     * serial number
      **/
     private String no;
     /**
-     * 字段名
+     * Field name
      **/
     private String fieldName;
     /**
-     * 数据类型
+     * type of data
      **/
     private String columnType;
     /**
-     * 长度
+     * length
      **/
     private String length;
     /**
-     * 不是null
+     * not null
      **/
     private String isNullAble;
     /**
-     * 默认值
+     * default value
      **/
     private String columnDefault;
     /**
-     * 小数位
+     * Decimal places
      **/
     private String decimalPlaces;
     /**
-     * 备注
+     * Remark
      **/
     private String columnComment;
 

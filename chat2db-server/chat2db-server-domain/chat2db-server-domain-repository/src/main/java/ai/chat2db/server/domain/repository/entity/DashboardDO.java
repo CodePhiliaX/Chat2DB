@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 自定义报表表
+ * Custom dashboard
  * </p>
  *
  * @author chat2db
@@ -24,43 +24,43 @@ public class DashboardDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 报表名称
+     * Dashboard name
      */
     private String name;
 
     /**
-     * 报表描述
+     * Dashboard description
      */
     private String description;
 
     /**
-     * 报表布局信息
+     * Dashboard layout information
      */
     private String schema;
 
     /**
-     * 是否被删除,y表示删除,n表示未删除
+     * Whether it has been deleted, y means deleted, n means not deleted
      */
     private String deleted;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }

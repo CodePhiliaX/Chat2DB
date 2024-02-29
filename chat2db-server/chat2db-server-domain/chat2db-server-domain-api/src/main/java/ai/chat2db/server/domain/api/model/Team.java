@@ -26,25 +26,25 @@ public class Team implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 团队编码
+     * team coding
      */
     @NotNull
     private String code;
 
     /**
-     * 团队名称
+     * Team Name
      */
     @NotNull
     private String name;
 
     /**
-     * 团队状态
+     * Team status
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */
@@ -52,22 +52,22 @@ public class Team implements Serializable {
     private String status;
 
     /**
-     * 团队描述
+     * Team description
      */
     private String description;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 修改人用户
+     * Modifier user
      */
     private User modifiedUser;
 

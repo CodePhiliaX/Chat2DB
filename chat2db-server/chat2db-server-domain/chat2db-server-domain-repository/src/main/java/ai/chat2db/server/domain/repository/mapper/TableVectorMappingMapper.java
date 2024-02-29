@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * milvus映射表保存记录 Mapper 接口
+ * Milvus mapping table saves records Mapper interface
  * </p>
  *
  * @author chat2db

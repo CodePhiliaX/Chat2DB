@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author moji
- * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
+ * @version DataSourceCoreServiceImpl.java, v 0.1 September 23, 2022 15:51 moji Exp $
  * @date 2022/09/23
  */
 @Slf4j
@@ -123,7 +123,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
-        // 解析sql分页
+        // Parse sql pagination
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
         if (!(sqlStatement instanceof SQLSelectStatement)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
@@ -135,7 +135,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             executeResult = Chat2DBContext.getMetaData().getCommandExecutor().execute(sql, Chat2DBContext.getConnection(), true, null, null,
                     valueHandler);
         } catch (SQLException e) {
-            log.warn("执行sql:{}异常", sql, e);
+            log.warn("Execute sql: {} exception", sql, e);
             executeResult = ExecuteResult.builder()
                     .sql(sql)
                     .success(Boolean.FALSE)

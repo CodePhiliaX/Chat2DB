@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * 索引导出信息
+ * Index export information
  *
  * @author lzy
  */
@@ -12,23 +12,23 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class IndexInfo {
     /**
-     * 索引名称
+     * Index name
      */
     private String name;
     /**
-     * 字段
+     * Field
      */
     private String columnName;
     /**
-     * 索引类型
+     * Index type
      */
     private String indexType;
     /**
-     * 索引方法
+     * Index method
      */
     private String indexMethod;
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 }

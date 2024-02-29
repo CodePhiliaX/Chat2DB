@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 /**
  * <p>
- * TASK TABLE Mapper 接口
+ * TASK TABLE Mapper interface
  * </p>
  *
  * @author chat2db

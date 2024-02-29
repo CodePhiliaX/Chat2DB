@@ -20,22 +20,22 @@ public class TableVectorParam {
     private String apiKey;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据库名称
+     * database name
      */
     private String database;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schema;
 
     /**
-     * 向量保存状态
+     * Vector saved state
      */
     private String status;
 }

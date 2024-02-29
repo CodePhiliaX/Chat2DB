@@ -41,9 +41,9 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 拦截Controller异常
+ * Intercepting Controller exceptions
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @ControllerAdvice
 @Slf4j
@@ -51,7 +51,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class EasyControllerExceptionHandler {
 
     /**
-     * 所有的异常处理转换器
+     * All exception handling converters
      */
     public static final Map<Class<?>, ExceptionConvertor> EXCEPTION_CONVERTOR_MAP = Maps.newHashMap();
 
@@ -70,12 +70,12 @@ public class EasyControllerExceptionHandler {
     }
 
     /**
-     * 默认转换器
+     * Default converter
      */
     public static ExceptionConvertor DEFAULT_EXCEPTION_CONVERTOR = new DefaultExceptionConvertor();
 
     /**
-     * 业务异常
+     * Business abnormality
      *
      * @param request   request
      * @param exception exception
@@ -91,12 +91,12 @@ public class EasyControllerExceptionHandler {
     @ResponseBody
     public ActionResult handleBusinessException(HttpServletRequest request, Exception exception) {
         ActionResult result = convert(exception);
-        log.info("发生业务异常{}:{}", request.getRequestURI(), result, exception);
+        log.info("Business exception occurred{}:{}", request.getRequestURI(), result, exception);
         return result;
     }
 
     /**
-     * 业务异常
+     * Business abnormality
      *
      * @param request   request
      * @param exception exception
@@ -105,35 +105,35 @@ public class EasyControllerExceptionHandler {
     @ExceptionHandler({RedirectBusinessException.class})
     public ModelAndView handleModelAndViewBizException(HttpServletRequest request, Exception exception) {
         ModelAndView result = translateModelAndView(exception);
-        log.info("发生ModelAndView业务异常{}:{}", request.getRequestURI(), result, exception);
+        log.info("ModelAndView business exception occurred{}:{}", request.getRequestURI(), result, exception);
         return result;
     }
 
     public ModelAndView translateModelAndView(Throwable exception) {
-        // 参数异常
+        // Parameter exception
         if (exception instanceof RedirectBusinessException) {
             RedirectBusinessException e = (RedirectBusinessException)exception;
             return dealResponseModelAndView(null, e.getMessage(), e.getRedirect(), null, null);
         }
-        // 默认跳首页
+        // Jump to homepage by default
         return new ModelAndView("redirect:/");
     }
 
     private ModelAndView dealResponseModelAndView(String title, String errorMessage, String redirect, String href,
         String buttonText) {
-        // 如果有车重定向信息 则跳转
+        // If there is redirection information, jump
         if (StringUtils.isNotBlank(redirect)) {
             return new ModelAndView("redirect:" + redirect);
         }
-        // 默认跳首页
+        // Jump to homepage by default
         return new ModelAndView("redirect:/");
 
-        // 同步请求
+        // synchronous request
         //return ModelAndViewUtils.error(title, errorMessage,href,buttonText);
     }
 
     /**
-     * 系统异常
+     * System exception
      *
      * @param request   request
      * @param exception exception
@@ -144,12 +144,12 @@ public class EasyControllerExceptionHandler {
     @ResponseBody
     public ActionResult handleSystemException(HttpServletRequest request, Exception exception) {
         ActionResult result = convert(exception);
-        log.error("发生业务异常{}:{}", request.getRequestURI(), result, exception);
+        log.error("Business exception occurred{}:{}", request.getRequestURI(), result, exception);
         return result;
     }
 
     /**
-     * 未知异常 需要人工介入查看日志
+     * Unknown exception requires manual intervention to view logs
      *
      * @param request   request
      * @param exception exception
@@ -160,7 +160,7 @@ public class EasyControllerExceptionHandler {
     @ResponseBody
     public ActionResult handledException(HttpServletRequest request, Exception exception) {
         ActionResult result = convert(exception);
-        log.error("发生未知异常{}:{},请求参数:{}", request.getRequestURI(), result,
+        log.error("An unknown exception occurred {}:{}, request parameters:{}", request.getRequestURI(), result,
             JSON.toJSONString(request.getParameterMap()),
             exception);
         return result;

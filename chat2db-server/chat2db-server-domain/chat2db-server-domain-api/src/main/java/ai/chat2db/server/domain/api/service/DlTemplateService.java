@@ -10,16 +10,16 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 
 /**
- * 数据源管理服务
+ * Data source management services
  *
  * @author moji
- * @version DataSourceCoreService.java, v 0.1 2022年09月23日 15:22 moji Exp $
+ * @version DataSourceCoreService.java, v 0.1 September 23, 2022 15:22 moji Exp $
  * @date 2022/09/23
  */
 public interface DlTemplateService {
 
     /**
-     * 数据源执行dl
+     * data source execution dl
      *
      * @param param
      * @return
@@ -28,7 +28,7 @@ public interface DlTemplateService {
 
 
     /**
-     * 数据源执行update
+     * Data source execution update
      *
      * @param param
      * @return
@@ -36,21 +36,19 @@ public interface DlTemplateService {
     DataResult<ExecuteResult> executeUpdate(DlExecuteParam param);
 
     /**
-     * 执行统计sql
+     * Execute statistics sql
      *
      * @param param
      * @return
      */
     DataResult<Long> count(DlCountParam param);
 
-
     /**
-     * 更新查询结果
+     * Update query results
      * @param param
      * @return
      */
     DataResult<String> updateSelectResult(UpdateSelectResultParam param);
-
 
     /**
      *

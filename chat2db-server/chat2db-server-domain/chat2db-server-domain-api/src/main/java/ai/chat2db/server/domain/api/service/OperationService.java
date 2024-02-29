@@ -11,16 +11,16 @@ import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * 用户保存ddl
+ * user save ddl
  *
  * @author moji
- * @version UserSavedDdlCoreService.java, v 0.1 2022年09月23日 17:35 moji Exp $
+ * @version UserSavedDdlCoreService.java, v 0.1 September 23, 2022 17:35 moji Exp $
  * @date 2022/09/23
  */
 public interface OperationService {
 
     /**
-     * 保存用户的ddl
+     * Save user's ddl
      *
      * @param param
      * @return
@@ -28,7 +28,7 @@ public interface OperationService {
     DataResult<Long> createWithPermission(OperationSavedParam param);
 
     /**
-     * 更新用户的ddl
+     * Update user's ddl
      *
      * @param param
      * @return
@@ -36,7 +36,7 @@ public interface OperationService {
     ActionResult updateWithPermission(OperationUpdateParam param);
 
     /**
-     * 根据id查询
+     * Query based on id
      *
      * @param id
      * @return
@@ -44,21 +44,21 @@ public interface OperationService {
     DataResult<Operation> find(@NotNull Long id);
 
     /**
-     * 根据id查询
+     * Query based on id
      *
      * @param id
      * @return
      */
     DataResult<Operation> queryExistent(@NotNull Long id);
     /**
-     * 查询一条数据
+     * Query a piece of data
      *
      * @param param
      * @return
      */
     DataResult<Operation> queryExistent(@NotNull OperationQueryParam param);
     /**
-     * 删除
+     * delete
      *
      * @param id
      * @return
@@ -66,7 +66,7 @@ public interface OperationService {
     ActionResult deleteWithPermission(@NotNull Long id);
 
     /**
-     * 查询用户执行的ddl记录
+     * Query the ddl records executed by the user
      *
      * @param param
      * @return

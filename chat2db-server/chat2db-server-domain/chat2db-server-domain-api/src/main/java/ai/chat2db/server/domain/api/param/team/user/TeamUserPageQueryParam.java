@@ -13,13 +13,13 @@ import lombok.Data;
 public class TeamUserPageQueryParam extends PageQueryParam {
 
     /**
-     * 团队id
+     * team id
      */
     @NotNull
     private Long teamId;
 
     /**
-     * 用户id
+     * user id
      */
     @NotNull
     private Long userId;

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
- * 模板
+ * template
  *
  * @author Jiaju Zhuang
  */
@@ -21,7 +21,7 @@ public class DbhubJdbcTemplateTest {
 
     @BeforeAll
     public static void prepare() throws Exception {
-        log.info("连接mysql");
+        log.info("connect mysql");
     }
 
     @Test

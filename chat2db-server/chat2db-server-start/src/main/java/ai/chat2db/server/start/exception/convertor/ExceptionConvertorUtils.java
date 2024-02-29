@@ -10,14 +10,14 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 
 /**
- * 转换工具类
+ * Conversion tool class
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class ExceptionConvertorUtils {
 
     /**
-     * 提取BindingResult中的错误消息
+     * Extract error message from BindingResult
      *
      * @param result
      * @return
@@ -33,7 +33,7 @@ public class ExceptionConvertorUtils {
         msg.append(I18nUtils.getMessage("common.paramCheckError"));
         for (ObjectError e : errors) {
             msg.append(index++);
-            // 得到错误消息
+            // got error message
             msg.append(SymbolConstant.DOT);
             if (e instanceof FieldError fieldError) {
                 msg.append(fieldError.getField());

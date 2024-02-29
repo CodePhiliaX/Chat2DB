@@ -25,54 +25,54 @@ public class TableCacheVersionDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * db name
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * 唯一索引
+     * unique index
      */
     @TableField(value = "`key`")
     private String key;
 
     /**
-     * 版本
+     * version
      */
     private Long version;
 
     /**
-     * 表数量
+     * Number of tables
      */
     private Long tableCount;
 
     /**
-     * 状态
+     * status
      */
     private String status;
 }

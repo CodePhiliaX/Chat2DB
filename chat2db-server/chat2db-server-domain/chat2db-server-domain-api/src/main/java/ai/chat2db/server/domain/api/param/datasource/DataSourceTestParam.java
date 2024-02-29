@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 数据源测试参数
+ * Data source test parameters
  *
  * @author Jiaju Zhuang
  */
@@ -24,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 public class DataSourceTestParam {
 
     /**
-     * 数据库类型
+     * Database type
      *
      * @see DbTypeEnum
      */
@@ -32,18 +32,18 @@ public class DataSourceTestParam {
     private String dbType;
 
     /**
-     * 请求连接
+     * Request connection
      */
     @NotNull
     private String url;
 
     /**
-     * 用户名
+     * userName
      */
     private String username;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
@@ -79,18 +79,18 @@ public class DataSourceTestParam {
 
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
 
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 }

@@ -40,7 +40,7 @@ public class I18nUtils implements InitializingBean {
     }
 
     /**
-     * 是否是英文
+     * Is it in English?
      *
      * @return
      */
