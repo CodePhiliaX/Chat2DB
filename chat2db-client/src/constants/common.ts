@@ -15,6 +15,7 @@ export enum DatabaseTypeCode {
   PRESTO = "PRESTO",
   HIVE = "HIVE",
   KINGBASE = "KINGBASE",
+  SNOWFLAKE = "SNOWFLAKE",
 }
 
 export enum ConsoleStatus {

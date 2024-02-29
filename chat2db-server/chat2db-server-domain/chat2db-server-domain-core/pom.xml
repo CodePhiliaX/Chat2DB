@@ -126,5 +126,10 @@
             <artifactId>chat2db-sqlserver</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-snowflake</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -118,6 +118,13 @@ export const databaseMap: {
     // port: 27017,
     icon: '\uec21',
   },
+  [DatabaseTypeCode.SNOWFLAKE]: {
+    name: 'Snowflake',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.SNOWFLAKE,
+    // port: 443,
+    icon: '\uec21',
+  },
   // [DatabaseTypeCode.REDIS]: {
   //   name: 'Redis',
   //   img: moreDBLogo,
