@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 数据源连接表
+ * Data source connection table
  * </p>
  *
  * @author chat2db
@@ -24,73 +24,73 @@ public class DataSourceDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 别名
+     * Alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     private String url;
 
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * 环境类型
+     * environment type
      */
     private String envType;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 
     /**
-     * host地址
+     * host address
      */
     private String host;
 
     /**
-     * 端口
+     * port
      */
     private String port;
 
     /**
-     * ssh配置信息json
+     * ssh configuration information json
      */
     private String ssh;
 
     /**
-     * ssl配置信息json
+     * ssl configuration information json
      */
     private String ssl;
 
@@ -100,42 +100,42 @@ public class DataSourceDO implements Serializable {
     private String sid;
 
     /**
-     * 驱动信息
+     * driver information
      */
     private String driver;
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 自定义扩展字段json
+     * Custom extension field json
      */
     private String extendInfo;
 
     /**
-     * driver_config配置
+     * driver_config configuration
      */
     private String driverConfig;
 
     /**
-     * 环境id
+     * environment id
      */
     private Long environmentId;
 
     /**
-     * 连接类型
+     * Connection Type
      */
     private String kind;
 
     /**
-     * 服务名称
+     * service name
      */
     private String serviceName;
 
     /**
-     * 服务类型
+     * Service type
      */
     private String serviceType;
 

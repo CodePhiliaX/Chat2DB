@@ -63,7 +63,7 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
             boolean flag = driverExists(driverConfig);
             if (flag && driverConfigMap.get(driverConfig.getJdbcDriver()) == null) {
                 driverConfigMap.put(driverConfig.getJdbcDriver(), driverConfig);
-                //TODO :临时解决方案，后续需要优化
+                //TODO :Temporary solution, need to be optimized later
                 //setDriverDefaultProperty(driverConfig);
             } else {
                 log.warn("Driver file not found: {}", driverConfig.getJdbcDriver());

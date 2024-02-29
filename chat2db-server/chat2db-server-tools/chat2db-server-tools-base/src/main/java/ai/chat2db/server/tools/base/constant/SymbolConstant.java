@@ -1,9 +1,9 @@
 package ai.chat2db.server.tools.base.constant;
 
 /**
- * 常见符号的常量枚举
+ * Constant enumeration of common symbols
  *
- * @author 是仪
+ * @author Shi Yi
  **/
 public class SymbolConstant {
     /**
@@ -23,35 +23,35 @@ public class SymbolConstant {
      */
     public static final String SLASH = "/";
     /**
-     * 单引号"'"
+     * apostrophe"'"
      */
     public static final String SQUOT = "'";
     /**
-     * 空串 ""
+     * empty string ""
      */
     public static final String EMPTY = "";
     /**
-     * 分隔符 "-"
+     * delimiter "-"
      */
     public static final String SEPARATOR = "-";
     /**
-     * 等号 "="
+     * equal sign "="
      */
     public static final String EQ = "=";
     /**
-     * 分号 ";"
+     * semicolon ";"
      */
     public static final String SEMICOLON = ";";
     /**
-     * 逗号 ","
+     * comma ","
      */
     public static final String COMMA = ",";
     /**
-     * 点 "."
+     * point "."
      */
     public static final String DOT = ".";
     /**
-     * 冒号 ":"
+     * colon ":"
      */
     public static final String COLON = ":";
 

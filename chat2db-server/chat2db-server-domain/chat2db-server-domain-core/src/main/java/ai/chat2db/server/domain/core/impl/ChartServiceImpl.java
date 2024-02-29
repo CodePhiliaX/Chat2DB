@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author moji
- * @version ChartServiceImpl.java, v 0.1 2023年06月09日 16:06 moji Exp $
+ * @version ChartServiceImpl.java, v 0.1 June 9, 2023 16:06 moji Exp $
  * @date 2023/06/09
  */
 @Service
@@ -159,7 +159,7 @@ public class ChartServiceImpl implements ChartService {
     }
 
     /**
-     * 回填数据源信息
+     * Backfill data source information
      *
      * @param result
      */

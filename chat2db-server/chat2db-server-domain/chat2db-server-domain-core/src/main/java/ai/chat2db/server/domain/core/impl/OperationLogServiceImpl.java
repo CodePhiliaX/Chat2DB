@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author moji
- * @version UserExecutedDdlCoreServiceImpl.java, v 0.1 2022年09月25日 14:07 moji Exp $
+ * @version UserExecutedDdlCoreServiceImpl.java, v 0.1 September 25, 2022 14:07 moji Exp $
  * @date 2022/09/25
  */
 @Service

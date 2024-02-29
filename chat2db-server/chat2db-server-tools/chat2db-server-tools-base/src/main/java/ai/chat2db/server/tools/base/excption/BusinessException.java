@@ -3,7 +3,8 @@ package ai.chat2db.server.tools.base.excption;
 import lombok.Data;
 
 /**
- * 业务异常。不需要人工介入的叫做业务异常。
+ * Business abnormality.
+ * Those that do not require manual intervention are called business exceptions.
  *
  * @author zhuangjiaju
  * @date 2021/06/26

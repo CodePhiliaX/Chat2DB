@@ -8,32 +8,32 @@ import java.util.Date;
 @Data
 public class Task implements Serializable {
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * db name
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
@@ -43,12 +43,12 @@ public class Task implements Serializable {
     private String tableName;
 
     /**
-     * 是否被删除,y表示删除,n表示未删除
+     * Whether it has been deleted, y means deleted, n means not deleted
      */
     private String deleted;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 

@@ -1,6 +1,6 @@
 version: '3'
 services:
-  # 连接地址：jdbc:mysql://localhost:3306 用户名：root  密码：ali_dbhub 端口：3306 默认数据库：ali_dbhub_test
+  # Connection address:jdbc:mysql://localhost:3306 username:root  password：ali_dbhub port：3306 Default database：ali_dbhub_test
   mysql:
     image: mysql:latest
     restart: always
@@ -11,7 +11,7 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 3306:3306
-  # 连接地址：jdbc:postgresql://localhost:5432/ali_dbhub_test, 用户名:ali_dbhub, 密码:ali_dbhub 端口：5432 默认数据库：ali_dbhub_test
+  # Connection address:jdbc:postgresql://localhost:5432/ali_dbhub_test, username:ali_dbhub, password:ali_dbhub port：5432 Default database：ali_dbhub_test
   postgres:
     image: postgres:12-alpine
     restart: always
@@ -23,8 +23,8 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 5432:5432
-  # 连接地址：jdbc:oracle:thin:@localhost:1521:XE,  用户名:system, 密码:ali_dbhub
-  # 默认数据库XEPDB1 启动会快很多
+  # Connection address:jdbc:oracle:thin:@localhost:1521:XE,  username:system, password:ali_dbhub
+  # The default database XEPDB1 will start much faster
   oracle:
     image: gvenzl/oracle-xe:slim-faststart
     restart: always
@@ -39,16 +39,16 @@ services:
     image: redis:7
     container_name: redis7
     restart: always
-    # 挂载映射，可以让数据或配置持久化
+    # Mount mapping, which allows data or configuration to be persisted
     volumes:
-      #＜本地配置文件＞：
+      #＜local configuration file＞：
       - $PWD/redis/redis.conf:/etc/redis/redis. conf:ro
       - $PWD/redis/data:/data
       - $PWD/redis/logs:/logs
    # command: redis-server/etc/redis/redis.conf
     ports:
       - 6379:6379
-    #服务名称
+    #service name
 
     # jdbc:mariadb://localhost:3303 ? user=root&password=ali_dbhub
   mariadb:
@@ -64,19 +64,19 @@ services:
       - "3304:3304"
 
   clickhouse-server:
-    # image：指定镜像，可以为镜像名称或镜像id，如果本地没有该镜像，compose会尝试pull该镜像
+    # image：Specify the image, which can be the image name or image id. If the image does not exist locally, compose will try to pull the image.
     image: yandex/clickhouse-server
-    # container_name：指定容器名称，默认为 项目名称_服务名称_序号 的格式
+    # container_name：Specify the container name, which defaults to the format of project name_service name_serial number
     container_name: clickhouse
-    # hostname：指定容器主机名
+    # hostname：Specify container hostname
     hostname: clickhouse
-    # networks配置该容器连接的网络，指定到文件末尾定义的networks
-    # ports：暴露端口信息，格式为 宿主机端口:容器端口；仅指定容器端口时，宿主机会随机选择端口，类似于docker run -p
+    # networks:Configure the network the container is connected to, specifying the networks defined at the end of the file
+    # ports：Expose port information in the format of host port:container port; when only the container port is specified, the host will randomly select the port, similar to docker run -p
     ports:
       - "8123:8123"
       - "9000:9000"
       - "9004:9004"
-    # expose：暴露端口，但不映射到宿主机，所以外部无法访问该端口，仅能容器内部访问使用
+    # expose：The port is exposed but not mapped to the host, so the port cannot be accessed from the outside and can only be accessed and used within the container.
     expose:
       - 9009
-    # volumes：数据卷挂载路径设置，类似于docker run --volumn=hostdir:containerDir，也可指定文件权限
+    # volumes：Data volume mounting path setting, similar to docker run --volumn=hostdir:containerDir, file permissions can also be specified

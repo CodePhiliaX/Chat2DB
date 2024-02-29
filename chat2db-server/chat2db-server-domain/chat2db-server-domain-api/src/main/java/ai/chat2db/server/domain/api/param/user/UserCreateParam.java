@@ -13,31 +13,31 @@ import lombok.Data;
 @Data
 public class UserCreateParam {
     /**
-     * 用户名
+     * userName
      */
     @NotNull
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     @NotNull
     private String password;
 
     /**
-     * 昵称
+     * Nick name
      */
     @NotNull
     private String nickName;
 
     /**
-     * 邮箱
+     * Mail
      */
     @NotNull
     private String email;
 
     /**
-     * 角色编码
+     * role coding
      *
      * @see RoleCodeEnum
      */
@@ -45,7 +45,7 @@ public class UserCreateParam {
     private String roleCode;
 
     /**
-     * 用户状态
+     * user status
      *
      * @see ValidStatusEnum
      */

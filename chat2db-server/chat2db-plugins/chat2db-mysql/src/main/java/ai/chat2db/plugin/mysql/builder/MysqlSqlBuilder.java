@@ -173,7 +173,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     }
 
     private String[] buildSql(String[] originalArray, String[] targetArray, StringBuilder sql, Table oldTable, Table newTable, int n) {
-        // 先完成首位移动
+        // Complete the first move first
         if (!originalArray[0].equals(targetArray[0])) {
             int a = findIndex(originalArray, targetArray[0]);
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
@@ -195,7 +195,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             }
         }
 
-        // 在完成最后一位移动
+        // After completing the last move
         int max = originalArray.length - 1;
         if (!originalArray[max].equals(targetArray[max])) {
             int a = findIndex(originalArray, targetArray[max]);
@@ -232,7 +232,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         for (int i = 0; i < originalArray.length; i++) {
             int a = findIndex(targetArray, originalArray[i]);
             if (i != a && isMoveValid(originalArray, targetArray, i, a)) {
-                // oldTable.getColumnList中查找name为a
+                // Find name a in oldTable.getColumnList
                 int finalI = i;
                 TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[finalI])).findFirst().get();
                 if (n > 0) {

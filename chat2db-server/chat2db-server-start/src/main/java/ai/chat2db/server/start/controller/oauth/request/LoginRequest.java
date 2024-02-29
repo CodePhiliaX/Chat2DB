@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 登录
+ * Log in
  *
  * @author Jiaju Zhuang
  */
@@ -18,13 +18,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class LoginRequest {
     /**
-     * 用户名
+     * userName
      */
     @NotNull(message = "用户名不能为空")
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     @NotNull(message = "密码不能为空")
     private String password;

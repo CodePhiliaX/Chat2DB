@@ -37,20 +37,20 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
 
 
     public String replaceDatabaseInJdbcUrl(String url, String newDatabase) {
-        // 先在"?"字符处分割字符串，处理查询参数
+        // First split the string at the "?" character and process the query parameters
         String[] urlAndParams = url.split("\\?");
         String urlWithoutParams = urlAndParams[0];
 
-        // 在URL中的"/"字符处分割字符串
+        // Split string at "/" character in URL
         String[] parts = urlWithoutParams.split("/");
 
-        // 取最后一部分，即数据库名，并替换为新的数据库名
+        // Take the last part, the database name, and replace it with the new database name
         parts[parts.length - 1] = newDatabase;
 
-        // 将修改后的部分重新组合成URL
+        // Reassemble the modified parts into a URL
         String newUrlWithoutParams = String.join("/", parts);
 
-        // 如果存在查询参数，重新添加
+        // If query parameters exist, add them again
         String newUrl = urlAndParams.length > 1 ? newUrlWithoutParams + "?" + urlAndParams[1] : newUrlWithoutParams;
 
         return newUrl;

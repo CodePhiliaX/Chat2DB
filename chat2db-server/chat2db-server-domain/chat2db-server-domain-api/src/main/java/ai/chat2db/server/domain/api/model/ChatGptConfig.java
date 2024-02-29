@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ChatGptConfig.java, v 0.1 2023年05月09日 13:47 moji Exp $
+ * @version ChatGptConfig.java, v 0.1 May 9, 2023 13:47 moji Exp $
  * @date 2023/05/09
  */
 @Data
@@ -31,29 +31,29 @@ public class ChatGptConfig {
     private String apiHost;
 
     /**
-     * http代理Host
+     * HTTP proxy host
      */
     private String httpProxyHost;
 
     /**
-     * http代理Port
+     * HTTP proxy Port
      */
     private String httpProxyPort;
 
     /**
-     * AI类型
+     * AI type
      * @see AiSqlSourceEnum
      */
     private String aiSqlSource;
 
     /**
-     * 自定义AI接口
+     * Custom AI interface
      */
     private String restAiUrl;
 
     /**
-     * Rest接口是否流式输出
-     * 非必填，默认值为TRUE
+     * Whether the Rest interface streams output
+     * Optional, default value is TRUE
      */
     private Boolean restAiStream = Boolean.TRUE;
 

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 样例
+ * Sample
  *
  * @author Jiaju Zhuang
  */
@@ -33,11 +33,11 @@ public class ExampleOperationsTest extends BaseTest {
     public void example() {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
             DataResult<String> createTable = tableService.createTableExample(dialectProperties.getDbType());
-            log.info("返回建表语句:{}", createTable);
-            Assertions.assertNotNull(createTable, "查询样例失败");
+            log.info("Return table creation statement: {}", createTable);
+            Assertions.assertNotNull(createTable, "Query sample failed");
             DataResult<String> alterTable = tableService.alterTableExample(dialectProperties.getDbType());
-            log.info("返回建修改表语句:{}", alterTable);
-            Assertions.assertNotNull(alterTable, "查询样例失败");
+            log.info("Return the statement to create and modify the table: {}", alterTable);
+            Assertions.assertNotNull(alterTable, "Query sample failed");
         }
     }
 

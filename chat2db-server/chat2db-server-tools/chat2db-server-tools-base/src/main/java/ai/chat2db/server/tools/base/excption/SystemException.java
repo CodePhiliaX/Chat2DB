@@ -3,7 +3,8 @@ package ai.chat2db.server.tools.base.excption;
 import lombok.Data;
 
 /**
- * 业务异常。简单的说就是需要人工介入的异常叫做系统异常。
+ * Business abnormality.
+ * Simply put, exceptions that require manual intervention are called system exceptions.
  *
  * @author zhuangjiaju
  * @date 2021/06/26

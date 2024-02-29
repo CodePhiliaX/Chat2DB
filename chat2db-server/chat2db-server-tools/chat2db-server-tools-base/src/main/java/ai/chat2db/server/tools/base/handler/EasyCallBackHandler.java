@@ -1,28 +1,28 @@
 package ai.chat2db.server.tools.base.handler;
 
 /**
- * 回调的处理器
- * 比如meatq回调的时候 会执行这个方法
+ * Callback handler
+ * For example, this method will be executed when meatq calls back.
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public interface EasyCallBackHandler {
     /**
-     * 在处理回调前调用
+     * Called before handling the callback
      */
     default void preHandle() {
     }
 
     /**
-     * 在处理回调后调用
-     * 抛出异常了不会处理
+     * Called after handling the callback
+     * If an exception is thrown, it will not be handled.
      */
     default void postHandle() {
     }
 
     /**
-     * 在处理回调后调用
-     * 无论是否异常 都会调用
+     * Called after handling the callback
+     * Will be called regardless of whether there is an exception or not
      */
     default void afterCompletion() {
     }

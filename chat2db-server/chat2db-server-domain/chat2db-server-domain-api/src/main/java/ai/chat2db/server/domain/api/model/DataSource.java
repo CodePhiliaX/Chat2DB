@@ -13,54 +13,54 @@ import org.springframework.util.ObjectUtils;
 
 /**
  * @author moji
- * @version DataSourceDTO.java, v 0.1 2022年09月23日 15:39 moji Exp $
+ * @version DataSourceDTO.java, v 0.1 September 23, 2022 15:39 moji Exp $
  * @date 2022/09/23
  */
 @Data
 public class DataSource {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 别名
+     * Alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     private String url;
 
     /**
-     * 用户名
+     * user name
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * 环境类型
+     * environment type
      */
     private String envType;
 
@@ -95,38 +95,38 @@ public class DataSource {
     private String driver;
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 
     /**
-     * 环境id
+     * environment id
      */
     private Long environmentId;
 
     /**
-     * 环境
+     * environment
      */
     private Environment environment;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 
 
     /**
-     * 连接类型
+     * Connection Type
      *
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */
@@ -134,12 +134,12 @@ public class DataSource {
 
 
     /**
-     * 服务名称
+     * Service name
      */
     private String serviceName;
 
     /**
-     * 服务类型
+     * Service type
      */
     private String serviceType;
 

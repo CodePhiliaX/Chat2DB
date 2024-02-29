@@ -1,4 +1,4 @@
-# 端口号
+# port
 server:
   port: 10821
 

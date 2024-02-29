@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Range;
 
 /**
- * 分页查询的参数
+ * Parameters of paging query
  *
  * @author zhuangjiaju
  * @date 2021/06/26
@@ -24,20 +24,20 @@ public class PageQueryRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 页码
+     * page number
      *
      * @mock 1
      */
-    @NotNull(message = "分页页码不能为空")
+    @NotNull(message = "Pagination page number cannot be empty")
     private Integer pageNo;
     /**
-     * 分页条数
+     * Number of pagination items
      *
      * @demo 10
      */
-    @NotNull(message = "分页大小不能为空")
+    @NotNull(message = "Paging size cannot be empty")
     @Range(min = 1, max = EasyToolsConstant.MAX_PAGE_SIZE,
-        message = "分页大小必须在1-" + EasyToolsConstant.MAX_PAGE_SIZE + "之间")
+        message = "Paging size must be between 1-" + EasyToolsConstant.MAX_PAGE_SIZE)
     private Integer pageSize;
 
     public PageQueryRequest() {

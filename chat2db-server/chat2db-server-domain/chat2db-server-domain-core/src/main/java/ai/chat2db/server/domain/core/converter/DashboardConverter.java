@@ -11,14 +11,14 @@ import org.mapstruct.Mapper;
 
 /**
  * @author moji
- * @version ChartConverter.java, v 0.1 2023年06月09日 17:13 moji Exp $
+ * @version ChartConverter.java, v 0.1 June 9, 2023 17:13 moji Exp $
  * @date 2023/06/09
  */
 @Mapper(componentModel = "spring")
 public abstract class DashboardConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -26,7 +26,7 @@ public abstract class DashboardConverter {
     public abstract DashboardDO param2do(DashboardCreateParam param);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -34,7 +34,7 @@ public abstract class DashboardConverter {
     public abstract DashboardDO updateParam2do(DashboardUpdateParam param);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param chartDO
      * @return
@@ -42,7 +42,7 @@ public abstract class DashboardConverter {
     public abstract Dashboard do2model(DashboardDO chartDO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param chartDOS
      * @return

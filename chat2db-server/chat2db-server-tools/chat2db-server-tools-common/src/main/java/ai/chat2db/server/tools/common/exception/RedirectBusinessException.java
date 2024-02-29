@@ -7,7 +7,7 @@ import ai.chat2db.server.tools.base.excption.BusinessException;
 import lombok.Getter;
 
 /**
- * 需要重定向的业务异常
+ * Business exceptions that require redirection
  *
  * @author Jiaju Zhuang
  */

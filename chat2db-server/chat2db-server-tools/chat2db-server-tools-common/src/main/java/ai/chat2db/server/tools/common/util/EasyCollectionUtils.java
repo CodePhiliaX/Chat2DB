@@ -12,29 +12,29 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 
 /**
- * 集合工具类
+ * Collection tool class
  *
  * @author Jiaju Zhuang
  */
 public class EasyCollectionUtils {
 
     /**
-     * 集合stream
+     * Collection stream
      *
-     * @param collection 集合
-     * @param <T>        返回的类型
-     * @return 集合的stream
+     * @param collection collection
+     * @param <T> Return type
+     * @return the stream of the collection
      */
     public static <T> Stream<T> stream(Collection<T> collection) {
         return collection != null ? collection.stream() : Stream.empty();
     }
 
     /**
-     * 将第一个元素返回 如果没有 则返回空
+     * Return the first element. If there is none, return empty.
      *
-     * @param collection 集合
-     * @param <T>        数据类型
-     * @return 返回第一个元素 可能为空
+     * @param collection collection
+     * @param <T> data type
+     * @return Returns the first element, which may be empty
      */
     public static <T> T findFirst(Collection<T> collection) {
         return stream(collection)
@@ -43,15 +43,15 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 将一个集合 转换成一个list
+     * Convert a collection into a list
      * <p>
-     * 会过滤集合中转换前后的空数据，所以会入参出参数量不一致
+     * Will filter the empty data before and after conversion in the collection, so the input and output parameters will be inconsistent.
      *
-     * @param collection 集合
-     * @param function   转换function
-     * @param <T>        转换前的数据类型
-     * @param <R>        转换后数据类型
-     * @return list 如果入参为空 会返回一个空数组，且无法修改
+     * @param collection collection
+     * @param function conversion function
+     * @param <T> Data type before conversion
+     * @param <R> Data type after conversion
+     * @return list If the input parameter is empty, an empty array will be returned and cannot be modified.
      */
     public static <T, R> List<R> toList(Collection<T> collection, Function<T, R> function) {
         return stream(collection)
@@ -62,15 +62,15 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 将一个集合 转换成一个set
+     * Convert a collection into a set
      * <p>
-     * 会过滤集合中转换前后的空数据
+     * Will filter out empty data before and after conversion in the collection
      *
-     * @param collection 集合
-     * @param function   转换function
-     * @param <T>        转换前的数据类型
-     * @param <R>        转换后数据类型
-     * @return list 如果入参为空 会返回一个空数组，且无法修改
+     * @param collection collection
+     * @param function conversion function
+     * @param <T> Data type before conversion
+     * @param <R> Data type after conversion
+     * @return list If the input parameter is empty, an empty array will be returned and cannot be modified.
      */
     public static <T, R> Set<R> toSet(Collection<T> collection, Function<T, R> function) {
         return stream(collection)
@@ -81,15 +81,15 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 将一个集合转成map，遇到key冲突以第二个为准
+     * Convert a set into a map. If there is a key conflict, the second one will prevail.
      *
-     * @param collection    集合
-     * @param keyFunction   keyFunction
+     * @param collection collection
+     * @param keyFunction keyFunction
      * @param valueFunction valueFunction
-     * @param <K>           key数据类型
-     * @param <V>           value数据类型
-     * @param <T>           转换前的数据类型
-     * @return 转成以后的map
+     * @param <K> key data type
+     * @param <V> value data type
+     * @param <T> Data type before conversion
+     * @return Convert to future map
      */
     public static <K, V, T> Map<K, V> toMap(Collection<T> collection, Function<? super T, K> keyFunction,
         Function<? super T, V> valueFunction) {
@@ -99,25 +99,25 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 将一个集合转成map,map的value就是集合的值，遇到key冲突以第二个为准
+     * Convert a set into a map. The value of the map is the value of the set. If there is a key conflict, the second one shall prevail.
      *
-     * @param collection  集合
+     * @param collection collection
      * @param keyFunction keyFunction
-     * @param <K>         key数据类型
-     * @param <T>         转换前的数据类型
-     * @return 转成以后的map
+     * @param <K> key data type
+     * @param <T> Data type before conversion
+     * @return Convert to future map
      */
     public static <K, T> Map<K, T> toIdentityMap(Collection<T> collection, Function<? super T, K> keyFunction) {
         return toMap(collection, keyFunction, Function.identity());
     }
 
     /**
-     * 往一个集合里面加入另一个一个集合
+     * Add another set to a set
      *
-     * @param collection    原始的集合
-     * @param collectionAdd 需要被加入的集合
+     * @param collection original collection
+     * @param collectionAdd The collection to be added
      * @param <C>
-     * @return 是否加入了数据
+     * @return whether data has been added
      */
     public static <C> boolean addAll(final Collection<C> collection, final Collection<C> collectionAdd) {
         if (collectionAdd == null) {
@@ -127,9 +127,9 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 判断一个集合的长度为0 但是不为null
+     * Determine if the length of a set is 0 but not null
      *
-     * @param collection 集合
+     * @param collection collection
      * @return
      */
     public static boolean isEmptyButNotNull(final Collection<?> collection) {
@@ -137,9 +137,9 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 判断 一堆集合 是否存在一个 长度为0 但是不为null的数组
+     * Determine whether there is an array with a length of 0 but not null in a bunch of collections
      *
-     * @param collections 为空则返回false
+     * @param collections returns false if it is empty
      * @return
      */
     public static boolean isAnyEmptyButNotNull(final Collection<?>... collections) {
@@ -155,9 +155,9 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 将一个对象加入集合
-     * @param collection 原始集合
-     * @param objectAdd 需要加入的对象
+     * Add an object to the collection
+     * @param collection original collection
+     * @param objectAdd the object to be added
      * @param <T>
      */
     public static <T> void add(Collection<T> collection, T objectAdd) {
@@ -168,12 +168,12 @@ public class EasyCollectionUtils {
     }
 
     /**
-     * 根据指定字段 集合去重
-     * @param collection 原始的集合
+     * Deduplication based on specified field collection
+     * @param collection original collection
      * @param keyFunction keyFunction
      * @param <E>
      * @param <R>
-     * @return 去重后的集合
+     * @return the collection after deduplication
      */
     public static <E,R> List<E> distinctByKey(Collection<E> collection, Function<E, R> keyFunction){
         return stream(collection).filter(distinctByKey(keyFunction)).collect(Collectors.toList());

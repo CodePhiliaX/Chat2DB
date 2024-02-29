@@ -5,19 +5,19 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 状态
+ * state
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Getter
 public enum OperationStatusEnum implements BaseEnum<String> {
     /**
-     * 草稿
+     * draft
      */
     DRAFT("草稿"),
 
     /**
-     * 已发布
+     * Published
      */
     RELEASE("已发布"),
 

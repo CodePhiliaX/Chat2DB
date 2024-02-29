@@ -6,57 +6,57 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DataSourceExecuteParam.java, v 0.1 2022年10月14日 13:53 moji Exp $
+ * @version DataSourceExecuteParam.java, v 0.1 October 14, 2022 13:53 moji Exp $
  * @date 2022/10/14
  */
 @Data
 public class DlExecuteParam {
 
     /**
-     * sql语句
+     * sql statement
      */
     @NotNull
     private String sql;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * databaseName
      */
     @NotNull
     private String databaseName;
 
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * 分页编码
-     * 只有select语句才有
+     * Page coding
+     * Only the select statement has
      */
     private Integer pageNo;
 
     /**
-     * 分页大小
-     * 只有select语句才有
+     * Paging Size
+     * Only the select statement has
      */
     private Integer pageSize;
 
     /**
-     * 返回全部数据
-     * 只有select语句才有
+     * Return all data
+     * Only the select statement has
      */
     private Boolean pageSizeAll;
 }

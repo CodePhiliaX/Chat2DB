@@ -10,17 +10,17 @@ public class TaskCreateParam implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * databaseName
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
@@ -30,10 +30,9 @@ public class TaskCreateParam implements Serializable {
     private String tableName;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
-
 
     /**
      * task progress

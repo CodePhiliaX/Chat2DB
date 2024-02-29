@@ -25,11 +25,11 @@ public class CacheManage {
 
     static {
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-            .with(CacheManagerBuilder.persistence(PATH)) // 确保这个路径是存在且有写权限的
+            .with(CacheManagerBuilder.persistence(PATH)) // Make sure this path exists and has write permissions
             .withCache(CACHE, CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, String.class,
                 ResourcePoolsBuilder.newResourcePoolsBuilder()
                     .heap(1000, EntryUnit.ENTRIES)
-                    .disk(20, MemoryUnit.GB, true))) // 磁盘持久化设置为true
+                    .disk(20, MemoryUnit.GB, true))) // Disk persistence is set to true
             .build(true);
     }
 

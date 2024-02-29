@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 控制台关闭参数
+ * Console shutdown parameters
  *
  * @author Jiaju Zhuang
  */
@@ -18,13 +18,13 @@ import lombok.experimental.SuperBuilder;
 public class ConsoleCloseParam {
 
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 控制台的id ，确保全局唯一
+     * The id of the console, ensuring global uniqueness
      */
     @NotNull
     private Long consoleId;
