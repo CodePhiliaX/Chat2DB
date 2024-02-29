@@ -23,12 +23,8 @@ public class ProcedureServiceImpl implements ProcedureService {
         return DataResult.of(Chat2DBContext.getMetaData().procedure(Chat2DBContext.getConnection(), databaseName, schemaName, procedureName));
     }
     @Override
-    public ActionResult update(String databaseName, String schemaName, Procedure procedure) {
-        try {
-            Chat2DBContext.getDBManage().updateProcedure(Chat2DBContext.getConnection(), databaseName, schemaName, procedure);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public ActionResult update(String databaseName, String schemaName, Procedure procedure) throws SQLException {
+        Chat2DBContext.getDBManage().updateProcedure(Chat2DBContext.getConnection(), databaseName, schemaName, procedure);
         return ActionResult.isSuccess();
     }
 }

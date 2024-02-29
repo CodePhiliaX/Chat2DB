@@ -1,8 +1,9 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
-import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
-import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -13,20 +14,20 @@ import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.DatabaseCreateRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.DatabaseExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateDatabaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Sql;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.PrintWriter;
+import java.util.Objects;
 
 /**
  * database controller
@@ -107,5 +108,19 @@ public class DatabaseController {
         DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName())
             .name(request.getNewDatabaseName()).build();
         return databaseService.modifyDatabase(param);
+    }
+    @PostMapping("/export")
+    public void exportDatabase(@Valid @RequestBody DatabaseExportRequest request, HttpServletResponse response){
+        String fileName = Objects.isNull(request.getDatabaseName()) ? request.getSchemaName() : request.getDatabaseName();
+        response.setContentType("text/sql");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".sql");
+        response.setCharacterEncoding("utf-8");
+        DatabaseExportParam param = databaseConverter.request2param(request);
+        try (PrintWriter printWriter = response.getWriter()) {
+            String sql = databaseService.exportDatabase(param);
+            printWriter.println(sql);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
