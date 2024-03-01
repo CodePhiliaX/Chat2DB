@@ -102,8 +102,12 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
+        boolean tableHasColumns = checkTableHasColumns(connection, schemaName, tableName);
+        if (!tableHasColumns) {
+            return "CREATE TABLE "+ tableName + "(" + "\n);";
+        }
         SQLExecutor.getInstance().execute(connection, FUNCTION_SQL.replaceFirst("tableSchema", schemaName),
-                resultSet -> null);
+                                          resultSet -> null);
         String ddlSql = "select showcreatetable('" + schemaName + "','" + tableName + "') as sql";
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
             try {
@@ -114,6 +118,17 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 throw new RuntimeException(e);
             }
             return null;
+        });
+    }
+    // Check if there are fields in the table
+    private boolean checkTableHasColumns(Connection connection, String schemaName, String tableName) {
+        String columnCheckSql = "SELECT COUNT(*) AS column_count FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '"+schemaName+"' AND TABLE_NAME = '"+tableName+"';";
+        return SQLExecutor.getInstance().execute(connection, columnCheckSql, resultSet -> {
+            if (resultSet.next()) {
+                int columnCount = resultSet.getInt("column_count");
+                return columnCount>0;
+            }
+            return false;
         });
     }
 
