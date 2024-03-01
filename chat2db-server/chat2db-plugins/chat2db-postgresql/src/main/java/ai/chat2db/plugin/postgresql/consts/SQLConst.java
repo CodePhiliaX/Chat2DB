@@ -2,152 +2,134 @@ package ai.chat2db.plugin.postgresql.consts;
 
 public class SQLConst {
     public static String FUNCTION_SQL =
-        " CREATE OR REPLACE FUNCTION showcreatetable(namespace character varying, tablename character "
-            + "varying)\n"
-            + "        RETURNS character varying AS\n"
-            + "\n"
-            + "        $BODY$\n"
-            + "        declare\n"
-            + "        tableScript character varying default '';\n"
-            + "\n"
-            + "        begin\n"
-            + "        -- columns\n"
-            + "        tableScript:=tableScript || ' CREATE TABLE '|| tablename|| ' ( '|| chr(13)||chr(10) || "
-            + "array_to_string"
-            + "(\n"
-            + "        array(\n"
-            + "        select ' ' || concat_ws(' ',fieldName, fieldType, defaultValue, isNullStr"
-            + " ) as "
-            + "column_line\n"
-            + "        from (\n"
-            + "        select a.attname as fieldName,format_type(a.atttypid,a.atttypmod) as fieldType,"
-            + "        CASE WHEN \n"
-            + "                (SELECT substring(pg_catalog.pg_get_expr(B.adbin, B.adrelid) for 128)\n"
-            + "                 FROM pg_catalog.pg_attrdef B WHERE B.adrelid = A.attrelid AND B.adnum = A.attnum AND A.atthasdef) IS NOT NULL THEN\n"
-            + "                'DEFAULT '|| (SELECT substring(pg_catalog.pg_get_expr(B.adbin, B.adrelid) for 128)\n"
-            + "                              FROM pg_catalog.pg_attrdef B WHERE B.adrelid = A.attrelid AND B.adnum = A.attnum AND A.atthasdef)\n"
-            + "            ELSE\n"
-            + "                ''\n"
-            + "            END as defaultValue,"
-            + "        (case when a.attnotnull=true then 'not null' else 'null' end) as isNullStr\n"
-            + "        from pg_attribute a where attstattarget=-1 and attrelid = (select c.oid from pg_class c,"
-            + "pg_namespace n"
-            + " where\n"
-            + "        c.relnamespace=n.oid and n.nspname =namespace and relname =tablename)\n"
-            + "\n"
-            + "        ) as string_columns\n"
-            + "        ),','||chr(13)||chr(10)) || ',';\n"
-            + "\n"
-            + "\n"
-            + "        -- 约束\n"
-            + "        tableScript:= tableScript || chr(13)||chr(10) || array_to_string(\n"
-            + "        array(\n"
-            + "        select concat(' CONSTRAINT ',conname ,c ,u,p,f) from (\n"
-            + "        select conname,\n"
-            + "        case when contype='c' then ' CHECK('|| ( select findattname(namespace,tablename,'c') ) ||')' "
-            + "end "
-            + "as c "
-            + ",\n"
-            + "        case when contype='u' then ' UNIQUE('|| ( select findattname(namespace,tablename,'u') ) ||')' "
-            + "end "
-            + "as u"
-            + " ,\n"
-            + "        case when contype='p' then ' PRIMARY KEY ('|| ( select findattname(namespace,tablename,'p') ) "
-            + "||')' "
-            + "end as p ,\n"
-            + "        case when contype='f' then ' FOREIGN KEY('|| ( select findattname(namespace,tablename,'u') ) "
-            + "||') "
-            + "REFERENCES '||\n"
-            + "        (select p.relname from pg_class p where p.oid=c.confrelid ) || '('|| ( select\n"
-            + "        findattname(namespace,tablename,'u') ) ||')' end as f\n"
-            + "        from pg_constraint c\n"
-            + "        where contype in('u','c','f','p') and conrelid=(\n"
-            + "        select oid from pg_class where relname=tablename and relnamespace =(\n"
-            + "        select oid from pg_namespace where nspname = namespace\n"
-            + "        )\n"
-            + "        )\n"
-            + "        ) as t\n"
-            + "        ) ,',' || chr(13)||chr(10) ) || chr(13)||chr(10) ||' ); ';\n"
-            + "\n"
-            + "        -- indexs\n"
-            + "        -- CREATE UNIQUE INDEX pg_language_oid_index ON pg_language USING btree (oid); -- table "
-            + "pg_language\n"
-            + "\n"
-            + "\n"
-            + "        --\n"
-            + "        /** **/\n"
-            + "        --- 获取非约束索引 column\n"
-            + "        -- CREATE UNIQUE INDEX pg_language_oid_index ON pg_language USING btree (oid); -- table "
-            + "pg_language\n"
-            + "        tableScript:= tableScript || chr(13)||chr(10) || chr(13)||chr(10) || array_to_string(\n"
-            + "        array(\n"
-            + "        select 'CREATE INDEX ' || indexrelname || ' ON ' || tablename || ' USING btree '|| '(' || "
-            + "attname "
-            + "|| "
-            + "');' from (\n"
-            + "        SELECT\n"
-            + "        i.relname AS indexrelname , x.indkey,\n"
-            + "\n"
-            + "        ( select array_to_string (\n"
-            + "        array(\n"
-            + "        select a.attname from pg_attribute a where attrelid=c.oid and a.attnum in ( select unnest(x"
-            + ".indkey) )\n"
-            + "\n"
-            + "        )\n"
-            + "        ,',' ) )as attname\n"
-            + "\n"
-            + "        FROM pg_class c\n"
-            + "        JOIN pg_index x ON c.oid = x.indrelid\n"
-            + "        JOIN pg_class i ON i.oid = x.indexrelid\n"
-            + "        LEFT JOIN pg_namespace n ON n.oid = c.relnamespace\n"
-            + "        WHERE c.relname=tablename and i.relname not in\n"
-            + "        ( select constraint_name from information_schema.key_column_usage where table_name=tablename )\n"
-            + "        )as t\n"
-            + "        ) ,','|| chr(13)||chr(10));\n"
-            + "\n"
-            + "\n"
-            + "        -- COMMENT COMMENT ON COLUMN sys_activity.id IS '主键';\n"
-            + "        tableScript:= tableScript || chr(13)||chr(10) || chr(13)||chr(10) || array_to_string(\n"
-            + "        array(\n"
-            + "        SELECT 'COMMENT ON COLUMN ' || 'namespace.tablename' || '.' || a.attname ||' IS '|| ''''|| d.description "
-            + "||''''\n"
-            + "        FROM pg_class c\n"
-            + "        JOIN pg_description d ON c.oid=d.objoid\n"
-            + "        JOIN pg_attribute a ON c.oid = a.attrelid\n"
-            + "        WHERE c.relname=tablename\n"
-            + "        AND a.attnum = d.objsubid),';'|| chr(13)||chr(10)) ;\n"
-            + "\n"
-            + "        return tableScript;\n"
-            + "\n"
-            + "        end\n"
-            + "        $BODY$ LANGUAGE plpgsql;\n"
-            + "\n"
-            + "        CREATE OR REPLACE FUNCTION findattname(namespace character varying, tablename character "
-            + "varying, "
-            + "ctype"
-            + " character\n"
-            + "        varying)\n"
-            + "        RETURNS character varying as $BODY$\n"
-            + "\n"
-            + "        declare\n"
-            + "        tt oid ;\n"
-            + "        aname character varying default '';\n"
-            + "\n"
-            + "        begin\n"
-            + "        tt := oid from pg_class where relname= tablename and relnamespace =(select oid from "
-            + "pg_namespace "
-            + "where\n"
-            + "        nspname=namespace) ;\n"
-            + "        aname:= array_to_string(\n"
-            + "        array(\n"
-            + "        select a.attname from pg_attribute a\n"
-            + "        where a.attrelid=tt and a.attnum in (\n"
-            + "        select unnest(conkey) from pg_constraint c where contype=ctype\n"
-            + "        and conrelid=tt and array_to_string(conkey,',') is not null\n"
-            + "        )\n"
-            + "        ),',');\n"
-            + "\n"
-            + "        return aname;\n"
-            + "        end\n"
-            + "        $BODY$ LANGUAGE plpgsql";
+            """
+            CREATE OR REPLACE FUNCTION showcreatetable(namespace character varying, tablename character varying)
+                   RETURNS character varying AS
+
+                   $BODY$
+                   declare
+                   tableScript character varying default '';
+
+                   begin
+                   -- columns
+                 tableScript := tableScript || ' CREATE TABLE '|| tablename|| ' ( '|| chr(13)||chr(10);
+                 
+                 IF (
+                    SELECT COUNT(*)  FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = namespace AND TABLE_NAME = tablename
+                 ) > 0 THEN
+                     tableScript := tableScript || array_to_string(
+                         array(
+                             SELECT ' ' || concat_ws(' ',fieldName, fieldType, defaultValue, isNullStr ) as column_line
+                             FROM (
+                                 SELECT a.attname as fieldName, format_type(a.atttypid,a.atttypmod) as fieldType, CASE WHEN
+                                     (SELECT substring(pg_catalog.pg_get_expr(B.adbin, B.adrelid) for 128)
+                                     FROM pg_catalog.pg_attrdef B WHERE B.adrelid = A.attrelid AND B.adnum = A.attnum AND A.atthasdef) IS NOT NULL THEN
+                                     'DEFAULT '|| (SELECT substring(pg_catalog.pg_get_expr(B.adbin, B.adrelid) for 128)
+                                                     FROM pg_catalog.pg_attrdef B WHERE B.adrelid = A.attrelid AND B.adnum = A.attnum AND A.atthasdef)
+                                     ELSE
+                                     ''
+                                     END as defaultValue, (case when a.attnotnull=true then 'not null' else 'null' end) as isNullStr
+                                 FROM pg_attribute a
+                                 WHERE attstattarget=-1
+                                 AND attrelid = (
+                                     SELECT c.oid
+                                     FROM pg_class c, pg_namespace n
+                                     WHERE c.relnamespace=n.oid
+                                     AND n.nspname =namespace
+                                     AND relname =tablename
+                                 )
+                             ) as string_columns
+                         ),','||chr(13)||chr(10)) || ',';
+                 END IF;
+                 
+                   
+                   -- 约束
+                   tableScript:= tableScript || chr(13)||chr(10) || array_to_string(
+                   array(
+                   select concat(' CONSTRAINT ',conname ,c ,u,p,f) from (
+                   select conname,
+                   case when contype='c' then ' CHECK('|| ( select findattname(namespace,tablename,'c') ) ||')' end as c ,
+                   case when contype='u' then ' UNIQUE('|| ( select findattname(namespace,tablename,'u') ) ||')' end as u ,
+                   case when contype='p' then ' PRIMARY KEY ('|| ( select findattname(namespace,tablename,'p') ) ||')' end as p ,
+                   case when contype='f' then ' FOREIGN KEY('|| ( select findattname(namespace,tablename,'u') ) ||') REFERENCES '||
+                   (select p.relname from pg_class p where p.oid=c.confrelid ) || '('|| ( select
+                   findattname(namespace,tablename,'u') ) ||')' end as f
+                   from pg_constraint c
+                   where contype in('u','c','f','p') and conrelid=(
+                   select oid from pg_class where relname=tablename and relnamespace =(
+                   select oid from pg_namespace where nspname = namespace
+                   )
+                   )
+                   ) as t
+                   ) ,',' || chr(13)||chr(10) ) || chr(13)||chr(10) ||' ); ';
+
+                   -- indexs
+                   -- CREATE UNIQUE INDEX pg_language_oid_index ON pg_language USING btree (oid); -- table pg_language
+
+
+                   --
+                   /** **/
+                   --- 获取非约束索引 column
+                   -- CREATE UNIQUE INDEX pg_language_oid_index ON pg_language USING btree (oid); -- table pg_language
+                   tableScript:= tableScript || chr(13)||chr(10) || chr(13)||chr(10) || array_to_string(
+                   array(
+                   select 'CREATE INDEX ' || indexrelname || ' ON ' || tablename || ' USING btree '|| '(' || attname || ');' from (
+                   SELECT
+                   i.relname AS indexrelname , x.indkey,
+
+                   ( select array_to_string (
+                   array(
+                   select a.attname from pg_attribute a where attrelid=c.oid and a.attnum in ( select unnest(x.indkey) )
+
+                   )
+                   ,',' ) )as attname
+
+                   FROM pg_class c
+                   JOIN pg_index x ON c.oid = x.indrelid
+                   JOIN pg_class i ON i.oid = x.indexrelid
+                   LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+                   WHERE c.relname=tablename and i.relname not in
+                   ( select constraint_name from information_schema.key_column_usage where table_name=tablename )
+                   )as t
+                   ) ,','|| chr(13)||chr(10));
+
+
+                   -- COMMENT COMMENT ON COLUMN sys_activity.id IS '主键';
+                   tableScript:= tableScript || chr(13)||chr(10) || chr(13)||chr(10) || array_to_string(
+                   array(
+                   SELECT 'COMMENT ON COLUMN ' || 'namespace.tablename' || '.' || a.attname ||' IS '|| ''''|| d.description ||''''
+                   FROM pg_class c
+                   JOIN pg_description d ON c.oid=d.objoid
+                   JOIN pg_attribute a ON c.oid = a.attrelid
+                   WHERE c.relname=tablename
+                   AND a.attnum = d.objsubid),';'|| chr(13)||chr(10)) ;
+
+                   return tableScript;
+
+                   end
+                   $BODY$ LANGUAGE plpgsql;
+
+                   CREATE OR REPLACE FUNCTION findattname(namespace character varying, tablename character varying, ctype character
+                   varying)
+                   RETURNS character varying as $BODY$
+
+                   declare
+                   tt oid ;
+                   aname character varying default '';
+
+                   begin
+                   tt := oid from pg_class where relname= tablename and relnamespace =(select oid from pg_namespace where
+                   nspname=namespace) ;
+                   aname:= array_to_string(
+                   array(
+                   select a.attname from pg_attribute a
+                   where a.attrelid=tt and a.attnum in (
+                   select unnest(conkey) from pg_constraint c where contype=ctype
+                   and conrelid=tt and array_to_string(conkey,',') is not null
+                   )
+                   ),',');
+
+                   return aname;
+                   end
+                   $BODY$ LANGUAGE plpgsql""".indent(1);
 }
