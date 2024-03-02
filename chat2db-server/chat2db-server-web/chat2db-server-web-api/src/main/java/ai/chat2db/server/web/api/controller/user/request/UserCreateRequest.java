@@ -22,23 +22,23 @@ public class UserCreateRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 353710386092262213L;
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 昵称
+     * nickName
      */
     private String nickName;
 
 
     /**
-     * 邮箱
+     * email
      */
     private String email;
 }

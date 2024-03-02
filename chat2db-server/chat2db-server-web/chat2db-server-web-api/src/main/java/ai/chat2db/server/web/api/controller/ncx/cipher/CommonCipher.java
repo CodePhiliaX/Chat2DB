@@ -3,7 +3,7 @@ package ai.chat2db.server.web.api.controller.ncx.cipher;
 import java.util.Formatter;
 
 /**
- * CommonCipher 公共加/解密
+ * CommonCipher Public encryption/decryption
  *
  * @author lzy
  */

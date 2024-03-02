@@ -39,7 +39,7 @@ public class DriverConfig {
     private String dbType;
 
     /**
-     * 自定义
+     * customize
      */
     private boolean custom;
 

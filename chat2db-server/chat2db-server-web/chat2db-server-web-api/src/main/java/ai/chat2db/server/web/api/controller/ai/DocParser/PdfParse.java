@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * @author CYY
- * @date 2023年03月11日 下午3:23
+ * @date March 11, 2023 3:23 pm
  * @description
  */
 public class PdfParse extends AbstractParser {
@@ -18,13 +18,13 @@ public class PdfParse extends AbstractParser {
 
     @Override
     public List<String> parse(InputStream inputStream) throws IOException {
-        // 打开 PDF 文件
+        // Open PDF file
         PDDocument document = PDDocument.load(inputStream);
-        // 创建 PDFTextStripper 对象
+        // Create a PDFTextStripper object
         PDFTextStripper stripper = new PDFTextStripper();
-        // 获取文本内容
+        // Get text content
         String text = stripper.getText(document);
-        //过滤字符
+        // Filter characters
         text = text.replaceAll("\\s", " ").replaceAll("(\\r\\n|\\r|\\n|\\n\\r)"," ");
         String[] sentence = text.split("。");
         List<String> ans = new ArrayList<>();
@@ -39,7 +39,7 @@ public class PdfParse extends AbstractParser {
                 ans.add(s);
             }
         }
-        // 关闭文档
+        // Close document
         document.close();
         return ans;
     }

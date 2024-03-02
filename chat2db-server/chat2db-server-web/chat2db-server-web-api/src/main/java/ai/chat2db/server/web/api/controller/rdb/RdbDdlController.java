@@ -30,10 +30,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * mysql表运维类
+ * mysql table operation and maintenance class
  *
  * @author moji
- * @version MysqlTableManageController.java, v 0.1 2022年09月16日 17:41 moji Exp $
+ * @version MysqlTableManageController.java, v 0.1 September 16, 2022 17:41 moji Exp $
  * @date 2022/09/16
  */
 @ConnectionInfoAspect
@@ -58,7 +58,7 @@ public class RdbDdlController extends EmbeddingController {
     public static ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
 
     /**
-     * 查询当前DB下的表列表
+     * Query the table list under the current DB
      *
      * @param request
      * @return
@@ -91,7 +91,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 查询数据库里包含的schema_list
+     * Query the schema_list contained in the database
      *
      * @param request
      * @return
@@ -105,7 +105,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 查询数据库里包含的database_schema_list
+     * Query the database_schema_list contained in the database
      *
      * @param request
      * @return
@@ -121,8 +121,7 @@ public class RdbDdlController extends EmbeddingController {
 
 
     /**
-     * 查询当前DB下的表columns
-     * d
+     * Query the table columns under the current DB
      *
      * @param request
      * @return
@@ -136,7 +135,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 查询当前DB下的表index
+     * Query the table index under the current DB
      *
      * @param request
      * @return
@@ -150,19 +149,19 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 查询当前DB下的表key
+     * Query the table key under the current DB
      *
      * @param request
      * @return
      */
     @GetMapping("/key_list")
     public ListResult<IndexVO> keyList(@Valid TableDetailQueryRequest request) {
-        // TODO 增加查询key实现
+        // TODO Add query key implementation
         return ListResult.of(Lists.newArrayList());
     }
 
     /**
-     * 导出建表语句
+     * Export table creation statement
      *
      * @param request
      * @return
@@ -174,7 +173,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 建表语句样例
+     * Table creation statement example
      *
      * @param request
      * @return
@@ -185,7 +184,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 更新表语句样例
+     * Update table statement example
      *
      * @param request
      * @return
@@ -196,7 +195,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 获取表下列和索引等信息
+     * Get information such as table columns and indexes
      *
      * @param request
      * @return
@@ -213,7 +212,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 获取修改表的sql语句
+     * Get the sql statement that modifies the table
      *
      * @param request
      * @return
@@ -227,7 +226,7 @@ public class RdbDdlController extends EmbeddingController {
     }
 
     /**
-     * 删除表
+     * Delete table
      *
      * @param request
      * @return

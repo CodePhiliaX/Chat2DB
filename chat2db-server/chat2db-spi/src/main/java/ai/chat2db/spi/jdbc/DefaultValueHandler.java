@@ -40,7 +40,7 @@ public class DefaultValueHandler implements ValueHandler {
                 return obj.toString();
             }
         } catch (Exception e) {
-            log.warn("解析数失败:{},{}", index, obj, e);
+            log.warn("Failed to parse number:{},{}", index, obj, e);
             return obj.toString();
         }
     }
@@ -65,21 +65,21 @@ public class DefaultValueHandler implements ValueHandler {
     }
 
     private String largeTime(Object obj) throws SQLException {
-        Object timeField = obj; // 假设为 Object 类型的时间字段
+        Object timeField = obj; // Assuming a time field of type Object
 
         LocalDateTime localDateTime;
 
         if (obj instanceof Timestamp) {
-            // 将 Object 类型的时间字段转换为 LocalDateTime 对象
+            // Convert a time field of type Object to a LocalDateTime object
             localDateTime = ((Timestamp) timeField).toLocalDateTime();
         } else {
             localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
         }
 
-        // 创建 DateTimeFormatter 实例，指定输出日期时间格式
+        // Create a DateTimeFormatter instance and specify the output date and time format
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        // 格式化日期时间
+        // Format date time
         String formattedDateTime = dtf.format(localDateTime);
         return formattedDateTime;
     }

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 数据库连接对象
+ * Database connection object
  *
  * @author Jiaju Zhuang
  */
@@ -17,18 +17,18 @@ import lombok.experimental.SuperBuilder;
 public class DataSourceConnect {
 
     /**
-     * 是否成功标志位
+     * success flag
      */
     private Boolean success;
 
     /**
-     * 失败消息提示
-     * 只有失败的情况下会有
+     * Failure message prompt
+     * Only in case of failure
      */
     private String message;
 
     /**
-     * 描述
+     * description
      */
     private String description;
 

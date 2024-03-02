@@ -5,26 +5,26 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 索引类型
+ * Index type
  *
  * @author Jiaju Zhuang
  */
 @Getter
 public enum IndexTypeEnum implements BaseEnum<String> {
     /**
-     * 主键
+     * primary key
      */
-    PRIMARY_KEY("主键"),
+    PRIMARY_KEY("primary key"),
 
     /**
-     * 普通索引
+     * Ordinary index
      */
-    NORMAL("普通索引"),
+    NORMAL("Ordinary index"),
 
     /**
-     * 唯一索引
+     * unique index
      */
-    UNIQUE("唯一索引"),
+    UNIQUE("unique index"),
     ;
 
     final String description;

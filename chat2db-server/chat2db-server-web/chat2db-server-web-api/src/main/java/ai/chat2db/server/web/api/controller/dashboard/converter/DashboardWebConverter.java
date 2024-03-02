@@ -13,14 +13,14 @@ import org.mapstruct.Mapper;
 
 /**
  * @author moji
- * @version DashboardWebConverter.java, v 0.1 2023年06月09日 15:45 moji Exp $
+ * @version DashboardWebConverter.java, v 0.1 June 9, 2023 15:45 moji Exp $
  * @date 2023/06/09
  */
 @Mapper(componentModel = "spring")
 public abstract class DashboardWebConverter {
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dashboard
      * @return
@@ -28,7 +28,7 @@ public abstract class DashboardWebConverter {
     public abstract DashboardVO model2vo(Dashboard dashboard);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dashboards
      * @return
@@ -36,7 +36,7 @@ public abstract class DashboardWebConverter {
     public abstract List<DashboardVO> model2vo(List<Dashboard> dashboards);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -44,7 +44,7 @@ public abstract class DashboardWebConverter {
     public abstract DashboardCreateParam req2param(DashboardCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

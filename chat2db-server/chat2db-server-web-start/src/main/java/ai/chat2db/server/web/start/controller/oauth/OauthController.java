@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 
 /**
- * 登录授权服务
+ * Login authorization service
  *
  * @author Jiaju Zhuang
  */
@@ -36,14 +36,14 @@ public class OauthController {
     private UserService userService;
 
     /**
-     * 用户名密码登录
+     * Login with username and password
      *
      * @param request
      * @return
      */
     @PostMapping("login_a")
     public DataResult login(@Validated @RequestBody LoginRequest request) {
-        //   查询用户
+        //   Query user
         User user = userService.query(request.getUserName()).getData();
         this.validateUser(user);
 
@@ -82,7 +82,7 @@ public class OauthController {
     }
 
     /**
-     * 登出
+     * Sign out
      *
      * @return
      */

@@ -16,7 +16,7 @@ public class OrderByRequest extends DataSourceBaseRequest implements DataSourceB
     private String originSql;
 
     /**
-     * 排序字段
+     * sort field
      */
     private List<OrderBy> orderByList;
 

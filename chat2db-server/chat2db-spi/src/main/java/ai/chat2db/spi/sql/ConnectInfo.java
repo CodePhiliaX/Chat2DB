@@ -24,22 +24,22 @@ public class ConnectInfo {
 
     private String loginUser;
     /**
-     * 别名
+     * alias
      */
     private String alias;
     /**
-     * 数据连接ID
+     * dataSourceId
      */
     private Long dataSourceId;
 
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
     /**
@@ -54,37 +54,37 @@ public class ConnectInfo {
     private String schemaName;
 
     /**
-     * 控制台ID
+     * console id
      */
     private Long consoleId;
 
     /**
-     * 数据库URL
+     * Database URL
      */
     private String url;
 
     /**
-     * 用户名
+     * user
      */
     private String user;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * console独立占有连接
+     * The console independently owns the connection
      */
     private Boolean consoleOwn = Boolean.FALSE;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String dbType;
 
     /**
-     * 端口
+     * port
      */
     private Integer port;
 
@@ -119,12 +119,12 @@ public class ConnectInfo {
     private String driver;
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 

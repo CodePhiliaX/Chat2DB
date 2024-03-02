@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 
 /**
- * Navicat11及以下密码加密解密
+ * Navicat11 and below password encryption and decryption
  *
  * @author lzy
  */

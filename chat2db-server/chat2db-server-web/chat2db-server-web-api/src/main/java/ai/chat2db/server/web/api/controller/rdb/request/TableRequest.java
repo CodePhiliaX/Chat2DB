@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 /**
  * 修改表sql请求
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -21,33 +21,33 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TableRequest {
     /**
-     * 表名称
+     * Table Name
      */
     private String name;
 
     /**
-     * 表描述
+     * Table description
      */
     private String comment;
 
     /**
-     * 列
+     * Column
      */
     private List<TableColumn> columnList;
 
     /**
-     * 索引
+     * index
      */
     private List<TableIndex> indexList;
 
 
     /**
-     * 空间名
+     * Space name
      */
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     private String databaseName;
 

@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DatabaseExportParam {
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 

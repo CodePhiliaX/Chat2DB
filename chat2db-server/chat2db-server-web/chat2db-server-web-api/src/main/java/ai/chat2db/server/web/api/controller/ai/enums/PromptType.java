@@ -5,39 +5,39 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 提示类型
+ * prompt type
  *
  * @author moji
- * @version PromptType.java, v 0.1 2023年04月09日 15:36 moji Exp $
+ * @version PromptType.java, v 0.1 April 9, 2023 15:36 moji Exp $
  * @date 2023/04/09
  */
 @Getter
 public enum PromptType implements BaseEnum<String> {
 
     /**
-     * 自然语言转换成SQL
+     * Convert natural language to SQL
      */
-    NL_2_SQL("将自然语言转换成SQL查询"),
+    NL_2_SQL("Convert natural language into SQL queries"),
 
     /**
-     * 解释SQL
+     * Interpret SQL
      */
-    SQL_EXPLAIN("解释SQL"),
+    SQL_EXPLAIN("Interpret SQL"),
 
     /**
-     * SQL优化
+     * SQL optimization
      */
-    SQL_OPTIMIZER("提供优化建议"),
+    SQL_OPTIMIZER("Provide optimization suggestions"),
 
     /**
-     * SQL转换
+     * SQL conversion
      */
-    SQL_2_SQL("进行SQL转换"),
+    SQL_2_SQL("Perform SQL conversion"),
 
     /**
      * text generation
      */
-    TEXT_GENERATION("文本生成"),
+    TEXT_GENERATION("text generation"),
     ;
 
     final String description;

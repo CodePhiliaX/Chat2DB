@@ -8,7 +8,7 @@ import lombok.Data;
 public class SchemaCreateRequest extends DataSourceBaseRequest {
 
     /**
-     * 数据名字
+     * Data name
      */
     @JsonAlias({"TABLE_SCHEM"})
     private String name;

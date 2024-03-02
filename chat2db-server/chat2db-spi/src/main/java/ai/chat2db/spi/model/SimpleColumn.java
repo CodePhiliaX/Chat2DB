@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 public class SimpleColumn {
 
     /**
-     * 列名
+     * Column name
      */
     @JsonAlias({"COLUMN_NAME"})
     private String name;
@@ -23,7 +23,7 @@ public class SimpleColumn {
     private String columnType;
 
     /**
-     * 注释
+     * Comment
      */
     @JsonAlias({"REMARKS"})
     private String comment;

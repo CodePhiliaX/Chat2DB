@@ -7,50 +7,49 @@ import lombok.Data;
 public class Command {
 
     /**
-     * sql语句
+     * sql statement
      */
     @NotNull
     private String script;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * DB name
      */
     @NotNull
     private String databaseName;
 
-
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * 分页编码
-     * 只有select语句才有
+     *Page coding
+      * Only available for select statements
      */
     private Integer pageNo;
 
     /**
-     * 分页大小
-     * 只有select语句才有
+     * Paging Size
+      * Only available for select statements
      */
     private Integer pageSize;
 
     /**
-     * 返回全部数据
-     * 只有select语句才有
+     * Return all data
+     * Only available for select statements
      */
     private Boolean pageSizeAll;
 }

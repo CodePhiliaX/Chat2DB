@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.admin.api.controller.user.vo;
 
 import ai.chat2db.server.admin.api.controller.team.vo.SimpleTeamVO;
@@ -12,7 +11,7 @@ import lombok.Data;
 @Data
 public class UserTeamPageQueryVO {
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
@@ -22,7 +21,7 @@ public class UserTeamPageQueryVO {
     private Long userId;
 
     /**
-     * 团队
+     * team
      */
     private SimpleTeamVO team;
 }

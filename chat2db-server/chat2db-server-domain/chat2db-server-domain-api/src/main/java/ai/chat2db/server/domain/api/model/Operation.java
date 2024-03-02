@@ -41,7 +41,7 @@ public class Operation {
     private String dataSourceName;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 

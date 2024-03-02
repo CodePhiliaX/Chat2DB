@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 保存图表类
+ * Save chart class
  *
  * @author moji
- * @version ChartController.java, v 0.1 2022年09月18日 10:55 moji Exp $
+ * @version ChartController.java, v 0.1 September 18, 2022 10:55 moji Exp $
  * @date 2022/09/18
  */
 @RequestMapping("/api/chart")
@@ -43,7 +43,7 @@ public class ChartController {
     private ChartWebConverter chartWebConverter;
 
     /**
-     * 根据id查询图表详情
+     * Query chart details based on id
      *
      * @param id
      * @return
@@ -58,7 +58,7 @@ public class ChartController {
     }
 
     /**
-     * 根据ID列表查询报表列表
+     * Query report list based on ID list
      *
      * @param request
      * @return
@@ -73,7 +73,7 @@ public class ChartController {
     }
 
     /**
-     * 保存图表
+     * Save chart
      *
      * @param request
      * @return
@@ -85,7 +85,7 @@ public class ChartController {
     }
 
     /**
-     * 更新图表
+     * Update chart
      *
      * @param request
      * @return
@@ -97,7 +97,7 @@ public class ChartController {
     }
 
     /**
-     * 删除图表
+     * Delete chart
      *
      * @param id
      * @return

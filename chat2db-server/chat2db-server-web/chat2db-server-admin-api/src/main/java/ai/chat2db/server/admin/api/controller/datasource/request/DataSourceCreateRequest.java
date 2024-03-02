@@ -11,41 +11,41 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionCreateRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @version ConnectionCreateRequest.java, v 0.1 September 16, 2022 14:23 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class DataSourceCreateRequest {
 
     /**
-     * 连接别名
+     * Connection alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     @NotNull
     private String url;
 
     /**
-     * 连接用户名
+     * Connect username
      */
     private String user;
 
     /**
-     * 密码
+     * password
      */
     @NotNull
     private String password;
 
     /**
-     * 认证类型
+     * Certification type
      */
     private String authenticationType;
 
     /**
-     * 连接类型
+     * Connection Type
      */
     @NotNull
     private String type;
@@ -82,33 +82,33 @@ public class DataSourceCreateRequest {
 
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
+
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
-
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 
     /**
-     * 环境id
+     * environment id
      */
     @NotNull
     private Long environmentId;
 
     /**
-     * 服务名称
+     * service name
      */
     private String serviceName;
 
     /**
-     * 服务类型
+     * Service type
      */
     private String serviceType;
 

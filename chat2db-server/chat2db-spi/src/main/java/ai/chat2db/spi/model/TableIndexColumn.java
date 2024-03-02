@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 列信息
+ * Column information
  *
  * @author Jiaju Zhuang
  */
@@ -19,62 +19,62 @@ import lombok.experimental.SuperBuilder;
 public class TableIndexColumn {
 
     /**
-     * 索引名称
+     * Index name
      */
     @JsonAlias({"INDEX_NAME"})
     private String indexName;
 
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias ({"TABLE_NAME"})
     private String tableName;
 
     /**
-     * 索引类型
+     * Index type
      *
      * @see
      */
     private String type;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 列名
+     * columnName
      */
     @JsonAlias({"COLUMN_NAME"})
     private String columnName;
 
     /**
-     * 顺序
+     * ordinalPosition
      */
     @JsonAlias({"ORDINAL_POSITION"})
     private Short ordinalPosition;
 
     /**
-     * 排序
+     * collation
      *
      */
     private String collation;
 
 
     /**
-     * 索引所属schema
+     * The schema to which the index belongs
      */
     @JsonAlias({"TABLE_SCHEM"})
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     @JsonAlias({"TABLE_CAT"})
     private String databaseName;
 
     /**
-     * 是否唯一
+     * Is it unique?
      */
     @JsonAlias({"NON_UNIQUE"})
     private Boolean nonUnique;

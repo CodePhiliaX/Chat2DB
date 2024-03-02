@@ -3,23 +3,23 @@ package ai.chat2db.server.web.api.controller.rdb.doc.conf;
 import lombok.Data;
 
 /**
- * 生成选项
+ * Build options
  *
  * @author lzy
  */
 @Data
 public class ExportOptions {
     /**
-     * 是否导出多sheet
+     * Whether to export multiple sheets
      */
     private Boolean isExportMoreSheet = Boolean.FALSE;
     /**
-     * 是否导出索引
+     * Whether to export the index
      */
     private Boolean isExportIndex = Boolean.FALSE;
 
     /**
-     * 导出文件后缀
+     * Export file suffix
      **/
     private String fileSuffix;
 }

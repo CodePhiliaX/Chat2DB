@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 /**
  * <p>
- * sql执行历史
+ * sql execution history
  * </p>
  *
  * @author chat2db
@@ -25,42 +25,42 @@ public class SqlExecuteHistoryCreateRequest implements Serializable {
 
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String databaseType;
 
     /**
-     * 执行SQL
+     * Execute SQL
      */
     private String sqlContent;
 
     /**
-     * 客户端ID
+     * Client ID
      */
     private String clientId;
 
     /**
-     * 状态
+     * state
      */
     private String executeStatus;
 
     /**
-     * 错误消息
+     * wrong information
      */
     private String errorMessage;
 
     /**
-     * sql 类型
+     * sql type
      */
     private String sqlType;
 
     /**
-     * 执行持续时间
+     * execution duration
      */
     private Long duration;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 }

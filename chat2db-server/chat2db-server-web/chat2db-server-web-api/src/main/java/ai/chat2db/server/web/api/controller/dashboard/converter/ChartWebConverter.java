@@ -15,14 +15,14 @@ import org.mapstruct.Mappings;
 
 /**
  * @author moji
- * @version ChartWebConverter.java, v 0.1 2023年06月09日 15:46 moji Exp $
+ * @version ChartWebConverter.java, v 0.1 June 9, 2023 15:46 moji Exp $
  * @date 2023/06/09
  */
 @Mapper(componentModel = "spring")
 public abstract class ChartWebConverter {
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param chart
      * @return
@@ -33,7 +33,7 @@ public abstract class ChartWebConverter {
     public abstract ChartVO model2vo(Chart chart);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param charts
      * @return
@@ -41,7 +41,7 @@ public abstract class ChartWebConverter {
     public abstract List<ChartVO> model2vo(List<Chart> charts);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -49,7 +49,7 @@ public abstract class ChartWebConverter {
     public abstract ChartCreateParam req2param(ChartCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

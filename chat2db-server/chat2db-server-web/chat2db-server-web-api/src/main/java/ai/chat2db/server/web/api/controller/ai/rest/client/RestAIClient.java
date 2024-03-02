@@ -15,17 +15,17 @@ import lombok.extern.slf4j.Slf4j;
 public class RestAIClient {
 
     /**
-     * AI SQL选择的接口来源
+     * Interface source selected by AI SQL
      */
     public static final String AI_SQL_SOURCE = "ai.sql.source";
 
     /**
-     * 自定义AI接口地址
+     * Customized AI interface address
      */
     public static final String REST_AI_URL = "rest.ai.url";
 
     /**
-     * 自定义AI接口请求方法
+     * Custom AI interface request method
      */
     public static final String REST_AI_STREAM_OUT = "rest.ai.stream";
 
@@ -51,7 +51,7 @@ public class RestAIClient {
     }
 
     /**
-     * 刷新客户端
+     * Refresh client
      */
     public static void refresh() {
         String apiUrl = "";

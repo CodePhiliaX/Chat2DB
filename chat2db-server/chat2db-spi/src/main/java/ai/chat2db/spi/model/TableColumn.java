@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.Objects;
 
 /**
- * 列信息
+ * Column information
  *
  * @author Jiaju Zhuang
  */
@@ -24,34 +24,34 @@ public class TableColumn {
      */
     private TableColumn oldColumn;
     /**
-     * 旧的列名，在修改列的时候需要这个参数
-     * 在返回的时候oldName=name
+     * The old column name, this parameter is needed when modifying the column
+      * oldName=name when returning
      */
     private String oldName;
 
     /**
-     * 列名
+     * Column name
      */
     @JsonAlias({"COLUMN_NAME","column_name"})
     private String name;
 
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias({"TABLE_NAME","table_name"})
     private String tableName;
 
     /**
-     * 列的类型
-     * 比如 varchar(100) ,double(10,6)
+     * Column type
+     * For example, varchar(100), double(10,6)
      */
 
     @JsonAlias({"TYPE_NAME","type_name"})
     private String columnType;
 
     /**
-     * 列的数据类型
-     * 比如 varchar ,double
+     * Column data type
+     * For example, varchar, double
      */
 
     @JsonAlias({"DATA_TYPE","data_type"})
@@ -59,7 +59,7 @@ public class TableColumn {
 
 
     /**
-     * 默认值
+     * default value
      */
 
     @JsonAlias({"COLUMN_DEF","column_def"})
@@ -68,42 +68,42 @@ public class TableColumn {
 
 
     /**
-     * 是否自增
-     * 为空 代表没有值 数据库的实际语义是 false
+     * Whether to increase automatically
+     * Empty means there is no value. The actual semantics of the database are false.
      */
     private Boolean autoIncrement;
 
     /**
-     * 注释
+     * Comment
      */
     @JsonAlias({"REMARKS","remarks"})
     private String comment;
 
     /**
-     * 是否主键
+     * Is it a primary key?
      */
     private Boolean primaryKey;
 
 
     /**
-     * 主键名
+     * primary key name
      */
     private String primaryKeyName;
 
 
     /**
-     * 主键顺序
+     * primaryKeyOrder
      */
     private int primaryKeyOrder;
 
     /**
-     * 空间名
+     * Space name
      */
     @JsonAlias({"TABLE_SCHEM","table_schem"})
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     @JsonAlias({"TABLE_CAT","table_cat"})
     private String databaseName;
@@ -199,10 +199,10 @@ public class TableColumn {
     // sqlserver
     private String defaultConstraintName;
 
-    // DM 种子
+    // DM seed
     private Integer seed;
 
-    // DM 增量值
+    // DM increment
     private Integer increment;
 
     @Override

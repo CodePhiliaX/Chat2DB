@@ -27,7 +27,7 @@ public interface DBManage {
     void connectDatabase(Connection connection, String database);
 
     /**
-     * 修改数据库名称
+     * Modify database name
      *
      * @param databaseName
      * @param newDatabaseName
@@ -35,21 +35,21 @@ public interface DBManage {
     void modifyDatabase(Connection connection, String databaseName, String newDatabaseName);
 
     /**
-     * 创建数据库
+     * Create database
      *
      * @param databaseName
      */
     void createDatabase(Connection connection, String databaseName);
 
     /**
-     * 删除数据库
+     * Delete database
      *
      * @param databaseName
      */
     void dropDatabase(Connection connection, String databaseName);
 
     /**
-     * 创建schema
+     * Create schema
      *
      * @param databaseName
      * @param schemaName
@@ -57,7 +57,7 @@ public interface DBManage {
     void createSchema(Connection connection, String databaseName, String schemaName);
 
     /**
-     * 删除schema
+     * Delete schema
      *
      * @param databaseName
      * @param schemaName
@@ -65,7 +65,7 @@ public interface DBManage {
     void dropSchema(Connection connection, String databaseName, String schemaName);
 
     /**
-     * 修改schema
+     * Modify schema
      *
      * @param databaseName
      * @param schemaName
@@ -74,7 +74,7 @@ public interface DBManage {
     void modifySchema(Connection connection, String databaseName, String schemaName, String newSchemaName);
 
     /**
-     * 删除表结构
+     * Delete table structure
      *
      * @param databaseName
      * @param tableName
@@ -83,7 +83,7 @@ public interface DBManage {
     void dropTable(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String tableName);
 
     /**
-     * 删除函数
+     * delete function
      *
      * @param databaseName
      * @param functionName
@@ -93,7 +93,7 @@ public interface DBManage {
                       @NotEmpty String functionName);
 
     /**
-     * 删除触发器
+     * delete trigger
      *
      * @param databaseName
      * @param triggerName
@@ -103,7 +103,7 @@ public interface DBManage {
                      @NotEmpty String triggerName);
 
     /**
-     * 删除存储过程
+     * Delete stored procedure
      *
      * @param databaseName
      * @param triggerName
@@ -113,7 +113,7 @@ public interface DBManage {
                        @NotEmpty String triggerName);
 
     /**
-     * 更新存储过程
+     * Update stored procedure
      * @param connection
      * @param databaseName
      * @param schemaName

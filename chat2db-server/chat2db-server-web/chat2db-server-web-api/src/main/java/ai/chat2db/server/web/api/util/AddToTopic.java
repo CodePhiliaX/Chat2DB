@@ -17,7 +17,7 @@ import java.io.OutputStream;
 public class AddToTopic {
 
     public static void generateTOC(XWPFDocument document, OutputStream out) throws IOException {
-        String findText = "目录哈哈";
+        String findText = "directory";
         String replaceText = "";
         for (XWPFParagraph p : document.getParagraphs()) {
             for (XWPFRun r : p.getRuns()) {

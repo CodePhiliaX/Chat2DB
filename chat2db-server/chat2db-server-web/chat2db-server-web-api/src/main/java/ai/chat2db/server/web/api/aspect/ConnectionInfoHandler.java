@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.web.api.aspect;
 
 import ai.chat2db.server.domain.api.model.DataSource;
@@ -44,18 +43,18 @@ public class ConnectionInfoHandler {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
                     if (param instanceof DataSourceBaseRequest) {
-                        Long dataSourceId = ((DataSourceBaseRequest)param).getDataSourceId();
-                        String schemaName = ((DataSourceBaseRequest)param).getSchemaName();
-                        String database = ((DataSourceBaseRequest)param).getDatabaseName();
+                        Long dataSourceId = ((DataSourceBaseRequest) param).getDataSourceId();
+                        String schemaName = ((DataSourceBaseRequest) param).getSchemaName();
+                        String database = ((DataSourceBaseRequest) param).getDatabaseName();
                         Chat2DBContext.putContext(toInfo(dataSourceId, database, null, schemaName));
                     } else if (param instanceof DataSourceConsoleRequestInfo) {
-                        Long dataSourceId = ((DataSourceConsoleRequestInfo)param).getDataSourceId();
-                        Long consoleId = ((DataSourceConsoleRequestInfo)param).getConsoleId();
-                        String database = ((DataSourceConsoleRequestInfo)param).getDatabaseName();
+                        Long dataSourceId = ((DataSourceConsoleRequestInfo) param).getDataSourceId();
+                        Long consoleId = ((DataSourceConsoleRequestInfo) param).getConsoleId();
+                        String database = ((DataSourceConsoleRequestInfo) param).getDatabaseName();
                         Chat2DBContext.putContext(toInfo(dataSourceId, database, consoleId, null));
                     } else if (param instanceof DataSourceBaseRequestInfo) {
-                        Long dataSourceId = ((DataSourceBaseRequestInfo)param).getDataSourceId();
-                        String database = ((DataSourceBaseRequestInfo)param).getDatabaseName();
+                        Long dataSourceId = ((DataSourceBaseRequestInfo) param).getDataSourceId();
+                        String database = ((DataSourceBaseRequestInfo) param).getDatabaseName();
                         Chat2DBContext.putContext(toInfo(dataSourceId, database));
                     }
                 }
@@ -95,7 +94,7 @@ public class ConnectionInfoHandler {
         connectInfo.setUrl(dataSource.getUrl());
         connectInfo.setPort(StringUtils.isNotBlank(dataSource.getPort()) ? Integer.parseInt(dataSource.getPort()) : null);
         connectInfo.setHost(dataSource.getHost());
-        connectInfo.setLoginUser(ContextUtils.getLoginUser().getId()+"");
+        connectInfo.setLoginUser(ContextUtils.getLoginUser().getId() + "");
         DriverConfig driverConfig = dataSource.getDriverConfig();
         if (driverConfig != null && driverConfig.notEmpty()) {
             connectInfo.setDriverConfig(driverConfig);

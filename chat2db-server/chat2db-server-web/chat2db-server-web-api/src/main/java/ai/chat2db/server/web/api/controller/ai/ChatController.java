@@ -79,7 +79,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 描述：
+ * description：
  *
  * @author https:www.unfbx.com
  * @date 2023-03-01
@@ -109,30 +109,30 @@ public class ChatController {
     private GatewayClientService gatewayClientService;
 
     /**
-     * chat的超时时间
+     * chat timeout
      */
     private static final Long CHAT_TIMEOUT = Duration.ofMinutes(50).toMillis();
 
     /**
-     * 提示语最大token数
+     * Maximum number of tokens for prompts
      */
     private Integer MAX_PROMPT_LENGTH = 3850;
 
     /**
-     * token转换字符串长度
+     * token conversion string length
      */
     private Integer TOKEN_CONVERT_CHAR_LENGTH = 4;
 
     /**
-     * 返回token大小
+     * Return token size
      */
     private Integer RETURN_TOKEN_LENGTH = 150;
 
 
     /**
-     * 自定义模型流式输出接口DEMO
+     * Custom model streaming output interface DEMO
      * <p>
-     *     Note:使用自己本地的流式输出的自定义AI，接口输入和输出需与该样例保持一致
+     *     Note: For custom AI that uses its own local streaming output, the interface input and output must be consistent with this sample.
      * </p>
      *
      * @param queryRequest
@@ -144,14 +144,14 @@ public class ChatController {
     public SseEmitter customChat(@RequestBody ChatRequest queryRequest) throws IOException {
         SseEmitter emitter = new SseEmitter(CHAT_TIMEOUT);
 
-        // 设置 SSEEmitter 的事件处理程序
+        // Set event handler for SSEEmitter
         emitter.onCompletion(() -> log.info(LocalDateTime.now() + ", on completion"));
         emitter.onTimeout(() -> {
             log.info(LocalDateTime.now() + ", uid# on timeout");
             emitter.complete();
         });
 
-        // 启动一个新的线程来生成 SSE 事件
+        // Start a new thread to generate SSE events
         new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
@@ -169,9 +169,9 @@ public class ChatController {
     }
 
     /**
-     * 自定义模型非流式输出接口DEMO
+     * Custom model non-streaming output interface DEMO
      * <p>
-     *     Note:使用自己本地的飞流式输出自定义AI，接口输入和输出需与该样例保持一致
+     *       Note: Use your own local flying flow output to customize the AI. The interface input and output must be consistent with this sample.
      * </p>
      *
      * @param queryRequest
@@ -181,12 +181,12 @@ public class ChatController {
     @PostMapping("/custom/non/stream/chat")
     @CrossOrigin
     public String customNonStreamChat(@RequestBody ChatRequest queryRequest) throws IOException {
-        String data = "自定义AI样例接口连接成功！！！！";
+        String data = "The custom AI sample interface is connected successfully! ! ! !";
         return data;
     }
 
     /**
-     * SQL转换模型
+     * SQL conversion model
      *
      * @param queryRequest
      * @param headers
@@ -197,14 +197,14 @@ public class ChatController {
     @CrossOrigin
     public SseEmitter completions(ChatQueryRequest queryRequest, @RequestHeader Map<String, String> headers)
         throws IOException {
-        //默认30秒超时,设置为0L则永不超时
+        //The default timeout is 30 seconds. If set to 0L, it will never timeout.
         SseEmitter sseEmitter = new SseEmitter(CHAT_TIMEOUT);
         String uid = headers.get("uid");
         if (StrUtil.isBlank(uid)) {
             throw new ParamBusinessException("uid");
         }
 
-        //提示消息不得为空
+        //Prompt message cannot be empty
         if (StringUtils.isBlank(queryRequest.getMessage())) {
             throw new ParamBusinessException("message");
         }
@@ -254,7 +254,7 @@ public class ChatController {
     }
 
     /**
-     * 使用自定义AI接口进行聊天
+     * Chat using a custom AI interface
      *
      * @param prompt
      * @param sseEmitter
@@ -267,7 +267,7 @@ public class ChatController {
     }
 
     /**
-     * 使用OPENAI SQL接口
+     * Using the OPENAI SQL interface
      *
      * @param queryRequest
      * @param sseEmitter
@@ -279,7 +279,7 @@ public class ChatController {
         throws IOException {
         String prompt = buildPrompt(queryRequest);
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
-            log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
+            log.error("The prompt exceeds the maximum length: {}, input length: {}, please re-enter", MAX_PROMPT_LENGTH,
                 prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
@@ -298,7 +298,7 @@ public class ChatController {
     }
 
     /**
-     * 使用OPENAI SQL接口
+     * Using the OPENAI SQL interface
      *
      * @param queryRequest
      * @param sseEmitter
@@ -340,7 +340,7 @@ public class ChatController {
     private SseEmitter chatWithAzureAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
         String prompt = buildPrompt(queryRequest);
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
-            log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
+            log.error("The prompt exceeds the maximum length: {}, input length: {}, please re-enter", MAX_PROMPT_LENGTH,
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
         }
@@ -536,7 +536,7 @@ public class ChatController {
             throwable -> {
                 try {
                     log.info(LocalDateTime.now() + ", uid#" + "765431" + ", on error#" + throwable.toString());
-                    sseEmitter.send(SseEmitter.event().id("765431").name("发生异常！").data(throwable.getMessage())
+                    sseEmitter.send(SseEmitter.event().id("765431").name("An exception occurs!").data(throwable.getMessage())
                         .reconnectTime(3000));
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -547,7 +547,7 @@ public class ChatController {
     }
 
     /**
-     * 构建schema参数
+     * Build schema parameters
      *
      * @param tableQueryParam
      * @param tableNames
@@ -589,7 +589,7 @@ public class ChatController {
     }
 
     /**
-     * 构建prompt
+     * build prompt
      *
      * @param queryRequest
      * @return
@@ -599,7 +599,7 @@ public class ChatController {
             return queryRequest.getMessage();
         }
 
-        // 查询schema信息
+        // Query schema information
         String dataSourceType = queryDatabaseType(queryRequest);
         String properties = "";
         if (CollectionUtils.isNotEmpty(queryRequest.getTableNames())) {
@@ -614,15 +614,15 @@ public class ChatController {
         PromptType pType = EasyEnumUtils.getEnum(PromptType.class, promptType);
         String ext = StringUtils.isNotBlank(queryRequest.getExt()) ? queryRequest.getExt() : "";
         String schemaProperty = StringUtils.isNotEmpty(properties) ? String.format(
-            "### 请根据以下table properties和SQL input%s. %s\n#\n### %s SQL tables, with their properties:\n#\n# "
+            "### Please follow the below table properties and SQL input%s. %s\n#\n### %s SQL tables, with their properties:\n#\n# "
                 + "%s\n#\n#\n### SQL input: %s", pType.getDescription(), ext, dataSourceType,
-            properties, prompt) : String.format("### 请根据以下SQL input%s. %s\n#\n### SQL input: %s",
+            properties, prompt) : String.format("### Please follow the below SQL input%s. %s\n#\n### SQL input: %s",
             pType.getDescription(), ext, prompt);
         switch (pType) {
             case SQL_2_SQL:
                 schemaProperty = StringUtils.isNotBlank(queryRequest.getDestSqlType()) ? String.format(
-                    "%s\n#\n### 目标SQL类型: %s", schemaProperty, queryRequest.getDestSqlType()) : String.format(
-                    "%s\n#\n### 目标SQL类型: %s", schemaProperty, dataSourceType);
+                    "%s\n#\n### Target SQL type: %s", schemaProperty, queryRequest.getDestSqlType()) : String.format(
+                    "%s\n#\n### Target SQL type: %s", schemaProperty, dataSourceType);
             default:
                 break;
         }
@@ -657,7 +657,7 @@ public class ChatController {
      * @return
      */
     public String queryDatabaseType(ChatQueryRequest queryRequest) {
-        // 查询schema信息
+        // Query schema information
         DataResult<DataSource> dataResult = dataSourceService.queryById(queryRequest.getDataSourceId());
         String dataSourceType = dataResult.getData().getType();
         if (StringUtils.isBlank(dataSourceType)) {

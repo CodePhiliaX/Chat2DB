@@ -37,10 +37,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * mysql数据运维类
+ * mysql data operation and maintenance class
  *
  * @author moji
- * @version MysqlDataManageController.java, v 0.1 2022年09月16日 17:37 moji Exp $
+ * @version MysqlDataManageController.java, v 0.1 September 16, 2022 17:37 moji Exp $
  * @date 2022/09/16
  */
 @ConnectionInfoAspect
@@ -60,7 +60,7 @@ public class RdbDmlController {
     public static ExecutorService executorService = Executors.newFixedThreadPool(10);
 
     /**
-     * 增删改查等数据运维
+     * Data operation and maintenance such as addition, deletion, modification and query
      *
      * @param request
      * @return
@@ -89,7 +89,7 @@ public class RdbDmlController {
     }
 
     /**
-     * 查询表结构信息
+     * Query table structure information
      *
      * @param request
      * @return
@@ -97,7 +97,7 @@ public class RdbDmlController {
     @RequestMapping(value = "/execute_table", method = {RequestMethod.POST, RequestMethod.PUT})
     public ListResult<ExecuteResultVO> executeTable(@RequestBody DmlTableRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        // 解析sql
+        // parse sql
         String type = Chat2DBContext.getConnectInfo().getDbType();
         MetaData metaData = Chat2DBContext.getMetaData();
         if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
@@ -105,7 +105,7 @@ public class RdbDmlController {
         } else if (DataSourceTypeEnum.SQLSERVER.getCode().equals(type)){
             param.setSql("select * from" + metaData.getMetaDataName(request.getSchemaName()) + "." + metaData.getMetaDataName(request.getTableName()));
         }else {
-            // 拼接`tableName`，避免关键字被占用问题
+            // Splice `tableName` to avoid the problem of keywords being occupied
             param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
         }
         return dlTemplateService.execute(param)
@@ -113,7 +113,7 @@ public class RdbDmlController {
     }
 
     /**
-     * update 查询结果
+     * update search result
      *
      * @param request
      * @return
@@ -146,7 +146,7 @@ public class RdbDmlController {
     }
 
     /**
-     * 增删改查等数据运维
+     * Data operation and maintenance such as addition, deletion, modification and query
      *
      * @param request
      * @return
@@ -189,7 +189,7 @@ public class RdbDmlController {
     }
 
     /**
-     * 统计行的数量
+     * Number of statistics rows
      *
      * @param request
      * @return

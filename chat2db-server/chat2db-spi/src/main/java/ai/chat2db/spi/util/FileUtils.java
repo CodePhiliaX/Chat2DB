@@ -14,7 +14,7 @@ public class FileUtils {
         T value = null;
         try {
             value = mapper.readValue(loaderClass.getResourceAsStream(path), clazz);
-            // 使用obj中的数据
+            // Use data in obj
         } catch (IOException e) {
             return null;
         }

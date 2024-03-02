@@ -27,12 +27,12 @@ public class TeamUserListVO implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 授权id,根据类型区分是用户还是团队
+     * Authorization ID, distinguish whether it is a user or a team according to the type
      */
     private Long id;
 
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */

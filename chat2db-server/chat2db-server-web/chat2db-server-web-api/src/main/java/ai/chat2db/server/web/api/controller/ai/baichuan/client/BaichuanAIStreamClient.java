@@ -95,7 +95,7 @@ public class BaichuanAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -170,7 +170,7 @@ public class BaichuanAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -198,14 +198,14 @@ public class BaichuanAIStreamClient {
                 .url(apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
-            // 发送请求并处理响应
+            //Create event
+            //Send the request and process the response
             try (Response response = this.okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 }
 
-                // 读取并输出响应数据
+                //Read and output response data
                 BufferedSource source = response.body().source();
                 while (!source.exhausted()) {
                     String content = source.readUtf8Line();

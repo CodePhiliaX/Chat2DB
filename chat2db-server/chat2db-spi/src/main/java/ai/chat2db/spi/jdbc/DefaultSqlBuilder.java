@@ -70,18 +70,18 @@ public class DefaultSqlBuilder implements SqlBuilder {
                 Select selectStatement = (Select) statement;
                 PlainSelect plainSelect = (PlainSelect) selectStatement.getSelectBody();
 
-                // 创建新的 ORDER BY 子句
+                // Create a new ORDER BY clause
                 List<OrderByElement> orderByElements = new ArrayList<>();
 
                 for (OrderBy orderBy : orderByList) {
                     OrderByElement orderByElement = new OrderByElement();
                     orderByElement.setExpression(CCJSqlParserUtil.parseExpression(orderBy.getColumnName()));
-                    orderByElement.setAsc(orderBy.isAsc()); // 设置为升序，使用 setAsc(false) 设置为降序
+                    orderByElement.setAsc(orderBy.isAsc()); // Set to ascending order, use setAsc(false) to set to descending order
                     orderByElements.add(orderByElement);
                 }
-                // 替换原有的 ORDER BY 子句
+                // Replace the original ORDER BY clause
                 plainSelect.setOrderByElements(orderByElements);
-                // 输出修改后的 SQL
+                // Output the modified SQL
                 return plainSelect.toString();
             }
         } catch (Exception e) {

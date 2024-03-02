@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 索引
+ * index
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -22,24 +22,24 @@ import lombok.experimental.SuperBuilder;
 public class IndexRequest {
 
     /**
-     * 索引名称
+     * Index name
      */
     private String name;
 
     /**
-     * 所以类型
+     * all types
      *
      * @see IndexTypeEnum
      */
     private String type;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 索引包含的列
+     * Columns included in the index
      */
     private List<TableIndexColumn> columnList;
 

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 数据库
+ * database
  *
  * @author Jiaju Zhuang
  */
@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 public class Database implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 数据库名字
+     * Database name
      */
     @JsonAlias({"TABLE_CAT"})
     private String name;

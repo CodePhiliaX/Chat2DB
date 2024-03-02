@@ -14,9 +14,9 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
  **/
 public class CustomExcelStyle {
     public static WriteCellStyle getContentWriteCellStyle() {
-        //内容样式策略
+        //Content style strategy
         WriteCellStyle contentWriteCellStyle = new WriteCellStyle();
-        //垂直居中,水平居中
+        //Center vertically, center horizontally
         contentWriteCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         contentWriteCellStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
         contentWriteCellStyle.setHorizontalAlignment(HorizontalAlignment.CENTER);
@@ -24,11 +24,11 @@ public class CustomExcelStyle {
         contentWriteCellStyle.setBorderTop(BorderStyle.THIN);
         contentWriteCellStyle.setBorderRight(BorderStyle.THIN);
         contentWriteCellStyle.setBorderBottom(BorderStyle.THIN);
-        //设置 自动换行
+        //Set automatic line wrapping
         contentWriteCellStyle.setWrapped(true);
-        // 字体策略
+        // Font strategy
         WriteFont contentWriteFont = new WriteFont();
-        // 字体大小
+        // font size
         contentWriteFont.setFontHeightInPoints((short) 11);
         contentWriteFont.setFontName("宋体");
         contentWriteFont.setColor(IndexedColors.BLACK.getIndex());
@@ -37,7 +37,7 @@ public class CustomExcelStyle {
     }
 
     public static WriteCellStyle getHeadStyle() {
-        //头策略使用默认 设置字体大小
+        //Header policy uses default settings for font size
         WriteCellStyle headWriteCellStyle = new WriteCellStyle();
 
         headWriteCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);

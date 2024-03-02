@@ -3,7 +3,7 @@
 //public class ViewVO extends TableVO{
 //
 //    /**
-//     * 视图脚本
+//     * view script
 //     */
 //    private String script;
 //}

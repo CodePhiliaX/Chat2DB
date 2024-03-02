@@ -5,10 +5,10 @@ import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.util.ExceptionUtils;
 
 /**
- * 默认的异常处理
- * 直接抛出系统异常
+ * Default exception handling
+ * Throw system exception directly
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class DefaultExceptionConvertor implements ExceptionConvertor<Throwable> {
 

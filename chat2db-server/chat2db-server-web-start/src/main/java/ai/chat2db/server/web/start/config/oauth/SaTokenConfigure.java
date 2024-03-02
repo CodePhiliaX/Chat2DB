@@ -6,16 +6,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * satoken配置
+ * satoken placement
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Configuration
 public class SaTokenConfigure {
     @Bean
     public StpLogic ttpLogic() {
-        // 登录展示用 无状态的 这样不用依赖于与redis之类的
-        // 后续可以改成ehcahe 存储磁盘？
+        // Login display is stateless, so there is no need to rely on redis or the like.
+        // Can it be changed to ehcahe storage disk later?
         return new StpLogicJwtForStateless();
     }
 }

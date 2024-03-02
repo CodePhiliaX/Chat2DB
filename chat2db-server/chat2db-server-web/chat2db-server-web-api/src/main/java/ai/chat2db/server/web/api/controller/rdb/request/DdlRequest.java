@@ -9,39 +9,39 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version TableManageRequest.java, v 0.1 2022年09月16日 17:55 moji Exp $
+ * @version TableManageRequest.java, v 0.1 September 16, 2022 17:55 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class DdlRequest extends DataSourceBaseRequest implements DataSourceConsoleRequestInfo {
 
     /**
-     * sql语句
+     * sql statement
      */
     @NotNull
     private String sql;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 分页编码
-     * 只有select语句才有
+     * Page coding
+     * Only available for select statements
      */
     private Integer pageNo;
 
     /**
-     * 分页大小
-     * 只有select语句才有
+     * Paging Size
+     * Only available for select statements
      */
     private Integer pageSize;
 
     /**
-     * 返回全部数据
-     * 只有select语句才有
+     * Return all data
+     * Only available for select statements
      */
     private Boolean pageSizeAll;
 }

@@ -9,7 +9,7 @@ package ai.chat2db.server.web.api.controller.rdb.doc.constant;
 public final class PatternConstant {
 
     /**
-     * 公共
+     * public
      */
     public static final String MD_SPLIT = "|";
 

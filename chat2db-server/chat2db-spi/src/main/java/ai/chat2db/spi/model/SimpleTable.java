@@ -12,13 +12,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class SimpleTable {
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias({"TABLE_NAME"})
     private String name;
 
     /**
-     * 描述
+     * description
      */
     @JsonAlias({"REMARKS"})
 

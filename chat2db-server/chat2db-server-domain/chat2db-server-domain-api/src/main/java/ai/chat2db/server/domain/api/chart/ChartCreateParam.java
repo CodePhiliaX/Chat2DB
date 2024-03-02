@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ChartCreateParam.java, v 0.1 2023年06月09日 15:38 moji Exp $
+ * @version ChartCreateParam.java, v 0.1 June 9, 2023 15:38 moji Exp $
  * @date 2023/06/09
  */
 @Data
@@ -43,7 +43,7 @@ public class ChartCreateParam {
     private String type;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 

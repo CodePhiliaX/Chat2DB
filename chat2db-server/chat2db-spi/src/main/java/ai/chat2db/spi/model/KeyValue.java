@@ -16,22 +16,22 @@ import org.apache.commons.collections4.CollectionUtils;
 @Data
 public class KeyValue implements Serializable {
     /**
-     * 属性名
+     * attribute name
      */
     private String key;
 
     /**
-     * 属性值
+     * attribute value
      */
     private String value;
 
     /**
-     * 是否必填
+     * Is it required?
      */
     private boolean required;
 
     /**
-     * 选项
+     * Options
      */
     private List<String> choices;
 

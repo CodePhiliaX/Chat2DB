@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version Chart.java, v 0.1 2023年06月09日 15:37 moji Exp $
+ * @version Chart.java, v 0.1 June 9, 2023 15:37 moji Exp $
  * @date 2023/06/09
  */
 @Data
@@ -63,7 +63,7 @@ public class Chart {
     private String type;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 
