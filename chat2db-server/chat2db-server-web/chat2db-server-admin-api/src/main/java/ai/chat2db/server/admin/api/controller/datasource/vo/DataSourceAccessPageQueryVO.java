@@ -14,12 +14,12 @@ import lombok.Data;
 public class DataSourceAccessPageQueryVO {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */
@@ -27,13 +27,13 @@ public class DataSourceAccessPageQueryVO {
     private String accessObjectType;
 
     /**
-     * 授权id,根据类型区分是用户还是团队
+     * Authorization ID, distinguish whether it is a user or a team according to the type
      */
     @NotNull
     private Long accessObjectId;
 
     /**
-     * 授权对象
+     * Authorization object
      */
     @NotNull
     private DataSourceAccessObjectVO accessObject;

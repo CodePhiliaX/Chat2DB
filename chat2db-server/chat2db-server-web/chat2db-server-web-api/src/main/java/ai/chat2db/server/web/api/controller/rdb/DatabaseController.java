@@ -46,7 +46,7 @@ public class DatabaseController {
     public DatabaseConverter databaseConverter;
 
     /**
-     * 查询数据库里包含的database_schema_list
+     * Query the database_schema_list contained in the database
      *
      * @param request
      * @return
@@ -71,7 +71,7 @@ public class DatabaseController {
     }
 
     /**
-     * 删除数据库
+     * Delete database
      *
      * @param request
      * @return
@@ -83,7 +83,7 @@ public class DatabaseController {
     }
 
     /**
-     * 创建database
+     * create database
      *
      * @param request
      * @return
@@ -98,7 +98,7 @@ public class DatabaseController {
     }
 
     /**
-     * 修改database
+     * Modify database
      *
      * @param request
      * @return

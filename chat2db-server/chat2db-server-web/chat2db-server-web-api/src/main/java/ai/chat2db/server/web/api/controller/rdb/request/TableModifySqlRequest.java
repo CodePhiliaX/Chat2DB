@@ -7,21 +7,21 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import lombok.Data;
 
 /**
- * 修改表sql请求
+ * Modify table sql request
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 public class TableModifySqlRequest extends DataSourceBaseRequest {
 
     /**
-     * 旧的表结构
-     * 为空代表新建表
+     * Old table structure
+     * Empty means creating a new table
      */
     private TableRequest oldTable;
 
     /**
-     * 新的表结构
+     * new table structure
      */
     @NotNull
     private TableRequest newTable;

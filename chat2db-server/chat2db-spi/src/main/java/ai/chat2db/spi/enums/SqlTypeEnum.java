@@ -4,21 +4,21 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * sq类型
+ * sql type
  *
  * @author Jiaju Zhuang
  */
 @Getter
 public enum SqlTypeEnum implements BaseEnum<String> {
     /**
-     * 查询语句
+     * Check for phrases
      */
-    SELECT("查询语句"),
+    SELECT("Check for phrases"),
 
     /**
-     * 未知
+     * unknow
      */
-    UNKNOWN("未知"),
+    UNKNOWN("unknow"),
 
     ;
 

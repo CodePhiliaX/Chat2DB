@@ -8,7 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Navicat12及以上密码加密解密
+ * Navicat12 and above password encryption and decryption
  *
  * @author lzy
  */

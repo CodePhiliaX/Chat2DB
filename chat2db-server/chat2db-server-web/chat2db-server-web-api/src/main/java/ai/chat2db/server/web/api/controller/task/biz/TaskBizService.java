@@ -141,7 +141,7 @@ public class TaskBizService {
             Class<?> targetClass = ExportServiceFactory.get(request.getExportType());
             Constructor<?> constructor = targetClass.getDeclaredConstructor();
             DatabaseExportService databaseExportService = (DatabaseExportService) constructor.newInstance();
-            // 设置数据集合
+            // Set up data collection
             databaseExportService.setExportList(tableVOS);
             databaseExportService.generate(request.getDatabaseName(), new FileOutputStream(file), new ExportOptions());
         } catch (Exception e) {

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * sql对象
+ * sql object
  *
  * @author Jiaju Zhuang
  */

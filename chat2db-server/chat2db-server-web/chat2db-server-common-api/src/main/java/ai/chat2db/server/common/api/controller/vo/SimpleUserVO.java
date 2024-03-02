@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.common.api.controller.vo;
 
 import java.io.Serial;
@@ -25,17 +24,17 @@ SimpleUserVO implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 用户名
+     * username
      */
     private String userName;
 
     /**
-     * 昵称
+     * Nick name
      */
     private String nickName;
 }

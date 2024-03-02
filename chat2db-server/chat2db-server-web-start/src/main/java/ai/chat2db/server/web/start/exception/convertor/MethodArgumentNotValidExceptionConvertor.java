@@ -7,7 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 /**
  * MethodArgumentNotValidException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class MethodArgumentNotValidExceptionConvertor implements ExceptionConvertor<MethodArgumentNotValidException> {
 

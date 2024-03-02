@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class TeamUserPageQueryVO {
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 

@@ -12,17 +12,17 @@ public class ProcedureDetailRequest implements DataSourceBaseRequestInfo {
     @Serial
     private static final long serialVersionUID = -364547173428396332L;
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间，pg,oracle需要，mysql不需要
+     * The space where the table is located is required by pg and oracle, but not by mysql.
      */
     private String schemaName;
 

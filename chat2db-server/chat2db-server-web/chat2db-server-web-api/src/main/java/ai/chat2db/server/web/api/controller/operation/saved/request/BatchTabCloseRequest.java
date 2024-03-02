@@ -13,7 +13,7 @@ import lombok.Data;
 public class BatchTabCloseRequest {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private List<Long> idList;

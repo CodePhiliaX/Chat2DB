@@ -39,7 +39,7 @@ public class ExportWordSuperService extends DatabaseExportService {
     }
 
     /**
-     * Word导出
+     * Word export
      **/
     @SneakyThrows
     @Override
@@ -51,18 +51,18 @@ public class ExportWordSuperService extends DatabaseExportService {
                 .stream().collect(Collectors.groupingBy(v -> v.getKey().split("---")[0]));
         List<Map<String, Object>> list = new ArrayList<>();
         Map<String, Object> myDataMap = new HashMap<>(2);
-        //索引表头
+        //Index header
         RowRenderData indexHeaderRow = Rows.of(CommonConstant.INDEX_HEAD_NAMES).center().textBold().textColor("000000").bgColor("bfbfbf").create();
-        //字段表头
+        //Field header
         RowRenderData tableHeaderRow = Rows.of(CommonConstant.COLUMN_HEAD_NAMES).center().textBold().textColor("000000").bgColor("bfbfbf").create();
         for (Map.Entry<String, List<Map.Entry<String, List<TableParameter>>>> myMap : allMap.entrySet()) {
-            //数据库名
+            //Database name
             String database = myMap.getKey();
             int i = 1;
             for (Map.Entry<String, List<TableParameter>> parameterMap : myMap.getValue()) {
-                //初始化容量 3/0.75 + 1
+                //Initial capacity 3/0.75 + 1
                 Map<String, Object> tableData = new HashMap<>(8);
-                //索引Table
+                //IndexTable
                 if (isExportIndex) {
                     String name = parameterMap.getKey().split("\\[")[0];
                     List<IndexInfo> indexInfoVOList = indexMap.get(name);
@@ -74,7 +74,7 @@ public class ExportWordSuperService extends DatabaseExportService {
                     map.put("dataBase", database);
                     tableData.put("ifDatabase", map);
                 }
-                //表名
+                //Table Name
                 String tableName = parameterMap.getKey().split("---")[1];
                 tableData.put("number", i);
                 tableData.put("name", tableName);
@@ -86,7 +86,7 @@ public class ExportWordSuperService extends DatabaseExportService {
             }
         }
         myDataMap.put("mydata", Includes.ofStream(subFile).setRenderModel(list).create());
-        /*根据模板生成文档*/
+        /*Generate documents based on template*/
         XWPFTemplate template = XWPFTemplate.compile(filePath).render(myDataMap);
         AddToTopic.generateTOC(template.getXWPFDocument(), outputStream);
     }

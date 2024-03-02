@@ -6,12 +6,12 @@ import lombok.Data;
 public class OrderBy {
 
     /**
-     * 排序字段
+     * sort field
      */
     private String columnName;
 
     /**
-     * 排序方式
+     * sort by
      */
     private boolean asc;
 }

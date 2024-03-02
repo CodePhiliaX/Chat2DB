@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 描述：OpenAIEventSourceListener
+ * description：OpenAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22

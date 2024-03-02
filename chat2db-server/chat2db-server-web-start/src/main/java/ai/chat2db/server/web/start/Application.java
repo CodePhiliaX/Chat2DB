@@ -18,7 +18,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Indexed;
 
 /**
- * 启动类
+ * Startup class
  *
  * @author Jiaju Zhuang
  */

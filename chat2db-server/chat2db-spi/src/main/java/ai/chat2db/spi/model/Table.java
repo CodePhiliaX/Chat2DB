@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 /**
- * 表信息
+ * Table information
  *
  * @author Jiaju Zhuang
  */
@@ -20,54 +20,54 @@ import java.util.List;
 public class Table {
 
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias({"TABLE_NAME"})
     private String name;
 
     /**
-     * 描述
+     * description
      */
     @JsonAlias({"REMARKS"})
 
     private String comment;
 
     /**
-     * DB 名
+     * DB name
      */
     @JsonAlias({"TABLE_SCHEM"})
 
     private String schemaName;
 
     /**
-     * 列列表
+     * columnList
      */
     private List<TableColumn> columnList;
 
     /**
-     * 索引列表
+     * indexList
      */
     private List<TableIndex> indexList;
 
     /**
-     * DB类型
+     * DB type
      */
     private String dbType;
 
     /**
-     * 数据库名
+     * Database name
      */
     @JsonAlias("TABLE_CAT")
     private String databaseName;
 
     /**
-     * 表类型
+     * table type
      */
     @JsonAlias("TABLE_TYPE")
     private String type;
 
     /**
-     * 是否置顶
+     * Whether to pin it to the top
      */
     private boolean pinned;
 

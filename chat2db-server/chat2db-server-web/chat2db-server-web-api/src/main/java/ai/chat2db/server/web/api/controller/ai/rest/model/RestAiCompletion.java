@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * @author moji
- * @version RestAiCompletion.java, v 0.1 2023年05月27日 14:00 moji Exp $
+ * @version RestAiCompletion.java, v 0.1 May 27, 2023 14:00 moji Exp $
  * @date 2023/05/27
  */
 @Data
@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 public class RestAiCompletion implements Serializable {
 
     /**
-     * 提示语
+     * hint
      */
     private String prompt;
 

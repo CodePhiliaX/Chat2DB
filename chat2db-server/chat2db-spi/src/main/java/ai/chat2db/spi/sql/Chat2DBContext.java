@@ -58,7 +58,7 @@ public class Chat2DBContext {
     }
 
     /**
-     * 获取当前线程的ContentContext
+     * Get the ContentContext of the current thread
      *
      * @return
      */
@@ -130,7 +130,7 @@ public class Chat2DBContext {
 
 
     /**
-     * 设置context
+     * Set context
      *
      * @param info
      */
@@ -151,7 +151,7 @@ public class Chat2DBContext {
     }
 
     /**
-     * 设置context
+     * Set context
      */
     public static void removeContext() {
         ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();

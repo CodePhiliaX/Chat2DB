@@ -14,7 +14,7 @@ import org.mapstruct.Mapper;
 public abstract class SSHWebConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

@@ -13,7 +13,7 @@ package ai.chat2db.server.web.start.config;//package ai.chat2db.server.start.con
 //
 //    @Override
 //    public void onApplicationEvent(ApplicationReadyEvent event) {
-//        // 启动读取 stdin 的线程
+//        // Start a thread that reads stdin
 //        new Thread(() -> readStdin()).start();
 //    }
 //
@@ -21,9 +21,9 @@ package ai.chat2db.server.web.start.config;//package ai.chat2db.server.start.con
 //        Scanner scanner = new Scanner(System.in);
 //        while (scanner.hasNextLine()) {
 //            String line = scanner.nextLine();
-//            // 处理接收到的数据
-//            System.out.println("接收到数据: " + line);
-//            // 在这里调用其他服务或逻辑
+//            // Process the received data
+//            System.out.println("data received: " + line);
+//            // Call other services or logic here
 //        }
 //    }
 //

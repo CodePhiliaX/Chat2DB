@@ -46,7 +46,7 @@ public class TableCacheVersionDO implements Serializable {
     private Long dataSourceId;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 

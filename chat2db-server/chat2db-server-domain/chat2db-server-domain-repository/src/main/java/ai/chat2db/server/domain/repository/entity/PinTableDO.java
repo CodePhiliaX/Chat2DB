@@ -38,7 +38,7 @@ public class PinTableDO implements Serializable {
     private Long dataSourceId;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 

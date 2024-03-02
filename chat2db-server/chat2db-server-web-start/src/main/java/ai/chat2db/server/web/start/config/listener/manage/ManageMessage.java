@@ -10,7 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 管理的消息
+ * Administrative messages
  *
  * @author Jiaju Zhuang
  */
@@ -23,7 +23,7 @@ public class ManageMessage implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 消息类型
+     * Message type
      *
      * @see MessageTypeEnum
      */

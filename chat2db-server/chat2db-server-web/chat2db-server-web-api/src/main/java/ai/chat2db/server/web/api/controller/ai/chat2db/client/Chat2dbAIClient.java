@@ -20,12 +20,12 @@ public class Chat2dbAIClient {
     public static final String CHAT2DB_OPENAI_KEY = "chat2db.apiKey";
 
     /**
-     * OPENAI接口域名
+     * OPENAI interface domain name
      */
     public static final String CHAT2DB_OPENAI_HOST = "chat2db.apiHost";
 
     /**
-     * OPENAI模型
+     * OPENAI model
      */
     public static final String CHAT2DB_OPENAI_MODEL = "chat2db.model";
 

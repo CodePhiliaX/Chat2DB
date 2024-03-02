@@ -16,7 +16,7 @@ import okhttp3.sse.EventSourceListener;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * 描述：OpenAIEventSourceListener
+ * description：OpenAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -44,9 +44,9 @@ public class OpenAIEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onEvent(EventSource eventSource, String id, String type, String data) {
-        log.info("OpenAI返回数据：{}", data);
+        log.info("OpenAI returns data: {}", data);
         if (data.equals("[DONE]")) {
-            log.info("OpenAI返回数据结束了");
+            log.info("OpenAI returns data ended");
             sseEmitter.send(SseEmitter.event()
                 .id("[DONE]")
                 .data("[DONE]")
@@ -56,7 +56,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
         }
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // 读取Json
+        // Read JSON
         ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class);
         String text = completionResponse.getChoices().get(0).getDelta() == null
             ? completionResponse.getChoices().get(0).getText()
@@ -74,7 +74,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
     @Override
     public void onClosed(EventSource eventSource) {
         sseEmitter.complete();
-        log.info("OpenAI关闭sse连接...");
+        log.info("OpenAI closes sse connection...");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             if (Objects.isNull(response)) {
                 String message = t.getMessage();
                 if ("No route to host".equals(message)) {
-                    message = "网络连接超时，请百度自行解决网络问题";
+                    message = "The network connection timed out. Please Baidu solve the network problem by yourself.";
                 }
                 Message sseMessage = new Message();
                 sseMessage.setContent(message);
@@ -100,13 +100,13 @@ public class OpenAIEventSourceListener extends EventSourceListener {
             String bodyString = null;
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("OpenAI  sse连接异常data：{}", bodyString, t);
+                log.error("OpenAI sse connection exception data: {}", bodyString, t);
             } else {
-                log.error("OpenAI  sse连接异常data：{}", response, t);
+                log.error("OpenAI sse connection exception data: {}", response, t);
             }
             eventSource.cancel();
             Message message = new Message();
-            message.setContent("出现异常,请在帮助中查看详细日志：" + bodyString);
+            message.setContent("An exception occurred, please view the detailed log in the help：" + bodyString);
             sseEmitter.send(SseEmitter.event()
                 .id("[ERROR]")
                 .data(message));
@@ -115,7 +115,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("发送数据异常:", exception);
+            log.error("Exception in sending data:", exception);
         }
     }
 }

@@ -56,7 +56,7 @@ public class ConfigController {
     }
 
     /**
-     * 保存ChatGPT相关配置
+     * Save ChatGPT related configurations
      *
      * @param request
      * @return

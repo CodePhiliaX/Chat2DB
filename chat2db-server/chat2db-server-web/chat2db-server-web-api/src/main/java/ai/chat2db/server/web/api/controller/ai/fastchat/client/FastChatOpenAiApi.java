@@ -35,7 +35,7 @@ import retrofit2.http.*;
 import java.util.Map;
 
 /**
- * 描述： open ai官方api接口
+ * Description: open ai official api interface
  *
  * @author https:www.unfbx.com
  *  2023-02-15

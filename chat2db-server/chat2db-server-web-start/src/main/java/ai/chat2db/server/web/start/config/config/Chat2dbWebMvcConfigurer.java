@@ -39,21 +39,21 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 /**
- * web项目配置
+ * web project configuration
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Configuration
 @Slf4j
 public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
 
     /**
-     * api前缀
+     * api prefix
      */
     private static final String API_PREFIX = "/api/";
 
     /**
-     * 全局放行的url
+     * Globally released url
      */
     private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**",
         "/api/system", "/login", "/api/system/get_latest_version"};
@@ -68,7 +68,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        // 所有请求尝试加入用户信息
+        // All requests try to add user information
         registry.addInterceptor(new AsyncHandlerInterceptor() {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
@@ -76,7 +76,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                     Dbutils.setSession();
                     String userIdString = (String)StpUtil.getLoginIdDefaultNull();
                     Long userId;
-                    // 未登录
+                    // Not logged in
                     if (!StringUtils.isNumeric(userIdString)) {
                         if (chat2dbProperties.getMode() == ModeEnum.DESKTOP) {
                             userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
@@ -107,7 +107,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                     });
 
                     if (loginUser == null) {
-                        // 代表用户可能被删除了
+                        // Indicates that the user may have been deleted
                         return true;
                     }
 
@@ -121,7 +121,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 @Override
                 public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                     Exception ex) throws Exception {
-                    // 移除登录信息
+                    // Remove login information
                     ContextUtils.removeContext();
                     Dbutils.removeSession();
                 }
@@ -130,15 +130,15 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
             .addPathPatterns("/**")
             .excludePathPatterns(FRONT_PERMIT_ALL);
 
-        // 校验登录信息
+        // Verify login information
         registry.addInterceptor(new AsyncHandlerInterceptor() {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
                     @NotNull Object handler) throws IOException {
                     Context context = ContextUtils.queryContext();
-                    // 校验登录信息
+                    // Verify login information
                     if (context == null) {
-                        log.info("访问{},{}需要登录", buildHeaderString(request), SaHolder.getRequest().getUrl());
+                        log.info("Login is required to access {},{}", buildHeaderString(request), SaHolder.getRequest().getUrl());
 
                         String path = SaHolder.getRequest().getRequestPath();
 //                        if(path.startsWith("/login")){
@@ -160,14 +160,14 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
             })
             .order(2)
             .addPathPatterns("/**")
-            // 前端需要放行的链接
+            // Links that need to be released on the front end
             .excludePathPatterns(FRONT_PERMIT_ALL)
-            // -a结尾的统一放行
+            // Uniform release ending in -a
             .excludePathPatterns("/**/*-a")
-            // _a结尾的统一放行
+            // Uniform release of endings in _a
             .excludePathPatterns("/**/*_a");
 
-        // 校验权限
+        // Verify permissions
         registry.addInterceptor(new AsyncHandlerInterceptor() {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,

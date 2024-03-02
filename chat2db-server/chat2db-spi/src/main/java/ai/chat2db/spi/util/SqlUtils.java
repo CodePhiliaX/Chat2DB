@@ -56,10 +56,10 @@ public class SqlUtils {
                             }
                             if (item instanceof SelectExpressionItem) {
                                 SelectExpressionItem selectExpressionItem = (SelectExpressionItem) item;
-                                // 如果表达式是一个函数
+                                // if the expression is a function
                                 if (selectExpressionItem.getExpression() instanceof Function) {
                                     Function function = (Function) selectExpressionItem.getExpression();
-                                    // 检查函数是否为 "COUNT"
+                                    // Check if the function is "COUNT"
                                     if ("COUNT".equalsIgnoreCase(function.getName())) {
                                         executeResult.setCanEdit(false);
                                         return;
@@ -119,7 +119,7 @@ public class SqlUtils {
         List<String> list = new ArrayList<>();
         try {
             Statements statements = CCJSqlParserUtil.parseStatements(sql);
-            // 遍历每个语句
+            // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
                 list.add(stmt.toString());
             }
@@ -148,10 +148,10 @@ public class SqlUtils {
             if (statement instanceof Select) {
                 Select selectStatement = (Select) statement;
                 SelectBody selectBody = selectStatement.getSelectBody();
-                // 检查常见的分页方法
+                // Check out common pagination methods
                 if (selectBody instanceof PlainSelect) {
                     PlainSelect plainSelect = (PlainSelect) selectBody;
-                    // 检查 LIMIT
+                    // CHECK LIMIT
                     if (plainSelect.getLimit() != null || plainSelect.getOffset() != null || plainSelect.getTop() != null || plainSelect.getFetch() != null) {
                         return true;
                     }

@@ -6,34 +6,34 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlCreateRequest.java, v 0.1 2022年09月18日 11:13 moji Exp $
+ * @version DdlCreateRequest.java, v 0.1 September 18, 2022 11:13 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationQueryRequest extends PageQueryRequest {
 
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 模糊搜索词
+     * Fuzzy search terms
      */
     private String searchKey;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 

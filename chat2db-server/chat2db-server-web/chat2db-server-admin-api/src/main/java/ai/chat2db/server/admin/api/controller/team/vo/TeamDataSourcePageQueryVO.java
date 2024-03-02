@@ -14,7 +14,7 @@ import lombok.Data;
 public class TeamDataSourcePageQueryVO {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;

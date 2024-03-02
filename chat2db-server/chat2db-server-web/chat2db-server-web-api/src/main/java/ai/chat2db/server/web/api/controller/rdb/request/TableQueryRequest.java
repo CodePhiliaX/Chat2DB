@@ -22,19 +22,19 @@ public class TableQueryRequest extends PageQueryRequest implements DataSourceBas
     private static final long serialVersionUID = 5794716286491282784L;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * DB name
      */
     @NotNull
     private String databaseName;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 }

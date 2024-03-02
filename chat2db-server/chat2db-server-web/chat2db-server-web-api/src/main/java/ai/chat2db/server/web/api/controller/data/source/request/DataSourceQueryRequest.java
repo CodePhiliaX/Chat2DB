@@ -5,18 +5,18 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionQueryRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @version ConnectionQueryRequest.java, v 0.1 September 16, 2022 14:23 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class DataSourceQueryRequest extends PageQueryRequest {
 
     /**
-     * 别名模糊搜索词
+     * Alias fuzzy search terms
      */
     private String searchKey;
     /**
-     * 连接类型
+     * Connection Type
      *
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */

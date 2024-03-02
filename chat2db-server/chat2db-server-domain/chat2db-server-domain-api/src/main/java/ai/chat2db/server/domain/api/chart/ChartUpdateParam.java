@@ -48,7 +48,7 @@ public class ChartUpdateParam {
     private String type;
 
     /**
-     * db name
+     * DB name
      */
     private String databaseName;
 

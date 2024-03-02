@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.lang.Nullable;
 
 /**
- * jdbc工具类
+ * jdbc tool class
  *
  * @author Jiaju Zhuang
  */
@@ -32,7 +32,7 @@ public class JdbcUtils {
     private static final long MAX_RESULT_SIZE = 256 * 1024;
 
     /**
-     * 获取德鲁伊的的数据库类型
+     * Get the database type of Druid
      *
      * @param dbType
      * @return
@@ -49,7 +49,7 @@ public class JdbcUtils {
     }
 
     /**
-     * 解析字段的类型
+     * Parse field type
      *
      * @param typeName
      * @param type
@@ -131,12 +131,12 @@ public class JdbcUtils {
     }
 
     /**
-     * 测试数据库连接
+     * Test database connection
      *
-     * @param url      数据库连接
-     * @param userName 用户名
-     * @param password 密码
-     * @param dbType   数据库类型
+     * @param url database connection
+     * @param userName username
+     * @param password password
+     * @param dbType database type
      * @return
      */
     public static DataSourceConnect testConnect(String url, String host, String port,
@@ -147,7 +147,7 @@ public class JdbcUtils {
                 .build();
         Session session = null;
         Connection connection = null;
-        // 加载驱动
+        // Load driver
         try {
             if (ssh.isUse()) {
                 ssh.setRHost(host);
@@ -155,13 +155,13 @@ public class JdbcUtils {
                 session = SSHManager.getSSHSession(ssh);
                 url = url.replace(host, "127.0.0.1").replace(port, ssh.getLocalPort());
             }
-            // 创建连接
+            // Create connection
             connection = IDriverManager.getConnection(url, userName, password,
                     driverConfig, properties);
         } catch (Exception e) {
             log.error("connection fail:", e);
             dataSourceConnect.setSuccess(Boolean.FALSE);
-            // 获取最后一个异常的信息给前端
+            // Get the last exception information to the front end
             Throwable t = e;
             while (t.getCause() != null) {
                 t = t.getCause();

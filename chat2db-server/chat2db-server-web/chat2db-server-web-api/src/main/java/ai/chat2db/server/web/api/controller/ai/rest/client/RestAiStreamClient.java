@@ -26,7 +26,7 @@ import okhttp3.sse.EventSources;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * 自定义AI接口client
+ * Custom AI interface client
  * @author moji
  */
 @Slf4j
@@ -38,7 +38,7 @@ public class RestAiStreamClient {
     private String apiUrl;
 
     /**
-     * 是否流式接口
+     * Whether to stream interface
      */
     @Getter
     private Boolean stream;
@@ -49,7 +49,7 @@ public class RestAiStreamClient {
     private OkHttpClient okHttpClient;
 
     /**
-     * 构造实例对象
+     * Construct instance object
      *
      * @param url
      */
@@ -65,39 +65,39 @@ public class RestAiStreamClient {
     }
 
     /**
-     * 请求RESTAI接口
+     * Request RESTAI interface
      *
      * @param prompt
      * @param eventSourceListener
      */
     public void restCompletions(String prompt,
         EventSourceListener eventSourceListener) {
-        log.info("开始调用自定义AI, prompt:{}", prompt);
+        log.info("Start calling the custom AI, prompt:{}", prompt);
         RestAiCompletion completion = new RestAiCompletion();
         completion.setPrompt(prompt);
         if (Objects.isNull(stream) || stream) {
             streamCompletions(completion, eventSourceListener);
-            log.info("结束调用流式输出自定义AI");
+            log.info("End calling streaming output custom AI");
             return;
         }
         nonStreamCompletions(completion, eventSourceListener);
-        log.info("结束调用非流式输出自定义AI");
+        log.info("End calling non-streaming output custom AI");
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
-     * @param completion          open ai 参数
-     * @param eventSourceListener sse监听器
+     * @param completion open ai parameter
+     * @param eventSourceListener sse listener
      * @see ConsoleEventSourceListener
      */
     public void streamCompletions(RestAiCompletion completion, EventSourceListener eventSourceListener) {
         if (Objects.isNull(eventSourceListener)) {
-            log.error("参数异常：EventSourceListener不能为空");
+            log.error("Parameter exception: EventSourceListener cannot be empty");
             throw new ParamBusinessException();
         }
         if (StringUtils.isBlank(completion.getPrompt())) {
-            log.error("参数异常：Prompt不能为空");
+            log.error("Parameter exception: Prompt cannot be empty");
             throw new ParamBusinessException();
         }
         try {
@@ -109,23 +109,23 @@ public class RestAiStreamClient {
                 .url(this.apiUrl)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
         } catch (Exception e) {
-            log.error("请求参数解析异常", e);
+            log.error("Request parameter parsing exception", e);
             throw new ParamBusinessException();
         }
     }
 
     /**
-     * 请求非流式输出接口
+     * Request non-streaming output interface
      *
      * @param completion
      * @param eventSourceListener
      */
     public void nonStreamCompletions(RestAiCompletion completion, EventSourceListener eventSourceListener) {
         if (StringUtils.isBlank(completion.getPrompt())) {
-            log.error("参数异常：Prompt不能为空");
+            log.error("Parameter exception: Prompt cannot be empty");
             throw new ParamBusinessException();
         }
         try {
@@ -158,7 +158,7 @@ public class RestAiStreamClient {
             });
 
         } catch (Exception e) {
-            log.error("请求参数解析异常", e);
+            log.error("Request parameter parsing exception", e);
             throw new ParamBusinessException();
         }
     }

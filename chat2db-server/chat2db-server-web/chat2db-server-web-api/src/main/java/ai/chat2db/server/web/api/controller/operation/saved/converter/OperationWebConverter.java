@@ -17,14 +17,14 @@ import org.mapstruct.Mappings;
 
 /**
  * @author moji
- * @version DdlManageWebConverter.java, v 0.1 2022年09月26日 10:08 moji Exp $
+ * @version DdlManageWebConverter.java, v 0.1 September 26, 2022 10:08 moji Exp $
  * @date 2022/09/26
  */
 @Mapper(componentModel = "spring")
 public abstract class OperationWebConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -32,7 +32,7 @@ public abstract class OperationWebConverter {
     public abstract OperationSavedParam req2param(OperationCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -40,7 +40,7 @@ public abstract class OperationWebConverter {
     public abstract OperationUpdateParam updateReq2param(OperationUpdateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -48,7 +48,7 @@ public abstract class OperationWebConverter {
     public abstract OperationPageQueryParam queryReq2param(OperationQueryRequest request, Long userId);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param ddlDTO
      * @return
@@ -59,7 +59,7 @@ public abstract class OperationWebConverter {
     public abstract OperationVO dto2vo(Operation ddlDTO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param ddlDTOS
      * @return

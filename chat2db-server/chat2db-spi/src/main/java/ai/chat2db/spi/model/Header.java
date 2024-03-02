@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 单元格头
+ * cell header
  *
  * @author Jiaju Zhuang
  */
@@ -17,14 +17,14 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class Header{
     /**
-     * 单元格类型
+     * cell type
      *
      * @see DataTypeEnum
      */
     private String dataType;
 
     /**
-     * 展示的名字
+     * display name
      */
     private String name;
 

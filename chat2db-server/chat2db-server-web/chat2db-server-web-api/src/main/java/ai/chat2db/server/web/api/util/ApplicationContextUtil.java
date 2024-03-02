@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ApplicationContextUtil implements ApplicationContextAware {
 
     /**
-     * 上下文对象实例
+     * context object instance
      */
     private static ApplicationContext applicationContext;
 
@@ -26,7 +26,7 @@ public class ApplicationContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 获取applicationContext
+     * Get applicationContext
      *
      * @return
      */
@@ -35,7 +35,7 @@ public class ApplicationContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 通过name获取 Bean.
+     *  Get bean by name
      *
      * @param name
      * @return
@@ -45,7 +45,7 @@ public class ApplicationContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 通过class获取Bean.
+     * Get Bean through class.
      *
      * @param clazz
      * @param <T>
@@ -56,7 +56,7 @@ public class ApplicationContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 通过name,以及Clazz返回指定的Bean
+     * Return the specified Bean through name and Clazz
      *
      * @param name
      * @param clazz
@@ -68,7 +68,7 @@ public class ApplicationContextUtil implements ApplicationContextAware {
     }
 
     /**
-     * 获取配置文件中的值
+     * Get the value in the configuration file
      * @param key
      * @return
      */

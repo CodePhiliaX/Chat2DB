@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.web.api.aspect;
 
 import java.lang.annotation.Documented;

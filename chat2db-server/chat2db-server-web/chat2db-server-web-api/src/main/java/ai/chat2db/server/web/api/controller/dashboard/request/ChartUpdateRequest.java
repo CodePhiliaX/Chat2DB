@@ -6,49 +6,49 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ChartUpdateParam.java, v 0.1 2023年06月09日 15:39 moji Exp $
+ * @version ChartUpdateParam.java, v 0.1 June 9, 2023 15:39 moji Exp $
  * @date 2023/06/09
  */
 @Data
 public class ChartUpdateRequest {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 图表名称
+     * Chart name
      */
     private String name;
 
     /**
-     * 图表信息
+     * chart information
      */
     private String schema;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 

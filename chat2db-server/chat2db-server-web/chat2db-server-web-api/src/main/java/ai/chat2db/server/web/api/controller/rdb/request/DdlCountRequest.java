@@ -8,7 +8,7 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsol
 import lombok.Data;
 
 /**
- * 统计数量
+ * total number
  *
  * @author Jiaju Zhuang
  */
@@ -16,13 +16,13 @@ import lombok.Data;
 public class DdlCountRequest extends DataSourceBaseRequest implements DataSourceConsoleRequestInfo {
 
     /**
-     * sql语句
+     * sql statement
      */
     @NotNull
     private String sql;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;

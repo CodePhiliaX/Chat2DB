@@ -6,7 +6,7 @@ import lombok.Getter;
 
 /**
  * @author moji
- * @version GptModelType.java, v 0.1 2023年04月09日 19:05 moji Exp $
+ * @version GptModelType.java, v 0.1 April 9, 2023 19:05 moji Exp $
  * @date 2023/04/09
  */
 @Getter

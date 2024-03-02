@@ -4,36 +4,36 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 驱动类枚举
+ * Driver class enumeration
  *
  * @author Jiaju Zhuang
  */
 @Getter
 public enum CellTypeEnum implements BaseEnum<String> {
     /**
-     * 字符串
+     * string
      */
-    STRING("字符串"),
+    STRING("string"),
 
     /**
-     * 数字
+     * number
      */
-    BIG_DECIMAL("数字"),
+    BIG_DECIMAL("number"),
 
     /**
-     * 日期
+     * date
      */
-    DATE("日期"),
+    DATE("date"),
 
     /**
-     * 二进制流
+     * binary stream
      */
-    BYTE("二进制流"),
+    BYTE("binary stream"),
 
     /**
-     * 空数据
+     * empty data
      */
-    EMPTY("空数据"),
+    EMPTY("empty data"),
     ;
 
     final String description;
