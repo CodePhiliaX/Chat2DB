@@ -1,140 +1,89 @@
-//package ai.chat2db.plugin.oceanbase.type;
-//
-//import ai.chat2db.spi.ColumnBuilder;
-//import ai.chat2db.spi.enums.EditStatus;
-//import ai.chat2db.spi.model.ColumnType;
-//import ai.chat2db.spi.model.TableColumn;
-//import com.google.common.collect.Maps;
-//import org.apache.commons.lang3.StringUtils;
-//
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Map;
-//
-//public enum OceanBaseColumnTypeEnum implements ColumnBuilder {
-//
-//    BIT("BIT", true, false, true, false, false, false, true, true, false, false),
-//
-//    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false, false),
-//
-//    TINYINT_UNSIGNED("TINYINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//    SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false, false),
-//
-//    SMALLINT_UNSIGNED("SMALLINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//    MEDIUMINT("MEDIUMINT", false, false, true, true, false, false, true, true, false, false),
-//
-//    MEDIUMINT_UNSIGNED("MEDIUMINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//    INT("INT", false, false, true, true, false, false, true, true, false, false),
-//
-//
-//    INT_UNSIGNED("INT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//    BIGINT("BIGINT", false, false, true, true, false, false, true, true, false, false),
-//
-//
-//    BIGINT_UNSIGNED("BIGINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//
-//    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
-//
-//    DECIMAL_UNSIGNED("DECIMAL UNSIGNED", true, true, true, false, false, false, true, true, false, false),
-//
-//
-//    FLOAT("FLOAT", true, true, true, false, false, false, true, true, false, false),
-//
-//    FLOAT_UNSIGNED("FLOAT UNSIGNED", true, true, true, false, false, false, true, true, false, false),
-//
-//    DOUBLE("DOUBLE", true, true, true, false, false, false, true, true, false, false),
-//
-//    DOUBLE_UNSIGNED("DOUBLE UNSIGNED", true, true, true, false, false, false, true, true, false, false),
-//    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
-//    DATETIME("DATETIME", true, false, true, false, false, false, true, true, true, false),
-//
-//    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true, false),
-//    TIME("TIME", true, false, true, false, false, false, true, true, false, false),
-//    YEAR("YEAR", false, false, true, false, false, false, true, true, false, false),
-//    CHAR("CHAR", true, false, true, false, true, true, true, true, false, false),
-//
-//    VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false, false),
-//
-//    BINARY("BINARY", true, false, true, false, false, false, true, true, false, false),
-//
-//    VARBINARY("VARBINARY", true, false, true, false, false, false, true, true, false, false),
-//
-//    TINYBLOB("TINYBLOB", false, false, true, false, false, false, true, false, false, false),
-//
-//    BLOB("BLOB", false, false, true, false, false, false, true, false, false, false),
-//
-//    MEDIUMBLOB("MEDIUMBLOB", false, false, true, false, false, false, true, false, false, false),
-//
-//    LONGBLOB("LONGBLOB", false, false, true, false, false, false, true, false, false, false),
-//
-//    TINYTEXT("TINYTEXT", false, false, true, false, true, true, true, false, false, false),
-//
-//    TEXT("TEXT", false, false, true, false, true, true, true, false, false, false),
-//
-//    MEDIUMTEXT("MEDIUMTEXT", false, false, true, false, true, true, true, false, false, false),
-//
-//    LONGTEXT("LONGTEXT", false, false, true, false, true, true, true, false, false, false),
-//
-//
-//    ENUM("ENUM", false, false, true, false, true, true, true, true, true, true),
-//
-//
-//    BOOL("BOOL", false, false, true, true, false, false, true, true, false, false),
-//
-//    INTEGER("INTEGER", false, false, true, true, false, false, true, true, false, false),
-//
-//    INTEGER_UNSIGNED("INTEGER UNSIGNED", false, false, true, true, false, false, true, true, false, false),
-//
-//    REAL("REAL", true, true, true, false, false, false, true, true, false, false),
-//
-//    SET("SET", false, false, true, false, true, true, true, true, true, true),
-//
-//
-//    GEOMETRY("GEOMETRY", false, false, true, false, false, false, true, false, false, false),
-//
-//    POINT("POINT", false, false, true, false, false, false, true, false, false, false),
-//
-//    LINESTRING("LINESTRING", false, false, true, false, false, false, true, false, false, false),
-//
-//    POLYGON("POLYGON", false, false, true, false, false, false, true, false, false, false),
-//
-//    MULTIPOINT("MULTIPOINT", false, false, true, false, false, false, true, false, false, false),
-//
-//    MULTILINESTRING("MULTILINESTRING", false, false, true, false, false, false, true, false, false, false),
-//
-//    MULTIPOLYGON("MULTIPOLYGON", false, false, true, false, false, false, true, false, false, false),
-//
-//    GEOMETRYCOLLECTION("GEOMETRYCOLLECTION", false, false, true, false, false, false, true, false, false, false),
-//
-//    JSON("JSON", false, false, true, false, false, false, true, false, false, false);
-//
-//    private ColumnType columnType;
-//
-//    public static OceanBaseColumnTypeEnum getByType(String dataType) {
-//        return COLUMN_TYPE_MAP.get(dataType.toUpperCase());
-//    }
-//
-//    public ColumnType getColumnType() {
-//        return columnType;
-//    }
-//
-//
-//    OceanBaseColumnTypeEnum(String dataTypeName, boolean supportLength, boolean supportScale, boolean supportNullable, boolean supportAutoIncrement, boolean supportCharset, boolean supportCollation, boolean supportComments, boolean supportDefaultValue, boolean supportExtent, boolean supportValue) {
-//        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent,supportValue,false);
-//    }
-//
-//    private static Map<String, OceanBaseColumnTypeEnum> COLUMN_TYPE_MAP = Maps.newHashMap();
-//
-//    static {
-//        for (OceanBaseColumnTypeEnum value : OceanBaseColumnTypeEnum.values()) {
-//            COLUMN_TYPE_MAP.put(value.getColumnType().getTypeName(), value);
-//        }
-//    }
+package ai.chat2db.plugin.snowflake.type;
+
+import ai.chat2db.spi.ColumnBuilder;
+import ai.chat2db.spi.model.ColumnType;
+import ai.chat2db.spi.model.TableColumn;
+import com.google.common.collect.Maps;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+public enum SnowflakeColumnTypeEnum implements ColumnBuilder {
+
+    NUMBER("NUMBER", true, true, true, true, false, false, true, true, false, false),
+    DECIMAL("DECIMAL", true, true, true, true, false, false, true, true, false, false),
+    NUMERIC("NUMERIC", true, true, true, true, false, false, true, true, false, false),
+    INT("INT", false, false, true, true, false, false, true, true, false, false),
+    INTEGER("INTEGER", false, false, true, true, false, false, true, true, false, false),
+    BIGINT("BIGINT", false, false, true, true, false, false, true, true, false, false),
+    SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false, false),
+    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false, false),
+    BYTEINT("BYTEINT", false, false, true, true, false, false, true, true, false, false),
+    FLOAT("FLOAT", true, true, true, true, false, false, true, true, false, false),
+    DOUBLE("DOUBLE", true, true, true, true, false, false, true, true, false, false),
+
+    VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false, false),
+    CHAR("CHAR", true, false, true, false, true, true, true, true, false, false),
+    STRING("STRING", true, false, true, false, true, true, true, true, false, false),
+    TEXT("TEXT", true, false, true, false, true, true, true, true, false, false),
+    BINARY("BINARY", true, false, true, false, true, true, true, true, false, false),
+    VARBINARY("VARBINARY", true, false, true, false, true, true, true, true, false, false),
+
+    BOOLEAN("BOOLEAN", false, false, true, false, false, false, true, true, false, false),
+
+    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
+    DATETIME("DATETIME", true, false, true, false, false, false, true, true, true, false),
+    TIME("TIME", true, false, true, false, false, false, true, true, false, false),
+    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true, false),
+    TIMESTAMP_LTZ("TIMESTAMPLTZ", true, false, true, false, false, false, true, true, true, false),
+    TIMESTAMP_NTZ("TIMESTAMPNTZ", true, false, true, false, false, false, true, true, true, false),
+    TIMESTAMP_TZ("TIMESTAMPTZ", true, false, true, false, false, false, true, true, true, false),
+    VARIANT("VARIANT", true, false, true, false, false, false, true, true, false, false),
+    OBJECT("OBJECT", true, false, true, false, false, false, true, true, false, false),
+    ARRAY("ARRAY", true, false, true, false, false, false, true, true, false, false),
+    GEOGRAPHY("GEOGRAPHY", true, false, true, false, false, false, true, true, false, false),
+
+    ;
+
+    private ColumnType columnType;
+
+    public static SnowflakeColumnTypeEnum getByType(String dataType) {
+        return COLUMN_TYPE_MAP.get(dataType.toUpperCase());
+    }
+
+    public ColumnType getColumnType() {
+        return columnType;
+    }
+
+    SnowflakeColumnTypeEnum(String dataTypeName, boolean supportLength, boolean supportScale, boolean supportNullable, boolean supportAutoIncrement, boolean supportCharset, boolean supportCollation, boolean supportComments, boolean supportDefaultValue, boolean supportExtent, boolean supportValue) {
+        this.columnType = new ColumnType(dataTypeName, supportLength, supportScale, supportNullable, supportAutoIncrement, supportCharset, supportCollation, supportComments, supportDefaultValue, supportExtent,supportValue,false);
+    }
+
+    private static Map<String, SnowflakeColumnTypeEnum> COLUMN_TYPE_MAP = Maps.newHashMap();
+
+    static {
+        for (SnowflakeColumnTypeEnum value : SnowflakeColumnTypeEnum.values()) {
+            COLUMN_TYPE_MAP.put(value.getColumnType().getTypeName(), value);
+        }
+    }
+    @Override
+    public String buildCreateColumnSql(TableColumn column) {
+        return null;
+    }
+
+    @Override
+    public String buildModifyColumn(TableColumn tableColumn) {
+        return null;
+    }
+
+    public static List<ColumnType> getTypes(){
+        return Arrays.stream(SnowflakeColumnTypeEnum.values()).map(columnTypeEnum ->
+                columnTypeEnum.getColumnType()
+        ).toList();
+    }
+
+
 //
 //
 //    @Override
@@ -333,4 +282,4 @@
 //    }
 //
 //
-//}
+}

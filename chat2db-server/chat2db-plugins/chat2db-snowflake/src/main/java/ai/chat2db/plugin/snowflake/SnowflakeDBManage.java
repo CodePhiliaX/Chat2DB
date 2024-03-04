@@ -13,7 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SnowFlakeDBManage extends DefaultDBManage implements DBManage {
+public class SnowflakeDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {

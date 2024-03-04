@@ -14,5 +14,5 @@
       "jdbcDriverClass": "com.oceanbase.jdbc.Driver"
     }
   ],
-  "name": "SnowFlake"
+  "name": "Snowflake"
 }
