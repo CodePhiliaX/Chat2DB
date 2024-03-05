@@ -2,6 +2,7 @@ import mysqlLogo from '@/assets/img/databaseImg/mysql.png';
 import redisLogo from '@/assets/img/databaseImg/redis.png';
 import h2Logo from '@/assets/img/databaseImg/h2.png';
 import moreDBLogo from '@/assets/img/databaseImg/other.png';
+import snowflakeLogo from '@/assets/img/databaseImg/snowflake.png';
 import { IDatabase } from '@/typings';
 import { DatabaseTypeCode } from '@/constants'
 
@@ -120,7 +121,7 @@ export const databaseMap: {
   },
   [DatabaseTypeCode.SNOWFLAKE]: {
     name: 'Snowflake',
-    img: moreDBLogo,
+    img: snowflakeLogo,
     code: DatabaseTypeCode.SNOWFLAKE,
     // port: 443,
     icon: '\uec21',

@@ -8,6 +8,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -121,5 +122,22 @@ public class SnowflakeMetaData extends DefaultMetaService implements MetaData {
             tableIndexColumn.setAscOrDesc("DESC");
         }*/
         return tableIndexColumn;
+    }
+
+    @Override
+    public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                           @NotEmpty String tableName) {
+        String sql = "SHOW CREATE TABLE " + format(schemaName) + "."
+                + format(tableName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            if (resultSet.next()) {
+                return resultSet.getString("Create Table");
+            }
+            return null;
+        });
+    }
+
+    public static String format(String tableName) {
+        return "\"" + tableName + "\"";
     }
 }

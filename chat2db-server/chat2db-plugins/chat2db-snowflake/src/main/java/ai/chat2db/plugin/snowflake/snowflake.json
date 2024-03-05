@@ -8,10 +8,10 @@
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/oceanbase-client-2.4.2.jar"
+        "https://oss.sqlgpt.cn/lib/snowflake-jdbc-3.15.0.jar"
       ],
-      "jdbcDriver": "oceanbase-client-2.4.2.jar",
-      "jdbcDriverClass": "com.oceanbase.jdbc.Driver"
+      "jdbcDriver": "snowflake-jdbc-3.15.0.jar",
+      "jdbcDriverClass": "net.snowflake.client.jdbc.SnowflakeDriver"
     }
   ],
   "name": "Snowflake"
