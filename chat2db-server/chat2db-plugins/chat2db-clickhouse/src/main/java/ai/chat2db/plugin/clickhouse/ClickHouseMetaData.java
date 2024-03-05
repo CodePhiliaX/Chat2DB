@@ -36,7 +36,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             + "TRIGGER_SCHEMA = '%s' AND TRIGGER_NAME = '%s';";
     private static String TRIGGER_SQL_LIST
             = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '%s';";
-    private static String SELECT_TABLE_COLUMNS = "SELECT * FROM information_schema.COLUMNS  WHERE TABLE_SCHEMA =  '%s'  AND TABLE_NAME =  '%s'  order by ORDINAL_POSITION";
+    private static String SELECT_TABLE_COLUMNS = "select * from `system`.columns where table ='%s' and database='%s';";
     private static String VIEW_SQL
             = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, "
             + "IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
@@ -151,7 +151,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = String.format(SELECT_TABLE_COLUMNS, databaseName, tableName);
+        String sql = String.format(SELECT_TABLE_COLUMNS,tableName, databaseName);
         List<TableColumn> tableColumns = new ArrayList<>();
 
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
@@ -159,22 +159,22 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
                 TableColumn column = new TableColumn();
                 column.setDatabaseName(databaseName);
                 column.setTableName(tableName);
-                column.setOldName(resultSet.getString("COLUMN_NAME"));
-                column.setName(resultSet.getString("COLUMN_NAME"));
-                String dataType = resultSet.getString("DATA_TYPE");
+                column.setOldName(resultSet.getString("name"));
+                column.setName(resultSet.getString("name"));
+                String dataType = resultSet.getString("type");
                 if (dataType.startsWith("Nullable(")) {
                     dataType = dataType.substring(9, dataType.length() - 1);
+                    column.setNullable(1);
                 }
                 column.setColumnType(dataType);
-                column.setDefaultValue(resultSet.getString("COLUMN_DEFAULT"));
-                column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
-                column.setComment(resultSet.getString("COLUMN_COMMENT"));
-                column.setNullable("YES".equalsIgnoreCase(resultSet.getString("IS_NULLABLE")) ? 1 : 0);
-                column.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
-                column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
-                column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
-                column.setCollationName(resultSet.getString("COLLATION_NAME"));
-                setColumnSize(column, resultSet.getString("COLUMN_TYPE"));
+                column.setDefaultValue(resultSet.getString("default_expression"));
+//                column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
+                column.setComment(resultSet.getString("comment"));
+                column.setOrdinalPosition(resultSet.getInt("position"));
+                column.setDecimalDigits(resultSet.getInt("numeric_scale"));
+                /*column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
+                column.setCollationName(resultSet.getString("COLLATION_NAME"));*/
+                setColumnSize(column, dataType);
                 tableColumns.add(column);
             }
             return tableColumns;
