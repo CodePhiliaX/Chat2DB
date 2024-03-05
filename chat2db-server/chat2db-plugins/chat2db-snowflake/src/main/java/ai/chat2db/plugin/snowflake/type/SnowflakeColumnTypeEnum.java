@@ -1,9 +1,11 @@
 package ai.chat2db.plugin.snowflake.type;
 
 import ai.chat2db.spi.ColumnBuilder;
+import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.model.ColumnType;
 import ai.chat2db.spi.model.TableColumn;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,12 +71,156 @@ public enum SnowflakeColumnTypeEnum implements ColumnBuilder {
     }
     @Override
     public String buildCreateColumnSql(TableColumn column) {
-        return null;
+
+        SnowflakeColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+
+        script.append("\"").append(column.getName()).append("\"").append(" ");
+
+        script.append(buildDataType(column, type)).append(" ");
+
+        script.append(buildCollation(column,type)).append(" ");
+
+        script.append(buildNullable(column,type)).append(" ");
+
+        script.append(buildDefaultValue(column,type)).append(" ");
+
+        script.append(buildAutoIncrement(column,type)).append(" ");
+
+        script.append(buildComment(column,type)).append(" ");
+
+        return script.toString();
     }
 
     @Override
     public String buildModifyColumn(TableColumn tableColumn) {
-        return null;
+        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
+            return StringUtils.join("DROP COLUMN ", tableColumn.getName());
+        }
+        if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
+            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
+        }
+        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
+            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
+                return StringUtils.join("CHANGE COLUMN ", tableColumn.getOldName(), " ", buildCreateColumnSql(tableColumn));
+            } else {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+            }
+        }
+        return "";
+    }
+
+    private String buildDataType(TableColumn column, SnowflakeColumnTypeEnum type) {
+        String columnType = type.columnType.getTypeName();
+        if (EditStatus.MODIFY.name().equals(column.getEditStatus())
+                && StringUtils.equalsIgnoreCase(column.getOldColumn().getTableName(), column.getTableName())
+                && column.getOldColumn().getColumnSize().equals(column.getColumnSize())
+                && column.getOldColumn().getDecimalDigits().equals(column.getDecimalDigits())) {
+            return "";
+        }
+        if (Arrays.asList(BINARY, VARBINARY, VARCHAR, CHAR, STRING, TEXT).contains(type)) {
+            return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
+        }
+
+        if (Arrays.asList(DATE, TIME, DATETIME, TIMESTAMP, TIMESTAMP_TZ, TIMESTAMP_LTZ, TIMESTAMP_LTZ).contains(type)) {
+            if (column.getColumnSize() == null || column.getColumnSize() == 0) {
+                return columnType;
+            } else {
+                return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
+            }
+        }
+
+        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE,TINYINT, INT, NUMBER, NUMERIC, INTEGER, BIGINT, SMALLINT, BYTEINT).contains(type)) {
+            if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
+                return columnType;
+            }
+            if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
+                return StringUtils.join(columnType, "(", column.getColumnSize() + ")");
+            }
+            if (column.getColumnSize() != null && column.getDecimalDigits() != null) {
+                return StringUtils.join(columnType, "(", column.getColumnSize() + "," + column.getDecimalDigits() + ")");
+            }
+        }
+
+        return columnType;
+    }
+
+    private String buildCollation(TableColumn column, SnowflakeColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportCollation() || StringUtils.isEmpty(column.getCollationName())){
+            return "";
+        }
+        return StringUtils.join("COLLATE ", "'", column.getCollationName(), "'");
+    }
+
+    private String buildNullable(TableColumn column, SnowflakeColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportNullable()){
+            return "";
+        }
+        if (EditStatus.MODIFY.name().equals(column.getEditStatus()) && !column.getNullable().equals(column.getOldColumn().getNullable())) {
+            if (column.getNullable()!=null && 1==column.getNullable()) {
+                return "DROP NOT NULL";
+            } else {
+                return "NOT NULL";
+            }
+        } else if (EditStatus.ADD.name().equals(column.getEditStatus())) {
+            if (column.getNullable()!=null && 1==column.getNullable()) {
+                return "";
+            } else {
+                return "NOT NULL";
+            }
+        }
+        return "";
+    }
+
+    private String buildDefaultValue(TableColumn column, SnowflakeColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportDefaultValue() || StringUtils.isEmpty(column.getDefaultValue())){
+            return "";
+        }
+
+        if("EMPTY_STRING".equalsIgnoreCase(column.getDefaultValue().trim())){
+            return StringUtils.join("SET DEFAULT ''");
+        }
+
+        if("NULL".equalsIgnoreCase(column.getDefaultValue().trim())){
+            return StringUtils.join("SET DEFAULT NULL");
+        }
+
+        if(Arrays.asList(CHAR,VARCHAR,BINARY,VARBINARY).contains(type)){
+            return StringUtils.join("SET DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        if(Arrays.asList(DATE,TIME).contains(type)){
+            return StringUtils.join("SET DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        if(Arrays.asList(DATETIME,TIMESTAMP).contains(type)){
+            if("CURRENT_TIMESTAMP".equalsIgnoreCase(column.getDefaultValue().trim())){
+                return StringUtils.join("SET DEFAULT ",column.getDefaultValue());
+            }
+            return StringUtils.join("SET DEFAULT '",column.getDefaultValue(),"'");
+        }
+
+        return StringUtils.join("SET DEFAULT ",column.getDefaultValue());
+    }
+
+    private String buildAutoIncrement(TableColumn column, SnowflakeColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportAutoIncrement()){
+            return "";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()) {
+            return "identity";
+        }
+        return "";
+    }
+
+    private String buildComment(TableColumn column, SnowflakeColumnTypeEnum type) {
+        if(!type.columnType.isSupportComments() || StringUtils.isEmpty(column.getComment())){
+            return "";
+        }
+        return StringUtils.join("COMMENT '",column.getComment(),"'");
     }
 
     public static List<ColumnType> getTypes(){
@@ -84,202 +230,4 @@ public enum SnowflakeColumnTypeEnum implements ColumnBuilder {
     }
 
 
-//
-//
-//    @Override
-//    public String buildCreateColumnSql(TableColumn column) {
-//        OceanBaseColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
-//        if (type == null) {
-//            return "";
-//        }
-//        StringBuilder script = new StringBuilder();
-//
-//        script.append("`").append(column.getName()).append("`").append(" ");
-//
-//        script.append(buildDataType(column, type)).append(" ");
-//
-//        script.append(buildCharset(column,type)).append(" ");
-//
-//        script.append(buildCollation(column,type)).append(" ");
-//
-//        script.append(buildNullable(column,type)).append(" ");
-//
-//        script.append(buildDefaultValue(column,type)).append(" ");
-//
-//        script.append(buildExt(column,type)).append(" ");
-//
-//        script.append(buildAutoIncrement(column,type)).append(" ");
-//
-//        script.append(buildComment(column,type)).append(" ");
-//
-//        return script.toString();
-//    }
-//
-//    private String buildCharset(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.getColumnType().isSupportCharset() || StringUtils.isEmpty(column.getCharSetName())){
-//            return "";
-//        }
-//        return StringUtils.join("CHARACTER SET ",column.getCharSetName());
-//    }
-//
-//    private String buildCollation(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.getColumnType().isSupportCollation() || StringUtils.isEmpty(column.getCollationName())){
-//            return "";
-//        }
-//        return StringUtils.join("COLLATE ",column.getCollationName());
-//    }
-//
-//    @Override
-//    public String buildModifyColumn(TableColumn tableColumn) {
-//
-//        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
-//            return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");
-//        }
-//        if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
-//            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
-//        }
-//        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
-//            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
-//                return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
-//            } else {
-//                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
-//            }
-//        }
-//        return "";
-//    }
-//
-//    private String buildAutoIncrement(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.getColumnType().isSupportAutoIncrement()){
-//            return "";
-//        }
-//        if (column.getAutoIncrement() != null && column.getAutoIncrement()) {
-//            return "AUTO_INCREMENT";
-//        }
-//        return "";
-//    }
-//
-//    private String buildComment(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.columnType.isSupportComments() || StringUtils.isEmpty(column.getComment())){
-//            return "";
-//        }
-//        return StringUtils.join("COMMENT '",column.getComment(),"'");
-//    }
-//
-//    private String buildExt(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.columnType.isSupportExtent() || StringUtils.isEmpty(column.getExtent())){
-//            return "";
-//        }
-//        return column.getComment();
-//    }
-//
-//    private String buildDefaultValue(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.getColumnType().isSupportDefaultValue() || StringUtils.isEmpty(column.getDefaultValue())){
-//            return "";
-//        }
-//
-//        if("EMPTY_STRING".equalsIgnoreCase(column.getDefaultValue().trim())){
-//            return StringUtils.join("DEFAULT ''");
-//        }
-//
-//        if("NULL".equalsIgnoreCase(column.getDefaultValue().trim())){
-//            return StringUtils.join("DEFAULT NULL");
-//        }
-//
-//        if(Arrays.asList(CHAR,VARCHAR,BINARY,VARBINARY, SET,ENUM).contains(type)){
-//            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
-//        }
-//
-//        if(Arrays.asList(DATE,TIME,YEAR).contains(type)){
-//            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
-//        }
-//
-//        if(Arrays.asList(DATETIME,TIMESTAMP).contains(type)){
-//            if("CURRENT_TIMESTAMP".equalsIgnoreCase(column.getDefaultValue().trim())){
-//                return StringUtils.join("DEFAULT ",column.getDefaultValue());
-//            }
-//            return StringUtils.join("DEFAULT '",column.getDefaultValue(),"'");
-//        }
-//
-//        return StringUtils.join("DEFAULT ",column.getDefaultValue());
-//    }
-//
-//    private String buildNullable(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        if(!type.getColumnType().isSupportNullable()){
-//            return "";
-//        }
-//        if (column.getNullable()!=null && 1==column.getNullable()) {
-//            return "NULL";
-//        } else {
-//            return "NOT NULL";
-//        }
-//    }
-//
-//    private String buildDataType(TableColumn column, OceanBaseColumnTypeEnum type) {
-//        String columnType = type.columnType.getTypeName();
-//        if (Arrays.asList(BINARY, VARBINARY, VARCHAR, CHAR).contains(type)) {
-//            return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
-//        }
-//
-//        if (BIT.equals(type)) {
-//            return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
-//        }
-//
-//        if (Arrays.asList(TIME, DATETIME, TIMESTAMP).contains(type)) {
-//            if (column.getColumnSize() == null || column.getColumnSize() == 0) {
-//                return columnType;
-//            } else {
-//                return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
-//            }
-//        }
-//
-//
-//        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE).contains(type)) {
-//            if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
-//                return columnType;
-//            }
-//            if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
-//                return StringUtils.join(columnType, "(", column.getColumnSize() + ")");
-//            }
-//            if (column.getColumnSize() != null && column.getDecimalDigits() != null) {
-//                return StringUtils.join(columnType, "(", column.getColumnSize() + "," + column.getDecimalDigits() + ")");
-//            }
-//        }
-//
-//        if (Arrays.asList(DECIMAL_UNSIGNED, FLOAT_UNSIGNED, DECIMAL_UNSIGNED).contains(type)) {
-//            if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
-//                return columnType;
-//            }
-//            if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
-//                return unsignedDataType(columnType, "(" + column.getColumnSize() + ")");
-//            }
-//            if (column.getColumnSize() != null && column.getDecimalDigits() != null) {
-//                return unsignedDataType(columnType, "(" + column.getColumnSize() + "," + column.getDecimalDigits() + ")");
-//            }
-//        }
-//
-//        if(Arrays.asList(SET,ENUM).contains(type)){
-//            if(!StringUtils.isEmpty( column.getValue())){
-//                return StringUtils.join(columnType,"(",column.getValue(),")");
-//            }
-//            //List<String> enumList = column.
-//        }
-//
-//        return columnType;
-//    }
-//
-//    private String unsignedDataType(String dataTypeName, String middle) {
-//        String[] split = dataTypeName.split(" ");
-//        if (split.length == 2) {
-//            return StringUtils.join(split[0], middle, split[1]);
-//        }
-//        return StringUtils.join(dataTypeName, middle);
-//    }
-//
-//    public static List<ColumnType> getTypes(){
-//       return Arrays.stream(OceanBaseColumnTypeEnum.values()).map(columnTypeEnum ->
-//                columnTypeEnum.getColumnType()
-//        ).toList();
-//    }
-//
-//
 }
