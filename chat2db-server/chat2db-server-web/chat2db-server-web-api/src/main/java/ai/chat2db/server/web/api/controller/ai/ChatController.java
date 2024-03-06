@@ -11,6 +11,7 @@ import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.azure.listener.AzureOpenAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatRole;
 import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
@@ -24,6 +25,7 @@ import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import ai.chat2db.server.web.api.controller.ai.config.LocalCache;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
@@ -329,7 +331,7 @@ public class ChatController {
      * @throws IOException
      */
     private SseEmitter chatWithAzureAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
-        String prompt = promptService.buildPrompt(queryRequest);
+        String prompt = promptService.buildAutoPrompt(queryRequest);
         if (prompt.length() / TOKEN_CONVERT_CHAR_LENGTH > MAX_PROMPT_LENGTH) {
             log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
@@ -347,9 +349,16 @@ public class ChatController {
         messages.add(currentMessage);
 
         buildSseEmitter(sseEmitter, uid);
-
-        AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter);
-        AzureOpenAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LoginUser loginUser = ContextUtils.getLoginUser();
+        AzureOpenAIEventSourceListener sourceListener = new AzureOpenAIEventSourceListener(sseEmitter,promptService,queryRequest,loginUser);
+        AzureChatCompletionsOptions chatCompletionsOptions = new AzureChatCompletionsOptions(messages);
+        chatCompletionsOptions.setStream(true);
+        if(queryRequest.getDatabaseName()!=null){
+            ToolsFunction function = PromptService.getToolsFunction();
+            chatCompletionsOptions.setTools(List.of(new Tools(Tools.Type.FUNCTION.getName(), function)));
+            chatCompletionsOptions.setToolChoice("auto");
+        }
+        AzureOpenAIClient.getInstance().streamCompletions(chatCompletionsOptions, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
@@ -397,7 +406,7 @@ public class ChatController {
         ZhipuChatCompletionsOptions completionsOptions = ZhipuChatCompletionsOptions.builder()
                 .requestId(requestId)
                 .stream(true)
-                .toolChoice("auto")
+
                 .messages(messages)
                 .build();
         if(queryRequest.getDatabaseName()!=null){

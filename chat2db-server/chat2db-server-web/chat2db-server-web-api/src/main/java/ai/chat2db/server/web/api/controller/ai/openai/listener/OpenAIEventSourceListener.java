@@ -22,6 +22,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
@@ -193,6 +195,9 @@ public class OpenAIEventSourceListener extends EventSourceListener {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         // 读取Json
         ChatCompletionResponse completionResponse = mapper.readValue(data, ChatCompletionResponse.class);
+        if(CollectionUtils.isEmpty(completionResponse.getChoices())){
+            return;
+        }
         Message delta = completionResponse.getChoices().get(0).getDelta();
         if (delta != null && delta.getToolCalls() != null) {
             this.toolCalls = mergeToolCallsLists(this.toolCalls, delta.getToolCalls());
