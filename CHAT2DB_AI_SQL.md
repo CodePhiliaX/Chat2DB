@@ -15,7 +15,7 @@ Chat2DB包含一系列基于ChatGPT的AI SQL使用功能，主要包括自然语
 <a><img src="https://img.alicdn.com/imgextra/i1/O1CN01xMqnRH1DlkdSekvSF_!!6000000000257-0-tps-591-508.jpg" width="100%"/></a>
 - 自定义的非流式输出接口配置DEMO
 <a><img src="https://img.alicdn.com/imgextra/i1/O1CN01JqmbGo1fW0GAQhRu4_!!6000000004013-0-tps-587-489.jpg" width="100%"/></a>
-## 自然语言转SQL
+## 自然语言转SQL【UI旧】
 ### 功能描述
 输入自然语言，选中执行并传入查询相关的表结构信息，则会返回相应的SQL
 - 输入样例：查询学生小明的各科目成绩，并传入关联数据表course,score,student,student_course
