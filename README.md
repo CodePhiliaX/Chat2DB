@@ -191,7 +191,7 @@ The primary license used by this software is the [Apache License 2.0](https://ww
 
 ## ❤️ Acknowledgements
 
-Thanks to all the students who contributed to Chat2DB~
+Thanks to all the students who contributed to Chat2DB~~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
