@@ -127,14 +127,60 @@ public class SnowflakeMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                            @NotEmpty String tableName) {
-        String sql = "SHOW CREATE TABLE " + format(schemaName) + "."
+        // 需要后续自己实现。目前没有办法直接获取建表语句。
+        return "";
+        /*String sql = "SHOW CREATE TABLE " + format(schemaName) + "."
                 + format(tableName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             if (resultSet.next()) {
                 return resultSet.getString("Create Table");
             }
             return null;
+        });*/
+    }
+
+    private static String OBJECT_SQL
+            = "SHOW USER FUNCTIONS IN SCHEMA \"%s\"";
+
+    @Override
+    public List<Function> functions(Connection connection, String databaseName, String schemaName) {
+        List<Function> functions = new ArrayList<>();
+        String sql = String.format(OBJECT_SQL, schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Function function = new Function();
+                function.setDatabaseName(databaseName);
+                function.setSchemaName(schemaName);
+                function.setFunctionName(resultSet.getString("name"));
+                functions.add(function);
+            }
+            return functions;
         });
+    }
+
+    private static String ROUTINES_SQL
+            =
+            "SELECT FUNCTION_NAME, FUNCTION_DEFINITION, COMMENT " +
+                    "FROM INFORMATION_SCHEMA.FUNCTIONS " +
+                    "WHERE FUNCTION_SCHEMA = '%s'  AND FUNCTION_NAME = '%s';";
+    @Override
+    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
+                             String functionName) {
+
+        String sql = String.format(ROUTINES_SQL, schemaName, functionName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Function function = new Function();
+            function.setDatabaseName(databaseName);
+            function.setSchemaName(schemaName);
+            function.setFunctionName(functionName);
+            if (resultSet.next()) {
+                function.setSpecificName(resultSet.getString("FUNCTION_NAME"));
+                function.setRemarks(resultSet.getString("COMMENT"));
+                function.setFunctionBody(resultSet.getString("FUNCTION_DEFINITION"));
+            }
+            return function;
+        });
+
     }
 
     public static String format(String tableName) {

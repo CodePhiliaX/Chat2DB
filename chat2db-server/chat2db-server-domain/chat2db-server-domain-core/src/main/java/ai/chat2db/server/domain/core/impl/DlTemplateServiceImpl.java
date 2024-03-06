@@ -145,7 +145,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         String sqlType = SqlTypeEnum.UNKNOWN.getCode();
         // 解析sql
         String type = Chat2DBContext.getConnectInfo().getDbType();
-        boolean supportDruid = !DataSourceTypeEnum.MONGODB.getCode().equals(type);
+        //boolean supportDruid = !DataSourceTypeEnum.MONGODB.getCode().equals(type);
+        boolean supportDruid = !Arrays.asList(DataSourceTypeEnum.MONGODB.getCode(), DataSourceTypeEnum.SNOEFLAKE.getCode()).contains(type);
+
         // 解析sql分页
         SQLStatement sqlStatement = null;
         if (supportDruid) {
