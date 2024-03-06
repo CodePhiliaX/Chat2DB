@@ -38,8 +38,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '%s';";
     private static String SELECT_TABLE_COLUMNS = "select * from `system`.columns where table ='%s' and database='%s';";
     private static String VIEW_SQL
-            = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, "
-            + "IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
+            = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
 
     public static String format(String tableName) {
@@ -214,7 +213,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl(resultSet.getString("definition"));
+                table.setDdl(resultSet.getString(1));
             }
             return table;
         });
