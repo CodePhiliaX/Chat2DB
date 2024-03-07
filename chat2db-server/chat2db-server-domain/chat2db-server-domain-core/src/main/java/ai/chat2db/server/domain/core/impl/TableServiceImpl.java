@@ -69,7 +69,6 @@ public class TableServiceImpl implements TableService {
     private TableConverter tableConverter;
 
 
-
     private TableCacheVersionMapper getVersionMapper() {
         return Dbutils.getMapper(TableCacheVersionMapper.class);
     }
@@ -251,7 +250,7 @@ public class TableServiceImpl implements TableService {
             keyIndex.setSchemaName(newTable.getSchemaName());
             keyIndex.setDatabaseName(newTable.getDatabaseName());
             keyIndex.setEditStatus(status);
-            if(!EditStatus.ADD.name().equals(status)){
+            if (!EditStatus.ADD.name().equals(status)) {
                 keyIndex.setOldName(keyIndex.getName());
             }
             indexes.add(keyIndex);
@@ -321,7 +320,7 @@ public class TableServiceImpl implements TableService {
         long total = 0;
         long version = 0L;
         if (param.isRefresh() || versionDO == null) {
-           total = addCache(param,versionDO);
+            total = addCache(param, versionDO);
         } else {
             if ("2".equals(versionDO.getStatus())) {
                 version = versionDO.getVersion() - 1;
@@ -350,7 +349,7 @@ public class TableServiceImpl implements TableService {
         return PageResult.of(tables, total, param);
     }
 
-    private long addCache(TablePageQueryParam param,TableCacheVersionDO versionDO){
+    private long addCache(TablePageQueryParam param, TableCacheVersionDO versionDO) {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
@@ -388,7 +387,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
         TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
-            addCache(param,versionDO);
+            addCache(param, versionDO);
             versionDO = getVersionMapper().selectOne(queryWrapper);
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();
@@ -597,5 +596,14 @@ public class TableServiceImpl implements TableService {
             return DataResult.of(true);
         }
         return DataResult.of(false);
+    }
+
+    @Override
+    public DataResult<String> copyDmlSql(DmlSqlCopyParam param) {
+        List<TableColumn> columns = queryColumns(param);
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        Table table = Table.builder().name(param.getTableName()).columnList(columns).build();
+        String sql = sqlBuilder.getTableDmlSql(table, param.getType());
+        return DataResult.of(sql);
     }
 }

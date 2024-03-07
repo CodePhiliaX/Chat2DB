@@ -129,4 +129,12 @@ public interface TableService {
      * @return
      */
     DataResult<Boolean> checkTableVector(TableVectorParam param);
+
+
+    /**
+     * Get dml template sql
+     * @param param table query param
+     * @return sql
+     */
+    DataResult<String> copyDmlSql(DmlSqlCopyParam param);
 }

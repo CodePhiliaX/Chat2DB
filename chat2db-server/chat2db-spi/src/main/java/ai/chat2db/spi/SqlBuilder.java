@@ -81,4 +81,11 @@ public interface SqlBuilder {
      */
     String generateSqlBasedOnResults(String tableName, List<Header> headerList, List<ResultOperation> operations);
 
+    /**
+     * DML SQL
+     * @param table
+     * @param type
+     * @return
+     */
+    String getTableDmlSql(Table table,String type);
 }

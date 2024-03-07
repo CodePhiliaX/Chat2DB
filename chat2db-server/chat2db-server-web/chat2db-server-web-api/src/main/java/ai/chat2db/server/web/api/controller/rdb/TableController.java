@@ -112,6 +112,12 @@ public class TableController extends EmbeddingController {
         return ListResult.of(tableVOS);
     }
 
+    @GetMapping("/copy_dml_sql")
+    public DataResult<String> copyDmlSql(@Valid DmlSqlCopyRequest request) {
+        DmlSqlCopyParam queryParam = rdbWebConverter.dmlRequest2param(request);
+        return tableService.copyDmlSql(queryParam);
+    }
+
     /**
      * Query the table index under the current DB
      *

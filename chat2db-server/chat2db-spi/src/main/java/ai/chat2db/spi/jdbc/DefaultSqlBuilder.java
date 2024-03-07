@@ -1,8 +1,8 @@
 package ai.chat2db.spi.jdbc;
 
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.enums.DmlType;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.util.SqlUtils;
@@ -101,18 +101,88 @@ public class DefaultSqlBuilder implements SqlBuilder {
             List<String> odlRow = operation.getOldDataList();
             String sql = "";
             if ("UPDATE".equalsIgnoreCase(operation.getType())) {
-                sql = getUpdateSql(tableName,headerList, row, odlRow, metaSchema, keyColumns, false);
+                sql = getUpdateSql(tableName, headerList, row, odlRow, metaSchema, keyColumns, false);
             } else if ("CREATE".equalsIgnoreCase(operation.getType())) {
-                sql = getInsertSql(tableName,headerList, row, metaSchema);
+                sql = getInsertSql(tableName, headerList, row, metaSchema);
             } else if ("DELETE".equalsIgnoreCase(operation.getType())) {
-                sql = getDeleteSql(tableName,headerList, odlRow, metaSchema, keyColumns);
+                sql = getDeleteSql(tableName, headerList, odlRow, metaSchema, keyColumns);
             } else if ("UPDATE_COPY".equalsIgnoreCase(operation.getType())) {
-                sql = getUpdateSql(tableName,headerList, row, row, metaSchema, keyColumns, true);
+                sql = getUpdateSql(tableName, headerList, row, row, metaSchema, keyColumns, true);
             }
 
             stringBuilder.append(sql + ";\n");
         }
         return stringBuilder.toString();
+    }
+
+    @Override
+    public String getTableDmlSql(Table table, String type) {
+        if (table == null || CollectionUtils.isEmpty(table.getColumnList()) || StringUtils.isBlank(type)) {
+            return "";
+        }
+        if(DmlType.INSERT.name().equalsIgnoreCase(type)) {
+            return getInsertSql(table.getName(), table.getColumnList());
+        } else if(DmlType.UPDATE.name().equalsIgnoreCase(type)) {
+            return getUpdateSql(table.getName(), table.getColumnList());
+        } else if(DmlType.DELETE.name().equalsIgnoreCase(type)) {
+            return getDeleteSql(table.getName(), table.getColumnList());
+        }else if(DmlType.SELECT.name().equalsIgnoreCase(type)) {
+            return getSelectSql(table.getName(), table.getColumnList());
+        }
+        return "";
+    }
+
+    private String getSelectSql(String name, List<TableColumn> columnList) {
+        StringBuilder script = new StringBuilder();
+        script.append("SELECT ");
+        for (TableColumn column : columnList) {
+            script.append(column.getName())
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(" FROM where").append(name);
+        return script.toString();
+    }
+
+    private String getDeleteSql(String name, List<TableColumn> columnList) {
+        StringBuilder script = new StringBuilder();
+        script.append("DELETE FROM ").append(name)
+                .append(" where ");
+        return script.toString();
+    }
+
+    private String getUpdateSql(String name, List<TableColumn> columnList) {
+        StringBuilder script = new StringBuilder();
+        script.append("UPDATE ").append(name)
+                .append(" set ");
+        for (TableColumn column : columnList) {
+            script.append(column.getName())
+                    .append(" = ")
+                    .append(" ")
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(" where ");
+        return script.toString();
+    }
+
+    private String getInsertSql(String name, List<TableColumn> columnList) {
+        StringBuilder script = new StringBuilder();
+        script.append("INSERT INTO ").append(name)
+                .append(" (");
+        for (TableColumn column : columnList) {
+            script.append(column.getName())
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(") VALUES (");
+        for (TableColumn column : columnList) {
+            script.append(" ")
+                    .append(",");
+        }
+        script.deleteCharAt(script.length() - 1);
+        script.append(")");
+        return script.toString();
     }
 
     private List<String> getPrimaryColumns(List<Header> headerList) {
@@ -132,7 +202,6 @@ public class DefaultSqlBuilder implements SqlBuilder {
                                 List<String> keyColumns) {
         StringBuilder script = new StringBuilder();
         script.append("DELETE FROM ").append(tableName).append("");
-
         script.append(buildWhere(headerList, row, metaSchema, keyColumns));
         return script.toString();
     }
@@ -178,7 +247,7 @@ public class DefaultSqlBuilder implements SqlBuilder {
         return script.toString();
     }
 
-    private String getInsertSql(String tableName, List<Header> headerList,  List<String> row, MetaData metaSchema) {
+    private String getInsertSql(String tableName, List<Header> headerList, List<String> row, MetaData metaSchema) {
         if (CollectionUtils.isEmpty(row) || ObjectUtils.allNull(row.toArray())) {
             return "";
         }
