@@ -201,7 +201,7 @@ $ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resource
 
 ## ❤️ 致谢
 
-感谢所有为 Chat2DB 贡献力量的同学们~
+感谢所有为 Chat2DB 贡献力量的同学们~~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
