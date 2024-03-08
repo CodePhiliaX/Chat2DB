@@ -44,8 +44,8 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
         return SQLExecutor.getInstance().execute(connection, selectObjectDDLSQL, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    String ddl = resultSet.getString(2);
-                    String comment = resultSet.getString(1);
+                    String ddl = resultSet.getString("ddl");
+                    String comment = resultSet.getString("comments");
                     if (StringUtils.isNotBlank(comment)) {
                         return ddl +"\n"+ "COMMENT ON TABLE " + format(schemaName) + "." + format(tableName) +
                                 " IS " + "'" + comment + "';";
