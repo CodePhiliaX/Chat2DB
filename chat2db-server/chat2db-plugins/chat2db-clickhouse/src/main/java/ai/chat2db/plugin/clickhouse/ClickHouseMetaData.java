@@ -40,7 +40,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     private static String VIEW_SQL
             = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
-    public static final String FUNCTION_SQL = "SELECT name,create_query from system.functions where origin='SQLUserDefined'";
+    public static final String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
@@ -52,7 +52,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             List<Function> functions = new ArrayList<>();
             while (resultSet.next()) {
                 Function function = new Function();
-                function.setFunctionName(resultSet.getString(1));
+                function.setFunctionName(resultSet.getString("name"));
                 functions.add(function);
             }
             return functions;
@@ -102,7 +102,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             if (resultSet.next()) {
 /*                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
                 function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));*/
-                function.setFunctionBody(resultSet.getString(2));
+                function.setFunctionBody(resultSet.getString("ddl"));
             }
             return function;
         });
