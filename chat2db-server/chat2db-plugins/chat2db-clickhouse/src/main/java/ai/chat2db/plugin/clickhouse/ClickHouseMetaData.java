@@ -40,9 +40,23 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     private static String VIEW_SQL
             = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
+    public static final String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
+    }
+
+    @Override
+    public List<Function> functions(Connection connection, String databaseName, String schemaName) {
+        return SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> {
+            List<Function> functions = new ArrayList<>();
+            while (resultSet.next()) {
+                Function function = new Function();
+                function.setFunctionName(resultSet.getString("name"));
+                functions.add(function);
+            }
+            return functions;
+        });
     }
 
     @Override
@@ -80,17 +94,15 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
                              String functionName) {
-
-        String sql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
-        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+        return SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> {
             Function function = new Function();
             function.setDatabaseName(databaseName);
             function.setSchemaName(schemaName);
             function.setFunctionName(functionName);
             if (resultSet.next()) {
-                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
-                function.setFunctionBody(resultSet.getString("ROUTINE_DEFINITION"));
+/*                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));*/
+                function.setFunctionBody(resultSet.getString("ddl"));
             }
             return function;
         });
@@ -150,7 +162,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = String.format(SELECT_TABLE_COLUMNS,tableName, databaseName);
+        String sql = String.format(SELECT_TABLE_COLUMNS, tableName, databaseName);
         List<TableColumn> tableColumns = new ArrayList<>();
 
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
