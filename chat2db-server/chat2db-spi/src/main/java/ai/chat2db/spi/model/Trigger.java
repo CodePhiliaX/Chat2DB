@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * @author jipengfei
  * @version : Trigger.java
@@ -14,7 +16,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Trigger {
+public class Trigger  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String databaseName;
 

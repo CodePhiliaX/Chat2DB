@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 
@@ -17,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cell {
+public class Cell  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * cell type

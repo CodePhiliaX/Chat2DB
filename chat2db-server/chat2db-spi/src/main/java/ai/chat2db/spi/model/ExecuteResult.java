@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExecuteResult {
+public class ExecuteResult  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * success flag

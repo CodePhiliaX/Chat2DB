@@ -6,11 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Type {
+public class Type  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @JsonAlias("TYPE_NAME")
     private String typeName;

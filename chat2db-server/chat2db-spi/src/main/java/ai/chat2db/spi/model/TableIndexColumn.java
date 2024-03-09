@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * Column information
  *
@@ -16,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TableIndexColumn {
+public class TableIndexColumn implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Index name
