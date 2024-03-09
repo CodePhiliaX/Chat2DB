@@ -7,21 +7,23 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import org.springframework.util.StringUtils;
 
 import java.sql.*;
+import java.util.Objects;
 
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        exportTables(connection, sqlBuilder, containData);
-        exportViews(connection, sqlBuilder);
-        exportProcedures(connection, sqlBuilder);
+        exportTables(connection, databaseName, sqlBuilder, containData);
+        exportViews(connection, databaseName, sqlBuilder);
+        exportProcedures(connection, databaseName, sqlBuilder);
         exportTriggers(connection, sqlBuilder);
         return sqlBuilder.toString();
     }
-    private void exportTables(Connection connection,StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet tables = statement.executeQuery("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'")) {
-            while (tables.next()) {
-                String tableName = tables.getString(1);
+
+    private void exportTables(Connection connection, String databaseName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("TABLE_NAME");
                 exportTable(connection, tableName, sqlBuilder, containData);
             }
         }
@@ -29,12 +31,12 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
 
 
     private void exportTable(Connection connection, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("show create table " + tableName)) {
+        String TABLE_DDL_SQL = "show create table %s ";
+        String sql = String.format(TABLE_DDL_SQL, tableName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             if (resultSet.next()) {
-                String createTableSql = "DROP TABLE IF EXISTS `" + tableName + "`;\n" +
-                        resultSet.getString(2) + ";\n";
-                sqlBuilder.append(createTableSql).append("\n");
-
+                sqlBuilder.append("DROP TABLE IF EXISTS ").append(format(tableName)).append(";").append("\n")
+                        .append(resultSet.getString("Create Table")).append(";").append("\n");
                 if (containData) {
                     exportTableData(connection, tableName, sqlBuilder);
                 }
@@ -43,63 +45,73 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        StringBuilder insertSql = new StringBuilder();
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("select * from " + tableName)) {
+        String TABLE_QUERY_SQL = "select * from %s";
+        String sql = String.format(TABLE_QUERY_SQL, tableName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
-                insertSql.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    insertSql.append("'").append(resultSet.getString(i)).append("'");
+                    String value = resultSet.getString(i);
+                    if (Objects.isNull(value)) {
+                        sqlBuilder.append("NULL");
+                    } else {
+                        sqlBuilder.append("'").append(value).append("'");
+                    }
                     if (i < metaData.getColumnCount()) {
-                        insertSql.append(", ");
+                        sqlBuilder.append(", ");
                     }
                 }
-                insertSql.append(");\n");
+                sqlBuilder.append(");\n");
             }
-            insertSql.append("\n");
+            sqlBuilder.append("\n");
         }
-        sqlBuilder.append(insertSql);
     }
 
-    private void exportViews(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW FULL TABLES WHERE Table_type = 'VIEW'")) {
+    private void exportViews(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"VIEW"})) {
             while (resultSet.next()) {
-                String viewName = resultSet.getString(1);
+                String viewName = resultSet.getString("TABLE_NAME");
                 exportView(connection, viewName, sqlBuilder);
             }
         }
     }
 
     private void exportView(Connection connection, String viewName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW CREATE VIEW " + viewName)) {
+        String VIEW_DDL_SQL = "show create view %s ";
+        String sql = String.format(VIEW_DDL_SQL, viewName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             if (resultSet.next()) {
-                String createViewSql = "DROP VIEW IF EXISTS `" + viewName + "`;\n" + resultSet.getString("Create View") + ";\n";
-                sqlBuilder.append(createViewSql).append("\n");
+                sqlBuilder.append("DROP VIEW IF EXISTS ").append(format(viewName)).append(";").append("\n")
+                        .append(resultSet.getString("Create View")).append(";").append("\n");
             }
         }
     }
 
-    private void exportProcedures(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW PROCEDURE STATUS WHERE Db = DATABASE()")) {
+    private void exportProcedures(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getProcedures(databaseName, null, null)) {
             while (resultSet.next()) {
-                String procedureName = resultSet.getString("Name");
+                String procedureName = resultSet.getString("PROCEDURE_NAME");
                 exportProcedure(connection, procedureName, sqlBuilder);
             }
         }
     }
 
     private void exportProcedure(Connection connection, String procedureName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW CREATE PROCEDURE " + procedureName)) {
+        String PROCEDURE_DDL_SQL = "show create procedure %s ";
+        String sql = String.format(PROCEDURE_DDL_SQL, procedureName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             if (resultSet.next()) {
-                String createProcedureSql = "DROP PROCEDURE IF EXISTS `" + procedureName + "`;\n" +
-                        "delimiter ;;\n" + resultSet.getString("Create Procedure") + ";;\n" + "delimiter ;\n";
-                sqlBuilder.append(createProcedureSql).append("\n");
+                sqlBuilder.append("DROP PROCEDURE IF EXISTS ").append(format(procedureName)).append(";").append("\n")
+                        .append("delimiter ;;").append("\n").append(resultSet.getString("Create Procedure")).append(";;")
+                        .append("\n").append("delimiter ;").append("\n");
             }
         }
     }
 
     private void exportTriggers(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW TRIGGERS")) {
+        String sql ="SHOW TRIGGERS";
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
                 String triggerName = resultSet.getString("Trigger");
                 exportTrigger(connection, triggerName, sqlBuilder);
@@ -108,12 +120,13 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTrigger(Connection connection, String triggerName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SHOW CREATE TRIGGER " + triggerName)) {
+        String TRIGGER_DDL_SQL = "show create trigger %s ";
+        String sql = String.format(TRIGGER_DDL_SQL, triggerName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             if (resultSet.next()) {
-                String createTriggerSql = "DROP TRIGGER IF EXISTS `" + triggerName + "`;\n" +
-                        "delimiter ;;\n" + resultSet.getString("SQL Original Statement") + ";;\n" +
-                        "delimiter ;\n";
-                sqlBuilder.append(createTriggerSql).append("\n");
+                sqlBuilder.append("DROP TRIGGER IF EXISTS ").append(format(triggerName)).append(";").append("\n")
+                        .append("delimiter ;;").append("\n").append(resultSet.getString("SQL Original Statement")).append(";;")
+                        .append("\n").append("delimiter ;").append("\n");
             }
         }
     }
@@ -140,7 +153,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
             return;
         }
         try {
-            SQLExecutor.getInstance().execute(connection,"use `" + database + "`;");
+            SQLExecutor.getInstance().execute(connection, "use `" + database + "`;");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -149,8 +162,8 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "DROP TABLE "+ format(tableName);
-        SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);
+        String sql = "DROP TABLE " + format(tableName);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
     public static String format(String tableName) {
