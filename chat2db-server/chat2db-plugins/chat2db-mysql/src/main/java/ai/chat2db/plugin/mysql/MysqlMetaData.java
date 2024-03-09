@@ -57,19 +57,25 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
                              String functionName) {
 
-        String sql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
-        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            Function function = new Function();
-            function.setDatabaseName(databaseName);
-            function.setSchemaName(schemaName);
-            function.setFunctionName(functionName);
+        String functionInfoSql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
+        Function function = SQLExecutor.getInstance().execute(connection, functionInfoSql, resultSet -> {
+            Function f = new Function();
+            f.setDatabaseName(databaseName);
+            f.setSchemaName(schemaName);
+            f.setFunctionName(functionName);
             if (resultSet.next()) {
-                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
-                function.setFunctionBody(resultSet.getString("ROUTINE_DEFINITION"));
+                f.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                f.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
             }
-            return function;
+            return f;
         });
+        String functionDDlSql =String.format("SHOW CREATE FUNCTION %s", functionName);
+        SQLExecutor.getInstance().execute(connection,functionDDlSql, resultSet -> {
+            if (resultSet.next()) {
+                function.setFunctionBody(resultSet.getString("Create Function"));
+            }
+        } );
+        return function;
 
     }
 
