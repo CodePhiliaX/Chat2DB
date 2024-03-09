@@ -15,25 +15,43 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTables(connection, databaseName, sqlBuilder, containData);
         exportViews(connection, databaseName, sqlBuilder);
-        exportProcedures(connection, databaseName, sqlBuilder);
+        exportProcedures(connection, sqlBuilder);
         exportTriggers(connection, sqlBuilder);
+        exportFunctions(connection, databaseName, sqlBuilder);
         return sqlBuilder.toString();
+    }
+
+    private void exportFunctions(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, null, null)) {
+            while (resultSet.next()) {
+                exportFunction(connection, resultSet.getString("FUNCTION_NAME"), sqlBuilder);
+            }
+
+        }
+    }
+
+    private void exportFunction(Connection connection, String functionName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format("SHOW CREATE FUNCTION %s;", functionName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            if (resultSet.next()) {
+                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
+                          .append(resultSet.getString("Create Function")).append(";").append("\n");
+            }
+        }
     }
 
     private void exportTables(Connection connection, String databaseName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
-                String tableName = resultSet.getString("TABLE_NAME");
-                exportTable(connection, tableName, sqlBuilder, containData);
+                exportTable(connection, resultSet.getString("TABLE_NAME"), sqlBuilder, containData);
             }
         }
     }
 
 
     private void exportTable(Connection connection, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String TABLE_DDL_SQL = "show create table %s ";
-        String sql = String.format(TABLE_DDL_SQL, tableName);
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = String.format("show create table %s ", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP TABLE IF EXISTS ").append(format(tableName)).append(";").append("\n")
                         .append(resultSet.getString("Create Table")).append(";").append("\n");
@@ -45,9 +63,8 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String TABLE_QUERY_SQL = "select * from %s";
-        String sql = String.format(TABLE_QUERY_SQL, tableName);
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = String.format("select * from %s", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
                 sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
@@ -71,16 +88,14 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     private void exportViews(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"VIEW"})) {
             while (resultSet.next()) {
-                String viewName = resultSet.getString("TABLE_NAME");
-                exportView(connection, viewName, sqlBuilder);
+                exportView(connection, resultSet.getString("TABLE_NAME"), sqlBuilder);
             }
         }
     }
 
     private void exportView(Connection connection, String viewName, StringBuilder sqlBuilder) throws SQLException {
-        String VIEW_DDL_SQL = "show create view %s ";
-        String sql = String.format(VIEW_DDL_SQL, viewName);
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = String.format("show create view %s ", viewName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP VIEW IF EXISTS ").append(format(viewName)).append(";").append("\n")
                         .append(resultSet.getString("Create View")).append(";").append("\n");
@@ -88,19 +103,18 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportProcedures(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
-        try (ResultSet resultSet = connection.getMetaData().getProcedures(databaseName, null, null)) {
+    private void exportProcedures(Connection connection, StringBuilder sqlBuilder) throws SQLException {
+        String sql = "SHOW PROCEDURE STATUS WHERE Db = DATABASE()";
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                String procedureName = resultSet.getString("PROCEDURE_NAME");
-                exportProcedure(connection, procedureName, sqlBuilder);
+                exportProcedure(connection, resultSet.getString("Name"), sqlBuilder);
             }
         }
     }
 
     private void exportProcedure(Connection connection, String procedureName, StringBuilder sqlBuilder) throws SQLException {
-        String PROCEDURE_DDL_SQL = "show create procedure %s ";
-        String sql = String.format(PROCEDURE_DDL_SQL, procedureName);
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = String.format("show create procedure %s ", procedureName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP PROCEDURE IF EXISTS ").append(format(procedureName)).append(";").append("\n")
                         .append("delimiter ;;").append("\n").append(resultSet.getString("Create Procedure")).append(";;")
@@ -110,8 +124,8 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTriggers(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        String sql ="SHOW TRIGGERS";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = "SHOW TRIGGERS";
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String triggerName = resultSet.getString("Trigger");
                 exportTrigger(connection, triggerName, sqlBuilder);
@@ -120,9 +134,8 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTrigger(Connection connection, String triggerName, StringBuilder sqlBuilder) throws SQLException {
-        String TRIGGER_DDL_SQL = "show create trigger %s ";
-        String sql = String.format(TRIGGER_DDL_SQL, triggerName);
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
+        String sql = String.format("show create trigger %s ", triggerName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP TRIGGER IF EXISTS ").append(format(triggerName)).append(";").append("\n")
                         .append("delimiter ;;").append("\n").append(resultSet.getString("SQL Original Statement")).append(";;")
