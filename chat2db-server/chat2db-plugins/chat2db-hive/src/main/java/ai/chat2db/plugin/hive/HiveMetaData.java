@@ -1,16 +1,23 @@
 package ai.chat2db.plugin.hive;
 
+import ai.chat2db.plugin.hive.type.HiveColumnTypeEnum;
+import ai.chat2db.plugin.hive.type.HiveIndexTypeEnum;
+import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HiveMetaData extends DefaultMetaService implements MetaData {
 
@@ -57,6 +64,27 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
             }
             return null;
         });
+    }
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "`" + name + "`").collect(Collectors.joining("."));
+    }
+
+    @Override
+    public CommandExecutor getCommandExecutor() {
+        return new HiveCommandExecutor();
+    }
+
+    @Override
+    public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
+        return TableMeta.builder()
+                .columnTypes(HiveColumnTypeEnum.getTypes())
+                //.charsets(HiveCharsetEnum.getCharsets())
+                //.collations(HiveCollationEnum.getCollations())
+                .indexTypes(HiveIndexTypeEnum.getIndexTypes())
+                //.defaultValues(HiveDefaultValueEnum.getDefaultValues())
+                .build();
     }
 
     public static String format(String name) {
