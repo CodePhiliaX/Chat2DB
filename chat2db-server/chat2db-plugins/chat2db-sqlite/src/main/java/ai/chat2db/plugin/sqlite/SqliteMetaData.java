@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SqliteMetaData extends DefaultMetaService implements MetaData {
-    public static  String  VIEW_DDL_SQL="SELECT * FROM sqlite_master WHERE type = 'view' and name='%s';";
+    private static  String  VIEW_DDL_SQL="SELECT * FROM sqlite_master WHERE type = 'view' and name='%s';";
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
         Table view = new Table();
@@ -35,8 +35,8 @@ public class SqliteMetaData extends DefaultMetaService implements MetaData {
         return view;
     }
 
-    public static final String TRIGGER_LIST_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger';";
-    public static  String TRIGGER_DDL_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger' and name='%s';";
+    private static final String TRIGGER_LIST_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger';";
+    private static  String TRIGGER_DDL_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger' and name='%s';";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
