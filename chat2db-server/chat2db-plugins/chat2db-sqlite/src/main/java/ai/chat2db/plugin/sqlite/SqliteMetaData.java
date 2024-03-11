@@ -8,10 +8,7 @@ import ai.chat2db.plugin.sqlite.type.SqliteIndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.TableMeta;
-import ai.chat2db.spi.model.Trigger;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +21,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class SqliteMetaData extends DefaultMetaService implements MetaData {
-
+    public static  String  VIEW_DDL_SQL="SELECT * FROM sqlite_master WHERE type = 'view' and name='%s';";
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        Table view = new Table();
+        String sql = String.format(VIEW_DDL_SQL,viewName);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet->{
+            if (resultSet.next()) {
+                view.setDatabaseName(databaseName);
+                view.setDdl(resultSet.getString("sql"));
+            }
+        });
+        return view;
+    }
 
     public static final String TRIGGER_LIST_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger';";
     public static  String TRIGGER_DDL_SQL = "SELECT * FROM sqlite_master WHERE type = 'trigger' and name='%s';";
