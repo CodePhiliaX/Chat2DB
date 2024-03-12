@@ -13,6 +13,7 @@ import java.util.Map;
 
 public enum HiveColumnTypeEnum implements ColumnBuilder {
 
+    // Numeric Types
     TINYINT("TINYINT", true, false, true, true, false, false, true, true, false, false),
 
     SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false, false),
@@ -27,16 +28,33 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
 
     DOUBLE("DOUBLE", true, true, true, false, false, false, true, true, false, false),
 
-    BOOLEAN("BOOLEAN", false, false, true, true, false, false, true, true, false, false),
+    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
 
+    // hive 3.0.0+
+    NUMERIC("NUMERIC", true, true, true, false, false, false, true, true, false, false),
+
+    // Date/Time Types
+    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true, false),
+
+    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL("INTERVAL", true, false, true, false, false, false, true, true, true, false),
+
+    // String Types
     STRING("STRING", true, false, true, false, true, true, true, true, false, false),
 
     CHAR("CHAR", true, false, true, false, true, true, true, true, false, false),
 
     VARCHAR("VARCHAR", true, false, true, false, true, true, true, true, false, false),
 
-    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
 
+    // Misc Types
+    BOOLEAN("BOOLEAN", false, false, true, true, false, false, true, true, false, false),
+
+    BINARY("BINARY", true, false, true, false, false, false, true, true, false, false),
+
+
+    // Complex Types
     ARRAY("ARRAY", true, false, true, false, true, true, true, true, false, false),
 
     MAP("MAP", true, false, true, false, true, true, true, true, false, false),
@@ -45,13 +63,9 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
 
     UNIONTYPE("UNIONTYPE", true, false, true, false, true, true, true, true, false, false),
 
-    BINARY("BINARY", true, false, true, false, false, false, true, true, false, false),
 
-    TIMESTAMP("TIMESTAMP", true, false, true, false, false, false, true, true, true, false),
 
-    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
 
-    INTERVAL("INTERVAL", true, false, true, false, false, false, true, true, true, false),
     ;
 
     private ColumnType columnType;

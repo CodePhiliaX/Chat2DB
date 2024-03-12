@@ -143,11 +143,9 @@ public class HiveSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     public String buildCreateDatabaseSql(Database database) {
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("CREATE DATABASE `" + database.getName() + "`");
-        if (StringUtils.isNotBlank(database.getCharset())) {
-            sqlBuilder.append(" DEFAULT CHARACTER SET=").append(database.getCharset());
-        }
-        if (StringUtils.isNotBlank(database.getCollation())) {
-            sqlBuilder.append(" COLLATE=").append(database.getCollation());
+        if (StringUtils.isNotBlank(database.getComment())) {
+            sqlBuilder.append("\r\n COMMENT '").append(database.getComment()).append("'");
+
         }
         return sqlBuilder.toString();
     }

@@ -1,9 +1,11 @@
 package ai.chat2db.plugin.hive;
 
+import ai.chat2db.plugin.hive.builder.HiveSqlBuilder;
 import ai.chat2db.plugin.hive.type.HiveColumnTypeEnum;
 import ai.chat2db.plugin.hive.type.HiveIndexTypeEnum;
 import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Schema;
@@ -26,7 +28,7 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
         List<Database> databases = new ArrayList<>();
         return SQLExecutor.getInstance().execute(connection,"show databases", resultSet -> {
             try {
-                if (resultSet.next()) {
+                while (resultSet.next()) {
                     String databaseName = resultSet.getString("database_name");
                     Database database = new Database();
                     database.setName(databaseName);
@@ -85,6 +87,11 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
                 .indexTypes(HiveIndexTypeEnum.getIndexTypes())
                 //.defaultValues(HiveDefaultValueEnum.getDefaultValues())
                 .build();
+    }
+
+    @Override
+    public SqlBuilder getSqlBuilder() {
+        return new HiveSqlBuilder();
     }
 
     public static String format(String name) {
