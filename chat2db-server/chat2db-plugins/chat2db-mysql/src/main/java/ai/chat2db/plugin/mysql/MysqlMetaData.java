@@ -214,21 +214,18 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         }
     }
 
-
-    private static String VIEW_SQL
-            = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, "
-            + "IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
+    private static String VIEW_DDL_SQL="show create view %s";
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
-        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        String sql = String.format(VIEW_DDL_SQL, viewName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Table table = new Table();
             table.setDatabaseName(databaseName);
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl(resultSet.getString("definition"));
+                table.setDdl(resultSet.getString("Create View"));
             }
             return table;
         });
