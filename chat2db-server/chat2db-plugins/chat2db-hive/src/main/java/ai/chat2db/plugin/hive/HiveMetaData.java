@@ -44,6 +44,7 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
         List<Schema> schemas = new ArrayList<>();
+        schemas.add(Schema.builder().databaseName(databaseName).name(databaseName).build());
         return schemas;
     }
 
