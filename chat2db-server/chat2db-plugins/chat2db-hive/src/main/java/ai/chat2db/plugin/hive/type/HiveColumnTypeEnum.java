@@ -214,7 +214,7 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
             return "";
         }
         if (column.getNullable()!=null && 1==column.getNullable()) {
-            return "NULL";
+            return "";
         } else {
             return "NOT NULL";
         }

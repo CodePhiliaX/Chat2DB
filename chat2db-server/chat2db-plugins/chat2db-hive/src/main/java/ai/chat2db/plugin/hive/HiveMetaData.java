@@ -9,6 +9,7 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
@@ -93,6 +94,29 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
     @Override
     public SqlBuilder getSqlBuilder() {
         return new HiveSqlBuilder();
+    }
+
+
+    private static String SELECT_TABLE_SQL = "DESCRIBE EXTENDED %s";
+    // TODO 待完善
+    @Override
+    public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = String.format(SELECT_TABLE_SQL, schemaName);
+        if (StringUtils.isNotBlank(tableName)) {
+            sql = sql + " and A.TABLE_NAME = '" + tableName + "'";
+        }
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            List<Table> tables = new ArrayList<>();
+            while (resultSet.next()) {
+                Table table = new Table();
+                table.setDatabaseName(databaseName);
+                table.setSchemaName(schemaName);
+                table.setName(resultSet.getString("TABLE_NAME"));
+                table.setComment(resultSet.getString("COMMENTS"));
+                tables.add(table);
+            }
+            return tables;
+        });
     }
 
     public static String format(String name) {

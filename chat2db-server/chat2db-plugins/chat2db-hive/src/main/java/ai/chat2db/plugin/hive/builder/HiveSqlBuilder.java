@@ -65,7 +65,7 @@ public class HiveSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
 
         if (StringUtils.isNotBlank(table.getComment())) {
-            script.append(" COMMENT='").append(table.getComment()).append("'");
+            script.append(" COMMENT '").append(table.getComment()).append("'");
         }
 
         if (StringUtils.isNotBlank(table.getPartition())) {
@@ -79,19 +79,25 @@ public class HiveSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildModifyTaleSql(Table oldTable, Table newTable) {
         StringBuilder script = new StringBuilder();
+        boolean isModify = false;
         script.append("ALTER TABLE ");
-        if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
-            script.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+        if (StringUtils.isNotBlank(newTable.getDatabaseName())) {
+            script.append("`").append(newTable.getDatabaseName()).append("`").append(".");
         }
         script.append("`").append(oldTable.getName()).append("`").append("\n");
         if (!StringUtils.equalsIgnoreCase(oldTable.getName(), newTable.getName())) {
-            script.append("\t").append("RENAME TO ").append("`").append(newTable.getName()).append("`").append(",\n");
+            script.append("\t").append("RENAME TO ").append("`").append(newTable.getName()).append("`").append(";\n");
+            isModify = true;
         }
         if (!StringUtils.equalsIgnoreCase(oldTable.getComment(), newTable.getComment())) {
-            script.append("\t").append("COMMENT=").append("'").append(newTable.getComment()).append("'").append(",\n");
-        }
-        if (oldTable.getIncrementValue() != newTable.getIncrementValue()) {
-            script.append("\t").append("AUTO_INCREMENT=").append(newTable.getIncrementValue()).append(",\n");
+            if (isModify) {
+                script.append("ALTER TABLE ");
+                if (StringUtils.isNotBlank(newTable.getDatabaseName())) {
+                    script.append("`").append(newTable.getDatabaseName()).append("`").append(".");
+                }
+                script.append("`").append(newTable.getName()).append("`").append("\n");
+            }
+            script.append("\t").append("SET TBLPROPERTIES ('comment' = ").append("'").append(newTable.getComment()).append("'),\n");
         }
 
         // append modify column
