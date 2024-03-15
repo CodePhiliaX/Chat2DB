@@ -102,13 +102,12 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        SQLExecutor.getInstance().execute(connection, FUNCTION_SQL.replaceFirst("tableSchema", schemaName),
-                resultSet -> null);
-        String ddlSql = "select showcreatetable('" + schemaName + "','" + tableName + "') as sql";
+        SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> null);
+        String ddlSql = "select pg_get_tabledef" + "(" + "'" + schemaName + "'" + "," + "'" + tableName + "'" + "," + "false" + "," + "'" + "COMMENTS" + "'" + ")" + ";";
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    return resultSet.getString("sql");
+                    return resultSet.getString(1);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
