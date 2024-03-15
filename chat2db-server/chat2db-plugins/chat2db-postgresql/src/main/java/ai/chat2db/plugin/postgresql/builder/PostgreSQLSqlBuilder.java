@@ -2,7 +2,6 @@ package ai.chat2db.plugin.postgresql.builder;
 
 import ai.chat2db.plugin.postgresql.type.PostgreSQLColumnTypeEnum;
 import ai.chat2db.plugin.postgresql.type.PostgreSQLIndexTypeEnum;
-import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -14,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

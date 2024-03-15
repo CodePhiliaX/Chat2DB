@@ -39,6 +39,11 @@ public class Command  implements Serializable {
     private String schemaName;
 
     /**
+     *
+     */
+    private String tableName;
+
+    /**
      *Page coding
       * Only available for select statements
      */

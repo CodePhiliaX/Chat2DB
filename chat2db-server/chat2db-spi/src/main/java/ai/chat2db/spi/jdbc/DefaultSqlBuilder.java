@@ -19,7 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultSqlBuilder implements SqlBuilder {
+public class DefaultSqlBuilder implements SqlBuilder<Table> {
 
 
     @Override
@@ -90,8 +90,10 @@ public class DefaultSqlBuilder implements SqlBuilder {
     }
 
     @Override
-    public String generateSqlBasedOnResults(String tableName, List<Header> headerList, List<ResultOperation> operations) {
-
+    public String buildSqlByQuery(QueryResult queryResult) {
+        List<Header> headerList = queryResult.getHeaderList();
+        List<ResultOperation> operations = queryResult.getOperations();
+        String tableName = queryResult.getTableName();
         StringBuilder stringBuilder = new StringBuilder();
         MetaData metaSchema = Chat2DBContext.getMetaData();
         List<String> keyColumns = getPrimaryColumns(headerList);

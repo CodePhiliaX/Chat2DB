@@ -3,7 +3,9 @@ package ai.chat2db.spi;
 import java.sql.Connection;
 import java.util.List;
 
+import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.spi.model.*;
+import cn.hutool.db.Page;
 import jakarta.validation.constraints.NotEmpty;
 
 /**
@@ -52,6 +54,19 @@ public interface MetaData {
      */
     List<Table> tables(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName);
 
+
+    /**
+     * Querying all table under a schema.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param tableNamePattern
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    PageResult<Table> tables(Connection connection, String databaseName, String schemaName, String tableNamePattern, int pageNo, int pageSize);
     /**
      * Querying view information.
      *

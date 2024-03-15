@@ -113,11 +113,6 @@
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-redis</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-sqlite</artifactId>
             <version>${revision}</version>
         </dependency>

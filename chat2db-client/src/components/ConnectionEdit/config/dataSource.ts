@@ -250,6 +250,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       {
         "key": "zeroDateTimeBehavior",
         "value": "convertToNull"
+      },
+      {
+        "key": "useInformationSchema",
+        "value": "true"
       }
     ],
     type: DatabaseTypeCode.MYSQL,

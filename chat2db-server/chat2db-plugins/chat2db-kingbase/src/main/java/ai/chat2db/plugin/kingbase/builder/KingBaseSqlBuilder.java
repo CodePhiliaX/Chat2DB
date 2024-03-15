@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 
-public class KingBaseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class KingBaseSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

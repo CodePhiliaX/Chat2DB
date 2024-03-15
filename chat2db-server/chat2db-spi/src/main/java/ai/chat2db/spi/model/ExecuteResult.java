@@ -2,6 +2,7 @@ package ai.chat2db.spi.model;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -104,7 +105,12 @@ public class ExecuteResult  implements Serializable {
     private boolean canEdit;
 
     /**
-     * Table Name
+     * Table Name for the result
      */
     private String tableName;
+
+    /**
+     * Extra information that can be used by the plugin
+     */
+    private Map<String,Object> extra;
 }
