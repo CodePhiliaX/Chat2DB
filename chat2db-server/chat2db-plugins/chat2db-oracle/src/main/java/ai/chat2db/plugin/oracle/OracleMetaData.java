@@ -103,7 +103,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setName(resultSet.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(resultSet.getString("DATA_TYPE"));
                 Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
-                if(dataPrecision!=null) {
+                if(resultSet.getString("DATA_PRECISION") != null) {
                     tableColumn.setColumnSize(dataPrecision);
                 }else {
                     tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
