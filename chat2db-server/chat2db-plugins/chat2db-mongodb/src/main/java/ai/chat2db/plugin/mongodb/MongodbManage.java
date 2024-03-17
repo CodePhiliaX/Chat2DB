@@ -15,11 +15,11 @@ public class MongodbManage extends DefaultDBManage implements DBManage {
     @Override
     public void connectDatabase(Connection connection, String database) {
         ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
-        if (Objects.isNull(connectInfo) || StringUtils.hasText(connectInfo.getSchemaName())) {
+        if (Objects.isNull(connectInfo) || !StringUtils.hasText(connectInfo.getSchemaName())) {
             return;
         }
         String schemaName = connectInfo.getSchemaName();
-        if (StringUtils.hasText(schemaName)) {
+        if (!StringUtils.hasText(schemaName)) {
             return;
         }
         try {
