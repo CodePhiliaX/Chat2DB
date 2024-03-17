@@ -327,4 +327,10 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     public String getMetaDataName(String... names) {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
+
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
+    }
 }

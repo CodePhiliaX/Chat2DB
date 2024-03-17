@@ -231,4 +231,17 @@ public interface MetaData {
      * Get command executor.
      */
     CommandExecutor getCommandExecutor();
+
+    /**
+     * Get system databases.
+     * @return
+     */
+    List<String> getSystemDatabases();
+
+    /**
+     * Get system schemas.
+     * @return
+     */
+    List<String> getSystemSchemas();
+
 }

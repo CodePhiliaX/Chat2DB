@@ -174,4 +174,8 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
+    }
 }

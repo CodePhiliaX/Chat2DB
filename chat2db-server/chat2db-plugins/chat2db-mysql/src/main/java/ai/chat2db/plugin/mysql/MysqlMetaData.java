@@ -321,4 +321,10 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public ValueHandler getValueHandler() {
         return new MysqlValueHandler();
     }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
 }

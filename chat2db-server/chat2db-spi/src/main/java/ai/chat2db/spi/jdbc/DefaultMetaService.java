@@ -12,6 +12,7 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -151,5 +152,15 @@ public class DefaultMetaService implements MetaData {
     @Override
     public CommandExecutor getCommandExecutor() {
         return SQLExecutor.getInstance();
+    }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return Lists.newArrayList();
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return Lists.newArrayList();
     }
 }

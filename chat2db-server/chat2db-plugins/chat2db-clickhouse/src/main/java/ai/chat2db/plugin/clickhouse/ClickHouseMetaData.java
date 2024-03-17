@@ -301,4 +301,11 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "`" + name + "`").collect(Collectors.joining("."));
     }
 
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
+
 }
