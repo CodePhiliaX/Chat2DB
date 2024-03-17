@@ -19,7 +19,7 @@ public class MongodbManage extends DefaultDBManage implements DBManage {
             return;
         }
         String schemaName = connectInfo.getSchemaName();
-        if (StringUtils.isEmpty(schemaName)) {
+        if (StringUtils.hasText(schemaName)) {
             return;
         }
         try {
