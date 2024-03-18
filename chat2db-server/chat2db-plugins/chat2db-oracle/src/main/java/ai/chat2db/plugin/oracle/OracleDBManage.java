@@ -8,35 +8,51 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class OracleDBManage extends DefaultDBManage implements DBManage {
+    private static String TABLE_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TABLE', table_name)  as ddl FROM all_tables WHERE owner = '%s' AND table_name = '%s'";
+    private static String TABLE_COMMENT_SQL = "SELECT 'COMMENT ON TABLE ' || table_name || ' IS ''' || comments || ''';' AS table_comment_ddl FROM user_tab_comments WHERE table_name = '%s'";
+    private static String TABLE_COLUMN_COMMENT_SQL = "SELECT 'COMMENT ON COLUMN ' || table_name || '.' || column_name || ' IS ''' || comments || ''';' AS column_comment_ddl " +
+            "FROM user_col_comments " +
+            "WHERE table_name = '%s' " +
+            "AND comments IS NOT NULL";
+    private static String VIEW_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('VIEW', view_name) as ddl FROM all_views WHERE owner = '%s' AND view_name = '%s'";
+    private String PROCEDURE_LIST_DDL ="SELECT object_name FROM all_procedures where OWNER = '%s' and OBJECT_TYPE='PROCEDURE'";
+    private static String PROCEDURE_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('PROCEDURE', object_name) as ddl FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
+    private static String TRIGGER_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', trigger_name) AS ddl FROM all_triggers WHERE owner = '%s' AND trigger_name = '%s'";
+    private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
+
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        exportTables(connection, databaseName, sqlBuilder, containData);
-        exportViews(connection, sqlBuilder, databaseName);
-        exportProcedures(connection, databaseName, sqlBuilder);
-        exportTriggers(connection, databaseName, sqlBuilder);
-        exportFunctions(connection, databaseName, sqlBuilder);
+        exportTables(connection, schemaName, sqlBuilder, containData);
+        exportViews(connection, sqlBuilder, schemaName);
+        exportProcedures(connection, schemaName, sqlBuilder);
+        exportTriggers(connection, schemaName, sqlBuilder);
+        exportFunctions(connection, schemaName, sqlBuilder);
         return sqlBuilder.toString();
     }
 
-    private void exportTables(Connection connection, String databaseName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet tables = statement.executeQuery("SELECT TABLE_NAME FROM USER_TABLES")) {
-            while (tables.next()) {
-                String tableName = tables.getString("TABLE_NAME");
-                exportTable(connection, databaseName, tableName, sqlBuilder, containData);
+    private void exportTables(Connection connection, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("TABLE_NAME");
+                exportTable(connection, schemaName, tableName, sqlBuilder, containData);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String databaseName, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String createTableSql = "SELECT DBMS_METADATA.GET_DDL('TABLE', table_name) FROM all_tables WHERE owner = '" + databaseName + "' AND table_name = '" + tableName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(createTableSql)) {
+    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+        String sql = String.format(TABLE_DDL_SQL, schemaName, tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append("DROP TABLE ").append(databaseName).append(".").append(tableName).append(";").append(resultSet.getString(1)).append(";").append("\n");
+                sqlBuilder.append("DROP TABLE ").append(schemaName).append(".").append(tableName).append(";")
+                        .append(resultSet.getString("ddl")).append(";").append("\n");
             }
             exportTableComments(connection, tableName, sqlBuilder);
             exportTableColumnsComments(connection, tableName, sqlBuilder);
@@ -47,123 +63,123 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTableComments(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String tableCommentSql = "SELECT 'COMMENT ON TABLE ' || table_name || ' IS ''' || comments || ''';' AS table_comment_ddl FROM user_tab_comments WHERE table_name = '" + tableName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(tableCommentSql)) {
+        String sql = String.format(TABLE_COMMENT_SQL, tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append("\n");
+                sqlBuilder.append(resultSet.getString("table_comment_ddl")).append("\n");
             }
         }
         sqlBuilder.append("\n");
     }
 
     private void exportTableColumnsComments(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String tableColumnsCommentSql = "SELECT 'COMMENT ON COLUMN ' || table_name || '.' || column_name || ' IS ''' || comments || ''';' AS column_comment_ddl " +
-                "FROM user_col_comments " +
-                "WHERE table_name = '" + tableName + "' " +
-                "AND comments IS NOT NULL";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(tableColumnsCommentSql)) {
+        String sql = String.format(TABLE_COLUMN_COMMENT_SQL, tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append("\n");
+                sqlBuilder.append(resultSet.getString("column_comment_ddl")).append("\n");
             }
         }
         sqlBuilder.append("\n");
     }
 
     private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT * FROM " + tableName)) {
+        String sql = String.format("SELECT * FROM %s", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
             while (resultSet.next()) {
-                StringBuilder insertSql = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= columnCount; i++) {
                     String columnValue = resultSet.getString(i);
                     if (Objects.isNull(columnValue)) {
-                        insertSql.append("NULL");
+                        sqlBuilder.append("NULL");
                     } else if (metaData.getColumnTypeName(i).equalsIgnoreCase("DATE")) {
                         // 处理日期值格式
                         columnValue = "TO_DATE('" + columnValue + "', 'YYYY-MM-DD HH24:MI:SS')";
-                        insertSql.append(columnValue);
+                        sqlBuilder.append(columnValue);
                     } else {
-                        insertSql.append("'").append(columnValue).append("'");
+                        sqlBuilder.append("'").append(columnValue).append("'");
                     }
                     if (i < columnCount) {
-                        insertSql.append(", ");
+                        sqlBuilder.append(", ");
                     }
                 }
-                insertSql.append(");\n");
-                sqlBuilder.append(insertSql);
+                sqlBuilder.append(");");
+                sqlBuilder.append("\n");
             }
         }
     }
 
-    private void exportViews(Connection connection, StringBuilder sqlBuilder, String databaseName) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT VIEW_NAME FROM USER_VIEWS")) {
+    private void exportViews(Connection connection, StringBuilder sqlBuilder, String schemaName) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"VIEW"})) {
             while (resultSet.next()) {
-                String viewName = resultSet.getString(1);
-                exportView(connection, sqlBuilder, databaseName, viewName);
+                String viewName = resultSet.getString("TABLE_NAME");
+                exportView(connection, sqlBuilder, schemaName, viewName);
             }
         }
     }
 
-    private void exportView(Connection connection, StringBuilder sqlBuilder, String databaseName, String viewName) throws SQLException {
-        String createViewSql = "SELECT DBMS_METADATA.GET_DDL('VIEW', view_name)  FROM all_views WHERE owner = '" + databaseName + "'" + "AND view_name = '" + viewName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(createViewSql)) {
+    private void exportView(Connection connection, StringBuilder sqlBuilder, String schemaName, String viewName) throws SQLException {
+        String sql = String.format(VIEW_DDL_SQL, schemaName, viewName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append(";").append("\n");
+                sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
             }
         }
     }
 
-    private void exportProcedures(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT object_name FROM all_procedures where OWNER = '" + databaseName + "' and OBJECT_TYPE='PROCEDURE'")) {
+    private void exportProcedures(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format(PROCEDURE_LIST_DDL,schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql))  {
             while (resultSet.next()) {
-                String procedureName = resultSet.getString(1);
-                exportProcedure(connection, databaseName, procedureName, sqlBuilder);
+                String procedureName = resultSet.getString("object_name");
+                exportProcedure(connection, schemaName, procedureName, sqlBuilder);
             }
         }
     }
 
-    private void exportProcedure(Connection connection, String databaseName, String procedureName, StringBuilder sqlBuilder) throws SQLException {
-        String createProcedureSql = "SELECT DBMS_METADATA.GET_DDL('PROCEDURE', object_name) FROM all_procedures WHERE owner = '" + databaseName + "' AND object_name = '" + procedureName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(createProcedureSql)) {
+    private void exportProcedure(Connection connection, String schemaName, String procedureName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format(PROCEDURE_DDL_SQL, schemaName, procedureName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append("\n");
+                sqlBuilder.append(resultSet.getString("ddl")).append("\n");
             }
         }
     }
 
-    private void exportTriggers(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT TRIGGER_NAME FROM all_triggers where OWNER='" + databaseName + "'")) {
+    private void exportTriggers(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format("SELECT TRIGGER_NAME FROM all_triggers where OWNER='%s'", schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                String triggerName = resultSet.getString(1);
-                exportTrigger(connection, databaseName, triggerName, sqlBuilder);
+                String triggerName = resultSet.getString("TRIGGER_NAME");
+                exportTrigger(connection, schemaName, triggerName, sqlBuilder);
             }
         }
     }
 
-    private void exportTrigger(Connection connection, String databaseName, String triggerName, StringBuilder sqlBuilder) throws SQLException {
-        String createTriggerSql = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', trigger_name) AS trigger_ddl FROM all_triggers WHERE owner = '" + databaseName + "' AND trigger_name = '" + triggerName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(createTriggerSql)) {
+    private void exportTrigger(Connection connection, String schemaName, String triggerName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format(TRIGGER_DDL_SQL, schemaName, triggerName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append(";").append("\n");
+                sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
             }
         }
     }
 
-    private void exportFunctions(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT object_name FROM user_objects WHERE object_type = 'FUNCTION'")) {
+    private void exportFunctions(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getFunctions(null, schemaName, null)) {
             while (resultSet.next()) {
-                String functionName = resultSet.getString(1);
-                exportFunction(connection, databaseName, functionName, sqlBuilder);
+                String functionName = resultSet.getString("FUNCTION_NAME");
+                exportFunction(connection, schemaName, functionName, sqlBuilder);
             }
         }
     }
 
-    private void exportFunction(Connection connection, String databaseName, String functionName, StringBuilder sqlBuilder) throws SQLException {
-        String createFunctionSql ="SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name)  FROM all_procedures WHERE owner = '"+databaseName+"' AND object_name = '"+functionName+"'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(createFunctionSql)) {
+    private void exportFunction(Connection connection, String schemaName, String functionName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format(FUNCTION_DDL_SQL, schemaName, functionName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append("\n");
+                sqlBuilder.append(resultSet.getString("ddl")).append("\n");
             }
         }
     }
