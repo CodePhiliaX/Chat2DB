@@ -147,11 +147,6 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String ROUTINES_SQL
-            = "SELECT LINE, TEXT "
-            + "FROM ALL_SOURCE "
-            + "WHERE TYPE = '%s' AND NAME = '%s' "
-            + "ORDER BY LINE";
     private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
