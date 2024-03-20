@@ -27,9 +27,9 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTypes(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-            try (Statement statement = connection.createStatement(); ResultSet ddl = statement.executeQuery(ENUM_TYPE_DDL_SQL)) {
-                while (ddl.next()) {
-                    sqlBuilder.append(ddl.getString("ddl")).append("\n");
+            try (ResultSet resultSet = connection.createStatement().executeQuery(ENUM_TYPE_DDL_SQL)) {
+                while (resultSet.next()) {
+                    sqlBuilder.append(resultSet.getString("ddl")).append("\n");
                 }
         }
     }
