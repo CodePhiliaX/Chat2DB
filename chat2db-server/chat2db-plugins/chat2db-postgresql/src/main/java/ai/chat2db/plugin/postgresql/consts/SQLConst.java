@@ -610,6 +610,7 @@ public class SQLConst {
                                                 if bSkip THEN CONTINUE; END IF;
                                                
                                                 -- Add IF NOT EXISTS clause so partition index additions will not be created if declarative partition in effect and index already created on parent
+                                                v_indexrec.indexdef := REPLACE(v_indexrec.indexdef, 'CREATE UNIQUE INDEX', 'CREATE UNIQUE INDEX IF NOT EXISTS');
                                                 v_indexrec.indexdef := REPLACE(v_indexrec.indexdef, 'CREATE INDEX', 'CREATE INDEX IF NOT EXISTS');
                                                 -- RAISE INFO 'DEBUG8: adding index, %', v_indexrec.indexname;
                                                

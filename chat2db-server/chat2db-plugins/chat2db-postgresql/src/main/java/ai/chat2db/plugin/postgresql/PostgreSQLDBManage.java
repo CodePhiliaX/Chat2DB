@@ -8,6 +8,7 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 
@@ -17,7 +18,7 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTypes(connection, schemaName, sqlBuilder);
-        exportTables(connection, schemaName, sqlBuilder, containData);
+        exportTables(connection, databaseName, schemaName, sqlBuilder, containData);
         exportViews(connection, schemaName, sqlBuilder);
         exportFunctions(connection, schemaName, sqlBuilder);
         exportTriggers(connection, schemaName, sqlBuilder);
@@ -31,25 +32,31 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
                 }
         }
     }
-    private void exportTables(Connection connection, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String tablesQuery = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + schemaName + "' AND table_type = 'BASE TABLE'";
-        try (Statement statement = connection.createStatement(); ResultSet tables = statement.executeQuery(tablesQuery)) {
-            while (tables.next()) {
-                String tableName = tables.getString(1);
-                exportTable(connection, schemaName, tableName, sqlBuilder, containData);
+    private void exportTables(Connection connection, String databaseName, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
+                                                                      new String[]{"TABLE", "SYSTEM TABLE","PARTITIONED TABLE"})) {
+            ArrayList<String> tableNames = new ArrayList<>();
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("TABLE_NAME");
+                tableNames.add(tableName);
+            }
+            for (String tableName : tableNames) {
+                exportTable(connection, schemaName, tableName, sqlBuilder);
+            }
+            if (containData) {
+                for (String tableName : tableNames) {
+                    exportTableData(connection, schemaName, tableName, sqlBuilder);
+                }
             }
         }
     }
 
-    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
         String tableQuery = "select pg_get_tabledef" + "(" + "'" + schemaName + "'" + "," + "'" + tableName + "'" + "," + "true" + "," + "'" + "COMMENTS" + "'" + ")" + ";";
         try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(tableQuery)) {
             sqlBuilder.append("\n").append("DROP TABLE IF EXISTS ").append(schemaName).append(".").append(tableName).append(";\n");
             if (resultSet.next()) {
                 sqlBuilder.append(resultSet.getString(1)).append("\n");
-            }
-            if (containData) {
-                exportTableData(connection, schemaName, tableName, sqlBuilder);
             }
         }
     }
@@ -88,7 +95,7 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
                 String viewName = resultSet.getString("table_name");
                 String viewDefinition = resultSet.getString("view_definition");
                 sqlBuilder.append("DROP VIEW IF EXISTS ").append(schemaName).append(".").append(viewName).append(";\n");
-                sqlBuilder.append("CREATE VIEW ").append(schemaName).append(".").append(viewName).append(" AS ").append(viewDefinition).append(";\n\n");
+                sqlBuilder.append("CREATE VIEW ").append(schemaName).append(".").append(viewName).append(" AS ").append(viewDefinition).append("\n\n");
             }
         }
     }
@@ -111,7 +118,6 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
             while (resultSet.next()) {
                 String triggerName = resultSet.getString("tgname");
                 String triggerDefinition = resultSet.getString("trigger_definition");
-                sqlBuilder.append("DROP TRIGGER IF EXISTS ").append(schemaName).append(".").append(triggerName).append(";\n");
                 sqlBuilder.append(triggerDefinition).append(";\n\n");
             }
         }
