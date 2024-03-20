@@ -53,9 +53,10 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTables(Connection connection, StringBuilder sqlBuilder, String schemaName, boolean containData) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet tables = statement.executeQuery("SELECT name FROM SysObjects Where XType='U'")) {
-            while (tables.next()) {
-                String tableName = tables.getString(1);
+        String sql ="SELECT name FROM SysObjects Where XType='U'";
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("name");
                 exportTable(connection, tableName, schemaName, sqlBuilder, containData);
             }
         }
@@ -69,14 +70,11 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
         } catch (Exception e) {
             //log.error("Failed to create function", e);
         }
-        try (
-                Statement statement = connection.createStatement();
-                ResultSet ddlResult = statement.executeQuery("SELECT " + schemaName + ".ufn_GetCreateTableScript('" + schemaName + "', '" + tableName + "')");
-        ) {
-            if (ddlResult.next()) {
-                String createTableSql = "DROP TABLE IF EXISTS " + tableName + ";\n" + ddlResult.getString(1);
-                sqlBuilder.append(createTableSql);
-                // 导出表数据
+        String sql = String.format("SELECT %s.ufn_GetCreateTableScript('%s', '%s') as ddl",schemaName,schemaName,tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            if (resultSet.next()) {
+                sqlBuilder.append("DROP TABLE IF EXISTS ").append(tableName).append(";").append("\n")
+                        .append(resultSet.getString("ddl")).append("\n");
                 if (containData) {
                     exportTableData(connection, tableName, sqlBuilder);
                 } else {
@@ -88,84 +86,92 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
 
 
     private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        StringBuilder insertSql = new StringBuilder();
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("select * from " + tableName)) {
+        String sql = String.format("select * from %s", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
-                insertSql.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String value = resultSet.getString(i);
                     if (Objects.isNull(value)) {
-                        insertSql.append("NULL");
+                        sqlBuilder.append("NULL");
                     } else {
-                        insertSql.append("'").append(value).append("'");
+                        sqlBuilder.append("'").append(value).append("'");
                     }
                     if (i < metaData.getColumnCount()) {
-                        insertSql.append(", ");
+                        sqlBuilder.append(", ");
                     }
                 }
-                insertSql.append(");\n");
+                sqlBuilder.append(");\n");
             }
-            insertSql.append("\n");
+            sqlBuilder.append("\n");
         }
-        sqlBuilder.append(insertSql).append("go").append("\n");
+        sqlBuilder.append("go").append("\n");
     }
 
     private void exportViews(Connection connection, String databaseName, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT TABLE_NAME, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_CATALOG = '" + databaseName + "'; ")) {
+        String sql = String.format("SELECT TABLE_NAME, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS " +
+                                           "WHERE TABLE_SCHEMA = '%s' AND TABLE_CATALOG = '%s'; ", schemaName, databaseName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                sqlBuilder.append("DROP VIEW IF EXISTS ").append(resultSet.getString(1)).append(";\n").append("go").append("\n")
-                        .append(resultSet.getString(2)).append(";\n");
+                sqlBuilder.append("DROP VIEW IF EXISTS ").append(resultSet.getString("TABLE_NAME")).append(";\n").append("go").append("\n")
+                        .append(resultSet.getString("VIEW_DEFINITION")).append(";").append("\n")
+                        .append("go").append("\n");
             }
-            sqlBuilder.append("\n");
-            sqlBuilder.append("go").append("\n");
 
         }
     }
 
     private void exportFunctions(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT name FROM sys.objects WHERE type = 'FN' and SCHEMA_ID = SCHEMA_ID('" + schemaName + "')")) {
+        String sql = String.format("SELECT name FROM sys.objects WHERE type = 'FN' and SCHEMA_ID = SCHEMA_ID('%s')", schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                String functionName = resultSet.getString(1);
+                String functionName = resultSet.getString("name");
                 exportFunction(connection, functionName, schemaName, sqlBuilder);
             }
         }
     }
 
     private void exportFunction(Connection connection, String functionName, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT OBJECT_DEFINITION (OBJECT_ID('" + schemaName + "." + functionName + "'))")) {
+        String sql = String.format("SELECT OBJECT_DEFINITION(OBJECT_ID('%s.%s')) as ddl", schemaName, functionName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1).replace("CREATE   FUNCTION", "CREATE OR ALTER FUNCTION")).append("\n");
-                sqlBuilder.append("go").append("\n");
+                sqlBuilder.append(resultSet.getString("ddl")
+                                          .replace("CREATE   FUNCTION", "CREATE OR ALTER FUNCTION"))
+                        .append("\n").append("go").append("\n");
 
             }
         }
     }
 
     private void exportProcedures(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT name FROM sys.procedures WHERE schema_id = SCHEMA_ID('" + schemaName + "');")) {
+        String sql = String.format("SELECT name FROM sys.procedures WHERE SCHEMA_ID = SCHEMA_ID('%s')", schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
-                String procedureName = resultSet.getString(1);
+                String procedureName = resultSet.getString("name");
                 exportProcedure(connection, procedureName, schemaName, sqlBuilder);
             }
         }
     }
 
     private void exportProcedure(Connection connection, String procedureName, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT definition FROM sys.sql_modules  WHERE object_id = (OBJECT_ID('" + schemaName + "." + procedureName + "'));")) {
+        String sql = String.format("SELECT definition FROM sys.sql_modules  WHERE object_id = (OBJECT_ID('%s.%s'));", schemaName, procedureName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1).replace("CREATE   PROCEDURE", "CREATE OR ALTER PROCEDURE")).append("\n");
-                sqlBuilder.append("go").append("\n");
+                sqlBuilder.append(resultSet.getString("definition")
+                                          .replace("CREATE   PROCEDURE", "CREATE OR ALTER PROCEDURE"))
+                        .append("\n").append("go").append("\n");
 
             }
         }
     }
 
     private void exportTriggers(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(TRIGGER_SQL_LIST)) {
+        try (ResultSet resultSet = connection.createStatement().executeQuery(TRIGGER_SQL_LIST)) {
             while (resultSet.next()) {
-                  sqlBuilder.append(resultSet.getString("triggerDefinition").replace("CREATE TRIGGER", "CREATE OR ALTER TRIGGER"))
-                          .append("\n").append("go").append("\n");
+                sqlBuilder.append(resultSet.getString("triggerDefinition")
+                                          .replace("CREATE   TRIGGER", "CREATE OR ALTER TRIGGER"))
+                        .append("\n").append("go").append("\n");
             }
         }
     }
