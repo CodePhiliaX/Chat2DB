@@ -18,7 +18,7 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        exportTypes(connection, schemaName, sqlBuilder);
+        exportTypes(connection, sqlBuilder);
         exportTables(connection, databaseName, schemaName, sqlBuilder, containData);
         exportViews(connection, schemaName, sqlBuilder);
         exportFunctions(connection, schemaName, sqlBuilder);
@@ -26,10 +26,10 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         return sqlBuilder.toString();
     }
 
-    private void exportTypes(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTypes(Connection connection, StringBuilder sqlBuilder) throws SQLException {
             try (Statement statement = connection.createStatement(); ResultSet ddl = statement.executeQuery(ENUM_TYPE_DDL_SQL)) {
                 while (ddl.next()) {
-                    sqlBuilder.append(ddl.getString(1)).append("\n");
+                    sqlBuilder.append(ddl.getString("ddl")).append("\n");
                 }
         }
     }
