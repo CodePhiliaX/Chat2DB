@@ -40,23 +40,29 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
                          (SELECT dbms_metadata.get_ddl('TABLE', '%s', '%s') FROM dual) AS ddl
                      FROM dual;
                      """;
-        String selectObjectDDLSQL = String.format(sql, tableName, tableName, schemaName);
-        return SQLExecutor.getInstance().execute(connection, selectObjectDDLSQL, resultSet -> {
-            try {
-                if (resultSet.next()) {
-                    String ddl = resultSet.getString("ddl");
-                    String comment = resultSet.getString("comments");
-                    if (StringUtils.isNotBlank(comment)) {
-                        return ddl +"\n"+ "COMMENT ON TABLE " + format(schemaName) + "." + format(tableName) +
-                                " IS " + "'" + comment + "';";
-                    }
-                    return ddl;
+        StringBuilder ddlBuilder = new StringBuilder();
+        String tableDDLSql = String.format(sql, tableName, tableName, schemaName);
+        SQLExecutor.getInstance().execute(connection, tableDDLSql, resultSet -> {
+            if (resultSet.next()) {
+                String ddl = resultSet.getString("ddl");
+                String comment = resultSet.getString("comments");
+                if (StringUtils.isNotBlank(comment)) {
+                    ddlBuilder.append(ddl).append("\n").append("COMMENT ON TABLE ").append(format(schemaName))
+                            .append(".").append(format(tableName)).append(" IS ").append("'").append(comment).append("';");
                 }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
-            return null;
         });
+        String columnCommentsSql =String.format("select COLNAME,COMMENT$ from SYS.SYSCOLUMNCOMMENTS\n" +
+                                          "where SCHNAME = '%s' and TVNAME = '%s'and TABLE_TYPE = 'TABLE';", schemaName,tableName);
+           SQLExecutor.getInstance().execute(connection, columnCommentsSql, resultSet->{
+               while (resultSet.next()) {
+                   String columnName = resultSet.getString("COLNAME");
+                   String comment = resultSet.getString("COMMENT$");
+                   ddlBuilder.append("COMMENT ON COLUMN ").append(format(schemaName)).append(".").append(format(tableName))
+                           .append(".").append(format(columnName)).append(" IS ").append("'").append(comment).append("';").append("\n");
+               }
+           });
+        return ddlBuilder.toString();
     }
 
     private static String ROUTINES_SQL
