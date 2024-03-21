@@ -41,6 +41,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
     DATE("DATE", false, false, true, false, false, false, true, true, false, false),
 
     DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
+    DEC("DEC", true, true, true, false, false, false, true, true, false, false),
 
     DOUBLE("DOUBLE", false, false, true, false, false, false, true, true, false, false),
 
@@ -220,7 +221,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
             return script.toString();
         }
 
-        if (Arrays.asList(DECIMAL, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
+        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
