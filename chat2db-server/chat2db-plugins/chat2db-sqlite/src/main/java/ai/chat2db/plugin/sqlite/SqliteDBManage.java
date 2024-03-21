@@ -17,29 +17,8 @@ public class SqliteDBManage extends DefaultDBManage implements DBManage {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTables(connection, databaseName, sqlBuilder, containData);
         exportViews(connection, databaseName, sqlBuilder);
-//        exportProcedures(connection, sqlBuilder);
         exportTriggers(connection, sqlBuilder);
-//        exportFunctions(connection, databaseName, sqlBuilder);
         return sqlBuilder.toString();
-    }
-
-    private void exportFunctions(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
-        try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, null, null)) {
-            while (resultSet.next()) {
-                exportFunction(connection, resultSet.getString("FUNCTION_NAME"), sqlBuilder);
-            }
-
-        }
-    }
-
-    private void exportFunction(Connection connection, String functionName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("SHOW CREATE FUNCTION %s;", functionName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
-                        .append(resultSet.getString("Create Function")).append(";").append("\n");
-            }
-        }
     }
 
     private void exportTables(Connection connection, String databaseName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
@@ -106,26 +85,6 @@ public class SqliteDBManage extends DefaultDBManage implements DBManage {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP VIEW IF EXISTS ").append(format(viewName)).append(";").append("\n")
                         .append(resultSet.getString("sql")).append(";").append("\n");
-            }
-        }
-    }
-
-    private void exportProcedures(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        String sql = "SHOW PROCEDURE STATUS WHERE Db = DATABASE()";
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            while (resultSet.next()) {
-                exportProcedure(connection, resultSet.getString("Name"), sqlBuilder);
-            }
-        }
-    }
-
-    private void exportProcedure(Connection connection, String procedureName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("show create procedure %s ", procedureName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                sqlBuilder.append("DROP PROCEDURE IF EXISTS ").append(format(procedureName)).append(";").append("\n")
-                        .append("delimiter ;;").append("\n").append(resultSet.getString("Create Procedure")).append(";;")
-                        .append("\n").append("delimiter ;").append("\n");
             }
         }
     }
