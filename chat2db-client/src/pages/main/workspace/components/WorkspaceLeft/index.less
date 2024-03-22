@@ -1,178 +1,41 @@
 @import '../../../../../styles/var.less';
 
-.box {
+.workspaceLeft {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--color-bg-elevated);
-  padding: 10px 20px 0px;
+  background-color: var(--color-bg-subtle);
   box-sizing: border-box;
   min-width: 200px;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 34px;
-  flex-shrink: 0;
-}
-
-.tableModule {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  height: 0;
-}
-
-.saveModule {
-  flex-shrink: 0;
-}
-
-.boxLeftSave {
-}
-
-.boxLeftConnection {
-}
-
-.selectDatabaseBox {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  user-select: none;
-  .currentDatabase {
-    flex: 1;
-    width: 0px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    i {
-      flex-shrink: 0;
-      margin-left: 10px;
-    }
-    .name {
-      font-size: 16px;
-      font-weight: bold;
-      max-width: 90%;
-      .f-single-line();
-    }
-  }
-
-  .otherOperations {
-    flex-shrink: 0;
-  }
-
-  .iconBox {
-    width: 30px;
-    height: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-.cascaderPopup {
-  :global {
-    .ant-cascader-menu-item-content {
-      font-weight: 400 !important;
-    }
-  }
-}
-
-.saveBoxList {
-  margin: 0px -10px;
-  height: calc(26px * 3 + 6px);
-  overflow-y: auto;
-}
-
-.saveBoxList {
-  margin: 0px -10px;
-}
-
-.treeBox {
-  flex: 1;
-  height: 0;
-  overflow-y: auto;
-  margin: 0px -10px;
-}
-
-.saveItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px 10px;
-  margin-bottom: 2px;
-  line-height: 26px;
-  border-radius: 2px;
-  user-select: none;
-  cursor: pointer;
-  .saveItemText{
-    width: 0px;
-    flex: 1;
-    .f-single-line();
-  }
-  .moreButton {
-    flex-shrink: 0;
-    display: none;
-    transform: rotate(90deg);
-  }
-
-  &:hover {
-    background-color: var(--color-hover-bg);
+.noConnectionList {
+  height: 100%;
+  margin-top: 30vh;
+  text-align: center;
+  font-size: 14px;
+  .noConnectionListIcon {
+    font-size: 60px;
     color: var(--color-primary);
-    .moreButton {
-      display: block;
-    }
   }
-}
-
-.leftModuleTitle {
-  flex-shrink: 0;
-  margin-bottom: 10px;
-  .leftModuleTitleText {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 26px;
-    .modelName {
-      font-weight: bold;
-    }
-    .iconBox {
-      display: flex;
-      align-items: center;
-    }
-    .refreshIcon {
-      margin-right: 10px;
-    }
-    .refreshIcon,
-    .searchIcon {
-      cursor: pointer;
-      &:hover {
-        color: var(--color-primary);
-      }
-    }
+  .noConnectionListTips {
+    margin: 10px 0px;
   }
-  .leftModuleTitleSearch {
-    height: 26px;
+  .create {
+    color: var(--color-primary);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-right: 4px;
+    &:hover {
+      color: var(--color-primary-hover);
+    }
   }
 }
 
 .createButtonBox {
   padding: 10px 0px 10px;
 }
-.createButton {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  i {
-    margin-right: 10px;
-  }
-}
 
-.refreshIconBox{
-  cursor: pointer;
-  &:hover{
-    color: var(--color-primary)
-  }
+.divider {
+  margin: 0px;
 }

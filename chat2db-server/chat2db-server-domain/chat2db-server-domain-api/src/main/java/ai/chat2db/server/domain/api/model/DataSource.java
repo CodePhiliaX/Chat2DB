@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.api.model;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import ai.chat2db.spi.config.DriverConfig;
@@ -8,6 +9,7 @@ import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 import lombok.Data;
+import org.springframework.util.ObjectUtils;
 
 /**
  * @author moji
@@ -97,7 +99,6 @@ public class DataSource {
      */
     private String jdbc;
 
-
     /**
      * 扩展信息
      */
@@ -107,4 +108,54 @@ public class DataSource {
      * 驱动配置
      */
     private DriverConfig driverConfig;
+
+    /**
+     * 环境id
+     */
+    private Long environmentId;
+
+    /**
+     * 环境
+     */
+    private Environment environment;
+
+    /**
+     * 用户id
+     */
+    private Long userId;
+
+
+    /**
+     * 连接类型
+     *
+     * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
+     */
+    private String kind;
+
+
+    /**
+     * 服务名称
+     */
+    private String serviceName;
+
+    /**
+     * 服务类型
+     */
+    private String serviceType;
+
+
+    private boolean supportDatabase;
+
+    private boolean supportSchema;
+
+    public LinkedHashMap<String, Object> getExtendMap() {
+        if (ObjectUtils.isEmpty(extendInfo)) {
+            return new LinkedHashMap<>();
+        }
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        for (KeyValue keyValue : extendInfo) {
+            map.put(keyValue.getKey(), keyValue.getValue());
+        }
+        return map;
+    }
 }

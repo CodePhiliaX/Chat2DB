@@ -1,6 +1,6 @@
 package ai.chat2db.server.web.api.controller.dashboard.vo;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -21,12 +21,12 @@ public class DashboardVO {
     /**
      * 创建时间
      */
-    private LocalDateTime gmtCreate;
+    private Date gmtCreate;
 
     /**
      * 修改时间
      */
-    private LocalDateTime gmtModified;
+    private Date gmtModified;
 
     /**
      * 报表名称

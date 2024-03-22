@@ -6,20 +6,20 @@
 
 .settingIcon {
   color: var(--custom-color-icon);
+
   &:hover {
-    background-color: var(--color-primary-bg-hover);
     color: var(--color-primary);
   }
 }
 
-.setText {
-  color: var(--custom-primary);
-  font-size: 16px;
+// .setText {
+//   color: var(--custom-primary);
+//   font-size: 16px;
 
-  &:hover {
-    text-decoration: underline;
-  }
-}
+//   &:hover {
+//     text-decoration: underline;
+//   }
+// }
 
 .title {
   font-size: 14px;
@@ -45,7 +45,7 @@
 
 .menus {
   width: 200px;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-subtle);
   padding: 20px;
   position: sticky;
   top: 0;
@@ -57,20 +57,34 @@
 
   .menuItem {
     margin: 10px 0px;
-    padding: 10px 20px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 4px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
 
-    i {
+    .prefixIcon {
       font-size: 16px;
       margin-right: 10px;
+    }
+
+    .rightSlot {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .rightSlotAbout {
+      i {
+        font-size: 18px;
+        color: var(--color-error);
+      }
     }
   }
 
   .activeMenu {
+    color: var(--color-primary);
     background-color: var(--color-hover-bg);
   }
 }

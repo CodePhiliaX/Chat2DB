@@ -1,135 +1,237 @@
-import React, { memo, useEffect, useState, useRef, useMemo, Fragment } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  forwardRef,
+  ForwardedRef,
+  useImperativeHandle,
+  Fragment,
+  createContext,
+} from 'react';
 import classnames from 'classnames';
-import Tabs, { IOption } from '@/components/Tabs';
+import Tabs, { ITabItem } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
 import StateIndicator from '@/components/StateIndicator';
-import LoadingContent from '@/components/Loading/LoadingContent';
-import MonacoEditor from '@/components/Console/MonacoEditor';
-import { Button, DatePicker, Input, Table, Modal, message } from 'antd';
-import { StatusType, TableDataType } from '@/constants';
-import { formatDate } from '@/utils/date';
-import { IManageResultData, ITableHeaderItem } from '@/typings';
+// import Output from '@/components/Output';
+import { IManageResultData, IResultConfig } from '@/typings';
+import TableBox from './components/TableBox';
+import StatusBar from './components/StatusBar';
 import styles from './index.less';
+import EmptyImg from '@/assets/img/empty.svg';
 import i18n from '@/i18n';
-import { v4 as uuidv4 } from 'uuid';
-import TableBox from './TableBox';
+import sqlServer, { IExecuteSqlParams } from '@/service/sql';
+import { v4 as uuidV4 } from 'uuid';
+import { Spin } from 'antd';
 
 interface IProps {
   className?: string;
-  manageResultDataList?: IManageResultData[];
+  sql?: string;
+  executeSqlParams: any;
+  concealTabHeader?: boolean;
+  viewTable?: boolean;
+  isActive?: boolean;
 }
 
-interface DataType {
-  [key: string]: any;
-}
-
-const handleTabs = (result: IManageResultData[]) => {
-  return (result || []).map((item, index) => {
-    return {
-      label: (
-        <>
-          <Iconfont
-            key={index}
-            className={classnames(styles[item.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
-            code={item.success ? '\ue605' : '\ue87c'}
-          />
-          {`${i18n('common.text.executionResult')}-${index + 1}`}
-        </>
-      ),
-      value: item.uuid!,
-    };
-  });
+const defaultResultConfig: IResultConfig = {
+  pageNo: 1,
+  pageSize: 200,
+  total: 0,
+  hasNextPage: true,
 };
 
-export default memo<IProps>(function SearchResult({ className, manageResultDataList = [] }) {
-  const [isUnfold, setIsUnfold] = useState(true);
-  const [currentTab, setCurrentTab] = useState<string | number | undefined>();
-  const [resultDataList, setResultDataList] = useState<IManageResultData[]>([]);
-  const [tabs, setTabs] = useState<IOption[]>([]);
+export interface ISearchResultRef {
+  handleExecuteSQL: (sql: string) => void;
+}
+
+interface IContext {
+  // 这里不用ref的话，会导致切换时闪动
+  activeTabId: string;
+  notChangedSql: string;
+}
+
+export const Context = createContext<IContext>({} as any);
+
+export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) => {
+  const { className, sql, executeSqlParams, concealTabHeader, viewTable, isActive } = props;
+  const [resultDataList, setResultDataList] = useState<IManageResultData[]>();
+  const [tableLoading, setTableLoading] = useState(false);
+  const controllerRef = useRef<AbortController>();
+  const [activeTabId, setActiveTabId] = useState<string>('');
+  const [notChangedSql, setNotChangedSql] = useState<string>('');
 
   useEffect(() => {
-    if (!manageResultDataList.length) {
-      return
+    if (sql) {
+      handleExecuteSQL(sql);
     }
-    const newManageResultDataList = manageResultDataList.map(t => {
-      return {
-        ...t,
-        uuid: uuidv4()
-      }
+  }, [sql]);
+
+  useImperativeHandle(ref, () => ({
+    handleExecuteSQL,
+  }));
+
+  /**
+   * 执行SQL
+   * @param sql
+   */
+  const handleExecuteSQL = (_sql: string) => {
+    setTableLoading(true);
+    const api = viewTable ? sqlServer.viewTable : sqlServer.executeSql;
+
+    const executeSQLParams: IExecuteSqlParams = {
+      sql: _sql,
+      tableName: executeSqlParams?.tableName,
+      ...defaultResultConfig,
+      ...executeSqlParams,
+      type: executeSqlParams.databaseType, // 兼容写法，希望后端可以统一把type改成databaseType
+    };
+
+    controllerRef.current = new AbortController();
+    // 获取当前SQL的查询结果
+    api(executeSQLParams, {
+      signal: controllerRef.current.signal,
     })
-    setCurrentTab(newManageResultDataList[0].uuid)
-    setResultDataList(newManageResultDataList);
-    setTabs(handleTabs(newManageResultDataList));
-  }, [manageResultDataList]);
+      .then((res) => {
+        const sqlResult = res.map((_res) => ({
+          ..._res,
+          uuid: uuidV4(),
+        }));
 
-  function onChange(uuid: string | number) {
-    setCurrentTab(uuid);
-  }
+        setResultDataList(sqlResult);
+        if(!notChangedSql){
+          setNotChangedSql(_sql);
+        }
+      })
+      .finally(() => {
+        setTableLoading(false);
+      });
+  };
 
-  const renderStatus = (text: string) => {
+  const onChange = useCallback((uuid) => {
+    // activeTabIdRef.current = uuid;
+    setActiveTabId(uuid);
+  }, []);
+
+  const renderResult = (queryResultData) => {
+    function renderSuccessResult() {
+      const needTable = queryResultData?.headerList?.length > 1;
+      return (
+        <div className={styles.successResult}>
+          <div className={styles.successResultContent}>
+            {needTable ? (
+              <TableBox
+                isActive={isActive}
+                tableBoxId={queryResultData.uuid}
+                key={queryResultData.uuid}
+                outerQueryResultData={queryResultData}
+                executeSqlParams={props.executeSqlParams}
+                concealTabHeader={concealTabHeader}
+              />
+            ) : (
+              <div className={styles.updateCountBox}>
+                <div className={styles.updateCount}>
+                  {i18n('common.text.affectedRows', queryResultData.updateCount)}
+                </div>
+                <StatusBar
+                  dataLength={queryResultData?.dataList?.length}
+                  duration={queryResultData.duration}
+                  description={queryResultData.description}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
     return (
-      <div className={styles.tableStatus}>
-        <i className={classnames(styles.dot, { [styles.successDot]: text == StatusType.SUCCESS })}></i>
-        {text == StatusType.SUCCESS ? '成功' : '失败'}
-      </div>
+      <Fragment key={queryResultData.uuid}>
+        {queryResultData.success ? (
+          renderSuccessResult()
+        ) : (
+          <StateIndicator
+            className={styles.stateIndicator}
+            key={queryResultData.uuid}
+            state="error"
+            text={queryResultData.message}
+          />
+        )}
+      </Fragment>
     );
   };
 
-  function onEdit(type: 'add' | 'remove', value?: number | string) {
-    if (type === 'remove') {
-      const dataList = resultDataList.filter((t) => t.uuid !== value);
-      setResultDataList(dataList);
-      if (currentTab === value) {
-        setCurrentTab(dataList[0]?.uuid);
-      }
-    }
-  }
+  const tabsList = useMemo(() => {
+    return resultDataList?.map((queryResultData, index) => {
+      return {
+        prefixIcon: (
+          <Iconfont
+            key={index}
+            className={classnames(styles[queryResultData.success ? 'successIcon' : 'failIcon'], styles.statusIcon)}
+            code={queryResultData.success ? '\ue605' : '\ue87c'}
+          />
+        ),
+        popover: queryResultData.originalSql,
+        label: i18n('common.text.executionResult', index + 1),
+        key: queryResultData.uuid!,
+        children: renderResult(queryResultData),
+      };
+    });
+  }, [resultDataList, isActive]);
 
-  const renderEmpty = () => {
-    return <div className={styles.noData}>{i18n('common.text.noData')}</div >;
+  const onEdit = useCallback(
+    (type: 'add' | 'remove', data: ITabItem[]) => {
+      if (type === 'remove') {
+        const newResultDataList = resultDataList?.filter((d) => {
+          return data.findIndex((item) => item.key === d.uuid) === -1;
+        });
+        setResultDataList(newResultDataList);
+      }
+    },
+    [resultDataList],
+  );
+
+  const stopExecuteSql = () => {
+    controllerRef.current && controllerRef.current.abort();
+    setResultDataList([]);
+    setTableLoading(false);
   };
 
-  const renderTable = useMemo(() => {
-    if (!tabs || !tabs.length) {
-      return renderEmpty();
-    }
-    if (!resultDataList || !resultDataList.length) {
-      return renderEmpty();
-    }
-    return (resultDataList || []).map((item, index: number) => {
-      if (item.success) {
-        return (
-          <Fragment key={item.uuid!}>
-            <TableBox
-              className={classnames({ [styles.cursorTableBox]: item.uuid === currentTab })}
-              data={item}
-            />
-          </Fragment>
-        );
-      } else {
-        return <Fragment key={item.uuid} >
-          <StateIndicator className={classnames(styles.stateIndicator, { [styles.cursorStateIndicator]: item.uuid === currentTab })} state="error" text={item.message} />
-        </Fragment >;
-      }
-    });
-  }, [currentTab])
-
   return (
-    <div className={classnames(className, styles.box)}>
-      {tabs.length ? (
-        <div className={styles.resultHeader}>
-          <Tabs
-            hideAdd
-            type="line"
-            onEdit={onEdit}
-            onChange={onChange}
-            tabs={tabs}
-            className={styles.tabs}
-            activeTab={currentTab}
-          />
-        </div>
-      ) : null}
-      <div className={styles.resultContent}>{renderTable}</div>
-    </div>
+    <Context.Provider
+      value={{
+        activeTabId: activeTabId,
+        notChangedSql: notChangedSql,
+      }}
+    >
+      <div className={classnames(className, styles.searchResult)}>
+        {tableLoading ? (
+          <div className={styles.tableLoading}>
+            <Spin />
+            <div className={styles.stopExecuteSql} onClick={stopExecuteSql}>
+              {i18n('common.button.cancelRequest')}
+            </div>
+          </div>
+        ) : (
+          <>
+            {tabsList?.length ? (
+              <Tabs
+                hideAdd
+                className={styles.tabs}
+                onChange={onChange as any}
+                onEdit={onEdit as any}
+                items={tabsList}
+                concealTabHeader={concealTabHeader}
+                destroyInactiveTabPane={true}
+              />
+            ) : (
+              <div className={styles.noData}>
+                <img src={EmptyImg} />
+                <p>{i18n('common.text.noData')}</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </Context.Provider>
   );
 });

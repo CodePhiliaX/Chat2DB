@@ -5,6 +5,15 @@
  * @returns
  */
 export function compareStrings(a: string, b: string) {
+  
+  if (!a  ) {
+    return -1;
+  }
+
+  if (!b) {
+    return 1;
+  }
+
   // 比较字符串长度
   if (a.length !== b.length) {
     return a.length - b.length;

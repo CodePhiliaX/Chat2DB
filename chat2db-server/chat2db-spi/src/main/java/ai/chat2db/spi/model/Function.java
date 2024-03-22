@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,15 +27,24 @@ public class Function {
     //SPECIFIC_NAME String => the name which uniquely identifies this function within its schema. This is a user specified, or DBMS generated, name that may be different then the FUNCTION_NAME for example with overload functions
     //
 
+    @JsonAlias({"FUNCTION_CAT"})
     private String databaseName;
 
+    @JsonAlias({"FUNCTION_SCHEM"})
     private String schemaName;
 
+    @JsonAlias({"FUNCTION_NAME"})
     private String functionName;
 
+    @JsonAlias({"REMARKS"})
     private String remarks;
 
+    @JsonAlias({"FUNCTION_TYPE"})
     private Short functionType;
 
+    @JsonAlias({"SPECIFIC_NAME"})
     private String specificName;
+
+    private String functionBody;
+
 }

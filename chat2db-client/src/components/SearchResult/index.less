@@ -1,13 +1,14 @@
 @import '../../styles/var.less';
 
-.box {
+.searchResult {
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .tabs {
-  border-bottom: 1px solid var(--color-border);
+  height: 100%;
 }
 
 .recordIcon {
@@ -15,61 +16,17 @@
   margin-right: 4px;
 }
 
-.resultHeader {
-  flex-shrink: 0;
-  overflow-x: scroll;
-  background-color: var(--color-bg-elevated);
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .statusIcon {
-    margin-right: 6px;
-    font-size: 12px;
-  }
-
-  .successIcon {
-    color: rgb(71, 157, 255);
-  }
-
-  .failIcon {
-    color: red;
-  }
+.statusIcon {
+  margin-right: 6px;
+  font-size: 12px;
 }
 
-.resultContent {
-  flex: 1;
-  width: 100%;
-  position: relative;
-  overflow: auto;
+.successIcon {
+  color: var(--color-primary);
 }
 
-.tableStatus {
-  display: flex;
-  align-items: center;
-
-  .dot {
-    display: inline-block;
-    margin-right: 5px;
-    width: 10px;
-    height: 10px;
-    background-color: #ff4d4f;
-    border-radius: 50%;
-  }
-
-  .successDot {
-    background-color: #52c41a;
-  }
-}
-
-.cursorTableBox {
-  // display: block !important;
-  // height: 100%;
-  display: flex !important;
-  flex-direction: column;
-  justify-content: space-between;
-  // background-color: var(--bgcolor);
+.failIcon {
+  color: var(--color-primary);
 }
 
 .tableIndex {
@@ -84,21 +41,70 @@
   margin: -15px;
 }
 
-.noData {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.stateIndicator{
-  display: none;
-}
-
-.cursorStateIndicator{
+.cursorStateIndicator {
   margin: 0 auto;
   max-width: 80%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.noData {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.outputPrefixIcon {
+  margin-right: 4px;
+}
+
+.stateIndicator {
+  width: 70%;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.updateCountBox {
+  height: 100%;
+}
+
+.successResult {
+  height: 100%;
+  .successResultContent {
+    height: 100%;
+  }
+
+  .updateCount {
+    height: calc(100% - 26px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.tableLoading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  // height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  // background-color: var(--color-fill);
+  .stopExecuteSql {
+    cursor: pointer;
+    margin-top: 30px;
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }

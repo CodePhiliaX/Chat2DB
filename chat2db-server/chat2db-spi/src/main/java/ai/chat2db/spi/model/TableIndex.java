@@ -19,6 +19,8 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TableIndex {
 
+    private String oldName;
+
     /**
      * 索引名称
      */
@@ -60,4 +62,34 @@ public class TableIndex {
      * 索引包含的列
      */
     private List<TableIndexColumn> columnList;
+
+
+    private String editStatus;
+
+    /**
+     * 是否并发
+     */
+    private Boolean concurrently;
+
+    /**
+     * 索引方法
+     */
+    private String method;
+
+
+    /**
+     * 外键指向schema
+     */
+    private String foreignSchemaName;
+
+    /**
+     * 外键指向表名
+     */
+    private String foreignTableName;
+
+    /**
+     * 外键指向的列名
+     */
+    private List<String> foreignColumnNamelist;
+
 }

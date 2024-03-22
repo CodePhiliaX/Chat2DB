@@ -55,35 +55,35 @@ public enum DataTypeEnum implements BaseEnum<String> {
      */
     ARRAY("数组"),
 
-
     /**
      * 对象
      */
     OBJECT("对象"),
-
 
     /**
      * 引用
      */
     REFERENCE("引用"),
 
-
     /**
      * 行号
      */
     ROWID("行号"),
-
 
     /**
      * 任何
      */
     ANY("任何"),
 
-
     /**
      * 未知
      */
     UNKNOWN("未知"),
+
+    /**
+     * 行号
+     */
+    CHAT2DB_ROW_NUMBER("行号"),
     ;
 
     final String description;
@@ -95,5 +95,64 @@ public enum DataTypeEnum implements BaseEnum<String> {
     @Override
     public String getCode() {
         return this.name();
+    }
+
+    public static DataTypeEnum getByCode(String code) {
+        for (DataTypeEnum value : DataTypeEnum.values()) {
+            if (value.getCode().equals(code)) {
+                return value;
+            }
+        }
+        return DataTypeEnum.UNKNOWN;
+    }
+
+    public String getSqlValue(String value) {
+        if (this == DataTypeEnum.BOOLEAN) {
+            if("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)){
+                return value;
+            }else {
+                return "'" + value + "'";
+            }
+        }
+        if (this == DataTypeEnum.NUMERIC) {
+            return value;
+        }
+        if (this == DataTypeEnum.STRING) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.DATETIME) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.BINARY) {
+            return "''";
+        }
+        if (this == DataTypeEnum.CONTENT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.STRUCT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.DOCUMENT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ARRAY) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.OBJECT) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.REFERENCE) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ROWID) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.ANY) {
+            return "'" + value + "'";
+        }
+        if (this == DataTypeEnum.UNKNOWN) {
+            return "'" + value + "'";
+        }
+        return "'" + value + "'";
     }
 }

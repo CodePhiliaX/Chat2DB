@@ -1,4 +1,3 @@
-<h1 align="center">Chat2DB</h1>
 
 <div align="center">
 
@@ -26,6 +25,12 @@ An intelligent and versatile general-purpose SQL client and reporting tool for d
 
 Languages： English | [中文](README_CN.md)
 
+Official website：[Chat2DB](https://sqlgpt.cn/en)
+
+<div style="display: flex; align-items: center;">
+  If you find Chat2DB helpful, please help<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>Click ⭐ Star and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get better
+</div>
+
 </div>
 
 ## DEMO
@@ -47,89 +52,71 @@ https://github.com/chat2db/Chat2DB/assets/22975773/79e9dded-375b-44cf-9979-bb757
 
 ## ⏬ Download and Install
 
-| Description | Download                                                                                                                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Windows     | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB%20Setup%202.0.2.exe) |
-| MacOS ARM64 | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2-arm64.dmg)         |
-| MacOS X64   | [https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg](https://oss-chat2db.alibaba.com/release/2.0.2/Chat2DB-2.0.2.dmg)                     |
-| Jar 包      | [https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar](https://oss-chat2db.alibaba.com/release/2.0.2/chat2db-server-start.jar)       |
+[Downloading installation package from GitHub](https://github.com/chat2db/Chat2DB/releases) 
+
+
+[Downloading installation package from official website](https://sqlgpt.cn) 
+
+
 
 ## 🚀 Supported databases
 
-| Databases     | Status   |
-| ------------- | -------- |
-| Mysql         | ✅       |
-| H2            | ✅       |
-| Oracle        | ✅       |
-| PostgreSQL    | ✅       |
-| SQLServer     | ✅       |
-| SQLLite       | ✅       |
-| MariaDB       | ✅       |
-| ClickHouse    | ✅       |
-| DM            | ✅       |
-| Presto        | ✅       |
-| DB2           | ✅       |
-| OceanBase     | ✅       |
-| Redis         | ✅       |
-| Hive          | ✅       |
-| KingBase      | ✅       |
-| MongoDB       | ✅       |
-| Hbase         | Planning |
-| Elasticsearch | Planning |
-| openGauss     | Planning |
-| TiDB          | Planning |
-| InfluxDB      | Planning |
+Chat2DB supports connecting to the following databases:
+- MySQL
+- PostgreSQL
+- H2
+- Oracle
+- SQLServer
+- SQLite
+- MariaDB
+- ClickHouse
+- DM
+- Presto
+- DB2
+- OceanBase
+- Hive
+- KingBase
+
+Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、TiDB、InfluxDB will support in the future.
 
 ## 🌰 Demo
 
 ### Create data source
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/1d7f2d05-9c3b-4308-a693-39aed44a4b39.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="crete datasource" src="https://github.com/chat2db/Chat2DB/assets/22975773/16050747-0f6c-4e98-ba91-323033584eec"></a>
+
 
 ### Data source management
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/d5634953-9fe5-4a03-8024-3aa4774b2955.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="2" src="https://github.com/chat2db/Chat2DB/assets/22975773/5d0332ca-8a65-4ed9-95fb-b12fae9209f3"></a>
 
 ### SQL console
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/f1a111bd-38cf-42d2-bfd3-f1d7f57aec3c.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+<a><img width="1720" alt="2" src="https://github.com/chat2db/Chat2DB/assets/22975773/5d0332ca-8a65-4ed9-95fb-b12fae9209f3"></a>
 
 ### AI intelligent assistant
 
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/16e3c632-f896-45c3-a7a2-91c338e82f73.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+![image](https://github.com/chat2db/Chat2DB/assets/22975773/2dfc4aaa-c5a3-42c3-bc61-28ebc237a27b)
 
 ## 🔥 AI Configuration
 
-### CONFIGURE OPENAI
-
-Option 1 (recommended): To use the ChatSql function of OPENAI, two conditions must be met:
-
-- You need an OPENAI_API_KEY.
-- The client's network can connect to the OPENAI website, and for users in China, a VPN is required. Note: If the local VPN is not fully effective, the network connectivity can be ensured by setting the network proxy HOST and PORT in the client.
-
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/0218daf0-7d93-43c5-a5f7-decd104c0847.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
-
-Option 2 (recommended): We provide a unified proxy service.
-
-- No OPENAI_API_KEY is required.
-- No proxy or VPN is required, as long as the network is connected.
-
-To facilitate users' quick use of AI capabilities, you can scan the QR code below to follow our WeChat public account and apply for our custom API_KEY.
-
-<a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/5ee43d26-05bb-4b12-b705-2b263f167975.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
+### Use Chat2DB AI to get started
 
 ### CONFIGURE CUSTOM AI
 
-- Customized AI can be any LLM that you deployed, such as ChatGLM、ChatGPT、ERNIE Bot、Tongyi Qianwen, and so on. However, the customized interface need to conform to the protocol definition. Otherwise, secondary development may be required. Two DEMOs are provided in the code, the configuration is as shown below. In specific use, you can refer to the DEMO interface to write a custom interface, or directly perform secondary development in the DEMO interface.
-- DEMO for configuring customized stream output interface.
-  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/3b74fea5-526d-40ea-9edb-27484921c578.png?x-oss-process=image/resize,w_1280,m_lfit,limit_1"/></a>
-- DEMO for configuring customized non-stream output interface.
-  <a><img src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/KM7qezzyAVX2Opj8/img/eb82d1ee-ab13-46f8-a454-60968482e584.png#1011"/></a>
+* The rest api format for Custom AI is same as ChatGPT.
 
 ## 📦 Docker installation
 
 ```bash
-docker pull chat2db/chat2db:latest
+  // Pull the latest client, then run Docker with the name 'chat2db', and mount 'root. chat2db' to '~. chat2db Docker'`
+  docker run --name=chat2db -ti -p 10824:10824 -v ~/.chat2db-docker:/root/.chat2db  chat2db/chat2db:latest
+  // The normal prompt here is' Tomcat started on port (s): 10824 (http) with context path ', which will complete the process
+
+  // If the prompt 'The container name "chat2db" is already in use by container' appears here, it means that the container already exists and is running
+  docker start chat2db
+  // If you want to update chat2db, you need to first rm
+  docker rm chat2db
 ```
 
 ## 🎯 Operating Environment
@@ -145,12 +132,14 @@ Note: If local debugging is required
 - git clone to local
 
 ```bash
-$ git clone git@github.com:alibaba/Chat2DB.git
+$ git clone git@github.com:chat2db/Chat2DB.git
 ```
 
 - Front-End debug
 
 ```bash
+node version must be 16 or later
+Be sure to use yarn
 $ cd Chat2DB/chat2db-client
 $ yarn
 $ yarn run start:web
@@ -162,13 +151,20 @@ $ yarn run start:web
 $ cd ../chat2db-server
 $ mvn clean install # maven 3.8 or later needs to be installed
 $ cd chat2db-server/chat2db-server-start/target/
-$ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+$ java -jar  -Dloader.path=./lib -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  #java 17 or later must be installed, To launch the chat application, you need to enter the ChatGPT key for the chatgpt.apiKey. Without entering it, you won't be able to use the AIGC function.
+```
+
+- If you need to deploy independently
+
+```bash
+$ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front / cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
+# Repackage the back-end services
 ```
 
 ## 📑 Documentation
 
-- <a href="https://chat2db.opensource.alibaba.com">Official website document</a>
-- <a href="https://github.com/alibaba/ali-dbhub/issues">Issue </a>
+- <a href="https://doc.sqlgpt.cn/">Official website document</a>
+- <a href="https://github.com/chat2db/Chat2DB/issues">Issue </a>
 
 ## Stargazers
 
@@ -180,14 +176,22 @@ $ java -jar -Dchatgpt.apiKey=xxxxx chat2db-server-start.jar  # To launch the cha
 
 ## ☎️ Contact Us
 
-Please star and fork on GitHub before joining the group.
-Follow our WeChat public account.
+### WeChat
 
-<a><img src="https://oss-chat2db.alibaba.com/static/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg" width="40%"/></a>
+<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="40%"/></a>
+
+### Discord
+<!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.com/invite/Zn9dFQKSJa)
+
+## LICENSE
+
+The primary license used by this software is the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0), supplemented by the [Chat2DB License](./Chat2DB_LICENSE).
+
 
 ## ❤️ Acknowledgements
 
-Thanks to all the students who contributed to Chat2DB~
+Thanks to all the students who contributed to Chat2DB~~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />

@@ -77,32 +77,25 @@ export const databaseMap: {
     icon: '\ue655',
   },
   [DatabaseTypeCode.PRESTO]: {
-     name: 'Presto',
-     img: moreDBLogo,
-     code: DatabaseTypeCode.PRESTO,
-     port: 8080,
-     icon: '\ue60b',
-   },
-   [DatabaseTypeCode.DB2]: {
-     name: 'DB2',
-     img: moreDBLogo,
-     code: DatabaseTypeCode.DB2,
-     port: 50000,
-     icon: '\ue60a',
-   },
+    name: 'Presto',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.PRESTO,
+    //  port: 8080,
+    icon: '\ue60b',
+  },
+  [DatabaseTypeCode.DB2]: {
+    name: 'DB2',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.DB2,
+    //  port: 50000,
+    icon: '\ue60a',
+  },
   [DatabaseTypeCode.OCEANBASE]: {
     name: 'OceanBase',
     img: moreDBLogo,
     code: DatabaseTypeCode.OCEANBASE,
     // port: 2883, 
     icon: '\ue982',
-  },
-  [DatabaseTypeCode.REDIS]: {
-    name: 'Redis',
-    img: moreDBLogo,
-    code: DatabaseTypeCode.REDIS,
-    // port: 6379,
-    icon: '\ue6a2',
   },
   [DatabaseTypeCode.HIVE]: {
     name: 'Hive',
@@ -125,13 +118,13 @@ export const databaseMap: {
     // port: 27017,
     icon: '\uec21',
   },
-  [DatabaseTypeCode.REDIS]: {
-    name: 'Redis',
-    img: moreDBLogo,
-    code: DatabaseTypeCode.REDIS,
-    // port: 6379,
-    icon: '\ue6a2',
-  },
+  // [DatabaseTypeCode.REDIS]: {
+  //   name: 'Redis',
+  //   img: moreDBLogo,
+  //   code: DatabaseTypeCode.REDIS,
+  //   // port: 6379,
+  //   icon: '\ue6a2',
+  // },
 };
 
 export const databaseTypeList = Object.keys(databaseMap).map((keys) => {

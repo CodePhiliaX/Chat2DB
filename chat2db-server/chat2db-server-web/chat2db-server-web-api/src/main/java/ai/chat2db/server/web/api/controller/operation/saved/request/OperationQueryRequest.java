@@ -41,4 +41,14 @@ public class OperationQueryRequest extends PageQueryRequest {
      * orderBy modify time desc
      */
     private Boolean orderByDesc;
+
+    /**
+     * orderBy create time desc
+     */
+    private Boolean orderByCreateDesc;
+
+    /**
+     * operation type
+     */
+    private String operationType;
 }

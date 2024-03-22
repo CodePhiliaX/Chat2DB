@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ai.chat2db.server.domain.repository.mapper.TableCacheMapper">
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into TABLE_CACHE
+        (data_source_id,database_name,schema_name,table_name,`key`,version,columns,extend_info)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.dataSourceId},#{item.databaseName},#{item.schemaName},#{item.tableName},#{item.key},#{item.version},#{item.columns},#{item.extendInfo})
+        </foreach>
+    </insert>
+
+    <select id="pageQuery" resultType="ai.chat2db.server.domain.repository.entity.TableCacheDO">
+        select *
+        from TABLE_CACHE tc
+        <where>
+            <if test="dataSourceId != null ">
+                and tc.data_source_id = #{dataSourceId}
+            </if>
+            <if test="databaseName != null and databaseName != '' ">
+                and tc.database_name = #{databaseName}
+            </if>
+            <if test="schemaName != null and schemaName != '' ">
+                and tc.schema_name = #{schemaName}
+            </if>
+            <if test="searchKey != null and searchKey != '' ">
+                and LOWER(tc.table_name) like LOWER(concat('%',#{searchKey},'%'))
+            </if>
+        </where>
+    </select>
+</mapper>

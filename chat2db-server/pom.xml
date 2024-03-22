@@ -35,6 +35,7 @@
         <module>chat2db-server-web</module>
         <module>chat2db-spi</module>
         <module>chat2db-plugins</module>
+        <module>chat2db-server-web-start</module>
     </modules>
 
     <dependencyManagement>
@@ -53,6 +54,16 @@
             <dependency>
                 <groupId>ai.chat2db</groupId>
                 <artifactId>chat2db-server-web-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-admin-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>ai.chat2db</groupId>
+                <artifactId>chat2db-server-common-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
@@ -108,7 +119,7 @@
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
-                <version>2.0.34</version>
+                <version>2.0.37</version>
             </dependency>
 
             <!-- mapstruct -->
@@ -139,8 +150,13 @@
             <!-- mybatis-plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <artifactId>mybatis-plus</artifactId>
                 <version>3.5.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>5.0.1</version>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -182,26 +198,13 @@
             <!-- http -->
             <dependency>
                 <groupId>com.dtflys.forest</groupId>
-                <artifactId>forest-spring-boot3-starter</artifactId>
+                <artifactId>forest-spring</artifactId>
                 <version>1.5.32</version>
-                <exclusions>
-                    <exclusion>
-                        <artifactId>httpclient</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpclient-cache</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpcore</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>httpmime</artifactId>
-                        <groupId>org.apache.httpcomponents</groupId>
-                    </exclusion>
-                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.dtflys.forest</groupId>
+                <artifactId>forest-core</artifactId>
+                <version>1.5.32</version>
             </dependency>
 
             <!-- 数据库版本管理 -->
@@ -237,7 +240,7 @@
             <dependency>
                 <groupId>org.zalando</groupId>
                 <artifactId>logbook-spring-boot-starter</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-indexer -->
@@ -253,11 +256,6 @@
                 <version>1.9.4</version>
             </dependency>
             <dependency>
-                <groupId>com.azure</groupId>
-                <artifactId>azure-ai-openai</artifactId>
-                <version>1.0.0-beta.2</version>
-            </dependency>
-            <dependency>
                 <groupId>org.ehcache</groupId>
                 <artifactId>ehcache</artifactId>
                 <version>3.10.8</version>
@@ -271,6 +269,54 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>easyexcel</artifactId>
+                <version>3.3.2</version>
+            </dependency>
+
+            <!--poi-tl-->
+            <dependency>
+                <groupId>com.deepoove</groupId>
+                <artifactId>poi-tl</artifactId>
+                <version>1.10.5</version>
+            </dependency>
+            <!--pdf-->
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itext-asian</artifactId>
+                <version>5.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itextpdf</artifactId>
+                <version>5.5.13</version>
+            </dependency>
+
+            <!--    pdf解析    -->
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>2.0.24</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
+            <dependency>
+                <groupId>com.auth0</groupId>
+                <artifactId>java-jwt</artifactId>
+                <version>4.4.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.mongodb/bson -->
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>bson</artifactId>
+                <version>4.11.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.vertical-blank</groupId>
+                <artifactId>sql-formatter</artifactId>
+                <version>2.0.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

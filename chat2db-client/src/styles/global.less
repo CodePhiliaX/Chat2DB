@@ -2,43 +2,60 @@
 @import '../theme/custom/light.less';
 @import './antd.less';
 
+@font-face {
+  font-family: 'HarmonyOS_Sans';
+  src: url('../assets/font/HarmonyOS_Sans_Regular.woff2') format('woff2');
+}
+
 html,
 body {
   height: 100%;
   color: var(--color-text);
   font-size: var(--font-size);
   background-color: var(--color-bg-base);
+  font-family: 'HarmonyOS_Sans', 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, 'HarmonyOS Sans SC', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft Yahei UI', 'Microsoft Yahei', 'Source Han Sans CN', sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Apple Color Emoji', 'Twemoji Mozilla', 'Noto Color Emoji', 'Android Emoji';
 }
 
 // 修改账号密码自动回填后input背景变色问题
 input:-webkit-autofill {
   -webkit-text-fill-color: var(--color-text) !important; // 填充状态下的字体颜色
-  transition: background-color 0s 9999999999s;
-  caret-color: var(--color-text); // 光标的颜色
+  transition: background-color 0s 9999999999s !important;
+  caret-color: var(--color-text) !important; // 光标的颜色
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+* {
+  ::-webkit-scrollbar {
+    cursor: pointer;
+    width: 4px;
+    height: 4px;
+    background-color: transparent;
+  }
 
-::-webkit-scrollbar-thumb {
-  background-color: var(--color-fill);
-  border-radius: 3px;
-}
+  ::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 2px;
+    // transition: background-color 500ms ${token.motionEaseOut};
 
-::-webkit-scrollbar-button {
-  width: 0;
-  height: 0;
-  background: transparent;
-}
+    &:hover {
+      background-color: var(--color-text);
+    }
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  ::-webkit-scrollbar-corner {
+    display: none;
+    width: 0;
+    height: 0;
+  }
 
-::-webkit-scrollbar-corner {
-  background: transparent;
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background-color: var(--color-fill);
+    }
+  }
 }
 
 html,

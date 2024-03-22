@@ -1,195 +1,197 @@
-import React, { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useRef, useState, Fragment, useEffect } from 'react';
+import { Button, Dropdown } from 'antd';
 import classnames from 'classnames';
 import i18n from '@/i18n';
-import CreateConnection from '@/components/CreateConnection';
-import Iconfont from '@/components/Iconfont';
+// import RefreshLoadingButton from '@/components/RefreshLoadingButton';
+
+// ----- services -----
 import connectionService from '@/service/connection';
-import { DatabaseTypeCode, databaseMap, databaseTypeList } from '@/constants';
-import { IDatabase, IConnectionDetails } from '@/typings';
-import { Button, Dropdown, Modal } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+
+// ----- constants/typings -----
+import { databaseMap } from '@/constants';
+import { IConnectionDetails, IConnectionListItem } from '@/typings';
+
+// ----- components -----
+import CreateConnection from '@/blocks/CreateConnection';
+import Iconfont from '@/components/Iconfont';
+import LoadingContent from '@/components/Loading/LoadingContent';
+import MenuLabel from '@/components/MenuLabel';
+
+// ----- hooks -----
+import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
+
+// ----- store -----
+import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
+import { setMainPageActiveTab } from '@/pages/main/store/main';
+import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
+import { getOpenConsoleList } from '@/pages/main/workspace/store/console';
+
 import styles from './index.less';
-import { connect, history, Dispatch } from 'umi';
-import { IConnectionModelType } from '@/models/connection';
-import { IWorkspaceModelType } from '@/models/workspace';
 
-interface IMenu {
-  key: number;
-  label: string;
-  icon: React.ReactNode;
-  meta: IConnectionDetails;
-}
-
-interface IProps {
-  connectionModel: IConnectionModelType['state'];
-  workspaceModel: IWorkspaceModelType['state'];
-  dispatch: any;
-}
-
-function Connections(props: IProps) {
-  const { connectionModel, workspaceModel, dispatch } = props;
-  const { connectionList } = connectionModel;
+const ConnectionsPage = () => {
+  const { connectionList } = useConnectionStore((state) => {
+    return {
+      connectionList: state.connectionList,
+    };
+  });
   const volatileRef = useRef<any>();
-  // const [connectionList, setConnectionList] = useState<IConnectionDetails[]>();
-  const [curConnection, setCurConnection] = useState<Partial<IConnectionDetails>>({});
+  const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
+  const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
 
+  // 处理列表单击事件
+  const handleMenuItemSingleClick = (t: IConnectionListItem) => {
+    if (connectionActiveId !== t.id) {
+      setConnectionActiveId(t.id);
+    }
+  };
+
+  // 处理列表双击事件
+  const handleMenuItemDoubleClick = (t: IConnectionListItem) => {
+    setCurrentConnectionDetails(t);
+    setMainPageActiveTab('workspace');
+  };
+
+  // 处理列表单击和双击事件
+  const handleClickConnectionMenu = useClickAndDoubleClick(handleMenuItemSingleClick, handleMenuItemDoubleClick);
+
+  // 切换连接的详情
   useEffect(() => {
-    getConnectionList();
-  }, []);
+    if (!connectionActiveId) {
+      return;
+    }
+    setConnectionDetail(undefined);
+    connectionService
+      .getDetails({ id: connectionActiveId })
+      .then((res) => {
+        setConnectionDetail(res);
+      })
+      .catch(() => {
+        setConnectionActiveId(null);
+      });
+  }, [connectionActiveId]);
 
-  const getConnectionList = async () => {
-    dispatch({
-      type: 'connection/fetchConnectionList',
-    });
+  //
+  const createDropdownItems = (t) => {
+    const handelDelete = (e) => {
+      // 禁止冒泡到menuItem
+      e.domEvent?.stopPropagation?.();
+      connectionService.remove({ id: t.id }).then(() => {
+        getConnectionList().then(() => {
+          // 连接删除后需要更新下 consoleList
+          getOpenConsoleList();
+        });
+        if (connectionActiveId === t.id) {
+          setConnectionActiveId(null);
+          setConnectionDetail(null);
+        }
+      });
+    };
+
+    const enterWorkSpace = (e) => {
+      e.domEvent?.stopPropagation?.();
+      handleMenuItemDoubleClick(t);
+    };
+
+    const copyConnection = (e) => {
+      e.domEvent?.stopPropagation?.();
+      connectionService.clone({ id: t.id }).then((res) => {
+        getConnectionList();
+        setConnectionActiveId(res);
+      });
+    }
+
+    return [
+      {
+        key: 'enterWorkSpace',
+        label: <MenuLabel icon="&#xec57;" label={i18n('connection.button.connect')} />,
+        onClick: enterWorkSpace,
+      },
+      {
+        key: 'copyConnection',
+        label: <MenuLabel icon="&#xec7a;" label={i18n('common.button.copy')} />,
+        onClick: copyConnection,
+      },
+      {
+        key: 'delete',
+        label: <MenuLabel icon="&#xe6a7;" label={i18n('connection.button.remove')} />,
+        onClick: handelDelete,
+      },
+    ];
   };
 
-  function handleCreateConnections(database: IDatabase) {
-    setCurConnection({
-      type: database.code,
-    });
-  }
-
-  const menuItems: IMenu[] = useMemo(
-    () =>
-      (connectionList || []).map((t) => ({
-        key: t.id,
-        icon: <Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />,
-        label: t.alias,
-        meta: t,
-      })),
-    [connectionList],
-  );
-
-  const handleMenuItemDoubleClick = (t?: any) => {
-    console.log(t)
-    dispatch({
-      type: 'connection/setCurConnection',
-      payload: t.meta,
-    });
-
-    dispatch({
-      type: 'mainPage/updateCurPage',
-      payload: 'workspace',
-    });
-  };
-
-  const renderMenu = () => {
-    return (
-      <div className={styles.menuBox}>
-        {(menuItems || []).map((t) => {
-          const { key, label, icon } = t;
-          return (
-            <div
-              key={key}
-              className={classnames(styles.menuItem, {
-                [styles.menuItemActive]: curConnection.id === key,
-              })}
-              onDoubleClick={handleMenuItemDoubleClick.bind(null, t)}
-              onClick={(event) => {
-                setCurConnection(t.meta);
-              }}
-            >
-              <div className={classnames(styles.menuItemsTitle)}>
-                {icon}
-                <span style={{ marginLeft: '8px' }}>{label}</span>
-              </div>
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'EnterWorkSpace',
-                      label: i18n('connection.button.connect'),
-                      onClick: () => {
-                        handleMenuItemDoubleClick(t);
-                      },
-                    },
-                    {
-                      key: 'Delete',
-                      label: i18n('common.button.delete'),
-                      onClick: async ({ domEvent }) => {
-                        // 禁止冒泡到menuItem
-                        domEvent.stopPropagation();
-                        await connectionService.remove({ id: key });
-                        setCurConnection({});
-                        getConnectionList();
-                      },
-                    },
-                  ],
-                }}
-              >
-                <div className={styles.moreButton}>
-                  <Iconfont code="&#xe601;"></Iconfont>
-                </div>
-              </Dropdown>
+  const renderConnectionMenuList = () => {
+    return connectionList?.map((t) => {
+      return (
+        <Dropdown
+          key={t.id}
+          trigger={['contextMenu']}
+          menu={{
+            items: createDropdownItems(t),
+          }}
+        >
+          <div
+            className={classnames(styles.menuItem, {
+              [styles.menuItemActive]: connectionActiveId === t.id,
+            })}
+            onClick={() => {
+              handleClickConnectionMenu(t);
+            }}
+          >
+            <div className={classnames(styles.menuItemsTitle)}>
+              <span className={styles.envTag} style={{ background: t.environment.color.toLocaleLowerCase() }} />
+              <span className={styles.databaseTypeIcon}>
+                {<Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />}
+              </span>
+              <span className={styles.name}>{t.alias}</span>
+              {/* <Tag color={t.environment.color.toLocaleLowerCase()}>
+              {t.environment.shortName}
+            </Tag> */}
             </div>
-          );
-        })}
-      </div>
-    );
+          </div>
+        </Dropdown>
+      );
+    });
+  };
+
+  const onSubmit = (data) => {
+    return connectionService
+      .save({
+        ...data,
+      })
+      .then((res) => {
+        getConnectionList();
+        setConnectionActiveId(res);
+      });
   };
 
   return (
-    <div className={styles.box}>
-      <div ref={volatileRef} className={styles.layoutLeft}>
-        <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
-        {renderMenu()}
-        <Button
-          type="primary"
-          className={styles.addConnection}
-          onClick={() => {
-            setCurConnection({});
-          }}
-        >
-          {i18n('connection.button.addConnection')}
-        </Button>
-      </div>
-      <div className={styles.layoutRight}>
-        {curConnection && Object.keys(curConnection).length ? (
-          <div
-            className={classnames(styles.createConnections, {
-              [styles.showCreateConnections]: Object.keys(curConnection).length,
-            })}
-          >
-            <CreateConnection
-              connectionData={curConnection as any}
-              closeCreateConnection={() => {
-                setCurConnection({});
+    <>
+      <div className={styles.box}>
+        <div ref={volatileRef} className={styles.layoutLeft}>
+          <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
+          <div className={styles.menuBox}>{renderConnectionMenuList()}</div>
+          {connectionActiveId && (
+            <Button
+              type="primary"
+              className={styles.addConnection}
+              onClick={() => {
+                setConnectionActiveId(null);
+                setConnectionDetail(null);
               }}
-              submitCallback={getConnectionList}
-            />
-          </div>
-        ) : (
-            <div className={styles.dataBaseList}>
-              {databaseTypeList.map((t) => {
-                return (
-                  <div key={t.code} className={styles.databaseItem} onClick={handleCreateConnections.bind(null, t)}>
-                    <div className={styles.databaseItemMain}>
-                      <div className={styles.databaseItemLeft}>
-                        <div className={styles.logoBox}>
-                          <Iconfont code={t.icon} />
-                        </div>
-                        {t.name}
-                      </div>
-                      <div className={styles.databaseItemRight}>
-                        <Iconfont code="&#xe631;" />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              {Array.from({ length: 20 }).map((t, index) => {
-                return <div key={index} className={styles.databaseItemSpacer}></div>;
-              })}
-            </div>
+            >
+              {i18n('connection.button.addConnection')}
+            </Button>
           )}
+        </div>
+        <LoadingContent
+          className={styles.layoutRight}
+          isLoading={connectionDetail === undefined && !!connectionActiveId}
+        >
+          <CreateConnection connectionDetail={connectionDetail} onSubmit={onSubmit} />
+        </LoadingContent>
       </div>
-    </div>
+    </>
   );
-}
+};
 
-export default connect(
-  ({ connection, workspace }: { connection: IConnectionModelType; workspace: IWorkspaceModelType }) => ({
-    connectionModel: connection,
-    workspaceModel: workspace,
-  }),
-)(Connections);
+export default ConnectionsPage;

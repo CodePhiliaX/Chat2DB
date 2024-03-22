@@ -1,7 +1,13 @@
 const { shell, app, dialog, BrowserWindow, Menu } = require('electron');
 const os = require('os');
 const path = require('path');
-const registerAppMenu = () => {
+const { isMac } = require('./utils');
+
+const registerAppMenu = (mainWindow, orgs) => {
+  if (!isMac) {
+    Menu.setApplicationMenu(null);
+    return;
+  }
   const menuBar = [
     {
       label: 'Chat2DB',
@@ -11,7 +17,7 @@ const registerAppMenu = () => {
           click() {
             dialog.showMessageBox({
               title: '关于Chat2DB',
-              message: `关于Chat2DB v${app.getVersion()}`,
+              message: `关于Chat2DB v${orgs?.version || app.getVersion()}`,
               detail:
                 // An intelligent database client and smart BI reporting tool with integrated AI capabilities.
                 '一个集成AI能力的智能数据库客户端和智能BI报表工具。',
@@ -19,10 +25,15 @@ const registerAppMenu = () => {
             });
           },
         },
-        // {
-        //   label: '检查更新',
-        // },
         { type: 'separator' },
+        {
+          label: '重新启动',
+          click() {
+            // 退出程序
+            app.relaunch();
+            app.quit();
+          },
+        },
         {
           label: '退出',
           accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
@@ -34,7 +45,6 @@ const registerAppMenu = () => {
       ],
     },
     {
-      // label: i18n('menu.edit'),
       label: '编辑',
       submenu: [
         { label: '撤销', role: 'undo' },
@@ -50,27 +60,50 @@ const registerAppMenu = () => {
       // label: i18n('menu.edit'),
       label: '视图',
       submenu: [
+        // {
+        //   label: '刷新',
+        //   accelerator: 'CmdOrCtrl+Shift+R',
+        //   click() {
+        //     const focusedWindow = BrowserWindow.getFocusedWindow();
+        //     if (focusedWindow) {
+        //       focusedWindow.reload();
+        //     }
+        //   },
+        // },
+        { type: 'separator' },
         {
-          label: '刷新',
-          accelerator: process.platform === 'darwin' ? 'Cmd+R' : 'Ctrl+R',
-          click() {
-            const focusedWindow = BrowserWindow.getFocusedWindow();
-            if (focusedWindow) {
-              focusedWindow.reload();
-            }
-          },
+          label: '放大',
+          accelerator: 'CmdOrCtrl+=',
+          role: 'zoomIn',
+        },
+        {
+          label: '缩小',
+          accelerator: 'CmdOrCtrl+-',
+          role: 'zoomOut',
+        },
+        {
+          label: '重置',
+          accelerator: 'CmdOrCtrl+0',
+          role: 'resetZoom',
         },
         { type: 'separator' },
         { label: '全屏', role: 'togglefullscreen' },
       ],
     },
-
+    {
+      label: '窗口',
+      role: 'window',
+      submenu: [
+        { label: '最小化', role: 'minimize', accelerator: 'Command+W' },
+        { label: '关闭', role: 'close' },
+      ],
+    },
     {
       label: '帮助',
       submenu: [
         {
           label: '打开日志',
-          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+L' : 'Ctrl+Shift+L',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Shift+T' : 'Ctrl+Shift+T',
           click() {
             const fileName = '.chat2db/logs/application.log';
             const url = path.join(os.homedir(), fileName);
@@ -88,28 +121,27 @@ const registerAppMenu = () => {
         {
           label: '访问官网',
           click() {
-            const url = 'https://chat2db.opensource.alibaba.com/';
+            const url = 'https://www.sqlgpt.cn/zh';
             shell.openExternal(url);
           },
         },
-        // {
-        //   label: '关于',
-        //   role: 'about', // about （关于），此值只针对 Mac  OS X 系统
-        //   // 点击事件 role 属性能识别时 点击事件无效
-        //   click: () => {
-        //     var aboutWin = new BrowserWindow({
-        //       width: 300,
-        //       height: 200,
-        //       parent: win,
-        //       modal: true,
-        //     });
-        //     aboutWin.loadFile('about.html');
-        //   },
-        // },
+        {
+          label: '查看文档',
+          click() {
+            const url = 'https://doc.sqlgpt.cn/zh/';
+            shell.openExternal(url);
+          },
+        },
+        {
+          label: '查看更新日志',
+          click() {
+            const url = 'https://doc.sqlgpt.cn/zh/changelog/';
+            shell.openExternal(url);
+          },
+        },
       ],
     },
   ];
-  // console.log('registerAppMenu', registerAppMenu);
   Menu.setApplicationMenu(Menu.buildFromTemplate(menuBar));
 };
 

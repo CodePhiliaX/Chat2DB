@@ -1,4 +1,4 @@
-import { ConsoleOpenedStatus, ConsoleStatus, DatabaseTypeCode } from '@/constants';
+export type NonNullable<T> = T extends null | undefined ? never : T;
 
 export interface IPageResponse<T> {
   data: T[];
@@ -12,20 +12,14 @@ export interface IPageParams {
   searchKey?: string;
   pageNo: number;
   pageSize: number;
+  refresh?: boolean;
 }
 
-export interface IConsole {
-  id: number;
-  name: string;
-  ddl: string;
-  dataSourceId: number;
-  dataSourceName: string;
-  databaseName?: string;
-  schemaName?: string;
-  type: DatabaseTypeCode;
-  status: ConsoleStatus;
-  connectable: boolean;
-  tabOpened?: ConsoleOpenedStatus;
+export interface IPagingData {
+  hasNextPage?: boolean;
+  pageNo: number;
+  pageSize: number;
+  total: number;
 }
 
 export interface Option {
@@ -35,7 +29,6 @@ export interface Option {
   children?: Option[];
 }
 
-export type ICreateConsole = Omit<IConsole, 'id' | 'dataSourceName' | 'connectable'>;
 
 export interface IUniversalTableParams {
   dataSourceId: string;

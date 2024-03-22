@@ -1,6 +1,5 @@
 package ai.chat2db.server.web.api.controller.dashboard.request;
 
-
 import lombok.Data;
 
 /**
@@ -42,6 +41,10 @@ public class ChartCreateRequest {
      */
     private String databaseName;
 
+    /**
+     * schema名称
+     */
+    private String schemaName;
     /**
      * ddl内容
      */

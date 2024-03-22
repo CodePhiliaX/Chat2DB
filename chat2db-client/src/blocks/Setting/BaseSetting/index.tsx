@@ -1,29 +1,32 @@
+import React, { useState } from 'react';
 import { LangType, ThemeType } from '@/constants';
 import i18n, { currentLang } from '@/i18n';
-import React, { useState } from 'react';
 import classnames from 'classnames';
 import themeDarkImg from '@/assets/img/theme-dark.png';
 import themeLightImg from '@/assets/img/theme-light.png';
 import themeAutoImg from '@/assets/img/theme-auto.png';
-import { Radio, Select } from 'antd';
+import { Select } from 'antd';
 import Iconfont from '@/components/Iconfont';
 import { setLang as setLangLocalStorage } from '@/utils/localStorage';
 import { useTheme } from '@/hooks/useTheme';
 
 import styles from './index.less';
 
-const { Option } = Select;
-
 const themeList = [
+  {
+    code: ThemeType.Light,
+    name: i18n('setting.text.light'),
+    img: themeLightImg,
+  },
   {
     code: ThemeType.Dark,
     name: i18n('setting.text.dark'),
     img: themeDarkImg,
   },
   {
-    code: ThemeType.Light,
-    name: i18n('setting.text.light'),
-    img: themeLightImg,
+    code: ThemeType.DarkDimmed,
+    name: i18n('setting.text.dark2'),
+    img: themeDarkImg
   },
   {
     code: ThemeType.FollowOs,
@@ -37,35 +40,61 @@ const themeList = [
   // },
 ];
 
+const languageOptions = [
+  { value: LangType.ZH_CN, label: '简体中文' },
+  { value: LangType.EN_US, label: 'English' },
+  { value: LangType.TR_TR, label: 'Turkish' },
+  { value: LangType.JA_JP, label: '日本語' },
+]
+
 const colorList = [
+  {
+    code: 'golden-purple',
+    name: i18n('setting.label.violet'),
+    color: '#9373ee',
+  },
   {
     code: 'polar-blue',
     name: i18n('setting.label.blue'),
     color: '#1a90ff',
   },
   {
-    code: 'polar-green',
-    name: i18n('setting.label.green'),
-    color: '#1d3712',
+    code: 'blue2',
+    name: i18n('setting.label.violet'),
+    color: '#00c3ee',
   },
   {
-    code: 'golden-purple',
-    name: i18n('setting.label.violet'),
-    color: '#301c4d',
+    code: 'polar-green',
+    name: i18n('setting.label.green'),
+    color: '#039e74',
   },
-  // {
-  //   code: 'sunset-orange',
-  //   name: '日暮',
-  //   color: "#593815"
-  // },
+  {
+    code: 'gold',
+    name: i18n('setting.label.violet'),
+    color: '#9a7d56',
+  },
+  {
+    code: 'silver',
+    name: i18n('setting.label.violet'),
+    color: '#8e8374',
+  },
+  {
+    code: 'red',
+    name: i18n('setting.label.violet'),
+    color: '#fd6874',
+  },
+  {
+    code: 'orange',
+    name: i18n('setting.label.violet'),
+    color: '#fa8c16',
+  },
 ];
 
 // baseBody 基础设置
 export default function BaseSetting() {
-  const [lang, setLang] = useState(currentLang);
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>(localStorage.getItem('theme'));
-  const [currentPrimaryColor, setCurrentPrimaryColor] = useState(localStorage.getItem('primary-color'));
   const [appTheme, setAppTheme] = useTheme();
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>(appTheme.backgroundColor);
+  const [currentPrimaryColor, setCurrentPrimaryColor] = useState(localStorage.getItem('primary-color'));
 
   const changePrimaryColor = (item: any) => {
     const html = document.documentElement;
@@ -79,17 +108,23 @@ export default function BaseSetting() {
   };
 
   function changeLang(e: any) {
-    setLangLocalStorage(e.target.value);
+    setLangLocalStorage(e);
+    //切换语言时，需要设置cookie，用来改变后台服务的Locale
+    const date = new Date('2030-12-30 12:30:00').toUTCString();
+    document.cookie = `CHAT2DB.LOCALE=${e};Expires=${date}`;
     location.reload();
   }
 
-  function handleChangeTheme(theme: ThemeType) {
+  function handleChangeTheme(backgroundColor: any) {
     setAppTheme({
       ...appTheme,
-      backgroundColor: theme,
+      backgroundColor,
     });
-    setCurrentTheme(theme);
+    setCurrentTheme(backgroundColor);
   }
+
+  // const changeSqlEditorFontSize = (e: any) => {
+  // }
 
   return (
     <>
@@ -110,10 +145,17 @@ export default function BaseSetting() {
       </ul>
       <div className={styles.title}>{i18n('setting.title.language')}</div>
       <div className={styles.langBox}>
-        <Radio.Group onChange={changeLang} value={lang}>
+        {/* <Radio.Group onChange={changeLang} value={currentLang}>
           <Radio value={LangType.ZH_CN}>简体中文</Radio>
           <Radio value={LangType.EN_US}>English</Radio>
-        </Radio.Group>
+          <Radio value={LangType.TR_TR}>Turkish</Radio>
+        </Radio.Group> */}
+        <Select
+          style={{ width: 120 }}
+          onChange={changeLang}
+          value={currentLang}
+          options={languageOptions}
+        />
       </div>
       <div className={styles.title}>{i18n('setting.title.themeColor')}</div>
       <ul className={styles.primaryColorList}>
@@ -128,11 +170,30 @@ export default function BaseSetting() {
               >
                 {currentPrimaryColor == item.code && <Iconfont code="&#xe617;" />}
               </div>
-              <div className={styles.colorName}>{item.name}</div>
+              {/* <div className={styles.colorName}>{item.name}</div> */}
             </div>
           );
         })}
+        {/* <ColorPicker placement='bottomLeft' onChange={setCustomColor}>
+          <div className={classnames(styles.themeColorItem, styles.customColorItem) }>
+            <div
+              className={styles.colorLump}
+              onClick={()=>{}}
+            >
+              自定义
+            </div>
+          </div>
+        </ColorPicker> */}
       </ul>
+      {/* <div className={styles.title}>{i18n('setting.title.sqlEditorFontSize')}</div>
+      <div className={styles.sqlEditorFontSize}>
+        <Radio.Group onChange={changeSqlEditorFontSize}>
+          <Radio value={12}>12</Radio>
+          <Radio value={14}>14</Radio>
+          <Radio value={16}>16</Radio>
+        </Radio.Group>
+      </div> */}
+      
     </>
   );
 }

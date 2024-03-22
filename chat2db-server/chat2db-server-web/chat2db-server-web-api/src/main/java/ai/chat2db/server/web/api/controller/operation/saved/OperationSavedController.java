@@ -3,20 +3,23 @@ package ai.chat2db.server.web.api.controller.operation.saved;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Operation;
-import ai.chat2db.server.domain.api.param.OperationPageQueryParam;
-import ai.chat2db.server.domain.api.param.OperationSavedParam;
-import ai.chat2db.server.domain.api.param.OperationUpdateParam;
+import ai.chat2db.server.domain.api.param.operation.OperationPageQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationQueryParam;
+import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
+import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.domain.api.service.OperationService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.operation.saved.converter.OperationWebConverter;
+import ai.chat2db.server.web.api.controller.operation.saved.request.BatchTabCloseRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationCreateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationQueryRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.request.OperationUpdateRequest;
 import ai.chat2db.server.web.api.controller.operation.saved.vo.OperationVO;
-
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +55,8 @@ public class OperationSavedController {
      */
     @GetMapping("/list")
     public WebPageResult<OperationVO> list(OperationQueryRequest request) {
-        OperationPageQueryParam param = operationWebConverter.queryReq2param(request);
+        OperationPageQueryParam param = operationWebConverter.queryReq2param(request,ContextUtils.getUserId());
+        param.setUserId(ContextUtils.getUserId());
         PageResult<Operation> dtoPageResult = operationService.queryPage(param);
         List<OperationVO> operationVOS = operationWebConverter.dto2vo(dtoPageResult.getData());
         return WebPageResult.of(operationVOS, dtoPageResult.getTotal(), request.getPageNo(), request.getPageSize());
@@ -66,8 +70,10 @@ public class OperationSavedController {
      */
     @GetMapping("/{id}")
     public DataResult<OperationVO> get(@PathVariable("id") Long id) {
-        DataResult<Operation> dtoPageResult = operationService.find(id);
-        return DataResult.of(operationWebConverter.dto2vo(dtoPageResult.getData()));
+        OperationQueryParam param = new OperationQueryParam();
+        param.setId(id);
+        param.setUserId(ContextUtils.getUserId());
+        return operationService.queryExistent(param).map(operationWebConverter::dto2vo);
     }
 
     /**
@@ -80,7 +86,7 @@ public class OperationSavedController {
     public DataResult<Long> create(@RequestBody OperationCreateRequest request) {
         OperationSavedParam param = operationWebConverter.req2param(request);
         param.setTabOpened("y");
-        return operationService.create(param);
+        return operationService.createWithPermission(param);
     }
 
     /**
@@ -92,7 +98,27 @@ public class OperationSavedController {
     @RequestMapping(value = "/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody OperationUpdateRequest request) {
         OperationUpdateParam param = operationWebConverter.updateReq2param(request);
-        return operationService.update(param);
+        return operationService.updateWithPermission(param);
+    }
+
+    /**
+     * 批量关闭标签
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/batch_tab_close", method = {RequestMethod.POST, RequestMethod.PUT})
+    public ActionResult batchTabClose(@RequestBody BatchTabCloseRequest request) {
+        if (CollectionUtils.isEmpty(request.getIdList())) {
+            return ActionResult.isSuccess();
+        }
+        request.getIdList().forEach(id -> {
+            OperationUpdateParam param = new OperationUpdateParam();
+            param.setId(id);
+            param.setTabOpened("n");
+            operationService.updateWithPermission(param);
+        });
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -103,6 +129,6 @@ public class OperationSavedController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable("id") Long id) {
-        return operationService.delete(id);
+        return operationService.deleteWithPermission(id);
     }
 }

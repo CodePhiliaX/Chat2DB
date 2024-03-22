@@ -5,6 +5,11 @@ import setting from './setting';
 import workspace from './workspace';
 import dashboard from './dashboard';
 import chat from './chat';
+import team from './team'
+import login from './login';
+import editTable from './editTable';
+import editTableData from './editTableData';
+import sqlEditor from './sqlEditor'
 
 export default {
   lang: 'en',
@@ -14,5 +19,10 @@ export default {
   ...workspace,
   ...menu,
   ...dashboard,
-  ...chat
+  ...chat,
+  ...team,
+  ...login,
+  ...editTable,
+  ...editTableData,
+  ...sqlEditor
 };

@@ -1,61 +1,41 @@
-import React, { memo, useRef, useEffect, useState, useMemo } from 'react';
+import React, { memo, useRef, useEffect, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
 interface IProps {
   className?: string;
-  children: any; //TODO: TS，约定接受一个数组，第一项child需要携带ref
+  children: any; //TODO: TS，约定接受一个数组
   min?: number;
   layout?: 'row' | 'column';
-  callback?: Function;
+  onResize?: (data: number) => void;
   showLine?: boolean;
 }
 
-export default memo<IProps>(function DraggableContainer({
-  children,
-  showLine = true,
-  callback,
-  min,
-  className,
-  layout = 'row',
-}) {
-  const volatileRef = children[0]?.ref;
+export default memo<IProps>((props: IProps) => {
+  const { children, showLine = true, onResize, min, className, layout = 'row' } = props;
+  const volatileRef = children[0]?.ref || children[1]?.ref;
 
-  const DividerRef = useRef<HTMLDivElement | null>(null);
-  const DividerLine = useRef<HTMLDivElement | null>(null);
+  const dividerRef = useRef<HTMLDivElement | null>(null);
+  const dividerLine = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const isRow = layout === 'row';
 
   useEffect(() => {
-    if (!DividerRef.current) {
+    if (!dividerRef.current) {
       return;
     }
-    // DividerRef.current.onmouseover = (e) => {
-    //   setDragging(true);
-    // };
-    // DividerRef.current.onmouseout = (e) => {
-    //   setDragging(false);
-    // };
 
-    DividerRef.current.onmousedown = (e) => {
+    dividerRef.current.onmousedown = (e) => {
       if (!volatileRef?.current) return;
-
       e.preventDefault();
       setDragging(true);
       const clientStart = isRow ? e.clientX : e.clientY;
-      const volatileBoxXY = isRow
-        ? volatileRef.current.offsetWidth
-        : volatileRef.current.offsetHeight;
-      document.onmousemove = (e) => {
-        moveHandle(
-          isRow ? e.clientX : e.clientY,
-          volatileRef.current,
-          clientStart,
-          volatileBoxXY,
-        );
+      const volatileBoxXY = isRow ? volatileRef.current.offsetWidth : volatileRef.current.offsetHeight;
+      document.onmousemove = (_e) => {
+        moveHandle(isRow ? _e.clientX : _e.clientY, volatileRef.current, clientStart, volatileBoxXY);
       };
-      document.onmouseup = (e) => {
+      document.onmouseup = () => {
         setDragging(false);
         document.onmouseup = null;
         document.onmousemove = null;
@@ -63,16 +43,12 @@ export default memo<IProps>(function DraggableContainer({
     };
   }, []);
 
-  const moveHandle = (
-    nowClientXY: any,
-    leftDom: any,
-    clientStart: any,
-    volatileBoxXY: any,
-  ) => {
-    let computedXY = nowClientXY - clientStart;
+  const moveHandle = (nowClientXY: any, leftDom: any, clientStart: any, volatileBoxXY: any) => {
+    const computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 
-    finalXY = volatileBoxXY + computedXY;
+    // children 如果第一个是可变的，那么就是+ 如果第二个是可变的，那么就是-
+    finalXY = children[0]?.ref ? volatileBoxXY + computedXY : volatileBoxXY - computedXY;
 
     if (min && finalXY < min) {
       return;
@@ -82,7 +58,7 @@ export default memo<IProps>(function DraggableContainer({
     } else {
       leftDom.style.height = finalXY + 'px';
     }
-    callback && callback(finalXY);
+    onResize && onResize(finalXY);
   };
 
   return (
@@ -91,19 +67,10 @@ export default memo<IProps>(function DraggableContainer({
       {
         <div
           style={{ display: showLine ? 'block' : 'none' }}
-          ref={DividerLine}
-          className={classnames(
-            styles.divider,
-            { [styles.displayDivider]: !children[1] },
-          )}
+          ref={dividerLine}
+          className={classnames(styles.divider, { [styles.displayDivider]: !children[1] })}
         >
-          <div
-            ref={DividerRef}
-            className={classnames(
-              styles.dividerCenter,
-              { [styles.dragging]: dragging },
-            )}
-          />
+          <div ref={dividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
         </div>
       }
       {children[1]}

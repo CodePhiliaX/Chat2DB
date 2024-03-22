@@ -1,38 +1,42 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
+import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
+import ai.chat2db.server.domain.api.service.DlTemplateService;
+import ai.chat2db.server.domain.api.service.OperationLogService;
+import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.domain.core.converter.CommandConverter;
+import ai.chat2db.server.domain.core.util.MetaNameUtils;
+import ai.chat2db.server.tools.base.excption.BusinessException;
+import ai.chat2db.server.tools.base.wrapper.result.DataResult;
+import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
+import ai.chat2db.spi.CommandExecutor;
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.model.*;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
+import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.JdbcUtils;
+import ai.chat2db.spi.util.SqlUtils;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.PagerUtils;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
-
-import ai.chat2db.server.domain.api.param.DlCountParam;
-import ai.chat2db.server.domain.api.param.DlExecuteParam;
-import ai.chat2db.server.domain.api.param.SqlAnalyseParam;
-import ai.chat2db.server.domain.api.service.DlTemplateService;
-import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
-import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
-import ai.chat2db.spi.enums.SqlTypeEnum;
-import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.SQLExecutor;
-import ai.chat2db.spi.util.JdbcUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author moji
@@ -43,85 +47,73 @@ import org.springframework.stereotype.Service;
 @Service
 public class DlTemplateServiceImpl implements DlTemplateService {
 
+    @Autowired
+    private OperationLogService operationLogService;
+
+    @Autowired
+    private TableService tableService;
+
+    @Autowired
+    private CommandConverter commandConverter;
+
     @Override
     public ListResult<ExecuteResult> execute(DlExecuteParam param) {
-        if (StringUtils.isBlank(param.getSql())) {
-            return ListResult.empty();
-        }
-        // 解析sql
-        SqlAnalyseParam sqlAnalyseParam = new SqlAnalyseParam();
-        sqlAnalyseParam.setDataSourceId(param.getDataSourceId());
-        sqlAnalyseParam.setSql(param.getSql());
-        DbType dbType =
-            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
-        List<String> sqlList = SQLParserUtils.splitAndRemoveComment(param.getSql(), dbType);
-        if (CollectionUtils.isEmpty(sqlList)) {
-            throw new BusinessException("dataSource.sqlAnalysisError");
-        }
-
-        List<ExecuteResult> result = new ArrayList<>();
-        ListResult<ExecuteResult> listResult = ListResult.of(result);
-        // 执行sql
-        for (String sql : sqlList) {
-            int pageNo = 0;
-            int pageSize = 0;
-            String sqlType = SqlTypeEnum.UNKNOWN.getCode();
-
-            // 解析sql分页
-            SQLStatement sqlStatement;
-            try {
-                sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
-            } catch (ParserException e) {
-                log.warn("解析sql失败:{}", sql, e);
-                ExecuteResult executeResult = ExecuteResult.builder()
-                    .success(Boolean.FALSE)
-                    .sql(sql)
-                    .message(e.getMessage())
-                    .build();
-                result.add(executeResult);
-                continue;
+        CommandExecutor executor = Chat2DBContext.getMetaData().getCommandExecutor();
+        Command command = commandConverter.param2model(param);
+        List<ExecuteResult> results = executor.execute(command);
+        ListResult<ExecuteResult> listResult = ListResult.of(results);
+        for (ExecuteResult executeResult : results) {
+            List<Header> headers = executeResult.getHeaderList();
+            if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)) {
+                headers = setColumnInfo(headers, executeResult.getTableName(), param.getSchemaName(),
+                        param.getDatabaseName());
+                executeResult.setHeaderList(headers);
             }
-            // 是否需要代码帮忙分页
-            boolean autoLimit = false;
-            if (sqlStatement instanceof SQLSelectStatement) {
-                //  不是查询全部数据 而且 用户自己没有传分页
-                autoLimit = BooleanUtils.isNotTrue(param.getPageSizeAll()) && SQLUtils.getLimit(sqlStatement, dbType)
-                    == null;
-                if (autoLimit) {
-                    pageNo = Optional.ofNullable(param.getPageNo()).orElse(1);
-                    pageSize = Optional.ofNullable(param.getPageSize()).orElse(EasyToolsConstant.MAX_PAGE_SIZE);
-                    int offset = (pageNo - 1) * pageSize;
-                    try {
-                        sql = PagerUtils.limit(sql, dbType, offset, pageSize);
-                    }catch (Exception e){
-                        autoLimit = false;
-                    }
-                }
-                sqlType = SqlTypeEnum.SELECT.getCode();
-            }
-
-            ExecuteResult executeResult = execute(sql);
-            executeResult.setSqlType(sqlType);
-            // 自动分页
-            if (autoLimit) {
-                executeResult.setPageNo(pageNo);
-                executeResult.setPageSize(pageSize);
-                executeResult.setHasNextPage(
-                    CollectionUtils.size(executeResult.getDataList()) >= executeResult.getPageSize());
-            } else {
-                executeResult.setPageNo(1);
-                executeResult.setPageSize(CollectionUtils.size(executeResult.getDataList()));
-                executeResult.setHasNextPage(Boolean.FALSE);
-            }
-            result.add(executeResult);
             if (!executeResult.getSuccess()) {
                 listResult.setSuccess(false);
                 listResult.errorCode(executeResult.getDescription());
                 listResult.setErrorMessage(executeResult.getMessage());
             }
+            addOperationLog(executeResult);
         }
         return listResult;
+
+//        if ("SQLSERVER".equalsIgnoreCase(type)) {
+//            RemoveSpecialGO(param);
+//        }
+
+
     }
+
+    @Override
+    public DataResult<ExecuteResult> executeUpdate(DlExecuteParam param) {
+        CommandExecutor executor = Chat2DBContext.getMetaData().getCommandExecutor();
+        DataResult<ExecuteResult> dataResult = new DataResult<>();
+        dataResult.setSuccess(true);
+        //RemoveSpecialGO(param);
+        DbType dbType =
+                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
+        Connection connection = Chat2DBContext.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            for (String originalSql : sqlList) {
+                ExecuteResult executeResult = executor.executeUpdate(originalSql, connection, 1);
+                dataResult.setData(executeResult);
+                addOperationLog(executeResult);
+            }
+            connection.commit();
+        } catch (Exception e) {
+            log.error("executeUpdate error", e);
+            dataResult.setSuccess(false);
+            dataResult.setErrorCode("connection error");
+            dataResult.setErrorMessage(e.getMessage());
+        }
+        return dataResult;
+    }
+
+
+
 
     @Override
     public DataResult<Long> count(DlCountParam param) {
@@ -129,7 +121,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             return DataResult.of(0L);
         }
         DbType dbType =
-            JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
+                JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
         // 解析sql分页
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
@@ -137,34 +129,116 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
         sql = PagerUtils.count(sql, dbType);
-        ExecuteResult executeResult = execute(sql);
+        ExecuteResult executeResult;
+        try {
+            ValueHandler valueHandler = Chat2DBContext.getMetaData().getValueHandler();
+            executeResult = Chat2DBContext.getMetaData().getCommandExecutor().execute(sql, Chat2DBContext.getConnection(), true, null, null,
+                    valueHandler);
+        } catch (SQLException e) {
+            log.warn("执行sql:{}异常", sql, e);
+            executeResult = ExecuteResult.builder()
+                    .sql(sql)
+                    .success(Boolean.FALSE)
+                    .message(e.getMessage())
+                    .build();
+        }
 
         List<List<String>> dataList = executeResult.getDataList();
         if (CollectionUtils.isEmpty(dataList)) {
             return DataResult.of(0L);
         }
         String count = EasyCollectionUtils.stream(executeResult.getDataList())
-            .findFirst()
-            .orElse(Collections.emptyList())
-            .stream()
-            .findFirst()
-            .orElse("0");
+                .findFirst()
+                .orElse(Collections.emptyList())
+                .stream()
+                .findFirst()
+                .orElse("0");
         return DataResult.of(Long.valueOf(count));
     }
 
-    private ExecuteResult execute(String sql) {
-        ExecuteResult executeResult;
-        try {
-            executeResult = SQLExecutor.getInstance().execute(sql);
-        } catch (SQLException e) {
-            log.warn("执行sql:{}异常", sql, e);
-            executeResult = ExecuteResult.builder()
-                .sql(sql)
-                .success(Boolean.FALSE)
-                .message(e.getMessage())
-                .build();
-        }
-        return executeResult;
+    @Override
+    public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        String sql = sqlBuilder.generateSqlBasedOnResults(param.getTableName(), param.getHeaderList(),
+                param.getOperations());
+        return DataResult.of(sql);
     }
 
+    @Override
+    public DataResult<String> getOrderBySql(OrderByParam param) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        String orderSql = sqlBuilder.buildOrderBySql(param.getOriginSql(), param.getOrderByList());
+        return DataResult.of(orderSql);
+    }
+
+
+    private List<Header> setColumnInfo(List<Header> headers, String tableName, String schemaName, String databaseName) {
+        try {
+            TableQueryParam tableQueryParam = new TableQueryParam();
+            tableQueryParam.setTableName(MetaNameUtils.getMetaName(tableName));
+            tableQueryParam.setSchemaName(schemaName);
+            tableQueryParam.setDatabaseName(databaseName);
+            tableQueryParam.setRefresh(true);
+            List<TableColumn> columns = tableService.queryColumns(tableQueryParam);
+            if (CollectionUtils.isEmpty(columns)) {
+                return headers;
+            }
+            Map<String, TableColumn> columnMap = columns.stream().collect(
+                    Collectors.toMap(TableColumn::getName, tableColumn -> tableColumn));
+            List<TableIndex> tableIndices = tableService.queryIndexes(tableQueryParam);
+            if (!CollectionUtils.isEmpty(tableIndices)) {
+                for (TableIndex tableIndex : tableIndices) {
+                    if ("PRIMARY".equalsIgnoreCase(tableIndex.getType())) {
+                        List<TableIndexColumn> columnList = tableIndex.getColumnList();
+                        if (!CollectionUtils.isEmpty(columnList)) {
+                            for (TableIndexColumn tableIndexColumn : columnList) {
+                                TableColumn tableColumn = columnMap.get(tableIndexColumn.getColumnName());
+                                if (tableColumn != null) {
+                                    tableColumn.setPrimaryKey(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            for (Header header : headers) {
+                TableColumn tableColumn = columnMap.get(header.getName());
+                if (tableColumn != null) {
+                    header.setPrimaryKey(tableColumn.getPrimaryKey());
+                    header.setComment(tableColumn.getComment());
+                    header.setDefaultValue(tableColumn.getDefaultValue());
+                    header.setNullable(tableColumn.getNullable());
+                    header.setColumnSize(tableColumn.getColumnSize());
+                    header.setDecimalDigits(tableColumn.getDecimalDigits());
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("setColumnInfo error:", e);
+        }
+        return headers;
+    }
+
+
+    private void addOperationLog(ExecuteResult executeResult) {
+        if (executeResult == null) {
+            return;
+        }
+        try {
+            ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+            OperationLogCreateParam createParam = new OperationLogCreateParam();
+            createParam.setDdl(executeResult.getSql());
+            createParam.setStatus(executeResult.getSuccess() ? "success" : "fail");
+            createParam.setDatabaseName(connectInfo.getDatabaseName());
+            createParam.setDataSourceId(connectInfo.getDataSourceId());
+            createParam.setSchemaName(connectInfo.getSchemaName());
+            createParam.setUseTime(executeResult.getDuration());
+            createParam.setType(connectInfo.getDbType());
+            createParam.setOperationRows(
+                    executeResult.getUpdateCount() != null ? Long.valueOf(executeResult.getUpdateCount()) : null);
+            operationLogService.create(createParam);
+        } catch (Exception e) {
+            log.error("addOperationLog error:", e);
+        }
+    }
 }

@@ -1,5 +1,6 @@
-import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
 import { defineConfig } from 'umi';
+import { extractYarnConfig, transitionTimezoneTimestamp } from './src/utils/webpack';
+
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 // yarn run build --app_port=xx 获取打包时命令行传入的参数
@@ -15,20 +16,46 @@ const chainWebpack = (config: any, { webpack }: any) => {
 
 export default defineConfig({
   title: 'Chat2DB',
-  history: {
-    type: 'hash',
-  },
   base: '/',
   publicPath: '/',
-  hash: false,
+  hash: true,
   routes: [
-    { path: '/demo', component: '@/pages/demo' },
-    { path: '/connections', component: 'main' },
-    { path: '/workspace', component: 'main' },
-    { path: '/dashboard', component: 'main' },
-    { path: '/test', component: '@/pages/test' },
-    { path: '/', component: 'main' },
+    {
+      path: '/',
+      component: '@/layouts/GlobalLayout',
+      routes: [
+        {
+          path: '/login',
+          component: '@/pages/login',
+        },
+        {
+          path: '/demo',
+          component: '@/pages/demo',
+        },
+        {
+          path: '/connections',
+          component: 'main',
+        },
+        {
+          path: '/dashboard',
+          component: 'main',
+        },
+        {
+          path: '/team',
+          component: 'main',
+        },
+        {
+          path: '/workspace',
+          component: 'main',
+        },
+        {
+          path: '/',
+          component: 'main',
+        },
+      ],
+    },
   ],
+
   npmClient: 'yarn',
   dva: {},
   plugins: ['@umijs/plugins/dist/dva'],
@@ -43,18 +70,56 @@ export default defineConfig({
       changeOrigin: true,
     },
   },
+  targets: {
+    chrome: 80,
+  },
+  // links: [{
+  //   rel: 'manifest',
+  //   href: 'manifest.json',
+  // }],
+  links: [{ rel: 'icon', type: 'image/ico', sizes: '32x32', href: '/static/front/logo.ico' }],
   headScripts: [
-    `if (localStorage.getItem('app-local-storage-versions') !== 'v2') {
+    `if (localStorage.getItem('app-local-storage-versions') !== 'v4') {
       localStorage.clear();
-      localStorage.setItem('app-local-storage-versions', 'v2');
+      localStorage.setItem('app-local-storage-versions', 'v4');
     }`,
-    `if (window.myAPI) { window.myAPI.startServerForSpawn() }`
+    // `if (window.electronApi) { window.electronApi.startServerForSpawn() }`,
+    // `if ("serviceWorker" in navigator) {
+    //   window.addEventListener("load", function () {
+    //     navigator.serviceWorker
+    //       .register("sw.js")
+    //       .then(res => console.log("service worker registered"))
+    //       .catch(err => console.log("service worker not registered", err));
+    //   })
+    // }`,
+    // `var deferredPrompt = null;
+    // window.addEventListener("beforeinstallprompt", e => {
+    //   e.preventDefault();
+    //   deferredPrompt = e;
+    // });
+    // window.addEventListener("appinstalled", () => {
+    //   deferredPrompt = null;
+    // })`,
+    {
+      src: 'https://www.googletagmanager.com/gtag/js?id=G-V8M4E5SF61',
+      async: true,
+    },
+    // `window.dataLayer = window.dataLayer || [];
+    // function gtag() {
+    //   window.dataLayer.push(arguments);
+    // }
+    // gtag('js', new Date());
+    // gtag('config', 'G-V8M4E5SF61', {
+    //   platform: 'WEB',
+    //   version: '1.0.0'
+    // });`,
   ],
   favicons: ['logo.ico'],
   define: {
     __ENV__: process.env.UMI_ENV,
     __BUILD_TIME__: transitionTimezoneTimestamp(new Date().getTime()),
     __APP_VERSION__: yarn_config.app_version || '0.0.0',
-    __APP_PORT__: yarn_config.app_port 
+    __APP_PORT__: yarn_config.app_port,
   },
+  esbuildMinifyIIFE: true,
 });

@@ -1,6 +1,6 @@
 package ai.chat2db.server.domain.api.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import lombok.Data;
 
@@ -20,12 +20,12 @@ public class Chart {
     /**
      * 创建时间
      */
-    private LocalDateTime gmtCreate;
+    private Date gmtCreate;
 
     /**
      * 修改时间
      */
-    private LocalDateTime gmtModified;
+    private Date gmtModified;
 
     /**
      * 图表名称
@@ -51,6 +51,11 @@ public class Chart {
      * 数据源名称
      */
     private String dataSourceName;
+
+    /**
+     * schema名称
+     */
+    private String schemaName;
 
     /**
      * 数据库类型

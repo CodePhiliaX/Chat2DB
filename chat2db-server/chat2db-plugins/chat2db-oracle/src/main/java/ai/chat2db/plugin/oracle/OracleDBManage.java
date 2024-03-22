@@ -1,45 +1,30 @@
 package ai.chat2db.plugin.oracle;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.jdbc.DefaultDBManage;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import ai.chat2db.spi.sql.ConnectInfo;
+import ai.chat2db.spi.sql.SQLExecutor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
-public class OracleDBManage implements DBManage {
-    @Override
-    public void connectDatabase(String database) {
-
-    }
-
-    @Override
-    public void modifyDatabase(String databaseName, String newDatabaseName) {
-
-    }
+public class OracleDBManage extends DefaultDBManage implements DBManage {
 
     @Override
-    public void createDatabase(String databaseName) {
-
+    public void connectDatabase(Connection connection, String database) {
+        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
+        if (ObjectUtils.anyNull(connectInfo) || StringUtils.isEmpty(connectInfo.getSchemaName())) {
+            return;
+        }
+        String schemaName = connectInfo.getSchemaName();
+        try {
+            SQLExecutor.getInstance().execute(connection, "ALTER SESSION SET CURRENT_SCHEMA = \"" + schemaName + "\"");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    public void dropDatabase(String databaseName) {
-
-    }
-
-    @Override
-    public void createSchema(String databaseName, String schemaName) {
-
-    }
-
-    @Override
-    public void dropSchema(String databaseName, String schemaName) {
-
-    }
-
-    @Override
-    public void modifySchema(String databaseName, String schemaName, String newSchemaName) {
-
-    }
-
-    @Override
-    public void dropTable(String databaseName, String schemaName, String tableName) {
-
-    }
 }

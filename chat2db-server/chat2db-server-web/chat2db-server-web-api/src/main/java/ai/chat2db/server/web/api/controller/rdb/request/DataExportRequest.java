@@ -1,12 +1,9 @@
 package ai.chat2db.server.web.api.controller.rdb.request;
 
-import java.util.List;
-
+import ai.chat2db.server.domain.api.enums.ExportSizeEnum;
+import ai.chat2db.server.domain.api.enums.ExportTypeEnum;
+import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import jakarta.validation.constraints.NotNull;
-
-import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
-import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
-
 import lombok.Data;
 
 /**
@@ -16,21 +13,29 @@ import lombok.Data;
  */
 @Data
 public class DataExportRequest extends DataSourceBaseRequest {
-
     /**
-     * 导出sql语句
+     * Executed SQL
      */
-    @NotNull
     private String sql;
 
     /**
-     * 控制台id
+     * Original SQL without pagination
      */
-    @NotNull
-    private Long consoleId;
+    private String originalSql;
 
     /**
-     * 导出行ID列表
+     * export type
+     *
+     * @see ExportTypeEnum
      */
-    private List<Long> exportIds;
+    @NotNull
+    private String exportType;
+
+    /**
+     * How much data is currently needed at the beginning
+     *
+     * @see ExportSizeEnum
+     */
+    @NotNull
+    private String exportSize;
 }

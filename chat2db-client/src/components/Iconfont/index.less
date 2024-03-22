@@ -1,14 +1,35 @@
 @font-face {
-  font-family: 'iconfont';
-  /* Project id 3633546 */
-  src: url('../../assets/font/iconfont.woff2') format('woff2'),
-    url('../../assets/font/iconfont.woff') format('woff'),
+  font-family: 'iconfont'; /* Project id 3633546 */
+  src: url('../../assets/font/iconfont.woff2') format('woff2'), url('../../assets/font/iconfont.woff') format('woff'),
     url('../../assets/font/iconfont.ttf') format('truetype');
+}
+
+.iconBox {
+  height: var(--icon-box-size);
+  width: var(--icon-box-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: var(--color-hover-bg);
+    .iconfont {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.activeIconBox {
+  background-color: var(--color-hover-bg);
+  .iconfont {
+    color: var(--color-primary);
+  }
 }
 
 .iconfont {
   font-family: 'iconfont' !important;
-  font-size: 14px;
+  font-size: var(--icon-size);
   font-style: normal;
   user-select: none;
   -webkit-font-smoothing: antialiased;

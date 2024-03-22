@@ -14,6 +14,8 @@
 
     <modules>
         <module>chat2db-server-web-api</module>
+        <module>chat2db-server-admin-api</module>
+        <module>chat2db-server-common-api</module>
     </modules>
 
 </project>

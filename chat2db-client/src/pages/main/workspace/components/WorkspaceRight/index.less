@@ -1,54 +1,39 @@
 @import '../../../../../styles/var.less';
 
-.box {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  :global {
-    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: var(--color-text) !important;
-      font-weight: 400;
-    }
-  }
-}
-
-.tabs {
-  padding: 18px 4px 0px 4px;
-  margin: 0px 4px;
-}
-
-.consoleBox {
-  position: absolute;
-  top: 48px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: none;
-}
-
-.tabBox {
-  height: 48px;
-  background-color: var(--color-bg-elevated);
-}
-
-.activeConsoleBox {
-  display: block;
-}
-
-.ears {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.workspaceRight {
+  position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 120px;
-  font-weight: 900;
-  color: var(--color-text);
-  opacity: 0.15;
+  flex: 1;
+  width: 0px;
+}
+
+.workspaceExtendNav {
+  border-left: 1px solid var(--color-border);
+}
+
+.draggableContainer {
+  flex: 1;
+  width: 0px;
   overflow: hidden;
+}
+
+.workspaceExtendBody {
+  border-left: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.workspaceExtend {
+  height: 100%;
+  flex-shrink: 0;
+  border-left: 1px solid var(--color-border);
+  display: flex;
+}
+
+.consoleTabsContainer {
+  height: 50%;
+}
+
+.searchResultContainer {
+  border-top: 1px solid var(--color-border-secondary);
+  flex: 1;
 }

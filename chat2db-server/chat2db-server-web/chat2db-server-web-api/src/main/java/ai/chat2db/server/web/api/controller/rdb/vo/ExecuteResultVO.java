@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.vo;
 import java.util.List;
 
 
+import ai.chat2db.spi.model.Header;
 import lombok.Data;
 
 /**
@@ -17,6 +18,11 @@ public class ExecuteResultVO {
      * 执行的sql
      */
     private String sql;
+
+    /**
+     * Original SQL without pagination
+     */
+    private String originalSql;
 
     /**
      * 描述
@@ -34,9 +40,14 @@ public class ExecuteResultVO {
     private Boolean success;
 
     /**
+     * 修改行数 查询sql不会返回
+     */
+    private Integer updateCount;
+
+    /**
      * 展示头的列表
      */
-    private List<HeaderVO> headerList;
+    private List<Header> headerList;
 
     /**
      * 数据的列表
@@ -68,7 +79,23 @@ public class ExecuteResultVO {
     private Integer pageSize;
 
     /**
+     * Total number of fuzzy rows
+     * Only select statements have
+     */
+    private String fuzzyTotal;
+
+    /**
      * 执行持续时间
      */
     private Long duration;
+
+    /**
+     * 返回结果是否可以编辑
+     */
+    private boolean canEdit;
+
+    /**
+     * 表名
+     */
+    private String tableName;
 }

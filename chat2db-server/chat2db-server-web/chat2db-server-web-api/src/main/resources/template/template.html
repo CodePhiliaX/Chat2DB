@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title></title>
+<style>
+body{font-family:Arial,serif;font-size:15px;line-height:180%;margin-top:0;margin-left:0;padding-bottom: 20px} /*总控制，可忽略此行*/
+table tr:first-child{background:#38a4ed; color:#fff;font-weight:bold;} /*第一行标题蓝色背景*/
+table{border-top:1pt solid #C1DAD7;border-left:1pt solid #C1DAD7;width: 70%;}
+table td {word-wrap: break-word;max-width:500px;}
+td{ padding:5px 10px; text-align:center;border-right:1pt solid #C1DAD7;border-bottom:1pt solid #C1DAD7;}
+tr:nth-of-type(odd){ background:#F5FAFA;} /* odd 标识奇数行，even标识偶数行 */
+tr:hover{ background:#E0F0F0;} /*鼠标悬停后表格背景颜色*/
+ul{position:fixed;float:left; width: 20%; height: 100%; overflow: auto; margin-top: 0; background: rgba(255, 255, 255, 0.2); color: rgba(199, 199, 199, 0.5); box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);}
+li{line-height: 30px;text-decoration:none; color: #000;padding: 8px 8px;}
+li a{text-decoration:none;color: #000;font-size: 1.1rem;text-overflow: ellipsis;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 1;overflow: hidden;}
+li > a:hover{color: #38a4ed;-webkit-transition: .12s;transition: .12s;}
+ul > li::marker {content: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjY4MTcyNzkzMzI3IiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjY0MyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+PHBhdGggZD0iTTUxMiA4MDBjLTI0Ny40MiAwLTQ0OC03MS42My00NDgtMTYwdjE2MGMwIDg4LjM3IDIwMC41OCAxNjAgNDQ4IDE2MHM0NDgtNzEuNjMgNDQ4LTE2MFY2NDBjMCA4OC4zNy0yMDAuNTggMTYwLTQ0OCAxNjB6IiBwLWlkPSI2NDQiIGZpbGw9IiMwMmI0MjciPjwvcGF0aD48cGF0aCBkPSJNNTEyIDYwOGMtMjQ3LjQyIDAtNDQ4LTcxLjYzLTQ0OC0xNjB2MTYwYzAgODguMzcgMjAwLjU4IDE2MCA0NDggMTYwczQ0OC03MS42MyA0NDgtMTYwVjQ0OGMwIDg4LjM3LTIwMC41OCAxNjAtNDQ4IDE2MHoiIHAtaWQ9IjY0NSIgZmlsbD0iIzAyYjQyNyI+PC9wYXRoPjxwYXRoIGQ9Ik01MTIgNDE2Yy0yNDcuNDIgMC00NDgtNzEuNjMtNDQ4LTE2MHYxNjBjMCA4OC4zNyAyMDAuNTggMTYwIDQ0OCAxNjBzNDQ4LTcxLjYzIDQ0OC0xNjBWMjU2YzAgODguMzctMjAwLjU4IDE2MC00NDggMTYweiIgcC1pZD0iNjQ2IiBmaWxsPSIjMDJiNDI3Ij48L3BhdGg+PHBhdGggZD0iTTY0IDIyNGE0NDggMTYwIDAgMSAwIDg5NiAwIDQ0OCAxNjAgMCAxIDAtODk2IDBaIiBwLWlkPSI2NDciIGZpbGw9IiMwMmI0MjciPjwvcGF0aD48L3N2Zz4=');}
+ol > li::marker {content: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB0PSIxNjY4MTcxMDYxNzUyIiBjbGFzcz0iaWNvbiIgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHAtaWQ9IjQ3Nzc0IiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2Ij48cGF0aCBkPSJNMCAwaDEwMjR2MjkyLjU3MTQyOUgweiIgZmlsbD0iIzQxODVGNCIgcC1pZD0iNDc3NzUiPjwvcGF0aD48cGF0aCBkPSJNMCAzNjUuNzE0Mjg2aDI5Mi41NzE0Mjl2MjkyLjU3MTQyOEgweiIgZmlsbD0iI0EwQzJGOSIgcC1pZD0iNDc3NzYiPjwvcGF0aD48cGF0aCBkPSJNMCA3MzEuNDI4NTcxaDI5Mi41NzE0Mjl2MjkyLjU3MTQyOUgweiIgZmlsbD0iI0EwQzJGOSIgcC1pZD0iNDc3NzciPjwvcGF0aD48cGF0aCBkPSJNMzY1LjcxNDI4NiAzNjUuNzE0Mjg2aDI5Mi41NzE0Mjh2MjkyLjU3MTQyOEgzNjUuNzE0Mjg2ek0zNjUuNzE0Mjg2IDczMS40Mjg1NzFoMjkyLjU3MTQyOHYyOTIuNTcxNDI5SDM2NS43MTQyODZ6IiBmaWxsPSIjQTBDMkY5IiBwLWlkPSI0Nzc3OCI+PC9wYXRoPjxwYXRoIGQ9Ik03MzEuNDI4NTcxIDM2NS43MTQyODZoMjkyLjU3MTQyOXYyOTIuNTcxNDI4aC0yOTIuNTcxNDI5eiIgZmlsbD0iI0EwQzJGOSIgcC1pZD0iNDc3NzkiPjwvcGF0aD48cGF0aCBkPSJNNzMxLjQyODU3MSA3MzEuNDI4NTcxaDI5Mi41NzE0Mjl2MjkyLjU3MTQyOWgtMjkyLjU3MTQyOXoiIGZpbGw9IiM0MTg1RjQiIHAtaWQ9IjQ3NzgwIj48L3BhdGg+PC9zdmc+');}
+ol {padding-inline-start: 30px;}
+my{float: right;width:-moz-calc(80% - 60px);width:-webkit-calc(80% - 60px);width: calc(80% - 60px);padding-bottom: 20px;}
+/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+::-webkit-scrollbar {width: 7px;height: 7px;background-color: #f5f5f5;}
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track {box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);border-radius: 10px;background-color: #f5f5f5;}
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {border-radius: 10px;box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);background-color: #c8c8c8;}
+</style>
+</head>
+<body>
+<ul>
+${catalogue}
+</ul>
+<my>
+${data}
+</my>
+</div>
+</body>
+</html>

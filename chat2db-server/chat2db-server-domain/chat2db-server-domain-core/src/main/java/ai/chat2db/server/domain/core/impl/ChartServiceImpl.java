@@ -1,19 +1,16 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
+import ai.chat2db.server.domain.api.chart.ChartCreateParam;
+import ai.chat2db.server.domain.api.chart.ChartListQueryParam;
+import ai.chat2db.server.domain.api.chart.ChartQueryParam;
+import ai.chat2db.server.domain.api.chart.ChartUpdateParam;
 import ai.chat2db.server.domain.api.model.Chart;
 import ai.chat2db.server.domain.api.model.DataSource;
-import ai.chat2db.server.domain.api.param.ChartCreateParam;
-import ai.chat2db.server.domain.api.param.ChartUpdateParam;
 import ai.chat2db.server.domain.api.service.ChartService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.domain.core.converter.ChartConverter;
+import ai.chat2db.server.domain.core.util.PermissionUtils;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.ChartDO;
 import ai.chat2db.server.domain.repository.entity.DashboardChartRelationDO;
 import ai.chat2db.server.domain.repository.mapper.ChartMapper;
@@ -22,12 +19,22 @@ import ai.chat2db.server.tools.base.enums.YesOrNoEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-
+import ai.chat2db.server.tools.common.exception.DataNotFoundException;
+import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author moji
@@ -38,38 +45,42 @@ import org.springframework.stereotype.Service;
 public class ChartServiceImpl implements ChartService {
 
     @Autowired
-    private ChartMapper chartMapper;
-
-    @Autowired
     private DataSourceService dataSourceService;
 
-    @Autowired
-    private DashboardChartRelationMapper dashboardChartRelationMapper;
+
+    private DashboardChartRelationMapper getDashboardMapper() {
+        return Dbutils.getMapper(DashboardChartRelationMapper.class);
+    }
+
 
     @Autowired
     private ChartConverter chartConverter;
 
     @Override
-    public DataResult<Long> create(ChartCreateParam param) {
+    public DataResult<Long> createWithPermission(ChartCreateParam param) {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
+        param.setUserId(ContextUtils.getUserId());
         ChartDO chartDO = chartConverter.param2do(param);
-        chartMapper.insert(chartDO);
+        getMapper().insert(chartDO);
         return DataResult.of(chartDO.getId());
     }
 
     @Override
-    public ActionResult update(ChartUpdateParam param) {
+    public ActionResult updateWithPermission(ChartUpdateParam param) {
+        Chart data = queryExistent(param.getId()).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
         param.setGmtModified(LocalDateTime.now());
         ChartDO chartDO = chartConverter.updateParam2do(param);
-        chartMapper.updateById(chartDO);
+        getMapper().updateById(chartDO);
         return ActionResult.isSuccess();
     }
 
     @Override
     public DataResult<Chart> find(Long id) {
-        ChartDO chartDO = chartMapper.selectById(id);
+        ChartDO chartDO = getMapper().selectById(id);
         if (YesOrNoEnum.YES.getLetter().equals(chartDO.getDeleted())) {
             return DataResult.empty();
         }
@@ -79,19 +90,58 @@ public class ChartServiceImpl implements ChartService {
     }
 
     @Override
-    public ActionResult delete(Long id) {
-        ChartDO chartDO = chartMapper.selectById(id);
-        if (Objects.isNull(chartDO)) {
-            return ActionResult.isSuccess();
+    public DataResult<Chart> queryExistent(ChartQueryParam param) {
+        EasyLambdaQueryWrapper<ChartDO> queryWrapper = new EasyLambdaQueryWrapper<>();
+        queryWrapper
+            .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
+            .eqWhenPresent(ChartDO::getId, param.getId())
+            .eqWhenPresent(ChartDO::getUserId, param.getUserId());
+        IPage<ChartDO> page = getMapper().selectPage(new Page<>(1, 1), queryWrapper);
+        if (CollectionUtils.isEmpty(page.getRecords())) {
+            throw new DataNotFoundException();
         }
+        Chart data = chartConverter.do2model(page.getRecords().get(0));
+        setDataSourceInfo(Lists.newArrayList(data));
+        return DataResult.of(data);
+    }
+
+    @Override
+    public DataResult<Chart> queryExistent(Long id) {
+        DataResult<Chart> dataResult = find(id);
+        if (dataResult.getData() == null) {
+            throw new DataNotFoundException();
+        }
+        return dataResult;
+    }
+
+    @Override
+    public ListResult<Chart> listQuery(ChartListQueryParam param) {
+        EasyLambdaQueryWrapper<ChartDO> queryWrapper = new EasyLambdaQueryWrapper<>();
+        queryWrapper
+            .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
+            .inWhenPresent(ChartDO::getId, param.getIdList())
+            .eqWhenPresent(ChartDO::getUserId, param.getUserId());
+        List<ChartDO> queryList = getMapper().selectList(queryWrapper);
+        List<Chart> list = chartConverter.do2model(queryList);
+        setDataSourceInfo(list);
+        return ListResult.of(list);
+    }
+
+    @Override
+    public ActionResult deleteWithPermission(Long id) {
+        Chart data = queryExistent(id).getData();
+        PermissionUtils.checkOperationPermission(data.getUserId());
+
+        ChartDO chartDO = new ChartDO();
+        chartDO.setId(id);
         chartDO.setDeleted(YesOrNoEnum.YES.getLetter());
-        chartMapper.updateById(chartDO);
+        getMapper().updateById(chartDO);
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DashboardChartRelationDO::getChartId, id);
-        List<DashboardChartRelationDO> relationDO = dashboardChartRelationMapper.selectList(queryWrapper);
+        List<DashboardChartRelationDO> relationDO = getDashboardMapper().selectList(queryWrapper);
         List<Long> relationIds = relationDO.stream().map(DashboardChartRelationDO::getId).toList();
         if (CollectionUtils.isNotEmpty(relationIds)) {
-            dashboardChartRelationMapper.deleteBatchIds(relationIds);
+            getDashboardMapper().deleteBatchIds(relationIds);
         }
         return ActionResult.isSuccess();
     }
@@ -101,7 +151,7 @@ public class ChartServiceImpl implements ChartService {
         if (CollectionUtils.isEmpty(ids)) {
             return ListResult.empty();
         }
-        List<ChartDO> chartDOS = chartMapper.selectBatchIds(ids);
+        List<ChartDO> chartDOS = getMapper().selectBatchIds(ids);
         List<Chart> charts = chartConverter.do2model(chartDOS);
         List<Chart> result = charts.stream().filter(o -> YesOrNoEnum.NO.getLetter().equals(o.getDeleted())).toList();
         setDataSourceInfo(result);
@@ -123,5 +173,9 @@ public class ChartServiceImpl implements ChartService {
                 o.setDataSourceName(dataSourceMap.get(o.getDataSourceId()).getAlias());
             }
         });
+    }
+
+    private ChartMapper getMapper() {
+        return Dbutils.getMapper(ChartMapper.class);
     }
 }

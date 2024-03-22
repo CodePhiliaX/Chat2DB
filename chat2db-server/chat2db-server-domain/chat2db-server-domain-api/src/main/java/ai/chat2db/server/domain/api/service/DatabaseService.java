@@ -1,7 +1,8 @@
 package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.*;
-import ai.chat2db.server.tools.base.wrapper.Result;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -46,7 +47,7 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    public ActionResult deleteDatabase(DatabaseOperationParam param);
+    ActionResult deleteDatabase(DatabaseCreateParam param);
 
     /**
      * 创建database
@@ -54,14 +55,14 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    public ActionResult createDatabase(DatabaseOperationParam param);
+    DataResult<Sql> createDatabase(Database param);
 
     /**
      * 修改database
      *
      * @return
      */
-    public ActionResult modifyDatabase( DatabaseOperationParam param) ;
+    ActionResult modifyDatabase( DatabaseCreateParam param) ;
 
     /**
      * 删除schema
@@ -69,15 +70,15 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    public ActionResult deleteSchema(SchemaOperationParam param) ;
+    ActionResult deleteSchema(SchemaOperationParam param) ;
 
     /**
      * 创建schema
      *
-     * @param param
+     * @param schema
      * @return
      */
-    public ActionResult createSchema( SchemaOperationParam param);
+    DataResult<Sql> createSchema(Schema schema);
 
     /**
      * 修改schema
@@ -85,5 +86,5 @@ public interface DatabaseService {
      * @param request
      * @return
      */
-    public ActionResult modifySchema( SchemaOperationParam request);
+    ActionResult modifySchema( SchemaOperationParam request);
 }
