@@ -8,6 +8,8 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 
@@ -16,86 +18,90 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        exportTypes(connection, schemaName, sqlBuilder);
-        exportTables(connection, schemaName, sqlBuilder, containData);
+        exportTypes(connection, sqlBuilder);
+        exportTables(connection, databaseName, schemaName, sqlBuilder, containData);
         exportViews(connection, schemaName, sqlBuilder);
         exportFunctions(connection, schemaName, sqlBuilder);
-        exportTriggers(connection, schemaName, sqlBuilder);
+        exportTriggers(connection, sqlBuilder);
         return sqlBuilder.toString();
     }
 
-    private void exportTypes(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-            try (Statement statement = connection.createStatement(); ResultSet ddl = statement.executeQuery(ENUM_TYPE_DDL_SQL)) {
-                while (ddl.next()) {
-                    sqlBuilder.append(ddl.getString(1)).append("\n");
+    private void exportTypes(Connection connection, StringBuilder sqlBuilder) throws SQLException {
+            try (ResultSet resultSet = connection.createStatement().executeQuery(ENUM_TYPE_DDL_SQL)) {
+                while (resultSet.next()) {
+                    sqlBuilder.append(resultSet.getString("ddl")).append("\n");
                 }
         }
     }
-    private void exportTables(Connection connection, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String tablesQuery = "SELECT table_name FROM information_schema.tables WHERE table_schema = '" + schemaName + "' AND table_type = 'BASE TABLE'";
-        try (Statement statement = connection.createStatement(); ResultSet tables = statement.executeQuery(tablesQuery)) {
-            while (tables.next()) {
-                String tableName = tables.getString(1);
-                exportTable(connection, schemaName, tableName, sqlBuilder, containData);
+    private void exportTables(Connection connection, String databaseName, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
+                                                                      new String[]{"TABLE", "SYSTEM TABLE","PARTITIONED TABLE"})) {
+            ArrayList<String> tableNames = new ArrayList<>();
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("TABLE_NAME");
+                tableNames.add(tableName);
+            }
+            for (String tableName : tableNames) {
+                exportTable(connection, schemaName, tableName, sqlBuilder);
+            }
+            if (containData) {
+                for (String tableName : tableNames) {
+                    exportTableData(connection, schemaName, tableName, sqlBuilder);
+                }
             }
         }
     }
 
-    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String tableQuery = "select pg_get_tabledef" + "(" + "'" + schemaName + "'" + "," + "'" + tableName + "'" + "," + "true" + "," + "'" + "COMMENTS" + "'" + ")" + ";";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(tableQuery)) {
-            sqlBuilder.append("\n").append("DROP TABLE IF EXISTS ").append(schemaName).append(".").append(tableName).append(";\n");
+    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
+        String sql =String.format( "select pg_get_tabledef('%s','%s',true,'COMMENTS') as ddl;", schemaName,tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
-                sqlBuilder.append(resultSet.getString(1)).append("\n");
-            }
-            if (containData) {
-                exportTableData(connection, schemaName, tableName, sqlBuilder);
+                sqlBuilder.append("\n").append("DROP TABLE IF EXISTS ").append(tableName).append(";").append("\n")
+                        .append(resultSet.getString("ddl")).append("\n");
             }
         }
     }
 
     private void exportTableData(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        StringBuilder insertSql = new StringBuilder();
-        String dataQuery = "SELECT * FROM " + schemaName + "." + tableName;
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(dataQuery)) {
+        String sql =String.format("select * from %s.%s", schemaName,tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
             while (resultSet.next()) {
-                insertSql.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= columnCount; i++) {
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String value = resultSet.getString(i);
-                    if (value != null) {
-                        insertSql.append("'").append(value).append("'");
+                    if (Objects.isNull(value)) {
+                        sqlBuilder.append("NULL");
                     } else {
-                        insertSql.append("NULL");
+                        sqlBuilder.append("'").append(value).append("'");
                     }
-                    if (i < columnCount) {
-                        insertSql.append(", ");
+                    if (i < metaData.getColumnCount()) {
+                        sqlBuilder.append(", ");
                     }
                 }
-                insertSql.append(");\n");
+                sqlBuilder.append(");\n");
             }
-            insertSql.append("\n");
-            sqlBuilder.append(insertSql);
+            sqlBuilder.append("\n");
         }
     }
 
 
     private void exportViews(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String viewsQuery = "SELECT table_name, view_definition FROM information_schema.views WHERE table_schema = '" + schemaName + "'";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(viewsQuery)) {
+
+        String sql = String.format("SELECT table_name, view_definition FROM information_schema.views WHERE table_schema = '%s'",schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String viewName = resultSet.getString("table_name");
                 String viewDefinition = resultSet.getString("view_definition");
-                sqlBuilder.append("DROP VIEW IF EXISTS ").append(schemaName).append(".").append(viewName).append(";\n");
-                sqlBuilder.append("CREATE VIEW ").append(schemaName).append(".").append(viewName).append(" AS ").append(viewDefinition).append(";\n\n");
+                sqlBuilder.append("CREATE OR REPLACE VIEW ").append(viewName).append(" AS ").append(viewDefinition).append("\n");
             }
         }
     }
 
     private void exportFunctions(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String functionsQuery = "SELECT proname, pg_get_functiondef(oid) AS function_definition FROM pg_proc WHERE pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = '" + schemaName + "')";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(functionsQuery)) {
+        String sql = String.format("SELECT proname, pg_get_functiondef(oid) AS function_definition FROM pg_proc " +
+                                                "WHERE pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = '%s')", schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String functionName = resultSet.getString("proname");
                 String functionDefinition = resultSet.getString("function_definition");
@@ -105,14 +111,11 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportTriggers(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String triggersQuery = "SELECT tgname, pg_get_triggerdef(oid) AS trigger_definition FROM pg_trigger";
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(triggersQuery)) {
+    private void exportTriggers(Connection connection, StringBuilder sqlBuilder) throws SQLException {
+        String sql = "SELECT pg_get_triggerdef(oid) AS trigger_definition FROM pg_trigger";
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
-                String triggerName = resultSet.getString("tgname");
-                String triggerDefinition = resultSet.getString("trigger_definition");
-                sqlBuilder.append("DROP TRIGGER IF EXISTS ").append(schemaName).append(".").append(triggerName).append(";\n");
-                sqlBuilder.append(triggerDefinition).append(";\n\n");
+                sqlBuilder.append(resultSet.getString("trigger_definition")).append(";").append("\n");
             }
         }
     }
