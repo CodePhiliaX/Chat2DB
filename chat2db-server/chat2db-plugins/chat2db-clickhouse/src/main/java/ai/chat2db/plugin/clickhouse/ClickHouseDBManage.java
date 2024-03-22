@@ -19,27 +19,33 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportFunctions(Connection connection, StringBuilder sqlBuilder) throws SQLException {
-        try(Statement statement = connection.createStatement();ResultSet resultSet = statement.executeQuery("SELECT name,create_query from system.functions where origin='SQLUserDefined'")){
+        String sql ="SELECT name,create_query from system.functions where origin='SQLUserDefined'";
+        try(ResultSet resultSet=connection.createStatement().executeQuery(sql)){
             while (resultSet.next()) {
-                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(resultSet.getString(1)).append(";\n");
-                sqlBuilder.append(resultSet.getString(2)).append(";\n");
+                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(resultSet.getString("name")).append(";")
+                        .append("\n")
+                        .append(resultSet.getString("create_query")).append(";").append("\n");
             }
         }
     }
 
     private void exportTablesOrViewsOrDictionaries(Connection connection, StringBuilder sqlBuilder, String databaseName, boolean containData) throws SQLException {
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("SELECT create_table_query, has_own_data,engine,name from system.`tables` WHERE `database`='" + databaseName + "'")) {
+        String sql =String.format("SELECT create_table_query, has_own_data,engine,name from system.`tables` WHERE `database`='%s'", databaseName);
+        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
-                String ddl = resultSet.getString(1);
-                boolean dataFlag = resultSet.getInt(2) == 1;
-                String tableType = resultSet.getString(3);
-                String tableOrViewName = resultSet.getString(4);
+                String ddl = resultSet.getString("create_table_query");
+                boolean dataFlag = resultSet.getInt("has_own_data") == 1;
+                String tableType = resultSet.getString("engine");
+                String tableOrViewName = resultSet.getString("name");
                 if (Objects.equals("View", tableType)) {
-                    sqlBuilder.append("DROP VIEW IF EXISTS ").append(databaseName).append(".").append(tableOrViewName).append(";\n").append(ddl).append(";");
+                    sqlBuilder.append("DROP VIEW IF EXISTS ").append(databaseName).append(".").append(tableOrViewName)
+                            .append(";").append("\n").append(ddl).append(";").append("\n");
                 } else if (Objects.equals("Dictionary", tableType)) {
-                    sqlBuilder.append("DROP DICTIONARY IF EXISTS ").append(databaseName).append(".").append(tableOrViewName).append(";\n").append(ddl).append(";");
+                    sqlBuilder.append("DROP DICTIONARY IF EXISTS ").append(databaseName).append(".").append(tableOrViewName)
+                            .append(";").append("\n").append(ddl).append(";").append("\n");
                 } else {
-                    sqlBuilder.append("DROP TABLE IF EXISTS ").append(databaseName).append(".").append(tableOrViewName).append(";\n").append(ddl).append(";");
+                    sqlBuilder.append("DROP TABLE IF EXISTS ").append(databaseName).append(".").append(tableOrViewName)
+                            .append(";").append("\n").append(ddl).append(";").append("\n");
                     if (containData && dataFlag) {
                         exportTableData(connection, tableOrViewName, sqlBuilder);
                     }
@@ -50,27 +56,26 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
 
 
     private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        StringBuilder insertSql = new StringBuilder();
-        try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery("select * from " + tableName)) {
+        String sql = String.format("select * from %s", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
-                insertSql.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String value = resultSet.getString(i);
                     if (Objects.isNull(value)) {
-                        insertSql.append("NULL");
+                        sqlBuilder.append("NULL");
                     } else {
-                        insertSql.append("'").append(value).append("'");
+                        sqlBuilder.append("'").append(value).append("'");
                     }
                     if (i < metaData.getColumnCount()) {
-                        insertSql.append(", ");
+                        sqlBuilder.append(", ");
                     }
                 }
-                insertSql.append(");\n");
+                sqlBuilder.append(");\n");
             }
-            insertSql.append("\n");
+            sqlBuilder.append("\n");
         }
-        sqlBuilder.append(insertSql);
     }
 
 
