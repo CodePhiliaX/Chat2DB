@@ -266,7 +266,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             trigger.setDatabaseName(databaseName);
             trigger.setSchemaName(schemaName);
             trigger.setTriggerName(triggerName);
-            trigger.setTriggerBody(resultSet.getString(sb.toString()));
+            trigger.setTriggerBody(sb.toString());
             return trigger;
         });
     }
