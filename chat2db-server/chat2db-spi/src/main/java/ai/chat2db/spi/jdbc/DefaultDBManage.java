@@ -143,6 +143,11 @@ public class DefaultDBManage implements DBManage {
         return null;
     }
 
+    @Override
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName) throws SQLException {
+        return null;
+    }
+
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {

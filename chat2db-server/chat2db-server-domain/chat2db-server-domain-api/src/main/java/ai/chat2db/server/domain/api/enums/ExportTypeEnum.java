@@ -3,8 +3,6 @@ package ai.chat2db.server.domain.api.enums;
 import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
-import javax.swing.text.html.HTML;
-
 /**
  * export type
  *
@@ -45,7 +43,11 @@ public enum ExportTypeEnum implements BaseEnum<String> {
     /**
      * PDF
      */
-    PDF("PDF");
+    PDF("PDF"),
+
+    JSON("JSON"),
+
+    SQL("SQL");
 
     final String description;
 
