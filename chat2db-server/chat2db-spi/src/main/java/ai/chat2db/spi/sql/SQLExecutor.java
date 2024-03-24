@@ -1,15 +1,5 @@
 package ai.chat2db.spi.sql;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.base.excption.BusinessException;
@@ -38,6 +28,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.util.Assert;
+
+import java.sql.*;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Dbhub unified database connection management
@@ -696,5 +691,17 @@ public class SQLExecutor implements CommandExecutor {
                     .build();
         }
         return executeResult;
+    }
+
+    public List<String> tableNames(Connection connection, String databaseName, String schemaName, String tableName, String[] types) {
+        List<String> tableNames = new ArrayList<>();
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, tableName, types)) {
+            while (resultSet.next()) {
+                tableNames.add(resultSet.getString("TABLE_NAME"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return tableNames;
     }
 }

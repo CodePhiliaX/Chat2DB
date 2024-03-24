@@ -50,6 +50,11 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
+    public List<String> tableNames(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().tableNames(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, tableName, new String[]{"TABLE","SYSTEM TABLE"});
+    }
+
+    @Override
     public PageResult<Table> tables(Connection connection, String databaseName, String schemaName, String tableNamePattern, int pageNo, int pageSize) {
         List<Table> tables = tables(connection, databaseName, schemaName, tableNamePattern);
         if(CollectionUtils.isEmpty(tables)){

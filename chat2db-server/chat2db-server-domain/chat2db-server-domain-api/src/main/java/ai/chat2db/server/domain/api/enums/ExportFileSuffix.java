@@ -20,9 +20,14 @@ public enum ExportFileSuffix {
     HTML(".html"),
     //pdf
     PDF(".pdf"),
+
     SQL(".sql"),
+
     JSON(".json"),
-    CSV(".csv");
+
+    CSV(".csv"),
+
+    ZIP(".zip");
 
     private String suffix;
 
