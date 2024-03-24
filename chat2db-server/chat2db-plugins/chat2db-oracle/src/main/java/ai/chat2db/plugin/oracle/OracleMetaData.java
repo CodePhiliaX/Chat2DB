@@ -242,8 +242,9 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         return SQLExecutor.getInstance().execute(connection, String.format(TRIGGER_SQL_LIST, schemaName),
                 resultSet -> {
                     while (resultSet.next()) {
+                        String triggerName = resultSet.getString("TRIGGER_NAME");
                         Trigger trigger = new Trigger();
-                        trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                        trigger.setTriggerName(triggerName==null?"":triggerName.trim());
                         trigger.setSchemaName(schemaName);
                         trigger.setDatabaseName(databaseName);
                         triggers.add(trigger);
@@ -255,7 +256,6 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
                            String triggerName) {
-
         String sql = String.format(ROUTINES_SQL, "TRIGGER", triggerName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             StringBuilder sb = new StringBuilder();
