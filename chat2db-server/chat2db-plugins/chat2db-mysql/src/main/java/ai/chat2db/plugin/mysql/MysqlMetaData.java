@@ -10,6 +10,7 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -57,19 +58,25 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
                              String functionName) {
 
-        String sql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
-        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            Function function = new Function();
-            function.setDatabaseName(databaseName);
-            function.setSchemaName(schemaName);
-            function.setFunctionName(functionName);
+        String functionInfoSql = String.format(ROUTINES_SQL, "FUNCTION", databaseName, functionName);
+        Function function = SQLExecutor.getInstance().execute(connection, functionInfoSql, resultSet -> {
+            Function f = new Function();
+            f.setDatabaseName(databaseName);
+            f.setSchemaName(schemaName);
+            f.setFunctionName(functionName);
             if (resultSet.next()) {
-                function.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
-                function.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
-                function.setFunctionBody(resultSet.getString("ROUTINE_DEFINITION"));
+                f.setSpecificName(resultSet.getString("SPECIFIC_NAME"));
+                f.setRemarks(resultSet.getString("ROUTINE_COMMENT"));
             }
-            return function;
+            return f;
         });
+        String functionDDlSql =String.format("SHOW CREATE FUNCTION %s", functionName);
+        SQLExecutor.getInstance().execute(connection,functionDDlSql, resultSet -> {
+            if (resultSet.next()) {
+                function.setFunctionBody(resultSet.getString("Create Function"));
+            }
+        } );
+        return function;
 
     }
 
@@ -111,6 +118,20 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
             }
             return trigger;
         });
+    }
+
+    @Override
+    public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
+        String sql = "SHOW PROCEDURE STATUS WHERE Db = DATABASE()";
+       return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+           ArrayList<Procedure> procedures = new ArrayList<>();
+           Procedure procedure = new Procedure();
+           while (resultSet.next()){
+               procedure.setProcedureName(resultSet.getString("Name"));
+               procedures.add(procedure);
+           }
+           return procedures;
+       });
     }
 
     @Override
@@ -193,21 +214,18 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         }
     }
 
-
-    private static String VIEW_SQL
-            = "SELECT TABLE_SCHEMA AS DatabaseName, TABLE_NAME AS ViewName, VIEW_DEFINITION AS definition, CHECK_OPTION, "
-            + "IS_UPDATABLE FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' AND TABLE_NAME = '%s';";
+    private static String VIEW_DDL_SQL="show create view %s";
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
-        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        String sql = String.format(VIEW_DDL_SQL, viewName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Table table = new Table();
             table.setDatabaseName(databaseName);
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl(resultSet.getString("definition"));
+                table.setDdl(resultSet.getString("Create View"));
             }
             return table;
         });
@@ -303,4 +321,10 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     public ValueHandler getValueHandler() {
         return new MysqlValueHandler();
     }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
 }

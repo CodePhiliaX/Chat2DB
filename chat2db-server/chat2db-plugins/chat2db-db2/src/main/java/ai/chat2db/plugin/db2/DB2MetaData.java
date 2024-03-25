@@ -13,10 +13,7 @@ import ai.chat2db.plugin.db2.type.DB2IndexTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.TableIndex;
-import ai.chat2db.spi.model.TableIndexColumn;
-import ai.chat2db.spi.model.TableMeta;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
@@ -130,6 +127,22 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
 
     }
 
+    private static String VIEW_DDL_SQL="select TEXT from syscat.views where VIEWSCHEMA='%s' and VIEWNAME='%s';";
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_DDL_SQL, schemaName, viewName);
+        Table table = new Table();
+        table.setDatabaseName(databaseName);
+        table.setSchemaName(schemaName);
+        table.setName(viewName);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            if (resultSet.next()) {
+                table.setDdl(resultSet.getString("TEXT")+";");
+            }
+        });
+        return table;
+    }
+
     private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
         tableIndexColumn.setColumnName(resultSet.getString("COLNAME"));
@@ -161,4 +174,8 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
+    }
 }

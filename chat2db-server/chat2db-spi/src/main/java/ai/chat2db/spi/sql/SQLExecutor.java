@@ -16,6 +16,7 @@ import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.CommandExecutor;
+import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.enums.SqlTypeEnum;
@@ -39,7 +40,7 @@ import org.bson.Document;
 import org.springframework.util.Assert;
 
 /**
- *  Dbhub unified database connection management
+ * Dbhub unified database connection management
  *
  * @author jipengfei
  */
@@ -74,6 +75,7 @@ public class SQLExecutor implements CommandExecutor {
         }
         return null;
     }
+
     public void execute(Connection connection, String sql, ResultSetConsumer consumer) {
         log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement()) {
@@ -113,10 +115,10 @@ public class SQLExecutor implements CommandExecutor {
                     List<Header> headerList = Lists.newArrayListWithExpectedSize(col);
                     for (int i = 1; i <= col; i++) {
                         headerList.add(Header.builder()
-                            .dataType(JdbcUtils.resolveDataType(
-                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
-                            .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
-                            .build());
+                                .dataType(JdbcUtils.resolveDataType(
+                                        resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode())
+                                .name(ResultSetUtils.getColumnName(resultSetMetaData, i))
+                                .build());
                     }
                     headerConsumer.accept(headerList);
 
@@ -144,13 +146,13 @@ public class SQLExecutor implements CommandExecutor {
      * @throws SQLException
      */
     public ExecuteResult execute(final String sql, Connection connection, ValueHandler valueHandler)
-        throws SQLException {
+            throws SQLException {
         return execute(sql, connection, true, null, null, valueHandler);
     }
 
     @Override
     public ExecuteResult executeUpdate(String sql, Connection connection, int n)
-        throws SQLException {
+            throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
         // connection.setAutoCommit(false);
@@ -160,29 +162,40 @@ public class SQLExecutor implements CommandExecutor {
             if (affectedRows != n) {
                 executeResult.setSuccess(false);
                 executeResult.setMessage("Update error " + sql + " update affectedRows = " + affectedRows
-                    + ", Each SQL statement should update no more than one record. Please use a unique key for "
-                    + "updates.");
+                        + ", Each SQL statement should update no more than one record. Please use a unique key for "
+                        + "updates.");
                 // connection.rollback();
             }
         }
         return executeResult;
     }
 
+    @Override
+    public List<ExecuteResult> executeSelectTable(Command command) {
+        MetaData metaData = Chat2DBContext.getMetaData();
+        String tableName = metaData.getMetaDataName(command.getDatabaseName(), command.getSchemaName(),
+                command.getTableName());
+        String sql = "select * from " + tableName;
+        command.setScript(sql);
+        return execute(command);
+    }
+
 
     /**
      * Executes the given SQL query using the provided connection.
-     * @param sql The SQL query to be executed.
-     * @param connection The database connection to use for the query.
+     *
+     * @param sql          The SQL query to be executed.
+     * @param connection   The database connection to use for the query.
      * @param limitRowSize Flag to indicate if row size should be limited.
-     * @param offset The starting point of rows to fetch in the result set.
-     * @param count The number of rows to fetch from the result set.
+     * @param offset       The starting point of rows to fetch in the result set.
+     * @param count        The number of rows to fetch from the result set.
      * @param valueHandler Handles the processing of the result set values.
      * @return ExecuteResult containing the result of the execution.
      * @throws SQLException If there is any SQL related error.
      */
     public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset,
-        Integer count, ValueHandler valueHandler)
-        throws SQLException {
+                                 Integer count, ValueHandler valueHandler)
+            throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
         log.info("execute:{}", sql);
 
@@ -227,11 +240,11 @@ public class SQLExecutor implements CommandExecutor {
                             continue;
                         }
                         String dataType = JdbcUtils.resolveDataType(
-                            resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode();
+                                resultSetMetaData.getColumnTypeName(i), resultSetMetaData.getColumnType(i)).getCode();
                         headerList.add(Header.builder()
-                            .dataType(dataType)
-                            .name(name)
-                            .build());
+                                .dataType(dataType)
+                                .name(name)
+                                .build());
                     }
 
                     // Get data information
@@ -271,16 +284,16 @@ public class SQLExecutor implements CommandExecutor {
                                 if (o instanceof Document document) {
                                     for (String string : document.keySet()) {
                                         headerListMap.computeIfAbsent(string, k -> Header.builder()
-                                            .dataType("string")
-                                            .name(string)
-                                            .build());
+                                                .dataType("string")
+                                                .name(string)
+                                                .build());
                                         row.put(string, Objects.toString(document.get(string)));
                                     }
                                 } else {
                                     headerListMap.computeIfAbsent("_unknown", k -> Header.builder()
-                                        .dataType("string")
-                                        .name("_unknown")
-                                        .build());
+                                            .dataType("string")
+                                            .name("_unknown")
+                                            .build());
                                     row.put("_unknown", Objects.toString(o));
                                 }
                             }
@@ -393,12 +406,12 @@ public class SQLExecutor implements CommandExecutor {
      * @return
      */
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName,
-        String types[]) {
+                              String types[]) {
 
         try {
             DatabaseMetaData metadata = connection.getMetaData();
             ResultSet resultSet = metadata.getTables(databaseName, schemaName, tableName,
-                types);
+                    types);
             // If connection is mysql
             if ("MySQL".equalsIgnoreCase(metadata.getDatabaseProductName())) {
                 // Get the comment of mysql table
@@ -438,10 +451,10 @@ public class SQLExecutor implements CommandExecutor {
      * @return
      */
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String
-        tableName,
-        String columnName) {
+            tableName,
+                                     String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
-            columnName)) {
+                columnName)) {
             return ResultSetUtils.toObjectList(resultSet, TableColumn.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -460,22 +473,22 @@ public class SQLExecutor implements CommandExecutor {
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
-            false,
-            false)) {
+                false,
+                false)) {
             List<TableIndexColumn> tableIndexColumns = ResultSetUtils.toObjectList(resultSet, TableIndexColumn.class);
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
-                    Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
-                .stream().forEach(entry -> {
-                    TableIndex tableIndex = new TableIndex();
-                    TableIndexColumn column = entry.getValue().get(0);
-                    tableIndex.setName(entry.getKey());
-                    tableIndex.setTableName(column.getTableName());
-                    tableIndex.setSchemaName(column.getSchemaName());
-                    tableIndex.setDatabaseName(column.getDatabaseName());
-                    tableIndex.setUnique(!column.getNonUnique());
-                    tableIndex.setColumnList(entry.getValue());
-                    tableIndices.add(tableIndex);
-                });
+                            Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
+                    .stream().forEach(entry -> {
+                        TableIndex tableIndex = new TableIndex();
+                        TableIndexColumn column = entry.getValue().get(0);
+                        tableIndex.setName(entry.getKey());
+                        tableIndex.setTableName(column.getTableName());
+                        tableIndex.setSchemaName(column.getSchemaName());
+                        tableIndex.setDatabaseName(column.getDatabaseName());
+                        tableIndex.setUnique(!column.getNonUnique());
+                        tableIndex.setColumnList(entry.getValue());
+                        tableIndices.add(tableIndex);
+                    });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -491,7 +504,7 @@ public class SQLExecutor implements CommandExecutor {
      * @return List<Function>
      */
     public List<ai.chat2db.spi.model.Function> functions(Connection connection, String databaseName,
-        String schemaName) {
+                                                         String schemaName) {
         try (ResultSet resultSet = connection.getMetaData().getFunctions(databaseName, schemaName, null);) {
             return ResultSetUtils.toObjectList(resultSet, ai.chat2db.spi.model.Function.class);
         } catch (Exception e) {

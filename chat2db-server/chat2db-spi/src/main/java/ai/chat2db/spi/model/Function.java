@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * @author jipengfei
  * @version : Function.java
@@ -15,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Function {
+public class Function  implements Serializable {
+    private static final long serialVersionUID = 1L;
     //FUNCTION_CAT String => function catalog (may be null)
     //FUNCTION_SCHEM String => function schema (may be null)
     //FUNCTION_NAME String => function name. This is the name used to invoke the function

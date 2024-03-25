@@ -10,7 +10,7 @@ import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class SqliteBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

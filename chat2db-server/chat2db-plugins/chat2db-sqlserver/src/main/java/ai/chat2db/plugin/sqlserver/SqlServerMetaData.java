@@ -17,6 +17,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
@@ -397,5 +398,15 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     @Override
     public CommandExecutor getCommandExecutor() {
         return new SqlServerCommandExecutor();
+    }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
     }
 }

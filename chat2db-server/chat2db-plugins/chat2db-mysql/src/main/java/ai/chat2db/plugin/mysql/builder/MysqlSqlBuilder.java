@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 
-public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class MysqlSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

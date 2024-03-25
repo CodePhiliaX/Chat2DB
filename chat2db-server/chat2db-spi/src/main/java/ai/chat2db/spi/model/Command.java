@@ -3,8 +3,11 @@ package ai.chat2db.spi.model;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class Command {
+public class Command  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * sql statement
@@ -34,6 +37,11 @@ public class Command {
      * schema name
      */
     private String schemaName;
+
+    /**
+     *
+     */
+    private String tableName;
 
     /**
      *Page coding

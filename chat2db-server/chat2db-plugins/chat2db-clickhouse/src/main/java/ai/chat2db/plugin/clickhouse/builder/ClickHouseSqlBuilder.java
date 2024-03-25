@@ -11,7 +11,7 @@ import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class ClickHouseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class ClickHouseSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

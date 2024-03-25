@@ -111,7 +111,7 @@ public class DatabaseController {
     }
     @PostMapping("/export")
     public void exportDatabase(@Valid @RequestBody DatabaseExportRequest request, HttpServletResponse response){
-        String fileName = Objects.isNull(request.getDatabaseName()) ? request.getSchemaName() : request.getDatabaseName();
+        String fileName = Objects.isNull(request.getSchemaName())?request.getDatabaseName() : request.getSchemaName();
         response.setContentType("text/sql");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".sql");
         response.setCharacterEncoding("utf-8");

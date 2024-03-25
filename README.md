@@ -182,7 +182,7 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ### Discord
 <!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
-[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.gg/N6JscF7q)
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.com/invite/Zn9dFQKSJa)
 
 ## LICENSE
 
@@ -191,7 +191,7 @@ The primary license used by this software is the [Apache License 2.0](https://ww
 
 ## ❤️ Acknowledgements
 
-Thanks to all the students who contributed to Chat2DB~
+Thanks to all the students who contributed to Chat2DB~~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />

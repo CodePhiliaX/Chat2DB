@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -17,7 +18,8 @@ import java.util.Objects;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TableColumn {
+public class TableColumn  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Old column, when modifying a column, you need this parameter

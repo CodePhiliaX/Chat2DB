@@ -2,12 +2,15 @@ package ai.chat2db.plugin.dm.builder;
 
 import ai.chat2db.plugin.dm.type.DMColumnTypeEnum;
 import ai.chat2db.plugin.dm.type.DMIndexTypeEnum;
+import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Schema;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Objects;
 
 public class DMSqlBuilder  extends DefaultSqlBuilder {
 
@@ -79,10 +82,11 @@ public class DMSqlBuilder  extends DefaultSqlBuilder {
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
+            String editStatus = tableColumn.getEditStatus();
+            if (StringUtils.isNotBlank(editStatus)) {
                 DMColumnTypeEnum typeEnum = DMColumnTypeEnum.getByType(tableColumn.getColumnType());
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
-                if (StringUtils.isNotBlank(tableColumn.getComment())) {
+                if (StringUtils.isNotBlank(tableColumn.getComment())&&!Objects.equals(EditStatus.DELETE.toString(),editStatus)) {
                     script.append("\n").append(buildComment(tableColumn)).append(";\n");
                 }
             }

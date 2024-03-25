@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import lombok.Data;
@@ -10,7 +11,8 @@ import lombok.Data;
  * @version : SSHInfo.java
  */
 @Data
-public class SSHInfo {
+public class SSHInfo  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Whether to use ssh

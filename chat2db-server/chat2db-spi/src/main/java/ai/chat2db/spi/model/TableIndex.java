@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -17,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TableIndex {
+public class TableIndex  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String oldName;
 

@@ -97,18 +97,7 @@ public class RdbDmlController {
     @RequestMapping(value = "/execute_table", method = {RequestMethod.POST, RequestMethod.PUT})
     public ListResult<ExecuteResultVO> executeTable(@RequestBody DmlTableRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        // parse sql
-        String type = Chat2DBContext.getConnectInfo().getDbType();
-        MetaData metaData = Chat2DBContext.getMetaData();
-        if (DataSourceTypeEnum.MONGODB.getCode().equals(type)) {
-            param.setSql("db." + request.getTableName() + ".find()");
-        } else if (DataSourceTypeEnum.SQLSERVER.getCode().equals(type)){
-            param.setSql("select * from" + metaData.getMetaDataName(request.getSchemaName()) + "." + metaData.getMetaDataName(request.getTableName()));
-        }else {
-            // Splice `tableName` to avoid the problem of keywords being occupied
-            param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
-        }
-        return dlTemplateService.execute(param)
+        return dlTemplateService.executeSelectTable(param)
                 .map(rdbWebConverter::dto2vo);
     }
 

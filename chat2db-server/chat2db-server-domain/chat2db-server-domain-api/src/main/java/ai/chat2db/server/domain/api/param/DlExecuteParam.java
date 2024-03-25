@@ -37,6 +37,9 @@ public class DlExecuteParam {
     private String databaseName;
 
 
+    private String tableName;
+
+
     /**
      * schema name
      */

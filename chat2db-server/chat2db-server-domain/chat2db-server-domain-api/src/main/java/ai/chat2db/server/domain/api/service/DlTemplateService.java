@@ -28,6 +28,14 @@ public interface DlTemplateService {
 
 
     /**
+     *
+     * @param param
+     * @return
+     */
+    ListResult<ExecuteResult> executeSelectTable(DlExecuteParam param);
+
+
+    /**
      * Data source execution update
      *
      * @param param

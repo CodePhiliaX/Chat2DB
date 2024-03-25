@@ -118,7 +118,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setName(resultSet.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(resultSet.getString("DATA_TYPE"));
                 Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
-                if(dataPrecision!=null) {
+                if(resultSet.getString("DATA_PRECISION") != null) {
                     tableColumn.setColumnSize(dataPrecision);
                 }else {
                     tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
@@ -249,8 +249,9 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         return SQLExecutor.getInstance().execute(connection, String.format(TRIGGER_SQL_LIST, schemaName),
                 resultSet -> {
                     while (resultSet.next()) {
+                        String triggerName = resultSet.getString("TRIGGER_NAME");
                         Trigger trigger = new Trigger();
-                        trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                        trigger.setTriggerName(triggerName==null?"":triggerName.trim());
                         trigger.setSchemaName(schemaName);
                         trigger.setDatabaseName(databaseName);
                         triggers.add(trigger);
@@ -262,6 +263,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
                            String triggerName) {
+
 
         String sql = String.format(TRIGGER_DDL_SQL, schemaName, triggerName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
@@ -329,5 +331,11 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String getMetaDataName(String... names) {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
+
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
     }
 }
