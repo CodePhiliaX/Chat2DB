@@ -23,7 +23,7 @@ public class ResultSetUtils {
 
 
 
-    private static List<String> getRsHeader(ResultSet rs) {
+    public static List<String> getRsHeader(ResultSet rs) {
         try {
             ResultSetMetaData resultSetMetaData = rs.getMetaData();
             int col = resultSetMetaData.getColumnCount();

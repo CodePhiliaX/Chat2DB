@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.data.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.web.api.controller.rdb.data.ExportDBDataStrategy;
+import ai.chat2db.spi.util.ResultSetUtils;
 import com.alibaba.excel.EasyExcel;
 
 import java.io.ByteArrayOutputStream;
@@ -10,8 +11,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ExportDBData2ExcelStrategy extends ExportDBDataStrategy {
 
@@ -32,13 +35,15 @@ public class ExportDBData2ExcelStrategy extends ExportDBDataStrategy {
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
-            List<List<String>> headList = new ArrayList<>(columnCount);
+            List<List<String>> headList = ResultSetUtils.getRsHeader(resultSet)
+                    .stream()
+                    .map(Collections::singletonList)
+                    .collect(Collectors.toList());
             List<List<Object>> dataList = new ArrayList<>();
             while (resultSet.next()) {
                 List<Object> row = new ArrayList<>();
                 for (int i = 1; i <= columnCount; i++) {
                     row.add(resultSet.getString(i));
-                    headList.add(List.of(metaData.getColumnName(i)));
                 }
                 dataList.add(row);
             }
