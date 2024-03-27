@@ -144,7 +144,7 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
-    public String exportDatabaseData(Connection connection, String databaseName, String schemaName) throws SQLException {
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName,String tableName) throws SQLException {
         return null;
     }
 

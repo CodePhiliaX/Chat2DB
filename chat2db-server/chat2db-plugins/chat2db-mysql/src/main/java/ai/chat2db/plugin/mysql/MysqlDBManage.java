@@ -6,18 +6,17 @@ import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.springframework.util.StringUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
-    public String exportDatabaseData(Connection connection, String databaseName, String schemaName) throws SQLException {
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
-            while (resultSet.next()) {
-                exportTableData(connection, resultSet.getString("TABLE_NAME"), sqlBuilder);
-            }
-        }
+        exportTableData(connection, tableName, sqlBuilder);
         return sqlBuilder.toString();
     }
 
@@ -46,7 +45,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
-                          .append(resultSet.getString("Create Function")).append(";").append("\n");
+                        .append(resultSet.getString("Create Function")).append(";").append("\n");
             }
         }
     }

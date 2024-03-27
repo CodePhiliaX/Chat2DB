@@ -42,7 +42,6 @@ public class ExportDBData2ExcelStrategy extends ExportDBDataStrategy {
             for (String tableName : tableNames) {
                 String excelFileName = tableName + getSuffix();
                 zipStream.putNextEntry(new ZipEntry(excelFileName));
-
                 ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
                 String sql = String.format("SELECT * FROM %s", tableName);
                 try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
