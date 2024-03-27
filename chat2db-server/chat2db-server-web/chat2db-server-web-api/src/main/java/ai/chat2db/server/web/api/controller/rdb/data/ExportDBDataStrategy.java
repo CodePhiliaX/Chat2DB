@@ -34,8 +34,8 @@ public abstract class ExportDBDataStrategy {
         String schemaName = param.getSchemaName();
         setResponseHeaders(param, response);
         try (ServletOutputStream outputStream = response.getOutputStream();
-             ZipOutputStream zipOut = new ZipOutputStream(outputStream)) {
-            Connection connection = Chat2DBContext.getConnection();
+             ZipOutputStream zipOut = new ZipOutputStream(outputStream);
+             Connection connection = Chat2DBContext.getConnection();) {
             List<String> tableNames = Chat2DBContext.getMetaData().tableNames(connection, databaseName, schemaName, null);
             for (String tableName : tableNames) {
                 String fileName = tableName + getSuffix();
