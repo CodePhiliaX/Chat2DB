@@ -75,6 +75,11 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
+    public List<String> viewNames(Connection connection, String databaseName, String schemaName) {
+        return SQLExecutor.getInstance().tableNames(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName, null, new String[]{"VIEW"});
+    }
+
+    @Override
     public List<Function> functions(Connection connection, String databaseName, String schemaName) {
         List<Function> functions = SQLExecutor.getInstance().functions(connection, StringUtils.isEmpty(databaseName) ? null : databaseName, StringUtils.isEmpty(schemaName) ? null : schemaName);
         if(CollectionUtils.isEmpty(functions)){

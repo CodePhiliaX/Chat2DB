@@ -12,6 +12,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class DMDBManage extends DefaultDBManage implements DBManage {
+    @Override
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection, schemaName,tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
     private String format(String tableName) {
         return "\"" + tableName + "\"";
     }

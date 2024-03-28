@@ -11,6 +11,12 @@ import java.util.Objects;
 
 public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
     @Override
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection, tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
+    @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTablesOrViewsOrDictionaries(connection, sqlBuilder, databaseName, containData);

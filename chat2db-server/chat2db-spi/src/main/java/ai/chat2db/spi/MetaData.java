@@ -98,6 +98,7 @@ public interface MetaData {
      * @return
      */
     List<Table> views(Connection connection, @NotEmpty String databaseName, String schemaName);
+    List<String> viewNames(Connection connection, @NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all functions under a schema.
