@@ -143,6 +143,38 @@ public class DB2MetaData extends DefaultMetaService implements MetaData {
         return table;
     }
 
+    private static String ROUTINE_DDL_SQL="select TEXT from syscat.routines where ROUTINESCHEMA='%s' and ROUTINENAME='%s';";
+
+    @Override
+    public Function function(Connection connection, String databaseName, String schemaName, String functionName) {
+        Function function = new Function();
+       function.setDatabaseName(databaseName);
+       function.setSchemaName(schemaName);
+       function.setFunctionName(functionName);
+        String sql = String.format(ROUTINE_DDL_SQL, schemaName, functionName);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            if (resultSet.next()) {
+                function.setFunctionBody(resultSet.getString("TEXT")+";");
+            }
+        });
+        return function;
+    }
+
+    @Override
+    public Procedure procedure(Connection connection, String databaseName, String schemaName, String procedureName) {
+        Procedure procedure = new Procedure();
+        procedure.setDatabaseName(databaseName);
+        procedure.setSchemaName(schemaName);
+        procedure.setProcedureName(procedureName);
+        String sql = String.format(ROUTINE_DDL_SQL, schemaName, procedureName);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            if (resultSet.next()) {
+                procedure.setProcedureBody(resultSet.getString("TEXT")+";");
+            }
+        });
+        return procedure;
+    }
+
     private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
         tableIndexColumn.setColumnName(resultSet.getString("COLNAME"));
