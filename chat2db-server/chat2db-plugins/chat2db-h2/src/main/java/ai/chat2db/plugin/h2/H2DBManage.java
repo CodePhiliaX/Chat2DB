@@ -10,7 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class H2DBManage extends DefaultDBManage implements DBManage {
     @Override

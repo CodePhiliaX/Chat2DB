@@ -11,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Objects;
 
 public class DB2DBManage extends DefaultDBManage implements DBManage {
 
@@ -22,10 +20,11 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTables(connection, schemaName, sqlBuilder, containData);
         exportViews(connection, schemaName, sqlBuilder);
-        exportProceduresAndFunctions(connection,schemaName, sqlBuilder);
-        exportTriggers(connection, schemaName,sqlBuilder);
+        exportProceduresAndFunctions(connection, schemaName, sqlBuilder);
+        exportTriggers(connection, schemaName, sqlBuilder);
         return sqlBuilder.toString();
     }
+
     private void exportTables(Connection connection, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
@@ -46,34 +45,12 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
             if (resultSet.next()) {
                 sqlBuilder.append(resultSet.getString("sql")).append("\n");
                 if (containData) {
-                    exportTableData(connection, tableName, sqlBuilder);
+                    exportTableData(connection, schemaName, tableName, sqlBuilder);
                 }
             }
         }
     }
 
-    private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("select * from %s", tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (resultSet.next()) {
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");\n");
-            }
-            sqlBuilder.append("\n");
-        }
-    }
 
     private void exportViews(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
         String sql = String.format("select TEXT from syscat.views where VIEWSCHEMA='%s';", schemaName);
@@ -86,7 +63,7 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportProceduresAndFunctions(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String sql =String.format( "select TEXT from syscat.routines where ROUTINESCHEMA='%s';",schemaName);
+        String sql = String.format("select TEXT from syscat.routines where ROUTINESCHEMA='%s';", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String ddl = resultSet.getString("TEXT");
@@ -96,9 +73,8 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
     }
 
 
-
     private void exportTriggers(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("select * from SYSCAT.TRIGGERS where TRIGSCHEMA = '%s';",schemaName);
+        String sql = String.format("select * from SYSCAT.TRIGGERS where TRIGSCHEMA = '%s';", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String ddl = resultSet.getString("TEXT");
@@ -120,9 +96,10 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
             e.printStackTrace();
         }
     }
+
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE " + tableName;
-        SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 }

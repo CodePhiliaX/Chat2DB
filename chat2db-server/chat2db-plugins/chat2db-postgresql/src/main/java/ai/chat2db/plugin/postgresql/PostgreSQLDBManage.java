@@ -15,7 +15,6 @@ import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 
 public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
-
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTypes(connection, sqlBuilder);
@@ -62,28 +61,6 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportTableData(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String sql =String.format("select * from %s.%s", schemaName,tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (resultSet.next()) {
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");\n");
-            }
-            sqlBuilder.append("\n");
-        }
-    }
 
 
     private void exportViews(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {

@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.param.MetaDataQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseExportDataParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
@@ -13,7 +14,10 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
+import ai.chat2db.server.web.api.controller.rdb.data.export.strategy.ExportDBDataStrategy;
+import ai.chat2db.server.web.api.controller.rdb.factory.ExportDBDataStrategyFactory;
 import ai.chat2db.server.web.api.controller.rdb.request.DatabaseCreateRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.DatabaseExportDataRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DatabaseExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateDatabaseRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
@@ -27,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.util.Objects;
 
 /**
@@ -122,5 +127,20 @@ public class DatabaseController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping("/export_data")
+    public void exportData(@Valid @RequestBody DatabaseExportDataRequest request, HttpServletResponse response)  {
+        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportType());
+        response.setCharacterEncoding("utf-8");
+        DatabaseExportDataParam param = databaseConverter.request2param(request);
+        try {
+            Constructor<?> constructor = targetClass.getDeclaredConstructor();
+            ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
+            service.doExport(param, response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

@@ -1,7 +1,10 @@
 package ai.chat2db.spi.jdbc;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
@@ -142,11 +145,43 @@ public class DefaultDBManage implements DBManage {
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         return null;
     }
-
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection, schemaName,tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE " + tableName;
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
+    public void exportTableData(Connection connection,String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
+        String sql;
+        if (Objects.isNull(schemaName)) {
+            sql = String.format("select * from %s", tableName);
+        }else{
+            sql = String.format("select * from %s.%s",schemaName,tableName);
+        }
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            while (resultSet.next()) {
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    String value = resultSet.getString(i);
+                    if (Objects.isNull(value)) {
+                        sqlBuilder.append("NULL");
+                    } else {
+                        sqlBuilder.append("'").append(value).append("'");
+                    }
+                    if (i < metaData.getColumnCount()) {
+                        sqlBuilder.append(", ");
+                    }
+                }
+                sqlBuilder.append(");\n");
+            }
+            sqlBuilder.append("\n");
+        }
     }
 }

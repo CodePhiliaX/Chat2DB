@@ -122,4 +122,6 @@ public interface DBManage {
     void updateProcedure(Connection connection, @NotEmpty String databaseName, String schemaName, @NotNull Procedure procedure) throws SQLException;
 
     String exportDatabase(Connection connection, String databaseName, String schemaName,boolean containData) throws SQLException;
+
+    String exportDatabaseData(Connection connection, String databaseName, String schemaName,String tableName) throws SQLException;
 }

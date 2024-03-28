@@ -56,34 +56,12 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
                 sqlBuilder.append("DROP TABLE IF EXISTS ").append(format(tableName)).append(";").append("\n")
                         .append(resultSet.getString("Create Table")).append(";").append("\n");
                 if (containData) {
-                    exportTableData(connection, tableName, sqlBuilder);
+                    exportTableData(connection, null,tableName, sqlBuilder);
                 }
             }
         }
     }
 
-    private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("select * from %s", tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (resultSet.next()) {
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");\n");
-            }
-            sqlBuilder.append("\n");
-        }
-    }
 
     private void exportViews(Connection connection, String databaseName, StringBuilder sqlBuilder) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"VIEW"})) {

@@ -22,7 +22,6 @@ public class DMDBManage extends DefaultDBManage implements DBManage {
     private static String TRIGGER_SQL
             = "SELECT OWNER, TRIGGER_NAME, TABLE_OWNER, TABLE_NAME, TRIGGERING_TYPE, TRIGGERING_EVENT, STATUS, TRIGGER_BODY "
             + "FROM ALL_TRIGGERS WHERE OWNER = '%s' AND TRIGGER_NAME = '%s'";
-
     @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -84,29 +83,6 @@ public class DMDBManage extends DefaultDBManage implements DBManage {
           }
     }
 
-
-    private void exportTableData(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String sql =String.format("SELECT * FROM %s.%s",schemaName,tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (resultSet.next()) {
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");\n");
-            }
-            sqlBuilder.append("\n");
-        }
-    }
 
     private void exportViews(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"VIEW"})) {

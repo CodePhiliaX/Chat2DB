@@ -13,7 +13,7 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
     @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
-        exportTablesOrViewsOrDictionaries(connection, sqlBuilder, databaseName, containData);
+        exportTablesOrViewsOrDictionaries(connection, sqlBuilder, databaseName, schemaName,containData);
         exportFunctions(connection, sqlBuilder);
         return sqlBuilder.toString();
     }
@@ -29,7 +29,7 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportTablesOrViewsOrDictionaries(Connection connection, StringBuilder sqlBuilder, String databaseName, boolean containData) throws SQLException {
+    private void exportTablesOrViewsOrDictionaries(Connection connection, StringBuilder sqlBuilder, String databaseName, String schemaName, boolean containData) throws SQLException {
         String sql =String.format("SELECT create_table_query, has_own_data,engine,name from system.`tables` WHERE `database`='%s'", databaseName);
         try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(sql)) {
             while (resultSet.next()) {
@@ -47,34 +47,10 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
                     sqlBuilder.append("DROP TABLE IF EXISTS ").append(databaseName).append(".").append(tableOrViewName)
                             .append(";").append("\n").append(ddl).append(";").append("\n");
                     if (containData && dataFlag) {
-                        exportTableData(connection, tableOrViewName, sqlBuilder);
+                        exportTableData(connection,schemaName, tableOrViewName, sqlBuilder);
                     }
                 }
             }
-        }
-    }
-
-
-    private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("select * from %s", tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            while (resultSet.next()) {
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");\n");
-            }
-            sqlBuilder.append("\n");
         }
     }
 
