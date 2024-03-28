@@ -45,7 +45,11 @@ public enum ExportTypeEnum implements BaseEnum<String> {
     /**
      * PDF
      */
-    PDF("PDF");
+    PDF("PDF"),
+
+    JSON("JSON"),
+
+    SQL("SQL");
 
     final String description;
 

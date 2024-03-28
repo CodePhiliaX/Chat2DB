@@ -440,6 +440,26 @@ public class SQLExecutor implements CommandExecutor {
         }
     }
 
+    /** query table names
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @param types
+     * @return
+     */
+    public List<String> tableNames(Connection connection, String databaseName, String schemaName, String tableName, String[] types) {
+        List<String> tableNames = new ArrayList<>();
+        try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, tableName, types)) {
+            while (resultSet.next()) {
+                tableNames.add(resultSet.getString("TABLE_NAME"));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return tableNames;
+    }
+
     /**
      * Get all database table columns
      *

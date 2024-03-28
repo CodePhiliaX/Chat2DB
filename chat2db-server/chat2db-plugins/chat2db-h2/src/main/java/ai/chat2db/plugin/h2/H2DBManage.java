@@ -10,9 +10,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class H2DBManage extends DefaultDBManage implements DBManage {
+
+    @Override
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection, tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
     @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -35,6 +44,28 @@ public class H2DBManage extends DefaultDBManage implements DBManage {
             }
         }
 
+    }
+    private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
+        String sql = String.format("select * from %s", tableName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            while (resultSet.next()) {
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    String value = resultSet.getString(i);
+                    if (Objects.isNull(value)) {
+                        sqlBuilder.append("NULL");
+                    } else {
+                        sqlBuilder.append("'").append(value).append("'");
+                    }
+                    if (i < metaData.getColumnCount()) {
+                        sqlBuilder.append(", ");
+                    }
+                }
+                sqlBuilder.append(");\n");
+            }
+            sqlBuilder.append("\n");
+        }
     }
 
     @Override

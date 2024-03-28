@@ -15,7 +15,12 @@ import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 
 public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
-
+    @Override
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection,schemaName, tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
         exportTypes(connection, sqlBuilder);
