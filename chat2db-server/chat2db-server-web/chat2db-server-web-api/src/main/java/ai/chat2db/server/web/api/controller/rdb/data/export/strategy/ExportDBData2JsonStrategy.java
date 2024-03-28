@@ -1,6 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
+import ai.chat2db.server.tools.base.excption.BusinessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayOutputStream;
@@ -49,7 +50,7 @@ public class ExportDBData2JsonStrategy extends ExportDBDataStrategy {
                     String jsonString = objectMapper.writeValueAsString(data);
                     writer.println(jsonString);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new BusinessException();
                 }
             }
         }
