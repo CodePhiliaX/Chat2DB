@@ -50,7 +50,7 @@ public class ExportDBData2JsonStrategy extends ExportDBDataStrategy {
                     String jsonString = objectMapper.writeValueAsString(data);
                     writer.println(jsonString);
                 } catch (IOException e) {
-                    throw new BusinessException();
+                    throw new BusinessException("data.export2Json.error",data.toArray(),e);
                 }
             }
         }
