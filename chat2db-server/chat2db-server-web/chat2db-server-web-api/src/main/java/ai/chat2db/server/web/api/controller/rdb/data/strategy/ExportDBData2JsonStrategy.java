@@ -25,31 +25,33 @@ public class ExportDBData2JsonStrategy extends ExportDBDataStrategy {
     @Override
     protected ByteArrayOutputStream exportData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(byteOut, StandardCharsets.UTF_8));
-        String sql;
-        if (Objects.isNull(schemaName)) {
-            sql = String.format("select * from %s", tableName);
-        } else {
-            sql = String.format("select * from %s.%s", schemaName, tableName);
-        }
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            List<Map<String, Object>> data = new ArrayList<>();
-
-            while (resultSet.next()) {
-                Map<String, Object> row = new LinkedHashMap<>();
-                for (int i = 1; i <= columnCount; i++) {
-                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
-                }
-                data.add(row);
+        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(byteOut, StandardCharsets.UTF_8))) {
+            String sql;
+            if (Objects.isNull(schemaName)) {
+                sql = String.format("SELECT * FROM %s", tableName);
+            } else {
+                sql = String.format("SELECT * FROM %s.%s", schemaName, tableName);
             }
+            try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                List<Map<String, Object>> data = new ArrayList<>();
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            try {
-                objectMapper.writeValue(writer, data);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                while (resultSet.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    }
+                    data.add(row);
+                }
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    String jsonString = objectMapper.writeValueAsString(data);
+                    writer.println(jsonString);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
         return byteOut;

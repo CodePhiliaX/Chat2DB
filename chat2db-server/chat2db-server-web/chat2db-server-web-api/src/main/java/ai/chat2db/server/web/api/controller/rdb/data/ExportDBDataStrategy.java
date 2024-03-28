@@ -42,8 +42,7 @@ public abstract class ExportDBDataStrategy {
                 String fileName = tableName + getSuffix();
                 zipOut.putNextEntry(new ZipEntry(fileName));
                 ByteArrayOutputStream byteOut = exportData(connection, databaseName, schemaName, tableName);
-                byte[] bytes = byteOut.toByteArray();
-                zipOut.write(bytes, 0, bytes.length);
+                byteOut.writeTo(zipOut);
                 zipOut.closeEntry();
                 byteOut.close();
             }

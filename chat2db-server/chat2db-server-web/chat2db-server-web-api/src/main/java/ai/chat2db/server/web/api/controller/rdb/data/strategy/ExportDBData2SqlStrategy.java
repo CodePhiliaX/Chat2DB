@@ -25,10 +25,10 @@ public class ExportDBData2SqlStrategy extends ExportDBDataStrategy {
     @Override
     protected ByteArrayOutputStream exportData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(new OutputStreamWriter(byteOut, StandardCharsets.UTF_8));
-        String sql = Chat2DBContext.getDBManage().exportDatabaseData(connection, databaseName, schemaName, tableName);
-        writer.println(sql);
-        writer.flush();
+        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(byteOut, StandardCharsets.UTF_8))) {
+            String sql = Chat2DBContext.getDBManage().exportDatabaseData(connection, databaseName, schemaName, tableName);
+            writer.println(sql);
+        }
         return byteOut;
     }
 }
