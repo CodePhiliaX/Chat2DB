@@ -222,30 +222,23 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
 
             }
 
-            TableColumn tableColumn = new TableColumn();
-            tableColumn.setTableName(tableName);
-            tableColumn.setSchemaName(schemaName);
-            tableColumn.setName(resultSet.getString("col_name"));
-            tableColumn.setColumnType(resultSet.getString("data_type"));
-                /*Integer dataPrecision = resultSet.getInt("DATA_PRECISION");
-                if(dataPrecision!=null) {
-                    tableColumn.setColumnSize(dataPrecision);
-                }else {
-                    tableColumn.setColumnSize(resultSet.getInt("DATA_LENGTH"));
-                }*/
+            for (Map<String, String> columnMap : columns) {
+                TableColumn tableColumn = new TableColumn();
+                tableColumn.setTableName(tableName);
+                tableColumn.setSchemaName(schemaName);
+                tableColumn.setName(columnMap.get("col_name"));
+                tableColumn.setColumnType(columnMap.get("data_type"));
+                tableColumn.setComment(columnMap.get("comment"));
+                if (constraints.get("primaryKey") != null && constraints.get("primaryKey").keySet().contains(columnMap.get("col_name"))) {
+                    tableColumn.setPrimaryKey(true);
+                }
+                if (constraints.get("notnull") !=null && constraints.get("notnull").keySet().contains(columnMap.get("col_name"))) {
+                    tableColumn.setNullable(1);
+                }
+                tableColumns.add(tableColumn);
 
-            tableColumn.setComment(resultSet.getString("comment"));
-            /*    tableColumn.setNullable("Y".equalsIgnoreCase(resultSet.getString("NULLABLE")) ? 1 : 0);
-                tableColumn.setOrdinalPosition(resultSet.getInt("COLUMN_ID"));
-                tableColumn.setDecimalDigits(resultSet.getInt("DATA_SCALE"));
-                String charUsed = resultSet.getString("CHAR_USED");
-                if ("B".equalsIgnoreCase(charUsed)) {
-                    tableColumn.setUnit("BYTE");
-                } else if ("C".equalsIgnoreCase(charUsed)) {
-                    tableColumn.setUnit("CHAR");
-                }*/
+            }
 
-            tableColumns.add(tableColumn);
             return tableColumns;
         });
     }

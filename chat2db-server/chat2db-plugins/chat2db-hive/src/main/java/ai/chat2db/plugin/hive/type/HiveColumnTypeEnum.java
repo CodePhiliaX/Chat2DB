@@ -108,13 +108,15 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildCollation(column,type)).append(" ");
 
-        script.append(buildNullable(column,type)).append(" ");
+        if(!EditStatus.ADD.name().equals(column.getEditStatus())) {
+            script.append(buildNullable(column,type)).append(" ");
+        }
 
-        script.append(buildDefaultValue(column,type)).append(" ");
+        //script.append(buildDefaultValue(column,type)).append(" ");
 
-        script.append(buildExt(column,type)).append(" ");
+        //script.append(buildExt(column,type)).append(" ");
 
-        script.append(buildAutoIncrement(column,type)).append(" ");
+        //script.append(buildAutoIncrement(column,type)).append(" ");
 
         script.append(buildComment(column,type)).append(" ");
 
@@ -142,7 +144,7 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
             return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");
         }
         if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
-            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
+            return StringUtils.join("ADD COLUMNS (", buildCreateColumnSql(tableColumn), ")");
         }
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
