@@ -18,16 +18,20 @@ import java.util.List;
 public class TableSchemaRequest {
 
     // 数据源ID
+    @NotNull
     private Long dataSourceId;
     // 数据库名称
+    @NotNull
     private String databaseName;
     // API密钥
     private String apiKey;
     // 数据源模式
     private String dataSourceSchema;
     // 模式向量
+    @NotNull
     private List<List<BigDecimal>> schemaVector;
     // 模式列表
+    @NotNull
     private List<String> schemaList;
     // 插入前删除
     private Boolean deleteBeforeInsert = false;
