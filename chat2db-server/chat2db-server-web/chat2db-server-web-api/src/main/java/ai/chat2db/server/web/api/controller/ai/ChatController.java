@@ -336,6 +336,8 @@ public class ChatController {
             log.error("提示语超出最大长度:{}，输入长度:{}, 请重新输入", MAX_PROMPT_LENGTH,
                     prompt.length() / TOKEN_CONVERT_CHAR_LENGTH);
             throw new ParamBusinessException();
+        }else{
+            log.info("提示词 ：{}",prompt);
         }
         List<AzureChatMessage> messages = (List<AzureChatMessage>)LocalCache.CACHE.get(uid);
         if (CollectionUtils.isNotEmpty(messages)) {

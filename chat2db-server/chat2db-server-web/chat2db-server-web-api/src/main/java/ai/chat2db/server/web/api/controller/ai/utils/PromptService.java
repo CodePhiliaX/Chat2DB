@@ -404,7 +404,9 @@ public class PromptService {
             tableSelector.setColumnList(true);
             tableSelector.setIndexList(false);
             PageResult<Table> tables = tableService.pageQuery(queryParam,tableSelector);
-            return tables.getData().stream().map(table -> {
+            List<String> tableNames = new ArrayList<>();
+            String properties = tables.getData().stream().map(table -> {
+                tableNames.add(table.getName());
                 StringBuilder sb = new StringBuilder(table.getName()); // 直接在初始化时加入表名
                 String comment = table.getComment();
                 List<TableColumn> columns = table.getColumnList();
@@ -427,6 +429,8 @@ public class PromptService {
                 return sb.toString(); // 在映射阶段直接转换为字符串
             })
             .collect(Collectors.joining(","));
+            queryRequest.setTableNames(tableNames);
+            return properties;
         } catch (Exception e) {
             log.error("query table error:{}, do nothing", e.getMessage());
             return "";

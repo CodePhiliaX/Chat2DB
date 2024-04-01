@@ -24,9 +24,13 @@ import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Objects;
 
@@ -134,17 +138,24 @@ public class OpenAIEventSourceListener extends EventSourceListener {
     }
 
 
-    public void handleTableNames(List<String> tableNames,Object instance){
-        if(instance instanceof JSONArray){
-            ((JSONArray)instance).forEach(tableName->{
-                handleTableNames(tableNames,tableName);
-            });
-        }else if (instance instanceof JSONObject) {
-            ((JSONObject)instance).entrySet().forEach(entrySet->{
-                handleTableNames(tableNames,entrySet.getValue());
-            });
-        }else if (instance instanceof String) {
-            tableNames.add((String)instance);
+    public void handleTableNames(Set<String> tableNames, Object instance) {
+        if (instance instanceof JSONArray) {
+            ((JSONArray) instance).forEach(item -> handleTableNames(tableNames, item));
+        } else if (instance instanceof JSONObject) {
+            ((JSONObject) instance).forEach((key, value) -> handleTableNames(tableNames, value));
+        } else if (instance instanceof String) {
+            String tableName = (String) instance;
+            List<String> queryTableNames = queryRequest.getTableNames();
+            if (queryTableNames != null) {
+                String mostSimilarTableName = queryTableNames.stream()
+                // 根据相似度排序
+                .min(Comparator.comparingInt(existingTableName -> StringUtils.getLevenshteinDistance(existingTableName, tableName)))
+                .orElse(tableName);
+                tableNames.add(mostSimilarTableName);
+            }else{
+                tableNames.add(tableName);
+            }
+            
         }
     }
     /**
@@ -165,7 +176,7 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                 sseEmitter.complete();
                 return;
             }
-            List<String> tableNames = new ArrayList<>();
+            Set<String> tableNames = new HashSet<>();
             for (ToolCalls toolCall : toolCalls) {
                 String callId = toolCall.getId();
                 ToolCallFunction function = toolCall.getFunction();
@@ -177,8 +188,12 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                     }
                 }
             }
-            
-            queryRequest.setTableNames(tableNames);
+            Message message = new Message();
+            message.setContent("选择表" + tableNames);
+            sseEmitter.send(SseEmitter.event()
+                    .data(message)
+                    .reconnectTime(3000));
+            queryRequest.setTableNames(new ArrayList<>(tableNames));
             ContextUtils.setContext(Context.builder()
                 .loginUser(loginUser)
                 .build());
