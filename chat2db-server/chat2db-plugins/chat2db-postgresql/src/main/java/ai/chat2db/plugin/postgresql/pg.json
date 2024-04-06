@@ -8,7 +8,7 @@
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/postgresql-42.5.1.jar"
+        "https://cdn.chat2db-ai.com/lib/postgresql-42.5.1.jar"
       ],
       "jdbcDriver": "postgresql-42.5.1.jar",
       "jdbcDriverClass": "org.postgresql.Driver"

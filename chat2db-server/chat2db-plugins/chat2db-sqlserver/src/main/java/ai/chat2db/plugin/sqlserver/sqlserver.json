@@ -8,7 +8,7 @@
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/mssql-jdbc-11.2.1.jre17.jar"
+        "https://cdn.chat2db-ai.com/lib/mssql-jdbc-11.2.1.jre17.jar"
       ],
       "jdbcDriver": "mssql-jdbc-11.2.1.jre17.jar",
       "jdbcDriverClass": "com.microsoft.sqlserver.jdbc.SQLServerDriver",

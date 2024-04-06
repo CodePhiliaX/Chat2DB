@@ -175,15 +175,15 @@ $ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resource
 
 下载链接 参考：<a href="https://github.com/chat2db/Chat2DB/blob/main/chat2db-server/chat2db-server-start/src/main/resources/application.yml">Application jdbc-jar-downLoad-urls</a>
 
-- https://oss.sqlgpt.cn/lib/mysql-connector-java-8.0.30.jar
-- https://oss.sqlgpt.cn/lib/mysql-connector-java-5.1.47.jar
-- https://oss.sqlgpt.cn/lib/clickhouse-jdbc-0.3.2-patch8-http.jar
-- https://oss.sqlgpt.cn/lib/mariadb-java-client-3.0.8.jar
-- https://oss.sqlgpt.cn/lib/mssql-jdbc-11.2.1.jre17.jar
-- https://oss.sqlgpt.cn/lib/oceanbase-client-2.4.2.jar
-- https://oss.sqlgpt.cn/lib/postgresql-42.5.1.jar
-- https://oss.sqlgpt.cn/lib/sqlite-jdbc-3.39.3.0.jar
-- https://oss.sqlgpt.cn/lib/ojdbc11.jar
+- https://cdn.chat2db-ai.com/lib/mysql-connector-java-8.0.30.jar
+- https://cdn.chat2db-ai.com/lib/mysql-connector-java-5.1.47.jar
+- https://cdn.chat2db-ai.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar
+- https://cdn.chat2db-ai.com/lib/mariadb-java-client-3.0.8.jar
+- https://cdn.chat2db-ai.com/lib/mssql-jdbc-11.2.1.jre17.jar
+- https://cdn.chat2db-ai.com/lib/oceanbase-client-2.4.2.jar
+- https://cdn.chat2db-ai.com/lib/postgresql-42.5.1.jar
+- https://cdn.chat2db-ai.com/lib/sqlite-jdbc-3.39.3.0.jar
+- https://cdn.chat2db-ai.com/lib/ojdbc11.jar
 
 ## Stargazers
 

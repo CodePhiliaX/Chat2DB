@@ -8,7 +8,7 @@
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/oceanbase-client-2.4.2.jar"
+        "https://cdn.chat2db-ai.com/lib/oceanbase-client-2.4.2.jar"
       ],
       "jdbcDriver": "oceanbase-client-2.4.2.jar",
       "jdbcDriverClass": "com.oceanbase.jdbc.Driver"

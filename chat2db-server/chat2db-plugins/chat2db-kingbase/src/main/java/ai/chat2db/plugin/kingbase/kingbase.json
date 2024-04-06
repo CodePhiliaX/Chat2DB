@@ -8,7 +8,7 @@
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/kingbase8-8.6.0.jar"
+        "https://cdn.chat2db-ai.com/lib/kingbase8-8.6.0.jar"
       ],
       "jdbcDriver": "kingbase8-8.6.0.jar",
       "jdbcDriverClass": "com.kingbase8.Driver"
@@ -18,7 +18,7 @@
       "custom": false,
       "defaultDriver": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/kingbase8-8.2.0.jar"
+        "https://cdn.chat2db-ai.com/lib/kingbase8-8.2.0.jar"
       ],
       "jdbcDriver": "kingbase8-8.2.0.jar",
       "jdbcDriverClass": "com.kingbase8.Driver"

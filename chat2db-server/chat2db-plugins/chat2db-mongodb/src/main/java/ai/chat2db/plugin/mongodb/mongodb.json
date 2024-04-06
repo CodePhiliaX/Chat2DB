@@ -8,7 +8,7 @@
       "defaultDriver":true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/mongo-jdbc-standalone-1.18.jar"
+        "https://cdn.chat2db-ai.com/lib/mongo-jdbc-standalone-1.18.jar"
       ],
       "jdbcDriver": "mongo-jdbc-standalone-1.18.jar",
       "jdbcDriverClass": "com.dbschema.MongoJdbcDriver"
