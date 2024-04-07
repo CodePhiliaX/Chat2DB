@@ -132,8 +132,8 @@ jobs:
         with:
           package_root: "chat2db-client/"
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_password }}
+          mac_certs: ${{ secrets.mac_certs_temp }}
+          mac_certs_password: ${{ secrets.mac_certs_password_temp }}
           skip_build: true
           args: >
             -c.appId=com.chat2db.test
