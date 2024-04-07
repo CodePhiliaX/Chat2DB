@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author moji
- * @version UserSavedDdlCoreServiceImpl.java, v 0.1 2022年09月25日 15:50 moji Exp $
+ * @version UserSavedDdlCoreServiceImpl.java, v 0.1 September 25, 2022 15:50 moji Exp $
  * @date 2022/09/25
  */
 @Service
@@ -167,7 +167,7 @@ public class OperationServiceImpl implements OperationService {
     }
 
     /**
-     * 查询数据源信息
+     * Query data source information
      *
      * @param dataSourceIds
      * @return

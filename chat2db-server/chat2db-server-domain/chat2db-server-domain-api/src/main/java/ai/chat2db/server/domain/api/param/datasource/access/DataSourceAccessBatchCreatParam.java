@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 public class DataSourceAccessBatchCreatParam extends PageQueryParam {
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;

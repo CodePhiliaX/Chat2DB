@@ -32,12 +32,12 @@ public class DBConfig {
     private List<DriverConfig> driverConfigList;
 
     /**
-     * 建表语句
+     * Create table statement
      */
     private String simpleCreateTable;
 
     /**
-     * 修改表结构
+     * Modify table structure
      */
     private String simpleAlterTable;
 

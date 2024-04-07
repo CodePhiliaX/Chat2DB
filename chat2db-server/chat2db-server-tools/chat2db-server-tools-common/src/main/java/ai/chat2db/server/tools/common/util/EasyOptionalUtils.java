@@ -4,34 +4,34 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Optional的工具类
+ * Optional tool class
  *
  * @author Jiaju Zhuang
  */
 public class EasyOptionalUtils {
 
     /**
-     * 将一个可能未null 的对象 获取其值
+     * Get the value of an object that may not be null
      *
-     * @param source   原始对象
-     * @param function 转换方法
+     * @param source original object
+     * @param function conversion method
      * @param <T>
      * @param <R>
-     * @return 返回值 为空则返回nulll
+     * @return Return value If empty, return null
      */
     public static <T, R> R mapTo(T source, Function<T, R> function) {
         return mapTo(source, function, null);
     }
 
     /**
-     * 将一个可能未null 的对象 获取其值
+     * Get the value of an object that may not be null
      *
-     * @param source       原始对象
-     * @param function     转换方法
-     * @param defaultValue 默认值
+     * @param source original object
+     * @param function conversion method
+     * @param defaultValue default value
      * @param <T>
      * @param <R>
-     * @return 返回值
+     * @return return value
      */
     public static <T, R> R mapTo(T source, Function<T, R> function, R defaultValue) {
         return Optional.ofNullable(source).map(function).orElse(defaultValue);

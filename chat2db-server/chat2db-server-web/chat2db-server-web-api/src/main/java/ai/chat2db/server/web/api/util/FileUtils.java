@@ -8,9 +8,9 @@ package ai.chat2db.server.web.api.util;
 public class FileUtils {
 
     public enum ConfigFile {
-        // navicat连接信息文件
+        // navicat connection information file
         NCX,
-        // dbeaver连接信息文件
+        //dbeaver connection information file
         DBP
     }
 

@@ -12,7 +12,7 @@ import lombok.Data;
 public class EnvironmentPageQueryParam extends PageQueryParam {
 
     /**
-     * 搜索关键词
+     * search keyword
      */
     private String searchKey;
 }

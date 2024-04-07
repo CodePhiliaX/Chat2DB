@@ -34,7 +34,7 @@ public class UserController {
     //}
     //
     ///**
-    // * 新增Key
+    // * Add Key
     // *
     // * @param request
     // * @return
@@ -45,7 +45,7 @@ public class UserController {
     //}
     //
     ///**
-    // * 更新我的保存
+    // * Update my save
     // *
     // * @param request
     // * @return
@@ -57,7 +57,7 @@ public class UserController {
     //}
     //
     ///**
-    // * 删除我的保存
+    // * delete my save
     // *
     // * @param id
     // * @return

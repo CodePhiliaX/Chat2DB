@@ -18,9 +18,9 @@ public class SqlUtilsTest2 {
     @Test
     public void coment() {
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(
-            "comment on index myindex is '日期xxx';\n",
+            "comment on index myindex is 'datexxx';\n",
             DbType.h2);
-        log.info("解析sql:{}", sqlStatement);
+        log.info("Parse sql:{}", sqlStatement);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class SqlUtilsTest2 {
     public void insert() {
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement("INSERT INTO chat2db.`order` (id, user_id, total_price, created_at, updated_at) VALUES (8, 345, 5601.16, '2022-09-18 11:21:12', '2023-04-30 11:21:12');",
             DbType.mysql);
-        log.info("解析sql1:{}", sqlStatement);
+        log.info("Parse sql1:{}", sqlStatement);
 
     }
 

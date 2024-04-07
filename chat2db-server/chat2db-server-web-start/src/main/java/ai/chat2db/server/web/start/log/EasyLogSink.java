@@ -30,17 +30,17 @@ public class EasyLogSink implements Sink {
         try {
             printLog(correlation, request, response);
         } catch (Exception e) {
-            log.error("记录日志异常", e);
+            log.error("Log exceptions", e);
         }
     }
 
     public void printLog(final Correlation correlation, final HttpRequest request, final HttpResponse response)
         throws IOException {
-        // 封装log 对象
+        // Encapsulate log object
         WebLog webLog = new WebLog();
 
         String method = request.getMethod();
-        // 路径
+        // path
         String path = request.getPath();
 
         webLog.setMethod(method);
@@ -58,7 +58,7 @@ public class EasyLogSink implements Sink {
                 webLog.setResponse(response.getContentType() + ":[" + response.getBody().length + "]");
             }
         } catch (IOException e) {
-            log.warn("获取日志的请求&返回异常，大概率是用户关闭了流。", e);
+            log.warn("The request to obtain the log & returns an exception. Most likely, the user has closed the stream.", e);
         }
         webLog.setIp(LogUtils.getClientIp(request));
 

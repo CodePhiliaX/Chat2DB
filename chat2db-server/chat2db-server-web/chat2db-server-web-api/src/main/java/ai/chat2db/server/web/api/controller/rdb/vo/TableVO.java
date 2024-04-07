@@ -8,34 +8,34 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version TableVO.java, v 0.1 2022年09月16日 17:16 moji Exp $
+ * @version TableVO.java, v 0.1 September 16, 2022 17:16 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class TableVO {
 
     /**
-     * 表名称
+     * Table Name
      */
     private String name;
 
     /**
-     * 表描述
+     * Table description
      */
     private String comment;
 
     /**
-     * 列
+     * Column
      */
     private List<TableColumn> columnList;
 
     /**
-     * 索引
+     * index
      */
     private List<TableIndex> indexList;
 
     /**
-     * 是否已经被固定
+     * Has it been fixed?
      */
     private boolean pinned;
 

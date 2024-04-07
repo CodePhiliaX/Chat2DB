@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * @author moji
- * @version DataSourceSelector.java, v 0.1 2022年09月23日 15:28 moji Exp $
+ * @version DataSourceSelector.java, v 0.1 September 23, 2022 15:28 moji Exp $
  * @date 2022/09/23
  */
 @Data
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class DataSourceSelector {
 
     /**
-     * 环境id
+     * environment id
      */
     private Boolean environment;
 }

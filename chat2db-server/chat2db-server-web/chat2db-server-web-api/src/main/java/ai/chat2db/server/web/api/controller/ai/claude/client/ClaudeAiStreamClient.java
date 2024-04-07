@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 自定义AI接口client
+ * Custom AI interface client
  *
  * @author moji
  */
@@ -87,7 +87,7 @@ public class ClaudeAiStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -105,7 +105,7 @@ public class ClaudeAiStreamClient {
         private String userId;
 
         /**
-         * 自定义OkhttpClient
+         * Customize OkhttpClient
          */
         private OkHttpClient okHttpClient;
 
@@ -175,7 +175,7 @@ public class ClaudeAiStreamClient {
                 .url(this.apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking claude ai");
         } catch (Exception e) {

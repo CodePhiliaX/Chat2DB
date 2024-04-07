@@ -8,14 +8,14 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ExecuteResultVO.java, v 0.1 2022年10月23日 11:20 moji Exp $
+ * @version ExecuteResultVO.java, v 0.1 October 23, 2022 11:20 moji Exp $
  * @date 2022/10/23
  */
 @Data
 public class ExecuteResultVO {
 
     /**
-     * 执行的sql
+     * executed sql
      */
     private String sql;
 
@@ -25,56 +25,56 @@ public class ExecuteResultVO {
     private String originalSql;
 
     /**
-     * 描述
+     * description
      */
     private String description;
 
     /**
-     * 失败消息提示
+     * Failure message prompt
      */
     private String message;
 
     /**
-     * 是否成功标志位
+     * success flag
      */
     private Boolean success;
 
     /**
-     * 修改行数 查询sql不会返回
+     * Modify the number of rows and query sql will not return
      */
     private Integer updateCount;
 
     /**
-     * 展示头的列表
+     * List of display headers
      */
     private List<Header> headerList;
 
     /**
-     * 数据的列表
+     * list of data
      */
     private List<List<String>> dataList;
 
     /**
-     * sql 类型
+     * sql type
      *
      */
     private String sqlType;
 
     /**
-     * 是否存在下一页
-     * 只有select语句才有
+     * Whether there is a next page
+     * Only available for select statements
      */
     private Boolean hasNextPage;
 
     /**
-     * 分页编码
-     * 只有select语句才有
+     * Page coding
+     * Only available for select statements
      */
     private Integer pageNo;
 
     /**
-     * 分页大小
-     * 只有select语句才有
+     * Paging Size
+     * Only available for select statements
      */
     private Integer pageSize;
 
@@ -85,17 +85,17 @@ public class ExecuteResultVO {
     private String fuzzyTotal;
 
     /**
-     * 执行持续时间
+     * execution duration
      */
     private Long duration;
 
     /**
-     * 返回结果是否可以编辑
+     * Whether the returned result can be edited
      */
     private boolean canEdit;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 }

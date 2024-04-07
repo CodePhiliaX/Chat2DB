@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 分页查询表信息
+ * Pagination query table information
  *
  * @author Jiaju Zhuang
  */
@@ -19,25 +19,25 @@ import lombok.experimental.SuperBuilder;
 public class TablePageQueryParam extends PageQueryParam {
     private static final long serialVersionUID = 8054519332890887747L;
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 对应的连接数据库名称
+     * Corresponding connection database name
      */
     @NotNull
     private String databaseName;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
 
     /**
-     *
+     * schema
      */
     private String schemaName;
 

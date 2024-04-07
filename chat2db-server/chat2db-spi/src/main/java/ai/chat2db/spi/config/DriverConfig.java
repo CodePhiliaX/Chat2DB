@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.config;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ai.chat2db.spi.model.KeyValue;
@@ -12,7 +13,8 @@ import org.apache.commons.lang3.StringUtils;
  * @version : DriverConfig.java
  */
 @Data
-public class DriverConfig {
+public class DriverConfig  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * url
@@ -39,7 +41,7 @@ public class DriverConfig {
     private String dbType;
 
     /**
-     * 自定义
+     * customize
      */
     private boolean custom;
 

@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * log 对象
+ * log object
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -18,47 +18,47 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class WebLog {
     /**
-     * 调用方法
+     * call method
      */
     private String method;
 
     /**
-     * 路径
+     * Path
      */
     private String path;
 
     /**
-     * 查询条件
+     * Query conditions
      */
     private String query;
 
     /**
-     * 耗时 ms
+     * Time consuming (ms)
      */
     private Long duration;
 
     /**
-     * 耗时 ms
+     * Time consuming (ms)
      */
     private LocalDateTime startTime;
 
     /**
-     * 耗时 ms
+     * Time consuming (ms)
      */
     private LocalDateTime endTime;
 
     /**
-     * 请求
+     * request
      */
     private String request;
 
     /**
-     * 返回
+     * response
      */
     private String response;
 
     /**
-     * ip地址
+     * IP address
      */
     private String ip;
 }

@@ -250,6 +250,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       {
         "key": "zeroDateTimeBehavior",
         "value": "convertToNull"
+      },
+      {
+        "key": "useInformationSchema",
+        "value": "true"
       }
     ],
     type: DatabaseTypeCode.MYSQL,
@@ -470,16 +474,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelTextAlign: 'right',
           selects: [
             {
-              value: 'THIN',
+              value: 'thin',
               label: 'thin',
             },
             {
-              value: 'OCI',
+              value: 'oci',
               label: 'oci',
             },
             {
 
-              value: 'OCI8',
+              value: 'oci8',
               label: 'oci8',
             },
           ],

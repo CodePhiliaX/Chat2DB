@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.admin.api.controller.user.vo;
 
 import ai.chat2db.server.admin.api.controller.datasource.vo.SimpleDataSourceVO;
@@ -14,7 +13,7 @@ import lombok.Data;
 public class UserDataSourcePageQueryVO {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;

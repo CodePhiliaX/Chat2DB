@@ -133,7 +133,7 @@ public class JdbcJarUtils {
         return path;
     }
 
-    public static final String DOWNLOAD_URL_HOST = "https://oss.sqlgpt.cn/lib/";
+    public static final String DOWNLOAD_URL_HOST = "https://cdn.chat2db-ai.com/lib/";
     private static String getDownloadUrl(String jarPath) {
        return   DOWNLOAD_URL_HOST+jarPath;
     }

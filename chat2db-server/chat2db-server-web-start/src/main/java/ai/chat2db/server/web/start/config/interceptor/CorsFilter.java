@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 /**
- * Cors跨域的拦截器，任何情况都允许跨域
+ * Cors cross-domain interceptor, allowing cross-domain under any circumstances
  *
- * 通过CorsRegistry策略的跨域 在登录的情况下会有有问题，但是本地没有复现，可能原因是：bean 的加载顺序的问题。
- * 临时通过CorsFilter解决，后续可以研究下：CorsRegistry
+ * There will be a problem when logging in across domains through the CorsRegistry policy, but it does not happen locally. The possible reason is: the loading order of the beans.
+ * Temporarily solved through CorsFilter, you can study it later: CorsRegistry
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Component
 public class CorsFilter implements Filter {

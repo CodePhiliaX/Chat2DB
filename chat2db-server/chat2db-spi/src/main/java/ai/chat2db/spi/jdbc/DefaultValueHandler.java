@@ -6,10 +6,9 @@ import cn.hutool.core.io.unit.DataSizeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
-import java.sql.Blob;
-import java.sql.Clob;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public class DefaultValueHandler implements ValueHandler {
@@ -35,10 +34,13 @@ public class DefaultValueHandler implements ValueHandler {
                 return largeString(rs, index, limitSize);
             } else if (obj instanceof Blob blob) {
                 return largeStringBlob(blob, limitSize);
+            } else if (obj instanceof Timestamp || obj instanceof LocalDateTime) {
+                return largeTime(obj);
+            } else {
+                return obj.toString();
             }
-            return obj.toString();
         } catch (Exception e) {
-            log.warn("解析数失败:{},{}", index, obj, e);
+            log.warn("Failed to parse number:{},{}", index, obj, e);
             return obj.toString();
         }
     }
@@ -60,6 +62,26 @@ public class DefaultValueHandler implements ValueHandler {
                     + I18nUtils.getMessage("execute.exportCsv") + " ] " + result;
         }
         return result;
+    }
+
+    private String largeTime(Object obj) throws SQLException {
+        Object timeField = obj; // Assuming a time field of type Object
+
+        LocalDateTime localDateTime;
+
+        if (obj instanceof Timestamp) {
+            // Convert a time field of type Object to a LocalDateTime object
+            localDateTime = ((Timestamp) timeField).toLocalDateTime();
+        } else {
+            localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+        }
+
+        // Create a DateTimeFormatter instance and specify the output date and time format
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // Format date time
+        String formattedDateTime = dtf.format(localDateTime);
+        return formattedDateTime;
     }
 
     private static String largeString(ResultSet rs, int index, boolean limitSize) throws SQLException {

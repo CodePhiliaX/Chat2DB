@@ -8,7 +8,7 @@
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/db2jcc4_4.26.14.jar"
+        "https://cdn.chat2db-ai.com/lib/db2jcc4_4.26.14.jar"
       ],
       "jdbcDriver": "db2jcc4_4.26.14.jar",
       "jdbcDriverClass": "com.ibm.db2.jcc.DB2Driver"

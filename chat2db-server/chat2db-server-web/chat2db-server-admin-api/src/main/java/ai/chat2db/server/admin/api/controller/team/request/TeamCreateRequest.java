@@ -12,19 +12,19 @@ import lombok.Data;
 public class TeamCreateRequest {
 
     /**
-     * 团队编码
+     * team coding
      */
     @NotNull
     private String code;
 
     /**
-     * 团队名称
+     * Team Name
      */
     @NotNull
     private String name;
 
     /**
-     * 团队状态
+     * Team status
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */
@@ -32,7 +32,7 @@ public class TeamCreateRequest {
     private String status;
 
     /**
-     * 团队描述
+     * Team description
      */
     private String description;
 }

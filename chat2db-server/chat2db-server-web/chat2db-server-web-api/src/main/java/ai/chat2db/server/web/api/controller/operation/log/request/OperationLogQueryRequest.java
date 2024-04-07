@@ -6,29 +6,29 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlCreateRequest.java, v 0.1 2022年09月18日 11:13 moji Exp $
+ * @version DdlCreateRequest.java, v 0.1 September 18, 2022 11:13 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationLogQueryRequest extends PageQueryRequest {
 
     /**
-     * 模糊词搜索
+     * Fuzzy word search
      */
     private String searchKey;
 
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * 数据库名称
+     * Name database
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 }

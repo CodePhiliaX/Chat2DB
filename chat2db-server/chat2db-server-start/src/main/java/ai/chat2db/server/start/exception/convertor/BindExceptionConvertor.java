@@ -7,7 +7,7 @@ import org.springframework.validation.BindException;
 /**
  * BindException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class BindExceptionConvertor implements ExceptionConvertor<BindException> {
 

@@ -1,5 +1,5 @@
 spring:
-  # 默认开发环境
+  # Default development environment
   profiles:
     active: dev
   main:
@@ -18,13 +18,13 @@ spring:
     servlet:
       content-type: text/html
     mode: HTML5
-  # 静态文件
+  # static files
   mvc:
     static-path-pattern: /static/**
   web:
     resources:
       static-locations[0]: classpath:/static/
-  #  用于数据库表结构版本管理
+  #  Used for database table structure version management
   flyway:
     enabled: false
   servlet:
@@ -38,7 +38,7 @@ spring:
 chat2db:
   version: 1.0.0
 
-# flywaydb 输出执行sql的日志
+# flywaydb outputs the log of executing sql
 logging:
   level:
     org:
@@ -49,25 +49,25 @@ logging:
           domain:
             repository:
               mapper: debug
-# 登录功能
+# Login function
 sa-token:
-  # token名称 (同时也是cookie名称)
+  # token name (also cookie name)
   token-name: CHAT2DB
   timeout: 2592000
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+  # Whether to allow concurrent logins with the same account (when true, simultaneous logins are allowed, when false, new logins crowd out old logins)
   is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
+  # When multiple people log in to the same account, whether to share a token (when true, all logins share a token, when false, a new token is created for each login)
   is-share: true
-  # token风格
+  # token style
   token-style: uuid
-  # 是否输出操作日志
+  # Whether to output operation logs
   is-log: true
   is-write-header: true
 
 chatgpt:
   apiKey: sk-xxxx
   apiHost: https://api.openai.com/
-  # 可以选择GPT3或GPT35
+  # You can choose GPT3 or GPT35
   version: GPT35
   context:
     length: 1

@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * <p>
- * 我的保存表
+ * My save list
  * </p>
  *
  * @author ali-dbhub
@@ -16,62 +16,62 @@ import lombok.Data;
 public class Operation {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据源名称
+     * Data source name
      */
     private String dataSourceName;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
     
     /**
-     * 保存名称
+     * save name
      */
     private String name;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 
@@ -81,7 +81,7 @@ public class Operation {
     private String operationType;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * 模板引擎 配置
+ * Template engine configuration
  *
  * @author Jiaju Zhuang
  */
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class ThymeleafController {
 
     /**
-     * 前端的模板设置
+     * Front-end template settings
      *
      * @return
      */

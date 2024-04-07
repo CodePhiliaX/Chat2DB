@@ -2,6 +2,7 @@
 package ai.chat2db.spi.sql;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import org.springframework.util.ObjectUtils;
 
@@ -19,23 +21,25 @@ import org.springframework.util.ObjectUtils;
  * @version : ConnectInfo.java
  */
 public class ConnectInfo {
+
+    private String loginUser;
     /**
-     * 别名
+     * alias
      */
     private String alias;
     /**
-     * 数据连接ID
+     * dataSourceId
      */
     private Long dataSourceId;
 
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
     /**
@@ -44,44 +48,43 @@ public class ConnectInfo {
     private String databaseName;
 
 
-
     /**
      * schema
      */
     private String schemaName;
 
     /**
-     * 控制台ID
+     * console id
      */
     private Long consoleId;
 
     /**
-     * 数据库URL
+     * Database URL
      */
     private String url;
 
     /**
-     * 用户名
+     * user
      */
     private String user;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * console独立占有连接
+     * The console independently owns the connection
      */
     private Boolean consoleOwn = Boolean.FALSE;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String dbType;
 
     /**
-     * 端口
+     * port
      */
     private Integer port;
 
@@ -116,15 +119,14 @@ public class ConnectInfo {
     private String driver;
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
-
 
 
     public Connection connection;
@@ -134,7 +136,7 @@ public class ConnectInfo {
      */
     private String dbVersion;
 
-    
+
     private DriverConfig driverConfig;
 
 
@@ -166,21 +168,21 @@ public class ConnectInfo {
     public Session session;
 
 
-    public LinkedHashMap<String,Object> getExtendMap() {
+    public LinkedHashMap<String, Object> getExtendMap() {
 
         if (ObjectUtils.isEmpty(extendInfo)) {
-            if(driverConfig!= null) {
+            if (driverConfig != null) {
                 extendInfo = driverConfig.getExtendInfo();
-            }else {
+            } else {
                 return new LinkedHashMap<>();
             }
         }
-        if(ObjectUtils.isEmpty(extendInfo)){
+        if (ObjectUtils.isEmpty(extendInfo)) {
             return new LinkedHashMap<>();
         }
-        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
         for (KeyValue keyValue : extendInfo) {
-            map.put(keyValue.getKey(),keyValue.getValue());
+            map.put(keyValue.getKey(), keyValue.getValue());
         }
         return map;
     }
@@ -200,12 +202,16 @@ public class ConnectInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {return true;}
-        if (!(o instanceof ConnectInfo)) {return false;}
-        ConnectInfo that = (ConnectInfo)o;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ConnectInfo)) {
+            return false;
+        }
+        ConnectInfo that = (ConnectInfo) o;
         return Objects.equals(dataSourceId, that.dataSourceId)
-            && Objects.equals(gmtModified, that.gmtModified)
-            ;
+                && Objects.equals(gmtModified, that.gmtModified)
+                ;
     }
 
     @Override
@@ -452,7 +458,6 @@ public class ConnectInfo {
     }
 
 
-
     /**
      * Setter method for property <tt>extendInfo</tt>.
      *
@@ -521,5 +526,65 @@ public class ConnectInfo {
 
     public void setSchemaName(String schemaName) {
         this.schemaName = schemaName;
+    }
+
+    public ConnectInfo copy() {
+        ConnectInfo copy = new ConnectInfo();
+        copy.setDbVersion(this.getDbVersion());
+        copy.setDbType(this.getDbType());
+        copy.setHost(this.getHost());
+        copy.setPort(this.getPort());
+        copy.setDatabaseName(this.getDatabaseName());
+        copy.setSchemaName(this.getSchemaName());
+        copy.setUser(this.getUser());
+        copy.setPassword(this.getPassword());
+        copy.setUrl(this.getUrl());
+        copy.setAlias(this.getAlias());
+        copy.setDataSourceId(this.getDataSourceId());
+        copy.setConsoleId(this.getConsoleId());
+        copy.setConsoleOwn(this.getConsoleOwn());
+        copy.setDriver(this.getDriver());
+        copy.setSsh(this.getSsh());
+        copy.setSsl(this.getSsl());
+        copy.setJdbc(this.getJdbc());
+        copy.setExtendInfo(this.getExtendInfo());
+        copy.setDriverConfig(this.getDriverConfig());
+        copy.setSid(this.getSid());
+        copy.setUrlWithOutDatabase(this.getUrlWithOutDatabase());
+        return copy;
+    }
+
+    public void close() {
+        if (this != null) {
+            Connection connection = this.getConnection();
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+
+            }
+            com.jcraft.jsch.Session session = this.getSession();
+            if (session != null && session.isConnected() && this.getSsh() != null
+                    && this.getSsh().isUse()) {
+                try {
+                    session.delPortForwardingL(Integer.parseInt(this.getSsh().getLocalPort()));
+                } catch (JSchException e) {
+                }
+            }
+        }
+    }
+
+
+    public String getKey() {
+        return "loginUser:"+loginUser + "_dataSourceId:" + dataSourceId + "_databaseName:" + databaseName + "_schemaName:" + schemaName + "_consoleId:" + consoleId;
+    }
+
+    public String getLoginUser() {
+        return loginUser;
+    }
+
+    public void setLoginUser(String loginUser) {
+        this.loginUser = loginUser;
     }
 }

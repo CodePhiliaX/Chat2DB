@@ -1,23 +1,26 @@
 package ai.chat2db.server.tools.base.enums;
 
 /**
- * 基础的枚举
+ * Basic enumeration
  *
- * 由于java枚举继承的限制，枚举基类只能设计为接口，请自行保证子类一定是枚举类型。
+ * Due to the limitations of Java enumeration inheritance, the enumeration base class can only be designed as an interface.
+ * Please ensure that the subclass must be an enumeration type.
  *
  * @author Jiaju Zhuang
  **/
 public interface BaseEnum<T> {
 
     /**
-     * 返回枚举的code。一般建议直接返回枚举的name
+     * Returns the enumeration code.
+     * It is generally recommended to directly return the name of the enumeration
      *
      * @return code
      */
     T getCode();
 
     /**
-     * 返回枚举的描述。返回枚举的中文 方便前端下拉
+     * Returns the description of the enumeration.
+     * Return the enumerated Chinese to facilitate front-end drop-down
      *
      * @return description
      */

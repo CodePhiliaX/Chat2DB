@@ -8,7 +8,7 @@
 //import org.springframework.stereotype.Component;
 //
 ///**
-// * 自定义tomcat参数
+// * Custom tomcat parameters
 // *
 // * @author Jiaju Zhuang
 // */
@@ -18,7 +18,7 @@
 //    @Override
 //    public void customize(Connector connector) {
 //        connector.addLifecycleListener(event -> {
-//            // 接受到关闭事件 直接退出系统，因为有时候不会退出系统
+//            // Exit the system directly after receiving the shutdown event, because sometimes the system will not exit.
 //            if (LifecycleState.STOPPING == event.getLifecycle().getState()) {
 //                SystemUtils.stop();
 //            }

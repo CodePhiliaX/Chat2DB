@@ -1,11 +1,15 @@
 package ai.chat2db.spi.jdbc;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.IDriverManager;
@@ -22,19 +26,18 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultDBManage implements DBManage {
 
 
-
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {
         Connection connection = connectInfo.getConnection();
-        if (connection != null) {
-            return connection;
-        }
-        Session session = null;
         SSHInfo ssh = connectInfo.getSsh();
         String url = connectInfo.getUrl();
         String host = connectInfo.getHost();
         String port = connectInfo.getPort() + "";
+        Session session = null;
         try {
+            if (connection != null && !connection.isClosed()) {
+                return connection;
+            }
             ssh.setRHost(host);
             ssh.setRPort(port);
             session = getSession(ssh);
@@ -46,7 +49,7 @@ public class DefaultDBManage implements DBManage {
         }
         try {
             connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
-                connectInfo.getDriverConfig(), connectInfo.getExtendMap());
+                    connectInfo.getDriverConfig(), connectInfo.getExtendMap());
 
         } catch (Exception e1) {
             if (connection != null) {
@@ -84,37 +87,37 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
-    public void connectDatabase(Connection connection,String database) {
+    public void connectDatabase(Connection connection, String database) {
 
     }
 
     @Override
-    public void modifyDatabase(Connection connection,String databaseName, String newDatabaseName) {
+    public void modifyDatabase(Connection connection, String databaseName, String newDatabaseName) {
 
     }
 
     @Override
-    public void createDatabase(Connection connection,String databaseName) {
+    public void createDatabase(Connection connection, String databaseName) {
 
     }
 
     @Override
-    public void dropDatabase(Connection connection,String databaseName) {
+    public void dropDatabase(Connection connection, String databaseName) {
 
     }
 
     @Override
-    public void createSchema(Connection connection,String databaseName, String schemaName) {
+    public void createSchema(Connection connection, String databaseName, String schemaName) {
 
     }
 
     @Override
-    public void dropSchema(Connection connection,String databaseName, String schemaName) {
+    public void dropSchema(Connection connection, String databaseName, String schemaName) {
 
     }
 
     @Override
-    public void modifySchema(Connection connection,String databaseName, String schemaName, String newSchemaName) {
+    public void modifySchema(Connection connection, String databaseName, String schemaName, String newSchemaName) {
 
     }
 
@@ -134,8 +137,51 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
-    public void dropTable(Connection connection,String databaseName, String schemaName, String tableName) {
-        String sql = "DROP TABLE "+ tableName ;
-        SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);
+    public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) throws SQLException {
+
+    }
+
+    @Override
+    public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
+        return null;
+    }
+    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        StringBuilder sqlBuilder = new StringBuilder();
+        exportTableData(connection, schemaName,tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
+
+    @Override
+    public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = "DROP TABLE " + tableName;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
+    public void exportTableData(Connection connection,String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
+        String sql;
+        if (Objects.isNull(schemaName)) {
+            sql = String.format("select * from %s", tableName);
+        }else{
+            sql = String.format("select * from %s.%s",schemaName,tableName);
+        }
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            while (resultSet.next()) {
+                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    String value = resultSet.getString(i);
+                    if (Objects.isNull(value)) {
+                        sqlBuilder.append("NULL");
+                    } else {
+                        sqlBuilder.append("'").append(value).append("'");
+                    }
+                    if (i < metaData.getColumnCount()) {
+                        sqlBuilder.append(", ");
+                    }
+                }
+                sqlBuilder.append(");\n");
+            }
+            sqlBuilder.append("\n");
+        }
     }
 }

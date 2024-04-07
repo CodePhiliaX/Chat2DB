@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 数据源测试
+ * Data source testing
  *
  * @author Jiaju Zhuang
  */
@@ -48,14 +48,14 @@ public class ConsoleOperationsTest extends BaseTest {
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             dataSourceService.preConnect(dataSourceCreateParam);
 
-            // 创建
+            // creat
             ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
             consoleCreateParam.setDataSourceId(dataSourceId);
             consoleCreateParam.setConsoleId(consoleId);
             consoleCreateParam.setDatabaseName(dialectProperties.getDatabaseName());
             consoleService.createConsole(consoleCreateParam);
 
-            // 关闭
+            // close
             ConsoleCloseParam consoleCloseParam = new ConsoleCloseParam();
             consoleCloseParam.setDataSourceId(dataSourceId);
             consoleCloseParam.setConsoleId(consoleId);
@@ -102,7 +102,7 @@ public class ConsoleOperationsTest extends BaseTest {
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             dataSourceService.preConnect(dataSourceCreateParam);
 
-            // 创建控制台
+            // Create a console
             ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
             consoleCreateParam.setDataSourceId(dataSourceId);
             consoleCreateParam.setConsoleId(consoleId);

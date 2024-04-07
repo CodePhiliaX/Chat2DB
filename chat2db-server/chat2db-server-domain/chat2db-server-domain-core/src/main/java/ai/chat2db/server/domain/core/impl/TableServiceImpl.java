@@ -1,12 +1,5 @@
 package ai.chat2db.server.domain.core.impl;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.domain.api.enums.TableVectorEnum;
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.PinService;
@@ -15,7 +8,9 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
 import ai.chat2db.server.domain.core.converter.TableConverter;
 import ai.chat2db.server.domain.repository.Dbutils;
-import ai.chat2db.server.domain.repository.entity.*;
+import ai.chat2db.server.domain.repository.entity.TableCacheDO;
+import ai.chat2db.server.domain.repository.entity.TableCacheVersionDO;
+import ai.chat2db.server.domain.repository.entity.TableVectorMappingDO;
 import ai.chat2db.server.domain.repository.mapper.TableCacheMapper;
 import ai.chat2db.server.domain.repository.mapper.TableCacheVersionMapper;
 import ai.chat2db.server.domain.repository.mapper.TableVectorMappingMapper;
@@ -40,12 +35,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import static ai.chat2db.server.domain.core.cache.CacheKey.getColumnKey;
 import static ai.chat2db.server.domain.core.cache.CacheKey.getTableKey;
 
 /**
  * @author moji
- * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
+ * @version DataSourceCoreServiceImpl.java, v 0.1 September 23, 2022 15:51 moji Exp $
  * @date 2022/09/23
  */
 @Service
@@ -65,7 +67,6 @@ public class TableServiceImpl implements TableService {
 
     @Autowired
     private TableConverter tableConverter;
-
 
 
     private TableCacheVersionMapper getVersionMapper() {
@@ -249,7 +250,7 @@ public class TableServiceImpl implements TableService {
             keyIndex.setSchemaName(newTable.getSchemaName());
             keyIndex.setDatabaseName(newTable.getDatabaseName());
             keyIndex.setEditStatus(status);
-            if(!EditStatus.ADD.name().equals(status)){
+            if (!EditStatus.ADD.name().equals(status)) {
                 keyIndex.setOldName(keyIndex.getName());
             }
             indexes.add(keyIndex);
@@ -319,7 +320,7 @@ public class TableServiceImpl implements TableService {
         long total = 0;
         long version = 0L;
         if (param.isRefresh() || versionDO == null) {
-           total = addCache(param,versionDO);
+            total = addCache(param, versionDO);
         } else {
             if ("2".equals(versionDO.getStatus())) {
                 version = versionDO.getVersion() - 1;
@@ -348,7 +349,7 @@ public class TableServiceImpl implements TableService {
         return PageResult.of(tables, total, param);
     }
 
-    private long addCache(TablePageQueryParam param,TableCacheVersionDO versionDO){
+    private long addCache(TablePageQueryParam param, TableCacheVersionDO versionDO) {
         LambdaQueryWrapper<TableCacheVersionDO> queryWrapper = new LambdaQueryWrapper<>();
         String key = getTableKey(param.getDataSourceId(), param.getDatabaseName(), param.getSchemaName());
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
@@ -386,7 +387,7 @@ public class TableServiceImpl implements TableService {
         queryWrapper.eq(TableCacheVersionDO::getKey, key);
         TableCacheVersionDO versionDO = getVersionMapper().selectOne(queryWrapper);
         if (versionDO == null) {
-            addCache(param,versionDO);
+            addCache(param, versionDO);
             versionDO = getVersionMapper().selectOne(queryWrapper);
         }
         long version = "2".equals(versionDO.getStatus()) ? versionDO.getVersion() - 1 : versionDO.getVersion();
@@ -564,7 +565,7 @@ public class TableServiceImpl implements TableService {
             //filter primary key
             List<IndexType> indexTypes = tableMeta.getIndexTypes();
             if (CollectionUtils.isNotEmpty(indexTypes)) {
-                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equals(indexType.getTypeName())).collect(Collectors.toList());
+                List<IndexType> types = indexTypes.stream().filter(indexType -> !"Primary".equalsIgnoreCase(indexType.getTypeName())).collect(Collectors.toList());
                 tableMeta.setIndexTypes(types);
             }
         }
@@ -595,5 +596,14 @@ public class TableServiceImpl implements TableService {
             return DataResult.of(true);
         }
         return DataResult.of(false);
+    }
+
+    @Override
+    public DataResult<String> copyDmlSql(DmlSqlCopyParam param) {
+        List<TableColumn> columns = queryColumns(param);
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        Table table = Table.builder().name(param.getTableName()).columnList(columns).build();
+        String sql = sqlBuilder.getTableDmlSql(table, param.getType());
+        return DataResult.of(sql);
     }
 }

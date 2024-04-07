@@ -6,7 +6,6 @@ import { Button } from 'antd';
 // ----- constants -----
 import { WorkspaceTabType, workspaceTabConfig } from '@/constants';
 import { IWorkspaceTab } from '@/typings';
-// import WorkspaceExtend from '../WorkspaceExtend';
 
 // ----- components -----
 import Tabs, { ITabItem } from '@/components/Tabs';
@@ -25,6 +24,7 @@ import {
   createConsole,
 } from '@/pages/main/workspace/store/console';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { useTreeStore } from '@/blocks/Tree/treeStore';
 
 // ----- services -----
 import historyService from '@/service/history';
@@ -83,12 +83,14 @@ const WorkspaceTabs = memo(() => {
   };
 
   const createNewConsole = () => {
+    const { databaseName, schemaName } =  useTreeStore.getState().focusTreeNode || {};
     if (currentConnectionDetails) {
       createConsole({
         dataSourceId: currentConnectionDetails.id,
         dataSourceName: currentConnectionDetails.alias,
         databaseType: currentConnectionDetails.type,
-        // databaseName: currentConnectionDetails.databaseName,
+        databaseName,
+        schemaName
       });
     }
   };

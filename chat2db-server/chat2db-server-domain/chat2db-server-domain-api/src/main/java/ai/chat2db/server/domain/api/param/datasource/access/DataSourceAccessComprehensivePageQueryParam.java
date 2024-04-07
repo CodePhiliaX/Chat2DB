@@ -12,19 +12,19 @@ import lombok.Data;
 @Data
 public class DataSourceAccessComprehensivePageQueryParam extends PageQueryParam {
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */
     private String accessObjectType;
 
     /**
-     * 授权id,根据类型区分是用户还是团队
+     * Authorization ID, distinguish whether it is a user or a team according to the type
      */
     private Long accessObjectId;
 

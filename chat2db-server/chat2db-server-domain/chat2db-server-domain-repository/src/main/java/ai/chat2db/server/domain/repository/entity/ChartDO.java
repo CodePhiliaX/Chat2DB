@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 自定义报表表
+ * Custom dashboard
  * </p>
  *
  * @author chat2db
@@ -24,48 +24,48 @@ public class ChartDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 图表名称
+     * Chart name
      */
     private String name;
 
     /**
-     * 图表描述
+     * Chart description
      */
     private String description;
 
     /**
-     * 图表信息
+     * chart information
      */
     private String schema;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
@@ -73,17 +73,17 @@ public class ChartDO implements Serializable {
     private String schemaName;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 是否被删除,y表示删除,n表示未删除
+     * Whether it has been deleted, y means deleted, n means not deleted
      */
     private String deleted;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }

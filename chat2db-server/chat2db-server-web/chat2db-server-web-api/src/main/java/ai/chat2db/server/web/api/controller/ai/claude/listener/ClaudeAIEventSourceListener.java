@@ -52,7 +52,7 @@ public class ClaudeAIEventSourceListener extends EventSourceListener {
             sseEmitter.complete();
             return;
         }
-        // 读取Json
+        // Read JSON
         ClaudeCompletionResponse completionResponse = mapper.readValue(data, ClaudeCompletionResponse.class);
         String text = completionResponse.getCompletion();
         Message message = new Message();
@@ -106,7 +106,7 @@ public class ClaudeAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("发送数据异常:", exception);
+            log.error("Exception in sending data:", exception);
         }
     }
 }

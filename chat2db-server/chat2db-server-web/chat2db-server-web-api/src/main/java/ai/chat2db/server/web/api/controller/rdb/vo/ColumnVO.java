@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * @author moji
- * @version TableVO.java, v 0.1 2022年09月16日 17:16 moji Exp $
+ * @version TableVO.java, v 0.1 September 16, 2022 17:16 moji Exp $
  * @date 2022/09/16
  */
 @Data
@@ -16,65 +16,65 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class ColumnVO {
     /**
-     * 旧的列名，在修改列的时候需要这个参数
-     * 在返回的时候oldName=name
+     * The old column name, this parameter is needed when modifying the column
+     * oldName=name when returning
      */
     private String oldName;
 
     /**
-     * 列名
+     * Column name
      */
     private String name;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 列的类型
-     * 比如 varchar(100) ,double(10,6)
+     * Column type
+     * For example, varchar(100), double(10,6)
      */
 
     private String columnType;
 
     /**
-     * 列的数据类型
-     * 比如 varchar ,double
+     * Column data type
+     * For example, varchar, double
      */
 
     private Integer dataType;
 
 
     /**
-     * 默认值
+     * default value
      */
 
     private String defaultValue;
 
     /**
-     * 是否自增
-     * 为空 代表没有值 数据库的实际语义是 false
+     * Whether to increase automatically
+     * Empty means there is no value. The actual semantics of the database are false.
      */
     private Boolean autoIncrement;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 是否主键
+     * Is it a primary key?
      */
     private Boolean primaryKey;
 
     /**
-     * 空间名
+     * Space name
      */
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     private String databaseName;
 

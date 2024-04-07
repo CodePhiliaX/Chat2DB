@@ -68,16 +68,16 @@ public class ConverterServiceImpl implements ConverterService {
     private static CommonCipher cipher;
 
     /**
-     * 连接信息头部
+     * Connection information header
      **/
     private static final String DATASOURCE_SETTINGS = "#DataSourceSettings#";
     private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     /**
-     * xml连接信息开始标志位
+     * xml connection information start flag
      **/
     private static final String BEGIN = "#BEGIN#";
     /**
-     * 密码json的key
+     * Password json key
      **/
     private static final String connection = "#connection";
 
@@ -86,11 +86,11 @@ public class ConverterServiceImpl implements ConverterService {
         return Dbutils.getMapper(DataSourceMapper.class);
     }
     /**
-     * jdbc通用匹配ip和端口
+     * jdbc universal matching ip and port
      */
     public static final Pattern IP_PORT = Pattern.compile("jdbc:(?<type>[a-z]+)://(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)");
     /**
-     * oracle匹配ip和端口
+     * oracle matching ip and port
      */
     public static final Pattern ORACLE_IP_PORT = Pattern.compile("jdbc:(?<type>[a-z]+):(?<child>[a-z]+):@(?<host>[a-zA-Z0-9-//.]+):(?<port>[0-9]+)");
 
@@ -98,20 +98,20 @@ public class ConverterServiceImpl implements ConverterService {
     public UploadVO uploadFile(File file) {
         UploadVO vo = new UploadVO();
         try {
-            // List<Map <连接名，Map<属性名，值>>> 要导入的连接
+            // List<Map <connection name, Map<property name, value>>> The connection to be imported
             List<Map<String, Map<String, String>>> configMap = new ArrayList<>();
-            //1、创建一个DocumentBuilderFactory的对象
+            //1、Create a DocumentBuilderFactory object
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            //2、创建一个DocumentBuilder的对象
-            //创建DocumentBuilder对象
+            //2、Create a DocumentBuilder object
+            //Create DocumentBuilder object
             DocumentBuilder db = dbf.newDocumentBuilder();
-            //3、通过DocumentBuilder对象的parser方法加载xml文件到当前项目下
+            //3、Load the xml file into the current project through the parser method of the DocumentBuilder object
             Document document = db.parse(file);
-            //获取所有Connections节点的集合
+            //Get the collection of all Connections nodes
             NodeList connectList = document.getElementsByTagName("Connection");
 
             NodeList nodeList = document.getElementsByTagName("Connections");
-            //选中第一个节点
+            //Select the first node
             NamedNodeMap verMap = nodeList.item(0).getAttributes();
             double version = Double.parseDouble((verMap.getNamedItem("Ver").getNodeValue()));
             if (version <= NAVICAT11) {
@@ -119,18 +119,18 @@ public class ConverterServiceImpl implements ConverterService {
             } else {
                 cipher = CipherFactory.get(VersionEnum.navicat12more.name());
             }
-            //配置map
+            //Configure map
             Map<String, Map<String, String>> connectionMap = new HashMap<>();
-            //遍历每一个Connections节点
+            //Traverse each Connections node
             for (int i = 0; i < connectList.getLength(); i++) {
-                //通过 item(i)方法 获取一个Connection节点，nodeList的索引值从0开始
+                //Get a Connection node through the item(i) method, the index value of nodeList starts from 0
                 Node connect = connectList.item(i);
-                //获取Connection节点的所有属性集合
+                //Get the collection of all properties of the Connection node
                 NamedNodeMap attrs = connect.getAttributes();
-                //遍历Connection的属性
+                //Traverse the properties of Connection
                 Map<String, String> map = new HashMap<>(0);
                 for (int j = 0; j < attrs.getLength(); j++) {
-                    //通过item(index)方法获取connect节点的某一个属性
+                    //Obtain a certain attribute of the connect node through the item(index) method
                     Node attr = attrs.item(j);
                     map.put(attr.getNodeName(), attr.getNodeValue());
                 }
@@ -138,10 +138,10 @@ public class ConverterServiceImpl implements ConverterService {
             }
             configMap.add(connectionMap);
             log.info("insert to db, param:{}", JSON.toJSONString(configMap));
-            // 将获取到navicat导入的链接，写入chat2db的h2数据库
+            // Get the link imported from navicat and write it into the h2 database of chat2db
             insertDBConfig(configMap);
             log.info("insert to h2 success");
-            //删除临时文件
+            //Delete temporary files
             FileUtils.delete(file);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -154,7 +154,7 @@ public class ConverterServiceImpl implements ConverterService {
     public UploadVO dbpUploadFile(File file) {
         UploadVO vo = new UploadVO();
         Document metaTree;
-        //等待删除的projects
+        //Projects waiting to be deleted
         List<String> projects = new ArrayList<>();
         try (ZipFile zipFile = new ZipFile(file, ZipFile.OPEN_READ)) {
             ZipEntry metaEntry = zipFile.getEntry(ExportConstants.META_FILENAME);
@@ -170,18 +170,18 @@ public class ConverterServiceImpl implements ConverterService {
             if (projectsElement != null) {
                 final Collection<Element> projectList = XMLUtils.getChildElementList(projectsElement, ExportConstants.TAG_PROJECT);
                 for (Element projectElement : projectList) {
-                    //获取项目名称
+                    //Get project name
                     String projectName = projectElement.getAttribute(ExportConstants.ATTR_NAME);
-                    //导入匹配文件目录
+                    //Import matching file directory
                     String config = ConfigUtils.CONFIG_BASE_PATH + File.separator + projectName + File.separator + ExportConstants.CONFIG_FILE;
                     importDbeaverConfig(new File(config),
                             projectElement,
-                            //不可替换成File.separator
+                            //Cannot be replaced by File.separator
                             ExportConstants.DIR_PROJECTS + "/" + projectName + "/",
                             zipFile);
-                    //加入删除名单
+                    //Add to delete list
                     projects.add(projectName);
-                    //配置的json文件
+                    //Configured json file
                     File json = new File(config + File.separator + ExportConstants.CONFIG_DATASOURCE_FILE);
                     JSONObject jsonObject = JSON.parseObject(new FileInputStream(json));
                     JSONObject connections = jsonObject.getJSONObject(ExportConstants.DIR_CONNECTIONS);
@@ -189,29 +189,29 @@ public class ConverterServiceImpl implements ConverterService {
                     for (String key : keys) {
                         JSONObject configurations = connections.getJSONObject(key);
                         JSONObject configuration = configurations.getJSONObject(ExportConstants.DIR_CONFIGURATION);
-                        //匹配数据库类型
+                        //Match database type
                         String provider = configurations.getString("provider");
                         if (provider.equals(ExportConstants.GENERIC)) {
-                            //自定义驱动
+                            //Custom driverCustom driver
                             JSONObject drivers = jsonObject.getJSONObject(ExportConstants.DIR_DRIVERS);
-                            //获得驱动id
+                            //Get driver id
                             String driverId = configurations.getString("driver");
-                            //获得所有generic
+                            //Get all generic
                             JSONObject generics = drivers.getJSONObject(provider);
-                            //获得自己的驱动
+                            //Get your own driver
                             JSONObject generic = generics.getJSONObject(driverId);
-                            //如果不存在，则不导入
+                            //If it does not exist, it will not be imported.
                             if (null == generic) {
                                 continue;
                             }
-                            //赋值驱动名称，用来确定数据库的类型
+                            //Assign driver name to determine the type of database
                             provider = generic.getString("name");
                         }
                         DataBaseType dataBaseType = DataBaseType.matchType(provider.toUpperCase());
                         DataSourceDO dataSourceDO;
-                        //未匹配到数据库类型，如：dbeaver支持自定义驱动等，但chat2DB暂不支持
+                        //The database type is not matched. For example: dbeaver supports custom drivers, etc., but chat2DB does not support it yet.
                         if (null != dataBaseType) {
-                            //密码信息
+                            //Password information
                             File credentials = new File(config + File.separator + ExportConstants.CONFIG_CREDENTIALS_FILE);
                             DefaultValueEncryptor defaultValueEncryptor = new DefaultValueEncryptor(DefaultValueEncryptor.getLocalSecretKey());
                             JSONObject credentialsJson = JSON.parseObject(defaultValueEncryptor.decryptValue(Files.readAllBytes(credentials.toPath())));
@@ -219,13 +219,13 @@ public class ConverterServiceImpl implements ConverterService {
                             Date dateTime = new Date();
                             dataSourceDO.setGmtCreate(dateTime);
                             dataSourceDO.setGmtModified(dateTime);
-                            //插入用户id
+                            //Insert user id
                             dataSourceDO.setUserId(ContextUtils.getUserId());
                             dataSourceDO.setAlias(configurations.getString("name"));
                             dataSourceDO.setHost(configuration.getString("host"));
                             dataSourceDO.setPort(configuration.getString("port"));
                             dataSourceDO.setUrl(configuration.getString("url"));
-                            //ssh设置为false
+                            //ssh is set to false
                             SSHInfo sshInfo = new SSHInfo();
                             sshInfo.setUse(false);
                             dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
@@ -245,9 +245,9 @@ public class ConverterServiceImpl implements ConverterService {
                 }
             }
         }
-        //删除临时文件
+        //Delete temporary files
         FileUtils.delete(file);
-        //删除导入dbeaver时，dbp产生的临时配置文件
+        //Delete the temporary configuration file generated by dbp when importing dbeaver
         projects.forEach(v -> FileUtils.delete(new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + v)));
         return vo;
     }
@@ -290,28 +290,28 @@ public class ConverterServiceImpl implements ConverterService {
             }
         }
         for (String config : configs) {
-            //1、创建一个DocumentBuilderFactory的对象
+            //1、Create a DocumentBuilderFactory object
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            //2、创建一个DocumentBuilder的对象
-            //创建DocumentBuilder对象
+            //2、Create a DocumentBuilder object
+            //Create DocumentBuilder object
             DocumentBuilder db = dbf.newDocumentBuilder();
-            //3、通过DocumentBuilder对象的parser方法加载xml文件到当前项目下
+            //3、Load the xml file into the current project through the parser method of the DocumentBuilder object
             try (InputStream inputStream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8))) {
                 Document document = db.parse(inputStream);
-                // 获取根元素
+                // Get the root element
                 Element rootElement = document.getDocumentElement();
-                //创建datasource
+                //Create datasource
                 DataSourceDO dataSourceDO = new DataSourceDO();
                 Date dateTime = new Date();
                 dataSourceDO.setGmtCreate(dateTime);
                 dataSourceDO.setGmtModified(dateTime);
                 dataSourceDO.setAlias(rootElement.getAttribute("name"));
-                //插入用户id
+                //Insert user id
                 dataSourceDO.setUserId(ContextUtils.getUserId());
-                // 获取子元素 database-info
+                // Get child elements database-info
                 Element databaseInfoElement = (Element) rootElement.getElementsByTagName("database-info").item(0);
 
-                // 获取连接相关信息
+                // Get connection related information
                 String type = databaseInfoElement.getAttribute("dbms");
                 String jdbcUrl = rootElement.getElementsByTagName("jdbc-url").item(0).getTextContent();
                 String username = rootElement.getElementsByTagName("user-name").item(0).getTextContent();
@@ -319,24 +319,24 @@ public class ConverterServiceImpl implements ConverterService {
                 String host = "";
                 String port = "";
                 if (type.equals(DataBaseType.ORACLE.name())) {
-                    // 创建 Matcher 对象
+                    // Create Matcher object
                     Matcher matcher = ORACLE_IP_PORT.matcher(jdbcUrl);
-                    // 查找匹配的 IP 地址和端口号
+                    // Find matching IP address and port number
                     if (matcher.find()) {
                         host = matcher.group("host");
                         port = matcher.group("port");
                     }
                 } else {
-                    // 创建 Matcher 对象
+                    // Create Matcher object
                     Matcher matcher = IP_PORT.matcher(jdbcUrl);
-                    // 查找匹配的 IP 地址和端口号
+                    // Find matching IP address and port number
                     if (matcher.find()) {
                         host = matcher.group("host");
                         port = matcher.group("port");
 
                     }
                 }
-                //ssh设置为false
+                //ssh is set to false
                 SSHInfo sshInfo = new SSHInfo();
                 sshInfo.setUse(false);
                 dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
@@ -353,20 +353,20 @@ public class ConverterServiceImpl implements ConverterService {
     }
 
     /**
-     * 写入到数据库
+     * Write to database
      *
-     * @param list 读取ncx文件的数据
+     * @param list Read data from ncx file
      */
     @SneakyThrows
     public void insertDBConfig(List<Map<String, Map<String, String>>> list) {
         for (Map<String, Map<String, String>> map : list) {
             for (Map.Entry<String, Map<String, String>> valueMap : map.entrySet()) {
                 Map<String, String> resultMap = valueMap.getValue();
-                // mysql的版本还无法区分
+                // The version of mysql cannot be distinguished yet
                 DataBaseType dataBaseType = DataBaseType.matchType(resultMap.get("ConnType"));
                 DataSourceDO dataSourceDO;
                 if (null == dataBaseType) {
-                    //未匹配到数据库类型，如：navicat支持MongoDB等，但chat2DB暂不支持
+                    //The database type is not matched. For example: navicat supports MongoDB, etc., but chat2DB does not support it yet.
                     continue;
                 } else {
                     dataSourceDO = new DataSourceDO();
@@ -374,7 +374,7 @@ public class ConverterServiceImpl implements ConverterService {
                     dataSourceDO.setPort(resultMap.get("Port"));
                     dataSourceDO.setUrl(String.format(dataBaseType.getUrlString(), dataSourceDO.getHost(), dataSourceDO.getPort()));
                 }
-                // 解密密码
+                // Decrypt password
                 String password = cipher.decryptString(resultMap.getOrDefault("Password", ""));
                 Date dateTime =new Date();
                 dataSourceDO.setGmtCreate(dateTime);
@@ -382,9 +382,9 @@ public class ConverterServiceImpl implements ConverterService {
                 dataSourceDO.setAlias(resultMap.get("ConnectionName"));
                 dataSourceDO.setUserName(resultMap.get("UserName"));
                 dataSourceDO.setType(resultMap.get("ConnType"));
-                //插入用户id
+                //Insert user id
                 dataSourceDO.setUserId(ContextUtils.getUserId());
-                //password 为解密出来的密文，再使用chat2db的加密
+                //Password is the decrypted ciphertext, and then uses chat2db for encryption.
                 DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
                 String encryptStr = desUtil.encrypt(password, "CBC");
                 dataSourceDO.setPassword(encryptStr);
@@ -396,11 +396,11 @@ public class ConverterServiceImpl implements ConverterService {
                     sshInfo.setHostName(resultMap.get("SSH_Host"));
                     sshInfo.setPort(resultMap.get("SSH_Port"));
                     sshInfo.setUserName(resultMap.get("SSH_UserName"));
-                    // 目前chat2DB只支持 password 和 Private key
+                    // Currently chat2DB only supports password and Private key
                     boolean passwordType = "password".equalsIgnoreCase(resultMap.get("SSH_AuthenMethod"));
                     sshInfo.setAuthenticationType(passwordType ? "password" : "Private key");
                     if (passwordType) {
-                        // 解密密码
+                        // Decrypt password
                         String ssh_password = cipher.decryptString(resultMap.getOrDefault("SSH_Password", ""));
                         sshInfo.setPassword(ssh_password);
                     } else {

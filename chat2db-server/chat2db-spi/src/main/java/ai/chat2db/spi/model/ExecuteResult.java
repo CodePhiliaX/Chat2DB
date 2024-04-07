@@ -1,6 +1,8 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 执行结果
+ * Results of the
  *
  * @author Jiaju Zhuang
  */
@@ -16,21 +18,22 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExecuteResult {
+public class ExecuteResult  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 是否成功标志位
+     * success flag
      */
     private Boolean success;
 
     /**
-     * 失败消息提示
-     * 只有失败的情况下会有
+     * Failure message prompt
+     * Only in case of failure
      */
     private String message;
 
     /**
-     * 执行的sql
+     * executed sql
      */
     private String sql;
 
@@ -40,47 +43,47 @@ public class ExecuteResult {
     private String originalSql;
 
     /**
-     * 描述
+     * description
      */
     private String description;
 
     /**
-     * 修改行数 查询sql不会返回
+     * Modify the number of rows and query sql will not return
      */
     private Integer updateCount;
 
     /**
-     * 展示头的列表
+     * List of display headers
      */
     private List<Header> headerList;
 
     /**
-     * 数据的列表
+     * list of data
      */
     private List<List<String>> dataList;
 
     /**
-     * sql 类型
+     * sql type
      *
      * @see ai.chat2db.spi.enums.SqlTypeEnum
      */
     private String sqlType;
 
     /**
-     * 是否存在下一页
-     * 只有select语句才有
+     * Whether there is a next page
+     * Only available for select statements
      */
     private Boolean hasNextPage;
 
     /**
-     * 分页编码
-     * 只有select语句才有
+     * Page coding
+     * Only available for select statements
      */
     private Integer pageNo;
 
     /**
-     * 分页大小
-     * 只有select语句才有
+     * Paging Size
+     * Only available for select statements
      */
     private Integer pageSize;
 
@@ -91,18 +94,23 @@ public class ExecuteResult {
     private String fuzzyTotal;
 
     /**
-     * 执行持续时间
+     * execution duration
      */
     private Long duration;
 
 
     /**
-     * 返回结果是否可以编辑
+     * Whether the returned result can be edited
      */
     private boolean canEdit;
 
     /**
-     * 表名
+     * Table Name for the result
      */
     private String tableName;
+
+    /**
+     * Extra information that can be used by the plugin
+     */
+    private Map<String,Object> extra;
 }

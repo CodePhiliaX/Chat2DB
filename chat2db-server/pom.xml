@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <!-- 引入spring的启动项目 -->
+    <!-- Introduce spring startup project -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,14 +16,14 @@
     <name>chat2db-server-parent</name>
 
     <properties>
-        <!-- 当前项目的版本 用了flatten 仅修改这一个地方即可-->
+        <!-- The version of the current project uses flatten and only needs to modify this one place -->
         <revision>2.0.0-SNAPSHOT</revision>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.source>17</maven.compiler.source>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- 跳过测试 -->
+        <!-- skip test -->
         <maven.test.skip>true</maven.test.skip>
     </properties>
 
@@ -40,7 +40,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- 自带的包 -->
+            <!-- Comes with package -->
             <dependency>
                 <groupId>ai.chat2db</groupId>
                 <artifactId>chat2db-server-tools-base</artifactId>
@@ -133,14 +133,14 @@
                 <artifactId>mapstruct-processor</artifactId>
                 <version>1.5.5.Final</version>
             </dependency>
-            <!-- 确保先生成lombok 再生成mapstruct -->
+            <!-- Make sure to generate lombok first and then mapstruct -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-mapstruct-binding</artifactId>
                 <version>0.2.0</version>
             </dependency>
 
-            <!-- 自带数据库 -->
+            <!-- Comes with database -->
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
@@ -176,13 +176,13 @@
                 <version>1.2.18</version>
             </dependency>
 
-            <!-- Sa-Token 权限认证，在线文档：https://sa-token.cc -->
+            <!-- Sa-Token Permission authentication, online documentation:https://sa-token.cc -->
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-spring-boot3-starter</artifactId>
                 <version>1.34.0</version>
             </dependency>
-            <!-- Sa-Token 整合 jwt -->
+            <!-- Sa-Token matching jwt -->
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-jwt</artifactId>
@@ -207,7 +207,7 @@
                 <version>1.5.32</version>
             </dependency>
 
-            <!-- 数据库版本管理 -->
+            <!-- Database version management -->
             <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
@@ -294,7 +294,7 @@
                 <version>5.5.13</version>
             </dependency>
 
-            <!--    pdf解析    -->
+            <!--    pdf analysis    -->
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
@@ -327,7 +327,7 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- 确保先生成lombok 再生成mapstruct -->
+        <!-- Make sure to generate lombok first and then mapstruct -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
@@ -338,13 +338,13 @@
 
     <build>
         <plugins>
-            <!-- 编译 -->
+            <!-- compile -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <!-- 配置 mapstruct 禁用builer-->
+                    <!-- Configure mapstruct to disable builder -->
                     <compilerArgs>
                         <arg>
                             -Amapstruct.disableBuilders=true
@@ -353,7 +353,7 @@
                 </configuration>
             </plugin>
 
-            <!-- 支持maven revision 来配置统版本-->
+            <!-- Support maven revision to configure the system version -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
@@ -380,7 +380,7 @@
                 </executions>
             </plugin>
 
-            <!-- 运行测试案例 -->
+            <!-- Run test case -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

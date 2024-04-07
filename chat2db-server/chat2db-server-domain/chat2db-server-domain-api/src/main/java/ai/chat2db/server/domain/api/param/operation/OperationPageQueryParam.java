@@ -6,34 +6,34 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version UserSavedDdlPageQueryParam.java, v 0.1 2022年09月25日 14:05 moji Exp $
+ * @version UserSavedDdlPageQueryParam.java, v 0.1 September 25, 2022 14:05 moji Exp $
  * @date 2022/09/25
  */
 @Data
 public class OperationPageQueryParam extends PageQueryParam {
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * databaseName
      */
     private String databaseName;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * 搜索关键词
+     * search keyword
      */
     private String searchKey;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 
@@ -53,7 +53,7 @@ public class OperationPageQueryParam extends PageQueryParam {
     private String operationType;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }

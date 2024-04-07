@@ -11,24 +11,24 @@ rm -rf chat2db-client/static
 rm -rf chat2db-client/versions
 rm -rf chat2db-client/release
 
-# 使用 mkdir 创建目录，并使用 -p 参数确保如果目录已存在不会报错
+# Use mkdir to create the directory, and use the -p parameter to ensure that no error is reported if the directory already exists
 mkdir -p "$JRE_TARGET_DIR"
 
-# 使用 cp 命令复制 JAVA_HOME 目录内容到目标目录
-# -r 参数表示递归复制整个目录
+# Use the cp command to copy the contents of the JAVA_HOME directory to the target directory
+# -r Parameter means recursively copy the entire directory
 cp -r "${JRE_DIR}/" "$JRE_TARGET_DIR"
 chmod -R 777 "$JRE_TARGET_DIR"
 
-# 打包后端代码
+# Packaging backend code
 mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 mkdir -p chat2db-client/versions/99.0.${CURRENT_ID}/static
 echo -n 99.0.${CURRENT_ID} > chat2db-client/versions/version
 cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${CURRENT_ID}/static/
 
-# 打包前端代码
+# Packaging front-end code
 cd chat2db-client
 yarn install
 yarn run build:web:desktop --app_port=10822
 cp -r dist ./versions/99.0.${CURRENT_ID}/
-# 打包客户端
+# Packaged client
 yarn run build:main:prod -c.productName=Chat2DB-Test -c.extraMetadata.version=99.0.${CURRENT_ID} --mac --arm64

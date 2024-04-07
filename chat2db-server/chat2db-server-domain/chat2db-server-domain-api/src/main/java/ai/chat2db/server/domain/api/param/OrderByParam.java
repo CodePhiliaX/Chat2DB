@@ -11,25 +11,25 @@ import java.util.List;
 public class OrderByParam {
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * databaseName
      */
     private String databaseName;
 
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
@@ -41,7 +41,7 @@ public class OrderByParam {
 
 
     /**
-     * 排序字段
+     * sort field
      */
     private List<OrderBy> orderByList;
 }

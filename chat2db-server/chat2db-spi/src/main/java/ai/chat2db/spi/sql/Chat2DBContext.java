@@ -1,23 +1,21 @@
 
 package ai.chat2db.spi.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
-
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.Plugin;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.config.DBConfig;
 import ai.chat2db.spi.config.DriverConfig;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author jipengfei
@@ -26,6 +24,16 @@ import org.apache.commons.lang3.StringUtils;
 @Slf4j
 public class Chat2DBContext {
     private static final ThreadLocal<ConnectInfo> CONNECT_INFO_THREAD_LOCAL = new ThreadLocal<>();
+
+//    private static final Cache<String, ConnectInfo> CONNECT_INFO_CACHE = CacheBuilder.newBuilder()
+//            .maximumSize(1000)
+//            .expireAfterAccess(5, TimeUnit.MINUTES)
+//            .removalListener((RemovalListener<String, ConnectInfo>) notification -> {
+//                if (notification.getValue() != null) {
+//                    System.out.println("remove connect info " + notification.getKey());
+//                    notification.getValue().close();
+//                }
+//            }).build();
 
     public static Map<String, Plugin> PLUGIN_MAP = new ConcurrentHashMap<>();
 
@@ -47,7 +55,7 @@ public class Chat2DBContext {
     }
 
     /**
-     * 获取当前线程的ContentContext
+     * Get the ContentContext of the current thread
      *
      * @return
      */
@@ -81,19 +89,24 @@ public class Chat2DBContext {
     public static Connection getConnection() {
         ConnectInfo connectInfo = getConnectInfo();
         Connection connection = connectInfo.getConnection();
-        if (connection == null) {
-            synchronized (connectInfo) {
-                connection = connectInfo.getConnection();
-                try {
-                    if (connection != null && !connection.isClosed()) {
-                        return connection;
-                    } else {
+        try {
+            if (connection == null || connection.isClosed()) {
+                synchronized (connectInfo) {
+                    connection = connectInfo.getConnection();
+                    try {
+                        if (connection != null && !connection.isClosed()) {
+                            return connection;
+                        } else {
+                            connection = getDBManage().getConnection(connectInfo);
+                        }
+                    } catch (SQLException e) {
                         connection = getDBManage().getConnection(connectInfo);
                     }
-                } catch (SQLException e) {
-                    connection = getDBManage().getConnection(connectInfo);
+                    connectInfo.setConnection(connection);
                 }
             }
+        } catch (SQLException e) {
+            log.error("get connection error", e);
         }
         return connection;
     }
@@ -119,7 +132,7 @@ public class Chat2DBContext {
 
 
     /**
-     * 设置context
+     * Set context
      *
      * @param info
      */
@@ -133,39 +146,18 @@ public class Chat2DBContext {
     }
 
     /**
-     * 设置context
+     * Set context
      */
     public static void removeContext() {
         ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();
         if (connectInfo != null) {
-            Connection connection = connectInfo.getConnection();
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close();
-                }
-            } catch (SQLException e) {
-                log.error("close connection error", e);
-            }
-
-            Session session = connectInfo.getSession();
-            if (session != null && session.isConnected() && connectInfo.getSsh() != null
-                    && connectInfo.getSsh().isUse()) {
-                try {
-                    session.delPortForwardingL(Integer.parseInt(connectInfo.getSsh().getLocalPort()));
-                } catch (JSchException e) {
-                }
-            }
+            connectInfo.close();
             CONNECT_INFO_THREAD_LOCAL.remove();
         }
     }
 
-    /**
-     * 设置context
-     */
-    public static void remove() {
-        ConnectInfo connectInfo = CONNECT_INFO_THREAD_LOCAL.get();
-        if (connectInfo != null) {
-            CONNECT_INFO_THREAD_LOCAL.remove();
-        }
+    public static void close() {
+        removeContext();
     }
+
 }

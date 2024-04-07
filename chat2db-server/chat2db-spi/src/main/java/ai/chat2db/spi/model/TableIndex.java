@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 索引信息
+ * Index information
  *
  * @author Jiaju Zhuang
  */
@@ -17,49 +18,50 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TableIndex {
+public class TableIndex  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private String oldName;
 
     /**
-     * 索引名称
+     * Index name
      */
     private String name;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 索引类型
+     * Index type
      *
      * @see IndexTypeEnum
      */
     private String type;
 
     /**
-     * 是否唯一
+     * Is it unique?
      */
     private Boolean unique;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 索引所属schema
+     * The schema to which the index belongs
      */
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     private String databaseName;
 
     /**
-     * 索引包含的列
+     * Columns included in the index
      */
     private List<TableIndexColumn> columnList;
 
@@ -67,28 +69,28 @@ public class TableIndex {
     private String editStatus;
 
     /**
-     * 是否并发
+     * Is it concurrent?
      */
     private Boolean concurrently;
 
     /**
-     * 索引方法
+     * Index method
      */
     private String method;
 
 
     /**
-     * 外键指向schema
+     * Foreign key points to schema
      */
     private String foreignSchemaName;
 
     /**
-     * 外键指向表名
+     * Foreign key points to table name
      */
     private String foreignTableName;
 
     /**
-     * 外键指向的列名
+     * The column name pointed to by the foreign key
      */
     private List<String> foreignColumnNamelist;
 

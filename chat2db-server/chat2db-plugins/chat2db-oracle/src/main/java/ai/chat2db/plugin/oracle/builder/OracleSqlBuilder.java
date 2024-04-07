@@ -2,14 +2,13 @@ package ai.chat2db.plugin.oracle.builder;
 
 import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
-import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
-public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class OracleSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

@@ -4,14 +4,14 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 消息类型枚举
+ * Message type enum
  *
  * @author Jiaju Zhuang
  */
 @Getter
 public enum MessageTypeEnum implements BaseEnum<String> {
     /**
-     * 检查是否正常运行
+     * Check if it works properly
      */
     HEARTBEAT,
 

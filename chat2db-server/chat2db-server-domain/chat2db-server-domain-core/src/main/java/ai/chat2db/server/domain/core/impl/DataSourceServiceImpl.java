@@ -60,7 +60,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author moji
- * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
+ * @version DataSourceCoreServiceImpl.java, v 0.1 September 23, 2022 15:51 moji Exp $
  * @date 2022/09/23
  */
 @Slf4j

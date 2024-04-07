@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 登录的用户信息
+ * Login user information
  *
  * @author Jiaju Zhuang
  */
@@ -24,12 +24,12 @@ public class LoginUser implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 用户id
+     * user id
      */
     private Long id;
 
     /**
-     * 昵称
+     * nick name
      */
     private String nickName;
 
@@ -39,7 +39,7 @@ public class LoginUser implements Serializable {
     private Boolean admin;
 
     /**
-     * 角色编码
+     * role coding
      *
      * @see RoleCodeEnum
      */

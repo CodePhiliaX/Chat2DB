@@ -8,10 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.stereotype.Indexed;
 
 /**
- * 本地环境的启动。
- * 主要为了读取本地的一些配置 比如日志输出就和其他环境不一样
+ * Startup of the local environment.
+ * Mainly to read some local configurations. For example, log output is different from other environments.
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @SpringBootTest(classes = {Application.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j

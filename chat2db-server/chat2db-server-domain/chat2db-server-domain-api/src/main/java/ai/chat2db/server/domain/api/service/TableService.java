@@ -10,16 +10,16 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 
 /**
- * 数据源管理服务
+ * Data source management services
  *
  * @author moji
- * @version DataSourceCoreService.java, v 0.1 2022年09月23日 15:22 moji Exp $
+ * @version DataSourceCoreService.java, v 0.1 September 23, 2022 15:22 moji Exp $
  * @date 2022/09/23
  */
 public interface TableService {
 
     /**
-     * 查询表信息
+     * Query table information
      *
      * @param param
      * @return
@@ -27,7 +27,7 @@ public interface TableService {
     DataResult<String> showCreateTable(ShowCreateTableParam param);
 
     /**
-     * 删除表
+     * Delete table
      *
      * @param param
      * @return
@@ -35,7 +35,7 @@ public interface TableService {
     ActionResult drop(DropParam param);
 
     /**
-     * 创建表结构的样例
+     * Example of creating a table structure
      *
      * @param dbType
      * @return
@@ -43,7 +43,7 @@ public interface TableService {
     DataResult<String> createTableExample(String dbType);
 
     /**
-     * 修改表结构的样例
+     * Example of modifying table structure
      *
      * @param dbType
      * @return
@@ -51,7 +51,7 @@ public interface TableService {
     DataResult<String> alterTableExample(String dbType);
 
     /**
-     * 查询表信息
+     * Query table information
      *
      * @param param
      * @return
@@ -59,7 +59,7 @@ public interface TableService {
     DataResult<Table> query(TableQueryParam param, TableSelector selector);
 
     /**
-     * 构建sql
+     * build sql
      *
      * @param oldTable
      * @param newTable
@@ -68,7 +68,7 @@ public interface TableService {
     ListResult<Sql> buildSql(Table oldTable, Table newTable);
 
     /**
-     * 分页查询表信息
+     * Pagination query table information
      *
      * @param param
      * @return
@@ -77,14 +77,14 @@ public interface TableService {
 
 
     /**
-     * 查询表信息
+     * Query table information
      * @param param
      * @return
      */
     ListResult<SimpleTable> queryTables(TablePageQueryParam param);
 
     /**
-     * 查询表包含的字段
+     * Fields included in the query table
      *
      * @param param
      * @return
@@ -92,7 +92,7 @@ public interface TableService {
     List<TableColumn> queryColumns(TableQueryParam param);
 
     /**
-     * 查询表索引
+     * Query table index
      *
      * @param param
      * @return
@@ -129,4 +129,12 @@ public interface TableService {
      * @return
      */
     DataResult<Boolean> checkTableVector(TableVectorParam param);
+
+
+    /**
+     * Get dml template sql
+     * @param param table query param
+     * @return sql
+     */
+    DataResult<String> copyDmlSql(DmlSqlCopyParam param);
 }

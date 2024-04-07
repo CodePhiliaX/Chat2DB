@@ -69,34 +69,34 @@ public class Dbutils {
 
     private static void before() throws IOException {
         SqlSessionFactoryBuilder builder = new SqlSessionFactoryBuilder();
-        //这是mybatis-plus的配置对象，对mybatis的Configuration进行增强
+        //This is the configuration object of mybatis-plus, which enhances the configuration of mybatis.
         MybatisConfiguration configuration = new MybatisConfiguration();
-        //这是初始化配置，后面会添加这部分代码
+        //This is the initial configuration, this part of the code will be added later
         initConfiguration(configuration);
-        //这是初始化连接器，如mybatis-plus的分页插件
+        //This is the initialization connector, such as the paging plug-in of mybatis-plus
         configuration.addInterceptor(initInterceptor());
-        //配置日志实现
+        //Configuration log implementation
         configuration.setLogImpl(Slf4jImpl.class);
-        //扫描mapper接口所在包
+        //Scan the package where the mapper interface is located
         configuration.addMappers("ai.chat2db.server.domain.repository.mapper");
-        //构建mybatis-plus需要的globalconfig
+        //Globalconfig required to build mybatis-plus
         GlobalConfig globalConfig = GlobalConfigUtils.getGlobalConfig(configuration);
-        //此参数会自动生成实现baseMapper的基础方法映射
+        //This parameter will automatically generate the basic method mapping that implements baseMapper.
         globalConfig.setSqlInjector(new DefaultSqlInjector());
-        //设置id生成器
+        //Set up id generator
         globalConfig.setIdentifierGenerator(new DefaultIdentifierGenerator());
-        //设置超类mapper
+        //Set super class mapper
         globalConfig.setSuperMapperClass(BaseMapper.class);
         DataSource dataSource = initDataSource();
         Environment environment = new Environment("1", new JdbcTransactionFactory(), dataSource);
         configuration.setEnvironment(environment);
-        //设置数据源
+        //Set data source
         registryMapperXml(configuration, "mapper");
-        //构建sqlSessionFactory
+        //Build sqlSessionFactory
         sqlSessionFactory = builder.build(configuration);
 
         initFlyway(dataSource);
-        //创建session
+        //create session
 
     }
 
@@ -121,19 +121,19 @@ public class Dbutils {
     }
 
     /**
-     * 初始化配置
+     * Initial configuration
      *
      * @param configuration
      */
     private static void initConfiguration(MybatisConfiguration configuration) {
-        //开启驼峰大小写转换
+        //Turn on camel case conversion
         configuration.setMapUnderscoreToCamelCase(true);
-        //配置添加数据自动返回数据主键
+        //Configure adding data to automatically return the data primary key
         configuration.setUseGeneratedKeys(true);
     }
 
     /**
-     * 初始化数据源
+     * Initialize data source
      *
      * @return
      */
@@ -159,14 +159,14 @@ public class Dbutils {
     }
 
     /**
-     * 初始化拦截器
+     * Initialize interceptor
      *
      * @return
      */
     private static Interceptor initInterceptor() {
-        //创建mybatis-plus插件对象
+        //Create mybatis-plus plug-in object
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        //构建分页插件
+        //Build a pagination plugin
         PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor();
         paginationInnerInterceptor.setDbType(DbType.H2);
         paginationInnerInterceptor.setOverflow(true);
@@ -176,7 +176,7 @@ public class Dbutils {
     }
 
     /**
-     * 解析mapper.xml文件
+     * Parse mapper.xml file
      *
      * @param configuration
      * @param classPath

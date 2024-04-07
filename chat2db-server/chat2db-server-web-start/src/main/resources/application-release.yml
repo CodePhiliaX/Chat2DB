@@ -1,9 +1,9 @@
 #spring:
 #  datasource:
-#    # 配置自带数据库的相对路径
+#    # Configure the relative path of the built-in database
 #    url: jdbc:h2:~/.chat2db/db/chat2db;MODE=MYSQL;FILE_LOCK=NO
 #    driver-class-name: org.h2.Driver
-# 端口号
+# The port number
 server:
   port: 10824
 

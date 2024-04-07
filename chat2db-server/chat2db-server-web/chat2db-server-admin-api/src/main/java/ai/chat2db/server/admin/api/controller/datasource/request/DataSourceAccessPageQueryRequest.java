@@ -14,7 +14,7 @@ import lombok.Data;
 public class DataSourceAccessPageQueryRequest extends PageQueryRequest {
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;

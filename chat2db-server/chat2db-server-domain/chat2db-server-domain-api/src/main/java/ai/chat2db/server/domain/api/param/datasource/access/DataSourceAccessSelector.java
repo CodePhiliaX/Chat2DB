@@ -18,17 +18,17 @@ import lombok.experimental.SuperBuilder;
 public class DataSourceAccessSelector {
 
     /**
-     * 授权对象
+     * Authorization object
      */
     private Boolean accessObject;
 
     /**
-     * 数据源
+     * data source
      */
     private Boolean dataSource;
 
     /**
-     * 数据源
+     * data source
      */
     private DataSourceSelector dataSourceSelector;
 }

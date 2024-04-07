@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 单元格类型
+ * cell type
  *
  * @author Jiaju Zhuang
  */
@@ -17,32 +18,33 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Cell {
+public class Cell  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 单元格类型
+     * cell type
      *
      * @see CellTypeEnum
      */
     private String type;
 
     /**
-     * 字符串数据
+     * string data
      */
     private String stringValue;
 
     /**
-     * 数字
+     * number
      */
     private BigDecimal bigDecimalValue;
 
     /**
-     * 日期数据
+     * date data
      */
     private Long dateValue;
 
     /**
-     * 二进制流
+     * binary stream
      */
     private byte[] byteValue;
 }

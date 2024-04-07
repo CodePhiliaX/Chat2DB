@@ -31,10 +31,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 我的保存服务类
+ * My save service class
  *
  * @author moji
- * @version DdlManageController.java, v 0.1 2022年09月16日 19:59 moji Exp $
+ * @version DdlManageController.java, v 0.1 September 16, 2022 19:59 moji Exp $
  * @date 2022/09/16
  */
 @RequestMapping("/api/operation/saved")
@@ -48,7 +48,7 @@ public class OperationSavedController {
     private OperationWebConverter operationWebConverter;
 
     /**
-     * 查询我的保存
+     * Check my saves
      *
      * @param request
      * @return
@@ -63,7 +63,7 @@ public class OperationSavedController {
     }
 
     /**
-     * 根据id查询console
+     * Query console based on id
      *
      * @param id
      * @return
@@ -77,7 +77,7 @@ public class OperationSavedController {
     }
 
     /**
-     * 新增我的保存
+     * Add my save
      *
      * @param request
      * @return
@@ -90,7 +90,7 @@ public class OperationSavedController {
     }
 
     /**
-     * 更新我的保存
+     * Update my save
      *
      * @param request
      * @return
@@ -102,7 +102,7 @@ public class OperationSavedController {
     }
 
     /**
-     * 批量关闭标签
+     * Close tags in batches
      *
      * @param request
      * @return
@@ -122,7 +122,7 @@ public class OperationSavedController {
     }
 
     /**
-     * 删除我的保存
+     * delete my save
      *
      * @param id
      * @return

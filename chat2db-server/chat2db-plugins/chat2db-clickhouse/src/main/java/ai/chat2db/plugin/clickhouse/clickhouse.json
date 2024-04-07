@@ -1,14 +1,14 @@
 {
   "dbType": "CLICKHOUSE",
-  "supportDatabase": false,
-  "supportSchema": true,
+  "supportDatabase": true,
+  "supportSchema":false,
   "driverConfigList": [
     {
       "url": "jdbc:clickhouse://localhost:8123/",
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/clickhouse-jdbc-0.3.2-patch8-http.jar"
+        "https://cdn.chat2db-ai.com/lib/clickhouse-jdbc-0.3.2-patch8-http.jar"
       ],
       "jdbcDriver": "clickhouse-jdbc-0.3.2-patch8-http.jar",
       "jdbcDriverClass": "com.clickhouse.jdbc.ClickHouseDriver"

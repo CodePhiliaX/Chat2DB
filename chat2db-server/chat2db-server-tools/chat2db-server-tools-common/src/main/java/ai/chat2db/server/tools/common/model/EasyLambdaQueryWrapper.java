@@ -63,7 +63,7 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
 
     // The following are the methods that come with the system
     /**
-     * 查询字段
+     * Query field
      */
     private SharedString sqlSelect = new SharedString();
 
@@ -97,9 +97,9 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
     }
 
     /**
-     * SELECT 部分 SQL 设置
+     * SELECT some SQL settings
      *
-     * @param columns 查询字段
+     * @param columns query fields
      */
     @SafeVarargs
     @Override
@@ -115,14 +115,14 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
     }
 
     /**
-     * 过滤查询的字段信息(主键除外!)
-     * <p>例1: 只要 java 字段名以 "test" 开头的             -> select(i -&gt; i.getProperty().startsWith("test"))</p>
-     * <p>例2: 只要 java 字段属性是 CharSequence 类型的     -> select(TableFieldInfo::isCharSequence)</p>
-     * <p>例3: 只要 java 字段没有填充策略的                 -> select(i -&gt; i.getFieldFill() == FieldFill.DEFAULT)</p>
-     * <p>例4: 要全部字段                                   -> select(i -&gt; true)</p>
-     * <p>例5: 只要主键字段                                 -> select(i -&gt; false)</p>
+     * Filter the field information of the query (except primary key!)
+     * <p>Example 1: As long as the java field name starts with "test" -> select(i -&gt; i.getProperty().startsWith("test"))</p>
+     * <p>Example 2: As long as the java field attribute is of type CharSequence -> select(TableFieldInfo::isCharSequence)</p>
+     * <p>Example 3: As long as the java field does not have a filling strategy -> select(i -&gt; i.getFieldFill() == FieldFill.DEFAULT)</p>
+     * <p>Example 4: Want all fields -> select(i -&gt; true)</p>
+     * <p>Example 5: As long as the primary key field -> select(i -&gt; false)</p>
      *
-     * @param predicate 过滤方式
+     * @param predicate filtering method
      * @return this
      */
     @Override
@@ -143,8 +143,8 @@ public class EasyLambdaQueryWrapper<T> extends AbstractLambdaWrapper<T, EasyLamb
     }
 
     /**
-     * 用于生成嵌套 sql
-     * <p>故 sqlSelect 不向下传递</p>
+     * Used to generate nested sql
+     * <p>Therefore sqlSelect does not pass down</p>
      */
     @Override
     protected EasyLambdaQueryWrapper<T> instance() {

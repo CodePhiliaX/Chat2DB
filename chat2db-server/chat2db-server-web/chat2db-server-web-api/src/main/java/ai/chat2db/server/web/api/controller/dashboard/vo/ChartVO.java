@@ -6,75 +6,75 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version Chart.java, v 0.1 2023年06月09日 15:37 moji Exp $
+ * @version Chart.java, v 0.1 June 9, 2023 15:37 moji Exp $
  * @date 2023/06/09
  */
 @Data
 public class ChartVO {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 图表名称
+     * Chart name
      */
     private String name;
 
     /**
-     * 图表描述
+     * Chart description
      */
     private String description;
 
     /**
-     * 图表信息
+     * chart information
      */
     private String schema;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据源名称
+     * Data source name
      */
     private String dataSourceName;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 是否可连接，false表示不可连接，表示数据源已被删除或不存在
+     * Whether it can be connected, false means it cannot be connected, which means the data source has been deleted or does not exist.
      */
     private Boolean connectable;
 }

@@ -17,16 +17,16 @@ import ai.chat2db.spi.model.Database;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * 数据源管理服务
+ * Data source management services
  *
  * @author moji
- * @version DataSourceCoreService.java, v 0.1 2022年09月23日 15:22 moji Exp $
+ * @version DataSourceCoreService.java, v 0.1 September 23, 2022 15:22 moji Exp $
  * @date 2022/09/23
  */
 public interface DataSourceService {
 
     /**
-     * 创建数据源连接
+     * Create data source connection
      *
      * @param param
      * @return
@@ -34,7 +34,7 @@ public interface DataSourceService {
     DataResult<Long> createWithPermission(DataSourceCreateParam param);
 
     /**
-     * 更新数据源连接
+     * Update data source connection
      *
      * @param param
      * @return
@@ -42,7 +42,7 @@ public interface DataSourceService {
     DataResult<Long> updateWithPermission(DataSourceUpdateParam param);
 
     /**
-     * 删除数据源连接
+     * Delete data source connection
      *
      * @param id
      * @return
@@ -50,7 +50,7 @@ public interface DataSourceService {
     ActionResult deleteWithPermission(@NotNull Long id);
 
     /**
-     * 根据id查询数据源连接详情
+     * Query data source connection details based on id
      *
      * @param id
      * @return
@@ -58,7 +58,7 @@ public interface DataSourceService {
     DataResult<DataSource> queryById(@NotNull Long id);
 
     /**
-     * 根据id查询数据源连接详情
+     * Query data source connection details based on id
      *
      * @param id
      * @return
@@ -67,7 +67,7 @@ public interface DataSourceService {
     DataResult<DataSource> queryExistent(@NotNull Long id, DataSourceSelector selector);
 
     /**
-     * 克隆连接
+     * clone connection
      *
      * @param id
      * @return
@@ -75,7 +75,7 @@ public interface DataSourceService {
     DataResult<Long> copyByIdWithPermission(@NotNull Long id);
 
     /**
-     * 分页查询数据源列表
+     * Paginated query data source list
      *
      * @param param
      * @param selector
@@ -84,7 +84,7 @@ public interface DataSourceService {
     PageResult<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector);
 
     /**
-     * 分页查询数据源列表
+     * Paginated query data source list
      * Need to determine permissions
      *
      * @param param
@@ -95,7 +95,7 @@ public interface DataSourceService {
     PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector);
 
     /**
-     * 通过ID列表查询数据源
+     * Query data source by ID list
      *
      * @param ids
      * @return
@@ -104,7 +104,7 @@ public interface DataSourceService {
     ListResult<DataSource> queryByIds(List<Long> ids);
 
     /**
-     * 通过ID列表查询数据源
+     * Query data source by ID list
      *
      * @param idList
      * @return
@@ -112,7 +112,7 @@ public interface DataSourceService {
     ListResult<DataSource> listQuery(List<Long> idList, DataSourceSelector selector);
 
     /**
-     * 数据源连接测试
+     * Data source connection test
      *
      * @param param
      * @return
@@ -120,7 +120,7 @@ public interface DataSourceService {
     ActionResult preConnect(DataSourcePreConnectParam param);
 
     /**
-     * 连接数据源
+     * Connect to data source
      *
      * @param id
      * @return
@@ -128,7 +128,7 @@ public interface DataSourceService {
     ListResult<Database> connect(Long id);
 
     /**
-     * 关闭数据源连接
+     * Close data source connection
      *
      * @param id
      * @return

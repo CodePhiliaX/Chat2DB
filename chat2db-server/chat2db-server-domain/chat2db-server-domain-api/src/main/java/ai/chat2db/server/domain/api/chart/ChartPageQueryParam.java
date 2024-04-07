@@ -6,19 +6,19 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version UserSavedDdlPageQueryParam.java, v 0.1 2022年09月25日 14:05 moji Exp $
+ * @version UserSavedDdlPageQueryParam.java, v 0.1 September 25, 2022 14:05 moji Exp $
  * @date 2022/09/25
  */
 @Data
 public class ChartPageQueryParam extends PageQueryParam {
 
     /**
-     * 报表ID
+     * Report ID
      */
     private Long dashboardId;
 
     /**
-     * 搜索关键词
+     * search keyword
      */
     private String searchKey;
 

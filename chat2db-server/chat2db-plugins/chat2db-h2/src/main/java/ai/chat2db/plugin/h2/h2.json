@@ -8,7 +8,7 @@
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/h2-2.1.214.jar"
+        "https://cdn.chat2db-ai.com/lib/h2-2.1.214.jar"
       ],
       "jdbcDriver": "h2-2.1.214.jar",
       "jdbcDriverClass": "org.h2.Driver"

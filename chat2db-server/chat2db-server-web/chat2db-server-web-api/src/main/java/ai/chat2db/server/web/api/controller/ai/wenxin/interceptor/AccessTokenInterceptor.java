@@ -19,12 +19,12 @@ public class AccessTokenInterceptor implements Interceptor {
         Request originalRequest = chain.request();
         HttpUrl originalHttpUrl = originalRequest.url();
 
-        // 使用 HttpUrl.Builder 来添加查询参数 access_token
+        // Use HttpUrl.Builder to add query parameter access_token
         HttpUrl urlWithAccessToken = originalHttpUrl.newBuilder()
                 .addQueryParameter("access_token", accessToken)
                 .build();
 
-        // 创建新的请求，将新的 URL 应用到它上面
+        // Create a new request and apply the new URL to it
         Request newRequest = originalRequest.newBuilder()
                 .url(urlWithAccessToken)
                 .build();

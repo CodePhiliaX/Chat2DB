@@ -17,6 +17,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
@@ -77,7 +78,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             SQLExecutor.getInstance().execute(connection, functionSQL.replace("tableSchema", schemaName),
                     resultSet -> null);
         } catch (Exception e) {
-            //log.error("创建函数失败", e);
+            //log.error("Failed to create function", e);
         }
 
         String ddlSql = "SELECT " + schemaName + ".ufn_GetCreateTableScript('" + schemaName + "', '" + tableName
@@ -397,5 +398,15 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     @Override
     public CommandExecutor getCommandExecutor() {
         return new SqlServerCommandExecutor();
+    }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
     }
 }

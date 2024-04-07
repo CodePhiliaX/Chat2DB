@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author jipengfei
- * @version : HomeController.java, v 0.1 2022年09月18日 14:52 jipengfei Exp $
+ * @version : HomeController.java, v 0.1 September 18, 2022 14:52 jipengfei Exp $
  */
 @RestController
 @RequestMapping("/api/system")
@@ -47,7 +47,7 @@ public class SystemController {
     private ConfigService configService;
 
     /**
-     * 检测是否成功
+     * Check if the test is successful
      *
      * @return
      */
@@ -124,7 +124,7 @@ public class SystemController {
     }
 
     /**
-     * 获取当前版本号
+     * Get the current version number
      *
      * @return
      */
@@ -134,11 +134,11 @@ public class SystemController {
     }
 
     /**
-     * 退出服务
+     * Exit service
      */
     @RequestMapping("/stop")
     public DataResult<String> stop(boolean forceQuit) {
-        log.info("退出应用");
+        log.info("Exit application");
         if (forceQuit) {
             stop();
         } else {
@@ -154,21 +154,21 @@ public class SystemController {
 
     private void stop() {
         new Thread(() -> {
-            // 会在100ms以后 退出后台
+            //  Will exit the background after 100ms
             try {
                 Thread.sleep(200L);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            log.info("开始退出Spring应用");
+            log.info("Start exiting Spring application");
             SSHManager.close();
             try {
                 SpringApplication.exit(applicationContext);
             } catch (Exception ignore) {
             }
-            // 有可能SpringApplication.exit 会退出失败
-            // 直接系统退出
-            log.info("开始退出系统应用");
+            // It is possible that SpringApplication.exit will fail to exit
+            // Direct system exit
+            log.info("Start exiting system applications");
             CacheManage.close();
             try {
                 System.exit(0);

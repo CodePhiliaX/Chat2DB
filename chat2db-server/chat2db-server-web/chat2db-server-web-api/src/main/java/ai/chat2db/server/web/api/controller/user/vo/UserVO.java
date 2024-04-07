@@ -20,28 +20,28 @@ public class UserVO implements Serializable {
     private static final long serialVersionUID = 502943167829222727L;
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 昵称
+     * nickName
      */
     private String nickName;
 
 
     /**
-     * 邮箱
+     * email
      */
     private String email;
 }

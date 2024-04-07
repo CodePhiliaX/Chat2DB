@@ -41,9 +41,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
- * 用户服务
+ * User service
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Service
 public class UserServiceImpl implements UserService {

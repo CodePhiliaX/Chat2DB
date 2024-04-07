@@ -39,7 +39,7 @@ public class WsServer {
 
     private static final AtomicInteger OnlineCount = new AtomicInteger(0);
 
-    // concurrent包的线程安全Set，用来存放每个客户端对应的Session对象。
+    // The thread-safe Set of the concurrent package is used to store the Session object corresponding to each client.
     private static CopyOnWriteArraySet<Session> SessionSet = new CopyOnWriteArraySet<Session>();
 
     private static int num = 0;
@@ -55,14 +55,14 @@ public class WsServer {
     private WsService wsService;
 
     /**
-     * 连接建立成功调用的方法
+     * Method called when connection is established successfully
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("token") String token) throws IOException {
         SessionSet.add(session);
         this.session = session;
-        int cnt = OnlineCount.incrementAndGet(); // 在线数加1
-        log.info("有连接加入，当前连接数为：{}", cnt);
+        int cnt = OnlineCount.incrementAndGet(); // Add 1 to the online number
+        log.info("There are connections added, and the current number of connections is: {}", cnt);
 
         heartBeat(session);
         this.wsService = ApplicationContextUtil.getBean(WsService.class);
@@ -92,7 +92,7 @@ public class WsServer {
 
 
     /**
-     * 连接关闭调用的方法
+     * Method called on connection close
      */
     @OnClose
     public void onClose() throws IOException {
@@ -122,21 +122,21 @@ public class WsServer {
                 }
             }
             int cnt = OnlineCount.decrementAndGet();
-            log.info("有连接关闭，session:{},{}", session, this);
-            log.info("有连接关闭，当前连接数为：{}", cnt);
+            log.info("A connection was closed, session:{},{}", session, this);
+            log.info("A connection is closed, the current number of connections is: {}", cnt);
         }
     }
 
     /**
-     * 收到客户端消息后调用的方法
+     * Method called after receiving client message
      *
-     * @param message 客户端发送过来的消息
+     * @param message message sent by the client
      */
     @OnMessage(maxMessageSize = 1024000)
     public void onMessage(String message, Session session) {
         CompletableFuture.runAsync(() -> {
             WsMessage wsMessage = JSONObject.parseObject(message, WsMessage.class);
-            // 在这里处理你的消息
+            // Process your messages here
             try {
                 String actionType = wsMessage.getActionType();
                 if (WsMessage.ActionType.PING.equalsIgnoreCase(actionType)) {
@@ -186,7 +186,7 @@ public class WsServer {
                 wsResult.setMessage(actionResult);
                 SendMessage(session, wsResult);
             } finally {
-                Chat2DBContext.remove();
+                Chat2DBContext.removeContext();
                 ContextUtils.removeContext();
                 Dbutils.removeSession();
             }
@@ -201,19 +201,19 @@ public class WsServer {
 
 
     /**
-     * 出现错误
+     * An error occurred
      *
      * @param session
      * @param error
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        log.error("发生错误：{}，Session ID： {}", error.getMessage(), session.getId(), error);
+        log.error("An error occurred:{}，Session ID： {}", error.getMessage(), session.getId(), error);
         error.printStackTrace();
     }
 
     /**
-     * 心跳
+     * heartbeat
      *
      * @param session
      */
@@ -225,14 +225,14 @@ public class WsServer {
                 try {
                     onClose();
                 } catch (IOException e) {
-                    log.error("发送消息出错：{}", e.getMessage(), e);
+                    log.error("Error sending message：{}", e.getMessage(), e);
                 }
             }
         }, 600000);
     }
 
     /**
-     * 发送消息，实践表明，每次浏览器刷新，session会发生变化。
+     * Sending a message, practice shows that every time the browser refreshes, the session will change.
      *
      * @param session
      * @param wsResult
@@ -243,7 +243,7 @@ public class WsServer {
                 session.getBasicRemote().sendText(JSONObject.toJSONString(wsResult));
             }
         } catch (IOException e) {
-            log.error("发送消息出错：{}", e.getMessage());
+            log.error("Error sending message：{}", e.getMessage());
             e.printStackTrace();
         }
     }

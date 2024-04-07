@@ -10,29 +10,29 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionVO.java, v 0.1 2022年09月16日 14:15 moji Exp $
+ * @version ConnectionVO.java, v 0.1 September 16, 2022 14:15 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class DataSourceVO {
 
     /**
-     * 主键id
+     * primary key id
      */
     private Long id;
 
     /**
-     * 连接别名
+     * Connection alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     private String url;
 
     /**
-     * 连接用户
+     * Connect users
      */
     private String user;
 
@@ -42,16 +42,16 @@ public class DataSourceVO {
     private String password;
 
     /**
-     * 认证类型
+     * Certification type
      */
     private String authenticationType;
     /**
-     * 连接类型
+     * Connection Type
      */
     private String type;
 
     /**
-     * 环境类型
+     * environment type
      */
     private String envType;
 
@@ -86,56 +86,55 @@ public class DataSourceVO {
     private String driver;
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 
     /**
-     * 环境id
+     * environment id
      */
     private Long environmentId;
 
     /**
-     * 环境
+     * environment
      */
     private SimpleEnvironmentVO environment;
 
     /**
-     * 连接类型
+     * Connection Type
      *
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */
     private String kind;
 
-
     /**
-     * 服务名称
+     * service name
      */
     private String serviceName;
 
     /**
-     * 服务类型
+     * Service type
      */
     private String serviceType;
 
     /**
-     * 是否支持数据库
+     * Whether to support database
      */
     private boolean supportDatabase;
 
     /**
-     * 是否支持schema
+     * Whether to support schema
      */
     private boolean supportSchema;
 }

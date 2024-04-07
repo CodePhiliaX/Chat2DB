@@ -76,7 +76,6 @@ public class Chat2DBAIStreamClient {
     @Getter
     private FastChatOpenAiApi fastChatOpenAiApi;
 
-
     /**
      * @param builder
      */
@@ -115,7 +114,7 @@ public class Chat2DBAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -183,7 +182,7 @@ public class Chat2DBAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -211,7 +210,7 @@ public class Chat2DBAIStreamClient {
                     .url(this.apiHost + "v1/chat/completions")
                     .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                     .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking chat ai");
         } catch (Exception e) {

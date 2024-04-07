@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * satoken 日志打印
+ * satoken Log printing
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Slf4j
 @Component

@@ -7,19 +7,19 @@ import lombok.Getter;
 
 /**
  * @author moji
- * @version DataSourcePageQueryParam.java, v 0.1 2022年09月23日 15:27 moji Exp $
+ * @version DataSourcePageQueryParam.java, v 0.1 September 23, 2022 15:27 moji Exp $
  * @date 2022/09/23
  */
 @Data
 public class DataSourcePageQueryParam extends PageQueryParam {
 
     /**
-     * 搜索关键词
+     * search keyword
      */
     private String searchKey;
 
     /**
-     * 连接类型
+     * Connection Type
      *
      * @see ai.chat2db.server.domain.api.enums.DataSourceKindEnum
      */

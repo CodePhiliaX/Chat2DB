@@ -7,7 +7,7 @@ import ai.chat2db.server.tools.common.model.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 上下文工具类
+ * Context tool class
  *
  * @author Jiaju Zhuang
  */
@@ -15,12 +15,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ContextUtils {
 
     /**
-     * 存储context
+     * Store context
      */
     private static final ThreadLocal<Context> CONTEXT_THREAD_LOCAL = new ThreadLocal<>();
 
     /**
-     * 获取用户id
+     * Get user id
      *
      * @return
      */
@@ -29,12 +29,12 @@ public class ContextUtils {
     }
 
     /**
-     * 获取用户信息
+     * Get user information
      *
-     * @return 可能返回为空
+     * @return may return empty
      */
     public static LoginUser queryLoginUser() {
-        // 去登录信息获取
+        // Go to get login information
         Context context = queryContext();
         if (context == null) {
             return null;
@@ -46,31 +46,31 @@ public class ContextUtils {
     }
 
     /**
-     * 获取用户信息
+     * Get user information
      *
-     * @return 拿不到会抛出重新登陆异常
+     * @return If it cannot be obtained, a re-login exception will be thrown.
      */
     public static LoginUser getLoginUser() {
-        // 去登录信息获取
+        // Go to get login information
         Context context = queryContext();
         if (context != null && context.getLoginUser() != null) {
             return context.getLoginUser();
         }
-        // 判断用户必须登录
+        // Determine that the user must log in
         throw new NeedLoggedInBusinessException();
     }
 
     /**
-     * 查询上下文
+     * query context
      *
-     * @return SaTokenWebMvcConfigurer的拦截器，其他地方调用至少 会返回一个Context ，且里面至少有tokenValue
+     * @return The interceptor of SaTokenWebMvcConfigurer, when called elsewhere, at least a Context will be returned, and there will be at least tokenValue in it.
      */
     public static Context queryContext() {
         return CONTEXT_THREAD_LOCAL.get();
     }
 
     /**
-     * 设置上下文 设置上下文
+     * Set context
      *
      * @param context
      * @return
@@ -80,7 +80,7 @@ public class ContextUtils {
     }
 
     /**
-     * 移除上下文
+     * remove context
      */
     public static void removeContext() {
         CONTEXT_THREAD_LOCAL.remove();

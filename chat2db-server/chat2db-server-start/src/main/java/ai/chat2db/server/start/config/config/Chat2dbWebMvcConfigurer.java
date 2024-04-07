@@ -37,21 +37,21 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * web项目配置
+ * web project configuration
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Configuration
 @Slf4j
 public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
 
     /**
-     * api前缀
+     * api prefix
      */
     private static final String API_PREFIX = "/api/";
 
     /**
-     * 全局放行的url
+     * Globally released url
      */
     private static final String[] FRONT_PERMIT_ALL = new String[] {"/favicon.ico", "/error", "/static/**",
         "/api/system", "/login"};
@@ -62,7 +62,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
 
-        // 所有请求尝试加入用户信息
+        // All requests try to add user information
         registry.addInterceptor(new AsyncHandlerInterceptor() {
                 @Override
                 public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
@@ -86,7 +86,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                     });
 
                     if (loginUser == null) {
-                        // 代表用户可能被删除了
+                        // Indicates that the user may have been deleted
                         return true;
                     }
                     loginUser.setToken(userId.toString());
@@ -100,7 +100,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
                 @Override
                 public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
                     Exception ex) throws Exception {
-                    // 移除登录信息
+                    // Remove login information
                     ContextUtils.removeContext();
                     Dbutils.removeSession();
                 }
@@ -109,7 +109,7 @@ public class Chat2dbWebMvcConfigurer implements WebMvcConfigurer {
             .addPathPatterns("/**")
             .excludePathPatterns(FRONT_PERMIT_ALL);
 
-        // 校验登录信息
+        // Verify login information
 
     }
 

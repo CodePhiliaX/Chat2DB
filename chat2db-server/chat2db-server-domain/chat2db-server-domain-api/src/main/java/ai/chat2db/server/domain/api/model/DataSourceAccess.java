@@ -28,47 +28,47 @@ public class DataSourceAccess implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     @NotNull
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     @NotNull
     private LocalDateTime gmtModified;
 
     /**
-     * 创建人用户id
+     * Creator user id
      */
     private Long createUserId;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 数据源
+     * data source
      */
     @NotNull
     private DataSource dataSource;
 
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */
@@ -76,13 +76,13 @@ public class DataSourceAccess implements Serializable {
     private String accessObjectType;
 
     /**
-     * 授权id,根据类型区分是用户还是团队
+     * Authorization ID, distinguish whether it is a user or a team according to the type
      */
     @NotNull
     private Long accessObjectId;
 
     /**
-     * 授权对象
+     * Authorization object
      * @see DataSourceAccessSelector#setAccessObject(Boolean)
      */
     @NotNull

@@ -28,6 +28,12 @@ public interface CommandExecutor {
 
 
     /**
+     * Execute command
+     */
+    List<ExecuteResult> executeSelectTable(Command command);
+
+
+    /**
      *
      *
      */

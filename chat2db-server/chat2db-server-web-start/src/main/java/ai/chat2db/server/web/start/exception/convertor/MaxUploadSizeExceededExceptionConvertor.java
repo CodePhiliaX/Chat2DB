@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 /**
  * MaxUploadSizeExceededException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class MaxUploadSizeExceededExceptionConvertor implements ExceptionConvertor<MaxUploadSizeExceededException> {
 

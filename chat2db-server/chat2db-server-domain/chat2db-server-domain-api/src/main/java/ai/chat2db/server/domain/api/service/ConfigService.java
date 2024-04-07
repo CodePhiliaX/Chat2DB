@@ -15,7 +15,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 public interface ConfigService {
 
     /**
-     * 创建配置
+     * Create configuration
      *
      * @param param
      * @return
@@ -23,7 +23,7 @@ public interface ConfigService {
     ActionResult create(SystemConfigParam param);
 
     /**
-     * 修改配置
+     * Change setting
      *
      * @param param
      * @return
@@ -31,14 +31,14 @@ public interface ConfigService {
     ActionResult update(SystemConfigParam param);
 
     /**
-     * 插入或者更新
+     * insert or update
      * @param param
      * @return
      */
     ActionResult createOrUpdate(SystemConfigParam param);
 
     /**
-     * 根据code查询
+     * Query based on code
      *
      * @param code
      * @return
@@ -46,7 +46,7 @@ public interface ConfigService {
     DataResult<Config> find(@NotNull String code);
 
     /**
-     * 删除
+     * delete
      *
      * @param code
      * @return

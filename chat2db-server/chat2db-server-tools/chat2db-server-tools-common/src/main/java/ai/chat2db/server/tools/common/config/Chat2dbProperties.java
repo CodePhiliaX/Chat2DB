@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @author moji
- * @version SystemProperties.java, v 0.1 2022年11月13日 14:28 moji Exp $
+ * @version SystemProperties.java, v 0.1 November 13, 2022 14:28 moji Exp $
  * @date 2022/11/13
  */
 @Configuration
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 public class Chat2dbProperties {
 
     /**
-     * 版本
+     * version
      */
     private String version;
 

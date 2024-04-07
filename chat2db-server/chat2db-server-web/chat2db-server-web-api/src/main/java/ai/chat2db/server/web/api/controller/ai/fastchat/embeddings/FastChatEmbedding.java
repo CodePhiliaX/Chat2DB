@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * 描述：
+ * description：
  *
  * @author https:www.unfbx.com
  *  2023-02-15
@@ -26,7 +26,7 @@ public class FastChatEmbedding implements Serializable {
     @Builder.Default
     private String model = Model.TEXT_EMBEDDING_ADA_002.getName();
     /**
-     * 必选项：长度不能超过：8192
+     * Required: Length cannot exceed: 8192
      */
     @NonNull
     private String input;
@@ -49,11 +49,11 @@ public class FastChatEmbedding implements Serializable {
 
     public void setInput(String input) {
         if (input == null || "".equals(input)) {
-            log.error("input不能为空");
+            log.error("input cannot be empty");
             throw new BaseException(CommonError.PARAM_ERROR);
         }
         if (input.length() > 8192) {
-            log.error("input超长");
+            log.error("input is too long");
             throw new BaseException(CommonError.PARAM_ERROR);
         }
         this.input = input;

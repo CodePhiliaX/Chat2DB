@@ -47,7 +47,7 @@ public class SchemaController {
     private DatabaseService databaseService;
 
     /**
-     * 查询数据库里包含的schema_list
+     * Query the schema_list contained in the database
      *
      * @param request
      * @return
@@ -62,7 +62,7 @@ public class SchemaController {
     }
 
     /**
-     * 删除schema
+     * Delete schema
      *
      * @param request
      * @return
@@ -75,7 +75,7 @@ public class SchemaController {
     }
 
     /**
-     * 创建schema
+     * Create schema
      *
      * @param request
      * @return
@@ -91,7 +91,7 @@ public class SchemaController {
     }
 
     /**
-     * 创建database
+     * Modify schema
      *
      * @param request
      * @return

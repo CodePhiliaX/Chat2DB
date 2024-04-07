@@ -2,14 +2,14 @@
 name: Build Client
 
 # Workflow's trigger
-# 在创建标签的时候打包
+# Pack when creating tags
 on:
   push:
     tags:
       - v*
 
 # Workflow's jobs
-# 一共需要3台电脑运行
+# A total of 3 computers are required to run
 # windows
 # macos-latest x86_64
 # macos-latest arm64
@@ -31,7 +31,7 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@main
 
-      # 获取版本号 workflow不支持 所以用插件
+      # Obtaining the version number is not supported by workflow, so a plug-in is used.
       - name: Create version
         id: chat2db_version
         uses: bhowell2/github-substring-action@1.0.1
@@ -39,13 +39,13 @@ jobs:
           value: ${{ github.ref }}
           index_of_str: "refs/tags/v"
 
-      # 输出基础信息
+      # Output basic information
       - name: Print basic information
         run: |
           echo "current environment: ${{ env.CHAT2DB_ENVIRONMENT }}"
           echo "current version: ${{ steps.chat2db_version.outputs.substring }}"
 
-      # 安装jre Windows
+      # Install jre Windows
       - name: Install Jre for Windows
         if: ${{ runner.os == 'Windows' }}
         uses: actions/setup-java@main
@@ -54,7 +54,7 @@ jobs:
           distribution: "temurin"
           java-package: "jre"
 
-      # 安装jre MacOS X64
+      # Install jre MacOS X64
       - name: Install Jre MacOS X64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         uses: actions/setup-java@main
@@ -63,7 +63,7 @@ jobs:
           distribution: "temurin"
           java-package: "jre"
 
-      # 安装jre MacOS arm64
+      # Install jre MacOS arm64
       - name: Install Jre MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         uses: actions/setup-java@main
@@ -73,7 +73,7 @@ jobs:
           java-package: "jre"
           architecture: "aarch64"
 
-          # 安装jre Linux
+          # Install jre Linux
       - name: Install Jre for Linux
         if: ${{ runner.os == 'Linux' }}
         uses: actions/setup-java@main
@@ -82,26 +82,26 @@ jobs:
           distribution: "temurin"
           java-package: "jre"
 
-      # java.security 开放tls1 Windows
+      # java.security open tls1 Windows
       - name: Enable tls1
         if: ${{ runner.os == 'Windows' }}
         run: |
           sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
 
-      # java.security 开放tls1 macOS
+      # java.security open tls1 macOS
       - name: Enable tls1
         if: ${{ runner.os == 'macOS' }}
         run: |
           sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
 
-      # 复制jre Windows
+      # Copy jre Windows
       - name: Copy Jre for Windows
         if: ${{ runner.os == 'Windows' }}
         run: |
           mkdir chat2db-client/static
           cp -r "${{ env.JAVA_HOME }}" chat2db-client/static/jre
 
-      # 复制jre macOS
+      # Copy jre macOS
       - name: Copy Jre for macOS
         if: ${{ runner.os == 'macOS' }}
         run: |
@@ -109,7 +109,7 @@ jobs:
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
-      # 复制jre Linux
+      # Copy jre Linux
       - name: Copy Jre for Linux
         if: ${{ runner.os == 'Linux' }}
         run: |
@@ -117,7 +117,7 @@ jobs:
           cp -r $JAVA_HOME chat2db-client/static/jre
           chmod -R 777 chat2db-client/static/jre/
 
-      # 安装node
+      # Install node
       - name: Install Node.js
         uses: actions/setup-node@main
         with:
@@ -125,7 +125,7 @@ jobs:
           cache: "yarn"
           cache-dependency-path: chat2db-client/yarn.lock
 
-      # 安装java
+      # Install java
       - name: Install Java and Maven
         uses: actions/setup-java@main
         with:
@@ -133,7 +133,7 @@ jobs:
           distribution: "temurin"
           cache: "maven"
 
-      # 构建静态文件信息
+      # Build static file information
       - name: Yarn install & build & copy
         run: |
           cd chat2db-client
@@ -145,7 +145,7 @@ jobs:
           yarn
           yarn run build
 
-      # 编译服务端java版本
+      # Compile server-side java version
       - name: Build Java
         run: mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
 
@@ -160,7 +160,7 @@ jobs:
           echo -n ${{ steps.chat2db_version.outputs.substring }} > version
           cp -r version ./versions/
 
-      # 复制服务端java 到指定位置
+      # Copy server-side java to the specified location
       - name: Copy App
         run: |
           cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/${{ steps.chat2db_version.outputs.substring }}/static/
@@ -245,14 +245,14 @@ jobs:
           args: "-c.extraMetadata.version=${{ steps.chat2db_version.outputs.substring }} --linux"
           release: true
 
-      # 准备要需要的数据 Windows
+      # Prepare the required data Windows
       - name: Prepare upload for Windows
         if: runner.os == 'Windows'
         run: |
           mkdir oss_temp_file
           cp -r chat2db-client/release/*Setup*.exe ./oss_temp_file
 
-      # 准备要需要的数据 MacOS x86_64
+      # Prepare the required data MacOS x86_64
       - name: Prepare upload for MacOS x86_64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         run: |
@@ -265,21 +265,21 @@ jobs:
           cd static/ && zip -r chat2db-server-start.zip ./ 
           cp -r chat2db-server-start.zip ../../../../oss_temp_file
 
-      # 准备要需要的数据 MacOS arm64
+      # Prepare the required data MacOS arm64
       - name: Prepare upload for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         run: |
           mkdir oss_temp_file
           cp -r chat2db-client/release/*.dmg ./oss_temp_file
 
-      # 准备要需要的数据 Linux
+      # Prepare the required data Linux
       - name: Prepare upload for Linux
         if: runner.os == 'Linux'
         run: |
           mkdir oss_temp_file
           cp -r chat2db-client/release/*.AppImage ./oss_temp_file
 
-      # 把文件上传到OSS 方便下载
+      # Upload files to OSS for easy downloading
       - name: Set up oss utils
         uses: yizhoumo/setup-ossutil@v1
         with:
@@ -291,7 +291,7 @@ jobs:
         run: |
           ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/release/${{ steps.chat2db_version.outputs.substring }}/
 
-      # 构建完成通知
+      # Build completion notification
       - name: Send dingtalk message for Windows
         if: ${{ runner.os == 'Windows' }}
         uses: ghostoy/dingtalk-action@master
@@ -304,7 +304,7 @@ jobs:
               "text": "# Windows-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Windows下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB%20Setup%20${{ steps.chat2db_version.outputs.substring }}.exe) "
             }
 
-      # 构建完成通知
+      # Build completion notification
       - name: Send dingtalk message for MacOS x86_64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
         uses: ghostoy/dingtalk-action@master
@@ -317,7 +317,7 @@ jobs:
               "text": "# MacOS-x86_64-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})    \n ### Intel芯片下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg)   \n ### jar包下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/chat2db-server-start.zip) "
             }
 
-      # 构建完成通知
+      # Build completion notification
       - name: Send dingtalk message for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
         uses: ghostoy/dingtalk-action@master
@@ -330,7 +330,7 @@ jobs:
               "text": "# MacOS-arm64-release-打包完成通知   \n ![bang](https://oss.sqlgpt.cn/static/happy100.jpg)   \n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})   \n ### Apple芯片下载地址：[https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg](https://oss.sqlgpt.cn/release/${{ steps.chat2db_version.outputs.substring }}/Chat2DB-${{ steps.chat2db_version.outputs.substring }}-arm64.dmg) "
             }
 
-      # 构建完成通知
+      # Build completion notification
       - name: Send dingtalk message for Linux
         if: ${{ runner.os == 'Linux' }}
         uses: ghostoy/dingtalk-action@master

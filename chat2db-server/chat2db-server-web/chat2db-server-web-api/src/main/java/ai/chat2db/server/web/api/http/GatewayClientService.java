@@ -14,7 +14,7 @@ import java.time.Duration;
 
 
 /**
- * Gateway 的http 服务
+ * Gateway http service
  *
  * @author Jiaju Zhuang
  */
@@ -28,7 +28,7 @@ public class GatewayClientService {
     private Chat2dbProperties chat2dbProperties;
 
     /**
-     * 获取公众号的二维码
+     * Get the QR code of the official account
      *
      * @return
      */
@@ -59,7 +59,7 @@ public class GatewayClientService {
     }
 
     /**
-     * 返回剩余次数
+     * Return the remaining times
      *
      * @param key
      * @return
@@ -204,7 +204,7 @@ public class GatewayClientService {
      * @return
      */
     public DataResult<Boolean> checkInWhite(WhiteListRequest whiteListRequest) {
-        // 去掉白名单
+        // Remove whitelist
         return DataResult.of(false);
 //        DataResult<Boolean> result = Forest.get(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/whitelist/check")
 //                .connectTimeout(Duration.ofMillis(5000))
@@ -215,14 +215,5 @@ public class GatewayClientService {
 //        return result;
     }
 
-    public ActionResult addOperationLog(SqlExecuteHistoryCreateRequest request) {
-        ActionResult result = Forest.post(chat2dbProperties.getGateway().getBaseUrl() + "/api/client/sql/execute/history")
-                .connectTimeout(Duration.ofMillis(5000))
-                .readTimeout(Duration.ofMillis(10000))
-                .contentType("application/json")
-                .addBody(request)
-                .execute(new TypeReference<>() {
-                });
-        return result;
-    }
+
 }

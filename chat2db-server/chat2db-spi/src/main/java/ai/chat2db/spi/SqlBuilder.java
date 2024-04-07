@@ -4,7 +4,7 @@ import ai.chat2db.spi.model.*;
 
 import java.util.List;
 
-public interface SqlBuilder {
+public interface SqlBuilder<T> {
 
     /**
      * Generate create table sql
@@ -12,7 +12,7 @@ public interface SqlBuilder {
      * @param table
      * @return
      */
-    String buildCreateTableSql(Table table);
+     String buildCreateTableSql(T table);
 
 
     /**
@@ -22,7 +22,7 @@ public interface SqlBuilder {
      * @param oldTable
      * @return
      */
-    String buildModifyTaleSql(Table oldTable, Table newTable);
+    String buildModifyTaleSql(T oldTable, T newTable);
 
 
     /**
@@ -79,6 +79,13 @@ public interface SqlBuilder {
     /**
      * generate sql based on results
      */
-    String generateSqlBasedOnResults(String tableName, List<Header> headerList, List<ResultOperation> operations);
+    String buildSqlByQuery(QueryResult queryResult);
 
+    /**
+     * DML SQL
+     * @param table
+     * @param type
+     * @return
+     */
+    String getTableDmlSql(T table,String type);
 }

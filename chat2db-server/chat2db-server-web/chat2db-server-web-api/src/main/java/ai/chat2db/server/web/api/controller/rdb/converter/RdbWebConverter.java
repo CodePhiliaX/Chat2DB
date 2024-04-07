@@ -27,14 +27,14 @@ import org.mapstruct.Mappings;
 
 /**
  * @author moji
- * @version MysqlDataConverter.java, v 0.1 2022年10月14日 14:04 moji Exp $
+ * @version MysqlDataConverter.java, v 0.1 October 14, 2022 14:04 moji Exp $
  * @date 2022/10/14
  */
 @Mapper(componentModel = "spring")
 public abstract class RdbWebConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -43,7 +43,7 @@ public abstract class RdbWebConverter {
 
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -51,7 +51,7 @@ public abstract class RdbWebConverter {
     public abstract OrderByParam request2param(OrderByRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -59,7 +59,7 @@ public abstract class RdbWebConverter {
     public abstract DlExecuteParam request2param(DmlTableRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -68,7 +68,7 @@ public abstract class RdbWebConverter {
 
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -76,7 +76,7 @@ public abstract class RdbWebConverter {
     public abstract DlCountParam request2param(DdlCountRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -85,7 +85,7 @@ public abstract class RdbWebConverter {
 
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -93,28 +93,28 @@ public abstract class RdbWebConverter {
     public abstract Table tableRequest2param(TableRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param dto
      * @return
      */
     public abstract SqlVO dto2vo(Sql dto);
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
      */
     public abstract TablePageQueryParam tablePageRequest2param(TableBriefQueryRequest request);
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
      */
     public abstract TablePageQueryParam tablePageRequest2param(DataExportRequest request);
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -122,7 +122,7 @@ public abstract class RdbWebConverter {
     public abstract TableQueryParam tableRequest2param(DataExportRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -130,7 +130,7 @@ public abstract class RdbWebConverter {
     public abstract ShowCreateTableParam ddlExport2showCreate(DdlExportRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -139,7 +139,7 @@ public abstract class RdbWebConverter {
 
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dto
      * @return
@@ -147,7 +147,7 @@ public abstract class RdbWebConverter {
     public abstract ExecuteResultVO dto2vo(ExecuteResult dto);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dtos
      * @return
@@ -155,7 +155,7 @@ public abstract class RdbWebConverter {
     public abstract List<ExecuteResultVO> dto2vo(List<ExecuteResult> dtos);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dto
      * @return
@@ -163,7 +163,7 @@ public abstract class RdbWebConverter {
     public abstract ColumnVO columnDto2vo(TableColumn dto);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dtos
      * @return
@@ -171,7 +171,7 @@ public abstract class RdbWebConverter {
     public abstract List<ColumnVO> columnDto2vo(List<TableColumn> dtos);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dto
      * @return
@@ -182,7 +182,7 @@ public abstract class RdbWebConverter {
     public abstract IndexVO indexDto2vo(TableIndex dto);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dtos
      * @return
@@ -190,7 +190,7 @@ public abstract class RdbWebConverter {
     public abstract List<IndexVO> indexDto2vo(List<TableIndex> dtos);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dto
      * @return
@@ -202,7 +202,7 @@ public abstract class RdbWebConverter {
     public abstract TableVO tableDto2vo(Table dto);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dtos
      * @return
@@ -210,21 +210,21 @@ public abstract class RdbWebConverter {
     public abstract List<TableVO> tableDto2vo(List<Table> dtos);
 
     /**
-     * 模型转换
+     * Model conversion
      * @param tableColumns
      * @return
      */
     public abstract List<SchemaVO> schemaDto2vo(List<Schema> tableColumns);
 
     /**
-     * 模型转换
+     * Model conversion
      * @param dto
      * @return
      */
     public abstract SchemaVO schemaDto2vo(Schema dto);
 
     /**
-     * 模型转换
+     * Model conversion
      * @param dto
      * @return
      */
@@ -232,7 +232,7 @@ public abstract class RdbWebConverter {
 
 
     /**
-     * 模型转换
+     * Model conversion
      * @param dto
      * @return
      */
@@ -254,4 +254,6 @@ public abstract class RdbWebConverter {
     public abstract EsTableSchemaRequest req2req(TableBriefQueryRequest request);
 
     public abstract TablePageQueryParam schemaReq2page(EsTableSchemaRequest request);
+
+    public abstract DmlSqlCopyParam dmlRequest2param(DmlSqlCopyRequest request) ;
 }

@@ -4,27 +4,31 @@ import lombok.Getter;
 
 /**
  * @author moji
- * @version ConnectionTypeEnum.java, v 0.1 2022年09月16日 14:59 moji Exp $
+ * @version ConnectionTypeEnum.java, v 0.1 September 16, 2022 14:59 moji Exp $
  * @date 2022/09/16
  */
 @Getter
 public enum DataSourceTypeEnum implements BaseEnum<String> {
 
     /**
-     * mysql数据库连接
+     * mysql database connection
      */
-    MYSQL("mysql数据库连接"),
+    MYSQL("mysql database connection"),
 
     /**
-     * redis数据库连接
+     * redis database connection
      */
-    REDIS("redis数据库连接"),
-
+    REDIS("redis database connection"),
 
     /**
-     * mongo数据库连接
+     * sqlserver database connection
      */
-    MONGODB("mongo数据库连接"),
+    SQLSERVER("sqlserver database connection"),
+
+    /**
+     * mongo database connection
+     */
+    MONGODB("mongo database connection"),
 
     ;
 

@@ -45,10 +45,10 @@ public class CustomCellWriteWidthConfig extends AbstractColumnWidthStyleStrategy
     }
 
     /**
-     * 计算长度
-     * @param cellDataList cell数据
+     * Calculate length
+     * @param cellDataList cell data
      * @param cell cell
-     * @param isHead 是否是标题
+     * @param isHead whether it is the title
      * @return
      */
     private Integer dataLength(List<WriteCellData<?>> cellDataList, Cell cell, Boolean isHead) {
@@ -62,7 +62,7 @@ public class CustomCellWriteWidthConfig extends AbstractColumnWidthStyleStrategy
             } else {
                 switch (type) {
                     case STRING:
-                        // 换行符（数据需要提前解析好）
+                        // Newline character (data needs to be parsed in advance)
                         int index = cellData.getStringValue().indexOf("\n");
                         return index != -1 ?
                                 cellData.getStringValue().substring(0, index).getBytes().length + 1 : cellData.getStringValue().getBytes().length + 1;

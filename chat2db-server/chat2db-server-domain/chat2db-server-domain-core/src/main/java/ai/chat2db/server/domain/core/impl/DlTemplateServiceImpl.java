@@ -17,7 +17,6 @@ import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
-import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.SqlUtils;
 import com.alibaba.druid.DbType;
@@ -28,6 +27,7 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author moji
- * @version DataSourceCoreServiceImpl.java, v 0.1 2022年09月23日 15:51 moji Exp $
+ * @version DataSourceCoreServiceImpl.java, v 0.1 September 23, 2022 15:51 moji Exp $
  * @date 2022/09/23
  */
 @Slf4j
@@ -61,12 +61,15 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         CommandExecutor executor = Chat2DBContext.getMetaData().getCommandExecutor();
         Command command = commandConverter.param2model(param);
         List<ExecuteResult> results = executor.execute(command);
+        return reBuildHeader(results,param.getSchemaName(),param.getDatabaseName());
+    }
+
+    private ListResult<ExecuteResult> reBuildHeader(List<ExecuteResult> results,String schemaName,String databaseName){
         ListResult<ExecuteResult> listResult = ListResult.of(results);
         for (ExecuteResult executeResult : results) {
             List<Header> headers = executeResult.getHeaderList();
             if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)) {
-                headers = setColumnInfo(headers, executeResult.getTableName(), param.getSchemaName(),
-                        param.getDatabaseName());
+                headers = setColumnInfo(headers, executeResult.getTableName(), schemaName, databaseName);
                 executeResult.setHeaderList(headers);
             }
             if (!executeResult.getSuccess()) {
@@ -77,12 +80,13 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             addOperationLog(executeResult);
         }
         return listResult;
+    }
 
-//        if ("SQLSERVER".equalsIgnoreCase(type)) {
-//            RemoveSpecialGO(param);
-//        }
-
-
+    @Override
+    public ListResult<ExecuteResult> executeSelectTable(DlExecuteParam param) {
+        Command command = commandConverter.param2model(param);
+        List<ExecuteResult> results = Chat2DBContext.getMetaData().getCommandExecutor().executeSelectTable(command);
+        return reBuildHeader(results,param.getSchemaName(),param.getDatabaseName());
     }
 
     @Override
@@ -123,7 +127,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         String sql = param.getSql();
-        // 解析sql分页
+        // Parse sql pagination
         SQLStatement sqlStatement = SQLUtils.parseSingleStatement(sql, dbType);
         if (!(sqlStatement instanceof SQLSelectStatement)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
@@ -135,7 +139,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             executeResult = Chat2DBContext.getMetaData().getCommandExecutor().execute(sql, Chat2DBContext.getConnection(), true, null, null,
                     valueHandler);
         } catch (SQLException e) {
-            log.warn("执行sql:{}异常", sql, e);
+            log.warn("Execute sql: {} exception", sql, e);
             executeResult = ExecuteResult.builder()
                     .sql(sql)
                     .success(Boolean.FALSE)
@@ -159,8 +163,9 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     @Override
     public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
-        String sql = sqlBuilder.generateSqlBasedOnResults(param.getTableName(), param.getHeaderList(),
-                param.getOperations());
+        QueryResult queryResult = new QueryResult();
+        BeanUtils.copyProperties(param, queryResult);
+        String sql = sqlBuilder.buildSqlByQuery(queryResult);
         return DataResult.of(sql);
     }
 

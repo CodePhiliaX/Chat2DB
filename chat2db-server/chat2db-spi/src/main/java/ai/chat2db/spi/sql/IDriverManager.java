@@ -177,7 +177,7 @@ public class IDriverManager {
                 try {
                     cl.loadClass(driverConfig.getJdbcDriverClass());
                 } catch (Exception e) {
-                    //如果报错删除目录重试一次
+                    //If an error is reported, delete the directory and try again.
                     for (int i = 0; i < jarPaths.length; i++) {
                         File driverFile = new File(JdbcJarUtils.getNewFullPath(jarPaths[i]));
                         urls[i] = driverFile.toURI().toURL();

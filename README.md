@@ -28,7 +28,7 @@ Languages： English | [中文](README_CN.md)
 Official website：[Chat2DB](https://sqlgpt.cn/en)
 
 <div style="display: flex; align-items: center;">
-  If you find Chat2DB helpful, please help<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>Click ⭐ Star and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get bette
+  If you find Chat2DB helpful, please help<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a>Click ⭐ Star and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get better
 </div>
 
 </div>
@@ -109,7 +109,6 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
 ## 📦 Docker installation
 
 ```bash
-```bash
   // Pull the latest client, then run Docker with the name 'chat2db', and mount 'root. chat2db' to '~. chat2db Docker'`
   docker run --name=chat2db -ti -p 10824:10824 -v ~/.chat2db-docker:/root/.chat2db  chat2db/chat2db:latest
   // The normal prompt here is' Tomcat started on port (s): 10824 (http) with context path ', which will complete the process
@@ -118,7 +117,6 @@ Redis and MongoDB are partially supported , Hbase、Elasticsearch、openGauss、
   docker start chat2db
   // If you want to update chat2db, you need to first rm
   docker rm chat2db
-```
 ```
 
 ## 🎯 Operating Environment
@@ -180,11 +178,11 @@ $ npm run build:web:prod / cp -r dist ../chat2db-server/chat2db-server-start/src
 
 ### WeChat
 
-<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/e4239d29-1426-4361-bf57-f1b0b67d1281" width="40%"/></a>
+<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="40%"/></a>
 
 ### Discord
 <!-- [![Discord](https://img.shields.io/badge/-Discord-%237289DA.svg?style=flat&logo=Discord&logoColor=white)](您的Discord邀请链接) -->
-[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.gg/N6JscF7q)
+[![Discord](https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white)](https://discord.com/invite/Zn9dFQKSJa)
 
 ## LICENSE
 
@@ -193,7 +191,7 @@ The primary license used by this software is the [Apache License 2.0](https://ww
 
 ## ❤️ Acknowledgements
 
-Thanks to all the students who contributed to Chat2DB~
+Thanks to all the students who contributed to Chat2DB~~
 
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />

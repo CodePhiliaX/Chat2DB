@@ -8,7 +8,7 @@
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/sqlite-jdbc-3.39.3.0.jar"
+        "https://cdn.chat2db-ai.com/lib/sqlite-jdbc-3.39.3.0.jar"
       ],
       "jdbcDriver": "sqlite-jdbc-3.39.3.0.jar",
       "jdbcDriverClass": "org.sqlite.JDBC"

@@ -45,7 +45,7 @@ public class AIConfig {
 
     /**
      * return data stream
-     * 非必填，默认值为TRUE
+     * Optional, default value is TRUE
      */
     private Boolean stream = Boolean.TRUE;
 

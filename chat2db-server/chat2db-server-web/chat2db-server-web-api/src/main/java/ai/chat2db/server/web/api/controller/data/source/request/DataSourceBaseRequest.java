@@ -6,25 +6,25 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version MysqlBaseRequest.java, v 0.1 2022年09月18日 11:51 moji Exp $
+ * @version MysqlBaseRequest.java, v 0.1 September 18, 2022 11:51 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class DataSourceBaseRequest implements DataSourceBaseRequestInfo{
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
 
