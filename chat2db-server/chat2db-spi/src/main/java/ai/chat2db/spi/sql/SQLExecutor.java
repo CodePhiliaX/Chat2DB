@@ -615,7 +615,7 @@ public class SQLExecutor implements CommandExecutor {
         if (supportDruid) {
             try {
                 sqlStatement = SQLUtils.parseSingleStatement(originalSql, dbType);
-            } catch (ParserException e) {
+            } catch (Exception e) {
                 log.warn("Failed to parse sql: {}", originalSql, e);
             }
         }
