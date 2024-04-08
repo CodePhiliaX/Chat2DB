@@ -25,7 +25,7 @@
                 and tc.schema_name = #{schemaName}
             </if>
             <if test="searchKey != null and searchKey != '' ">
-                and LOWER(tc.table_name) like LOWER(concat('%',#{searchKey},'%'))
+                and (LOWER(tc.table_name) like LOWER(concat('%',#{searchKey},'%')) or tc.extend_info like concat('%',#{searchKey},'%'))
             </if>
         </where>
     </select>
