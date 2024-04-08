@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import configService from '@/service/config';
 import { AIType } from '@/typings/ai';
-import { Alert, Button, Form, Input, Radio, RadioChangeEvent } from 'antd';
+import { Alert, Button, Flex, Form, Input, Radio, RadioChangeEvent } from 'antd';
 import i18n from '@/i18n';
 import { IAiConfig } from '@/typings/setting';
 import { IRole } from '@/typings/user';
 import { AIFormConfig, AITypeName } from './aiTypeConfig';
 import styles from './index.less';
-import { useUserStore } from '@/store/user'
+import { useUserStore } from '@/store/user';
+import { getLinkBasedOnTimezone } from '@/utils/timezone';
 
 interface IProps {
   handleApplyAiConfig: (aiConfig: IAiConfig) => void;
@@ -21,11 +22,11 @@ function capitalizeFirstLetter(string) {
 // openAI 的设置项
 export default function SettingAI(props: IProps) {
   const [aiConfig, setAiConfig] = useState<IAiConfig>();
-  const { userInfo } = useUserStore(state => {
+  const { userInfo } = useUserStore((state) => {
     return {
-      userInfo: state.curUser
-    }
-  })
+      userInfo: state.curUser,
+    };
+  });
 
   useEffect(() => {
     setAiConfig(props.aiConfig);
@@ -65,6 +66,57 @@ export default function SettingAI(props: IProps) {
     }
   };
 
+  const renderAIConfig = () => {
+    if (aiConfig?.aiSqlSource === AIType.CHAT2DBAI) {
+      return (
+        <Flex justify="center">
+          <Button
+            type="primary"
+            onClick={() => {
+              const link = getLinkBasedOnTimezone();
+              window.open(link, '_blank');
+            }}
+          >
+            {i18n('setting.chat2db.ai.button')}
+          </Button>
+        </Flex>
+      );
+    }
+    return (
+      <>
+        <Form layout="vertical">
+          {Object.keys(AIFormConfig[aiConfig?.aiSqlSource]).map((key: string) => (
+            <Form.Item
+              key={key}
+              required={key === 'apiKey' || key === 'secretKey'}
+              label={capitalizeFirstLetter(key)}
+              className={styles.title}
+            >
+              <Input
+                autoComplete="off"
+                value={aiConfig[key]}
+                placeholder={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
+                onChange={(e) => {
+                  setAiConfig({ ...aiConfig, [key]: e.target.value });
+                }}
+              />
+            </Form.Item>
+          ))}
+        </Form>
+        {aiConfig.aiSqlSource === AIType.RESTAI && (
+          <div style={{ margin: '32px 0 ', fontSize: '12px', opacity: '0.5' }}>{`Tips: ${i18n(
+            'setting.tab.aiType.custom.tips',
+          )}`}</div>
+        )}
+        <div className={styles.bottomButton}>
+          <Button type="primary" onClick={handleApplyAiConfig}>
+            {i18n('setting.button.apply')}
+          </Button>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
       <div className={styles.aiSqlSource}>
@@ -78,36 +130,7 @@ export default function SettingAI(props: IProps) {
         </Radio.Group>
       </div>
 
-      <Form layout="vertical">
-        {Object.keys(AIFormConfig[aiConfig?.aiSqlSource]).map((key: string) => (
-          <Form.Item
-            key={key}
-            required={key === 'apiKey' || key === 'secretKey'}
-            label={capitalizeFirstLetter(key)}
-            className={styles.title}
-          >
-            <Input
-              autoComplete="off"
-              value={aiConfig[key]}
-              placeholder={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
-              onChange={(e) => {
-                setAiConfig({ ...aiConfig, [key]: e.target.value });
-              }}
-            />
-          </Form.Item>
-        ))}
-      </Form>
-
-      {aiConfig.aiSqlSource === AIType.RESTAI && (
-        <div style={{ margin: '32px 0 ', fontSize: '12px', opacity: '0.5' }}>{`Tips: ${i18n(
-          'setting.tab.aiType.custom.tips',
-        )}`}</div>
-      )}
-      <div className={styles.bottomButton}>
-        <Button type="primary" onClick={handleApplyAiConfig}>
-          {i18n('setting.button.apply')}
-        </Button>
-      </div>
+      {renderAIConfig()}
 
       {/* {aiConfig?.aiSqlSource === AIType.CHAT2DBAI && !aiConfig.apiKey && <Popularize source="setting" />} */}
     </>

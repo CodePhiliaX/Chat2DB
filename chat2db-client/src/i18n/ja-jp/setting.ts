@@ -21,7 +21,7 @@ export default {
   'setting.tab.aiType.baichuan': '百川',
   'setting.tab.aiType.wenxin': '文心一言',
   'setting.tab.aiType.tongyiqianwen': '通義千問',
-  'setting.tab.aiType.custom.tips': "インターフェース形式はOpenAIのものと互換性があります",
+  'setting.tab.aiType.custom.tips': 'インターフェース形式はOpenAIのものと互換性があります',
   'setting.label.serviceAddress': 'サービスアドレス',
   'setting.button.apply': '適用',
   'setting.text.currentEnv': '現在の環境',
@@ -29,10 +29,13 @@ export default {
   'setting.text.viewingUpdateLogs': '更新ログを見る',
   'setting.label.isStreamOutput': 'ストリーム出力を行うか',
   'setting.label.customAiUrl': 'カスタムAIのURL',
-  'setting.placeholder.httpsProxy': '任意項目、OpenAIインターフェースをリクエストする際のHTTPプロキシを設定するためのもの{1}',
-  'setting.placeholder.apiKey': 'OpenAIインターフェースを使用する場合は必須です。APIキーはOpenAI公式サイトで確認できます',
+  'setting.placeholder.httpsProxy':
+    '任意項目、OpenAIインターフェースをリクエストする際のHTTPプロキシを設定するためのもの{1}',
+  'setting.placeholder.apiKey':
+    'OpenAIインターフェースを使用する場合は必須です。APIキーはOpenAI公式サイトで確認できます',
   'setting.placeholder.chat2dbApiKey': 'Chat2DBが提供するAPIキーを使用します',
-  'setting.placeholder.customUrl': 'カスタムAIを選択する場合は必須で、カスタムAIのRESTインターフェースのURLを設定します',
+  'setting.placeholder.customUrl':
+    'カスタムAIを選択する場合は必須で、カスタムAIのRESTインターフェースのURLを設定します',
   'setting.placeholder.apiHost': '任意項目、デフォルト値はhttps://api.openai.com/',
   'setting.message.urlTestError': 'インターフェースのテストに合格しません',
   'setting.placeholder.azureOpenAIKey': 'AzureポータルからAzure OpenAIキーを取得します',
@@ -51,9 +54,12 @@ export default {
   'setting.text.autoUpdate': '新しいバージョンを自動でダウンロードしてインストールする',
   'setting.text.manualUpdate': '新しいバージョンがリリースされたときにのみ通知する',
   'setting.button.iSee': '了解しました',
-  'setting.text.newEditionIsReady': '新しいバージョンがダウンロードされました。ソフトウェアを再起動すると新しいバージョンがインストールされます',
+  'setting.text.newEditionIsReady':
+    '新しいバージョンがダウンロードされました。ソフトウェアを再起動すると新しいバージョンがインストールされます',
   'setting.button.goToUpdate': '更新に進む',
   'setting.text.UpdatedLatestVersion': '最新バージョン {1} に更新しました',
   'setting.title.holdingService': 'サービスを維持',
   'setting.text.holdingService': 'アプリケーションを終了してもサービスを維持し、起動速度を向上させます',
+  'setting.chat2db.ai.button': 'より強力なAI機能を体験するために、Chat2DB Proをご利用ください',
+  'setting.title.goto.chat2db.pro': 'Chat2DB Proへ行く',
 };

@@ -86,7 +86,12 @@ jobs:
       - name: Enable tls1
         if: ${{ runner.os == 'Windows' }}
         run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+          # sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+          $filePath = "${{ env.JAVA_HOME }}\conf\security\java.security"
+          $content = Get-Content $filePath -Raw
+          $updatedContent = $content -replace '^(jdk.tls.disabledAlgorithms=)(.*)( TLSv1, TLSv1.1,)(.*)', '$1$2$4'
+          $updatedContent | Set-Content $filePath
+        shell: pwsh
 
       # java.security open tls1 macOS
       - name: Enable tls1
