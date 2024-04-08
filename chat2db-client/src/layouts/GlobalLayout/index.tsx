@@ -15,8 +15,6 @@ import { ThemeType } from '@/constants';
 import GlobalComponent from '../init/GlobalComponent';
 import styles from './index.less';
 import { useUserStore, queryCurUser } from '@/store/user';
-import AppTitleBar from '@/blocks/AppTitleBar';
-import OpenScreenAnimation from '@/components/OpenScreenAnimation';
 
 const GlobalLayout = () => {
   const [appTheme, setAppTheme] = useTheme();
@@ -63,20 +61,18 @@ const GlobalLayout = () => {
   };
 
   // 等待状态页面
-  // if (serviceStatus === ServiceStatus.PENDING || curUser === null) {
-  //   return (
-  //     <div className={styles.app}>
-  //       <AppTitleBar className={styles.appTitleBar} />
-  //       <Spin className={styles.loadingBox} size="large" />
-  //     </div>
-  //   );
-  // }
+  if (serviceStatus === ServiceStatus.PENDING || curUser === null) {
+    return (
+      <div className={styles.app}>
+        <Spin className={styles.loadingBox} size="large" />
+      </div>
+    );
+  }
 
   // 错误状态页面
   if (serviceStatus === ServiceStatus.FAILURE) {
     return (
       <div className={styles.app}>
-        <AppTitleBar className={styles.appTitleBar} />
         <div className={styles.loadingBox}>
           <Button type="primary" onClick={restartPolling} style={{ marginBottom: 20 }}>
             <SyncOutlined />
@@ -100,9 +96,6 @@ const GlobalLayout = () => {
   return (
     <ConfigProvider locale={isEn ? antdEnUS : antdZhCN} theme={antdTheme}>
       <div className={styles.app}>
-        {/* Open screen animation  */}
-        {(serviceStatus === ServiceStatus.PENDING || curUser === null) && <OpenScreenAnimation />}
-        <AppTitleBar className={styles.appTitleBar} />
         <div className={styles.appBody}>
           <Outlet />
         </div>
