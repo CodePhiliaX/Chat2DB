@@ -21,7 +21,7 @@ export default {
   'setting.tab.aiType.baichuan': 'BaiChuan AI',
   'setting.tab.aiType.wenxin': 'WenXin AI',
   'setting.tab.aiType.tongyiqianwen': 'TongYiQianWen AI',
-  'setting.tab.aiType.custom.tips': "The API format is consistent with the OpenAI API format",
+  'setting.tab.aiType.custom.tips': 'The API format is consistent with the OpenAI API format',
   'setting.label.serviceAddress': 'Service Address',
   'setting.button.apply': 'Apply',
   'setting.text.currentEnv': 'Current Env',
@@ -51,9 +51,12 @@ export default {
   'setting.text.autoUpdate': 'The new version automatically downloads and installs updates',
   'setting.text.manualUpdate': 'Only alert me when a new version is released',
   'setting.button.iSee': 'I see',
-  'setting.text.newEditionIsReady': 'New version to download completed, restart the software will install the new version',
+  'setting.text.newEditionIsReady':
+    'New version to download completed, restart the software will install the new version',
   'setting.button.goToUpdate': 'Go to update',
   'setting.text.UpdatedLatestVersion': 'Updated to the latest version {1}',
   'setting.title.holdingService': 'Holding Service',
   'setting.text.holdingService': 'Keep the service when exiting the application to speed up startup',
+  'setting.chat2db.ai.button': 'Please visit Chat2DB Pro for more powerful AI features',
+  'setting.title.goto.chat2db.pro': 'Go to Chat2DB Pro',
 };

@@ -4,7 +4,7 @@ import Iconfont from '@/components/Iconfont';
 import { Modal, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import BaseSetting from './BaseSetting';
-import AISetting from './AiSetting';
+import AISetting from './AISetting';
 import ProxySetting from './ProxySetting';
 import About from './About';
 import styles from './index.less';

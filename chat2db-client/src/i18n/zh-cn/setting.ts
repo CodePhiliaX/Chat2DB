@@ -21,7 +21,7 @@ export default {
   'setting.tab.aiType.baichuan': '百川',
   'setting.tab.aiType.wenxin': '文心一言',
   'setting.tab.aiType.tongyiqianwen': '通义千问',
-  'setting.tab.aiType.custom.tips': "接口格式与OpenAI接口格式一致",
+  'setting.tab.aiType.custom.tips': '接口格式与OpenAI接口格式一致',
   'setting.label.serviceAddress': '服务地址',
   'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',
@@ -56,5 +56,6 @@ export default {
   'setting.text.UpdatedLatestVersion': '已更新到最新版本 {1}',
   'setting.title.holdingService': '保持服务',
   'setting.text.holdingService': '退出应用时保持服务，加快启动速度',
-
+  'setting.chat2db.ai.button': '请前往 Chat2DB Pro 体验更为强大的AI功能',
+  'setting.title.goto.chat2db.pro': '前往Chat2DB Pro',
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, Tooltip } from 'antd';
 import classnames from 'classnames';
 
 import Iconfont from '@/components/Iconfont';
@@ -32,7 +32,8 @@ import Setting from '@/blocks/Setting';
 
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
-
+import { getLinkBasedOnTimezone } from '@/utils/timezone';
+import { RocketIcon } from 'lucide-react';
 
 const initNavConfig: INavItem[] = [
   {
@@ -188,7 +189,7 @@ function MainPage() {
   return (
     <div className={styles.page}>
       <div className={styles.layoutLeft}>
-        {(isMac === void 0) && <BrandLogo size={38} className={styles.brandLogo} />}
+        {isMac === void 0 && <BrandLogo size={38} className={styles.brandLogo} />}
         <ul className={styles.navList}>
           {navConfig.map((item) => {
             return (
@@ -206,9 +207,18 @@ function MainPage() {
           })}
         </ul>
         <div className={styles.footer}>
-          <Tooltip placement="right" title="个人中心">
-            {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
+          <Tooltip placement="right" title={i18n('setting.title.goto.chat2db.pro')}>
+            <RocketIcon
+              className={styles.rocketIcon} 
+              onClick={() => {
+                const link = getLinkBasedOnTimezone();
+                window.open(link, '_blank');
+              }}
+            />
           </Tooltip>
+          {/* <Tooltip placement="right" title="个人中心">
+            {userInfo?.roleCode !== IRole.DESKTOP ? renderUser() : null}
+          </Tooltip> */}
           <Setting className={styles.setIcon} />
         </div>
       </div>
