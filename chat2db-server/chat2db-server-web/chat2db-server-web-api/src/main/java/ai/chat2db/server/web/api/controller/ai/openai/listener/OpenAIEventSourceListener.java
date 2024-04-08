@@ -185,11 +185,12 @@ public class OpenAIEventSourceListener extends EventSourceListener {
                     if ("get_table_columns".equals(functionName)) {
                         JSONObject arguments = JSONObject.parse(function.getArguments());
                         handleTableNames(tableNames,arguments.get("table_names"));
+                        log.info("原始参数:{},处理后:{}",arguments,tableNames);
                     }
                 }
             }
             Message message = new Message();
-            message.setContent("选择表" + tableNames);
+            message.setContent("选择表" + tableNames+"\n");
             sseEmitter.send(SseEmitter.event()
                     .data(message)
                     .reconnectTime(3000));

@@ -400,6 +400,7 @@ public class PromptService {
     public String queryDatabaseTables(ChatQueryRequest queryRequest) {
         try {
             TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(queryRequest);
+            queryParam.queryAll();
             TableSelector tableSelector = new TableSelector();
             tableSelector.setColumnList(true);
             tableSelector.setIndexList(false);
