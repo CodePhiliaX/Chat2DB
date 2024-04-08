@@ -11,24 +11,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - os: windows-latest
-          #   file_extension: ".exe"
-          #   file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe"
-          #   build_arg: "--win --x64"
-          # - os: macos-latest
-          #   arch: x86_64
-          #   file_name: "https://download.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg"
-          #   file_extension: ".dmg"
-          #   build_arg: "--mac --x64"
+          - os: windows-latest
+            file_extension: ".exe"
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe"
+            build_arg: "--win --x64"
+          - os: macos-latest
+            arch: x86_64
+            file_name: "https://download.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg"
+            file_extension: ".dmg"
+            build_arg: "--mac --x64"
           - os: macos-latest
             arch: arm64
             file_name: "https://download.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg"
             file_extension: ".dmg"
             build_arg: "--mac --arm64"
-          # - os: ubuntu-latest
-          #   file_name: "https://download.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage"
-          #   file_extension: ".AppImage"
-          #   build_arg: "--linux"
+          - os: ubuntu-latest
+            file_name: "https://download.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage"
+            file_extension: ".AppImage"
+            build_arg: "--linux"
     runs-on: ${{ matrix.os }}
 
     steps:
