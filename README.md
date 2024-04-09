@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://chat2db.ai/" target="_blank">
+    <a href="https://chat2db-ai.com/" target="_blank">
         <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/cover.png" alt="Chat2DB" />
     </a>
 </p>
@@ -8,7 +8,7 @@
 
 # Chat2DB
 
-**English** | [中文](README_CN.md)· [Changelog](CHANGELOG.md) · [Doc](https://docs.chat2db.ai/) · [Report Bug](https://github.com/chat2db/Chat2DB/issues) · [PR](https://github.com/chat2db/Chat2DB/pulls)
+**English** | [中文](README_CN.md)· [Changelog](CHANGELOG.md) · [Doc](https://docs./) · [Report Bug](https://github.com/chat2db/Chat2DB/issues) · [PR](https://github.com/chat2db/Chat2DB/pulls)
 
 </div>
 
@@ -82,7 +82,7 @@ Chat2DB Pro supports all the following databases, including the most requested R
 
 ## ⏬ Download and Install Chat2DB(Pro)
 
-- Download installation package from [official website](https://chat2db.ai/download)
+- Download installation package from [official website](https://chat2db-ai.com/download)
 - Double click package to install
 
 
