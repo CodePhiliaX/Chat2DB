@@ -12,9 +12,12 @@
 
 </div>
 
+
+
 <div align="center">
 <p align="center"><b>Share Chat2DB Repository </b></p>
 <p align="center">
+
 <a href="https://twitter.com/intent/tweet?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB&hashtags=ChatGPT,AGI,SQL%20Client,Reporting%20tool" target="blank" > <img src="https://img.shields.io/twitter/follow/_Chat2DB?label=Share on Twitter&style=social" alt=""/> </a> 
 <a href="https://t.me/share/url?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Telegram&logo=Telegram&style=social&url=https://github.com/chat2db/Chat2DB" alt="Share on Telegram"/></a>
 <a href="https://api.whatsapp.com/send?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%20https://github.com/chat2db/Chat2DB"><img src="https://img.shields.io/twitter/url?label=whatsapp&logo=whatsapp&style=social&url=https://github.com/chat2db/Chat2DB" /></a>
@@ -24,9 +27,12 @@
 
 
 <div style="display: flex; align-items: center;">
-  If you think Chat2DB helpful, please click ⭐ Star<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a> and Fork in the top right corner, and your support is the biggest motivation for Chat2DB to get better
+  If you think Chat2DB helpful, please click ⭐ Star<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a> and Fork this repo in the top right corner
 </div>
-
+<div style="display: flex; align-items: center;">
+  Or upvote on Product Hunt
+   <a href="https://www.producthunt.com/posts/chat2db-pro?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chat2db&#0045;pro" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=450017&theme=light" alt="Chat2DB&#0032;Pro - AI&#0032;driven&#0032;data&#0032;development&#0032;and&#0032;analysis&#0032;platform | Product Hunt" style="width: 200px; height: 40px;" width="250" height="54" /></a> your support is the biggest motivation for Chat2DB to get better
+</div>
 </div>
 
 # NEWS
