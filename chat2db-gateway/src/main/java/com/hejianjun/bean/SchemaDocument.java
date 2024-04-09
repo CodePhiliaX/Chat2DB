@@ -1,4 +1,4 @@
-package com.hejianjun;
+package com.hejianjun.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

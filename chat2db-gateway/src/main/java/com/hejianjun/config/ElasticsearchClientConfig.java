@@ -1,4 +1,4 @@
-package com.hejianjun;
+package com.hejianjun.config;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchClientConfig {
 
-    String apiKey = "DVaOd3B6Rl*9sWUeTIHO";
+    String apiKey = "0E9NGIy7gb8a3TDVM8dC";
 
     /**
      * 创建ElasticsearchClient实例
