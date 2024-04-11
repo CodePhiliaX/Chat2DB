@@ -177,7 +177,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         if (!originalArray[0].equals(targetArray[0])) {
             int a = findIndex(originalArray, targetArray[0]);
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, 0);
+            String[] newArray = moveElement(originalArray, a, 0, targetArray);
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
@@ -201,7 +201,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             int a = findIndex(originalArray, targetArray[max]);
             //System.out.println("Move " + originalArray[a] + " after " + (a > 0 ? originalArray[max] : "start"));
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, max);
+            String[] newArray = moveElement(originalArray, a, max, targetArray);
             if (n > 0) {
                 sql.append("ALTER TABLE ");
                 if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
@@ -257,7 +257,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
 
                 sql.append(";\n");
                 n++;
-                String[] newArray = moveElement(originalArray, i, a);
+                String[] newArray = moveElement(originalArray, i, a, targetArray);
                 if (Arrays.equals(newArray, targetArray)) {
                     return newArray;
                 }
@@ -280,20 +280,41 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
     }
 
     private static boolean isMoveValid(String[] originalArray, String[] targetArray, int i, int a) {
-        return (i == 0 || a == 0 || !originalArray[i - 1].equals(targetArray[a - 1])) &&
-                (i >= originalArray.length - 1 || a >= targetArray.length - 1 || !originalArray[i + 1].equals(targetArray[a + 1]));
+        return ((i == 0 || a == 0 || !originalArray[i - 1].equals(targetArray[a - 1])) &&
+                (i >= originalArray.length - 1 || a >= targetArray.length - 1 || !originalArray[i + 1].equals(targetArray[a + 1])))
+                || (i > 0 && a > 0 && !originalArray[i - 1].equals(targetArray[a - 1]));
     }
 
-    private static String[] moveElement(String[] originalArray, int from, int to) {
+    private static String[] moveElement(String[] originalArray, int from, int to, String[] targetArray) {
         String[] newArray = new String[originalArray.length];
         System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
         String temp = newArray[from];
+        // 是否有连续移动数据
+        boolean isContinuousData = false;
+        // 连续数据数量
+        int continuousDataCount = 0;
         if (from < to) {
-            System.arraycopy(originalArray, from + 1, newArray, from, to - from);
+            for (int i = to; i < originalArray.length - 1; i++) {
+                if (originalArray[i+1].equals(targetArray[findIndex(targetArray, originalArray[i]) +1])) {
+                    continuousDataCount++;
+                } else {
+                    break;
+                }
+            }
+            if (continuousDataCount > 0) {
+                System.arraycopy(originalArray, from + 1, newArray, from, to - from +1);
+                isContinuousData = true;
+            } else {
+                System.arraycopy(originalArray, from + 1, newArray, from, to - from);
+            }
         } else {
             System.arraycopy(originalArray, to, newArray, to + 1, from - to);
         }
-        newArray[to] = temp;
+        if (isContinuousData){
+            newArray[to+continuousDataCount] = temp;
+        } else {
+            newArray[to] = temp;
+        }
         return newArray;
     }
 
