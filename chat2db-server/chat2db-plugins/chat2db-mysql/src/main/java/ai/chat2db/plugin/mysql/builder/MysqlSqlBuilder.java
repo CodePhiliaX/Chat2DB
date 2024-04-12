@@ -12,6 +12,7 @@ import cn.hutool.core.util.ArrayUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MysqlSqlBuilder extends DefaultSqlBuilder {
@@ -177,7 +178,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         if (!originalArray[0].equals(targetArray[0])) {
             int a = findIndex(originalArray, targetArray[0]);
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, 0, targetArray);
+            String[] newArray = moveElement(originalArray, a, 0, targetArray, new AtomicInteger(0));
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
@@ -201,7 +202,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             int a = findIndex(originalArray, targetArray[max]);
             //System.out.println("Move " + originalArray[a] + " after " + (a > 0 ? originalArray[max] : "start"));
             TableColumn column = oldTable.getColumnList().stream().filter(col -> StringUtils.equals(col.getName(), originalArray[a])).findFirst().get();
-            String[] newArray = moveElement(originalArray, a, max, targetArray);
+            String[] newArray = moveElement(originalArray, a, max, targetArray, new AtomicInteger(0));
             if (n > 0) {
                 sql.append("ALTER TABLE ");
                 if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
@@ -249,15 +250,17 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
                     sql.append(" COMMENT '").append(column.getComment()).append("'");
                 }
                 sql.append(" AFTER ");
+                AtomicInteger continuousDataCount = new AtomicInteger(0);
+                String[] newArray = moveElement(originalArray, i, a, targetArray, continuousDataCount);
                 if (i < a) {
-                    sql.append(originalArray[a]);
+                    sql.append(originalArray[a + continuousDataCount.get()]);
                 } else {
                     sql.append(originalArray[a - 1]);
                 }
 
                 sql.append(";\n");
                 n++;
-                String[] newArray = moveElement(originalArray, i, a, targetArray);
+
                 if (Arrays.equals(newArray, targetArray)) {
                     return newArray;
                 }
@@ -285,23 +288,22 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
                 || (i > 0 && a > 0 && !originalArray[i - 1].equals(targetArray[a - 1]));
     }
 
-    private static String[] moveElement(String[] originalArray, int from, int to, String[] targetArray) {
+    private static String[] moveElement(String[] originalArray, int from, int to, String[] targetArray, AtomicInteger continuousDataCount) {
         String[] newArray = new String[originalArray.length];
         System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
         String temp = newArray[from];
         // 是否有连续移动数据
         boolean isContinuousData = false;
         // 连续数据数量
-        int continuousDataCount = 0;
         if (from < to) {
             for (int i = to; i < originalArray.length - 1; i++) {
                 if (originalArray[i+1].equals(targetArray[findIndex(targetArray, originalArray[i]) +1])) {
-                    continuousDataCount++;
+                    continuousDataCount.set(continuousDataCount.incrementAndGet());
                 } else {
                     break;
                 }
             }
-            if (continuousDataCount > 0) {
+            if (continuousDataCount.get() > 0) {
                 System.arraycopy(originalArray, from + 1, newArray, from, to - from +1);
                 isContinuousData = true;
             } else {
@@ -311,7 +313,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             System.arraycopy(originalArray, to, newArray, to + 1, from - to);
         }
         if (isContinuousData){
-            newArray[to+continuousDataCount] = temp;
+            newArray[to+continuousDataCount.get()] = temp;
         } else {
             newArray[to] = temp;
         }
