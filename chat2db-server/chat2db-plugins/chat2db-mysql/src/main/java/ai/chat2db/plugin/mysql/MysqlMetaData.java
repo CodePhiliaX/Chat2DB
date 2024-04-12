@@ -125,8 +125,8 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         String sql = "SHOW PROCEDURE STATUS WHERE Db = DATABASE()";
        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
            ArrayList<Procedure> procedures = new ArrayList<>();
-           Procedure procedure = new Procedure();
            while (resultSet.next()){
+               Procedure procedure = new Procedure();
                procedure.setProcedureName(resultSet.getString("Name"));
                procedures.add(procedure);
            }
