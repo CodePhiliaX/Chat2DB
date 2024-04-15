@@ -8,7 +8,7 @@ import Iconfont from '@/components/Iconfont';
 import i18n from '@/i18n';
 // import { useNavigate } from 'react-router-dom';
 import { logoutClearSomeLocalStorage, navigate } from '@/utils';
-import { queryCurUser } from '@/store/user'
+import { queryCurUser } from '@/store/user';
 
 interface IFormData {
   userName: string;
@@ -38,8 +38,9 @@ const Login: React.FC = () => {
         <div className={styles.loginWelcome}>{i18n('login.text.welcome')}</div>
         <Tooltip
           placement="right"
+          color={window._AppThemePack?.colorBgBase}
           title={
-            <div>
+            <div style={{ color: window._AppThemePack?.colorText, opacity: 0.8, padding: '8px 4px' }}>
               {i18n('login.text.tips')}
             </div>
           }
