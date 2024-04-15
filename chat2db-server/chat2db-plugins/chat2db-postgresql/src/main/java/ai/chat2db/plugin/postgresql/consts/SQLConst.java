@@ -1,14 +1,14 @@
 package ai.chat2db.plugin.postgresql.consts;
 
 public class SQLConst {
-    public static String FUNCTION_SQL =
+    public static String TABLE_DEF_FUNCTION_SQL =
             """
-            DROP TYPE IF EXISTS public.tabledefs CASCADE;
-                                          CREATE TYPE public.tabledefs AS ENUM ('PKEY_INTERNAL','PKEY_EXTERNAL','FKEYS_INTERNAL', 'FKEYS_EXTERNAL', 'COMMENTS', 'FKEYS_NONE', 'INCLUDE_TRIGGERS', 'NO_TRIGGERS');
+            DROP TYPE IF EXISTS tabledefs CASCADE;
+                                          CREATE TYPE tabledefs AS ENUM ('PKEY_INTERNAL','PKEY_EXTERNAL','FKEYS_INTERNAL', 'FKEYS_EXTERNAL', 'COMMENTS', 'FKEYS_NONE', 'INCLUDE_TRIGGERS', 'NO_TRIGGERS');
                                           
-                                          -- SELECT * FROM public.pg_get_coldef('sample','orders','id');
-                                          -- DROP FUNCTION public.pg_get_coldef(text,text,text,boolean);
-                                          CREATE OR REPLACE FUNCTION public.pg_get_coldef(
+                                          -- SELECT * FROM pg_get_coldef('sample','orders','id');
+                                          -- DROP FUNCTION pg_get_coldef(text,text,text,boolean);
+                                          CREATE OR REPLACE FUNCTION pg_get_coldef(
                                             in_schema text,
                                             in_table  text,
                                             in_column text,
@@ -57,13 +57,13 @@ public class SQLConst {
                                           END;
                                           $$;
                                           
-                                          -- SELECT * FROM public.pg_get_tabledef('sample', 'address', false);
-                                          DROP FUNCTION IF EXISTS public.pg_get_tabledef(character varying,character varying,boolean,tabledefs[]);
-                                          CREATE OR REPLACE FUNCTION public.pg_get_tabledef(
+                                          -- SELECT * FROM pg_get_tabledef('sample', 'address', false);
+                                          DROP FUNCTION IF EXISTS pg_get_tabledef(character varying,character varying,boolean,tabledefs[]);
+                                          CREATE OR REPLACE FUNCTION pg_get_tabledef(
                                             in_schema varchar,
                                             in_table varchar,
                                             _verbose boolean,
-                                            VARIADIC arr public.tabledefs[] DEFAULT '{}':: public.tabledefs[]
+                                            VARIADIC arr tabledefs[] DEFAULT '{}':: tabledefs[]
                                           )
                                           RETURNS text
                                           LANGUAGE plpgsql VOLATILE
@@ -111,12 +111,12 @@ public class SQLConst {
                                             	fkcnt            int := 0;
                                           	  trigcnt          int := 0;
                                           	  cmtcnt           int := 0;
-                                              pktype           public.tabledefs := 'PKEY_INTERNAL';
-                                              fktype           public.tabledefs := 'FKEYS_INTERNAL';
-                                              trigtype         public.tabledefs := 'NO_TRIGGERS';
+                                              pktype           tabledefs := 'PKEY_INTERNAL';
+                                              fktype           tabledefs := 'FKEYS_INTERNAL';
+                                              trigtype         tabledefs := 'NO_TRIGGERS';
                                               arglen           integer;
                                             	vargs            text;
-                                          	  avarg            public.tabledefs;
+                                          	  avarg            tabledefs;
                                           
                                               -- exception variables
                                               v_ret            text;
@@ -323,7 +323,7 @@ public class SQLConst {
                                                      -- SELECT pg_get_serial_sequence(v_qualified, v_colrec.column_name) into v_temp;
                                                      SELECT pg_get_serial_sequence(quote_ident(in_schema) || '.' || quote_ident(in_table), v_colrec.column_name) into v_temp;
                                                      IF v_temp IS NULL THEN v_temp = 'NA'; END IF;
-                                                     SELECT public.pg_get_coldef(in_schema, in_table,v_colrec.column_name) INTO v_diag1;
+                                                     SELECT pg_get_coldef(in_schema, in_table,v_colrec.column_name) INTO v_diag1;
                                                      RAISE NOTICE 'DEBUG table: %  Column: %  datatype: %  Serial=%  serialval=%  coldef=%', v_qualified, v_colrec.column_name, v_colrec.data_type, bSerial, v_temp, v_diag1;
                                                      RAISE NOTICE 'DEBUG tabledef: %', v_table_ddl;
                                                    END IF;
@@ -351,12 +351,12 @@ public class SQLConst {
                                           		         v_temp = v_colrec.udt_schema || '.' || v_colrec.udt_name;
                                           		     ELSEIF v_colrec.data_type = 'ARRAY' THEN
                                              		       -- Issue#6 fix: handle arrays
-                                          		         v_temp = public.pg_get_coldef(in_schema, in_table,v_colrec.column_name);
+                                          		         v_temp = pg_get_coldef(in_schema, in_table,v_colrec.column_name);
                                                        -- v17 fix: handle case-sensitive for pg_get_serial_sequence that requires SQL Identifier handling
                                             		       -- WHEN pg_get_serial_sequence(v_qualified, v_colrec.column_name) IS NOT NULL
                                           		     ELSEIF pg_get_serial_sequence(quote_ident(in_schema) || '.' || quote_ident(in_table), v_colrec.column_name) IS NOT NULL THEN
                                           		         -- Issue#8 fix: handle serial. Note: NOT NULL is implied so no need to declare it explicitly
-                                          		         v_temp = public.pg_get_coldef(in_schema, in_table,v_colrec.column_name);
+                                          		         v_temp = pg_get_coldef(in_schema, in_table,v_colrec.column_name);
                                           		     ELSE
                                           		         v_temp = v_colrec.data_type;
                                                    END IF;
