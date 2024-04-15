@@ -6,6 +6,7 @@ import cn.hutool.core.io.unit.DataSizeUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class DefaultValueHandler implements ValueHandler {
 
-    private static final long MAX_RESULT_SIZE = 256 * 1024;
+    private static final long MAX_RESULT_SIZE = 10* 1024 * 1024;
 
     @Override
     public String getString(ResultSet rs, int index, boolean limitSize) throws SQLException {
@@ -54,7 +55,7 @@ public class DefaultValueHandler implements ValueHandler {
             length = Math.toIntExact(MAX_RESULT_SIZE);
         }
         byte[] data = blob.getBytes(1, length);
-        String result = new String(data);
+        String result = new String(data, StandardCharsets.UTF_8);
 
         if (length > MAX_RESULT_SIZE) {
             return "[ " + DataSizeUtil.format(MAX_RESULT_SIZE) + " of " + DataSizeUtil.format(length)
