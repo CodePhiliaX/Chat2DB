@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.DROP_TYPE_SQL;
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.TABLE_DEF_FUNCTION_SQL;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
@@ -103,6 +104,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
+        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL,schemaName,"tabledefs"), resultSet -> null);
         SQLExecutor.getInstance().execute(connection, TABLE_DEF_FUNCTION_SQL, resultSet -> null);
         String ddlSql = String.format("select * from pg_get_tabledef('%s','%s',false,'COMMENTS') as ddl;", schemaName, tableName);
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
