@@ -262,5 +262,31 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
     public static String format(String name) {
         return "`" + name + "`";
     }
+
+    private static String VIEW_SQL
+            = "SHOW CREATE TABLE `%s`.`%s`";
+
+    @Override
+    public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
+        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            Table table = new Table();
+            table.setDatabaseName(databaseName);
+            table.setSchemaName(schemaName);
+            table.setName(viewName);
+            StringBuilder sb = new StringBuilder();
+            while (resultSet.next()) {
+                // 拼接建表语句
+                sb.append(resultSet.getString("createtab_stmt"));
+                sb.append("\r\n");
+            }
+            if (sb.length() > 0) {
+                sb = sb.delete(sb.length() - 2, sb.length());
+                sb.append(";");
+                table.setDdl(sb.toString());
+            }
+            return table;
+        });
+    }
 }
 
