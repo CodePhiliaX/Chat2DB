@@ -80,9 +80,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         if (CollectionUtils.isEmpty(schemas)) {
             return;
         }
-        String ulr = null;
+        String url = null;
         try {
-            ulr = connection.getMetaData().getURL();
+            if (connection.getMetaData().getClass().getName().contains("HiveDatabaseMetaData")) {
+                url = "";
+            } else {
+                url = connection.getMetaData().getURL();
+            }
         } catch (SQLException e) {
             log.error("get url error", e);
         }
@@ -90,7 +94,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         int num = -1;
         for (int i = 0; i < schemas.size(); i++) {
             String schema = schemas.get(i).getName();
-            if (StringUtils.isNotBlank(ulr) && schema!=null && ulr.contains(schema)) {
+            if (StringUtils.isNotBlank(url) && schema!=null && url.contains(schema)) {
                 num = i;
                 break;
             }
