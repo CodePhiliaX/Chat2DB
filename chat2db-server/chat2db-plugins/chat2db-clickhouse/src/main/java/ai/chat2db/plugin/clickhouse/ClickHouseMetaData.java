@@ -225,7 +225,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl(resultSet.getString(1));
+                table.setDdl(resultSet.getString("create_table_query"));
             }
             return table;
         });
