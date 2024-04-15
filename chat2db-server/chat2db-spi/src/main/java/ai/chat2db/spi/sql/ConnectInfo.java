@@ -14,12 +14,14 @@ import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.model.SSLInfo;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ObjectUtils;
 
 /**
  * @author jipengfei
  * @version : ConnectInfo.java
  */
+@Slf4j
 public class ConnectInfo {
 
     private String loginUser;
@@ -560,9 +562,10 @@ public class ConnectInfo {
             try {
                 if (connection != null && !connection.isClosed()) {
                     connection.close();
+                    log.info("connection close success");
                 }
             } catch (SQLException e) {
-
+                log.error("connection close error",e);
             }
             com.jcraft.jsch.Session session = this.getSession();
             if (session != null && session.isConnected() && this.getSsh() != null
@@ -570,6 +573,7 @@ public class ConnectInfo {
                 try {
                     session.delPortForwardingL(Integer.parseInt(this.getSsh().getLocalPort()));
                 } catch (JSchException e) {
+                    log.error("ssh close error",e);
                 }
             }
         }

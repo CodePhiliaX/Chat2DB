@@ -95,12 +95,18 @@ public class Chat2DBContext {
                     connection = connectInfo.getConnection();
                     try {
                         if (connection != null && !connection.isClosed()) {
+                            log.info("get connection from cache");
                             return connection;
                         } else {
+                            log.info("get connection from db begin");
                             connection = getDBManage().getConnection(connectInfo);
+                            log.info("get connection from db end");
                         }
                     } catch (SQLException e) {
+                        log.error("get connection error", e);
+                        log.info("get connection from db begin2");
                         connection = getDBManage().getConnection(connectInfo);
+                        log.info("get connection from db end2");
                     }
                     connectInfo.setConnection(connection);
                 }

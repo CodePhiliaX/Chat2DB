@@ -12,13 +12,13 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
-import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.create.procedure.CreateProcedure;
 import net.sf.jsqlparser.statement.select.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class SqlUtils {
 
     public static void buildCanEditResult(String sql, DbType dbType, ExecuteResult executeResult) {
         try {
-            Statement statement ;
+            Statement statement;
             if (DbType.sqlserver.equals(dbType)) {
                 statement = CCJSqlParserUtil.parse(sql, ccjSqlParser -> ccjSqlParser.withSquareBracketQuotation(true));
             } else {
@@ -121,7 +121,12 @@ public class SqlUtils {
             Statements statements = CCJSqlParserUtil.parseStatements(sql);
             // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
-                list.add(stmt.toString());
+                if (!(stmt instanceof CreateProcedure)) {
+                    list.add(stmt.toString());
+                }
+            }
+            if (CollectionUtils.isEmpty(list)) {
+                list.add(sql);
             }
         } catch (Exception e) {
             list = SQLParserUtils.splitAndRemoveComment(sql, dbType);
