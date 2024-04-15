@@ -558,6 +558,7 @@ public class SQLConst {
                   if bSkip THEN CONTINUE; END IF;
                  
                   v_indexrec.indexdef := REPLACE(v_indexrec.indexdef, 'CREATE INDEX', 'CREATE INDEX IF NOT EXISTS');
+                  v_indexrec.indexdef := REPLACE(v_indexrec.indexdef, 'CREATE UNIQUE INDEX', 'CREATE UNIQUE INDEX IF NOT EXISTS');
                   IF v_partition_key IS NOT NULL AND v_partition_key <> '' THEN
                       v_table_ddl := v_table_ddl || v_indexrec.indexdef || ';' || E'\\n';
                   ELSE
