@@ -150,7 +150,7 @@ public enum HiveColumnTypeEnum implements ColumnBuilder {
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
                 return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
             } else {
-                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+                return StringUtils.join("CHANGE `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
             }
         }
         return "";
