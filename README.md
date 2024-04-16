@@ -88,7 +88,7 @@ Chat2DB Pro supports all the following databases, including the most requested R
 
 ## ⏬ Download and Install Chat2DB(Pro)
 
-- Download installation package from [official website](https://chat2db-ai.com/download)
+- Download installation package from [official website](https://chat2db.ai/download)
 - Double click package to install
 
 
