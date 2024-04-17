@@ -73,10 +73,15 @@ public class DefaultValueHandler implements ValueHandler {
         if (obj instanceof Timestamp) {
             // Convert a time field of type Object to a LocalDateTime object
             localDateTime = ((Timestamp) timeField).toLocalDateTime();
+        } else if(obj instanceof  LocalDateTime){
+            localDateTime = (LocalDateTime) timeField;
         } else {
-            localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            try {
+                localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+            }catch (Exception e){
+                localDateTime = LocalDateTime.parse(timeField.toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+            }
         }
-
         // Create a DateTimeFormatter instance and specify the output date and time format
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
