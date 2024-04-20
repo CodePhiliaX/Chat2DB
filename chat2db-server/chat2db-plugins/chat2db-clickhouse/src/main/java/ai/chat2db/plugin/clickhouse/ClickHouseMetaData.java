@@ -38,10 +38,10 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             = "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '%s';";
     private static String SELECT_TABLE_COLUMNS = "select * from `system`.columns where table ='%s' and database='%s';";
     private static String VIEW_SQL
-            = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s'";
+            = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s' and engine='View'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
     public static final String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
-    private static String SELECT_TABLE_SQL = "SELECT name,comment from system.`tables` WHERE `database`='%s'";
+    private static String SELECT_TABLE_SQL = "SELECT name,comment from system.tables WHERE engine !='View' and database='%s'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
@@ -232,7 +232,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
-        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        String sql = String.format(VIEW_SQL, schemaName, viewName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Table table = new Table();
             table.setDatabaseName(databaseName);
