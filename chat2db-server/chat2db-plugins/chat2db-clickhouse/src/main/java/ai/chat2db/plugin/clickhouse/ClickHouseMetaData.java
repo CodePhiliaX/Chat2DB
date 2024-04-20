@@ -95,11 +95,10 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                            @NotEmpty String tableName) {
-        String sql = "SHOW CREATE TABLE " + format(databaseName) + "."
-                + format(tableName);
+        String sql =String.format("show create table %s.%s", schemaName, tableName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             if (resultSet.next()) {
-                return resultSet.getString("Create Table");
+                return resultSet.getString("statement");
             }
             return null;
         });
