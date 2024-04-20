@@ -1,6 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.user.TableExportDataParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
@@ -12,20 +13,22 @@ import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.EmbeddingController;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
+import ai.chat2db.server.web.api.controller.rdb.data.export.strategy.ExportDBDataStrategy;
+import ai.chat2db.server.web.api.controller.rdb.factory.ExportDBDataStrategyFactory;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
 import com.google.common.collect.Lists;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -254,5 +257,19 @@ public class TableController extends EmbeddingController {
     public ActionResult delete(@Valid @RequestBody TableDeleteRequest request) {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
+    }
+    @PostMapping("/export_data")
+    public void exportData(@Valid @RequestBody TableExportDataRequest request, HttpServletResponse response)  {
+        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportType());
+        response.setCharacterEncoding("utf-8");
+        TableExportDataParam param = rdbWebConverter.request2param(request);
+        try {
+            Constructor<?> constructor = targetClass.getDeclaredConstructor();
+            ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
+            service.doExport(param, response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

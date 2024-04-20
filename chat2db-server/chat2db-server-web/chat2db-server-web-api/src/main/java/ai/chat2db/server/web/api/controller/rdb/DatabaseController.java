@@ -139,6 +139,7 @@ public class DatabaseController {
             ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
             service.doExport(param, response);
         } catch (Exception e) {
+            response.reset();
             throw new RuntimeException(e);
         }
 

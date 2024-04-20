@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.converter;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.param.*;
+import ai.chat2db.server.domain.api.param.user.TableExportDataParam;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
@@ -256,4 +257,7 @@ public abstract class RdbWebConverter {
     public abstract TablePageQueryParam schemaReq2page(EsTableSchemaRequest request);
 
     public abstract DmlSqlCopyParam dmlRequest2param(DmlSqlCopyRequest request) ;
+
+    public abstract TableExportDataParam request2param(TableExportDataRequest request);
+
 }
