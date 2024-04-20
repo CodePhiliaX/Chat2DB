@@ -40,29 +40,29 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     private static String VIEW_SQL
             = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s' and engine='View'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
-    public static final String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
-    private static String SELECT_TABLE_SQL = "SELECT name,comment from system.tables WHERE engine !='View' and database='%s'";
+    private static  String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where name='%s'";
+    private static  String FUNCTIONS_SQL = "SELECT name from system.functions where origin='%s'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
     }
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
-        return SQLExecutor.getInstance().execute(connection, String.format(SELECT_TABLE_SQL, schemaName), resultSet -> {
-            ArrayList<Table> tables = new ArrayList<>();
-            while (resultSet.next()) {
-                Table table = new Table();
-                table.setName(resultSet.getString("name"));
-                table.setComment(resultSet.getString("comment"));
-                tables.add(table);
-            }
-            return tables;
-        });
+        return SQLExecutor.getInstance().tables(connection, databaseName,
+                                                schemaName, tableName,
+                                                new String[]{"TABLE", "SYSTEM TABLE",
+                                                        "REMOTE TABLE","DICTIONARY"});
     }
 
     @Override
     public List<Function> functions(Connection connection, String databaseName, String schemaName) {
-        return SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> {
+        String sql ;
+        if (systemDatabases.contains(schemaName)) {
+            sql=String.format(FUNCTIONS_SQL,"System");
+        }else {
+            sql = String.format(FUNCTIONS_SQL, "SQLUserDefined");
+        }
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             List<Function> functions = new ArrayList<>();
             while (resultSet.next()) {
                 Function function = new Function();
@@ -107,7 +107,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
                              String functionName) {
-        return SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> {
+        return SQLExecutor.getInstance().execute(connection, String.format(FUNCTION_SQL, functionName), resultSet -> {
             Function function = new Function();
             function.setDatabaseName(databaseName);
             function.setSchemaName(schemaName);
