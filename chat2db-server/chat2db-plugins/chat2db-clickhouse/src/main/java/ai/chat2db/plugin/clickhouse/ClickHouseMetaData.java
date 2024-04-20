@@ -41,9 +41,23 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
             = "SELECT create_table_query from system.`tables` WHERE `database`='%s' and name='%s'";
     private List<String> systemDatabases = Arrays.asList("information_schema", "system");
     public static final String FUNCTION_SQL = "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
+    private static String SELECT_TABLE_SQL = "SELECT name,comment from system.`tables` WHERE `database`='%s'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
+    }
+    @Override
+    public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
+        return SQLExecutor.getInstance().execute(connection, String.format(SELECT_TABLE_SQL, schemaName), resultSet -> {
+            ArrayList<Table> tables = new ArrayList<>();
+            while (resultSet.next()) {
+                Table table = new Table();
+                table.setName(resultSet.getString("name"));
+                table.setComment(resultSet.getString("comment"));
+                tables.add(table);
+            }
+            return tables;
+        });
     }
 
     @Override
@@ -299,7 +313,6 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String getMetaDataName(String... names) {
         return Arrays.stream(names)
-                .skip(1) // 跳过第一个名称
                 .filter(StringUtils::isNotBlank)
                 .map(name -> "`" + name + "`")
                 .collect(Collectors.joining("."));
