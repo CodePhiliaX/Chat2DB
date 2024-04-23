@@ -1,25 +1,20 @@
 package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
-import ai.chat2db.spi.util.ResultSetUtils;
-import com.alibaba.excel.EasyExcel;
+import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import jakarta.servlet.http.HttpServletResponse;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ExportDBData2CsvStrategy extends ExportDBDataStrategy  {
+public class ExportDBData2CsvStrategy extends ExportDBDataStrategy {
 
     public ExportDBData2CsvStrategy() {
         suffix = ExportFileSuffix.CSV.getSuffix();
@@ -27,52 +22,30 @@ public class ExportDBData2CsvStrategy extends ExportDBDataStrategy  {
     }
 
     @Override
-    protected ByteArrayOutputStream exportData(Connection connection, String databaseName,
-                                               String schemaName, String tableName) throws SQLException {
+    protected ByteArrayOutputStream doTableDataExport(Connection connection, String databaseName,
+                                                      String schemaName, String tableName,
+                                                      List<String> filedNames, ExportDataOption options) throws SQLException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        export2CSV(connection, schemaName, tableName, byteOut);
+        export2CSV(connection, schemaName, tableName, byteOut, filedNames, options);
         return byteOut;
     }
 
     @Override
-    protected void exportData(HttpServletResponse response, Connection connection,
-                              String databaseName, String schemaName, String tableName) throws SQLException {
+    protected void doTableDataExport(HttpServletResponse response, Connection connection, String databaseName,
+                                     String schemaName, String tableName,
+                                     List<String> filedNames, ExportDataOption options) throws SQLException {
         try {
-            export2CSV(connection, schemaName, tableName, response.getOutputStream());
+            export2CSV(connection, schemaName, tableName, response.getOutputStream(), filedNames, options);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    private void export2CSV(Connection connection, String schemaName, String tableName, OutputStream byteOut) throws SQLException {
+
+    private void export2CSV(Connection connection, String schemaName, String tableName, OutputStream out, List<String> fileNames, ExportDataOption options) throws SQLException {
         try (ResultSet resultSet = connection.createStatement().executeQuery(buildQuerySql(schemaName, tableName))) {
-            EasyExcel.write(byteOut)
-                    .excelType(ExcelTypeEnum.CSV)
-                    .sheet(tableName)
-                    .head(getHeadList(resultSet))
-                    .doWrite(getDataList(resultSet));
+            write(tableName, out, fileNames, options, resultSet, StandardCharsets.UTF_8, ExcelTypeEnum.CSV);
         }
     }
 
-    @NotNull
-    private List<List<Object>> getDataList(ResultSet resultSet) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        List<List<Object>> dataList = new ArrayList<>();
-        while (resultSet.next()) {
-            List<Object> row = new ArrayList<>();
-            for (int i = 1; i <= columnCount; i++) {
-                row.add(resultSet.getString(i));
-            }
-            dataList.add(row);
-        }
-        return dataList;
-    }
 
-    @NotNull
-    private List<List<String>> getHeadList(ResultSet resultSet) {
-        return ResultSetUtils.getRsHeader(resultSet)
-                .stream()
-                .map(Collections::singletonList)
-                .collect(Collectors.toList());
-    }
 }

@@ -1,7 +1,6 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 import ai.chat2db.server.domain.api.param.*;
-import ai.chat2db.server.domain.api.param.user.TableExportDataParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
@@ -258,18 +257,5 @@ public class TableController extends EmbeddingController {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
     }
-    @PostMapping("/export_data")
-    public void exportData(@Valid @RequestBody TableExportDataRequest request, HttpServletResponse response)  {
-        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportType());
-        response.setCharacterEncoding("utf-8");
-        TableExportDataParam param = rdbWebConverter.request2param(request);
-        try {
-            Constructor<?> constructor = targetClass.getDeclaredConstructor();
-            ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
-            service.doExport(param, response);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-    }
 }

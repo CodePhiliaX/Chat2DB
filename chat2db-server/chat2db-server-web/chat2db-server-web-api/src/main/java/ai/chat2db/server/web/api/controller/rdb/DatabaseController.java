@@ -131,7 +131,7 @@ public class DatabaseController {
 
     @PostMapping("/export_data")
     public void exportData(@Valid @RequestBody DatabaseExportDataRequest request, HttpServletResponse response)  {
-        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportType());
+        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportDataOption().getExportType());
         response.setCharacterEncoding("utf-8");
         DatabaseExportDataParam param = databaseConverter.request2param(request);
         try {
