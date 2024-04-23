@@ -2,14 +2,13 @@ package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportDataParam;
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.export.data.option.TableOption;
-import ai.chat2db.server.web.api.controller.rdb.RdbDmlExportController;
+import ai.chat2db.server.domain.api.param.datasource.DatabaseImportDataParam;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.TableOption;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.util.ResultSetUtils;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
-import com.alibaba.excel.write.builder.ExcelWriterBuilder;
 import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
@@ -160,4 +159,7 @@ public abstract class ExportDBDataStrategy {
                 .collect(Collectors.toList());
     }
 
+    public void doImport(DatabaseImportDataParam param) {
+
+    }
 }

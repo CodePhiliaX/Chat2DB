@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.request;
 
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.export.data.option.TableOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.TableOption;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

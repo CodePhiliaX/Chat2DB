@@ -1,7 +1,7 @@
 package ai.chat2db.server.domain.api.param.datasource;
 
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.export.data.option.TableOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.TableOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

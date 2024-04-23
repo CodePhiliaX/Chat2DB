@@ -2,8 +2,8 @@ package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.export.data.option.JSONExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.JSONExportDataOption;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.servlet.http.HttpServletResponse;

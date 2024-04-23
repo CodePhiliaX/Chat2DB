@@ -1,8 +1,8 @@
 package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.export.data.option.SQLExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.SQLExportDataOption;
 import ai.chat2db.spi.util.ResultSetUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;

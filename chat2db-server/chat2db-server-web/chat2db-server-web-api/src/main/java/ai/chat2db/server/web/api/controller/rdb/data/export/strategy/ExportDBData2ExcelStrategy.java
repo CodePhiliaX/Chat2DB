@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
-import ai.chat2db.server.tools.common.model.export.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import jakarta.servlet.http.HttpServletResponse;
 
