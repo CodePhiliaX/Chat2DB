@@ -12,6 +12,7 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  * @author jipengfei
  * @version : SqlUtils.java
  */
+@Slf4j
 public class SqlUtils {
 
     public static final String DEFAULT_TABLE_NAME = "table1";
@@ -80,7 +82,7 @@ public class SqlUtils {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("buildCanEditResult error", e);
             executeResult.setCanEdit(false);
         }
     }

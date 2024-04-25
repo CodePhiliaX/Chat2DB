@@ -708,7 +708,7 @@ public class SQLExecutor implements CommandExecutor {
             executeResult = SQLExecutor.getInstance().execute(sql, Chat2DBContext.getConnection(), true, offset, count,
                     valueHandler);
         } catch (SQLException e) {
-            log.warn("Execute sql: {} exception", sql, e);
+            log.error("Execute sql: {} exception", sql, e);
             executeResult = ExecuteResult.builder()
                     .sql(sql)
                     .success(Boolean.FALSE)
