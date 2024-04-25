@@ -12,6 +12,8 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceConsol
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +44,11 @@ public class ConnectionInfoHandler {
             if (params != null && params.length > 0) {
                 for (int i = 0; i < params.length; i++) {
                     Object param = params[i];
+                    if (param instanceof String && StringUtils.isNotBlank((String) param)) {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                        param = objectMapper.readValue((String) param, DataSourceBaseRequest.class);
+                    }
                     if (param instanceof DataSourceBaseRequest) {
                         Long dataSourceId = ((DataSourceBaseRequest) param).getDataSourceId();
                         String schemaName = ((DataSourceBaseRequest) param).getSchemaName();

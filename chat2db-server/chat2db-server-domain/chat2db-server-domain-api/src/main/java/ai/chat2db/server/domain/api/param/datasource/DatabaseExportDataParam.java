@@ -1,7 +1,7 @@
 package ai.chat2db.server.domain.api.param.datasource;
 
 import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.data.option.TableOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportTableOption;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,5 +19,5 @@ public class DatabaseExportDataParam {
     private String databaseName;
     private String schemaName;
     private ExportDataOption exportDataOption;
-    private List<TableOption> tableOptions;
+    private List<ExportTableOption> exportTableOptions;
 }

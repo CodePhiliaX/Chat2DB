@@ -4,7 +4,9 @@ import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportDataParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseImportDataParam;
 import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.data.option.TableOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportTableOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportTableOption;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.util.ResultSetUtils;
 import com.alibaba.excel.EasyExcel;
@@ -16,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,27 +54,33 @@ public abstract class ExportDBDataStrategy {
         String schemaName = param.getSchemaName();
         setResponseHeaders(param, response);
         try (Connection connection = Chat2DBContext.getConnection()) {
-            if (param.getTableOptions().size() == 1) {
-                String tableName = param.getTableOptions().get(0).getTableName();
-                List<String> filedNames = param.getTableOptions().get(0).getFiledNames();
+            if (param.getExportTableOptions().size() == 1) {
+                String tableName = param.getExportTableOptions().get(0).getTableName();
+                List<String> filedNames = param.getExportTableOptions().get(0).getExportColumnNames();
                 doTableDataExport(response, connection, databaseName, schemaName, tableName, filedNames, param.getExportDataOption());
             } else {
-                doDbDataExport(response, connection, databaseName, schemaName, param.getTableOptions(), param.getExportDataOption());
+                doDbDataExport(response, connection, databaseName, schemaName, param.getExportTableOptions(), param.getExportDataOption());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    public void doImport(DatabaseImportDataParam param, MultipartFile file) {
+        doTableDataImport(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(),
+                          param.getImportTableOption(), param.getImportDataOption(), file);
+
+    }
+
     private void doDbDataExport(HttpServletResponse response, Connection connection, String databaseName,
-                                String schemaName, List<TableOption> tableOptions,
+                                String schemaName, List<ExportTableOption> exportTableOptions,
                                 ExportDataOption options) throws IOException, SQLException {
         ServletOutputStream outputStream = response.getOutputStream();
         ZipOutputStream zipOut = new ZipOutputStream(outputStream);
-        for (TableOption tableOption : tableOptions) {
-            String tableName = tableOption.getTableName();
+        for (ExportTableOption exportTableOption : exportTableOptions) {
+            String tableName = exportTableOption.getTableName();
             String fileName = tableName + getSuffix();
-            List<String> filedNames = tableOption.getFiledNames();
+            List<String> filedNames = exportTableOption.getExportColumnNames();
             zipOut.putNextEntry(new ZipEntry(fileName));
             ByteArrayOutputStream byteOut = doTableDataExport(connection, databaseName, schemaName, tableName, filedNames, options);
             byteOut.writeTo(zipOut);
@@ -82,8 +91,8 @@ public abstract class ExportDBDataStrategy {
 
 
     private void setResponseHeaders(DatabaseExportDataParam param, HttpServletResponse response) {
-        if (param.getTableOptions().size() == 1) {
-            String tableName = param.getTableOptions().get(0).getTableName();
+        if (param.getExportTableOptions().size() == 1) {
+            String tableName = param.getExportTableOptions().get(0).getTableName();
             response.setContentType(contentType);
             response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + tableName + suffix);
         } else {
@@ -107,6 +116,10 @@ public abstract class ExportDBDataStrategy {
         return sql;
     }
 
+    protected abstract void doTableDataImport(Connection connection, String databaseName, String schemaName,
+                                              ImportTableOption importTableOption,
+                                              ImportDataOption importDataOption, MultipartFile file);
+
     protected abstract ByteArrayOutputStream doTableDataExport(Connection connection, String databaseName,
                                                                String schemaName, String tableName,
                                                                List<String> filedNames, ExportDataOption options) throws SQLException;
@@ -124,9 +137,9 @@ public abstract class ExportDBDataStrategy {
         if (containsHeader) {
             List<String> header = ResultSetUtils.getRsHeader(resultSet);
             if (fileNames.size() != header.size()) {
-                 excelWriterSheetBuilder.head(getListHeadList(fileNames));
+                excelWriterSheetBuilder.head(getListHeadList(fileNames));
             } else {
-                 excelWriterSheetBuilder.head(getListHeadList(header));
+                excelWriterSheetBuilder.head(getListHeadList(header));
             }
         }
         excelWriterSheetBuilder.doWrite(getDataList(resultSet, fileNames));
@@ -157,9 +170,5 @@ public abstract class ExportDBDataStrategy {
                 .stream()
                 .map(Collections::singletonList)
                 .collect(Collectors.toList());
-    }
-
-    public void doImport(DatabaseImportDataParam param) {
-
     }
 }

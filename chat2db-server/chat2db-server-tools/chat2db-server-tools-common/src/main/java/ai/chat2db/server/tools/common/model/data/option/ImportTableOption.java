@@ -1,21 +1,20 @@
 package ai.chat2db.server.tools.common.model.data.option;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * @author: zgq
+ * @date: 2024年04月24日 16:50
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TableOption {
-    @NotNull
+public class ImportTableOption {
     private String tableName;
-    @NotEmpty
-    @NotNull
-    private List<String> filedNames;
-
+    private List<String> srcColumnNames;
+    private List<String> targetColumnNames;
 }

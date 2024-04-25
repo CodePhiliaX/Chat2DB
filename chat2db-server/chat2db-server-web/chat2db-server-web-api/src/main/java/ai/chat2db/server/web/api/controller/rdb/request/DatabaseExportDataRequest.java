@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.request;
 
 import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
-import ai.chat2db.server.tools.common.model.data.option.TableOption;
+import ai.chat2db.server.tools.common.model.data.option.ExportTableOption;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,6 +20,6 @@ import java.util.List;
 public class DatabaseExportDataRequest extends DataSourceBaseRequest {
     @NotNull
     private ExportDataOption exportDataOption;
-    private List<TableOption> tableOptions;
+    private List<ExportTableOption> exportTableOptions;
 
 }

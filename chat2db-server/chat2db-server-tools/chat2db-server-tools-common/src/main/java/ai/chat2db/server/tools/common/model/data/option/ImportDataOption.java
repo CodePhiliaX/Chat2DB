@@ -16,13 +16,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "exportType",
-        visible = true)
+        property = "importType",
+        visible = true
+)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ImportDataOption.class, name = "CSV"),
+        @JsonSubTypes.Type(value = CSVImportDataOption.class, name = "CSV"),
         @JsonSubTypes.Type(value = ImportDataOption.class, name = "SQL"),
-        @JsonSubTypes.Type(value = ImportDataOption.class, name = "EXCEL"),
-        @JsonSubTypes.Type(value = ImportDataOption.class, name = "JSON")
+        @JsonSubTypes.Type(value = CSVImportDataOption.class, name = "EXCEL"),
+        @JsonSubTypes.Type(value = JSONImportDataOption.class, name = "JSON")
 })
 public class ImportDataOption {
     @NotBlank

@@ -2,10 +2,13 @@ package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportTableOption;
 import ai.chat2db.server.tools.common.model.data.option.SQLExportDataOption;
 import ai.chat2db.spi.util.ResultSetUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,6 +53,14 @@ public class ExportDBData2SqlStrategy extends ExportDBDataStrategy {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+    }
+
+
+    @Override
+    protected void doTableDataImport(Connection connection, String databaseName, String schemaName,
+                                     ImportTableOption importTableOption,
+                                     ImportDataOption importDataOption, MultipartFile file) {
 
     }
 

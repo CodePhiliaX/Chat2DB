@@ -18,11 +18,13 @@ import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Sql;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
@@ -53,8 +55,8 @@ public class DatabaseController {
     @GetMapping("/database_schema_list")
     public DataResult<MetaSchemaVO> databaseSchemaList(@Valid DataSourceBaseRequest request) {
         MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId())
-            .refresh(
-            request.isRefresh()).build();
+                .refresh(
+                        request.isRefresh()).build();
         DataResult<MetaSchema> result = databaseService.queryDatabaseSchema(queryParam);
         MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
         return DataResult.of(schemaDto2vo);
@@ -63,8 +65,8 @@ public class DatabaseController {
     @GetMapping("list")
     public ListResult<DatabaseVO> databaseList(@Valid DataSourceBaseRequest request) {
         DatabaseQueryAllParam queryParam = DatabaseQueryAllParam.builder().dataSourceId(request.getDataSourceId())
-            .refresh(
-                request.isRefresh()).build();
+                .refresh(
+                        request.isRefresh()).build();
         ListResult<Database> result = databaseService.queryAll(queryParam);
         return ListResult.of(rdbWebConverter.databaseDto2vo(result.getData()));
     }
@@ -89,7 +91,7 @@ public class DatabaseController {
      */
     @PostMapping("/create_database_sql")
     public DataResult<Sql> createDatabase(@Valid @RequestBody DatabaseCreateRequest request) {
-        if(StringUtils.isBlank(request.getName())){
+        if (StringUtils.isBlank(request.getName())) {
             request.setName(request.getDatabaseName());
         }
         Database database = databaseConverter.request2param(request);
@@ -105,12 +107,13 @@ public class DatabaseController {
     @PostMapping("/modify_database")
     public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
         DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName())
-            .name(request.getNewDatabaseName()).build();
+                .name(request.getNewDatabaseName()).build();
         return databaseService.modifyDatabase(param);
     }
+
     @PostMapping("/export")
-    public void exportDatabase(@Valid @RequestBody DatabaseExportRequest request, HttpServletResponse response){
-        String fileName = Objects.isNull(request.getSchemaName())?request.getDatabaseName() : request.getSchemaName();
+    public void exportDatabase(@Valid @RequestBody DatabaseExportRequest request, HttpServletResponse response) {
+        String fileName = Objects.isNull(request.getSchemaName()) ? request.getDatabaseName() : request.getSchemaName();
         response.setContentType("text/sql");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".sql");
         response.setCharacterEncoding("utf-8");
@@ -124,7 +127,7 @@ public class DatabaseController {
     }
 
     @PostMapping("/export_data")
-    public void exportData(@Valid @RequestBody DatabaseExportDataRequest request, HttpServletResponse response)  {
+    public void exportData(@Valid @RequestBody DatabaseExportDataRequest request, HttpServletResponse response) {
         Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportDataOption().getExportType());
         response.setCharacterEncoding("utf-8");
         DatabaseExportDataParam param = databaseConverter.request2param(request);
@@ -140,16 +143,18 @@ public class DatabaseController {
     }
 
     @PostMapping("/import_data")
-    public void importData(@Valid @RequestBody DatabaseImportDataRequest request)  {
-        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getImportDataOption().getImportType());
-        DatabaseImportDataParam param = databaseConverter.request2param(request);
+    public ActionResult importData(@Valid @ModelAttribute(value = "file") MultipartFile file, @ModelAttribute("json") String json) {
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            DatabaseImportDataRequest request = objectMapper.readValue(json, DatabaseImportDataRequest.class);
+            Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getImportDataOption().getImportType());
+            DatabaseImportDataParam param = databaseConverter.request2param(request);
             Constructor<?> constructor = targetClass.getDeclaredConstructor();
             ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
-            service.doImport(param);
+            service.doImport(param, file);
+            return ActionResult.isSuccess();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 }

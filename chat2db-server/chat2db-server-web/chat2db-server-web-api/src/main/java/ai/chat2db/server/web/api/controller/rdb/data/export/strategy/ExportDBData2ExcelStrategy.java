@@ -2,8 +2,11 @@ package ai.chat2db.server.web.api.controller.rdb.data.export.strategy;
 
 import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.tools.common.model.data.option.ExportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportDataOption;
+import ai.chat2db.server.tools.common.model.data.option.ImportTableOption;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -39,6 +42,23 @@ public class ExportDBData2ExcelStrategy extends ExportDBDataStrategy {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param tableName
+     * @param srcColumnNames
+     * @param targetColumnNames
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param importDataOption
+     * @param file
+     * @return
+     */
+    @Override
+    protected void doTableDataImport(Connection connection, String databaseName, String schemaName,
+                                     ImportTableOption importTableOption,
+                                     ImportDataOption importDataOption, MultipartFile file) {
     }
 
     private void export2EXCEL(Connection connection, String schemaName, String tableName, OutputStream out, List<String> fileNames, ExportDataOption options) throws SQLException {
