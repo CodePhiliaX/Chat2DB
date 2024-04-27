@@ -11,8 +11,8 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.data.export.strategy.ExportDBDataStrategy;
-import ai.chat2db.server.web.api.controller.rdb.factory.ExportDBDataStrategyFactory;
+import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
+import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.spi.model.Database;
@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.util.Objects;
 
 /**
@@ -128,13 +127,17 @@ public class DatabaseController {
 
     @PostMapping("/export_data")
     public void exportData(@Valid @RequestBody DatabaseExportDataRequest request, HttpServletResponse response) {
-        Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getExportDataOption().getExportType());
-        response.setCharacterEncoding("utf-8");
-        DatabaseExportDataParam param = databaseConverter.request2param(request);
         try {
-            Constructor<?> constructor = targetClass.getDeclaredConstructor();
-            ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
-            service.doExport(param, response);
+            response.setCharacterEncoding("utf-8");
+            DatabaseExportDataParam param = databaseConverter.request2param(request);
+            DataFileExporter exporter = DataFileFactoryProducer
+                    .getFactory(request.getExportDataOption().getFileType())
+                    .createExporter();
+            if (request.getExportTableOptions().size() > 1) {
+                exporter.createMultiFileExporter().doMultiFileExport(param, response);
+            } else {
+                exporter.createSingleFileExporter().doSingleFileExport(param, response);
+            }
         } catch (Exception e) {
             response.reset();
             throw new RuntimeException(e);
@@ -143,15 +146,13 @@ public class DatabaseController {
     }
 
     @PostMapping("/import_data")
-    public ActionResult importData(@Valid @ModelAttribute(value = "file") MultipartFile file, @ModelAttribute("json") String json) {
+    public ActionResult importData(@Valid @ModelAttribute(value = "file") MultipartFile file, @ModelAttribute("json") String jsonData) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            DatabaseImportDataRequest request = objectMapper.readValue(json, DatabaseImportDataRequest.class);
-            Class<?> targetClass = ExportDBDataStrategyFactory.get(request.getImportDataOption().getImportType());
+            DatabaseImportDataRequest request = objectMapper.readValue(jsonData, DatabaseImportDataRequest.class);
             DatabaseImportDataParam param = databaseConverter.request2param(request);
-            Constructor<?> constructor = targetClass.getDeclaredConstructor();
-            ExportDBDataStrategy service = (ExportDBDataStrategy) constructor.newInstance();
-            service.doImport(param, file);
+            DataFileFactoryProducer.getFactory(request.getImportDataOption().getFileType())
+                    .createImporter().importDataFile(param, file);
             return ActionResult.isSuccess();
         } catch (Exception e) {
             throw new RuntimeException(e);
