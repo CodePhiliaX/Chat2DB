@@ -124,7 +124,7 @@ public class SqlUtils {
             // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
                 if (!(stmt instanceof CreateProcedure)) {
-                    list.add(stmt.toString());
+                    list.add(updateNow(stmt.toString(),dbType));
                 }
             }
             if (CollectionUtils.isEmpty(list)) {
@@ -134,6 +134,19 @@ public class SqlUtils {
             list = SQLParserUtils.splitAndRemoveComment(sql, dbType);
         }
         return list;
+    }
+
+    private static String updateNow(String sql,DbType dbType) {
+        if(StringUtils.isBlank(sql) || !DbType.mysql.equals(dbType)){
+            return sql;
+        }
+        if(sql.contains("default now ()")){
+            return sql.replace("default now ()","default CURRENT_TIMESTAMP");
+        }
+        if(sql.contains("DEFAULT now ()")){
+            return sql.replace("DEFAULT now ()","DEFAULT CURRENT_TIMESTAMP");
+        }
+        return sql;
     }
 
     private static final String DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
