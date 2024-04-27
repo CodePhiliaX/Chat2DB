@@ -1,6 +1,6 @@
-package ai.chat2db.server.tools.common.model.data.option.json;
+package ai.chat2db.server.tools.common.model.rdb.data.option.json;
 
-import ai.chat2db.server.tools.common.model.data.option.AbstractExportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
 import cn.hutool.core.date.DatePattern;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,9 +1,9 @@
 package ai.chat2db.server.web.api.controller.rdb.data.json;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.common.model.data.option.AbstractImportDataOptions;
-import ai.chat2db.server.tools.common.model.data.option.json.ImportJsonDataOptions;
-import ai.chat2db.server.web.api.controller.rdb.data.BaseFileImporter;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractImportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.json.ImportJsonDataOptions;
+import ai.chat2db.server.web.api.controller.rdb.data.AbstractDataFileImporter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileImporter;
 import ai.chat2db.server.web.api.controller.rdb.data.sql.EasySqlBuilder;
 import cn.hutool.core.date.DatePattern;
@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Objects;
  * @date: 2024年04月26日 14:20
  */
 @Slf4j
-public class JSONImporter extends BaseFileImporter implements DataFileImporter {
+public class JSONImporter extends AbstractDataFileImporter implements DataFileImporter {
 
     @Override
     protected void doImportData(Connection connection, String databaseName, String schemaName, String tableName, List<String> tableColumns,
@@ -53,12 +54,18 @@ public class JSONImporter extends BaseFileImporter implements DataFileImporter {
                 addSql(tableName, fileColumns, sqlBuilder, statement, values);
                 sqlCount++;
                 if (sqlCount == 1000) {
+                    log.info("execute batch sqlCount:{}/1000", sqlCount);
+                    Instant startTime = Instant.now();
                     executeBatch(statement);
+                    log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
                     sqlCount = 0;
                 }
             }
             if (sqlCount > 0) {
+                log.info("execute batch sqlCount:{}/1000", sqlCount);
+                Instant startTime = Instant.now();
                 executeBatch(statement);
+                log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

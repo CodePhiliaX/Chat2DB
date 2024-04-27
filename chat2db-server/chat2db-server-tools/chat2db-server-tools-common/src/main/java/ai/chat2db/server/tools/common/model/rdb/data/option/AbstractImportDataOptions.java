@@ -1,6 +1,6 @@
-package ai.chat2db.server.tools.common.model.data.option;
+package ai.chat2db.server.tools.common.model.rdb.data.option;
 
-import ai.chat2db.server.tools.common.model.data.option.json.ImportJsonDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.json.ImportJsonDataOptions;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

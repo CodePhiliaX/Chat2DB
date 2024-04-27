@@ -1,8 +1,9 @@
 package ai.chat2db.server.web.api.controller.rdb.data.sql;
 
-import ai.chat2db.server.tools.common.model.data.option.AbstractExportDataOptions;
-import ai.chat2db.server.tools.common.model.data.option.sql.BaseExportData2SqlOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.sql.BaseExportData2SqlOptions;
 import ai.chat2db.spi.util.ResultSetUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintWriter;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  * @author: zgq
  * @date: 2024年04月26日 12:46
  */
+@Slf4j
 public class EasySqlBuilder {
 
     public static String buildQuerySql(String databaseName, String schemaName, String tableName) {
@@ -49,9 +51,18 @@ public class EasySqlBuilder {
         }
         String sqlType = ((BaseExportData2SqlOptions) exportDataOption).getSqlType();
         switch (sqlType) {
-            case "single" -> buildSingleInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
-            case "multi" -> buildMultiInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
-            case "update" -> buildUpdateStatement(writer, resultSet, metaData, tableName, headList);
+            case "single" -> {
+                log.info("Exporting single insert SQL for table: {}", tableName);
+                buildSingleInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
+            }
+            case "multi" -> {
+                log.info("Exporting multi insert SQL for table: {}", tableName);
+                buildMultiInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
+            }
+            case "update" -> {
+                log.info("Exporting multi update SQL for table: {}", tableName);
+                buildUpdateStatement(writer, resultSet, metaData, tableName, headList);
+            }
             default -> throw new IllegalStateException("Unexpected value: " + sqlType);
         }
     }
@@ -65,6 +76,7 @@ public class EasySqlBuilder {
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 String columnName = metaData.getColumnName(i);
                 if (!headList.contains(columnName) || Objects.equals("id", columnName)) {
+                    log.info("{} is not in the export field list", columnName);
                     continue;
                 }
                 columnCount++;
@@ -94,7 +106,9 @@ public class EasySqlBuilder {
         while (resultSet.next()) {
             int columnCount = 0;
             for (int i = 1; i < metaData.getColumnCount(); i++) {
-                if (!headList.contains(metaData.getColumnName(i))) {
+                String columnName = metaData.getColumnName(i);
+                if (!headList.contains(columnName)) {
+                    log.info("{} is not in the export field list", columnName);
                     continue;
                 }
                 columnCount++;
@@ -128,7 +142,9 @@ public class EasySqlBuilder {
         while (resultSet.next()) {
             int columnCount = 0;
             for (int i = 1; i < metaData.getColumnCount(); i++) {
-                if (!headList.contains(metaData.getColumnName(i))) {
+                String columnName = metaData.getColumnName(i);
+                if (!headList.contains(columnName)) {
+                    log.info("{} is not in the export field list", columnName);
                     continue;
                 }
                 columnCount++;

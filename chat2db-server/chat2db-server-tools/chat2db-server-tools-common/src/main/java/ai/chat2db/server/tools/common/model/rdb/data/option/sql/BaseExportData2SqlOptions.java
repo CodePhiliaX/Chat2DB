@@ -1,6 +1,6 @@
-package ai.chat2db.server.tools.common.model.data.option.sql;
+package ai.chat2db.server.tools.common.model.rdb.data.option.sql;
 
-import ai.chat2db.server.tools.common.model.data.option.BaseExportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.BaseExportDataOptions;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

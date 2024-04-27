@@ -11,7 +11,6 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
@@ -130,14 +129,8 @@ public class DatabaseController {
         try {
             response.setCharacterEncoding("utf-8");
             DatabaseExportDataParam param = databaseConverter.request2param(request);
-            DataFileExporter exporter = DataFileFactoryProducer
-                    .getFactory(request.getExportDataOption().getFileType())
-                    .createExporter();
-            if (request.getExportTableOptions().size() > 1) {
-                exporter.createMultiFileExporter().doMultiFileExport(param, response);
-            } else {
-                exporter.createSingleFileExporter().doSingleFileExport(param, response);
-            }
+            DataFileFactoryProducer.getFactory(request.getExportDataOption().getFileType())
+                    .createExporter().exportDataFile(param, response);
         } catch (Exception e) {
             response.reset();
             throw new RuntimeException(e);

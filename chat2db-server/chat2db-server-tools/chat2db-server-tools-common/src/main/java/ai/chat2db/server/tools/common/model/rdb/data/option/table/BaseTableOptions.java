@@ -1,4 +1,4 @@
-package ai.chat2db.server.tools.common.model.data.option.table;
+package ai.chat2db.server.tools.common.model.rdb.data.option.table;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

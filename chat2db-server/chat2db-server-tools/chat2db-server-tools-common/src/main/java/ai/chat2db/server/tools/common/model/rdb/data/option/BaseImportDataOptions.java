@@ -1,6 +1,5 @@
-package ai.chat2db.server.tools.common.model.data.option;
+package ai.chat2db.server.tools.common.model.rdb.data.option;
 
-import ai.chat2db.server.tools.common.model.data.option.AbstractImportDataOptions;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

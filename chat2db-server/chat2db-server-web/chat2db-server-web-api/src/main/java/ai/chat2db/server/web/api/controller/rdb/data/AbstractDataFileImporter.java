@@ -1,8 +1,8 @@
 package ai.chat2db.server.web.api.controller.rdb.data;
 
 import ai.chat2db.server.domain.api.param.datasource.DatabaseImportDataParam;
-import ai.chat2db.server.tools.common.model.data.option.AbstractImportDataOptions;
-import ai.chat2db.server.tools.common.model.data.option.table.ImportTableOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractImportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.table.ImportTableOptions;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * @author: zgq
  * @date: 2024年04月26日 22:30
  */
-public abstract class BaseFileImporter implements DataFileImporter {
+public abstract class AbstractDataFileImporter implements DataFileImporter {
 
     @Override
     public void importDataFile(DatabaseImportDataParam param, MultipartFile file) throws IOException {

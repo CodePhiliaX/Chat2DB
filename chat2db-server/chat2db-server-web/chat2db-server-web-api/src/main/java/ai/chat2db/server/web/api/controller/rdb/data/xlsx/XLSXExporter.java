@@ -1,24 +1,22 @@
 package ai.chat2db.server.web.api.controller.rdb.data.xlsx;
 
+import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
-import ai.chat2db.server.web.api.controller.rdb.data.MultiFileExporter;
-import ai.chat2db.server.web.api.controller.rdb.data.SingleFileExporter;
+import com.alibaba.excel.support.ExcelTypeEnum;
 
 /**
  * @author: zgq
  * @date: 2024年04月26日 14:05
  */
-public class XLSXExporter implements DataFileExporter {
+public class XLSXExporter extends BaseXLSXExporter implements DataFileExporter {
 
-
-    @Override
-    public SingleFileExporter createSingleFileExporter() {
-        return new SingleXLSXExporter();
+    public XLSXExporter() {
+        suffix = ExportFileSuffix.EXCEL.getSuffix();
+        contentType = "application/vnd.ms-excel";
     }
 
-
     @Override
-    public MultiFileExporter createMultiFileExporter() {
-        return new MultiXLSXExporter();
+    protected ExcelTypeEnum getExcelType() {
+        return ExcelTypeEnum.XLSX;
     }
 }

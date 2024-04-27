@@ -1,9 +1,10 @@
 package ai.chat2db.server.web.api.controller.rdb.data.json;
 
 import ai.chat2db.server.tools.base.excption.BusinessException;
-import ai.chat2db.server.tools.common.model.data.option.json.ExportData2JsonOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.json.ExportData2JsonOptions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,6 +21,7 @@ import java.util.Map;
  * @author: zgq
  * @date: 2024年04月26日 14:46
  */
+@Slf4j
 public class EasyJsonExportUtil {
 
 
@@ -40,10 +42,12 @@ public class EasyJsonExportUtil {
         while (resultSet.next()) {
             Map<String, Object> row = new LinkedHashMap<>();
             for (int i = 1; i <= columnCount; i++) {
-                if (filedNames != null && !filedNames.contains(metaData.getColumnName(i))) {
+                String columnName = metaData.getColumnName(i);
+                if (filedNames != null && !filedNames.contains(columnName)) {
+                    log.info("{} is not in the export field list", columnName);
                     continue;
                 }
-                row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                row.put(columnName, resultSet.getObject(i));
             }
             data.add(row);
         }
@@ -53,9 +57,9 @@ public class EasyJsonExportUtil {
     public static ObjectMapper getObjectMapper(ExportData2JsonOptions jsonExportDataOption) {
         ObjectMapper objectMapper = new ObjectMapper();
         if (!jsonExportDataOption.getIsTimestamps()) {
-            objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
-            SimpleDateFormat dateFormat = new SimpleDateFormat(jsonExportDataOption.getDataTimeFormat());
-            objectMapper.setDateFormat(dateFormat);
+            String dataTimeFormat = jsonExportDataOption.getDataTimeFormat();
+            log.info("configure dataTimeFormat:{}", dataTimeFormat);
+            objectMapper.setDateFormat(new SimpleDateFormat(dataTimeFormat));
             objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         }
         return objectMapper;

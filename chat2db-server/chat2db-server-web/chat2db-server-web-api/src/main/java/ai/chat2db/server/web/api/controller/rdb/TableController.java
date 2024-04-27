@@ -12,8 +12,6 @@ import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.ai.EmbeddingController;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.data.export.strategy.ExportDBDataStrategy;
-import ai.chat2db.server.web.api.controller.rdb.factory.ExportDBDataStrategyFactory;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
@@ -21,13 +19,11 @@ import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.*;
 import com.google.common.collect.Lists;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,7 +76,7 @@ public class TableController extends EmbeddingController {
 //            log.info("sync table vector finish");
 //        });
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-                request.getPageSize());
+                                request.getPageSize());
     }
 
     /**
@@ -95,9 +91,6 @@ public class TableController extends EmbeddingController {
         return tableService.queryTables(queryParam);
 
     }
-
-
-
 
 
     /**
@@ -205,7 +198,7 @@ public class TableController extends EmbeddingController {
      */
     @PostMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid @RequestBody TableModifySqlRequest request) {
-        Table table =  rdbWebConverter.tableRequest2param(request.getNewTable());
+        Table table = rdbWebConverter.tableRequest2param(request.getNewTable());
         table.setSchemaName(request.getSchemaName());
         table.setDatabaseName(request.getDatabaseName());
         for (TableColumn tableColumn : table.getColumnList()) {
@@ -219,10 +212,9 @@ public class TableController extends EmbeddingController {
             tableIndex.setDatabaseName(request.getDatabaseName());
         }
 
-        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()),table)
+        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()), table)
                 .map(rdbWebConverter::dto2vo);
     }
-
 
 
     /**

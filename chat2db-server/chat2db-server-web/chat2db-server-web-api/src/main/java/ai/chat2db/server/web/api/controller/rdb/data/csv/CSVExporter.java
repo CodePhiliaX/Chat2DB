@@ -1,29 +1,23 @@
 package ai.chat2db.server.web.api.controller.rdb.data.csv;
 
+import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
-import ai.chat2db.server.web.api.controller.rdb.data.MultiFileExporter;
-import ai.chat2db.server.web.api.controller.rdb.data.SingleFileExporter;
+import ai.chat2db.server.web.api.controller.rdb.data.xlsx.BaseXLSXExporter;
+import com.alibaba.excel.support.ExcelTypeEnum;
 
 /**
  * @author: zgq
  * @date: 2024年04月26日 11:27
  */
-public class CSVExporter   implements DataFileExporter {
+public class CSVExporter extends BaseXLSXExporter implements DataFileExporter {
 
 
-    /**
-     * @return
-     */
-    @Override
-    public SingleFileExporter createSingleFileExporter() {
-        return new SingleCSVExporter();
+    public CSVExporter() {
+        suffix = ExportFileSuffix.CSV.getSuffix();
+        contentType = "text/csv";
     }
-
-    /**
-     * @return
-     */
     @Override
-    public MultiFileExporter createMultiFileExporter() {
-        return new MultiCSVExporter();
+    protected ExcelTypeEnum getExcelType() {
+        return ExcelTypeEnum.CSV;
     }
 }

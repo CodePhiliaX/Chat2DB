@@ -1,8 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.data.xlsx;
 
-import ai.chat2db.server.tools.common.model.data.option.AbstractExportDataOptions;
-import ai.chat2db.server.tools.common.model.data.option.BaseExportDataOptions;
-import ai.chat2db.spi.util.ResultSetUtils;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.BaseExportDataOptions;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;

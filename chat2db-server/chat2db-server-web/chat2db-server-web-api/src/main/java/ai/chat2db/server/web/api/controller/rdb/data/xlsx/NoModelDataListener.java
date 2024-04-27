@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.data.xlsx;
 
-import ai.chat2db.server.tools.common.model.data.option.BaseImportExcelDataOptions;
-import ai.chat2db.server.tools.common.model.data.option.AbstractImportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.BaseImportExcelDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractImportDataOptions;
 import ai.chat2db.server.web.api.controller.rdb.data.sql.EasySqlBuilder;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;

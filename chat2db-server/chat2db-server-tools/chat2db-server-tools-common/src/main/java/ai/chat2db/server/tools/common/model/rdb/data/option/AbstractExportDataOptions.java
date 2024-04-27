@@ -1,10 +1,9 @@
-package ai.chat2db.server.tools.common.model.data.option;
+package ai.chat2db.server.tools.common.model.rdb.data.option;
 
-import ai.chat2db.server.tools.common.model.data.option.json.ExportData2JsonOptions;
-import ai.chat2db.server.tools.common.model.data.option.sql.BaseExportData2SqlOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.json.ExportData2JsonOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.sql.BaseExportData2SqlOptions;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * @author: zgq
