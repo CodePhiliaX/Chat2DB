@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.data.sql;
 
 import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
 import ai.chat2db.server.tools.common.model.rdb.data.option.sql.BaseExportData2SqlOptions;
+import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
 import ai.chat2db.spi.util.ResultSetUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -52,15 +53,15 @@ public class EasySqlBuilder {
         String sqlType = ((BaseExportData2SqlOptions) exportDataOption).getSqlType();
         switch (sqlType) {
             case "single" -> {
-                log.info("Exporting single insert SQL for table: {}", tableName);
+                DataFileFactoryProducer.notifyObservers("Exporting single insert SQL for table:" + tableName);
                 buildSingleInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
             }
             case "multi" -> {
-                log.info("Exporting multi insert SQL for table: {}", tableName);
+                DataFileFactoryProducer.notifyObservers("Exporting multi insert SQL for table: " + tableName);
                 buildMultiInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
             }
             case "update" -> {
-                log.info("Exporting multi update SQL for table: {}", tableName);
+                DataFileFactoryProducer.notifyObservers("Exporting update SQL for table: " + tableName);
                 buildUpdateStatement(writer, resultSet, metaData, tableName, headList);
             }
             default -> throw new IllegalStateException("Unexpected value: " + sqlType);
@@ -87,7 +88,7 @@ public class EasySqlBuilder {
                     sqlBuilder.append(columnName).append(" = '").append(value).append("'");
                 }
 
-                if (columnCount < headList.size()-1) {
+                if (columnCount < headList.size() - 1) {
                     sqlBuilder.append(", ");
 
                 }
@@ -187,7 +188,7 @@ public class EasySqlBuilder {
     }
 
     public static String buildValues(List<String> list) {
-        return  list.stream()
+        return list.stream()
                 .map(s -> s == null ? null : "'" + s + "'")
                 .collect(Collectors.joining(",", "(", ")"));
     }

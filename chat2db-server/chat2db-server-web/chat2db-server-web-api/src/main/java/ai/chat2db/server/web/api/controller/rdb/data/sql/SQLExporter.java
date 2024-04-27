@@ -4,6 +4,7 @@ import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
 import ai.chat2db.server.web.api.controller.rdb.data.AbstractDataFileExporter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
+import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.ByteArrayOutputStream;
@@ -33,6 +34,7 @@ public class SQLExporter extends AbstractDataFileExporter implements DataFileExp
                                      String tableName, List<String> tableColumns,
                                      AbstractExportDataOptions exportDataOption) throws SQLException {
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
+        DataFileFactoryProducer.notifyObservers("Export File Format SQL file");
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             PrintWriter writer = response.getWriter();
             EasySqlBuilder.exportData2Sql(tableName, tableColumns, exportDataOption, resultSet, writer);

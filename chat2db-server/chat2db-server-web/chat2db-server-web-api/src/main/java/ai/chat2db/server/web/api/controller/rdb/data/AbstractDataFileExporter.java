@@ -7,6 +7,7 @@ import ai.chat2db.server.tools.common.model.rdb.data.option.table.BaseTableOptio
 import ai.chat2db.spi.sql.Chat2DBContext;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.zip.ZipOutputStream;
  * @author: zgq
  * @date: 2024年04月27日 15:17
  */
+@Slf4j
 public abstract class AbstractDataFileExporter implements DataFileExporter {
 
 
@@ -31,14 +33,18 @@ public abstract class AbstractDataFileExporter implements DataFileExporter {
     @Override
     public void exportDataFile(DatabaseExportDataParam param, HttpServletResponse response) throws IOException, SQLException {
         if (param.getExportTableOptions().size() > 1) {
+            DataFileFactoryProducer.notifyObservers("export multi table data file");
             exportMultiDataFile(param, response);
         } else {
+            DataFileFactoryProducer.notifyObservers("export single table data file");
             exportSingleDataFile(param, response);
         }
+        DataFileFactoryProducer.notifyObservers("Finished successfully");
     }
 
 
     public void exportSingleDataFile(DatabaseExportDataParam param, HttpServletResponse response) throws SQLException {
+        DataFileFactoryProducer.notifyObservers("export start");
         BaseTableOptions tableOptions = param.getExportTableOptions().get(0);
         String tableName = tableOptions.getTableName();
         List<String> tableColumns = tableOptions.getTableColumns();
