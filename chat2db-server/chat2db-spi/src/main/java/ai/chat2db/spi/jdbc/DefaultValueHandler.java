@@ -18,11 +18,11 @@ public class DefaultValueHandler implements ValueHandler {
 
     @Override
     public String getString(ResultSet rs, int index, boolean limitSize) throws SQLException {
-        Object obj = rs.getObject(index);
-        if (obj == null) {
-            return null;
-        }
         try {
+            Object obj = rs.getObject(index);
+            if (obj == null) {
+                return null;
+            }
             if (obj instanceof BigDecimal bigDecimal) {
                 return bigDecimal.toPlainString();
             } else if (obj instanceof Double d) {
@@ -41,8 +41,8 @@ public class DefaultValueHandler implements ValueHandler {
                 return obj.toString();
             }
         } catch (Exception e) {
-            log.warn("Failed to parse number:{},{}", index, obj, e);
-            return obj.toString();
+            log.warn("Failed to parse number:{},", index, e);
+            return rs.getString(index);
         }
     }
 
