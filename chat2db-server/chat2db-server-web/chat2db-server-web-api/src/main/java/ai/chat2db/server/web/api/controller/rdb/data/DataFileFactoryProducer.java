@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.data;
 import ai.chat2db.server.web.api.controller.rdb.data.csv.CSVImportExportFactory;
 import ai.chat2db.server.web.api.controller.rdb.data.json.JSONImportExportFactory;
 import ai.chat2db.server.web.api.controller.rdb.data.sql.SQLImportExportFactory;
+import ai.chat2db.server.web.api.controller.rdb.data.xls.XLSImportExportFactory;
 import ai.chat2db.server.web.api.controller.rdb.data.xlsx.XLSXImportExportFactory;
 
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class DataFileFactoryProducer {
     static {
         factories.put("CSV", new CSVImportExportFactory());
         factories.put("XLSX", new XLSXImportExportFactory());
+        factories.put("XLS", new XLSImportExportFactory());
         factories.put("JSON", new JSONImportExportFactory());
         factories.put("SQL", new SQLImportExportFactory());
     }

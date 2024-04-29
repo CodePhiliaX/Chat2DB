@@ -29,7 +29,7 @@ public class ExportExcelService extends DatabaseExportService {
 
     public ExportExcelService() {
         exportTypeEnum = ExportTypeEnum.EXCEL;
-        suffix = ExportFileSuffix.EXCEL.getSuffix();
+        suffix = ExportFileSuffix.XLSX.getSuffix();
         contentType = "text/csv";
     }
 

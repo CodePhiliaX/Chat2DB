@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = BaseExportDataOptions.class, name = "CSV"),
         @JsonSubTypes.Type(value = BaseExportData2SqlOptions.class, name = "SQL"),
         @JsonSubTypes.Type(value = BaseExportDataOptions.class, name = "XLSX"),
+        @JsonSubTypes.Type(value = BaseExportDataOptions.class, name = "XLS"),
         @JsonSubTypes.Type(value = ExportData2JsonOptions.class, name = "JSON")
 })
 public abstract class AbstractExportDataOptions extends AbstractDataOption {

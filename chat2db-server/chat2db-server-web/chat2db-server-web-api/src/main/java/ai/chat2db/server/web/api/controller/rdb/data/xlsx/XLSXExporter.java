@@ -11,7 +11,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 public class XLSXExporter extends BaseExcelExporter implements DataFileExporter {
 
     public XLSXExporter() {
-        suffix = ExportFileSuffix.EXCEL.getSuffix();
+        suffix = ExportFileSuffix.XLSX.getSuffix();
         contentType = "application/vnd.ms-excel";
     }
 
