@@ -2,6 +2,7 @@ package ai.chat2db.server.web.api.controller.rdb.data.csv;
 
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileImporter;
 import ai.chat2db.server.web.api.controller.rdb.data.xlsx.BaseExcelImporter;
+import com.alibaba.excel.support.ExcelTypeEnum;
 
 /**
  * 功能描述
@@ -12,4 +13,8 @@ import ai.chat2db.server.web.api.controller.rdb.data.xlsx.BaseExcelImporter;
 public class CSVImporter extends BaseExcelImporter implements DataFileImporter {
 
 
+    @Override
+    protected ExcelTypeEnum getExcelType() {
+        return ExcelTypeEnum.CSV;
+    }
 }

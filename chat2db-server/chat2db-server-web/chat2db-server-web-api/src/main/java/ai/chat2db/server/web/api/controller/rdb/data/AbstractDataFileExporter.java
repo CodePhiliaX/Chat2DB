@@ -33,18 +33,17 @@ public abstract class AbstractDataFileExporter implements DataFileExporter {
     @Override
     public void exportDataFile(DatabaseExportDataParam param, HttpServletResponse response) throws IOException, SQLException {
         if (param.getExportTableOptions().size() > 1) {
-            DataFileFactoryProducer.notifyObservers("export multi table data file");
+            log.info("export multi table data file");
             exportMultiDataFile(param, response);
         } else {
-            DataFileFactoryProducer.notifyObservers("export single table data file");
+            log.info("export single table data file");
             exportSingleDataFile(param, response);
         }
-        DataFileFactoryProducer.notifyObservers("Finished successfully");
+        log.info("Finished successfully");
     }
 
 
     public void exportSingleDataFile(DatabaseExportDataParam param, HttpServletResponse response) throws SQLException {
-        DataFileFactoryProducer.notifyObservers("export start");
         BaseTableOptions tableOptions = param.getExportTableOptions().get(0);
         String tableName = tableOptions.getTableName();
         List<String> tableColumns = tableOptions.getTableColumns();

@@ -34,6 +34,7 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
     @Override
     protected void doImportData(Connection connection, String databaseName, String schemaName, String tableName, List<String> tableColumns,
                                 List<String> fileColumns, AbstractImportDataOptions importDataOption, MultipartFile file) {
+        log.info("import JSON data file");
         String rootNodeName = ((ImportJsonDataOptions) importDataOption).getRootNodeName();
         String dataTimeFormat = ((ImportJsonDataOptions) importDataOption).getDataTimeFormat();
         Integer dataStartRowNum = ((ImportJsonDataOptions) importDataOption).getDataStartRowNum();
@@ -54,22 +55,23 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
                 addSql(tableName, fileColumns, sqlBuilder, statement, values);
                 sqlCount++;
                 if (sqlCount == 1000) {
-                    log.info("execute batch sqlCount:{}/1000", sqlCount);
-                    Instant startTime = Instant.now();
-                    executeBatch(statement);
-                    log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
+                    executeBatch(sqlCount, statement);
                     sqlCount = 0;
                 }
             }
             if (sqlCount > 0) {
-                log.info("execute batch sqlCount:{}/1000", sqlCount);
-                Instant startTime = Instant.now();
-                executeBatch(statement);
-                log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
+                executeBatch(sqlCount, statement);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void executeBatch(int sqlCount, Statement statement) throws SQLException {
+        log.info("execute batch sqlCount:{}/1000", sqlCount);
+        Instant startTime = Instant.now();
+        executeBatch(statement);
+        log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
     }
 
     private void iteratorValues(List<String> fileColumns, String dataTimeFormat,

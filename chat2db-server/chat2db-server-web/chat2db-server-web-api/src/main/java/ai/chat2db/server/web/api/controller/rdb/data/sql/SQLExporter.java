@@ -4,8 +4,8 @@ import ai.chat2db.server.domain.api.enums.ExportFileSuffix;
 import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
 import ai.chat2db.server.web.api.controller.rdb.data.AbstractDataFileExporter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileExporter;
-import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.util.List;
  * @author: zgq
  * @date: 2024年04月26日 15:33
  */
+@Slf4j
 public class SQLExporter extends AbstractDataFileExporter implements DataFileExporter {
 
     public SQLExporter() {
@@ -34,7 +35,7 @@ public class SQLExporter extends AbstractDataFileExporter implements DataFileExp
                                      String tableName, List<String> tableColumns,
                                      AbstractExportDataOptions exportDataOption) throws SQLException {
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
-        DataFileFactoryProducer.notifyObservers("Export File Format SQL file");
+        log.info("Export File Format SQL file");
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             PrintWriter writer = response.getWriter();
             EasySqlBuilder.exportData2Sql(tableName, tableColumns, exportDataOption, resultSet, writer);
@@ -47,6 +48,7 @@ public class SQLExporter extends AbstractDataFileExporter implements DataFileExp
     protected ByteArrayOutputStream doTableDataExport(Connection connection, String databaseName, String schemaName,
                                                       String tableName, List<String> tableColumns,
                                                       AbstractExportDataOptions exportDataOption) throws SQLException {
+        log.info("Export File Format SQL file");
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql);

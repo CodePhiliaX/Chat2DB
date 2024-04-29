@@ -8,7 +8,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
  * @author: zgq
  * @date: 2024年04月26日 14:05
  */
-public class XLSXExporter extends BaseXLSXExporter implements DataFileExporter {
+public class XLSXExporter extends BaseExcelExporter implements DataFileExporter {
 
     public XLSXExporter() {
         suffix = ExportFileSuffix.EXCEL.getSuffix();

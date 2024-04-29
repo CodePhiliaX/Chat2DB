@@ -7,6 +7,7 @@ import ai.chat2db.spi.util.ResultSetUtils;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,19 +20,22 @@ import java.util.List;
  * @author: zgq
  * @date: 2024年04月27日 15:23
  */
-public abstract class BaseXLSXExporter extends AbstractDataFileExporter {
+@Slf4j
+public abstract class BaseExcelExporter extends AbstractDataFileExporter {
 
 
     @Override
     protected void doTableDataExport(HttpServletResponse response, Connection connection, String databaseName,
                                      String schemaName, String tableName, List<String> tableColumns,
                                      AbstractExportDataOptions exportDataOption) throws SQLException {
+        ExcelTypeEnum excelType = getExcelType();
+        log.info("Export File Format {} file", excelType.name());
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ServletOutputStream outputStream = response.getOutputStream();
             EasyExcelExportUtil.write(outputStream, EasyExcelExportUtil.getDataList(resultSet, tableColumns),
                                       tableName, ResultSetUtils.getRsHeader(resultSet),
-                                      tableColumns, getExcelType(), exportDataOption);
+                                      tableColumns, excelType, exportDataOption);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -43,12 +47,14 @@ public abstract class BaseXLSXExporter extends AbstractDataFileExporter {
     protected ByteArrayOutputStream doTableDataExport(Connection connection, String databaseName, String schemaName,
                                                       String tableName, List<String> tableColumns,
                                                       AbstractExportDataOptions exportDataOption) throws SQLException {
+        ExcelTypeEnum excelType = getExcelType();
+        log.info("Export File Format {} file", excelType.name());
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             EasyExcelExportUtil.write(byteOut, EasyExcelExportUtil.getDataList(resultSet, tableColumns),
                                       tableName, ResultSetUtils.getRsHeader(resultSet),
-                                      tableColumns, getExcelType(), exportDataOption);
+                                      tableColumns, excelType, exportDataOption);
             return byteOut;
         }
     }

@@ -70,7 +70,6 @@ public class NoModelDataListener extends AnalysisEventListener<Map<Integer, Stri
             String value = entry.getValue();
             if (fileColumns.contains(value)) {
                 Integer key = entry.getKey();
-                log.info("head index: {} value: {}", key, value);
                 columnIndexList.add(key);
             }
         }
