@@ -14,7 +14,9 @@ import lombok.EqualsAndHashCode;
 public class BaseExportData2SqlOptions extends BaseExportDataOptions {
     @NotBlank
     public String sqlType;
+    public String updateCondition;
     public BaseExportData2SqlOptions() {
         sqlType= "single";
+        updateCondition= "id";
     }
 }

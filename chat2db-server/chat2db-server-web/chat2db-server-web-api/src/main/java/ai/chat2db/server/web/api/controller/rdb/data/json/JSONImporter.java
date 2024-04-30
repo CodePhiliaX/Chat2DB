@@ -52,7 +52,7 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
             while (records.hasNext() && recordCount++ < limitRowSize) {
                 JsonNode recordNode = records.next();
                 iteratorValues(fileColumns, dataTimeFormat, values, recordNode);
-                addSql(tableName, fileColumns, sqlBuilder, statement, values);
+                addSql(databaseName,schemaName,tableName, fileColumns, sqlBuilder, statement, values);
                 sqlCount++;
                 if (sqlCount == 1000) {
                     executeBatch(sqlCount, statement);
@@ -122,9 +122,9 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
         statement.clearBatch();
     }
 
-    private void addSql(String tableName, List<String> fileColumns, StringBuilder sqlBuilder,
+    private void addSql(String databaseName, String schemaName, String tableName, List<String> fileColumns, StringBuilder sqlBuilder,
                         Statement statement, List<String> values) throws SQLException {
-        EasySqlBuilder.buildInsert(tableName, true, fileColumns, sqlBuilder);
+        EasySqlBuilder.buildInsert(databaseName, schemaName, tableName, true, fileColumns, sqlBuilder);
         EasySqlBuilder.buildInsertValues(values, sqlBuilder);
         sqlBuilder.append(";");
         values.clear();

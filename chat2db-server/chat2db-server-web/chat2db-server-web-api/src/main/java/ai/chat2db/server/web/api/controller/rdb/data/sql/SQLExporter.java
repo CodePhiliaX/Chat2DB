@@ -38,7 +38,7 @@ public class SQLExporter extends AbstractDataFileExporter implements DataFileExp
         log.info("Export File Format SQL file");
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             PrintWriter writer = response.getWriter();
-            EasySqlBuilder.exportData2Sql(tableName, tableColumns, exportDataOption, resultSet, writer);
+            EasySqlBuilder.exportData2Sql(databaseName,schemaName,tableName, tableColumns, exportDataOption, resultSet, writer);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,7 +53,7 @@ public class SQLExporter extends AbstractDataFileExporter implements DataFileExp
         String sql = EasySqlBuilder.buildQuerySql(databaseName, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql);
              PrintWriter writer = new PrintWriter(new OutputStreamWriter(byteOut, StandardCharsets.UTF_8))) {
-            EasySqlBuilder.exportData2Sql(tableName, tableColumns, exportDataOption, resultSet, writer);
+            EasySqlBuilder.exportData2Sql(databaseName, schemaName, tableName, tableColumns, exportDataOption, resultSet, writer);
         }
         return byteOut;
     }

@@ -37,8 +37,8 @@ public abstract class AbstractDataFileImporter implements DataFileImporter {
     }
 
     private void createNewTable(Connection connection, ImportTableOptions importTableOption, String tableName) {
-        log.info("create new table:{}",tableName);
         if (importTableOption instanceof ImportNewTableOptions importNewTableOptions) {
+            log.info("create new table:{}",tableName);
             List<String> sqlList = importNewTableOptions.getSql();
             if (CollectionUtils.isEmpty(sqlList)) {
                return;

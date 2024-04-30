@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb.data.sql;
 import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
 import ai.chat2db.server.tools.common.model.rdb.data.option.sql.BaseExportData2SqlOptions;
 import ai.chat2db.spi.util.ResultSetUtils;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -42,7 +43,7 @@ public class EasySqlBuilder {
         }
     }
 
-    public static void exportData2Sql(String tableName, List<String> tableColumns, AbstractExportDataOptions exportDataOption,
+    public static void exportData2Sql(String databaseName, String schemaName, String tableName, List<String> tableColumns, AbstractExportDataOptions exportDataOption,
                                       ResultSet resultSet, PrintWriter writer) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         List<String> headList = ResultSetUtils.getRsHeader(resultSet);
@@ -53,29 +54,30 @@ public class EasySqlBuilder {
         switch (sqlType) {
             case "single" -> {
                 log.info("Exporting single insert SQL for table:" + tableName);
-                buildSingleInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
+                buildSingleInsert(writer, resultSet, metaData, databaseName, schemaName, tableName, headList, exportDataOption);
             }
             case "multi" -> {
                 log.info("Exporting multi insert SQL for table: " + tableName);
-                buildMultiInsert(writer, resultSet, metaData, tableName, headList, exportDataOption);
+                buildMultiInsert(writer, resultSet, metaData, databaseName, schemaName, tableName, headList, exportDataOption);
             }
             case "update" -> {
                 log.info("Exporting update SQL for table: " + tableName);
-                buildUpdateStatement(writer, resultSet, metaData, tableName, headList);
+                buildUpdateStatement(writer, resultSet, metaData, databaseName, schemaName, tableName, headList, exportDataOption);
             }
             default -> throw new IllegalStateException("Unexpected value: " + sqlType);
         }
     }
 
     public static void buildUpdateStatement(PrintWriter writer, ResultSet resultSet, ResultSetMetaData metaData,
-                                            String tableName, List<String> headList) throws SQLException {
+                                            String databaseName, String schemaName, String tableName, List<String> headList, AbstractExportDataOptions exportDataOption) throws SQLException {
+        String updateCondition = ((BaseExportData2SqlOptions) exportDataOption).getUpdateCondition();
         StringBuilder sqlBuilder = new StringBuilder();
         while (resultSet.next()) {
-            EasySqlBuilder.buildUpdate(tableName, sqlBuilder);
+            EasySqlBuilder.buildUpdate(databaseName, schemaName, tableName, sqlBuilder);
             int columnCount = 0;
             for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 String columnName = metaData.getColumnName(i);
-                if (!headList.contains(columnName) || Objects.equals("id", columnName)) {
+                if (!headList.contains(columnName) || Objects.equals(updateCondition, columnName)) {
                     continue;
                 }
                 columnCount++;
@@ -91,20 +93,20 @@ public class EasySqlBuilder {
 
                 }
             }
-            EasySqlBuilder.buildUpdateConditions(resultSet.getString("id"), sqlBuilder);
+            EasySqlBuilder.buildUpdateConditions(updateCondition, resultSet.getString(updateCondition), sqlBuilder);
         }
         writer.println(sqlBuilder);
     }
 
     public static void buildMultiInsert(PrintWriter writer, ResultSet resultSet, ResultSetMetaData metaData,
-                                        String tableName, List<String> headList, AbstractExportDataOptions exportDataOption) throws SQLException {
+                                        String databaseName, String schemaName, String tableName, List<String> headList, AbstractExportDataOptions exportDataOption) throws SQLException {
         Boolean containsHeader = ((BaseExportData2SqlOptions) exportDataOption).getContainsHeader();
         StringBuilder sqlBuilder = new StringBuilder();
         List<String> values = new ArrayList<>();
-        EasySqlBuilder.buildInsert(tableName, containsHeader, headList, sqlBuilder);
+        EasySqlBuilder.buildInsert(databaseName, schemaName, tableName, containsHeader, headList, sqlBuilder);
         while (resultSet.next()) {
             int columnCount = 0;
-            for (int i = 1; i < metaData.getColumnCount(); i++) {
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 String columnName = metaData.getColumnName(i);
                 if (!headList.contains(columnName)) {
                     continue;
@@ -133,13 +135,13 @@ public class EasySqlBuilder {
     }
 
     public static void buildSingleInsert(PrintWriter writer, ResultSet resultSet, ResultSetMetaData metaData,
-                                         String tableName, List<String> headList, AbstractExportDataOptions exportDataOption) throws SQLException {
+                                         String databaseName, String schemaName, String tableName, List<String> headList, AbstractExportDataOptions exportDataOption) throws SQLException {
         Boolean containsHeader = ((BaseExportData2SqlOptions) exportDataOption).getContainsHeader();
         StringBuilder sqlBuilder = new StringBuilder();
         List<String> values = new ArrayList<>();
         while (resultSet.next()) {
             int columnCount = 0;
-            for (int i = 1; i < metaData.getColumnCount(); i++) {
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
                 String columnName = metaData.getColumnName(i);
                 if (!headList.contains(columnName)) {
                     continue;
@@ -155,7 +157,7 @@ public class EasySqlBuilder {
                     break;
                 }
             }
-            EasySqlBuilder.buildInsert(tableName, containsHeader, headList, sqlBuilder);
+            EasySqlBuilder.buildInsert(databaseName, schemaName, tableName, containsHeader, headList, sqlBuilder);
             EasySqlBuilder.buildInsertValues(values, sqlBuilder);
             sqlBuilder.append(";\n");
             values.clear();
@@ -163,24 +165,29 @@ public class EasySqlBuilder {
         writer.println(sqlBuilder);
     }
 
-    public static void buildInsert(String tableName, boolean containsHeader, List<String> filedNames, StringBuilder sqlBuilder) {
-        sqlBuilder.append("INSERT INTO ").append(tableName);
+    public static void buildInsert(String databaseName, String schemaName, @NotBlank String tableName, boolean containsHeader, List<String> fieldNames, StringBuilder sqlBuilder) {
+        sqlBuilder.append("INSERT INTO ");
+        buildTableName(databaseName, schemaName, tableName, sqlBuilder);
+
         if (containsHeader) {
-            sqlBuilder.append(" ").append(buildColumns(filedNames));
+            sqlBuilder.append(" ").append(buildColumns(fieldNames));
         }
         sqlBuilder.append(" VALUES ");
     }
+
 
     public static void buildInsertValues(List<String> values, StringBuilder sqlBuilder) {
         sqlBuilder.append(buildValues(values));
     }
 
-    public static void buildUpdate(String tableName, StringBuilder sqlBuilder) {
-        sqlBuilder.append("UPDATE ").append(tableName).append(" SET ");
+    public static void buildUpdate(String databaseName, String schemaName, @NotBlank String tableName, StringBuilder sqlBuilder) {
+        sqlBuilder.append("UPDATE ");
+        buildTableName(databaseName, schemaName, tableName, sqlBuilder);
+        sqlBuilder.append(" SET ");
     }
 
-    public static void buildUpdateConditions(String value, StringBuilder sqlBuilder) {
-        sqlBuilder.append(" WHERE id = ").append("'").append(value).append("'").append(";\n");
+    public static void buildUpdateConditions(String updateCondition, String value, StringBuilder sqlBuilder) {
+        sqlBuilder.append(" WHERE ").append(updateCondition).append(" = ").append("'").append(value).append("'").append(";\n");
     }
 
     public static String buildValues(List<String> list) {

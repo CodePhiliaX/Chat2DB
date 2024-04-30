@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.rdb.data.xlsx;
 
-import ai.chat2db.server.tools.common.model.rdb.data.option.BaseImportExcelDataOptions;
 import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractImportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.BaseImportExcelDataOptions;
 import ai.chat2db.server.web.api.controller.rdb.data.sql.EasySqlBuilder;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -9,6 +9,7 @@ import com.alibaba.excel.metadata.data.ReadCellData;
 import com.alibaba.excel.util.ConverterUtils;
 import com.alibaba.excel.util.ListUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,6 +23,7 @@ import java.util.Objects;
 @Slf4j
 public class NoModelDataListener extends AnalysisEventListener<Map<Integer, String>> {
 
+    private final String databaseName;
     private final String schemaName;
     private final String tableName;
     private final List<String> tableColumns;
@@ -34,8 +36,9 @@ public class NoModelDataListener extends AnalysisEventListener<Map<Integer, Stri
     private final int limitRowSize;
 
 
-    public NoModelDataListener(String schemaName, String tableName, List<String> tableColumns,
+    public NoModelDataListener(String databaseName, String schemaName, String tableName, List<String> tableColumns,
                                List<String> fileColumns, AbstractImportDataOptions importDataOption, Connection connection) {
+        this.databaseName = databaseName;
         this.schemaName = schemaName;
         this.tableName = tableName;
         this.tableColumns = tableColumns;
@@ -91,7 +94,8 @@ public class NoModelDataListener extends AnalysisEventListener<Map<Integer, Stri
                     values.add(value);
                 }
             }
-            String sql = String.format("INSERT INTO %s %s VALUES %s", tableName,
+            String sql = String.format("INSERT INTO %s.%s %s VALUES %s",
+                                       StringUtils.isBlank(databaseName) ? schemaName : databaseName, tableName,
                                        EasySqlBuilder.buildColumns(tableColumns),
                                        EasySqlBuilder.buildValues(values));
             values.clear();
@@ -109,7 +113,7 @@ public class NoModelDataListener extends AnalysisEventListener<Map<Integer, Stri
             for (String sql : sqlCacheList) {
                 stmt.addBatch(sql);
             }
-            log.info("execute batch {}/1000 sql start",sqlCacheList.size());
+            log.info("execute batch {}/1000 sql start", sqlCacheList.size());
             Instant startTime = Instant.now();
             stmt.executeBatch();
             log.info("execute batch sql success,cost time: {}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());

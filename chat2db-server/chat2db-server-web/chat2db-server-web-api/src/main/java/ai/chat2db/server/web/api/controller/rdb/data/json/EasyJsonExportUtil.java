@@ -5,6 +5,7 @@ import ai.chat2db.server.tools.common.model.rdb.data.option.json.ExportData2Json
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,8 +44,7 @@ public class EasyJsonExportUtil {
             Map<String, Object> row = new LinkedHashMap<>();
             for (int i = 1; i <= columnCount; i++) {
                 String columnName = metaData.getColumnName(i);
-                if (filedNames != null && !filedNames.contains(columnName)) {
-                    log.info("{} is not in the export field list", columnName);
+                if (CollectionUtils.isNotEmpty(filedNames) && !filedNames.contains(columnName)) {
                     continue;
                 }
                 row.put(columnName, resultSet.getObject(i));
