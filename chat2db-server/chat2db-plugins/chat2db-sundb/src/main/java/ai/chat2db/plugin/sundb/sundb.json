@@ -1,0 +1,18 @@
+{
+  "dbType": "SUNDB",
+  "supportDatabase": false,
+  "supportSchema": true,
+  "driverConfigList": [
+    {
+      "url": "jdbc:sundb://localhost:22581/sundb",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://cdn.chat2db-ai.com/lib/DmJdbcDriver18-8.1.2.141.jar"
+      ],
+      "jdbcDriver": "sundb8.jar",
+      "jdbcDriverClass": "csii.sundb.jdbc.SundbDriver"
+    }
+  ],
+  "name": "SUNDB"
+}
