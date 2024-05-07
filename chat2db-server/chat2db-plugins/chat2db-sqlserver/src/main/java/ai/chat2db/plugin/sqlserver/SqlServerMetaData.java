@@ -73,24 +73,30 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 tableColumn.setTableName(tableName);
                 tableColumn.setName(columns.getString("COLUMN_NAME"));
                 tableColumn.setColumnType(columns.getString("DATA_TYPE").toUpperCase());
-                if (ObjectUtil.notEqual(SqlServerColumnTypeEnum.FLOAT.name(), tableColumn.getColumnType())
-                        && ObjectUtil.notEqual(SqlServerColumnTypeEnum.REAL.name(), tableColumn.getColumnType())) {
+                if (!Arrays.asList(SqlServerColumnTypeEnum.FLOAT.name(),
+                                   SqlServerColumnTypeEnum.REAL.name()).contains(tableColumn.getColumnType())) {
                     int columnSize = columns.getInt("COLUMN_SIZE");
                     int numericScale = columns.getInt("NUMERIC_SCALE");
-                    if ((Objects.equals(SqlServerColumnTypeEnum.NCHAR.name(), tableColumn.getColumnType())
-                            || Objects.equals(SqlServerColumnTypeEnum.NVARCHAR.name(), tableColumn.getColumnType()))) {
+
+                    // Adjust column size for Unicode types
+                    if (Arrays.asList(SqlServerColumnTypeEnum.NCHAR.name(),
+                                      SqlServerColumnTypeEnum.NVARCHAR.name()).contains(tableColumn.getColumnType())) {
                         columnSize = columnSize / 2;
                     }
-                    if (Objects.equals(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(), tableColumn.getColumnType())
-                            || Objects.equals(SqlServerColumnTypeEnum.TIME.name(), tableColumn.getColumnType())
-                            || Objects.equals(SqlServerColumnTypeEnum.DATETIME2.name(), tableColumn.getColumnType())) {
+
+                    // Set column size based on data type
+                    if (Arrays.asList(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
+                                      SqlServerColumnTypeEnum.TIME.name(),
+                                      SqlServerColumnTypeEnum.DATETIME2.name()).contains(tableColumn.getColumnType())) {
                         tableColumn.setColumnSize(numericScale);
                     } else {
                         tableColumn.setColumnSize(columnSize);
                     }
-                    if (ObjectUtil.notEqual(SqlServerColumnTypeEnum.DATETIME2.name(), tableColumn.getColumnType())
-                            && ObjectUtil.notEqual(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(), tableColumn.getColumnType())
-                            && ObjectUtil.notEqual(SqlServerColumnTypeEnum.TIME.name(), tableColumn.getColumnType())) {
+
+                    // Set decimal digits if applicable
+                    if (!Arrays.asList(SqlServerColumnTypeEnum.DATETIME2.name(),
+                                       SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
+                                       SqlServerColumnTypeEnum.TIME.name()).contains(tableColumn.getColumnType())) {
                         tableColumn.setDecimalDigits(numericScale);
                     }
                 }
