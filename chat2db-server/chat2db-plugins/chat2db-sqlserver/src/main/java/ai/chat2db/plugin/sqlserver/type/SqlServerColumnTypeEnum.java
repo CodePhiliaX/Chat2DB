@@ -17,7 +17,7 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
 
     BIGINT("BIGINT", false, false, true, false, false, false, true, true),
 
-    BINARY("BINARY", false, false, true, false, false, false, true, true),
+    BINARY("BINARY", true, false, true, false, false, false, true, true),
 
     BIT("BIT", false, false, true, false, false, false, true, true),
 
@@ -135,10 +135,9 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDefaultValue(column, type)).append(" ");
 
-        script.append(buildNullable(column, type)).append(" ");
-
         script.append(buildCollation(column, type)).append(" ");
 
+        script.append(buildNullable(column, type)).append(" ");
         return script.toString();
     }
 
@@ -224,7 +223,7 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
 
     private String buildDataType(TableColumn column, SqlServerColumnTypeEnum type) {
         String columnType = type.columnType.getTypeName();
-        if (Arrays.asList(CHAR, NCHAR, NVARCHAR, VARBINARY, VARCHAR).contains(type)) {
+        if (Arrays.asList(BINARY,CHAR, NCHAR, NVARCHAR, VARBINARY, VARCHAR).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null) {
