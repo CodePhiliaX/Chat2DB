@@ -6,6 +6,7 @@ import ai.chat2db.server.tools.common.model.rdb.data.option.json.ImportJsonDataO
 import ai.chat2db.server.web.api.controller.rdb.data.AbstractDataFileImporter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileImporter;
 import ai.chat2db.server.web.api.controller.rdb.data.sql.EasySqlBuilder;
+import ai.chat2db.server.web.api.controller.rdb.data.util.EasyBatchSqlExecutor;
 import cn.hutool.core.date.DatePattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -40,11 +38,11 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
         Integer dataStartRowNum = ((ImportJsonDataOptions) importDataOption).getDataStartRowNum();
         Integer dataEndRowNum = ((ImportJsonDataOptions) importDataOption).getDataEndRowNum();
         int limitRowSize = dataEndRowNum - dataStartRowNum + 1;
-        int sqlCount = 0;
+        List<String> sqlCacheList = new ArrayList<>(BATCH_SIZE);
         int recordCount = 0;
         ObjectMapper objectMapper = new ObjectMapper();
         StringBuilder sqlBuilder = new StringBuilder();
-        try (Statement statement = connection.createStatement()) {
+        try {
             JsonNode jsonNode = objectMapper.readTree(file.getInputStream());
             jsonNode = getJsonNode(rootNodeName, jsonNode);
             Iterator<JsonNode> records = jsonNode.elements();
@@ -52,26 +50,23 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
             while (records.hasNext() && recordCount++ < limitRowSize) {
                 JsonNode recordNode = records.next();
                 iteratorValues(fileColumns, dataTimeFormat, values, recordNode);
-                addSql(databaseName,schemaName,tableName, fileColumns, sqlBuilder, statement, values);
-                sqlCount++;
-                if (sqlCount == 1000) {
-                    executeBatch(sqlCount, statement);
-                    sqlCount = 0;
+                EasySqlBuilder.buildInsert(databaseName, schemaName, tableName, true, fileColumns, sqlBuilder);
+                EasySqlBuilder.buildInsertValues(values, sqlBuilder);
+                sqlBuilder.append(";");
+                values.clear();
+                sqlCacheList.add(sqlBuilder.toString());
+                sqlBuilder.setLength(0);
+                if (sqlCacheList.size() >= BATCH_SIZE) {
+                    EasyBatchSqlExecutor.executeBatchInsert(connection, sqlCacheList);
                 }
             }
-            if (sqlCount > 0) {
-                executeBatch(sqlCount, statement);
+            if (sqlCacheList.size() > 0) {
+                EasyBatchSqlExecutor.executeBatchInsert(connection, sqlCacheList);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
 
-    private void executeBatch(int sqlCount, Statement statement) throws SQLException {
-        log.info("execute batch sqlCount:{}/1000", sqlCount);
-        Instant startTime = Instant.now();
-        executeBatch(statement);
-        log.info("execute batch cost:{}ms", Instant.now().toEpochMilli() - startTime.toEpochMilli());
     }
 
     private void iteratorValues(List<String> fileColumns, String dataTimeFormat,
@@ -115,20 +110,5 @@ public class JSONImporter extends AbstractDataFileImporter implements DataFileIm
         SimpleDateFormat inputFormat = new SimpleDateFormat(dataTimeFormat);
         SimpleDateFormat outputFormat = new SimpleDateFormat(DatePattern.NORM_DATETIME_PATTERN);
         return outputFormat.format(inputFormat.parse(dateString));
-    }
-
-    private void executeBatch(Statement statement) throws SQLException {
-        statement.executeBatch();
-        statement.clearBatch();
-    }
-
-    private void addSql(String databaseName, String schemaName, String tableName, List<String> fileColumns, StringBuilder sqlBuilder,
-                        Statement statement, List<String> values) throws SQLException {
-        EasySqlBuilder.buildInsert(databaseName, schemaName, tableName, true, fileColumns, sqlBuilder);
-        EasySqlBuilder.buildInsertValues(values, sqlBuilder);
-        sqlBuilder.append(";");
-        values.clear();
-        statement.addBatch(sqlBuilder.toString());
-        sqlBuilder.setLength(0);
     }
 }

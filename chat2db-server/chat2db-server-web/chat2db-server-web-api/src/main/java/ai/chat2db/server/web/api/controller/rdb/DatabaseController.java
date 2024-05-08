@@ -12,6 +12,7 @@ import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.converter.DatabaseConverter;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.data.DataFileFactoryProducer;
+import ai.chat2db.server.web.api.controller.rdb.data.observer.LoggingObserver;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
 import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
 import ai.chat2db.spi.model.Database;
@@ -138,16 +139,20 @@ public class DatabaseController {
     }
 
     @PostMapping("/import_data")
-    public ActionResult importData(@Valid @ModelAttribute(value = "file") MultipartFile file, @ModelAttribute("json") String jsonData) {
+    public void importData(@Valid @ModelAttribute(value = "file") MultipartFile file,
+                           @ModelAttribute(value = "json") String jsonData, HttpServletResponse response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             DatabaseImportDataRequest request = objectMapper.readValue(jsonData, DatabaseImportDataRequest.class);
             DatabaseImportDataParam param = databaseConverter.request2param(request);
             DataFileFactoryProducer.getFactory(request.getImportDataOption().getFileType())
                     .createImporter().importDataFile(param, file);
-            return ActionResult.isSuccess();
+            response.getWriter().println(((LoggingObserver) DataFileFactoryProducer.getObserver()).getLogs());
         } catch (Exception e) {
+            response.reset();
             throw new RuntimeException(e);
+        } finally {
+            DataFileFactoryProducer.removeObserver();
         }
     }
 }

@@ -16,5 +16,5 @@ public class ImportNewTableOptions extends ImportTableOptions{
     /*
     * create table sql
     * */
-    private List<String> sql;
+    private String sql;
 }
