@@ -22,26 +22,23 @@ import java.util.stream.Collectors;
 
 public class SUNDBMetaData extends DefaultMetaService implements MetaData {
 
-    private List<String> systemSchemas = Arrays.asList("CTISYS", "SYS","SYSDBA","SYSSSO","SYSAUDITOR");
+    private List<String> systemSchemas = Arrays.asList("DEFINITION_SCHEMA", "DICTIONARY_SCHEMA", "FIXED_TABLE_SCHEMA", "INFORMATION_SCHEMA",
+            "PERFORMANCE_VIEW_SCHEMA", "PUBLIC");
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
         List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
         return SortUtils.sortSchema(schemas, systemSchemas);
     }
-      private String format(String tableName){
+    private String format(String tableName){
         return "\"" + tableName + "\"";
       }
 
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = """
-                     SELECT
-                         (SELECT comments FROM user_tab_comments WHERE table_name = '%s') AS comments,
-                         (SELECT dbms_metadata.get_ddl('TABLE', '%s', '%s') FROM dual) AS ddl
-                     FROM dual;
-                     """;
+        String sql = "";
         StringBuilder ddlBuilder = new StringBuilder();
-        String tableDDLSql = String.format(sql, tableName, tableName, schemaName);
+        String tableDDLSql = String.format(sql, tableName);
+
         SQLExecutor.getInstance().execute(connection, tableDDLSql, resultSet -> {
             if (resultSet.next()) {
                 String ddl = resultSet.getString("ddl");
@@ -63,6 +60,30 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
                }
            });
         return ddlBuilder.toString();
+    }
+
+    private String OBJECT_SQL = "select OBJECT_NAME from ALL_PROCEDURES where owner = '%s' and schema_name = '%s' order by OBJECT_NAME";
+
+    @Override
+    public List<Function> functions(Connection connection, String databaseName, String schemaName) {
+        List<Function> functions = new ArrayList<>();
+        String userName = "";
+        try {
+            userName = connection.getMetaData().getUserName();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        String sql = String.format(OBJECT_SQL, userName, schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Function function = new Function();
+                function.setDatabaseName(databaseName);
+                function.setSchemaName(schemaName);
+                function.setFunctionName(resultSet.getString("OBJECT_NAME"));
+                functions.add(function);
+            }
+            return functions;
+        });
     }
 
     private static String ROUTINES_SQL

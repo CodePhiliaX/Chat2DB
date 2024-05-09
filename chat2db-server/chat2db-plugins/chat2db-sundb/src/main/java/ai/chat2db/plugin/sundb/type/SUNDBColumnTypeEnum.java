@@ -115,7 +115,7 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
 
     VARCHAR("VARCHAR", true, false, true, false, false, false, true, true, false, true),
 
-    VARCHAR2("VARCHAR2", true, false, true, false, false, false, true, true, false, true),
+   // VARCHAR2("VARCHAR2", true, false, true, false, false, false, true, true, false, true),
 
     ;
     private ColumnType columnType;
@@ -205,7 +205,7 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
 
     private String buildDataType(TableColumn column, SUNDBColumnTypeEnum type) {
         String columnType = type.columnType.getTypeName();
-        if (Arrays.asList(CHAR, VARCHAR, VARCHAR2).contains(type)) {
+        if (Arrays.asList(CHARACTER, CHAR, CHARACTER_VARYING, VARCHAR, CHARACTER_LONG_VARYING, LONG_VARCHAR).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && StringUtils.isEmpty(column.getUnit())) {
@@ -216,7 +216,7 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
             return script.toString();
         }
 
-        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
+        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC, NATIVE_REAL).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
