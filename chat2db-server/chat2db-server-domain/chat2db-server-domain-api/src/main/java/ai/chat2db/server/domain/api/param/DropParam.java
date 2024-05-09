@@ -37,5 +37,5 @@ public class DropParam {
     /**
      * schema
      */
-    private String tableSchema;
+    private String schemaName;
 }

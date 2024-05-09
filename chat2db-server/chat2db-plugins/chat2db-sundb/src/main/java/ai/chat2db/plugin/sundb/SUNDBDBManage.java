@@ -32,7 +32,7 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTables(Connection connection, StringBuilder sqlBuilder, String schemaName, boolean containData) throws SQLException {
-        String sql =String.format("SELECT TABLE_NAME FROM ALL_TABLES where OWNER='%s' and TABLESPACE_NAME='MAIN'", schemaName);
+        String sql =String.format("SELECT TABLE_NAME FROM ALL_TABLES where OWNER='%s' and TABLESPACE_NAME='MEM_DATA_TBS'", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
@@ -43,7 +43,7 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
 
 
     private void exportTable(Connection connection, String tableName, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
-        String sql = """
+        /*tring sql = """
                      SELECT
                          (SELECT comments FROM user_tab_comments WHERE table_name = '%s') AS comments,
                          (SELECT dbms_metadata.get_ddl('TABLE', '%s', '%s') FROM dual) AS ddl
@@ -66,7 +66,7 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
             if (containData) {
                 exportTableData(connection, schemaName, tableName, sqlBuilder);
             }
-        }
+        }*/
     }
 
     private void exportTableColumnComment(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
@@ -93,12 +93,12 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportView(Connection connection, String viewName, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String sql = String.format("SELECT DBMS_METADATA.GET_DDL('VIEW','%s','%s') as ddl FROM DUAL;", viewName, schemaName);
+        /*String sql = String.format("SELECT DBMS_METADATA.GET_DDL('VIEW','%s','%s') as ddl FROM DUAL;", viewName, schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 sqlBuilder.append(resultSet.getString("ddl")).append("\n");
             }
-        }
+        }*/
     }
 
     private void exportProcedures(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
@@ -120,13 +120,13 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTriggers(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
-        String sql =String.format(TRIGGER_SQL_LIST, schemaName);
+        /*String sql =String.format(TRIGGER_SQL_LIST, schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String triggerName = resultSet.getString("TRIGGER_NAME");
                 exportTrigger(connection,schemaName, triggerName, sqlBuilder);
             }
-        }
+        }*/
     }
 
     private void exportTrigger(Connection connection, String schemaName, String triggerName, StringBuilder sqlBuilder) throws SQLException {
@@ -154,7 +154,7 @@ public class SUNDBDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "DROP TABLE IF EXISTS " +tableName;
+        String sql = "DROP TABLE IF EXISTS \"" + schemaName + "\".\"" +tableName + "\"";
         SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);
     }
 }

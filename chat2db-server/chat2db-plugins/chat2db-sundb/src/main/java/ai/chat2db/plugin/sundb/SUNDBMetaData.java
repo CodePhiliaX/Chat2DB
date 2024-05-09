@@ -4,6 +4,7 @@ import ai.chat2db.plugin.sundb.builder.SUNDBSqlBuilder;
 import ai.chat2db.plugin.sundb.type.SUNDBColumnTypeEnum;
 import ai.chat2db.plugin.sundb.type.SUNDBDefaultValueEnum;
 import ai.chat2db.plugin.sundb.type.SUNDBIndexTypeEnum;
+import ai.chat2db.plugin.sundb.type.SUNDBObjectTypeEnum;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
@@ -62,7 +63,7 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
         return ddlBuilder.toString();
     }
 
-    private String OBJECT_SQL = "select OBJECT_NAME from ALL_PROCEDURES where owner = '%s' and schema_name = '%s' order by OBJECT_NAME";
+    private String ALL_PROCEDURES_SQL = "select OBJECT_NAME from ALL_PROCEDURES where owner = '%s' and schema_name = '%s' and OBJECT_TYPE = '%s' order by OBJECT_NAME";
 
     @Override
     public List<Function> functions(Connection connection, String databaseName, String schemaName) {
@@ -73,7 +74,7 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        String sql = String.format(OBJECT_SQL, userName, schemaName);
+        String sql = String.format(ALL_PROCEDURES_SQL, userName, schemaName, SUNDBObjectTypeEnum.FUNCTION.getObjectType());
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
                 Function function = new Function();
@@ -86,34 +87,63 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String ROUTINES_SQL
-        = "SELECT OWNER, NAME, TEXT FROM ALL_SOURCE WHERE TYPE = '%s' AND OWNER = '%s' AND NAME = '%s' ORDER BY LINE";
+    private static String ALL_SOURCE_SQL
+        = "select text from all_source where TYPE = '%s' and owner = '%s' and schema_name = '%s' and name = '%s'";
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
-        String functionName) {
-
-        String sql = String.format(ROUTINES_SQL, "PROC",schemaName, functionName);
+                             String functionName) {
+        String userName = "";
+        try {
+            userName = connection.getMetaData().getUserName();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        String sql = String.format(ALL_SOURCE_SQL, SUNDBObjectTypeEnum.FUNCTION.getObjectType() ,userName, schemaName, functionName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-            StringBuilder sb = new StringBuilder();
-            while (resultSet.next()) {
-                sb.append(resultSet.getString("TEXT") + "\n");
-            }
             Function function = new Function();
             function.setDatabaseName(databaseName);
             function.setSchemaName(schemaName);
             function.setFunctionName(functionName);
-            function.setFunctionBody(sb.toString());
+            if (resultSet.next()) {
+                function.setFunctionBody(resultSet.getString("text")+ "\n");
+            }
             return function;
-
         });
 
     }
 
     @Override
+    public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
+        String userName = "";
+        try {
+            userName = connection.getMetaData().getUserName();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        String sql = String.format(ALL_PROCEDURES_SQL, userName, schemaName, SUNDBObjectTypeEnum.PROCEDURE.getObjectType());
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            ArrayList<Procedure> procedures = new ArrayList<>();
+            Procedure procedure = new Procedure();
+            while (resultSet.next()){
+                procedure.setProcedureName(resultSet.getString("OBJECT_NAME"));
+                procedures.add(procedure);
+            }
+            return procedures;
+        });
+    }
+
+
+    @Override
     public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
         String procedureName) {
-        String sql = String.format(ROUTINES_SQL, "PROC", schemaName,procedureName);
+        String userName = "";
+        try {
+            userName = connection.getMetaData().getUserName();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        String sql = String.format(ALL_SOURCE_SQL, SUNDBObjectTypeEnum.PROCEDURE.getObjectType() ,userName, schemaName, procedureName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             StringBuilder sb = new StringBuilder();
             while (resultSet.next()) {
@@ -136,7 +166,8 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
-        List<Trigger> triggers = new ArrayList<>();
+        return null;
+        /*List<Trigger> triggers = new ArrayList<>();
         String sql = String.format(TRIGGER_SQL_LIST, schemaName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
@@ -147,14 +178,14 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
                 triggers.add(trigger);
             }
             return triggers;
-        });
+        });*/
     }
 
     @Override
     public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
         String triggerName) {
 
-        String sql = String.format(TRIGGER_SQL, schemaName, triggerName);
+        /*String sql = String.format(TRIGGER_SQL, schemaName, triggerName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Trigger trigger = new Trigger();
             trigger.setDatabaseName(databaseName);
@@ -164,7 +195,8 @@ public class SUNDBMetaData extends DefaultMetaService implements MetaData {
                 trigger.setTriggerBody(resultSet.getString("TRIGGER_BODY"));
             }
             return trigger;
-        });
+        });*/
+        return null;
     }
 
     private static String VIEW_SQL
