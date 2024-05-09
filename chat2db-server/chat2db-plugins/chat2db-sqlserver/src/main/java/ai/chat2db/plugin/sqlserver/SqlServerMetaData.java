@@ -11,7 +11,6 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
-import cn.hutool.core.util.ObjectUtil;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +57,28 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                                AND t.name = '%s'
                                                                AND SCHEMA_NAME(t.schema_id) = '%s';""";
 
+    private static final String SELECT_FOREIGN_KEY_SQL = """
+                                                         SELECT
+                                                             fk.name AS ForeignKeyName,
+                                                             SCHEMA_NAME(o.schema_id) + '.' + OBJECT_NAME(fk.parent_object_id) AS TableName,
+                                                             c.name AS ColumnName,
+                                                             SCHEMA_NAME(ro.schema_id) + '.' + OBJECT_NAME(fk.referenced_object_id) AS ReferencedTableName,
+                                                             rc.name AS ReferencedColumnName
+                                                         FROM
+                                                             sys.foreign_keys AS fk
+                                                         INNER JOIN
+                                                             sys.objects o ON fk.parent_object_id = o.object_id
+                                                         INNER JOIN
+                                                             sys.objects ro ON fk.referenced_object_id = ro.object_id
+                                                         INNER JOIN
+                                                             sys.foreign_key_columns AS fkc ON fk.object_id = fkc.constraint_object_id
+                                                         INNER JOIN
+                                                             sys.columns AS c ON fkc.parent_column_id = c.column_id AND fkc.parent_object_id = c.object_id
+                                                         INNER JOIN
+                                                             sys.columns AS rc ON fkc.referenced_column_id = rc.column_id AND fkc.referenced_object_id = rc.object_id
+                                                         WHERE
+                                                             SCHEMA_NAME(o.schema_id) + '.' + OBJECT_NAME(fk.parent_object_id) = '%s.%s';""";
+
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -65,127 +86,175 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         try (ResultSet columns = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COLUMNS, tableName, schemaName));
              ResultSet indexInfo = connection.createStatement().executeQuery(String.format(INDEX_SQL, tableName, schemaName));
              ResultSet tableComment = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COMMENT_SQL, tableName, schemaName));
+             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName));
         ) {
             List<TableColumn> tableColumns = new ArrayList<>();
             while (columns.next()) {
-                TableColumn tableColumn = new TableColumn();
-                tableColumn.setSchemaName(schemaName);
-                tableColumn.setTableName(tableName);
-                tableColumn.setName(columns.getString("COLUMN_NAME"));
-                tableColumn.setColumnType(columns.getString("DATA_TYPE").toUpperCase());
-                if (!Arrays.asList(SqlServerColumnTypeEnum.FLOAT.name(),
-                                   SqlServerColumnTypeEnum.REAL.name()).contains(tableColumn.getColumnType())) {
-                    int columnSize = columns.getInt("COLUMN_SIZE");
-                    int numericScale = columns.getInt("NUMERIC_SCALE");
-
-                    // Adjust column size for Unicode types
-                    if (Arrays.asList(SqlServerColumnTypeEnum.NCHAR.name(),
-                                      SqlServerColumnTypeEnum.NVARCHAR.name()).contains(tableColumn.getColumnType())) {
-                        columnSize = columnSize / 2;
-                    }
-
-                    // Set column size based on data type
-                    if (Arrays.asList(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
-                                      SqlServerColumnTypeEnum.TIME.name(),
-                                      SqlServerColumnTypeEnum.DATETIME2.name()).contains(tableColumn.getColumnType())) {
-                        tableColumn.setColumnSize(numericScale);
-                    } else {
-                        tableColumn.setColumnSize(columnSize);
-                    }
-
-                    // Set decimal digits if applicable
-                    if (!Arrays.asList(SqlServerColumnTypeEnum.DATETIME2.name(),
-                                       SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
-                                       SqlServerColumnTypeEnum.TIME.name()).contains(tableColumn.getColumnType())) {
-                        tableColumn.setDecimalDigits(numericScale);
-                    }
-                }
-                tableColumn.setSparse(columns.getBoolean("IS_SPARSE"));
-                tableColumn.setDefaultValue(columns.getString("COLUMN_DEFAULT"));
-                tableColumn.setNullable(columns.getInt("IS_NULLABLE"));
-                tableColumn.setCollationName(columns.getString("COLLATION_NAME"));
-                tableColumn.setComment(columns.getString("COLUMN_COMMENT"));
-                tableColumns.add(tableColumn);
-                SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
-                sqlBuilder.append("\t").append(typeEnum.buildCreateColumnSql(tableColumn)).append(",\n");
+                configureColumn(schemaName, tableName, sqlBuilder, columns, tableColumns);
             }
             sqlBuilder = new StringBuilder(sqlBuilder.substring(0, sqlBuilder.length() - 2));
             sqlBuilder.append("\n)\ngo\n");
             if (CollectionUtils.isEmpty(tableColumns)) {
                 return sqlBuilder.toString();
             }
+            while (foreignKeyInfo.next()) {
+                configureForeignKey(sqlBuilder, foreignKeyInfo);
+            }
             HashMap<String, TableIndex> indexHashMap = new HashMap<>();
             while (indexInfo.next()) {
-                String indexName = indexInfo.getString("INDEX_NAME");
-                TableIndex index = indexHashMap.get(indexName);
-                if (Objects.isNull(index)) {
-                    index = new TableIndex();
-                    index.setSchemaName(schemaName);
-                    index.setTableName(tableName);
-                    index.setName(indexName);
-                    boolean isPrimaryKey = indexInfo.getBoolean("IS_PRIMARY");
-                    if (isPrimaryKey) {
-                        index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
-                    } else {
-                        String indexType = indexInfo.getString("INDEX_TYPE");
-                        boolean isUnique = indexInfo.getBoolean("IS_UNIQUE");
-                        if (isUnique) {
-                            if (Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType)) {
-                                index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
-                            } else {
-                                index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
-                            }
-                        } else {
-                            index.setType(indexType);
-                        }
-                    }
-                    index.setColumnList(new ArrayList<>());
-                    indexHashMap.put(indexName, index);
-                }
-                index.setComment(indexInfo.getString("INDEX_COMMENT"));
-                List<TableIndexColumn> columnList = index.getColumnList();
-                TableIndexColumn tableIndexColumn = new TableIndexColumn();
-                tableIndexColumn.setTableName(tableName);
-                tableIndexColumn.setSchemaName(schemaName);
-                tableIndexColumn.setColumnName(indexInfo.getString("COLUMN_NAME"));
-                boolean descend = indexInfo.getBoolean("DESCEND");
-                if (descend) {
-                    tableIndexColumn.setAscOrDesc("DESC");
-                } else {
-                    tableIndexColumn.setAscOrDesc("ASC");
-                }
-                columnList.add(tableIndexColumn);
+                setIndexInfo(schemaName, tableName, indexInfo, indexHashMap);
             }
             for (TableIndex index : indexHashMap.values()) {
-                SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(index.getType());
-                sqlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
-                if (StringUtils.isNotBlank(index.getComment())) {
-                    sqlBuilder.append("\n").append(buildIndexComment(index));
-                }
+                configureIndex(sqlBuilder, index);
             }
             for (TableColumn column : tableColumns) {
-                if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())
-                        || StringUtils.isBlank(column.getComment())) {
-                    continue;
-                }
-                sqlBuilder.append("\n").append(buildColumnComment(column));
+                configureColumnComment(sqlBuilder, column);
             }
 
             if (tableComment.next()) {
-                String comment = tableComment.getString("TABLE_COMMENT");
-                if (StringUtils.isNotBlank(comment)) {
-                    Table table = new Table();
-                    table.setComment(comment);
-                    table.setName(tableName);
-                    table.setSchemaName(schemaName);
-                    sqlBuilder.append("\n").append(buildTableComment(table));
-                }
+                configureTableComment(schemaName, tableName, sqlBuilder, tableComment);
             }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         return sqlBuilder.toString();
+    }
+
+    private void setIndexInfo(String schemaName, String tableName, ResultSet indexInfo, HashMap<String, TableIndex> indexHashMap) throws SQLException {
+        String indexName = indexInfo.getString("INDEX_NAME");
+        TableIndex index = indexHashMap.get(indexName);
+        if (Objects.isNull(index)) {
+            index = new TableIndex();
+            index.setSchemaName(schemaName);
+            index.setTableName(tableName);
+            index.setName(indexName);
+            index.setColumnList(new ArrayList<>());
+            configureIndexType(indexInfo, index);
+            indexHashMap.put(indexName, index);
+        }
+        index.setComment(indexInfo.getString("INDEX_COMMENT"));
+        List<TableIndexColumn> columnList = index.getColumnList();
+        TableIndexColumn tableIndexColumn = new TableIndexColumn();
+        tableIndexColumn.setTableName(tableName);
+        tableIndexColumn.setSchemaName(schemaName);
+        tableIndexColumn.setColumnName(indexInfo.getString("COLUMN_NAME"));
+        configureAscOrDesc(indexInfo, tableIndexColumn);
+        columnList.add(tableIndexColumn);
+    }
+
+    private void configureColumn(String schemaName, String tableName, StringBuilder sqlBuilder, ResultSet columns, List<TableColumn> tableColumns) throws SQLException {
+        TableColumn tableColumn = new TableColumn();
+        tableColumn.setSchemaName(schemaName);
+        tableColumn.setTableName(tableName);
+        tableColumn.setName(columns.getString("COLUMN_NAME"));
+        tableColumn.setColumnType(columns.getString("DATA_TYPE").toUpperCase());
+        tableColumn.setSparse(columns.getBoolean("IS_SPARSE"));
+        tableColumn.setDefaultValue(columns.getString("COLUMN_DEFAULT"));
+        tableColumn.setNullable(columns.getInt("IS_NULLABLE"));
+        tableColumn.setCollationName(columns.getString("COLLATION_NAME"));
+        tableColumn.setComment(columns.getString("COLUMN_COMMENT"));
+        configureColumnSize(columns, tableColumn);
+        tableColumns.add(tableColumn);
+        SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
+        sqlBuilder.append("\t").append(typeEnum.buildCreateColumnSql(tableColumn)).append(",\n");
+    }
+
+    private void configureIndex(StringBuilder sqlBuilder, TableIndex index) {
+        SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(index.getType());
+        sqlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
+        if (StringUtils.isNotBlank(index.getComment())) {
+            sqlBuilder.append("\n").append(buildIndexComment(index));
+        }
+    }
+
+    private void configureColumnComment(StringBuilder sqlBuilder, TableColumn column) {
+        if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())
+                || StringUtils.isBlank(column.getComment())) {
+            return;
+        }
+        sqlBuilder.append("\n").append(buildColumnComment(column));
+    }
+
+    private void configureTableComment(String schemaName, String tableName, StringBuilder sqlBuilder, ResultSet tableComment) throws SQLException {
+        String comment = tableComment.getString("TABLE_COMMENT");
+        if (StringUtils.isNotBlank(comment)) {
+            Table table = new Table();
+            table.setComment(comment);
+            table.setName(tableName);
+            table.setSchemaName(schemaName);
+            sqlBuilder.append("\n").append(buildTableComment(table));
+        }
+    }
+
+    private void configureForeignKey(StringBuilder sqlBuilder, ResultSet foreignKeyInfo) throws SQLException {
+        sqlBuilder.append("ALTER TABLE ").append(foreignKeyInfo.getString("TableName")).append(" ADD CONSTRAINT ")
+                .append(foreignKeyInfo.getString("ForeignKeyName")).append(" FOREIGN KEY (")
+                .append(foreignKeyInfo.getString("ColumnName")).append(") REFERENCES ")
+                .append(foreignKeyInfo.getString("ReferencedTableName")).append("(")
+                .append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n")
+                .append("go\n");
+    }
+
+    private void configureAscOrDesc(ResultSet indexInfo, TableIndexColumn tableIndexColumn) throws SQLException {
+        boolean descend = indexInfo.getBoolean("DESCEND");
+        if (descend) {
+            tableIndexColumn.setAscOrDesc("DESC");
+        } else {
+            tableIndexColumn.setAscOrDesc("ASC");
+        }
+    }
+
+    private void configureIndexType(ResultSet indexInfo, TableIndex index) throws SQLException {
+        boolean isPrimaryKey = indexInfo.getBoolean("IS_PRIMARY");
+        if (isPrimaryKey) {
+            index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
+        } else {
+            String indexType = indexInfo.getString("INDEX_TYPE");
+            boolean isUnique = indexInfo.getBoolean("IS_UNIQUE");
+            if (isUnique) {
+                if (Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType)) {
+                    index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
+                } else {
+                    index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
+                }
+            } else {
+                index.setType(indexType);
+            }
+        }
+    }
+
+    private void configureColumnSize(ResultSet columns, TableColumn tableColumn) throws SQLException {
+        if (Arrays.asList(SqlServerColumnTypeEnum.FLOAT.name(),
+                          SqlServerColumnTypeEnum.REAL.name()).contains(tableColumn.getColumnType())) {
+            return;
+        }
+        int columnSize = columns.getInt("COLUMN_SIZE");
+        int numericScale = columns.getInt("NUMERIC_SCALE");
+
+        // Adjust column size for Unicode types
+        if (Arrays.asList(SqlServerColumnTypeEnum.NCHAR.name(),
+                          SqlServerColumnTypeEnum.NVARCHAR.name()).contains(tableColumn.getColumnType())) {
+            columnSize = columnSize / 2;
+        }
+
+        // Set column size based on data type
+        if (Arrays.asList(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
+                          SqlServerColumnTypeEnum.TIME.name(),
+                          SqlServerColumnTypeEnum.DATETIME2.name()).contains(tableColumn.getColumnType())) {
+            tableColumn.setColumnSize(numericScale);
+        } else {
+            tableColumn.setColumnSize(columnSize);
+        }
+
+        // Set decimal digits if applicable
+        if (Arrays.asList(SqlServerColumnTypeEnum.DATETIME2.name(),
+                          SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
+                          SqlServerColumnTypeEnum.TIME.name()).contains(tableColumn.getColumnType())) {
+            return;
+        }
+        tableColumn.setDecimalDigits(numericScale);
+
     }
 
     private static String INDEX_COMMENT_SCRIPT = "exec sp_addextendedproperty 'MS_Description','%s','SCHEMA','%s','TABLE','%s','INDEX','%s' \ngo";
