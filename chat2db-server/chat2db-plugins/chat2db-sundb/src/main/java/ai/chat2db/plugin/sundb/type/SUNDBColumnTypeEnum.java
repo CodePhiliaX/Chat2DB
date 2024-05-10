@@ -150,17 +150,35 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
         StringBuilder script = new StringBuilder();
 
         script.append("\"").append(column.getName()).append("\"").append(" ");
+        if (EditStatus.MODIFY.name().equals(column.getEditStatus()) &&
+                StringUtils.equalsIgnoreCase(column.getOldColumn().getColumnType(), column.getColumnType())
+                && column.getOldColumn().getColumnSize().equals(column.getColumnSize())
+            ){
 
-        script.append(buildDataType(column, type)).append(" ");
+        } else {
+            script.append(buildDataType(column, type)).append(" ");
+        }
 
         script.append(buildDefaultValue(column, type)).append(" ");
 
         script.append(buildAutoIncrement(column,type)).append(" ");
+        if (EditStatus.MODIFY.name().equals(column.getEditStatus()) &&
+            column.getNullable().equals(column.getOldColumn().getNullable())){
 
-        script.append(buildNullable(column, type)).append(" ");
+        } else {
+            script.append(buildNullable(column, type)).append(" ");
+        }
 
         return script.toString();
     }
+
+    private String buildComment(TableColumn column, SUNDBColumnTypeEnum type) {
+        if(!type.columnType.isSupportComments() || StringUtils.isEmpty(column.getComment())){
+            return "";
+        }
+        return StringUtils.join("COMMENT '",column.getComment(),"'");
+    }
+
 
     private String buildAutoIncrement(TableColumn column, SUNDBColumnTypeEnum type) {
         if(!type.getColumnType().isSupportAutoIncrement()){
@@ -181,9 +199,17 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
             return "";
         }
         if (column.getNullable() != null && 1 == column.getNullable()) {
-            return "NULL";
+            if (EditStatus.MODIFY.name().equals(column.getEditStatus())) {
+                return "DROP NOT NULL";
+            } else {
+                return "NULL";
+            }
         } else {
-            return "NOT NULL";
+            if (EditStatus.MODIFY.name().equals(column.getEditStatus())) {
+                return "SET NOT NULL";
+            } else {
+                return "NOT NULL";
+            }
         }
     }
 
@@ -255,7 +281,7 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
             script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("DROP COLUMN ").append("\"").append(tableColumn.getName()).append("\"");
+            script.append(" ").append("SET UNUSED COLUMN ").append("\"").append(tableColumn.getName()).append("\"");
             return script.toString();
         }
         if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
@@ -267,7 +293,13 @@ public enum SUNDBColumnTypeEnum implements ColumnBuilder {
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
             script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append(") \n");
+            script.append(" ").append("ALTER COLUMN ");
+            if (buildCreateColumnSql(tableColumn).trim().equals("\""+tableColumn.getName()+"\"")) {
+                script.setLength(0);
+            } else {
+                script.append(buildCreateColumnSql(tableColumn)).append(" \n");
+            }
+
 
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
                 script.append(";");

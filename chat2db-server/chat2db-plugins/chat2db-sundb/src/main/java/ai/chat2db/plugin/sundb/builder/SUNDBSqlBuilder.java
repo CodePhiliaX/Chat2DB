@@ -85,8 +85,14 @@ public class SUNDBSqlBuilder extends DefaultSqlBuilder {
             String editStatus = tableColumn.getEditStatus();
             if (StringUtils.isNotBlank(editStatus)) {
                 SUNDBColumnTypeEnum typeEnum = SUNDBColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
-                if (StringUtils.isNotBlank(tableColumn.getComment())&&!Objects.equals(EditStatus.DELETE.toString(),editStatus)) {
+                script.append("\t");
+                if(typeEnum.buildModifyColumn(tableColumn).length() != 0) {
+                    script.append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
+                }
+
+                if (StringUtils.isNotBlank(tableColumn.getComment())
+                        && !Objects.equals(EditStatus.DELETE.toString(),editStatus)
+                        && !tableColumn.getOldColumn().getComment().equals(tableColumn.getComment())) {
                     script.append("\n").append(buildComment(tableColumn)).append(";\n");
                 }
             }
@@ -131,7 +137,6 @@ public class SUNDBSqlBuilder extends DefaultSqlBuilder {
         if(StringUtils.isNotBlank(schema.getOwner())){
             sqlBuilder.append(" AUTHORIZATION ").append(schema.getOwner());
         }
-
         return sqlBuilder.toString();
     }
 }
