@@ -182,9 +182,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
-            if (StringUtils.isNotBlank(column.getComment())) {
-                sql.append(" COMMENT '").append(column.getComment()).append("'");
-            }
             sql.append(" FIRST;\n");
             n++;
             if (Arrays.equals(newArray, targetArray)) {
@@ -213,9 +210,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             sql.append(" MODIFY COLUMN ");
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
             sql.append(typeEnum.buildColumn(column));
-            if (StringUtils.isNotBlank(column.getComment())) {
-                sql.append(" COMMENT '").append(column.getComment()).append("'");
-            }
             sql.append(" AFTER ");
             sql.append(oldTable.getColumnList().get(max).getName());
             sql.append(";\n");
@@ -246,9 +240,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
                 sql.append(" MODIFY COLUMN ");
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
                 sql.append(typeEnum.buildColumn(column));
-                if (StringUtils.isNotBlank(column.getComment())) {
-                    sql.append(" COMMENT '").append(column.getComment()).append("'");
-                }
                 sql.append(" AFTER ");
                 AtomicInteger continuousDataCount = new AtomicInteger(0);
                 String[] newArray = moveElement(originalArray, i, a, targetArray, continuousDataCount);
