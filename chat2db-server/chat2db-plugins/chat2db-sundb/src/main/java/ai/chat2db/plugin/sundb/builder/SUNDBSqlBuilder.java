@@ -86,7 +86,7 @@ public class SUNDBSqlBuilder extends DefaultSqlBuilder {
             if (StringUtils.isNotBlank(editStatus)) {
                 SUNDBColumnTypeEnum typeEnum = SUNDBColumnTypeEnum.getByType(tableColumn.getColumnType());
                 script.append("\t");
-                if(typeEnum.buildModifyColumn(tableColumn).length() != 0) {
+                if(!typeEnum.buildModifyColumn(tableColumn).isEmpty()) {
                     script.append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
                 }
 
