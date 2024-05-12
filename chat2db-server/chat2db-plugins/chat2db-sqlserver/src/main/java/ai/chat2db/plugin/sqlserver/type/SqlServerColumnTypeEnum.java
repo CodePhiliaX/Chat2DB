@@ -227,6 +227,10 @@ public enum SqlServerColumnTypeEnum implements ColumnBuilder {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null) {
+                if (column.getColumnSize()==-1) {
+                    script.append("(MAX)");
+                    return script.toString();
+                }
                 script.append("(").append(column.getColumnSize()).append(")");
             }
 

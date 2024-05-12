@@ -12,7 +12,6 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import jakarta.validation.constraints.NotEmpty;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -86,7 +85,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         try (ResultSet columns = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COLUMNS, tableName, schemaName));
              ResultSet indexInfo = connection.createStatement().executeQuery(String.format(INDEX_SQL, tableName, schemaName));
              ResultSet tableComment = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COMMENT_SQL, tableName, schemaName));
-             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName));
+             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName))
         ) {
             List<TableColumn> tableColumns = new ArrayList<>();
             while (columns.next()) {
@@ -94,9 +93,6 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             sqlBuilder = new StringBuilder(sqlBuilder.substring(0, sqlBuilder.length() - 2));
             sqlBuilder.append("\n)\ngo\n");
-            if (CollectionUtils.isEmpty(tableColumns)) {
-                return sqlBuilder.toString();
-            }
             while (foreignKeyInfo.next()) {
                 configureForeignKey(sqlBuilder, foreignKeyInfo);
             }
@@ -169,8 +165,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     }
 
     private void configureColumnComment(StringBuilder sqlBuilder, TableColumn column) {
-        if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())
-                || StringUtils.isBlank(column.getComment())) {
+        if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType()) || StringUtils.isBlank(column.getComment())) {
             return;
         }
         sqlBuilder.append("\n").append(buildColumnComment(column));
@@ -188,12 +183,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     }
 
     private void configureForeignKey(StringBuilder sqlBuilder, ResultSet foreignKeyInfo) throws SQLException {
-        sqlBuilder.append("ALTER TABLE ").append(foreignKeyInfo.getString("TableName")).append(" ADD CONSTRAINT ")
-                .append(foreignKeyInfo.getString("ForeignKeyName")).append(" FOREIGN KEY (")
-                .append(foreignKeyInfo.getString("ColumnName")).append(") REFERENCES ")
-                .append(foreignKeyInfo.getString("ReferencedTableName")).append("(")
-                .append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n")
-                .append("go\n");
+        sqlBuilder.append("ALTER TABLE ").append(foreignKeyInfo.getString("TableName")).append(" ADD CONSTRAINT ").append(foreignKeyInfo.getString("ForeignKeyName")).append(" FOREIGN KEY (").append(foreignKeyInfo.getString("ColumnName")).append(") REFERENCES ").append(foreignKeyInfo.getString("ReferencedTableName")).append("(").append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n").append("go\n");
     }
 
     private void configureAscOrDesc(ResultSet indexInfo, TableIndexColumn tableIndexColumn) throws SQLException {
@@ -226,7 +216,8 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
     private void configureColumnSize(ResultSet columns, TableColumn tableColumn) throws SQLException {
         if (Arrays.asList(SqlServerColumnTypeEnum.FLOAT.name(),
-                          SqlServerColumnTypeEnum.REAL.name()).contains(tableColumn.getColumnType())) {
+                          SqlServerColumnTypeEnum.REAL.name())
+                .contains(tableColumn.getColumnType())) {
             return;
         }
         int columnSize = columns.getInt("COLUMN_SIZE");
@@ -234,27 +225,46 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
         // Adjust column size for Unicode types
         if (Arrays.asList(SqlServerColumnTypeEnum.NCHAR.name(),
-                          SqlServerColumnTypeEnum.NVARCHAR.name()).contains(tableColumn.getColumnType())) {
+                          SqlServerColumnTypeEnum.NVARCHAR.name())
+                .contains(tableColumn.getColumnType())) {
+            //default size
+            if (columnSize == 2) {
+                return;
+            }
+            //max size
+            if (columnSize == -1) {
+                tableColumn.setColumnSize(columnSize);
+                return;
+            }
             columnSize = columnSize / 2;
+            tableColumn.setColumnSize(columnSize);
+            return;
         }
 
+        if (Arrays.asList(SqlServerColumnTypeEnum.CHAR.name(),
+                          SqlServerColumnTypeEnum.VARCHAR.name())
+                .contains(tableColumn.getColumnType())) {
+            //default size
+            if (columnSize == 1) {
+                return;
+            }
+            tableColumn.setColumnSize(columnSize);
+            return;
+        }
         // Set column size based on data type
         if (Arrays.asList(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
-                          SqlServerColumnTypeEnum.TIME.name(),
-                          SqlServerColumnTypeEnum.DATETIME2.name()).contains(tableColumn.getColumnType())) {
+                          SqlServerColumnTypeEnum.TIME.name(), SqlServerColumnTypeEnum.DATETIME2.name())
+                .contains(tableColumn.getColumnType())) {
+            //default scale
+            if (numericScale == 7) {
+                return;
+            }
             tableColumn.setColumnSize(numericScale);
+            return;
         } else {
             tableColumn.setColumnSize(columnSize);
         }
-
-        // Set decimal digits if applicable
-        if (Arrays.asList(SqlServerColumnTypeEnum.DATETIME2.name(),
-                          SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
-                          SqlServerColumnTypeEnum.TIME.name()).contains(tableColumn.getColumnType())) {
-            return;
-        }
         tableColumn.setDecimalDigits(numericScale);
-
     }
 
     private static String INDEX_COMMENT_SCRIPT = "exec sp_addextendedproperty 'MS_Description','%s','SCHEMA','%s','TABLE','%s','INDEX','%s' \ngo";
@@ -354,17 +364,13 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String ROUTINES_SQL
-            = "SELECT type_desc, OBJECT_NAME(object_id) AS FunctionName, OBJECT_DEFINITION(object_id) AS "
-            + "definition FROM sys.objects WHERE type_desc IN(%s) and name = '%s' ;";
+    private static String ROUTINES_SQL = "SELECT type_desc, OBJECT_NAME(object_id) AS FunctionName, OBJECT_DEFINITION(object_id) AS " + "definition FROM sys.objects WHERE type_desc IN(%s) and name = '%s' ;";
 
 
-    private static String OBJECT_SQL
-            = "SELECT name FROM sys.objects WHERE type = '%s' and SCHEMA_ID = SCHEMA_ID('%s') order by name;";
+    private static String OBJECT_SQL = "SELECT name FROM sys.objects WHERE type = '%s' and SCHEMA_ID = SCHEMA_ID('%s') order by name;";
 
     @Override
-    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
-                             String functionName) {
+    public Function function(Connection connection, @NotEmpty String databaseName, String schemaName, String functionName) {
 
         String sql = String.format(ROUTINES_SQL, "'SQL_SCALAR_FUNCTION', 'SQL_TABLE_VALUED_FUNCTION'", functionName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
@@ -431,15 +437,9 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         return procedure;
     }
 
-    private static String TRIGGER_SQL
-            = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS "
-            + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects "
-            + "WHERE xtype = 'TR' and name = '%s';";
+    private static String TRIGGER_SQL = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS " + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects " + "WHERE xtype = 'TR' and name = '%s';";
 
-    private static String TRIGGER_SQL_LIST
-            = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS "
-            + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects "
-            + "WHERE xtype = 'TR' order by name";
+    private static String TRIGGER_SQL_LIST = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS " + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects " + "WHERE xtype = 'TR' order by name";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
@@ -457,8 +457,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     }
 
     @Override
-    public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
-                           String triggerName) {
+    public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName, String triggerName) {
 
         String sql = String.format(TRIGGER_SQL, triggerName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
@@ -474,25 +473,21 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     }
 
     @Override
-    public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
-                               String procedureName) {
+    public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName, String procedureName) {
         String sql = String.format(ROUTINES_SQL, "'SQL_STORED_PROCEDURE'", procedureName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
-                                                     Procedure procedure = new Procedure();
-                                                     procedure.setDatabaseName(databaseName);
-                                                     procedure.setSchemaName(schemaName);
-                                                     procedure.setProcedureName(procedureName);
-                                                     if (resultSet.next()) {
-                                                         procedure.setProcedureBody(resultSet.getString("definition"));
-                                                     }
-                                                     return procedure;
-                                                 }
-        );
+            Procedure procedure = new Procedure();
+            procedure.setDatabaseName(databaseName);
+            procedure.setSchemaName(schemaName);
+            procedure.setProcedureName(procedureName);
+            if (resultSet.next()) {
+                procedure.setProcedureBody(resultSet.getString("definition"));
+            }
+            return procedure;
+        });
     }
 
-    private static String VIEW_SQL
-            = "SELECT TABLE_SCHEMA, TABLE_NAME, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' "
-            + "AND TABLE_NAME = '%s';";
+    private static String VIEW_SQL = "SELECT TABLE_SCHEMA, TABLE_NAME, VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = '%s' " + "AND TABLE_NAME = '%s';";
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
@@ -540,8 +535,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 if (tableIndex != null) {
                     List<TableIndexColumn> columnList = tableIndex.getColumnList();
                     columnList.add(getTableIndexColumn(resultSet));
-                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
-                            .collect(Collectors.toList());
+                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition)).collect(Collectors.toList());
                     tableIndex.setColumnList(columnList);
                 } else {
                     TableIndex index = new TableIndex();
@@ -605,13 +599,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public TableMeta getTableMeta(String databaseName, String schemaName, String tableName) {
-        return TableMeta.builder()
-                .columnTypes(SqlServerColumnTypeEnum.getTypes())
-                .charsets(null)
-                .collations(null)
-                .indexTypes(SqlServerIndexTypeEnum.getIndexTypes())
-                .defaultValues(SqlServerDefaultValueEnum.getDefaultValues())
-                .build();
+        return TableMeta.builder().columnTypes(SqlServerColumnTypeEnum.getTypes()).charsets(null).collations(null).indexTypes(SqlServerIndexTypeEnum.getIndexTypes()).defaultValues(SqlServerDefaultValueEnum.getDefaultValues()).build();
     }
 
 
