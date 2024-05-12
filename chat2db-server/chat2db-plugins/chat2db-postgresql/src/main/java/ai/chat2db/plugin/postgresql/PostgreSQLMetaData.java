@@ -11,7 +11,6 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -20,6 +19,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.DROP_TYPE_SQL;
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.TABLE_DEF_FUNCTION_SQL;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
@@ -101,101 +102,17 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    public static final String SELECT_TABLE_COLUMN_SQL = """
-                                                         SELECT
-                                                         ic.*,
-                                                         d.description AS column_comment
-                                                         FROM information_schema.columns ic
-                                                         LEFT JOIN
-                                                              pg_namespace n ON n.nspname = ic.table_schema
-                                                                  LEFT JOIN
-                                                              pg_class c ON c.relname = ic.table_name AND c.relnamespace = n.oid
-                                                                  LEFT JOIN
-                                                              pg_attribute a ON a.attrelid = c.oid AND a.attname = ic.column_name
-                                                                  LEFT JOIN
-                                                              pg_description d ON d.objoid = c.oid AND d.objsubid = a.attnum
-                                                         WHERE ic.table_schema = '%s'
-                                                           AND ic.table_name = '%s'
-                                                         ORDER BY ic.ordinal_position;""";
-
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("CREATE TABLE ");
-        sqlBuilder.append("\"").append(tableName).append("\"").append(" (").append(" ").append("\n");
-        try (ResultSet columnInfo = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COLUMN_SQL, schemaName, tableName));
-        ) {
-            List<TableColumn> tableColumns = new ArrayList<>();
-            while (columnInfo.next()) {
-                TableColumn tableColumn = new TableColumn();
-                tableColumn.setDatabaseName(databaseName);
-                tableColumn.setSchemaName(schemaName);
-                tableColumn.setTableName(tableName);
-                tableColumn.setName(columnInfo.getString("column_name"));
-                tableColumn.setDefaultValue(columnInfo.getString("column_default"));
-                tableColumn.setNullable(columnInfo.getString("is_nullable").equals("YES") ? 1 : 0);
-                tableColumn.setComment(columnInfo.getString("column_comment"));
-                String dataType = columnInfo.getString("data_type").toUpperCase();
-                if (PostgreSQLColumnTypeEnum.CHARACTER_VARYING.getColumnType().getTypeName().equals(dataType)) {
-                    tableColumn.setColumnType(PostgreSQLColumnTypeEnum.VARCHAR.name());
-                } else if (PostgreSQLColumnTypeEnum.CHARACTER.getColumnType().getTypeName().equals(dataType)) {
-                    tableColumn.setColumnType(PostgreSQLColumnTypeEnum.CHAR.name());
-                } else if (PostgreSQLColumnTypeEnum.TIME_WITHOUT_TIME_ZONE.getColumnType().getTypeName().equals(dataType)) {
-                    tableColumn.setColumnType(PostgreSQLColumnTypeEnum.TIME.name());
-                } else if (PostgreSQLColumnTypeEnum.TIMESTAMP_WITHOUT_TIME_ZONE.getColumnType().getTypeName().equals(dataType)) {
-                    tableColumn.setColumnType(PostgreSQLColumnTypeEnum.TIMESTAMP.name());
-                } else if (PostgreSQLColumnTypeEnum.SMALLINT.getColumnType().getTypeName().equals(dataType)) {
-                    String defaultValue = tableColumn.getDefaultValue();
-                    if (StringUtils.isNotBlank(defaultValue) && defaultValue.contains("nextval")) {
-                        tableColumn.setColumnType(PostgreSQLColumnTypeEnum.SMALLSERIAL.name());
-                        tableColumn.setDefaultValue(null);
-                    } else {
-                        tableColumn.setColumnType(PostgreSQLColumnTypeEnum.SMALLINT.name());
-                    }
-                } else if (PostgreSQLColumnTypeEnum.INTEGER.getColumnType().getTypeName().equals(dataType)) {
-                    String defaultValue = tableColumn.getDefaultValue();
-                    if (StringUtils.isNotBlank(defaultValue) && defaultValue.contains("nextval")) {
-                        tableColumn.setColumnType(PostgreSQLColumnTypeEnum.SERIAL.name());
-                        tableColumn.setDefaultValue(null);
-                    } else {
-                        tableColumn.setColumnType(PostgreSQLColumnTypeEnum.INTEGER.name());
-                    }
-                } else {
-                    tableColumn.setColumnType(dataType);
-                }
-                if (Arrays.asList(PostgreSQLColumnTypeEnum.BIT.name(),
-                                  PostgreSQLColumnTypeEnum.VARBIT.name(),
-                                  PostgreSQLColumnTypeEnum.CHAR.name(),
-                                  PostgreSQLColumnTypeEnum.VARCHAR.getColumnType().getTypeName())
-                        .contains(tableColumn.getColumnType())) {
-                    tableColumn.setColumnSize(columnInfo.getInt("character_maximum_length"));
-                }
-                if (Arrays.asList(PostgreSQLColumnTypeEnum.NUMERIC.name(),
-                                  PostgreSQLColumnTypeEnum.DECIMAL.name())
-                        .contains(tableColumn.getColumnType())) {
-                    tableColumn.setColumnSize(columnInfo.getInt("numeric_precision"));
-                    tableColumn.setDecimalDigits(columnInfo.getInt("numeric_scale"));
-                }
-                if (Arrays.asList(PostgreSQLColumnTypeEnum.TIME.name(),
-                                  PostgreSQLColumnTypeEnum.TIMESTAMP.name(),
-                                  PostgreSQLColumnTypeEnum.TIME_WITH_TIME_ZONE.getColumnType().getTypeName(),
-                                  PostgreSQLColumnTypeEnum.TIMESTAMP_WITH_TIME_ZONE.getColumnType().getTypeName())
-                        .contains(tableColumn.getColumnType())) {
-                    tableColumn.setColumnSize(columnInfo.getInt("datetime_precision"));
-                }
-                PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(tableColumn.getColumnType());
-                sqlBuilder.append("\t").append(typeEnum.buildCreateColumnSql(tableColumn)).append(",\n");
-                tableColumns.add(tableColumn);
+        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL,schemaName,"tabledefs"), resultSet -> null);
+        SQLExecutor.getInstance().execute(connection, TABLE_DEF_FUNCTION_SQL, resultSet -> null);
+        String ddlSql = String.format("select * from pg_get_tabledef('%s','%s',false,'COMMENTS') as ddl;", schemaName, tableName);
+        return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
+            if (resultSet.next()) {
+                return resultSet.getString("ddl");
             }
-            if (CollectionUtils.isEmpty(tableColumns)) {
-                return sqlBuilder.toString();
-            }
-            sqlBuilder = new StringBuilder(sqlBuilder.substring(0, sqlBuilder.length() - 2));
-            sqlBuilder.append("\n)\n");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return sqlBuilder.toString();
+            return null;
+        });
     }
 
 
