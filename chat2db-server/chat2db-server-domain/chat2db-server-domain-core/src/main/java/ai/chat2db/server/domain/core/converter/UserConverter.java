@@ -18,7 +18,7 @@ import org.mapstruct.Mappings;
 import org.springframework.context.annotation.Lazy;
 
 /**
- * 转换器
+ * converter
  *
  * @author Jiaju Zhuang
  */
@@ -30,7 +30,7 @@ public abstract class UserConverter {
     private UserService userService;
 
     /**
-     * 转换
+     * Convert
      *
      * @param data
      * @return
@@ -41,7 +41,7 @@ public abstract class UserConverter {
     public abstract User do2dto(DbhubUserDO data);
 
     /**
-     * 转换
+     * Convert
      *
      * @param datas
      * @return

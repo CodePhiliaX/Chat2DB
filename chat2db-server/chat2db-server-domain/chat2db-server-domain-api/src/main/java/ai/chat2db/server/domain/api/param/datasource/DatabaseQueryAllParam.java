@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 展示数据库信息
+ * Display database information
  *
  * @author Jiaju Zhuang
  */
@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class DatabaseQueryAllParam {
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;

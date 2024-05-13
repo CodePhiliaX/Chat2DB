@@ -4,29 +4,29 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version Table.java, v 0.1 2022年09月16日 17:16 moji Exp $
+ * @version Table.java, v 0.1 September 16, 2022 17:16 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class KeyVO {
 
     /**
-     * key名称
+     * key name
      */
     private String name;
 
     /**
-     * key值
+     * key value
      */
     private Object value;
 
     /**
-     * key类型
+     * key type
      */
     private String type;
 
     /**
-     * 过期时间
+     * Expiration
      */
     private Long ttl;
 }

@@ -7,7 +7,7 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 
 /**
- * 测试工具类
+ * Test tool class
  *
  * @author Jiaju Zhuang
  */
@@ -16,7 +16,7 @@ public class TestUtils {
     public static final AtomicLong ATOMIC_LONG = new AtomicLong();
 
     /**
-     * 一个全局唯一的long
+     * a globally unique long
      *
      * @return
      */
@@ -25,8 +25,8 @@ public class TestUtils {
     }
 
     /**
-     * 如果默认值类似于 'DATA'
-     * 则需要把'' 去掉
+     * If the default value is something like 'DATA'
+     * then you need to remove ''
      *
      * @param defaultValue
      * @return

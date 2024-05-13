@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 控制台创建参数
+ * Console creation parameters
  *
  * @author Jiaju Zhuang
  */
@@ -18,21 +18,21 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class ConsoleCreateParam {
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 控制台的id ，确保全局唯一
-     * 确保不要重复，重复的情况下会弃用以前的连接，并重新创建
+     * The id of the console, ensuring global uniqueness
+     * Make sure not to duplicate it, in which case the previous connection will be discarded and recreated
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 对应的连接数据库名称
-     * 支持多个database的数据库会调用use xx;来切换来数据库
+     * Corresponding connection database name
+     * Databases that support multiple databases will call use xx; to switch to the database.
      */
     @NotNull
     private String databaseName;

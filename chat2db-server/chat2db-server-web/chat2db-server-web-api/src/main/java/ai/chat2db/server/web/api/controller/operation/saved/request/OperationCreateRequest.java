@@ -9,19 +9,19 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlCreateRequest.java, v 0.1 2022年09月18日 11:13 moji Exp $
+ * @version DdlCreateRequest.java, v 0.1 September 18, 2022 11:13 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationCreateRequest extends DataSourceBaseRequest {
 
     /**
-     * 文件别名
+     * file alias
      */
     private String name;
 
     /**
-     * 保存状态
+     * Save state
      * @see StatusEnum
      */
     @NotNull
@@ -34,13 +34,13 @@ public class OperationCreateRequest extends DataSourceBaseRequest {
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     @NotNull
     private String ddl;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 

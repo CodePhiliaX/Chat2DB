@@ -5,27 +5,27 @@ import cn.hutool.cache.impl.TimedCache;
 import cn.hutool.core.date.DateUnit;
 
 /**
- * 描述：
+ * description：
  *
  * @author https:www.unfbx.com
  * @date 2023-03-10
  */
 public class LocalCache {
     /**
-     * 缓存时长
+     * Cache duration
      */
     public static final long TIMEOUT = 5 * DateUnit.MINUTE.getMillis();
     /**
-     * 清理间隔
+     * Cleanup interval
      */
     private static final long CLEAN_TIMEOUT = 5 * DateUnit.MINUTE.getMillis();
     /**
-     * 缓存对象
+     * Cache object
      */
     public static final TimedCache<String, Object> CACHE = CacheUtil.newTimedCache(TIMEOUT);
 
     static {
-        //启动定时任务
+        //Start a scheduled task
         CACHE.schedulePrune(CLEAN_TIMEOUT);
     }
 }

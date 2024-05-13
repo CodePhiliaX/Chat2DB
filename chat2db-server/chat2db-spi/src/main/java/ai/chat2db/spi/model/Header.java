@@ -6,8 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
- * 单元格头
+ * cell header
  *
  * @author Jiaju Zhuang
  */
@@ -15,16 +17,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Header{
+public class Header implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
-     * 单元格类型
+     * cell type
      *
      * @see DataTypeEnum
      */
     private String dataType;
 
     /**
-     * 展示的名字
+     * display name
      */
     private String name;
 

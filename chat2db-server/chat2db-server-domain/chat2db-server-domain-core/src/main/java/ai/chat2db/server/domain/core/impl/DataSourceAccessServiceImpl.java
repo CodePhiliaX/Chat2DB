@@ -7,20 +7,18 @@ import ai.chat2db.server.domain.api.enums.AccessObjectTypeEnum;
 import ai.chat2db.server.domain.api.model.DataSourceAccess;
 import ai.chat2db.server.domain.api.model.DataSourceAccessObject;
 import ai.chat2db.server.domain.api.model.Team;
-import ai.chat2db.server.domain.api.model.TeamUser;
 import ai.chat2db.server.domain.api.model.User;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessComprehensivePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
-import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
 import ai.chat2db.server.domain.api.service.TeamService;
 import ai.chat2db.server.domain.api.service.UserService;
 import ai.chat2db.server.domain.core.converter.DataSourceAccessConverter;
 import ai.chat2db.server.domain.core.converter.DataSourceConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
-import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -47,10 +45,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class DataSourceAccessServiceImpl implements DataSourceAccessService {
 
-    @Resource
-    private DataSourceAccessCustomMapper dataSourceAccessCustomMapper;
-    @Resource
-    private DataSourceAccessMapper dataSourceAccessMapper;
+
+    private DataSourceAccessCustomMapper getMapper() {
+        return Dbutils.getMapper(DataSourceAccessCustomMapper.class);
+    }
+
+    private DataSourceAccessMapper getAccessMapper() {
+        return Dbutils.getMapper(DataSourceAccessMapper.class);
+    }
+
     @Resource
     private DataSourceAccessConverter dataSourceAccessConverter;
     @Resource
@@ -70,7 +73,7 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
 
         Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
-        IPage<DataSourceAccessDO> iPage = dataSourceAccessMapper.selectPage(page, queryWrapper);
+        IPage<DataSourceAccessDO> iPage = getAccessMapper().selectPage(page, queryWrapper);
 
         List<DataSourceAccess> list = dataSourceAccessConverter.do2dto(iPage.getRecords());
 
@@ -84,7 +87,7 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
         DataSourceAccessSelector selector) {
         Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
-        IPage<DataSourceAccessDO> iPage = dataSourceAccessCustomMapper.comprehensivePageQuery(page,
+        IPage<DataSourceAccessDO> iPage = getMapper().comprehensivePageQuery(page,
             param.getDataSourceId(), param.getAccessObjectType(), param.getAccessObjectId(),
             param.getUserOrTeamSearchKey(),
             param.getDataSourceSearchKey());
@@ -100,13 +103,13 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     public DataResult<Long> create(DataSourceAccessCreatParam param) {
         DataSourceAccessDO data = dataSourceAccessConverter.param2do(param, ContextUtils.getUserId());
 
-        dataSourceAccessMapper.insert(data);
+        getAccessMapper().insert(data);
         return DataResult.of(data.getId());
     }
 
     @Override
     public ActionResult delete(Long id) {
-        dataSourceAccessMapper.deleteById(id);
+        getAccessMapper().deleteById(id);
         return ActionResult.isSuccess();
     }
 

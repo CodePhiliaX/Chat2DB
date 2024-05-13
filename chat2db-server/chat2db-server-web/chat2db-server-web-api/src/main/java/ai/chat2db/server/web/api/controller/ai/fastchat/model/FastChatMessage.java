@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class FastChatMessage {
 
-
     /*
      * The role associated with this message payload.
      */

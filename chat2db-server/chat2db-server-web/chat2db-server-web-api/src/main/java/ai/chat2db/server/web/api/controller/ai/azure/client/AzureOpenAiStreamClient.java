@@ -9,6 +9,7 @@ import ai.chat2db.server.web.api.controller.ai.azure.interceptor.AzureHeaderAuth
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.azure.model.AzureChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 自定义AI接口client
+ * Custom AI interface client
  *
  * @author moji
  */
@@ -85,7 +86,7 @@ public class AzureOpenAiStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -101,7 +102,7 @@ public class AzureOpenAiStreamClient {
         private String deployId;
 
         /**
-         * 自定义OkhttpClient
+         * Customize OkhttpClient
          */
         private OkHttpClient okHttpClient;
 
@@ -143,7 +144,7 @@ public class AzureOpenAiStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -166,6 +167,7 @@ public class AzureOpenAiStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             if (!endpoint.endsWith("/")) {
                 endpoint = endpoint + "/";
@@ -175,7 +177,7 @@ public class AzureOpenAiStreamClient {
                 .url(url)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking azure ai");
         } catch (Exception e) {

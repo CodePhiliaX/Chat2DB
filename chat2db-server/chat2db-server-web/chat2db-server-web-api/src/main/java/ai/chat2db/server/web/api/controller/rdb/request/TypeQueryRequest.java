@@ -10,7 +10,7 @@ public class TypeQueryRequest implements DataSourceBaseRequestInfo {
     @NotNull
     private Long dataSourceId;
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 }

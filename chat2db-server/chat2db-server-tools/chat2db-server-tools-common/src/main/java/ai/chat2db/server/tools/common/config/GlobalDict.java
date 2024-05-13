@@ -7,17 +7,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 全局字典
+ * global dictionary
  *
  * @author lzy
  */
 public interface GlobalDict {
     /**
-     * 模板文件
+     * template file
      **/
     List<String> TEMPLATE_FILE = Arrays.asList("template.html", "template_diy.docx", "sub_template_diy.docx");
     /**
-     * 模板存放目录
+     * Template storage directory
      **/
     String templateDir = ConfigUtils.CONFIG_BASE_PATH + File.separator + "template" + File.separator;
 

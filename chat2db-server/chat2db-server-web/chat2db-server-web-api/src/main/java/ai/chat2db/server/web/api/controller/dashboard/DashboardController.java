@@ -29,10 +29,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 保存报表类
+ * Save dashboard class
  *
  * @author moji
- * @version DashboardController.java, v 0.1 2022年09月18日 10:55 moji Exp $
+ * @version DashboardController.java, v 0.1 September 18, 2022 10:55 moji Exp $
  * @date 2022/09/18
  */
 @RequestMapping("/api/dashboard")
@@ -46,7 +46,7 @@ public class DashboardController {
     private DashboardWebConverter dashboardWebConverter;
 
     /**
-     * 查询报表列表
+     * Query dashboard list
      *
      * @param request
      * @return
@@ -60,7 +60,7 @@ public class DashboardController {
     }
 
     /**
-     * 根据id查询报表详情
+     * Query dashboard details based on id
      *
      * @param id
      * @return
@@ -75,7 +75,7 @@ public class DashboardController {
     }
 
     /**
-     * 保存报表
+     * Save dashboard
      *
      * @param request
      * @return
@@ -87,7 +87,7 @@ public class DashboardController {
     }
 
     /**
-     * 更新报表
+     * Update dashboard
      *
      * @param request
      * @return
@@ -99,7 +99,7 @@ public class DashboardController {
     }
 
     /**
-     * 删除报表
+     * Delete dashboard
      *
      * @param id
      * @return

@@ -3,26 +3,26 @@ package ai.chat2db.server.tools.base.enums;
 import lombok.Getter;
 
 /**
- * 操作枚举
+ * Operation enumeration
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Getter
 public enum OperationEnum implements BaseEnum<String> {
     /**
-     * 新增
+     * creat
      */
-    CREATE("新增"),
+    CREATE("creat"),
 
     /**
-     * 修改
+     * update
      */
-    UPDATE("修改"),
+    UPDATE("update"),
 
     /**
-     * 删除
+     * delete
      */
-    DELETE("删除"),
+    DELETE("delete"),
 
     ;
 

@@ -6,7 +6,7 @@ package ai.chat2db.server.tools.base.wrapper;
  */
 public interface Result<T> extends Traceable{
     /**
-     * 是否成功
+     * whether succeed
      *
      * @return
      * @mock true
@@ -14,14 +14,14 @@ public interface Result<T> extends Traceable{
     boolean success();
 
     /**
-     * 设置是否成功
+     * Is the setting successful?
      *
      * @return
      */
     void success(boolean success);
 
     /**
-     * 错误编码
+     * error coding
      *
      * @return
      * @mock 000000
@@ -29,14 +29,14 @@ public interface Result<T> extends Traceable{
     String errorCode();
 
     /**
-     * 设置错误编码
+     * Set error encoding
      *
      * @param errorCode
      */
     void errorCode(String errorCode);
 
     /**
-     * 错误信息
+     * error message
      *
      * @return
      */
@@ -44,7 +44,7 @@ public interface Result<T> extends Traceable{
 
 
     /**
-     * 设置错误信息
+     * Set error message
      *
      * @param errorMessage
      */

@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.sql.Driver;
 
 import ai.chat2db.spi.config.DriverConfig;
@@ -17,7 +18,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DriverEntry {
+public class DriverEntry  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private DriverConfig driverConfig;
 

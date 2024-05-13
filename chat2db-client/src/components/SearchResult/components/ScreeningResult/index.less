@@ -1,0 +1,42 @@
+.screeningResult{
+  display: flex;
+  align-items: center;
+  height: 18px;
+  padding: 4px 0px;
+  border-bottom: 1px solid var(--color-border);
+  .whereBox,.orderByBox{
+    width: 50%;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0px 4px;
+    .titleBox{
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+      width: fit-content;
+      flex-shrink: 0;
+    }
+    .titleIcon{
+      margin-right: 4px;
+    }
+    .title{
+      color: var(--color-text-secondary);
+      flex-shrink: 0;
+      font-weight: 500;
+    }
+    .activeTitle{
+      color: var(--color-primary-text);
+    }
+    .monacoEditor{
+      flex: 1;
+      height: 100%;
+      width: 0px;
+    }
+  }
+  :global {
+    .decorationsOverviewRuler{
+      display: none !important;
+    }
+  }
+}

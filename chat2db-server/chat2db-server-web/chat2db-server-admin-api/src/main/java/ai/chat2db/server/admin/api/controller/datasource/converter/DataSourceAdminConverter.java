@@ -53,7 +53,7 @@ public abstract class DataSourceAdminConverter {
     public abstract DataSourcePageQueryVO dto2vo(DataSource dto);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -65,7 +65,7 @@ public abstract class DataSourceAdminConverter {
     public abstract DataSourceCreateParam createReq2param(DataSourceCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

@@ -41,7 +41,7 @@ public class SqlTeset extends BaseTest {
 
     @Test
     public void test() {
-        // 创建
+        // creat
         DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
         dataSourceCreateParam.setType("MYSQL");
@@ -58,14 +58,14 @@ public class SqlTeset extends BaseTest {
         List<Sql> sqlList = new ArrayList<>();
         sqlList.add(Sql.builder().sql(createTable.getData()).build());
 
-        // 创建控制台
+        // Create a console
         ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
         consoleCreateParam.setDataSourceId(1L);
         consoleCreateParam.setConsoleId(1L);
         consoleCreateParam.setDatabaseName(mysqlDialectProperties.getDatabaseName());
         consoleService.createConsole(consoleCreateParam);
 
-        // 删除
+        // delete
         DlExecuteParam templateQueryParam = new DlExecuteParam();
         templateQueryParam.setConsoleId(1L);
         templateQueryParam.setDataSourceId(1L);
@@ -73,7 +73,7 @@ public class SqlTeset extends BaseTest {
         ListResult<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
         log.info("result:{}", JSON.toJSONString(executeResult));
 
-        // 创建表结构
+        // Create table structure
         templateQueryParam = new DlExecuteParam();
         templateQueryParam.setConsoleId(1L);
         templateQueryParam.setDataSourceId(1L);

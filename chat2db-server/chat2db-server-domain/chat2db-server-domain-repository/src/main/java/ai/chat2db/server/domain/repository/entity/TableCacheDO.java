@@ -25,59 +25,59 @@ public class TableCacheDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
     /**
-     * table名称
+     * table name
      */
     private String tableName;
 
     /**
-     * 唯一索引
+     * unique index
      */
     @TableField(value = "`key`")
     private String key;
 
     /**
-     * 版本
+     * version
      */
     private Long version;
 
     /**
-     * 表字段
+     * table fields
      */
     private String columns;
 
     /**
-     * 自定义扩展字段json
+     * Custom extension field json
      */
     private String extendInfo;
 }

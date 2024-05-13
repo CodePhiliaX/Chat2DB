@@ -8,25 +8,25 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlCreateRequest.java, v 0.1 2022年09月18日 11:13 moji Exp $
+ * @version DdlCreateRequest.java, v 0.1 September 18, 2022 11:13 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationLogCreateRequest extends DataSourceBaseRequest {
 
     /**
-     * 文件别名
+     * file alias
      */
     private String name;
 
     /**
-     * ddl类型
+     * ddl type
      */
     @NotNull
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     @NotNull
     private String ddl;

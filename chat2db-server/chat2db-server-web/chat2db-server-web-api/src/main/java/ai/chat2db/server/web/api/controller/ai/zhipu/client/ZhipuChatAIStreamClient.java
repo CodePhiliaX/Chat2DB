@@ -5,6 +5,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.zhipu.interceptor.ZhipuChatHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.zhipu.model.ZhipuChatCompletionsOptions;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -100,7 +101,7 @@ public class ZhipuChatAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -178,7 +179,7 @@ public class ZhipuChatAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -194,13 +195,14 @@ public class ZhipuChatAIStreamClient {
         }
         log.info("Zhipu Chat AI, prompt:{}", chatMessages.get(chatMessages.size() - 1).getContent());
         try {
-            // 建议直接查看demo包代码，这里更新可能不及时
+            // It is recommended to check the demo package code directly. The update here may not be timely.
             ZhipuChatCompletionsOptions completionsOptions = new ZhipuChatCompletionsOptions();
             completionsOptions.setPrompt(chatMessages);
             completionsOptions.setModel(this.model);
             String requestId = String.valueOf(System.currentTimeMillis());
             completionsOptions.setRequestId(requestId);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(completionsOptions);
 
             String url = this.apiHost + "/" + this.model + "/" + "sse-invoke";
@@ -209,7 +211,7 @@ public class ZhipuChatAIStreamClient {
                 .url(url)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking zhipu chat ai");
         } catch (Exception e) {

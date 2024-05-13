@@ -1,14 +1,21 @@
-import { create, UseBoundStore, StoreApi } from 'zustand';
+import { UseBoundStoreWithEqualityFn, createWithEqualityFn } from 'zustand/traditional';
 import { devtools } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
+import { StoreApi } from 'zustand';
 
-import { copyFocusedContent, ICopyFocusedContent } from './copyFocusedContent';
+import { initCopyFocusedContent, ICopyFocusedContent } from './copyFocusedContent';
+import { initComponentsContent, IComponentsContent } from './components';
+import { initAppTitleBarConfig, IAppTitleBarConfig } from './appTitleBarConfig';
 
-export type IStore = ICopyFocusedContent;
+export type IStore = ICopyFocusedContent & IComponentsContent & IAppTitleBarConfig;
 
-export const useCommonStore: UseBoundStore<StoreApi<IStore>> = create(
+export const useCommonStore: UseBoundStoreWithEqualityFn<StoreApi<IStore>> = createWithEqualityFn(
   devtools(
-    (set) => ({
-      ...copyFocusedContent(set),
+    () => ({
+      ...initCopyFocusedContent,
+      ...initComponentsContent,
+      ...initAppTitleBarConfig
     }),
   ),
+  shallow
 );

@@ -4,12 +4,14 @@ import { addIntelliSenseField } from './field';
 import i18n from '@/i18n';
 import { compatibleDataBaseName } from '../database';
 
+export const resetSenseTable = () => {
+  intelliSenseTable.dispose();
+};
+
 /** 当前库下的表 */
 let intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
-  provideCompletionItems: (model, position) => {
-    return {
-      suggestions: [],
-    };
+  provideCompletionItems: () => {
+    return { suggestions: [] };
   },
 });
 
@@ -46,7 +48,7 @@ const registerIntelliSenseTable = (
     return;
   });
 
-  intelliSenseTable.dispose();
+  resetSenseTable();
   intelliSenseTable = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', '.'],
     provideCompletionItems: (model, position) => {

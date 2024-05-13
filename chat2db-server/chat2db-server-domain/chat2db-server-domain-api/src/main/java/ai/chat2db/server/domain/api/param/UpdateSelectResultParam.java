@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.api.param;
 
 import ai.chat2db.spi.model.Header;
+import ai.chat2db.spi.model.ResultOperation;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -10,45 +11,45 @@ import java.util.List;
 @Data
 public class UpdateSelectResultParam {
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * databaseName
      */
     private String databaseName;
 
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 
 
     /**
-     * 展示头的列表
+     * List of display headers
      */
     @NotEmpty
     private List<Header> headerList;
 
 
     /**
-     * 修改后数据的列表
+     * List of modified data
      */
     @NotEmpty
-    private List<SelectResultOperation> operations;
+    private List<ResultOperation> operations;
 
 
     /**
-     * 表名
+     * Table Name
      */
     @NotEmpty
     private String tableName;

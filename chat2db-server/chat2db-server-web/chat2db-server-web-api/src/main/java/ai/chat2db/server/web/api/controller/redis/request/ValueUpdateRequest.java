@@ -9,26 +9,26 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionQueryRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @version ConnectionQueryRequest.java, v 0.1 September 16, 2022 14:23 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class ValueUpdateRequest extends DataSourceBaseRequest {
 
     /**
-     * key名称
+     * key name
      */
     @NotNull
     private String key;
 
     /**
-     * 原始key值
+     * Original key value
      */
     @NotNull
     private Object originalValue;
 
     /**
-     * 更新后key值
+     * Key value after update
      */
     @NotNull
     private Object updateValue;

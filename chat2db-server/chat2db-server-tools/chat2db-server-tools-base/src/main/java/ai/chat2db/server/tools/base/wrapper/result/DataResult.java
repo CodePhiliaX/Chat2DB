@@ -10,9 +10,9 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 /**
- * data的返回对象
+ * data return object
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -20,21 +20,21 @@ import lombok.experimental.SuperBuilder;
 public class DataResult<T> implements Serializable, Result<T> {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 是否成功
+     * whether succeed
      *
      * @mock true
      */
     private Boolean success;
 
     /**
-     * 错误编码
+     * error coding
      *
      * @see CommonErrorEnum
      */
     private String errorCode;
 
     /**
-     * 错误信息
+     * error message
      */
     private String errorMessage;
 
@@ -49,7 +49,7 @@ public class DataResult<T> implements Serializable, Result<T> {
     private String solutionLink;
 
     /**
-     * 数据信息
+     * Data information
      */
     private T data;
 
@@ -68,33 +68,33 @@ public class DataResult<T> implements Serializable, Result<T> {
     }
 
     /**
-     * 构建返回对象
+     * Construct the return object
      *
-     * @param data 需要构建的对象
-     * @param <T>  需要构建的对象类型
-     * @return 返回的结果
+     * @param data object to be constructed
+     * @param <T> The object type to be constructed
+     * @return the returned result
      */
     public static <T> DataResult<T> of(T data) {
         return new DataResult<>(data);
     }
 
     /**
-     * 构建空的返回对象
+     * Construct an empty return object
      *
-     * @param <T> 需要构建的对象类型
-     * @return 返回的结果
+     * @param <T> The object type to be constructed
+     * @return the returned result
      */
     public static <T> DataResult<T> empty() {
         return new DataResult<>();
     }
 
     /**
-     * 构建异常返回
+     * Build exception return
      *
-     * @param errorCode    错误编码
-     * @param errorMessage 错误信息
-     * @param <T>          需要构建的对象类型
-     * @return 返回的结果
+     * @param errorCode error coding
+     * @param errorMessage error message
+     * @param <T> The object type to be constructed
+     * @return the returned result
      */
     public static <T> DataResult<T> error(String errorCode, String errorMessage) {
         DataResult<T> result = new DataResult<>();
@@ -106,21 +106,21 @@ public class DataResult<T> implements Serializable, Result<T> {
 
 
     /**
-     * 判断是否存在数据
+     * Determine whether data exists
      *
      * @param dataResult
-     * @return 是否存在数据
+     * @return whether data exists
      */
     public static boolean hasData(DataResult<?> dataResult) {
         return dataResult != null && dataResult.getSuccess() && dataResult.getData() != null;
     }
 
     /**
-     * 将当前的类型转换成另外一个类型
+     * Convert the current type to another type
      *
-     * @param mapper 转换的方法
-     * @param <R>    返回的类型
-     * @return 返回的结果
+     * @param mapper conversion method
+     * @param <R> Return type
+     * @return the returned result
      */
     public <R> DataResult<R> map(Function<T, R> mapper) {
         R returnData = hasData(this) ? mapper.apply(getData()) : null;

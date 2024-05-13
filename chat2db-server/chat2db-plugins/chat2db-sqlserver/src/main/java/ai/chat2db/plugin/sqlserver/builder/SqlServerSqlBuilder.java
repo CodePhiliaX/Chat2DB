@@ -8,7 +8,7 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
-public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class SqlServerSqlBuilder extends DefaultSqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();

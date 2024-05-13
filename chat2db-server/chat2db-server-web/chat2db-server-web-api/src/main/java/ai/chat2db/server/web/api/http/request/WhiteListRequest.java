@@ -18,7 +18,7 @@ public class WhiteListRequest {
     private String apiKey;
 
     /**
-     * 白名单类型，如向量
+     * Whitelist type, such as vector
      * @see ai.chat2db.server.tools.base.enums.WhiteListTypeEnum
      */
     private String whiteType;

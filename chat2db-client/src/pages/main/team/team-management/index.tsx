@@ -17,7 +17,7 @@ const requireRule = { required: true, message: i18n('common.form.error.required'
 
 function TeamManagement() {
   const [form] = Form.useForm();
-  const [loadding, setLoading] = useState(false)
+  const [loadding, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<ITeamVO[]>([]);
   const [pagination, setPagination] = useState({
     searchKey: '',
@@ -66,7 +66,7 @@ function TeamManagement() {
                   ...drawerInfo,
                   open: true,
                   teamId: record.id,
-                  type: AffiliationType.TEAM_USER
+                  type: AffiliationType.TEAM_USER,
                 });
               }}
             >
@@ -79,9 +79,10 @@ function TeamManagement() {
                   ...drawerInfo,
                   open: true,
                   teamId: record.id,
-                  type: AffiliationType.TEAM_DATASOURCE
+                  type: AffiliationType.TEAM_DATASOURCE,
                 });
-              }}>
+              }}
+            >
               {i18n('team.action.affiliation.datasource')}
             </Button>
             <Popconfirm
@@ -112,11 +113,14 @@ function TeamManagement() {
       let res = await getTeamManagementList({ searchKey, pageNo, pageSize });
       if (res) {
         setDataSource(res?.data ?? []);
+        setPagination({
+          ...pagination,
+          total: res?.total ?? 0,
+        } as any);
       }
     } catch (error) {
-
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -169,6 +173,11 @@ function TeamManagement() {
         </Button>
       </div>
       <Table
+        style={{
+          maxHeight: '82vh',
+          overflow: 'auto',
+        }}
+        sticky
         rowKey={'id'}
         loading={loadding}
         dataSource={dataSource}
@@ -192,7 +201,7 @@ function TeamManagement() {
             .catch((errorInfo) => {
               form.scrollToField(errorInfo.errorFields[0].name);
               form.setFields(errorInfo.errorFields);
-            })
+            });
         }}
         onCancel={() => {
           form.resetFields();

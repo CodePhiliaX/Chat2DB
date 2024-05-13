@@ -55,7 +55,7 @@ public class DefaultValueEncryptor implements DBSValueEncryptor {
     }
 
     /**
-     * 通过 DBeaver 源码查看到默认的 SecretKey
+     * View the default SecretKey through DBeaver source code
      **/
     public static SecretKey getLocalSecretKey() {
         return new SecretKeySpec(LOCAL_KEY_CACHE, DefaultValueEncryptor.KEY_ALGORITHM);

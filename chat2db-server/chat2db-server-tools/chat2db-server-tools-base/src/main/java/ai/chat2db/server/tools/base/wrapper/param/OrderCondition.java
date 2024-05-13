@@ -1,14 +1,14 @@
 package ai.chat2db.server.tools.base.wrapper.param;
 
 /**
- * 排序条件
+ * Sorting conditions
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public interface OrderCondition {
 
     /**
-     * 返回列的名字
+     * Return column name
      *
      * @return
      */

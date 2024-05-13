@@ -13,14 +13,14 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 
 /**
- * 用户服务
+ * User service
  *
  * @author Jiaju Zhuang
  */
 public interface UserService {
 
     /**
-     * 查询用户信息
+     * Query user information
      *
      * @param id
      * @return
@@ -43,7 +43,7 @@ public interface UserService {
     ListResult<User> listQuery(List<Long> idList);
 
     /**
-     * 查询用户信息
+     * Query user information
      *
      * @param param
      * @return
@@ -51,21 +51,21 @@ public interface UserService {
     PageResult<User> pageQuery(UserPageQueryParam param, UserSelector selector);
 
     /**
-     * 更新用户信息
+     * Update user information
      * @param user
      * @return
      */
     DataResult<Long> update(UserUpdateParam user);
 
     /**
-     * 删除用户
+     * delete users
      * @param id
      * @return
      */
    ActionResult delete(Long id);
 
     /**
-     * 创建一个用户
+     * Create a user
      * @param user
      * @return
      */

@@ -35,7 +35,7 @@ public class EasySqlUtils {
     }
 
     /**
-     * 获取 columnName
+     * get columnName
      */
     public static ColumnSegment columnToSqlSegment(String column) {
         return () -> column;

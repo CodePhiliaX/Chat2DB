@@ -8,17 +8,17 @@ import lombok.Data;
 public class FunctionDetailRequest implements DataSourceBaseRequestInfo {
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间，pg,oracle需要，mysql不需要
+     * The space where the table is located is required by pg and oracle, but not by mysql.
      */
     private String schemaName;
 

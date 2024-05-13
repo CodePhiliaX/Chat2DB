@@ -28,7 +28,6 @@
         <module>chat2db-mongodb</module>
         <module>chat2db-presto</module>
         <module>chat2db-hive</module>
-        <module>chat2db-redis</module>
         <module>chat2db-kingbase</module>
     </modules>
 

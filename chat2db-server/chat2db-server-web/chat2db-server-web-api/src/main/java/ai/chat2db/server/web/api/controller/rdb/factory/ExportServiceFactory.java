@@ -15,11 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExportServiceFactory {
 
     /**
-     * Export实现类缓存池
+     * Export implementation class cache pool
      */
     private static final Map<String, Class<?>> REPORT_POOL = new ConcurrentHashMap<>(8);
-
-
 
 
     static {
@@ -31,9 +29,9 @@ public class ExportServiceFactory {
     }
 
     /**
-     * 获取对应接口
+     * Get the corresponding interface
      *
-     * @param type 报表类型
+     * @param type dashboard type
      * @return Class
      */
     @SneakyThrows

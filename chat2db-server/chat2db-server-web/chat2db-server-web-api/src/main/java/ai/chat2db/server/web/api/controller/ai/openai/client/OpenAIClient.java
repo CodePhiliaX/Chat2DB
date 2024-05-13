@@ -26,17 +26,17 @@ public class OpenAIClient {
     public static final String OPENAI_KEY = "chatgpt.apiKey";
 
     /**
-     * OPENAI接口域名
+     * OPENAI interface domain name
      */
     public static final String OPENAI_HOST = "chatgpt.apiHost";
 
     /**
-     * 代理IP
+     * Proxy IP
      */
     public static final String PROXY_HOST = "chatgpt.proxy.host";
 
     /**
-     * 代理端口
+     * proxy port
      */
     public static final String PROXY_PORT = "chatgpt.proxy.port";
 

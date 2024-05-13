@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * 描述：OpenAIEventSourceListener
+ * description：OpenAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -50,9 +50,9 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onEvent(EventSource eventSource, String id, String type, String data) {
-        log.info("AzureOpenAI返回数据：{}", data);
+        log.info("AzureOpenAI returns data: {}", data);
         if (data.equals("[DONE]")) {
-            log.info("AzureOpenAI返回数据结束了");
+            log.info("AzureOpenAI returns data ended");
             sseEmitter.send(SseEmitter.event()
                 .id("[DONE]")
                 .data("[DONE]")
@@ -142,7 +142,7 @@ public class AzureOpenAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("Azure OpenAI发送数据异常:", exception);
+            log.error("Azure OpenAI sends data abnormally:", exception);
         }
     }
 }

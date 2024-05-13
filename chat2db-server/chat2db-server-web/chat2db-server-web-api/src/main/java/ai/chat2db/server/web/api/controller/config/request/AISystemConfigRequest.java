@@ -24,43 +24,43 @@ public class AISystemConfigRequest {
 
     /**
      * OpenAi APIKEY
-     * 使用OpenAi接口时必填，可前往OpenAI官网查看APIKEY
+     * Required when using the OpenAi interface, you can go to the OpenAI official website to view APIKEY
      */
     private String apiKey;
 
     /**
      * OpenAi APIHOST
-     * 非必填，默认值为 https://api.openai.com/
+     * Optional, the default value is https://api.openai.com/
      */
     private String apiHost;
 
     /**
-     * http代理Host
-     * 非必填，用于设置请求OPENAI接口时的HTTP代理host
+     * http proxy Host
+     * Optional, used to set the HTTP proxy host when requesting the OPENAI interface
      */
     private String httpProxyHost;
 
     /**
-     * http代理Port
-     * 非必填，用于设置请求OPENAI接口时的HTTP代理port
+     * http proxy Port
+     * Optional, used to set the HTTP proxy port when requesting the OPENAI interface
      */
     private String httpProxyPort;
 
     /**
-     * AI来源
+     * AI source
      * @see AiSqlSourceEnum
      */
     private String aiSqlSource;
 
     /**
-     * 自定义AI接口
-     * 选择自定义AI时必填，用于设置自定义AI的REST接口URL
+     * Customized AI interface
+     * Required when selecting custom AI, used to set the REST interface URL of the custom AI
      */
     private String restAiUrl;
 
     /**
-     * Rest接口是否流式输出
-     * 非必填，默认值为TRUE
+     * Whether the Rest interface has streaming output
+     * Optional, default value is TRUE
      */
     private Boolean restAiStream = Boolean.TRUE;
 

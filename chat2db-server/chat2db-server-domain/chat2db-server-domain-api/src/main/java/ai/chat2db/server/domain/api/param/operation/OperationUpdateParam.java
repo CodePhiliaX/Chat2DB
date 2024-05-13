@@ -6,55 +6,55 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version UserSavedDdlCreateParam.java, v 0.1 2022年09月25日 15:40 moji Exp $
+ * @version UserSavedDdlCreateParam.java, v 0.1 September 25, 2022 15:40 moji Exp $
  * @date 2022/09/25
  */
 @Data
 public class OperationUpdateParam {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * databaseName
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
 
     /**
-     * 保存名称
+     * save name
      */
     private String name;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 

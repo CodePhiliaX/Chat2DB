@@ -11,50 +11,50 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DataSourceCreateParam.java, v 0.1 2022年09月23日 15:23 moji Exp $
+ * @version DataSourceCreateParam.java, v 0.1 September 23, 2022 15:23 moji Exp $
  * @date 2022/09/23
  */
 @Data
 public class DataSourceUpdateParam {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 别名
+     * Alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     private String url;
 
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * 环境类型
+     * environment type
      */
     private String envType;
 
     /**
-     * 环境id
+     * environment id
      */
     private Integer environmentId;
 
@@ -90,27 +90,27 @@ public class DataSourceUpdateParam {
 
 
     /**
-     * jdbc版本
+     * jdbc version
      */
     private String jdbc;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private List<KeyValue> extendInfo;
 
     /**
-     * 驱动配置
+     * Driver configuration
      */
     private DriverConfig driverConfig;
 
     /**
-     * 服务名称
+     * service name
      */
     private String serviceName;
 
     /**
-     * 服务类型
+     * Service type
      */
     private String serviceType;
 

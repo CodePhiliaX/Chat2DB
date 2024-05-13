@@ -10,7 +10,7 @@ import okhttp3.Response;
 import java.io.IOException;
 
 /**
- * 描述：请求增加header apikey
+ * Description: Request to add header apikey
  *
  * @author grt
  * @since 2023-03-23

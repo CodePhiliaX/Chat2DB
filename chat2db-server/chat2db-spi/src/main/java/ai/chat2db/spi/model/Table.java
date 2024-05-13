@@ -1,16 +1,16 @@
 package ai.chat2db.spi.model;
 
-import java.util.List;
-
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
- * 表信息
+ * Table information
  *
  * @author Jiaju Zhuang
  */
@@ -18,57 +18,58 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Table {
+public class Table implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias({"TABLE_NAME"})
     private String name;
 
     /**
-     * 描述
+     * description
      */
     @JsonAlias({"REMARKS"})
 
     private String comment;
 
     /**
-     * DB 名
+     * DB name
      */
     @JsonAlias({"TABLE_SCHEM"})
 
     private String schemaName;
 
     /**
-     * 列列表
+     * columnList
      */
     private List<TableColumn> columnList;
 
     /**
-     * 索引列表
+     * indexList
      */
     private List<TableIndex> indexList;
 
     /**
-     * DB类型
+     * DB type
      */
     private String dbType;
 
     /**
-     * 数据库名
+     * Database name
      */
     @JsonAlias("TABLE_CAT")
     private String databaseName;
 
     /**
-     * 表类型
+     * table type
      */
     @JsonAlias("TABLE_TYPE")
     private String type;
 
     /**
-     * 是否置顶
+     * Whether to pin it to the top
      */
     private boolean pinned;
 
@@ -77,7 +78,10 @@ public class Table {
      */
     private String ddl;
 
-
+    /**
+     * engine
+     */
+    @JsonAlias("TYPE_NAME")
     private String engine;
 
 

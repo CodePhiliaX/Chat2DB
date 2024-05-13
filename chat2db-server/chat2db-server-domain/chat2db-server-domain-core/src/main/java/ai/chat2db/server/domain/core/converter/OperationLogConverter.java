@@ -10,14 +10,14 @@ import org.mapstruct.Mapper;
 
 /**
  * @author moji
- * @version UserExecutedDdlCoreConverter.java, v 0.1 2022年09月25日 14:08 moji Exp $
+ * @version UserExecutedDdlCoreConverter.java, v 0.1 September 25, 2022 14:08 moji Exp $
  * @date 2022/09/25
  */
 @Mapper(componentModel = "spring")
 public abstract class OperationLogConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param param
      * @return
@@ -25,7 +25,7 @@ public abstract class OperationLogConverter {
     public abstract OperationLogDO param2do(OperationLogCreateParam param);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param userExecutedDdlDO
      * @return
@@ -33,7 +33,7 @@ public abstract class OperationLogConverter {
     public abstract OperationLog do2dto(OperationLogDO userExecutedDdlDO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param userExecutedDdlDOS
      * @return

@@ -6,56 +6,56 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlCreateRequest.java, v 0.1 2022年09月18日 11:13 moji Exp $
+ * @version DdlCreateRequest.java, v 0.1 September 18, 2022 11:13 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationUpdateRequest {
 
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 文件别名
+     * file alias
      */
     private String name;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     @NotNull
     private String ddl;
 
     /**
-     * 更新状态 DRAFT/RELEASE
+     * Update status DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 
@@ -65,7 +65,7 @@ public class OperationUpdateRequest {
     private String operationType;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }

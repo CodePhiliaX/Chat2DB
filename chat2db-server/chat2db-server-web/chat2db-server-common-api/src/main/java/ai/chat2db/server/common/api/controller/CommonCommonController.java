@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.common.api.controller;
 
 import ai.chat2db.server.common.api.controller.converter.EnvironmentCommonConverter;

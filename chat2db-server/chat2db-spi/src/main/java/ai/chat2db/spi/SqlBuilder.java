@@ -1,10 +1,10 @@
 package ai.chat2db.spi;
 
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.*;
 
-public interface SqlBuilder {
+import java.util.List;
+
+public interface SqlBuilder<T> {
 
     /**
      * Generate create table sql
@@ -12,7 +12,7 @@ public interface SqlBuilder {
      * @param table
      * @return
      */
-    String buildCreateTableSql(Table table);
+     String buildCreateTableSql(T table);
 
 
     /**
@@ -22,7 +22,7 @@ public interface SqlBuilder {
      * @param oldTable
      * @return
      */
-    String buildModifyTaleSql(Table oldTable, Table newTable);
+    String buildModifyTaleSql(T oldTable, T newTable);
 
 
     /**
@@ -39,6 +39,7 @@ public interface SqlBuilder {
 
     /**
      * Generate create database sql
+     *
      * @param database
      * @return
      */
@@ -46,7 +47,6 @@ public interface SqlBuilder {
 
 
     /**
-     *
      * @param oldDatabase
      * @param newDatabase
      * @return
@@ -55,7 +55,6 @@ public interface SqlBuilder {
 
 
     /**
-     *
      * @param schemaName
      * @return
      */
@@ -63,10 +62,30 @@ public interface SqlBuilder {
 
 
     /**
-     *
      * @param oldSchemaName
      * @param newSchemaName
      * @return
      */
     String buildModifySchemaSql(String oldSchemaName, String newSchemaName);
+
+    /**
+     * @param originSql
+     * @param orderByList
+     * @return
+     */
+    String buildOrderBySql(String originSql, List<OrderBy> orderByList);
+
+
+    /**
+     * generate sql based on results
+     */
+    String buildSqlByQuery(QueryResult queryResult);
+
+    /**
+     * DML SQL
+     * @param table
+     * @param type
+     * @return
+     */
+    String getTableDmlSql(T table,String type);
 }

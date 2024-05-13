@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * Sql解析参数
+ * Sql parsing parameters
  *
  * @author Jiaju Zhuang
  */
@@ -19,13 +19,13 @@ import lombok.experimental.SuperBuilder;
 public class SqlAnalyseParam {
 
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 需要解析的sql 可能是一个复杂的sql
+     * The SQL that needs to be parsed may be a complex SQL
      */
     private String sql;
 }

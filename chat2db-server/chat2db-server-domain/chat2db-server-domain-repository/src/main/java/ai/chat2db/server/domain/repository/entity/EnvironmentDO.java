@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 数据库连接环境
+ * Database connection environment
  * </p>
  *
  * @author chat2db
@@ -24,43 +24,43 @@ public class EnvironmentDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 创建人用户id
+     * Creator user id
      */
     private Long createUserId;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 环境名称
+     * environment name
      */
     private String name;
 
     /**
-     * 环境缩写
+     * environment abbreviation
      */
     private String shortName;
 
     /**
-     * 颜色
+     * color
      */
     private String color;
 }

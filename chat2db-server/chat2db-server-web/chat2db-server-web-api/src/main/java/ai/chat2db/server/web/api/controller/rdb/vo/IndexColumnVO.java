@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 列信息
+ * Column information
  *
  * @author Jiaju Zhuang
  */
@@ -18,56 +18,56 @@ import lombok.experimental.SuperBuilder;
 public class IndexColumnVO {
 
     /**
-     * 索引名称
+     * Index name
      */
     private String indexName;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 索引类型
+     * index type
      *
      * @see
      */
     private String type;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 列名
+     * Column name
      */
     private String columnName;
 
     /**
-     * 顺序
+     * order
      */
     private Short ordinalPosition;
 
     /**
-     * 排序
+     * sort
      *
      */
     private String collation;
 
 
     /**
-     * 索引所属schema
+     * The schema to which the index belongs
      */
     private String schemaName;
 
     /**
-     * 数据库名
+     * Database name
      */
     private String databaseName;
 
     /**
-     * 是否唯一
+     * Is it unique?
      */
     private Boolean nonUnique;
 

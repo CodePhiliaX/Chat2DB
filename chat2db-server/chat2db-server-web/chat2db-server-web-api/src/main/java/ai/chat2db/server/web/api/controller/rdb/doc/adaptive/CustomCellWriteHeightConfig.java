@@ -14,7 +14,7 @@ import java.util.Iterator;
  **/
 public class CustomCellWriteHeightConfig  extends AbstractRowHeightStyleStrategy {
     /**
-     * 默认高度
+     * Default height
      */
     private static final Integer DEFAULT_HEIGHT = 300;
 
@@ -29,7 +29,7 @@ public class CustomCellWriteHeightConfig  extends AbstractRowHeightStyleStrategy
             return;
         }
 
-        // 默认为 1行高度
+        // Default is 1 row height
         int maxHeight = 1;
         while (cellIterator.hasNext()) {
             Cell cell = cellIterator.next();

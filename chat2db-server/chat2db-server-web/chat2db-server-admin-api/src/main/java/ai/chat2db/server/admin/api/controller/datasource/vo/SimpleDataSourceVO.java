@@ -13,27 +13,27 @@ import lombok.Data;
 public class SimpleDataSourceVO {
 
     /**
-     * 主键id
+     * primary key id
      */
     private Long id;
 
     /**
-     * 连接别名
+     * Connection alias
      */
     private String alias;
 
     /**
-     * 连接地址
+     * connection address
      */
     private String url;
 
     /**
-     * 环境id
+     * environment id
      */
     private Long environmentId;
 
     /**
-     * 环境
+     * environment
      */
     private SimpleEnvironmentVO environment;
 }

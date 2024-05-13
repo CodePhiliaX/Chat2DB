@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo } from 'react';
 import { Dropdown, ConfigProvider } from 'antd';
 import i18n from '@/i18n';
 import MenuLabel from '@/components/MenuLabel';
+import styles from './index.less';
 
 interface IProps {
   className?: string;
@@ -142,6 +143,7 @@ export default memo<IProps>((props) => {
           style: items ? {} : { display: 'none' },
         }}
         trigger={['contextMenu']}
+        overlayClassName={styles.dropdownOverlay}
         open={open && canContextmenu}
         onOpenChange={(_open) => {
           setOpen(_open);

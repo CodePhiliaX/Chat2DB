@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 历史记录服务类
+ * History service class
  *
  * @author moji
- * @version HistoryManageController.java, v 0.1 2022年09月18日 10:55 moji Exp $
+ * @version HistoryManageController.java, v 0.1 September 18, 2022 10:55 moji Exp $
  * @date 2022/09/18
  */
 @RequestMapping("/api/operation/log")
@@ -40,7 +40,7 @@ public class OperationLogController {
     private OperationLogWebConverter operationLogWebConverter;
 
     /**
-     * 查询执行记录
+     * Query execution records
      *
      * @param request
      * @return
@@ -55,7 +55,7 @@ public class OperationLogController {
     }
 
     /**
-     * 新增历史记录
+     * Add history
      *
      * @param request
      * @return

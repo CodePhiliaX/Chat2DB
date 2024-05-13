@@ -26,7 +26,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.Objects;
 
 /**
- * 描述：Chat2dbAIEventSourceListener
+ * Description: Chat2dbAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -54,9 +54,9 @@ public class Chat2dbAIEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onEvent(EventSource eventSource, String id, String type, String data) {
-        log.info("Chat2db AI 返回数据：{}", data);
+        log.info("Chat2db AI returns data: {}", data);
         if (data.equals("[DONE]")) {
-            log.info("Chat2db AI 返回数据结束了");
+            log.info("Chat2db AI return data is over");
             sseEmitter.send(SseEmitter.event()
                 .id("[DONE]")
                 .data("[DONE]")
@@ -85,7 +85,7 @@ public class Chat2dbAIEventSourceListener extends EventSourceListener {
     @Override
     public void onClosed(EventSource eventSource) {
         sseEmitter.complete();
-        log.info("Chat2db AI 关闭sse连接...");
+        log.info("Chat2db AI closes sse connection...");
     }
 
     @Override
@@ -108,9 +108,9 @@ public class Chat2dbAIEventSourceListener extends EventSourceListener {
             String bodyString = null;
             if (Objects.nonNull(body)) {
                 bodyString = body.string();
-                log.error("Chat2db AI sse连接异常data：{}", bodyString, t);
+                log.error("Chat2db AI sse connection exception data: {}", bodyString, t);
             } else {
-                log.error("Chat2db AI sse连接异常data：{}", response, t);
+                log.error("Chat2db AI sse connection exception data: {}", response, t);
             }
             eventSource.cancel();
             Message message = new Message();
@@ -123,7 +123,7 @@ public class Chat2dbAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("发送数据异常:", exception);
+            log.error("Exception in sending data:", exception);
         }
     }
 }

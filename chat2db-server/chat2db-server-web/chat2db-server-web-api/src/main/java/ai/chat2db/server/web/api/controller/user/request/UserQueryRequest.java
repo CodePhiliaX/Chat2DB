@@ -23,7 +23,7 @@ public class UserQueryRequest extends PageQueryParam {
     @Serial
     private static final long serialVersionUID = 5663790872812326134L;
     /**
-     * 用户名魔化搜索
+     * Username magic search
      */
     private String keyWord;
 }

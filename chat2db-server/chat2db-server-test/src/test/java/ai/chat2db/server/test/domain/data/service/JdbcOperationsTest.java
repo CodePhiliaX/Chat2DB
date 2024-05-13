@@ -28,14 +28,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 查询测试
+ * query test
  *
  * @author Jiaju Zhuang
  */
 @Slf4j
 public class JdbcOperationsTest extends BaseTest {
     /**
-     * 表名
+     * Table Name
      */
     public static final String TABLE_NAME = "DATA_OPS_TEMPLATE_TEST_" + System.currentTimeMillis();
     private final static String STRING = "STR";
@@ -61,7 +61,7 @@ public class JdbcOperationsTest extends BaseTest {
             Long dataSourceId = TestUtils.nextLong();
             Long consoleId = TestUtils.nextLong();
 
-            // 准备上下文
+            // Prepare context
             putConnect(dialectProperties.getUrl(), dialectProperties.getUsername(), dialectProperties.getPassword(),
                 dialectProperties.getDbType(), dialectProperties.getDatabaseName(), dataSourceId, consoleId);
 
@@ -72,7 +72,7 @@ public class JdbcOperationsTest extends BaseTest {
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             dataSourceService.preConnect(dataSourceCreateParam);
 
-            // 创建控制台
+            // Create a console
             ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
             consoleCreateParam.setDataSourceId(dataSourceId);
             consoleCreateParam.setConsoleId(consoleId);
@@ -85,46 +85,46 @@ public class JdbcOperationsTest extends BaseTest {
             templateQueryParam.setSql(dialectProperties.getCrateTableSql(TABLE_NAME));
             dlTemplateService.execute(templateQueryParam);
 
-            // 插入
+            // insert
             templateQueryParam = new DlExecuteParam();
             templateQueryParam.setConsoleId(consoleId);
             templateQueryParam.setDataSourceId(dataSourceId);
             templateQueryParam.setSql(dialectProperties.getInsertSql(TABLE_NAME, DATE, NUMBER, STRING));
             ListResult<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
-            Assertions.assertTrue(executeResult.getSuccess(), "查询数据失败");
-            // Assertions.assertEquals(1, listResult.getUpdateCount(), "查询数据失败");
+            Assertions.assertTrue(executeResult.getSuccess(), "Query data failed");
+            // Assertions.assertEquals(1, listResult.getUpdateCount(), "Query data failed");
 
-            // 查询
+            // query
             templateQueryParam = new DlExecuteParam();
             templateQueryParam.setConsoleId(consoleId);
             templateQueryParam.setDataSourceId(dataSourceId);
             templateQueryParam.setSql(dialectProperties.getSelectSqlById(TABLE_NAME, 1L));
             executeResult = dlTemplateService.execute(templateQueryParam);
-            log.info("返回数据:{}", JSON.toJSONString(executeResult));
-            Assertions.assertTrue(executeResult.getSuccess(), "查询数据失败");
+            log.info("Return data:{}", JSON.toJSONString(executeResult));
+            Assertions.assertTrue(executeResult.getSuccess(), "Query data failed");
             List<Header> headerList = executeResult.getData().get(0).getHeaderList();
-            Assertions.assertEquals(4L, headerList.size(), "查询数据失败");
-            Assertions.assertEquals(dialectProperties.toCase("ID"), headerList.get(0).getName(), "查询数据失败");
+            Assertions.assertEquals(4L, headerList.size(), "Query data failed");
+            Assertions.assertEquals(dialectProperties.toCase("ID"), headerList.get(0).getName(), "Query data failed");
 
             List<List<String>> dataList = executeResult.getData().get(0).getDataList();
-            Assertions.assertEquals(1L, dataList.size(), "查询数据失败");
+            Assertions.assertEquals(1L, dataList.size(), "Query data failed");
             List<String> data1 = dataList.get(0);
-            Assertions.assertEquals(Long.toString(NUMBER), data1.get(0), "查询数据失败");
+            Assertions.assertEquals(Long.toString(NUMBER), data1.get(0), "Query data failed");
             log.info("date:{},{}", DATE, data1.get(1));
             Assertions.assertEquals(DateUtil.format(DATE, DatePattern.NORM_DATETIME_FORMAT), data1.get(1),
-                "查询数据失败");
-            Assertions.assertEquals(Long.toString(NUMBER), data1.get(2), "查询数据失败");
-            Assertions.assertEquals(STRING, data1.get(3), "查询数据失败");
+                "Query data failed");
+            Assertions.assertEquals(Long.toString(NUMBER), data1.get(2), "Query data failed");
+            Assertions.assertEquals(STRING, data1.get(3), "Query data failed");
 
-            // 异常sql
+            // Exception sql
             templateQueryParam = new DlExecuteParam();
             templateQueryParam.setConsoleId(consoleId);
             templateQueryParam.setDataSourceId(dataSourceId);
             templateQueryParam.setSql(dialectProperties.getTableNotFoundSqlById(TABLE_NAME));
             executeResult = dlTemplateService.execute(templateQueryParam);
-            log.info("异常sql执行结果:{}", JSON.toJSONString(executeResult));
-            Assertions.assertFalse(executeResult.getSuccess(), "异常sql错误");
-            Assertions.assertNotNull(executeResult.getErrorMessage(), "异常sql错误");
+            log.info("Abnormal sql execution result: {}", JSON.toJSONString(executeResult));
+            Assertions.assertFalse(executeResult.getSuccess(), "Exception sql error");
+            Assertions.assertNotNull(executeResult.getErrorMessage(), "Exception sql error");
 
             removeConnect();
         }
@@ -146,21 +146,21 @@ public class JdbcOperationsTest extends BaseTest {
                 dataSourceCreateParam.setPassword(dialectProperties.getPassword());
                 dataSourceService.preConnect(dataSourceCreateParam);
 
-                // 创建控制台
+                // Create a console
                 ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
                 consoleCreateParam.setDataSourceId(dataSourceId);
                 consoleCreateParam.setConsoleId(consoleId);
                 consoleCreateParam.setDatabaseName(dialectProperties.getDatabaseName());
                 consoleService.createConsole(consoleCreateParam);
 
-                // 创建表结构
+                // Create table structure
                 DlExecuteParam templateQueryParam = new DlExecuteParam();
                 templateQueryParam.setConsoleId(consoleId);
                 templateQueryParam.setDataSourceId(dataSourceId);
                 templateQueryParam.setSql(dialectProperties.getDropTableSql(TABLE_NAME));
                 dlTemplateService.execute(templateQueryParam);
             } catch (Exception e) {
-                log.warn("删除表结构失败.", e);
+                log.warn("Failed to delete table structure.", e);
             }
         }
     }

@@ -12,13 +12,13 @@ import jakarta.validation.constraints.NotNull;
 
 /**
  * @author moji
- * @version DashboardService.java, v 0.1 2023年06月09日 15:28 moji Exp $
+ * @version DashboardService.java, v 0.1 June 9, 2023 15:28 moji Exp $
  * @date 2023/06/09
  */
 public interface DashboardService {
 
     /**
-     * 保存报表
+     * Save report
      *
      * @param param
      * @return
@@ -26,7 +26,7 @@ public interface DashboardService {
     DataResult<Long> createWithPermission(DashboardCreateParam param);
 
     /**
-     * 更新报表
+     * Update report
      *
      * @param param
      * @return
@@ -34,7 +34,7 @@ public interface DashboardService {
     ActionResult updateWithPermission(DashboardUpdateParam param);
 
     /**
-     * 根据id查询
+     * Query based on id
      *
      * @param id
      * @return
@@ -42,7 +42,7 @@ public interface DashboardService {
     DataResult<Dashboard> find(@NotNull Long id);
 
     /**
-     * 查询一条数据
+     * Query a piece of data
      *
      * @param param
      * @param selector
@@ -51,7 +51,7 @@ public interface DashboardService {
     DataResult<Dashboard> queryExistent(@NotNull DashboardQueryParam param);
 
     /**
-     * 查询一条数据
+     * Query a piece of data
      *
      * @param id
      * @return
@@ -59,7 +59,7 @@ public interface DashboardService {
     DataResult<Dashboard> queryExistent(@NotNull Long id);
 
     /**
-     * 删除
+     * delete
      *
      * @param id
      * @return
@@ -67,7 +67,7 @@ public interface DashboardService {
     ActionResult deleteWithPermission(@NotNull Long id);
 
     /**
-     * 查询报表列表
+     * Query report list
      *
      * @param param
      * @return
