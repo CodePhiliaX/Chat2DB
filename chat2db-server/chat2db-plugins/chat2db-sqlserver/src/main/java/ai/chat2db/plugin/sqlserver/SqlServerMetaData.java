@@ -80,6 +80,18 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                          WHERE
                                                              SCHEMA_NAME(o.schema_id) + '.' + OBJECT_NAME(fk.parent_object_id) = '%s.%s';""";
 
+    private static final String SELECT_CHECK_CONSTRAINT_SQL = """
+                                                              select
+                                                                     c.name as COLUMN_NAME,
+                                                                     cc.name as CONSTRAINT_NAME,
+                                                                     cc.definition as CHECK_DEFINITION,
+                                                                     schema_name(t.schema_id) + '.' + OBJECT_NAME(t.object_id) as TABLE_NAME
+                                                              from sys.columns c
+                                                                       inner join sys.tables t on c.object_id = t.object_id
+                                                                       inner join sys.check_constraints cc
+                                                                                  on c.object_id = cc.parent_object_id and c.column_id = cc.parent_column_id
+                                                              where t.name = '%s'
+                                                                and t.schema_id = SCHEMA_ID('%s')""";
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -87,7 +99,8 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         try (ResultSet columns = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COLUMNS, tableName, schemaName));
              ResultSet indexInfo = connection.createStatement().executeQuery(String.format(INDEX_SQL, tableName, schemaName));
              ResultSet tableComment = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COMMENT_SQL, tableName, schemaName));
-             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName))
+             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName));
+             ResultSet checkConstraintInfo = connection.createStatement().executeQuery(String.format(SELECT_CHECK_CONSTRAINT_SQL, tableName, schemaName))
         ) {
             List<TableColumn> tableColumns = new ArrayList<>();
             while (columns.next()) {
@@ -97,6 +110,9 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             sqlBuilder.append("\n)\ngo\n");
             while (foreignKeyInfo.next()) {
                 configureForeignKey(sqlBuilder, foreignKeyInfo);
+            }
+            while (checkConstraintInfo.next()) {
+                configureCheckConstraint(sqlBuilder, checkConstraintInfo);
             }
             HashMap<String, TableIndex> indexHashMap = new HashMap<>();
             while (indexInfo.next()) {
@@ -117,6 +133,15 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             throw new RuntimeException(e);
         }
         return sqlBuilder.toString();
+    }
+
+    private void configureCheckConstraint(StringBuilder sqlBuilder, ResultSet checkConstraintInfo) throws SQLException {
+        sqlBuilder.append("ALTER TABLE ").append(checkConstraintInfo.getString("TABLE_NAME"))
+                .append(" ADD CONSTRAINT ")
+                .append(checkConstraintInfo.getString("CONSTRAINT_NAME"))
+                .append(" CHECK (")
+                .append(checkConstraintInfo.getString("CHECK_DEFINITION"))
+                .append(")\ngo\n");
     }
 
     private void setIndexInfo(String schemaName, String tableName, ResultSet indexInfo, HashMap<String, TableIndex> indexHashMap) throws SQLException {
