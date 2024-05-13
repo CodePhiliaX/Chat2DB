@@ -62,7 +62,9 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                              SCHEMA_NAME(o.schema_id) + '.' + OBJECT_NAME(fk.parent_object_id) AS TableName,
                                                              c.name AS ColumnName,
                                                              SCHEMA_NAME(ro.schema_id) + '.' + OBJECT_NAME(fk.referenced_object_id) AS ReferencedTableName,
-                                                             rc.name AS ReferencedColumnName
+                                                             rc.name AS ReferencedColumnName,
+                                                             fk.delete_referential_action                                           as DeleteAction,
+                                                             fk.update_referential_action                                           as UpdateAction
                                                          FROM
                                                              sys.foreign_keys AS fk
                                                          INNER JOIN
@@ -183,7 +185,23 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     }
 
     private void configureForeignKey(StringBuilder sqlBuilder, ResultSet foreignKeyInfo) throws SQLException {
-        sqlBuilder.append("ALTER TABLE ").append(foreignKeyInfo.getString("TableName")).append(" ADD CONSTRAINT ").append(foreignKeyInfo.getString("ForeignKeyName")).append(" FOREIGN KEY (").append(foreignKeyInfo.getString("ColumnName")).append(") REFERENCES ").append(foreignKeyInfo.getString("ReferencedTableName")).append("(").append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n").append("go\n");
+        sqlBuilder.append("ALTER TABLE ")
+                .append(foreignKeyInfo.getString("TableName"))
+                .append(" ADD CONSTRAINT ")
+                .append(foreignKeyInfo.getString("ForeignKeyName"))
+                .append(" FOREIGN KEY (")
+                .append(foreignKeyInfo.getString("ColumnName"))
+                .append(") REFERENCES ")
+                .append(foreignKeyInfo.getString("ReferencedTableName"))
+                .append("(")
+                .append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n");
+        if (foreignKeyInfo.getInt("DeleteAction") == 1) {
+            sqlBuilder.append(" ON DELETE CASCADE").append("\n");
+        }
+        if (foreignKeyInfo.getInt("UpdateAction") == 1) {
+            sqlBuilder.append(" ON UPDATE CASCADE").append("\n");
+        }
+        sqlBuilder.append("go\n");
     }
 
     private void configureAscOrDesc(ResultSet indexInfo, TableIndexColumn tableIndexColumn) throws SQLException {
