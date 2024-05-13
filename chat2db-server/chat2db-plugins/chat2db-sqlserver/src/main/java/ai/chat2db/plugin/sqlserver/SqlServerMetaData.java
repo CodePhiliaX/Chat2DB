@@ -92,6 +92,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                                                   on c.object_id = cc.parent_object_id and c.column_id = cc.parent_column_id
                                                               where t.name = '%s'
                                                                 and t.schema_id = SCHEMA_ID('%s')""";
+
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -265,7 +266,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         }
         int columnSize = columns.getInt("COLUMN_SIZE");
         int numericScale = columns.getInt("NUMERIC_SCALE");
-
+        int columnPrecision = columns.getInt("COLUMN_PRECISION");
         // Adjust column size for Unicode types
         if (Arrays.asList(SqlServerColumnTypeEnum.NCHAR.name(),
                           SqlServerColumnTypeEnum.NVARCHAR.name())
@@ -283,17 +284,6 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             tableColumn.setColumnSize(columnSize);
             return;
         }
-
-        if (Arrays.asList(SqlServerColumnTypeEnum.CHAR.name(),
-                          SqlServerColumnTypeEnum.VARCHAR.name())
-                .contains(tableColumn.getColumnType())) {
-            //default size
-            if (columnSize == 1) {
-                return;
-            }
-            tableColumn.setColumnSize(columnSize);
-            return;
-        }
         // Set column size based on data type
         if (Arrays.asList(SqlServerColumnTypeEnum.DATETIMEOFFSET.name(),
                           SqlServerColumnTypeEnum.TIME.name(), SqlServerColumnTypeEnum.DATETIME2.name())
@@ -304,8 +294,15 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             tableColumn.setColumnSize(numericScale);
             return;
+        } else if (Arrays.asList(SqlServerColumnTypeEnum.DECIMAL.name(),
+                                 SqlServerColumnTypeEnum.NUMERIC.name())
+                .contains(tableColumn.getColumnType())) {
+            tableColumn.setColumnSize(columnPrecision);
         } else {
-            tableColumn.setColumnSize(columnSize);
+            if (columnSize!=1) {
+                tableColumn.setColumnSize(columnSize);
+            }
+
         }
         tableColumn.setDecimalDigits(numericScale);
     }
@@ -361,6 +358,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                               c.is_nullable    as IS_NULLABLE,
                                                               c.column_id      as ORDINAL_POSITION,
                                                               c.max_length     as COLUMN_SIZE,
+                                                              c.precision      as COLUMN_PRECISION,
                                                               c.scale          as NUMERIC_SCALE,
                                                               c.collation_name as COLLATION_NAME,
                                                               ty.name          as DATA_TYPE,
