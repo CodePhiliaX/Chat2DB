@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * redis key运维类
+ * redis key operation and maintenance class
  *
  * @author moji
- * @version MysqlTableManageController.java, v 0.1 2022年09月16日 17:41 moji Exp $
+ * @version MysqlTableManageController.java, v 0.1 September 16, 2022 17:41 moji Exp $
  * @date 2022/09/16
  */
 @RequestMapping("/api/redis/key")
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RedisKeyManageController {
 
     /**
-     * 查询当前DB下的key列表
+     * Query the key list under the current DB
      *
      * @param request
      * @return
@@ -39,7 +39,7 @@ public class RedisKeyManageController {
     }
 
     /**
-     * 新增Key
+     * Add Key
      *
      * @param request
      * @return
@@ -50,7 +50,7 @@ public class RedisKeyManageController {
     }
 
     /**
-     * 修改key信息
+     * Modify key information
      *
      * @param request
      * @return
@@ -62,7 +62,7 @@ public class RedisKeyManageController {
 
 
     /**
-     * 删除key
+     * Delete key
      *
      * @param request
      * @return

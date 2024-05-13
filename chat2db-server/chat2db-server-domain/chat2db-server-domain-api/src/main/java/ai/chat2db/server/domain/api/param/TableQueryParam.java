@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 查询表信息
+ * Query table information
  *
  * @author Jiaju Zhuang
  */
@@ -24,24 +24,24 @@ public class TableQueryParam extends QueryParam {
     @Serial
     private static final long serialVersionUID = -8918610899872508804L;
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 对应的连接数据库名称
+     * Corresponding connection database name
      */
     @NotNull
     private String databaseName;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 空间名
+     * Space name
      */
     private String schemaName;
 

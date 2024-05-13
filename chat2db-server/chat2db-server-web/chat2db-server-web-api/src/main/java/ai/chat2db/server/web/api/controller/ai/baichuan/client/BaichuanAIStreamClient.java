@@ -5,6 +5,7 @@ import ai.chat2db.server.web.api.controller.ai.baichuan.interceptor.BaichuanHead
 import ai.chat2db.server.web.api.controller.ai.baichuan.model.BaichuanChatCompletionsOptions;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +95,7 @@ public class BaichuanAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -169,7 +170,7 @@ public class BaichuanAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -191,19 +192,20 @@ public class BaichuanAIStreamClient {
             chatCompletionsOptions.setMessages(chatMessages);
 
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
                 .url(apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
-            // 发送请求并处理响应
+            //Create event
+            //Send the request and process the response
             try (Response response = this.okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     throw new IOException("Unexpected code " + response);
                 }
 
-                // 读取并输出响应数据
+                //Read and output response data
                 BufferedSource source = response.body().source();
                 while (!source.exhausted()) {
                     String content = source.readUtf8Line();

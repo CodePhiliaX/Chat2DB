@@ -7,52 +7,52 @@ import java.time.LocalDateTime;
 @Data
 public class AppVersionVO {
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 新版本
+     * new version
      */
     private String version;
 
 //    /**
-//     * 哪些版本可以升级到该版本
+//     * Which versions can be upgraded to this version
 //     */
 //    private String versionUse;
 
 //    /**
-//     * 状态
+//     * state
 //     */
 //    private String status;
 
     /**
-     * 下载地址
+     * downloadLink
      */
     private String downloadLink;
 
     /**
-     * 手工更新，自动强制更新
+     * Manual update, automatic forced update
      */
     private String type;
 
 //    /**
-//     * 白名单，用于测试
+//     * Whitelist, for testing
 //     */
 //    private String whiteList;
 
     /**
-     * 热更新包地址
+     * Hot update package address
      */
     private String hotUpgradeUrl;
 
     /**
-     * 更新日志
+     * updateLog
      */
     private String updateLog;
 
     /**
-     * 桌面
+     * desktop
      */
     private boolean desktop;
 }

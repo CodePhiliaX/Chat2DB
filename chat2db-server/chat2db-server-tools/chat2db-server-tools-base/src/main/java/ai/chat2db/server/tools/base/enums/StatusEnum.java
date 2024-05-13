@@ -4,21 +4,21 @@ import lombok.Getter;
 
 /**
  * @author moji
- * @version StatusEnum.java, v 0.1 2022年09月25日 16:57 moji Exp $
+ * @version StatusEnum.java, v 0.1 September 25, 2022 16:57 moji Exp $
  * @date 2022/09/25
  */
 @Getter
 public enum StatusEnum implements BaseEnum<String> {
 
     /**
-     * 草稿
+     * draft
      */
-    DRAFT("草稿"),
+    DRAFT("draft"),
 
     /**
-     * 发布
+     * release
      */
-    RELEASE("发布"),
+    RELEASE("release"),
 
     ;
 

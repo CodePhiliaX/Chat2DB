@@ -1,7 +1,7 @@
 package ai.chat2db.server.web.api.controller.ncx.enums;
 
 /**
- * navicat版本枚举（版本区分navicat加密算法）
+ * navicat version enumeration (version distinguishes navicat encryption algorithm)
  *
  * @author lzy
  */

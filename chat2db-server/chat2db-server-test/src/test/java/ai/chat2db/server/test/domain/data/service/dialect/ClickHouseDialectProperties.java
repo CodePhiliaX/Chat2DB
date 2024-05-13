@@ -49,17 +49,17 @@ public class ClickHouseDialectProperties implements DialectProperties {
                 + "    number int,\n"
                 + "    string varchar(100) default 'DATA'\n"
                 + ");\n";
-        sql += "comment on table " + tableName + " is '测试表';\n";
-        sql += "comment on column " + tableName + ".id is '主键自增';\n";
-        sql += "comment on column " + tableName + ".date is '日期';\n";
-        sql += "comment on column " + tableName + ".number is '长整型';\n";
-        sql += "comment on column " + tableName + ".string is '名字';\n";
+        sql += "comment on table " + tableName + " is 'Test table';\n";
+        sql += "comment on column " + tableName + ".id is 'Primary key auto-increment';\n";
+        sql += "comment on column " + tableName + ".date is 'date';\n";
+        sql += "comment on column " + tableName + ".number is 'long integer';\n";
+        sql += "comment on column " + tableName + ".string is 'name';\n";
         sql += "create index " + tableName + "idx_date on " + tableName + " (date desc);";
         sql += "create unique index " + tableName + "_uk_number on " + tableName + " (number);";
         sql += "create index " + tableName + "_idx_number_string on " + tableName + " (number, date);";
-        sql += "comment on index " + tableName + "_uk_number is '日期索引';";
-        sql += "comment on index " + tableName + "_uk_number is '唯一索引';";
-        sql += "comment on index " + tableName + "_idx_number_string is '联合索引';";
+        sql += "comment on index " + tableName + "_uk_number is 'date index';";
+        sql += "comment on index " + tableName + "_uk_number is 'unique index';";
+        sql += "comment on index " + tableName + "_idx_number_string is 'Union index';";
         return sql;
     }
 

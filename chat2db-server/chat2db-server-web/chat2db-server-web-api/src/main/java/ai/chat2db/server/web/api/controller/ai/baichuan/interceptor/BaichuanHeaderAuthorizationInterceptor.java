@@ -37,10 +37,10 @@ public class BaichuanHeaderAuthorizationInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request originalRequest = chain.request();
 
-        // 获取当前的时间戳（UTC标准时间戳）
+        // Get the current timestamp (UTC standard timestamp)
         long timestamp = System.currentTimeMillis() / 1000;
 
-        // 获取原始的HTTP-Body
+        // Get the original HTTP-Body
         RequestBody originalRequestBody = originalRequest.body();
         Buffer buffer = new Buffer();
         if (originalRequestBody != null) {
@@ -48,10 +48,10 @@ public class BaichuanHeaderAuthorizationInterceptor implements Interceptor {
         }
         String httpBody = buffer.readUtf8();
 
-        // 计算 X-BC-Signature
+        // Calculate X-BC-Signature
         String signature = calculateSignature(secretKey, httpBody, timestamp);
 
-        // 创建新的请求，并添加自定义请求头
+        //Create a new request and add custom request headers
         Request newRequest = originalRequest.newBuilder()
                 .addHeader("Authorization", "Bearer " + apiKey)
                 .addHeader("Content-Type", "application/json")
@@ -89,11 +89,11 @@ public class BaichuanHeaderAuthorizationInterceptor implements Interceptor {
             String requestBody = bodyToString(body);
             String rawSignature = secretKey + requestBody + timestamp;
 
-            // 使用 MD5 计算签名
+            // Use MD5 to calculate signature
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] mdBytes = md.digest(rawSignature.getBytes(StandardCharsets.UTF_8));
 
-            // 将 MD5 字节数组转换为 Base64 编码的字符串
+            // Convert MD5 byte array to Base64 encoded string
             return Base64.getEncoder().encodeToString(mdBytes);
         } catch (IOException | NoSuchAlgorithmException e) {
             log.error("baichuan secret key md5 error", e);
@@ -102,7 +102,7 @@ public class BaichuanHeaderAuthorizationInterceptor implements Interceptor {
     }
 
     private String bodyToString(RequestBody body) throws IOException {
-        // 将 RequestBody 转换为字符串
+        //Convert RequestBody to string
         return body == null ? "" : body.toString();
     }
 }

@@ -13,14 +13,14 @@ import org.mapstruct.Mapper;
 
 /**
  * @author moji
- * @version ChatConverter.java, v 0.1 2023年04月02日 13:31 moji Exp $
+ * @version ChatConverter.java, v 0.1 April 2, 2023 13:31 moji Exp $
  * @date 2023/04/02
  */
 @Mapper(componentModel = "spring")
 public abstract class ChatConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

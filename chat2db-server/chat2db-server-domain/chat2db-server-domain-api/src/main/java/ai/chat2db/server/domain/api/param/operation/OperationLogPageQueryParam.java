@@ -6,34 +6,34 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version UserExecutedDdlPageQueryParam.java, v 0.1 2022年09月25日 14:05 moji Exp $
+ * @version UserExecutedDdlPageQueryParam.java, v 0.1 September 25, 2022 14:05 moji Exp $
  * @date 2022/09/25
  */
 @Data
 public class OperationLogPageQueryParam extends PageQueryParam {
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 
     /**
-     * 搜索关键词
+     * search keyword
      */
     private String searchKey;
 
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * 数据库名称
+     * database name
      */
     private String databaseName;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 }

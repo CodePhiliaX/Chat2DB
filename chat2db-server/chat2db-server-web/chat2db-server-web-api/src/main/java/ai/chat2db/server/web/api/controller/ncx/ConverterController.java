@@ -32,7 +32,7 @@ public class ConverterController {
     private ConverterService converterService;
 
     /**
-     * 导出教程
+     * Export tutorial
      *
      * @param file file
      * @return DataResult<UploadVO>
@@ -41,11 +41,11 @@ public class ConverterController {
     @SneakyThrows
     @PostMapping("/ncx/upload")
     public DataResult<UploadVO> ncxUploadFile(@RequestParam("file") MultipartFile file) {
-        log.info("开始上传ncx");
-        // 验证文件后缀
+        log.info("Start uploading ncx");
+        // Verify file suffix
         String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.NCX.name())) {
-            return DataResult.error("1", "上传的文件必须是ncx文件！");
+            return DataResult.error("1", "The uploaded file must be an ncx file！");
         }
         File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + UUID.randomUUID() + ".tmp");
         file.transferTo(temp);
@@ -55,10 +55,10 @@ public class ConverterController {
     @SneakyThrows
     @PostMapping("/dbp/upload")
     public DataResult<UploadVO> edbpUploadFile(@RequestParam("file") MultipartFile file) {
-        // 验证文件后缀
+        // Verify file suffix
         String fileExtension = FileUtils.getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
         if (!fileExtension.equalsIgnoreCase(FileUtils.ConfigFile.DBP.name())) {
-            return DataResult.error("1", "上传的文件必须是dbp文件！");
+            return DataResult.error("1", "The uploaded file must be a dbp file！");
         }
         File temp = new File(ConfigUtils.CONFIG_BASE_PATH + File.separator + UUID.randomUUID() + ".tmp");
         file.transferTo(temp);
@@ -67,8 +67,8 @@ public class ConverterController {
 
 
     /**
-     * 导入datagrip的连接信息，通过 ctrl/cmd + c（shift多选）复制连接，再导入进来
-     * 目前复制的连接信息里面是没有密码的、ssh连接信息也没有
+     * Import the connection information of datagrip, copy the connection through ctrl/cmd + c (shift multiple selection), and then import it.
+     * There is no password in the currently copied connection information, and there is no ssh connection information either.
      *
      * @param text text
      * @return DataResult<UploadVO>

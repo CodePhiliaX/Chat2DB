@@ -17,18 +17,18 @@ public class JdbcDriverDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 

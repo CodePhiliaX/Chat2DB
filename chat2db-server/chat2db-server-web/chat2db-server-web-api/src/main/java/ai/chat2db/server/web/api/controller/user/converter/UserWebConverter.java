@@ -17,7 +17,7 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public abstract class UserWebConverter {
     /**
-     * 转换
+     * Convert
      *
      * @param user
      * @return

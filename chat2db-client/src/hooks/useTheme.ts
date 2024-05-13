@@ -1,21 +1,33 @@
 import { useEffect, useState } from 'react';
-import { addColorSchemeListener, colorSchemeListeners } from '@/layouts';
 import { getOsTheme } from '@/utils';
 import { ITheme } from '@/typings';
 import { ThemeType, PrimaryColorType } from '@/constants';
 import { getPrimaryColor, getTheme, setPrimaryColor, setTheme } from '@/utils/localStorage';
+import { v4 as uuidv4 } from 'uuid';
+
+const colorSchemeListeners: {
+  [key: string]: (theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) => void;
+} = {};
+
+const addColorSchemeListener = (
+  callback: (theme: { backgroundColor: ThemeType; primaryColor: PrimaryColorType }) => void,
+) => {
+  const uuid = uuidv4();
+  colorSchemeListeners[uuid] = callback;
+  return uuid;
+};
 
 const initialTheme = () => {
   const localStorageTheme = getTheme();
   const localStoragePrimaryColor = getPrimaryColor();
 
   // 判断localStorage的theme在不在ThemeType中, 如果存在就用localStorageTheme
-  let backgroundColor = ThemeType.Light
+  let backgroundColor = ThemeType.Light;
   if (Object.values(ThemeType).includes(localStorageTheme)) {
     backgroundColor = localStorageTheme;
   }
 
-  let primaryColor = PrimaryColorType.Golden_Purple
+  let primaryColor = PrimaryColorType.Golden_Purple;
   if (Object.values(PrimaryColorType).includes(localStoragePrimaryColor)) {
     primaryColor = localStoragePrimaryColor;
   }

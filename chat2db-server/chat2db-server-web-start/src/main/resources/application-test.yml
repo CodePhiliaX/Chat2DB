@@ -1,0 +1,9 @@
+
+# port
+server:
+  port: 10822
+
+chat2db:
+  gateway:
+    base-url: http://test.sqlgpt.cn/gateway
+    model-base-url: http://test.sqlgpt.cn/gateway

@@ -1,6 +1,6 @@
 import { ThemeType, PrimaryColorType } from '@/constants';
 
 export interface ITheme {
-  backgroundColor: Exclude<ThemeType, ThemeType.FollowOs>;
+  backgroundColor: ThemeType;
   primaryColor: PrimaryColorType;
 }

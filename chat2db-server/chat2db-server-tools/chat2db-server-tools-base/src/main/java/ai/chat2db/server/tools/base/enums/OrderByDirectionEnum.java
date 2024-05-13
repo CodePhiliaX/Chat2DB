@@ -1,18 +1,18 @@
 package ai.chat2db.server.tools.base.enums;
 
 /**
- * 排序方向的枚举
+ * Enumeration of sorting directions
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public enum OrderByDirectionEnum implements BaseEnum<String> {
 
     /**
-     * 升序
+     * asc
      */
     ASC,
     /**
-     * 降序
+     * desc
      */
     DESC;
 

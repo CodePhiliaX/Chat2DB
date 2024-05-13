@@ -45,26 +45,26 @@ public class ExportPdfService extends DatabaseExportService {
         Document document = new Document();
         PdfWriter pdfWriter = PdfWriter.getInstance(document, outputStream);
         pdfWriter.setStrictImageSequence(true);
-        // 字体设置
+        // Font settings
         BaseFont baseFont =BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-        // 创建字体对象
+        // Create font object
         Font font = new Font(baseFont, 10, Font.NORMAL);
         Font headFont = new Font(baseFont, 12, Font.NORMAL);
         Font titleFont = new Font(baseFont, 14, Font.BOLD);
         document.open();
-        //遍历数据
+        //Iterate over data
         for (Map.Entry<String, List<Map.Entry<String, List<TableParameter>>>> myMap : allMap.entrySet()) {
-            //数据库名
+            //Database name
             String database = myMap.getKey();
             String title = I18nUtils.getMessage("main.databaseText") + database;
             Paragraph p = new Paragraph(title, titleFont);
             document.add(p);
             for (Map.Entry<String, List<TableParameter>> parameterMap : myMap.getValue()) {
-                //表名
+                //Table Name
                 String tableName = parameterMap.getKey().split("---")[1];
                 Paragraph tableParagraph = new Paragraph(tableName, font);
                 document.add(tableParagraph);
-                //索引Table
+                //IndexTable
                 if (isExportIndex && !indexMap.isEmpty()) {
                     PdfPTable table = new PdfPTable(CommonConstant.INDEX_HEAD_NAMES.length);
                     process(table, CommonConstant.INDEX_HEAD_NAMES, font);
@@ -77,28 +77,28 @@ public class ExportPdfService extends DatabaseExportService {
                     document.add(table);
                 }
                 document.add(new Paragraph());
-                //字段Table
+                //FieldTable
                 List<TableParameter> exportList = parameterMap.getValue();
                 PdfPTable table = new PdfPTable(CommonConstant.COLUMN_HEAD_NAMES.length);
-                //标题、内容
+                //title content
                 process(table, CommonConstant.COLUMN_HEAD_NAMES, headFont);
                 for (TableParameter tableParameter : exportList) {
                     process(table, getColumnValues(tableParameter), font);
                 }
-                // 设置表格上方的空白间距，即向下移动的效果
+                // Set the blank space above the table, that is, the effect of moving downwards
                 table.setSpacingBefore(10f);
                 table.setSpacingAfter(20f);
-                //居左对齐
+                //Align left
                 table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
                 document.add(table);
-                //分页
+                //Pagination
                 //document.newPage();
             }
         }
         document.close();
     }
 
-    //设置表格内容
+    //Set table content
     public static <T> void process(PdfPTable table, T[] line, Font font) {
         for (T s : line) {
             if (Objects.isNull(s)) {

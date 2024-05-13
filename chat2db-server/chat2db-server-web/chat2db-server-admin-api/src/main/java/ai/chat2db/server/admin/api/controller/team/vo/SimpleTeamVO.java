@@ -12,23 +12,23 @@ import lombok.Data;
 public class SimpleTeamVO {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 团队编码
+     * team coding
      */
     private String code;
 
     /**
-     * 团队名称
+     * Team Name
      */
     private String name;
 
 
     /**
-     * 团队状态
+     * Team status
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */

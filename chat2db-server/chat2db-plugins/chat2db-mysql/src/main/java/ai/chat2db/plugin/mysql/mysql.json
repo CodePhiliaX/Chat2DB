@@ -1,12 +1,14 @@
 {
   "dbType": "MYSQL",
+  "supportDatabase": true,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:mysql://localhost:3306/",
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/mysql-connector-java-8.0.30.jar"
+        "https://cdn.chat2db-ai.com/lib/mysql-connector-java-8.0.30.jar"
       ],
       "jdbcDriver": "mysql-connector-java-8.0.30.jar",
       "jdbcDriverClass": "com.mysql.cj.jdbc.Driver",
@@ -23,7 +25,7 @@
       "defaultDriver": false,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/mysql-connector-java-5.1.47.jar"
+        "https://cdn.chat2db-ai.com/lib/mysql-connector-java-5.1.47.jar"
       ],
       "jdbcDriver": "mysql-connector-java-5.1.47.jar",
       "jdbcDriverClass": "com.mysql.jdbc.Driver",

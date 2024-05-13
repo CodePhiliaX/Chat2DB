@@ -1,4 +1,3 @@
-
 package ai.chat2db.server.admin.api.controller.user.vo;
 
 import java.util.Date;
@@ -17,56 +16,55 @@ import lombok.Data;
 @Data
 public class UserPageQueryVO {
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 用户名
+     * userName
      */
     @NotNull
     private String userName;
 
     /**
-     * 昵称
+     * Nick name
      */
     @NotNull
     private String nickName;
 
     /**
-     * 用户状态
+     * user status
      *
      * @see ValidStatusEnum
      */
     private String status;
 
     /**
-     * 邮箱
+     * email
      */
     @NotNull
     private String email;
 
     /**
-     * 角色编码
+     * role coding
      *
      * @see RoleCodeEnum
      */
     private String roleCode;
 
-
     /**
-     * 修改时间
+     * Change the time
      */
     private Date gmtModified;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 修改人用户
+     * Modifier user
      */
     private SimpleUserVO modifiedUser;
 

@@ -5,6 +5,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatCompletion
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.wenxin.interceptor.AccessTokenInterceptor;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +90,7 @@ public class WenxinAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -157,7 +158,7 @@ public class WenxinAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -179,12 +180,13 @@ public class WenxinAIStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletionsOptions);
             Request request = new Request.Builder()
                 .url(apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking fast chat ai");
         } catch (Exception e) {

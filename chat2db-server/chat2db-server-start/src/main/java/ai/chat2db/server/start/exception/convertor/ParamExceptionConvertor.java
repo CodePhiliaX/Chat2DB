@@ -4,12 +4,12 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.spi.util.ExceptionUtils;
 
 /**
- * 参数异常 目前包括
+ * Parameter exceptions currently include：
  * ConstraintViolationException
  * MissingServletRequestParameterException
  * IllegalArgumentException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class ParamExceptionConvertor implements ExceptionConvertor<Throwable> {
 

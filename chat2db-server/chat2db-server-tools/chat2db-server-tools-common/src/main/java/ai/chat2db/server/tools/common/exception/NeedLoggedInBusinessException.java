@@ -7,7 +7,7 @@ import ai.chat2db.server.tools.base.excption.BusinessException;
 import lombok.Getter;
 
 /**
- * 用户登录异常
+ * User login exception
  *
  * @author Jiaju Zhuang
  */

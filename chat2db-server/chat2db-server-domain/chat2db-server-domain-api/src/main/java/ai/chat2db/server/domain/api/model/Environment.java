@@ -24,22 +24,22 @@ public class Environment implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 环境名称
+     * environment name
      */
     private String name;
 
     /**
-     * 环境缩写
+     * environment abbreviation
      */
     private String shortName;
 
     /**
-     * 颜色
+     * color
      */
     private String color;
 }

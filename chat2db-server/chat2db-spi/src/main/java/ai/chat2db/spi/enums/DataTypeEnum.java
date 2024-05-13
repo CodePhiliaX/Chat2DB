@@ -4,86 +4,86 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * 驱动类枚举
+ * Driver class enumeration
  *
  * @author Jiaju Zhuang
  */
 @Getter
 public enum DataTypeEnum implements BaseEnum<String> {
     /**
-     * 布尔值
+     * Boolean value
      */
-    BOOLEAN("布尔值"),
+    BOOLEAN("Boolean value"),
 
     /**
-     * 数字
+     * number
      */
-    NUMERIC("数字"),
+    NUMERIC("number"),
 
     /**
-     * 字符串
+     * string
      */
-    STRING("字符串"),
+    STRING("string"),
 
     /**
-     * 日期
+     * date
      */
-    DATETIME("日期"),
+    DATETIME("date"),
 
     /**
-     * 二进制
+     * binary
      */
-    BINARY("空数据"),
+    BINARY("binary"),
 
     /**
-     * 内容
+     * content
      */
-    CONTENT("内容"),
+    CONTENT("content"),
 
     /**
-     * 结构
+     * structure
      */
-    STRUCT("结构"),
+    STRUCT("structure"),
 
     /**
-     * 文档
+     * document
      */
-    DOCUMENT("文档"),
+    DOCUMENT("document"),
 
     /**
-     * 数组
+     * array
      */
-    ARRAY("数组"),
+    ARRAY("array"),
 
     /**
-     * 对象
+     * object
      */
-    OBJECT("对象"),
+    OBJECT("object"),
 
     /**
-     * 引用
+     * reference
      */
-    REFERENCE("引用"),
+    REFERENCE("reference"),
 
     /**
-     * 行号
+     * rowid
      */
-    ROWID("行号"),
+    ROWID("rowid"),
 
     /**
-     * 任何
+     * any
      */
-    ANY("任何"),
+    ANY("any"),
 
     /**
-     * 未知
+     * unknow
      */
-    UNKNOWN("未知"),
+    UNKNOWN("unknow"),
 
     /**
-     * 行号
+     * Row number
      */
-    CHAT2DB_ROW_NUMBER("行号"),
+    CHAT2DB_ROW_NUMBER("Row number"),
     ;
 
     final String description;

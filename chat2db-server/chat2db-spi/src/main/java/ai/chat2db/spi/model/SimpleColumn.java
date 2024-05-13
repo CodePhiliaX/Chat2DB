@@ -6,14 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimpleColumn {
+public class SimpleColumn  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 列名
+     * Column name
      */
     @JsonAlias({"COLUMN_NAME"})
     private String name;
@@ -23,7 +26,7 @@ public class SimpleColumn {
     private String columnType;
 
     /**
-     * 注释
+     * Comment
      */
     @JsonAlias({"REMARKS"})
     private String comment;

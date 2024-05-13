@@ -22,12 +22,12 @@ public class SQLParseTest {
 
         Statements statements = CCJSqlParserUtil.parseStatements(sql);
 
-        // 如果是多条语句,解析后的实际类型是StatementList
+        // If there are multiple statements, the actual type after parsing is StatementList
 
 
-        // 遍历每个语句
+        // Iterate through each statement
         for (Statement stmt : statements.getStatements()) {
-            // 如果是单条语句,实际类型是Statement
+            // If it is a single statement, the actual type is Statement
             System.out.println(stmt.toString());
 
             System.out.println(" dddd:"+SqlFormatter.format(stmt.toString()));

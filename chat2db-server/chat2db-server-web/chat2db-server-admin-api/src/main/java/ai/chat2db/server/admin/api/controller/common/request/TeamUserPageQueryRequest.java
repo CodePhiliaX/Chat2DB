@@ -14,7 +14,7 @@ import lombok.Data;
 public class TeamUserPageQueryRequest extends PageQueryRequest {
 
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */

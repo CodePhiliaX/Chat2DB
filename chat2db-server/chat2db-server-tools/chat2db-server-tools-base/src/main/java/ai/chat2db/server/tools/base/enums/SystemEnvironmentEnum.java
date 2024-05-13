@@ -3,7 +3,7 @@ package ai.chat2db.server.tools.base.enums;
 import lombok.Getter;
 
 /**
- * 系统环境
+ * System environment
  *
  * @author Jiaju Zhuang
  */
@@ -11,17 +11,17 @@ import lombok.Getter;
 public enum SystemEnvironmentEnum implements BaseEnum<String> {
 
     /**
-     * 本地
+     * dev
      */
     DEV("dev", "本地"),
 
     /**
-     * 测试
+     * test
      */
     TEST("test", "测试"),
 
     /**
-     * 正式
+     * release
      */
     RELEASE("release", "正式"),
 

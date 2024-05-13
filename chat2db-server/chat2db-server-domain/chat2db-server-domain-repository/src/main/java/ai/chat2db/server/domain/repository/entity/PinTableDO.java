@@ -17,34 +17,33 @@ public class PinTableDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
-
     /**
-     * 保存名称
+     * save name
      */
     private String schemaName;
 

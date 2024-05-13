@@ -7,44 +7,44 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version Dashboard.java, v 0.1 2023年06月09日 15:32 moji Exp $
+ * @version Dashboard.java, v 0.1 June 9, 2023 15:32 moji Exp $
  * @date 2023/06/09
  */
 @Data
 public class DashboardVO {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 报表名称
+     * Dashboard name
      */
     private String name;
 
     /**
-     * 报表描述
+     * Dashboard description
      */
     private String description;
 
     /**
-     * 报表布局信息
+     * Dashboard layout information
      */
     private String schema;
 
     /**
-     * 图表ID列表
+     * Chart ID list
      */
     private List<Long> chartIds;
 }

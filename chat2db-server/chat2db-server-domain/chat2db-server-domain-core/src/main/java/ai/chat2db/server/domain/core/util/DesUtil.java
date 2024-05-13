@@ -22,7 +22,7 @@ import org.apache.logging.log4j.util.Strings;
 
 /**
  * @author moji
- * @version DESUtil.java, v 0.1 2022年12月26日 19:54 moji Exp $
+ * @version DESUtil.java, v 0.1 December 26, 2022 19:54 moji Exp $
  * @date 2022/12/26
  */
 public class DesUtil {
@@ -43,7 +43,7 @@ public class DesUtil {
     public static final String CBC = "CBC";
 
     /**
-     * iv向量
+     * iv vector
      */
     private static final byte[] DESIV = { (byte) 0xCE, (byte) 0x35, (byte) 0x5,
         (byte) 0xD, (byte) 0x98, (byte) 0x91, (byte) 0x8, (byte) 0xA };
@@ -59,27 +59,27 @@ public class DesUtil {
     private static final String SHA1PRNG = "SHA1PRNG";
 
     /**
-     * DES默认模式
+     * DES default mode
      */
     private static final String DES = "DES";
 
     /**
-     * CBC加密模式
+     * CBC encryption mode
      */
     private static final String DES_CBC_PKCS5PADDING = "DES/CBC/PKCS5Padding";
 
     /**
-     * OFB加密模式
+     * OFB encryption mode
      */
     private static final String DES_OFB_PKCS5PADDING = "DES/OFB/PKCS5Padding";
 
     /**
-     * CFB加密模式
+     * CFB encryption mode
      */
     private static final String DES_CFB_PKCS5_PADDING = "DES/CFB/PKCS5Padding";
 
     /**
-     * 加密模式
+     * encryption mode
      */
     private static final int ENCRYPT_MODE = 1;
 
@@ -89,12 +89,12 @@ public class DesUtil {
     public static final String DES_KEY = "dbhub";
 
     /**
-     * 解密模式
+     * Decryption mode
      */
     private static final int DECRYPT_MODE = 2;
 
     /**
-     * 密钥
+     * private key
      */
     private Key key;
 
@@ -111,8 +111,8 @@ public class DesUtil {
     }
 
     /**
-     * 通过密钥获得key
-     * @param secretKey 密钥
+     * Get key through private key
+     * @param secretKey private key
      * @author sucb
      * @date 2017年2月28日下午1:17:58
      */
@@ -138,13 +138,13 @@ public class DesUtil {
     }
 
     /**
-     * 字符串des加密
-     * @param data 需要加密的字符串
-     * @param encryptType 加密模式 (ECB/CBC/OFB/CFB)
-     * @return 加密结果
-     * @throws Exception 异常
+     * String des encryption
+     * @param data String that needs to be encrypted
+     * @param encryptType encryption mode (ECB/CBC/OFB/CFB)
+     * @return Encryption result
+     * @throws Exception exception
      * @author sucb
-     * @date 2017年3月2日下午7:47:37
+     * @date March 2, 2017 7:47:37 pm
      */
     public String encrypt(String data, String encryptType) throws Exception {
         Cipher cipher = getPattern(encryptType, ENCRYPT_MODE);
@@ -153,13 +153,13 @@ public class DesUtil {
     }
 
     /**
-     * 字符串des解密
-     * @param data 需要解密的字符串
-     * @param decryptType  解密模式 (ECB/CBC/OFB/CFB)
-     * @return 解密结果
-     * @throws Exception 异常
+     * String decryption
+     * @param data The string that needs to be decrypted
+     * @param decryptType  Decryption mode (ECB/CBC/OFB/CFB)
+     * @return Decryption result
+     * @throws Exception exception
      * @author sucb
-     * @date 2017年3月2日下午7:48:21
+     * @date March 2, 2017 7:48:21 pm
      */
     public String decrypt(String data, String decryptType) throws Exception {
         if (StringUtils.isBlank(data)) {
@@ -171,13 +171,13 @@ public class DesUtil {
     }
 
     /**
-     * 初始化cipher
-     * @param type  加密/解密模式 (ECB/CBC/OFB/CFB)
-     * @param cipherMode cipher工作模式 1：加密； 2：解密
+     * Initialize cipher
+     * @param type  Encryption/decryption mode (ECB/CBC/OFB/CFB)
+     * @param cipherMode cipher working mode 1: encryption; 2: decryption
      * @return cipher
-     * @throws Exception 异常
+     * @throws Exception exception
      * @author sucb
-     * @date 2017年3月2日下午7:49:16
+     * @date March 2, 2017 7:49:16 pm
      */
     private Cipher getPattern(String type, int cipherMode) throws Exception {
         Cipher cipher;
@@ -203,13 +203,13 @@ public class DesUtil {
     }
 
     /**
-     * 文件 file 进行加密并保存目标文件 destFile 中
-     * @param file 要加密的文件 如 c:/test/file.txt
-     * @param destFile 加密后存放的文件名 如 c:/ 加密后文件 .txt
-     * @param encryptType 加密模式 (ECB/CBC/OFB/CFB)
-     * @return 加密结果   0：异常 1：加密成功； 5：未找到需要加密的文件
+     * The file file is encrypted and saved in the target file destFile.
+     * @param file The file to be encrypted such as c:/test/file.txt
+     * @param destFile The name of the file stored after encryption, such as c:/ encrypted file .txt
+     * @param encryptType encryption mode (ECB/CBC/OFB/CFB)
+     * @return Encryption result 0: Abnormal 1: Encryption successful; 5: File to be encrypted not found
      * @author sucb
-     * @date 2017年3月2日下午7:56:08
+     * @date March 2, 2017 7:56:08 pm
      */
     public int encryptFile(String file, String destFile, String encryptType) {
         int result = 0;
@@ -236,13 +236,13 @@ public class DesUtil {
     }
 
     /**
-     * 文件 file 进行解密并保存目标文件 destFile 中
-     * @param file 要解密的文件 如 c:/test/file.txt
-     * @param destFile 解密后存放的文件名 如 c:/ 解密后文件 .txt
-     * @param decryptType 解密模式 (ECB/CBC/OFB/CFB)
-     * @return 解密结果 0：解密异常；1：解密正常；5：未找到需要解密的文件
+     * The file file is decrypted and saved in the target file destFile.
+     * @param file The file to be decrypted such as c:/test/file.txt
+     * @param destFile The name of the file stored after decryption, such as c:/ decrypted file .txt
+     * @param decryptType Decryption mode (ECB/CBC/OFB/CFB)
+     * @return Decryption result 0: decryption abnormal; 1: decryption normal; 5: file to be decrypted not found
      * @author sucb
-     * @date 2017年3月2日下午7:58:56
+     * @date March 2, 2017 7:58:56 pm
      */
     public int decryptFile(String file, String destFile, String decryptType) {
         int result = 0;

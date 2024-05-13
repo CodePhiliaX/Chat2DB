@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 描述：OpenAIEventSourceListener
+ * description：OpenAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -66,7 +66,7 @@ public class FastChatAIEventSourceListener extends EventSourceListener {
         log.info("Model={} is created at {}.", chatCompletions.getId(),
             chatCompletions.getCreated());
         for (FastChatChoice choice : chatCompletions.getChoices()) {
-            FastChatMessage message = choice.getMessage();
+            FastChatMessage message = choice.getDelta();
             if (message != null) {
                 log.info("Index: {}, Chat Role: {}", choice.getIndex(), message.getRole());
                 if (message.getContent() != null) {

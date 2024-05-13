@@ -1,25 +1,25 @@
-import React, { useCallback, forwardRef, ForwardedRef, useImperativeHandle, useMemo, useState, useEffect } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input, Modal } from 'antd';
-import MonacoEditor, { IExportRefFunction } from '@/components/Console/MonacoEditor';
+import MonacoEditor, { IExportRefFunction } from '@/components/MonacoEditor';
 import { v4 as uuid } from 'uuid';
 import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 import { debounce } from 'lodash';
 import { DatabaseTypeCode } from '@/constants';
+import { setOpenCreateDatabaseModal } from '@/pages/main/workspace/store/modal';
 
 interface IProps {
-  className?: string;
-  curWorkspaceParams: any;
+  relyOnParams: {
+    databaseType: DatabaseTypeCode;
+    dataSourceId: number;
+    databaseName?: string;
+  };
   executedCallback?: () => void;
 }
 
 export type CreateType = 'database' | 'schema';
-
-export interface ICreateDatabaseRef {
-  setOpen: (open: boolean, type?: CreateType) => void;
-}
 
 export interface ICreateDatabase {
   databaseName?: string;
@@ -30,8 +30,7 @@ export interface ICreateDatabase {
 // 创建database不支持注释的数据库
 const noCommentDatabase = [DatabaseTypeCode.MYSQL];
 
-export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>) => {
-  const { className, curWorkspaceParams, executedCallback } = props;
+const CreateDatabase = () => {
   const [form] = Form.useForm<ICreateDatabase>();
   const monacoEditorUuid = useMemo(() => uuid(), []);
   const monacoEditorRef = React.useRef<IExportRefFunction>(null);
@@ -41,6 +40,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
   );
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [createType, setCreateType] = useState<CreateType>('database');
+  const [relyOnParams, setRelyOnParams] = useState<IProps['relyOnParams'] | null>(null);
+  const executedCallbackRef = React.useRef<IProps['executedCallback']>();
 
   useEffect(() => {
     if (!open) {
@@ -64,15 +65,6 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         };
   }, [createType]);
 
-  const exposedSetOpen = (_open: boolean, type?: CreateType) => {
-    setOpen(_open);
-    setCreateType(type || 'database');
-  };
-
-  useImperativeHandle(ref, () => ({
-    setOpen: exposedSetOpen,
-  }));
-
   const labelCol = { flex: '70px' };
 
   const handleFieldsChange = useCallback(
@@ -85,24 +77,24 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         return;
       }
       const params = {
-        databaseType: curWorkspaceParams.databaseType,
-        dataSourceId: curWorkspaceParams.dataSourceId,
-        databaseName: curWorkspaceParams.databaseName,
+        databaseType: relyOnParams?.databaseType,
+        dataSourceId: relyOnParams?.dataSourceId,
+        databaseName: relyOnParams?.databaseName,
         ...formData,
       };
-      config.api(params).then((res) => {
+      config.api(params as any).then((res) => {
         const { sql } = res;
         monacoEditorRef.current?.setValue(sql, 'cover');
       });
     }, 500),
-    [curWorkspaceParams, createType, monacoEditorRef, config],
+    [relyOnParams, createType, monacoEditorRef, config],
   );
 
   const executeUpdateDataSql = (sql: string) => {
     const params: any = {
-      dataSourceId: curWorkspaceParams.dataSourceId,
-      databaseType: curWorkspaceParams.databaseType,
-      databaseName: curWorkspaceParams.databaseName,
+      dataSourceId: relyOnParams?.dataSourceId,
+      databaseType: relyOnParams?.databaseType,
+      databaseName: relyOnParams?.databaseName,
       sql,
     };
     setConfirmLoading(true);
@@ -112,7 +104,7 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
       .then((res) => {
         if (res.success) {
           setOpen(false);
-          executedCallback?.();
+          executedCallbackRef.current?.();
         } else {
           setErrorMessage(res);
         }
@@ -127,7 +119,26 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
     executeUpdateDataSql(sql);
   };
 
-  return (
+  const openCreateDatabaseModal = (params: {
+    type: CreateType;
+    relyOnParams: {
+      databaseType: DatabaseTypeCode;
+      dataSourceId: number;
+      databaseName?: string;
+    };
+    executedCallback?: () => void;
+  }) => {
+    setOpen(true);
+    setCreateType(params.type);
+    setRelyOnParams(params.relyOnParams);
+    executedCallbackRef.current = params.executedCallback;
+  };
+
+  useEffect(() => {
+    setOpenCreateDatabaseModal(openCreateDatabaseModal);
+  }, []);
+
+  return (!!relyOnParams && (
     <Modal
       onCancel={() => {
         setOpen(false);
@@ -138,12 +149,12 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
       open={open}
       onOk={onOk}
     >
-      <div className={classnames(styles.box, className)}>
+      <div className={styles.createDatabaseDom}>
         <Form labelAlign="left" form={form} labelCol={labelCol} onFieldsChange={handleFieldsChange} name="create">
           <Form.Item label={i18n('common.label.name')} name={config.formName}>
             <Input autoComplete="off" />
           </Form.Item>
-          {noCommentDatabase.includes(curWorkspaceParams.databaseType) ? null : (
+          {noCommentDatabase.includes(relyOnParams.databaseType) ? null : (
             <Form.Item label={i18n('common.label.comment')} name="comment">
               <Input autoComplete="off" />
             </Form.Item>
@@ -173,5 +184,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ICreateDatabaseRef>)
         )}
       </div>
     </Modal>
-  );
-});
+  ))
+
+};
+
+export default CreateDatabase;

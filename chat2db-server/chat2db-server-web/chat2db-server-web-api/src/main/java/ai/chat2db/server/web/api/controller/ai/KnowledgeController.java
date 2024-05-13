@@ -42,7 +42,7 @@ public class KnowledgeController extends ChatController {
 
 
     /**
-     * chat的超时时间
+     * chat timeout
      */
     private static final Long CHAT_TIMEOUT = Duration.ofMinutes(50).toMillis();
 
@@ -113,7 +113,7 @@ public class KnowledgeController extends ChatController {
                 contents.add(data.getContent());
             }
 
-            prompt = String.format("基于%s。请回答%s。", JSON.toJSONString(contents), prompt);
+            prompt = String.format("Based on %s. Please answer %s.", JSON.toJSONString(contents), prompt);
             queryRequest.setMessage(prompt);
         }
 

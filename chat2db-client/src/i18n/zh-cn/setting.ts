@@ -6,6 +6,7 @@ export default {
   'setting.nav.aboutUs': '关于我们',
   'setting.title.backgroundColor': '背景色',
   'setting.title.themeColor': '主题色',
+  'setting.title.sqlEditorFontSize': 'SQL编辑器字体大小',
   'setting.label.blue': '蓝蓬釉',
   'setting.label.green': '极光绿',
   'setting.label.violet': '酱紫',
@@ -20,7 +21,7 @@ export default {
   'setting.tab.aiType.baichuan': '百川',
   'setting.tab.aiType.wenxin': '文心一言',
   'setting.tab.aiType.tongyiqianwen': '通义千问',
-  'setting.tab.aiType.custom.tips': "接口格式与OpenAI接口格式一致",
+  'setting.tab.aiType.custom.tips': '接口格式与OpenAI接口格式一致',
   'setting.label.serviceAddress': '服务地址',
   'setting.button.apply': '应用',
   'setting.text.currentEnv': '当前环境',
@@ -53,5 +54,8 @@ export default {
   'setting.text.newEditionIsReady': '新版本已下载完成, 重启软件将会安装新版本',
   'setting.button.goToUpdate': '前往更新',
   'setting.text.UpdatedLatestVersion': '已更新到最新版本 {1}',
-
+  'setting.title.holdingService': '保持服务',
+  'setting.text.holdingService': '退出应用时保持服务，加快启动速度',
+  'setting.chat2db.ai.button': '请前往 Chat2DB Pro 体验更为强大的AI功能',
+  'setting.title.goto.chat2db.pro': '前往Chat2DB Pro',
 };

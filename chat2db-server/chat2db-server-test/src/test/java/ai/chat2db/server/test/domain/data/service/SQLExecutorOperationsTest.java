@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
- * 数据源测试
+ * Data source testing
  *
  * @author Jiaju Zhuang
  */
@@ -37,7 +37,7 @@ public class SQLExecutorOperationsTest extends BaseTest {
             String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, null);
-            // 创建
+            // creat
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
             dataSourceCreateParam.setType(dbTypeEnum);
@@ -45,10 +45,10 @@ public class SQLExecutorOperationsTest extends BaseTest {
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             ActionResult dataSourceConnect = dataSourceService.preConnect(dataSourceCreateParam);
-            Assertions.assertTrue(dataSourceConnect.getSuccess(), "创建数据库连接池失败");
-            // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "创建数据库连接池失败");
+            Assertions.assertTrue(dataSourceConnect.getSuccess(), "Failed to create database connection pool");
+            // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "Failed to create database connection pool");
 
-            // 关闭
+            // cloes
             dataSourceService.close(dataSourceId);
             TestUtils.remove();
         }
@@ -60,7 +60,7 @@ public class SQLExecutorOperationsTest extends BaseTest {
         for (DialectProperties dialectProperties : dialectPropertiesList) {
             String dbTypeEnum = dialectProperties.getDbType();
 
-            // 创建
+            // creat
             DataSourcePreConnectParam dataSourceCreateParam = new DataSourcePreConnectParam();
 
             dataSourceCreateParam.setType(dbTypeEnum);
@@ -68,8 +68,8 @@ public class SQLExecutorOperationsTest extends BaseTest {
             dataSourceCreateParam.setUser(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             ActionResult dataSourceConnect = dataSourceService.preConnect(dataSourceCreateParam);
-            log.info("创建数据库返回:{}", JSON.toJSONString(dataSourceConnect));
-            Assertions.assertFalse(dataSourceConnect.getSuccess(), "创建数据库失败错误");
+            log.info("Create database returns: {}", JSON.toJSONString(dataSourceConnect));
+            Assertions.assertFalse(dataSourceConnect.getSuccess(), "Database creation failed error");
         }
     }
     @Test
@@ -82,7 +82,7 @@ public class SQLExecutorOperationsTest extends BaseTest {
             String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
             TestUtils.buildContext(dialectProperties, dataSourceId, null);
-            // 创建
+            // creat
             DataSourceCreateParam dataSourceCreateParam = new DataSourceCreateParam();
             dataSourceCreateParam.setAlias(dialectProperties.getDbType()+"_unittest_"+dialectProperties.getDbType());
             dataSourceCreateParam.setType(dbTypeEnum);
@@ -90,8 +90,8 @@ public class SQLExecutorOperationsTest extends BaseTest {
             dataSourceCreateParam.setUserName(dialectProperties.getUsername());
             dataSourceCreateParam.setPassword(dialectProperties.getPassword());
             DataResult<Long> dataSourceConnect = dataSourceService.createWithPermission(dataSourceCreateParam);
-            Assertions.assertTrue(dataSourceConnect.getSuccess(), "创建数据库连接池失败");
-            // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "创建数据库连接池失败");
+            Assertions.assertTrue(dataSourceConnect.getSuccess(), "Failed to create database connection pool");
+            // Assertions.assertTrue(DataCenterUtils.JDBC_ACCESSOR_MAP.containsKey(dataSourceId), "Failed to create database connection pool");
         }
     }
 

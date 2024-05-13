@@ -9,7 +9,6 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
@@ -31,9 +30,12 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
 
     private List<String> systemDatabases = Arrays.asList("SAMPLES", "SECURITY");
 
+
+    private List<String> systemSchemas = Arrays.asList("pg_toast","pg_temp_1","pg_toast_temp_1","pg_catalog","information_schema");
+
     @Override
     public List<Database> databases(Connection connection) {
-        List<Database> list = SQLExecutor.getInstance().executeSql(connection, "SELECT datname FROM sys_database", resultSet -> {
+        List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT datname FROM sys_database", resultSet -> {
             List<Database> databases = new ArrayList<>();
             try {
                 while (resultSet.next()) {
@@ -203,5 +205,15 @@ public class KingBaseMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String getMetaDataName(String... names) {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
     }
 }

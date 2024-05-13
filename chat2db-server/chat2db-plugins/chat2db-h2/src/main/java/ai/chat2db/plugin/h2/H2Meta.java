@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import ai.chat2db.plugin.h2.builder.H2SqlBuilder;
 import ai.chat2db.spi.MetaData;
@@ -14,6 +15,7 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 
 public class H2Meta extends DefaultMetaService implements MetaData {
 
@@ -32,7 +34,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
 
     private String getDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         try {
-            // 查询表结构信息
+            // Query table structure information
             ResultSet columns = connection.getMetaData().getColumns(databaseName, schemaName, tableName, null);
             List<String> columnDefinitions = new ArrayList<>();
             while (columns.next()) {
@@ -57,7 +59,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
                 columnDefinitions.add(columnDefinition.toString());
             }
 
-            // 查询表索引信息
+            // Query table index information
             ResultSet indexes = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName, false,
                 false);
             Map<String, List<String>> indexMap = new HashMap<>();
@@ -75,7 +77,7 @@ public class H2Meta extends DefaultMetaService implements MetaData {
             createTableDDL.append(tableName).append(" (\n");
             createTableDDL.append(String.join(",\n", columnDefinitions));
             createTableDDL.append("\n);\n");
-            // 输出索引信息
+            // Output index information
             for (Map.Entry<String, List<String>> entry : indexMap.entrySet()) {
                 String indexName = entry.getKey();
                 List<String> columnList = entry.getValue();
@@ -198,4 +200,14 @@ public class H2Meta extends DefaultMetaService implements MetaData {
         return new H2SqlBuilder();
     }
 
+
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
+    }
 }

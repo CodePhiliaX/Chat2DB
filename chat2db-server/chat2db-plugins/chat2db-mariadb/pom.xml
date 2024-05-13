@@ -28,7 +28,7 @@
             <resource>
                 <directory>src/main/java</directory>
                 <includes>
-                    <!--properties的配置文件会和编译后的class文件放在一起-->
+                    <!--The properties configuration file will be placed together with the compiled class file-->
                     <include>**/*.json</include>
                 </includes>
             </resource>

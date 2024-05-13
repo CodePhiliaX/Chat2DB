@@ -8,14 +8,14 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ConnectionQueryRequest.java, v 0.1 2022年09月16日 14:23 moji Exp $
+ * @version ConnectionQueryRequest.java, v 0.1 September 16, 2022 14:23 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class DdlExportRequest extends DataSourceBaseRequest {
 
     /**
-     * 表名称
+     * Table Name
      */
     @NotNull
     private String tableName;

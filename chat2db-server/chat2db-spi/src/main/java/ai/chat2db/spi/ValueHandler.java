@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public interface ValueHandler {
 
     /**
-     * 处理结果集中的列值
+     * Process column values in the result set
      * @param rs
      * @param index
      * @param limitSize

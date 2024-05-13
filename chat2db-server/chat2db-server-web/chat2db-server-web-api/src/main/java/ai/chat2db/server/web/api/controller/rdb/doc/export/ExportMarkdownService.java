@@ -40,17 +40,17 @@ public class ExportMarkdownService extends DatabaseExportService {
                 .stream().collect(Collectors.groupingBy(v -> v.getKey().split("---")[0]));
         try (BufferedWriter fileWriter = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
             for (Map.Entry<String, List<Map.Entry<String, List<TableParameter>>>> myMap : allMap.entrySet()) {
-                //数据库名
+                //Database name
                 String database = myMap.getKey();
                 String title = String.format(PatternConstant.TITLE, I18nUtils.getMessage("main.databaseText") + database);
                 fileWriter.write(title);
                 writeLineSeparator(fileWriter, 2);
                 for (Map.Entry<String, List<TableParameter>> parameterMap : myMap.getValue()) {
-                    //表名
+                    //Table Name
                     String tableName = parameterMap.getKey().split("---")[1];
                     fileWriter.write(String.format(PatternConstant.CATALOG, tableName));
                     writeLineSeparator(fileWriter, 1);
-                    //索引Table
+                    //IndexTable
                     if (!indexMap.isEmpty()) {
                         fileWriter.write(PatternConstant.ALL_INDEX_TABLE_HEADER);
                         writeLineSeparator(fileWriter, 1);
@@ -69,7 +69,7 @@ public class ExportMarkdownService extends DatabaseExportService {
                     writeLineSeparator(fileWriter, 1);
                     fileWriter.write(PatternConstant.TABLE_SEPARATOR);
                     writeLineSeparator(fileWriter, 1);
-                    //字段Table
+                    //FieldTable
                     List<TableParameter> exportList = parameterMap.getValue();
                     for (TableParameter tableParameter : exportList) {
                         fileWriter.write(String.format(PatternConstant.TABLE_BODY, getColumnValues(tableParameter)));

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * <p>
- * table cache Mapper 接口
+ * table cache Mapper interface
  * </p>
  *
  * @author chat2db

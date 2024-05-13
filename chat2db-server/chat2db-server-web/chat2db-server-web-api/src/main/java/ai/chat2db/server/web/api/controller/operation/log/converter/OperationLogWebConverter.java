@@ -15,14 +15,14 @@ import org.mapstruct.Mappings;
 
 /**
  * @author moji
- * @version HistoryWebConverter.java, v 0.1 2022年09月25日 16:53 moji Exp $
+ * @version HistoryWebConverter.java, v 0.1 September 25, 2022 16:53 moji Exp $
  * @date 2022/09/25
  */
 @Mapper(componentModel = "spring")
 public abstract class OperationLogWebConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -30,7 +30,7 @@ public abstract class OperationLogWebConverter {
     public abstract OperationLogCreateParam createReq2param(OperationLogCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -38,7 +38,7 @@ public abstract class OperationLogWebConverter {
     public abstract OperationLogPageQueryParam req2param(OperationLogQueryRequest request);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param ddlDTO
      * @return
@@ -50,7 +50,7 @@ public abstract class OperationLogWebConverter {
     public abstract OperationLogVO dto2vo(OperationLog ddlDTO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param ddlDTOS
      * @return

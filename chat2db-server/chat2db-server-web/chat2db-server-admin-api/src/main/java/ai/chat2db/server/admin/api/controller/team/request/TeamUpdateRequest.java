@@ -11,19 +11,19 @@ import lombok.Data;
 @Data
 public class TeamUpdateRequest {
     /**
-     * 主键
+     * primary key
      */
     @NotNull
     private Long id;
 
     /**
-     * 团队名称
+     * Team Name
      */
     @NotNull
     private String name;
 
     /**
-     * 团队状态
+     * Team status
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */
@@ -31,7 +31,7 @@ public class TeamUpdateRequest {
     private String status;
 
     /**
-     * 角色编码
+     * role coding
      *
      * @see ai.chat2db.server.domain.api.enums.RoleCodeEnum
      */
@@ -39,7 +39,7 @@ public class TeamUpdateRequest {
     private String roleCode;
 
     /**
-     * 团队描述
+     * Team description
      */
     private String description;
 }

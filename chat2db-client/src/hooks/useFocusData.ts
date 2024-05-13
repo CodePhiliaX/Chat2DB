@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useCommonStore } from '@/store/common';
 import { tableCopy, copy } from '@/utils'
+import { setFocusedContent } from '@/store/common/copyFocusedContent';
 
 // 如果用户点击的不是可复制的元素，就清空选中的内容
 function useCopyFocusData() {
-  const { setFocusedContent, focusedContent } = useCommonStore((state) => {
+  const { focusedContent } = useCommonStore((state) => {
     return {
-      setFocusedContent: state.setFocusedContent,
       focusedContent: state.focusedContent
     }
   });

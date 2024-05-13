@@ -27,7 +27,7 @@ public class Schema implements Serializable {
     @JsonAlias({"TABLE_CATALOG","table_catalog"})
     private String databaseName;
     /**
-     * 数据名字
+     * Data name
      */
     @JsonAlias({"TABLE_SCHEM","table_schem"})
     private String name;

@@ -6,7 +6,7 @@ import ai.chat2db.server.tools.base.enums.BaseEnum;
 import lombok.Getter;
 
 /**
- * AI SQL选择的AI模型类型
+ * AI model type selected by AI SQL
  *
  * @author moji
  */
@@ -72,7 +72,7 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
     }
 
     /**
-     * 通过名称获取枚举
+     * Get enum by name
      *
      * @param name
      * @return

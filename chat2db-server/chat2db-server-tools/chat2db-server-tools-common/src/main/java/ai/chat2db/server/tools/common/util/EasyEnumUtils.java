@@ -9,25 +9,27 @@ import java.util.stream.Collectors;
 import ai.chat2db.server.tools.base.enums.BaseEnum;
 
 /**
- * enum工具类
+ * enum tool class
  * <p>
- * 主要为了解决每个枚举都需要写一个根据code 获取value 的函数，看起来不太友好
+ * Mainly to solve the problem of each enumeration,
+ * you need to write a function to get the value according to the code,
+ * which does not seem very friendly.
  *
  * @author Jiaju Zhuang
  */
 public class EasyEnumUtils {
     /**
-     * 枚举缓存 不用每次都去循环读取枚举
+     * Enumeration cache does not need to loop to read the enumeration every time
      */
     private static final Map<String, Map<?, BaseEnum<?>>> ENUM_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * 根据一个枚举类型获取 枚举的描述
+     * Get the description of the enumeration based on an enumeration type
      *
-     * @param clazz 枚举的class
-     * @param code  枚举的编码
-     * @param <T>   枚举的类型
-     * @return 找不到code 则返回为空
+     * @param clazz enumeration class
+     * @param code Enumeration encoding
+     * @param <T> The type of enumeration
+     * @return If the code cannot be found, the return value is empty.
      */
     public static <T extends BaseEnum<?>> String getDescription(final Class<T> clazz, final String code) {
         BaseEnum<?> baseEnum = getEnum(clazz, code);
@@ -38,37 +40,37 @@ public class EasyEnumUtils {
     }
 
     /**
-     * 根据一个枚举类型获取 枚举的描述
+     * Get the description of the enumeration based on an enumeration type
      *
-     * @param clazz 枚举的class
-     * @param code  枚举的编码
-     * @param <T>   枚举的类型
-     * @return 找不到code 则返回为空
+     * @param clazz enumeration class
+     * @param code Enumeration encoding
+     * @param <T> The type of enumeration
+     * @return If the code cannot be found, the return value is empty.
      */
     public static <T extends BaseEnum<?>> T getEnum(final Class<T> clazz, final String code) {
         return getEnumMap(clazz).get(code);
     }
 
     /**
-     * 校验是否是一个有效的枚举
+     * Verify whether it is a valid enumeration
      *
-     * @param clazz 枚举的class
-     * @param code  枚举的编码 , null 也认为是一个有效的枚举
-     * @param <T>   枚举的类型
-     * @return 是否有效
+     * @param clazz enumeration class
+     * @param code the encoding of the enumeration, null is also considered a valid enumeration
+     * @param <T> The type of enumeration
+     * @return Is it valid?
      */
     public static <T extends BaseEnum<?>> boolean isValidEnum(final Class<T> clazz, final String code) {
         return isValidEnum(clazz, code, true);
     }
 
     /**
-     * 校验是否是一个有效的枚举
+     * Verify whether it is a valid enumeration
      *
-     * @param clazz      枚举的class
-     * @param code       枚举的编码,为空认为是一个无效的枚举
-     * @param ignoreNull 是否忽略空的code
-     * @param <T>        枚举的类型
-     * @return 是否有效
+     * @param clazz enumeration class
+     * @param code The encoding of the enumeration. If it is empty, it is considered an invalid enumeration.
+     * @param ignoreNull whether to ignore empty codes
+     * @param <T> The type of enumeration
+     * @return Is it valid?
      */
     public static <T extends BaseEnum<?>> boolean isValidEnum(final Class<T> clazz, final String code,
         final boolean ignoreNull) {
@@ -79,10 +81,10 @@ public class EasyEnumUtils {
     }
 
     /**
-     * 获取一个枚举的code  Enum的map
+     * Get the map of an enumerated code Enum
      *
-     * @param clazz 枚举的class
-     * @param <T>   枚举的类型
+     * @param clazz enumeration class
+     * @param <T> The type of enumeration
      * @return Map<code, Enum>
      */
     public static <T extends BaseEnum<?>> Map<String, T> getEnumMap(final Class<T> clazz) {

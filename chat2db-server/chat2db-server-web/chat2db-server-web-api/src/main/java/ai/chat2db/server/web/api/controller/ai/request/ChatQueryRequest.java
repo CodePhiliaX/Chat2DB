@@ -8,39 +8,39 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import lombok.Data;
 
 /**
- * chat查询入参
+ * Chat query input parameters
  *
  * @author moji
- * @version ChatQueryRequest.java, v 0.1 2023年04月02日 13:28 moji Exp $
+ * @version ChatQueryRequest.java, v 0.1 April 2, 2023 13:28 moji Exp $
  * @date 2023/04/02
  */
 @Data
 public class ChatQueryRequest extends DataSourceBaseRequest {
 
     /**
-     * 输入消息
+     * Enter message
      */
     private String message;
 
     /**
-     * SQL功能类型
+     * SQL function type
      * @see PromptType
      */
     private String promptType;
 
     /**
-     * 表名列表
+     * table name list
      */
     private List<String> tableNames;
 
     /**
-     * 目标SQL数据类型
+     * Target SQL data type
      * @see ai.chat2db.server.domain.support.enums.DbTypeEnum
      */
     private String destSqlType;
 
     /**
-     * 更多备注信息：如要求或限制条件等
+     * More remarks: such as requirements or restrictions, etc.
      */
     private String ext;
 }

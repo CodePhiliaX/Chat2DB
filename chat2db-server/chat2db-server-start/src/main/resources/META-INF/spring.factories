@@ -1,3 +1,0 @@
-org.springframework.context.ApplicationListener=\
-ai.chat2db.server.start.config.listener.ManageApplicationListener,\
-ai.chat2db.server.start.config.listener.FailedEventApplicationListener

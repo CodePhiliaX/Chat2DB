@@ -41,13 +41,14 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
     DATE("DATE", false, false, true, false, false, false, true, true, false, false),
 
     DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
+    DEC("DEC", true, true, true, false, false, false, true, true, false, false),
 
     DOUBLE("DOUBLE", false, false, true, false, false, false, true, true, false, false),
 
 
     FLOAT("FLOAT", true, false, true, false, false, false, true, true, false, false),
 
-    INT("INT", false, false, true, false, false, false, true, true, false, false),
+    INT("INT", false, false, true, true, false, false, true, true, false, false),
 
     // INTEGER("INTEGER", false, false, true, false, false, false, true, true, false, false),
 
@@ -84,7 +85,8 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
     LONGVARBINARY("LONGVARBINARY", false, false, true, false, false, false, true, true, false, false),
 
 
-    LONGVARCHAR("LONGVARCHAR", true, false, true, false, false, false, true, true, false, false),
+    LONGVARCHAR("LONGVARCHAR", false, false, true, false, false, false, true, true, false, false),
+    TEXT("TEXT", false, false, true, false, false, false, true, true, false, false),
 
 
     NUMBERIC("NUMBERIC", true, true, true, false, false, false, true, true, false, false),
@@ -159,11 +161,26 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDefaultValue(column, type)).append(" ");
 
+        script.append(buildAutoIncrement(column,type)).append(" ");
+
         script.append(buildNullable(column, type)).append(" ");
 
         return script.toString();
     }
 
+    private String buildAutoIncrement(TableColumn column, DMColumnTypeEnum type) {
+        if(!type.getColumnType().isSupportAutoIncrement()){
+            return "";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()
+                && column.getSeed() != null && column.getSeed() > 0 && column.getIncrement() != null && column.getIncrement() > 0) {
+            return "IDENTITY(" + column.getSeed() + "," + column.getIncrement() + ")";
+        }
+        if (column.getAutoIncrement() != null && column.getAutoIncrement()) {
+            return "IDENTITY(1,1)";
+        }
+        return "";
+    }
 
     private String buildNullable(TableColumn column, DMColumnTypeEnum type) {
         if (!type.getColumnType().isSupportNullable()) {
@@ -194,7 +211,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
 
     private String buildDataType(TableColumn column, DMColumnTypeEnum type) {
         String columnType = type.columnType.getTypeName();
-        if (Arrays.asList(CHAR, VARCHAR, VARCHAR2, LONGVARCHAR).contains(type)) {
+        if (Arrays.asList(CHAR, VARCHAR, VARCHAR2, LONGVARCHAR,TEXT).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && StringUtils.isEmpty(column.getUnit())) {
@@ -205,7 +222,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
             return script.toString();
         }
 
-        if (Arrays.asList(DECIMAL, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
+        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {

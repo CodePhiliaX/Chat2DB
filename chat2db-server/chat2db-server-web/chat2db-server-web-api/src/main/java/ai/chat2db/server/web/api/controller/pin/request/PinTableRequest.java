@@ -14,18 +14,18 @@ import lombok.experimental.SuperBuilder;
 public class PinTableRequest {
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
     /**

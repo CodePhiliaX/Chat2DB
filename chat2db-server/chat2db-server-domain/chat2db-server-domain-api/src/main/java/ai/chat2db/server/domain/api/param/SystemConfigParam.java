@@ -22,17 +22,17 @@ public class SystemConfigParam implements Serializable {
     private static final long serialVersionUID = 7969235263543844658L;
 
     /**
-     * 配置项code
+     * Configuration item code
      */
     private String code;
 
     /**
-     * 配置项内容
+     * Configuration item content
      */
     private String content;
 
     /**
-     * 配置摘要
+     * Configuration summary
      */
     private String summary;
 

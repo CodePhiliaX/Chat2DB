@@ -8,7 +8,7 @@ import lombok.Data;
 public class NewTableSqlRequest extends DataSourceBaseRequest {
 
     /**
-     * 新的表结构
+     * new table structure
      */
     @NotNull
     private TableRequest newTable;

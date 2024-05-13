@@ -6,19 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimpleTable {
+public class SimpleTable implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
-     * 表名
+     * Table Name
      */
     @JsonAlias({"TABLE_NAME"})
     private String name;
 
     /**
-     * 描述
+     * description
      */
     @JsonAlias({"REMARKS"})
 

@@ -14,44 +14,44 @@ import lombok.Data;
 @Data
 public class TeamPageQueryVO {
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 团队编码
+     * team coding
      */
     private String code;
 
     /**
-     * 团队名称
+     * Team Name
      */
     private String name;
 
     /**
-     * 团队状态
+     * Team status
      *
      * @see ai.chat2db.server.domain.api.enums.ValidStatusEnum
      */
     private String status;
 
     /**
-     * 团队描述
+     * Team description
      */
     private String description;
 
     /**
-     * 修改时间
+     * Change the time
      */
     private Date gmtModified;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 修改人用户
+     * Modifier user
      */
     private SimpleUserVO modifiedUser;
 }

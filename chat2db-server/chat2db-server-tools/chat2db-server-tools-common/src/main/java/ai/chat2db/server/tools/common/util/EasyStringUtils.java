@@ -9,21 +9,21 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * String工具类
+ * String utility class
  *
  * @author Jiaju Zhuang
  */
 public class EasyStringUtils {
     /**
-     * 0的字符
+     * 0 characters
      */
     private static final char ZERO_CHAR = '0';
 
     /**
-     * 去掉工号前面的0
+     * Remove the 0 in front of the job number
      *
-     * @param userId 工号
-     * @return 修改后的工号
+     * @param userId employee ID
+     * @return modified job number
      */
     public static String cutUserId(String userId) {
         if (!org.apache.commons.lang3.StringUtils.isNumeric(userId)) {
@@ -32,14 +32,14 @@ public class EasyStringUtils {
         int startIndex = 0;
         for (int i = 0; i < userId.length(); i++) {
             char c = userId.charAt(i);
-            // 查询第一个不是0的位置
+            // Query the first position that is not 0
             if (ZERO_CHAR == c) {
                 startIndex = i + 1;
             } else {
                 break;
             }
         }
-        // 可能整个账号都是0
+        // Maybe the entire account is 0
         if (startIndex == userId.length()) {
             return "0";
         }
@@ -47,21 +47,21 @@ public class EasyStringUtils {
     }
 
     /**
-     * 去除花名后面的工号
+     * Remove the job number after the flower name
      *
-     * @param name 姓名或者花名
-     * @return 去除工号后的姓名或者花名
+     * @param name name or nickname
+     * @return the name or nickname after removing the work number
      */
     public static String cutName(String name, String workNo) {
         if (StringUtils.isBlank(workNo) || StringUtils.isBlank(name)) {
             return name;
         }
-        // 这里可能会出现 0结的情况
+        // There may be 0 knots here
         String cutName = RegExUtils.removeFirst(name, workNo);
         int lastIndex = cutName.length();
         for (int i = cutName.length() - 1; i >= 0; i--) {
             char c = cutName.charAt(i);
-            // 查询第最后一个不是0的位置
+            // Query the last position that is not 0
             if (ZERO_CHAR == c) {
                 lastIndex = i;
             } else {
@@ -72,10 +72,10 @@ public class EasyStringUtils {
     }
 
     /**
-     * 增加工号前面的0
+     * Add 0 in front of the job number
      *
-     * @param userId 工号
-     * @return 修改后的工号
+     * @param userId employee ID
+     * @return modified job number
      */
     public static String padUserId(String userId) {
         if (!StringUtils.isNumeric(userId)) {
@@ -85,11 +85,11 @@ public class EasyStringUtils {
     }
 
     /**
-     * 构建展示的名称
+     * Build the name of the display
      *
-     * @param name     姓名
-     * @param nickName 花名
-     * @return 展示名称 姓名（花名）
+     * @param name name
+     * @param nickName flower name
+     * @return display name name (flower name)
      */
     public static String buildShowName(String name, String nickName) {
         StringBuilder showName = new StringBuilder();
@@ -105,10 +105,10 @@ public class EasyStringUtils {
     }
 
     /**
-     * 将多个字符串 拼接在一起
+     * Splice multiple strings together
      *
-     * @param delimiter 分隔符 不能为空
-     * @param elements  字符串 可以为空 会忽略空的字符串
+     * @param delimiter delimiter cannot be empty
+     * @param elements string can be empty and empty strings will be ignored
      * @return
      */
     public static String join(CharSequence delimiter, CharSequence... elements) {
@@ -124,10 +124,10 @@ public class EasyStringUtils {
     }
 
     /**
-     * 限制一个string字符串的长度 ，超过长度 会用... 替换
+     * Limit the length of a string string. If it exceeds the length, it will be replaced with...
      *
-     * @param str    字符串
-     * @param length 限制长度
+     * @param str string
+     * @param length limit length
      * @return
      */
     public static String limitString(String str, int length) {

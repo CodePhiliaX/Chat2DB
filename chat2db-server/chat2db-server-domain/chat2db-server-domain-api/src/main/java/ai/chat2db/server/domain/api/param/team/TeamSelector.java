@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TeamSelector {
     /**
-     * 修改人用户
+     * Modifier user
      */
     private Boolean modifiedUser;
 

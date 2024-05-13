@@ -42,21 +42,21 @@ public class DatabaseExportService {
     @Getter
     public String contentType;
     /**
-     * 导出excel 集合
+     * Export excel collection
      **/
     @Setter
     @Getter
     public List<TableVO> exportList;
     /**
-     * 导出word、excel 表信息 集合
+     * Export word and excel table information collection
      **/
     public static Map<String, List<TableParameter>> listMap = new LinkedHashMap<>();
     /**
-     * 导出word 索引 集合
+     * Export word index collection
      **/
     public static Map<String, List<IndexInfo>> indexMap = new HashMap<>(0);
     /**
-     * 连接符
+     * Joiner
      **/
     public final static String JOINER = "---";
 
@@ -74,7 +74,7 @@ public class DatabaseExportService {
                 I18nUtils.getMessage("main.fieldDefault"),
                 I18nUtils.getMessage("main.fieldDecimalPlaces"),
                 I18nUtils.getMessage("main.fieldNote")};
-        // index表头
+        // index header
         StringBuilder mdIndex = new StringBuilder(PatternConstant.MD_SPLIT);
         StringBuilder htmlIndex = new StringBuilder("<tr><th>");
         for (int i = 0; i < CommonConstant.INDEX_HEAD_NAMES.length; i++) {
@@ -83,7 +83,7 @@ public class DatabaseExportService {
         }
         mdIndex.append(PatternConstant.MD_SPLIT);
         htmlIndex.append("</th></tr>");
-        // column 表头
+        // column header
         StringBuilder mdColumn = new StringBuilder(PatternConstant.MD_SPLIT);
         StringBuilder htmlColumn = new StringBuilder("<tr><th>");
         for (int i = 0; i < CommonConstant.COLUMN_HEAD_NAMES.length; i++) {
@@ -108,15 +108,15 @@ public class DatabaseExportService {
         try {
             export(outputStream, exportOptions);
         } catch (Exception e) {
-            throw new RuntimeException("导出失败！请联系开发者" + e);
+            throw new RuntimeException("Export failed! Please contact the developer" + e);
         }
         init();
     }
 
     /**
-     * 数据处理
+     * data processing
      *
-     * @param exportOptions 配置信息
+     * @param exportOptions Configuration information
      **/
     public void dataAssemble(String databaseName, ExportOptions exportOptions, TableVO item) {
         boolean isExportIndex = Optional.ofNullable(exportOptions.getIsExportIndex()).orElse(false);
@@ -139,9 +139,9 @@ public class DatabaseExportService {
             String str = key.substring(0, index);
             indexMap.put(str, vo2Info(item.getIndexList()));
         }
-        //赋值序号
+        //Assignment serial number
         for (Map.Entry<String, List<TableParameter>> map : listMap.entrySet()) {
-            //赋值序号
+            //Assignment serial number
             List<TableParameter> list = map.getValue();
             IntStream.range(0, list.size()).forEach(x -> {
                 list.get(x).setNo(String.valueOf(x + 1));
@@ -162,18 +162,18 @@ public class DatabaseExportService {
     }
 
     /**
-     * 导出
+     * Export
      *
-     * @param outputStream      文件流
+     * @param outputStream file stream
      **/
     public void export(OutputStream outputStream, ExportOptions exportOptions) {
 
     }
 
     /**
-     * 处理空串或null字符
+     * Handle empty string or null character
      *
-     * @param source 源字符
+     * @param source source character
      * @return java.lang.String
      **/
     public String dealWith(String source) {
@@ -204,6 +204,4 @@ public class DatabaseExportService {
         values[7] = StringUtils.isNull(tableParameter.getColumnComment());
         return values;
     }
-
-
 }

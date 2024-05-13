@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 上下文信息
+ * contextual information
  *
  * @author Jiaju Zhuang
  */
@@ -24,7 +24,7 @@ public class Context implements Serializable {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
 
     /***
-     * 用户信息
+     * User Info
      */
     private LoginUser loginUser;
 }

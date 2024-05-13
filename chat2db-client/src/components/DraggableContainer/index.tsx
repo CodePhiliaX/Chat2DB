@@ -4,29 +4,29 @@ import classnames from 'classnames';
 
 interface IProps {
   className?: string;
-  children: any; //TODO: TS，约定接受一个数组，第一项child需要携带ref
+  children: any; //TODO: TS，约定接受一个数组
   min?: number;
   layout?: 'row' | 'column';
-  callback?: (data: any) => void;
+  onResize?: (data: number) => void;
   showLine?: boolean;
 }
 
 export default memo<IProps>((props: IProps) => {
-  const { children, showLine = true, callback, min, className, layout = 'row' } = props;
-  const volatileRef = children[0]?.ref;
+  const { children, showLine = true, onResize, min, className, layout = 'row' } = props;
+  const volatileRef = children[0]?.ref || children[1]?.ref;
 
-  const DividerRef = useRef<HTMLDivElement | null>(null);
-  const DividerLine = useRef<HTMLDivElement | null>(null);
+  const dividerRef = useRef<HTMLDivElement | null>(null);
+  const dividerLine = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const isRow = layout === 'row';
 
   useEffect(() => {
-    if (!DividerRef.current) {
+    if (!dividerRef.current) {
       return;
     }
 
-    DividerRef.current.onmousedown = (e) => {
+    dividerRef.current.onmousedown = (e) => {
       if (!volatileRef?.current) return;
       e.preventDefault();
       setDragging(true);
@@ -47,7 +47,8 @@ export default memo<IProps>((props: IProps) => {
     const computedXY = nowClientXY - clientStart;
     let finalXY = 0;
 
-    finalXY = volatileBoxXY + computedXY;
+    // children 如果第一个是可变的，那么就是+ 如果第二个是可变的，那么就是-
+    finalXY = children[0]?.ref ? volatileBoxXY + computedXY : volatileBoxXY - computedXY;
 
     if (min && finalXY < min) {
       return;
@@ -57,7 +58,7 @@ export default memo<IProps>((props: IProps) => {
     } else {
       leftDom.style.height = finalXY + 'px';
     }
-    callback && callback(finalXY);
+    onResize && onResize(finalXY);
   };
 
   return (
@@ -66,10 +67,10 @@ export default memo<IProps>((props: IProps) => {
       {
         <div
           style={{ display: showLine ? 'block' : 'none' }}
-          ref={DividerLine}
+          ref={dividerLine}
           className={classnames(styles.divider, { [styles.displayDivider]: !children[1] })}
         >
-          <div ref={DividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
+          <div ref={dividerRef} className={classnames(styles.dividerCenter, { [styles.dragging]: dragging })} />
         </div>
       }
       {children[1]}

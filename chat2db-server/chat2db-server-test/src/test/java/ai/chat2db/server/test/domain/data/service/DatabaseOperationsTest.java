@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * 数据库测试
+ * Database testing
  *
  * @author Jiaju Zhuang
  */
@@ -42,7 +42,7 @@ public class DatabaseOperationsTest extends BaseTest {
             String dbTypeEnum = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
 
-            // 准备上下文
+            // Prepare context
             putConnect(dialectProperties.getUrl(), dialectProperties.getUsername(), dialectProperties.getPassword(),
                 dialectProperties.getDbType(), dialectProperties.getDatabaseName(), dataSourceId, null);
 
@@ -57,13 +57,13 @@ public class DatabaseOperationsTest extends BaseTest {
             DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
             databaseQueryAllParam.setDataSourceId(dataSourceId);
             ListResult<Database> databaseList = databaseService.queryAll(databaseQueryAllParam);
-            log.info("查询数据库返回:{}", JSON.toJSONString(databaseList));
+            log.info("Querying the database returns: {}", JSON.toJSONString(databaseList));
 
             Database Database = databaseList.getData().stream()
                 .filter(database -> dialectProperties.getDatabaseName().equals(database.getName()))
                 .findFirst()
                 .orElse(null);
-            Assertions.assertNotNull(Database, "查询数据库失败");
+            Assertions.assertNotNull(Database, "Query database failed");
 
             removeConnect();
         }

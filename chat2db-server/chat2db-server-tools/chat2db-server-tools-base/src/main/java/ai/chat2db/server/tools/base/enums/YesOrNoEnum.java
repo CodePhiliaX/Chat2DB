@@ -3,19 +3,19 @@ package ai.chat2db.server.tools.base.enums;
 import lombok.Getter;
 
 /**
- * 是否枚举
+ * Whether to enumerate
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Getter
 public enum YesOrNoEnum implements BaseEnum<String> {
 
     /**
-     * 是
+     * yes
      */
     YES("Y", "是", true),
     /**
-     * 未读
+     * no
      */
     NO("N", "否", false),
 
@@ -37,9 +37,9 @@ public enum YesOrNoEnum implements BaseEnum<String> {
     }
 
     /**
-     * 根据布尔值转换
+     * Convert based on boolean value
      *
-     * @param booleanValue 布尔值
+     * @param booleanValue Boolean value
      * @return
      */
     public static YesOrNoEnum valueOf(Boolean booleanValue) {

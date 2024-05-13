@@ -67,7 +67,7 @@ const ImportConnection: React.FC<IImportConnectionProps> = ({ open, onClose, onC
 
   return (
     <Modal
-      title="导入文件, .ncx(navicat) 或 .dbp(dbever)"
+      title={i18n('connection.title.importTitle')}
       open={open}
       onCancel={onClose}
       onOk={handleConfirmUpload}

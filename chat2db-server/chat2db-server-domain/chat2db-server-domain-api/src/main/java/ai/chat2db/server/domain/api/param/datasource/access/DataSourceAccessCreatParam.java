@@ -18,13 +18,13 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class DataSourceAccessCreatParam  {
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 授权类型
+     * Authorization type
      *
      * @see AccessObjectTypeEnum
      */
@@ -32,7 +32,7 @@ public class DataSourceAccessCreatParam  {
     private String accessObjectType;
 
     /**
-     * 授权id,根据类型区分是用户还是团队
+     * Authorization ID, distinguish whether it is a user or a team according to the type
      */
     @NotNull
     private Long accessObjectId;

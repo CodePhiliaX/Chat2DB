@@ -25,14 +25,14 @@ import org.mapstruct.Mappings;
 
 /**
  * @author moji
- * @version DataSourceWebConverter.java, v 0.1 2022年09月23日 16:45 moji Exp $
+ * @version DataSourceWebConverter.java, v 0.1 September 23, 2022 16:45 moji Exp $
  * @date 2022/09/23
  */
 @Mapper(componentModel = "spring", imports = {DataSourceKindEnum.class})
 public abstract class DataSourceWebConverter {
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -44,7 +44,7 @@ public abstract class DataSourceWebConverter {
     public abstract DataSourceCreateParam createReq2param(DataSourceCreateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -55,7 +55,7 @@ public abstract class DataSourceWebConverter {
     public abstract DataSourceUpdateParam updateReq2param(DataSourceUpdateRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -63,7 +63,7 @@ public abstract class DataSourceWebConverter {
     public abstract DataSourcePageQueryParam queryReq2param(DataSourceQueryRequest request);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dataSource
      * @return
@@ -74,7 +74,7 @@ public abstract class DataSourceWebConverter {
     public abstract DataSourceVO dto2vo(DataSource dataSource);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param dataSources
      * @return
@@ -82,7 +82,7 @@ public abstract class DataSourceWebConverter {
     public abstract List<DataSourceVO> dto2vo(List<DataSource> dataSources);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param databaseDTO
      * @return
@@ -90,7 +90,7 @@ public abstract class DataSourceWebConverter {
     public abstract DatabaseVO databaseDto2vo(Database databaseDTO);
 
     /**
-     * 模型转换
+     * Model conversion
      *
      * @param databaseDTOS
      * @return
@@ -98,7 +98,7 @@ public abstract class DataSourceWebConverter {
     public abstract List<DatabaseVO> databaseDto2vo(List<Database> databaseDTOS);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -106,7 +106,7 @@ public abstract class DataSourceWebConverter {
     public abstract DataSourcePreConnectParam testRequest2param(DataSourceTestRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return
@@ -114,7 +114,7 @@ public abstract class DataSourceWebConverter {
     public abstract ConsoleConnectParam request2connectParam(ConsoleConnectRequest request);
 
     /**
-     * 参数转换
+     * Parameter conversion
      *
      * @param request
      * @return

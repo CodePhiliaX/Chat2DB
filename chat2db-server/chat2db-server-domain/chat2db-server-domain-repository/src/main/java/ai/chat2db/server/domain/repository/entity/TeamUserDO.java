@@ -11,7 +11,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 用户团队表
+ * User team table
  * </p>
  *
  * @author chat2db
@@ -25,38 +25,38 @@ public class TeamUserDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 创建人用户id
+     * Creator user id
      */
     private Long createUserId;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 
     /**
-     * 团队id
+     * team id
      */
     private Long teamId;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
 }
