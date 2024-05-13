@@ -109,6 +109,12 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             sqlBuilder = new StringBuilder(sqlBuilder.substring(0, sqlBuilder.length() - 2));
             sqlBuilder.append("\n)\ngo\n");
+            if (tableComment.next()) {
+                configureTableComment(schemaName, tableName, sqlBuilder, tableComment);
+            }
+            for (TableColumn column : tableColumns) {
+                configureColumnComment(sqlBuilder, column);
+            }
             while (foreignKeyInfo.next()) {
                 configureForeignKey(sqlBuilder, foreignKeyInfo);
             }
@@ -121,13 +127,6 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
             for (TableIndex index : indexHashMap.values()) {
                 configureIndex(sqlBuilder, index);
-            }
-            for (TableColumn column : tableColumns) {
-                configureColumnComment(sqlBuilder, column);
-            }
-
-            if (tableComment.next()) {
-                configureTableComment(schemaName, tableName, sqlBuilder, tableComment);
             }
 
         } catch (SQLException e) {
@@ -560,7 +559,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                      INNER JOIN sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id
                                                      INNER JOIN sys.tables t ON ind.object_id = t.object_id
                                                      LEFT JOIN sys.key_constraints kc ON ind.object_id = kc.parent_object_id AND ind.index_id = kc.unique_index_id
-                                                     LEFT JOIN sys.extended_properties ep ON ind.object_id = ep.major_id AND ind.index_id = ep.minor_id
+                                                     LEFT JOIN sys.extended_properties ep ON ind.object_id = ep.major_id AND ind.index_id = ep.minor_id and ep.class_desc !='OBJECT_OR_COLUMN'
                                             WHERE t.name = '%s'
                                               and t.schema_id = SCHEMA_ID('%s')
                                             ORDER BY t.name, ind.name, ind.index_id, ic.index_column_id""";
