@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class DashboardSelector {
 
     /**
-     * 图表ID列表
+     * Chart ID list
      */
     private Boolean chartIds;
 }

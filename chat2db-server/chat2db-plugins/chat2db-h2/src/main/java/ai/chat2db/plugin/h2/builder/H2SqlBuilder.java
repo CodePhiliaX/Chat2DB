@@ -5,7 +5,7 @@ import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Schema;
 import org.apache.commons.lang3.StringUtils;
 
-public class H2SqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
+public class H2SqlBuilder extends DefaultSqlBuilder  {
 
     @Override
     public String buildCreateSchemaSql(Schema schema) {

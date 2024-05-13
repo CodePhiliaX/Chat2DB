@@ -250,6 +250,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       {
         "key": "zeroDateTimeBehavior",
         "value": "convertToNull"
+      },
+      {
+        "key": "useInformationSchema",
+        "value": "true"
       }
     ],
     type: DatabaseTypeCode.MYSQL,
@@ -450,8 +454,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                 },
               }],
               onChange: (data: IConnectionConfig) => {
-                data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+):(.*)/;
-                data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}:{serviceName}';
+                data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+)\/(.*)/;
+                data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}/{serviceName}';
                 return data
               }
             },
@@ -471,14 +475,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           selects: [
             {
               value: 'thin',
+              label: 'thin',
             },
             {
-
               value: 'oci',
+              label: 'oci',
             },
             {
 
               value: 'oci8',
+              label: 'oci8',
             },
           ],
           styles: {
@@ -2068,11 +2074,10 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /mongodb:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'mongodb://{host}:{port}/{database}',
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable,OperationColumn.EditTable]
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
+    extendInfo: [],
     type: DatabaseTypeCode.MONGODB
   },
 ];

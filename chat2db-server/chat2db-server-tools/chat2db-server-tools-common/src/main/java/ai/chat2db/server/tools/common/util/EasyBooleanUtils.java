@@ -1,18 +1,18 @@
 package ai.chat2db.server.tools.common.util;
 
 /**
- * Boolean工具类
+ * Boolean tool class
  *
  * @author Jiaju Zhuang
  */
 public class EasyBooleanUtils {
 
     /**
-     * 判断2个布尔值是否相同
+     * Determine whether two Boolean values are the same
      *
      * @param b1
      * @param b2
-     * @param defaultValue 默认值 ，假设b1 b2为空的情况下 取哪个默认值
+     * @param defaultValue Default value, assuming that b1 and b2 are empty, which default value should be taken?
      * @return
      */
     public static boolean equals(Boolean b1, Boolean b2, Boolean defaultValue) {

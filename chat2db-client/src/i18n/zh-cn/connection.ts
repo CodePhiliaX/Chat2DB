@@ -15,6 +15,7 @@ export default {
   'connection.label.sshConfiguration': 'SSH',
   'connection.button.addConnection': '新增连接',
   'connection.button.connect': '连接',
+  'connection.button.remove': '删除链接',
   'connection.message.testConnectResult': '测试连接{1}',
   'connection.message.testSshConnection': '测试ssh连接',
   'connection.tableHeader.name': '名称',
@@ -32,4 +33,5 @@ export default {
   'connection.button.createConnection': '创建连接',
   'connection.tips.noConnection': '您当前还没有创建任何连接',
   'connection.tips.noConnectionTips': '无权限查看该连接详情，但你可以直接连接该连接',
+  'connection.title.importTitle': '导入文件, .ncx(navicat) 或 .dbp(dbever)',
 };

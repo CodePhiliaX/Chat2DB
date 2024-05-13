@@ -58,7 +58,7 @@ public class RdbDocController {
      */
     @PostMapping("/export")
     public void export(@Valid @RequestBody DataExportRequest request, HttpServletResponse response) throws Exception {
-        //复制模板
+        //Copy template
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(
@@ -84,7 +84,7 @@ public class RdbDocController {
         DatabaseExportService databaseExportService = (DatabaseExportService) constructor.newInstance();
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + databaseExportService.getSuffix());
         response.setContentType(databaseExportService.getContentType());
-        // 设置数据集合
+        // Set up data collection
         databaseExportService.setExportList(tableVOS);
         databaseExportService.generate(request.getDatabaseName(), response.getOutputStream(), new ExportOptions());
     }

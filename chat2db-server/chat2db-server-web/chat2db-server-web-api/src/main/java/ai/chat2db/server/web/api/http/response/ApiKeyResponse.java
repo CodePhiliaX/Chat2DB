@@ -21,17 +21,17 @@ public class ApiKeyResponse {
     private String key;
 
     /**
-     * 过期时间
+     * Expiration
      */
     private Long expiry;
 
     /**
-     * 返回
+     * return
      */
     private Long remainingUses;
 
     /**
-     * 微信公众号url
+     * WeChat public account url
      */
     private String wechatMpUrl;
 }

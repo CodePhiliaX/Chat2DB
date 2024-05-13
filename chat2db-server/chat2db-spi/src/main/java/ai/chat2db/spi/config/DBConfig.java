@@ -32,15 +32,36 @@ public class DBConfig {
     private List<DriverConfig> driverConfigList;
 
     /**
-     * 建表语句
+     * Create table statement
      */
     private String simpleCreateTable;
 
     /**
-     * 修改表结构
+     * Modify table structure
      */
     private String simpleAlterTable;
 
+
+    private boolean supportDatabase;
+
+
+    private boolean supportSchema;
+
+    public boolean isSupportDatabase() {
+        return supportDatabase;
+    }
+
+    public void setSupportDatabase(boolean supportDatabase) {
+        this.supportDatabase = supportDatabase;
+    }
+
+    public boolean isSupportSchema() {
+        return supportSchema;
+    }
+
+    public void setSupportSchema(boolean supportSchema) {
+        this.supportSchema = supportSchema;
+    }
 
     public String getDbType() {
         return dbType;

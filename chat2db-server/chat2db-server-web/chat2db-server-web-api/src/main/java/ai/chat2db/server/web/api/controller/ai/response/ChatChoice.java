@@ -21,28 +21,28 @@ public class ChatChoice implements Serializable {
 
     private long index;
     /**
-     * 请求参数stream为true返回是delta
+     * If the request parameter stream is true, the return value is delta.
      */
     @JsonProperty("delta")
     private Message delta;
     /**
-     * 请求参数stream为false返回是message
+     * If the request parameter stream is false, the return value is message.
      */
     @JsonProperty("message")
     private Message message;
     /**
-     * 请求参数stream为false返回是message
+     * If the request parameter stream is false, the return value is message.
      */
     @JsonProperty("finish_reason")
     private String finishReason;
 
     /**
-     * 请求参数stream为true返回是text
+     * If the request parameter stream is true, the return value is text.
      */
     private String text;
 
     /**
-     * 请求参数stream为true返回是logprobs
+     * If the request parameter stream is true, the return value is logprobs.
      */
     private String logprobs;
 }

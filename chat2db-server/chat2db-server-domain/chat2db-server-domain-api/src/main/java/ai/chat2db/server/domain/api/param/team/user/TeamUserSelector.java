@@ -16,12 +16,12 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class TeamUserSelector {
     /**
-     * 团队
+     * Team
      */
     private Boolean team;
 
     /**
-     * 用户
+     * User
      */
     private Boolean user;
 }

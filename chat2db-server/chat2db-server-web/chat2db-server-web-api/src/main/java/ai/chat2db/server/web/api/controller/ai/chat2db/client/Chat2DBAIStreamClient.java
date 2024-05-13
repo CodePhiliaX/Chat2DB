@@ -11,6 +11,7 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbed
 import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbeddingResponse;
 import ai.chat2db.server.web.api.util.ApplicationContextUtil;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
 import com.unfbx.chatgpt.entity.chat.Message;
@@ -75,7 +76,6 @@ public class Chat2DBAIStreamClient {
     @Getter
     private FastChatOpenAiApi fastChatOpenAiApi;
 
-
     /**
      * @param builder
      */
@@ -114,7 +114,7 @@ public class Chat2DBAIStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -182,7 +182,7 @@ public class Chat2DBAIStreamClient {
     }
 
     /**
-     * 问答接口 stream 形式
+     * Q&A interface stream form
      *
      * @param chatMessages
      * @param eventSourceListener
@@ -204,12 +204,13 @@ public class Chat2DBAIStreamClient {
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(chatCompletion);
             Request request = new Request.Builder()
                     .url(this.apiHost + "v1/chat/completions")
                     .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                     .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking chat ai");
         } catch (Exception e) {
@@ -242,6 +243,7 @@ public class Chat2DBAIStreamClient {
     public FastChatEmbeddingResponse embeddings(FastChatEmbedding embedding) {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(embedding);
             Request request = new Request.Builder()
                     .url(this.apiHost + "v1/embeddings")

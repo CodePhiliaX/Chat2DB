@@ -1,0 +1,85 @@
+spring:
+  # Default development environment
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    fallbackToSystemLocale: true
+  jmx:
+    enabled: false
+  # thymeleaf
+  thymeleaf:
+    prefix: classpath:/thymeleaf/
+    check-template-location: true
+    suffix: .html
+    servlet:
+      content-type: text/html
+    mode: HTML5
+  # static files
+  mvc:
+    static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations[0]: classpath:/static/
+  #  Used for database table structure version management
+  flyway:
+    enabled: false
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+chat2db:
+  version: 1.0.0
+
+# flywaydb outputs the log of executing sql
+logging:
+  level:
+    org:
+      flywaydb: debug
+    ai:
+      chat2db:
+        server:
+          domain:
+            repository:
+              mapper: debug
+# Login function
+sa-token:
+  # token name (also cookie name)
+  token-name: CHAT2DB
+  timeout: 2592000
+  # Whether to allow concurrent logins with the same account (when true, simultaneous logins are allowed, when false, new logins crowd out old logins)
+  is-concurrent: true
+  # When multiple people log in to the same account, whether to share a token (when true, all logins share a token, when false, a new token is created for each login)
+  is-share: true
+  # token style
+  token-style: uuid
+  # Whether to output operation logs
+  is-log: true
+  is-write-header: true
+
+chatgpt:
+  apiKey: sk-xxxx
+  apiHost: https://api.openai.com/
+  # You can choose GPT3 or GPT35
+  version: GPT35
+  context:
+    length: 1
+
+# Print the HTTP log
+logbook:
+  include:
+    - /api/**
+
+# Http Client
+forest:
+  connect-timeout: 30000
+  log-response-content: true
+  read-timeout: 30000
+  timeout: 30000

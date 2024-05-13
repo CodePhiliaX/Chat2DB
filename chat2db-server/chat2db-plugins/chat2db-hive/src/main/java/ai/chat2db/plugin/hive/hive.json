@@ -1,12 +1,14 @@
 {
   "dbType": "HIVE",
+  "supportDatabase": true,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:hive2://localhost:10000/",
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/hive-jdbc-3.1.2-standalone.jar"
+        "https://cdn.chat2db-ai.com/lib/hive-jdbc-3.1.2-standalone.jar"
       ],
       "jdbcDriver": "hive-jdbc-3.1.2-standalone.jar",
       "jdbcDriverClass": "org.apache.hive.jdbc.HiveDriver"

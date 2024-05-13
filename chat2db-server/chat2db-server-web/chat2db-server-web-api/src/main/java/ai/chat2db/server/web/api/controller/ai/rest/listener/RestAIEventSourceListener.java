@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
- * 描述：RESTAIEventSourceListener
+ * description：RESTAIEventSourceListener
  *
  * @author https:www.unfbx.com
  * @date 2023-02-22
@@ -41,10 +41,10 @@ public class RestAIEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onEvent(EventSource eventSource, String id, String type, String data) {
-        log.info("REST AI返回数据：{}", data);
+        log.info("REST AI return data:{}", data);
         String end = "[DONE]";
         if (data.equals(end)) {
-            log.info("REST AI返回数据结束了");
+            log.info("REST AI returns data finished");
             sseEmitter.send(SseEmitter.event()
                 .id(end)
                 .data(end)
@@ -67,7 +67,7 @@ public class RestAIEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onClosed(EventSource eventSource) {
-        log.info("REST AI关闭sse连接...");
+        log.info("REST AI close sse connection...");
         sseEmitter.send(SseEmitter.event()
             .id("[DONE]")
             .data("[DONE]")
@@ -112,7 +112,7 @@ public class RestAIEventSourceListener extends EventSourceListener {
                 .data("[DONE]"));
             sseEmitter.complete();
         } catch (Exception exception) {
-            log.error("发送数据异常:", exception);
+            log.error("Exception in sending data:", exception);
         }
     }
 }

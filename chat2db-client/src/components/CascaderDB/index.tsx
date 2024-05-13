@@ -5,7 +5,6 @@ import cs from 'classnames';
 import styles from './index.less';
 import Iconfont from '../Iconfont';
 import { databaseMap } from '@/constants/database';
-import { registerIntelliSenseDatabase } from '@/utils/IntelliSense';
 
 interface IProps {
   className?: string;
@@ -103,7 +102,7 @@ function CascaderDB(props: IProps) {
     if (curDataSourceId === undefined) {
       return;
     }
-    const databaseList = await connection.getDBList({
+    const databaseList = await connection.getDatabaseList({
       dataSourceId: curDataSourceId,
     });
 

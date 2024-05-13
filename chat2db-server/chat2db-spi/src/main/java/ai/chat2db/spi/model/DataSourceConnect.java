@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
- * 数据库连接对象
+ * Database connection object
  *
  * @author Jiaju Zhuang
  */
@@ -14,21 +16,22 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceConnect {
+public class DataSourceConnect  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 是否成功标志位
+     * success flag
      */
     private Boolean success;
 
     /**
-     * 失败消息提示
-     * 只有失败的情况下会有
+     * Failure message prompt
+     * Only in case of failure
      */
     private String message;
 
     /**
-     * 描述
+     * description
      */
     private String description;
 

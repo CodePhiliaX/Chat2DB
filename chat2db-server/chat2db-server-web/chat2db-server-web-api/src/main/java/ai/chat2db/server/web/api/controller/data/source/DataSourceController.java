@@ -51,10 +51,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 数据库连接类
+ * Database connection class
  *
  * @author moji
- * @version ConnectionController.java, v 0.1 2022年09月16日 14:07 moji Exp $
+ * @version ConnectionController.java, v 0.1 September 16, 2022 14:07 moji Exp $
  * @date 2022/09/16
  */
 @ConnectionInfoAspect
@@ -80,7 +80,7 @@ public class DataSourceController {
     private SSHWebConverter sshWebConverter;
 
     /**
-     * 数据库连接测试
+     * Database connection test
      *
      * @param request
      * @return
@@ -92,7 +92,7 @@ public class DataSourceController {
     }
 
     /**
-     * 数据库连接测试
+     * Database connection test
      *
      * @param request
      * @return
@@ -114,7 +114,7 @@ public class DataSourceController {
     }
 
     /**
-     * 数据库连接
+     * Database connection
      *
      * @param request
      * @return
@@ -127,7 +127,7 @@ public class DataSourceController {
     }
 
     /**
-     * 关闭数据库连接
+     * Close database connection
      *
      * @param request
      * @return
@@ -138,7 +138,7 @@ public class DataSourceController {
     }
 
     /**
-     * Console连接
+     * Console connection
      *
      * @param request
      * @return
@@ -150,7 +150,7 @@ public class DataSourceController {
     }
 
     /**
-     * 关闭Console连接
+     * Close the Console connection
      *
      * @param request
      * @return
@@ -162,7 +162,7 @@ public class DataSourceController {
     }
 
     /**
-     * 查询我建立的数据库连接
+     * Query the database connection I established
      *
      * @param request
      * @return
@@ -177,7 +177,7 @@ public class DataSourceController {
     }
 
     /**
-     * 获取连接内容
+     * Get connection content
      *
      * @param id
      * @return
@@ -195,7 +195,7 @@ public class DataSourceController {
     }
 
     /**
-     * 保存连接
+     * save connection
      *
      * @param request
      * @return
@@ -207,7 +207,7 @@ public class DataSourceController {
     }
 
     /**
-     * 更新连接
+     * Update connection
      *
      * @param request
      * @return
@@ -219,7 +219,7 @@ public class DataSourceController {
     }
 
     /**
-     * 克隆连接
+     *  clone connection
      *
      * @param request
      * @return
@@ -230,7 +230,7 @@ public class DataSourceController {
     }
 
     /**
-     * 删除连接
+     * Delete connection
      *
      * @param id
      * @return

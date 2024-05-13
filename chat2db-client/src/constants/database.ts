@@ -97,13 +97,6 @@ export const databaseMap: {
     // port: 2883, 
     icon: '\ue982',
   },
-  // [DatabaseTypeCode.REDIS]: {
-  //   name: 'Redis',
-  //   img: moreDBLogo,
-  //   code: DatabaseTypeCode.REDIS,
-  //   // port: 6379,
-  //   icon: '\ue6a2',
-  // },
   [DatabaseTypeCode.HIVE]: {
     name: 'Hive',
     img: moreDBLogo,
@@ -118,12 +111,19 @@ export const databaseMap: {
     // port: 54321,
     icon: '\ue6a0',
   },
-  // [DatabaseTypeCode.MONGODB]: {
-  //   name: 'MongoDB',
+  [DatabaseTypeCode.MONGODB]: {
+    name: 'MongoDB',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.MONGODB,
+    // port: 27017,
+    icon: '\uec21',
+  },
+  // [DatabaseTypeCode.REDIS]: {
+  //   name: 'Redis',
   //   img: moreDBLogo,
-  //   code: DatabaseTypeCode.MONGODB,
-  //   // port: 27017,
-  //   icon: '\uec21',
+  //   code: DatabaseTypeCode.REDIS,
+  //   // port: 6379,
+  //   icon: '\ue6a2',
   // },
 };
 

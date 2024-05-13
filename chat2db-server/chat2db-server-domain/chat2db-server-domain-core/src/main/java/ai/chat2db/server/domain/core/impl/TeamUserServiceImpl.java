@@ -11,6 +11,7 @@ import ai.chat2db.server.domain.api.service.TeamUserService;
 import ai.chat2db.server.domain.core.converter.TeamConverter;
 import ai.chat2db.server.domain.core.converter.TeamUserConverter;
 import ai.chat2db.server.domain.core.converter.UserConverter;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.TeamUserDO;
 import ai.chat2db.server.domain.repository.mapper.TeamUserCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.TeamUserMapper;
@@ -39,10 +40,15 @@ public class TeamUserServiceImpl implements TeamUserService {
 
     @Resource
     private TeamUserConverter teamUserConverter;
-    @Resource
-    private TeamUserCustomMapper teamUserCustomMapper;
-    @Resource
-    private TeamUserMapper teamUserMapper;
+
+
+    private TeamUserCustomMapper getTeamUserCustomMapper() {
+        return Dbutils.getMapper(TeamUserCustomMapper.class);
+    }
+
+    private TeamUserMapper getTeamUserMapper() {
+        return Dbutils.getMapper(TeamUserMapper.class);
+    }
     @Resource
     private UserConverter userConverter;
     @Resource
@@ -57,7 +63,7 @@ public class TeamUserServiceImpl implements TeamUserService {
 
         Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
-        IPage<TeamUserDO> iPage = teamUserMapper.selectPage(page, queryWrapper);
+        IPage<TeamUserDO> iPage = getTeamUserMapper().selectPage(page, queryWrapper);
 
         List<TeamUser> list = teamUserConverter.do2dto(iPage.getRecords());
 
@@ -71,7 +77,7 @@ public class TeamUserServiceImpl implements TeamUserService {
         TeamUserSelector selector) {
         Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
-        IPage<TeamUserDO> iPage = teamUserCustomMapper.comprehensivePageQuery(page, param.getTeamId(),
+        IPage<TeamUserDO> iPage = getTeamUserCustomMapper().comprehensivePageQuery(page, param.getTeamId(),
             param.getUserId(), param.getTeamSearchKey(), param.getUserSearchKey());
 
         List<TeamUser> list = teamUserConverter.do2dto(iPage.getRecords());
@@ -85,13 +91,13 @@ public class TeamUserServiceImpl implements TeamUserService {
     public DataResult<Long> create(TeamUserCreatParam param) {
         TeamUserDO data = teamUserConverter.param2do(param, ContextUtils.getUserId());
 
-        teamUserMapper.insert(data);
+        getTeamUserMapper().insert(data);
         return DataResult.of(data.getId());
     }
 
     @Override
     public ActionResult delete(Long id) {
-        teamUserMapper.deleteById(id);
+        getTeamUserMapper().deleteById(id);
         return ActionResult.isSuccess();
     }
 

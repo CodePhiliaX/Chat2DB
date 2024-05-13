@@ -6,12 +6,16 @@ let fieldList: Record<string, Array<{ name: string; tableName: string }>> = {};
 
 /** 当前库下的表 */
 let intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
-  provideCompletionItems: (model, position) => {
+  provideCompletionItems: () => {
     return {
       suggestions: [],
     };
   },
 });
+
+export const resetSenseField = () => {
+  intelliSenseField.dispose();
+}
 
 const addIntelliSenseField = async (props: {
   tableName: string;
@@ -46,7 +50,7 @@ function checkFieldContext(text) {
 }
 
 const registerIntelliSenseField = (tableList: string[], dataSourceId, databaseName, schemaName) => {
-  intelliSenseField.dispose();
+  resetSenseField();
   fieldList = {};
   intelliSenseField = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' ', ',', '.', '('],

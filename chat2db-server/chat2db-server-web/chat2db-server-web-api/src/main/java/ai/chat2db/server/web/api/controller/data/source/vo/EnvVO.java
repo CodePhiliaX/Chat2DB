@@ -4,19 +4,19 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version EnvVO.java, v 0.1 2022年09月18日 14:06 moji Exp $
+ * @version EnvVO.java, v 0.1 September 18, 2022 14:06 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class EnvVO {
 
     /**
-     * 环境code
+     * environment code
      */
     private String code;
 
     /**
-     * 环境名称
+     * environment name
      */
     private String name;
 }

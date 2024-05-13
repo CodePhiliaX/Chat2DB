@@ -6,7 +6,7 @@ import com.alibaba.druid.sql.ast.SQLOrderingSpecification;
 import lombok.Getter;
 
 /**
- * 排序枚举
+ * Sorted enumeration
  *
  * @author Jiaju Zhuang
  */
@@ -44,11 +44,11 @@ public enum CollationEnum implements BaseEnum<String> {
     }
 
     public static boolean equals(CollationEnum collation1, CollationEnum collation2) {
-        // 想同直接返回
+        // The same returns directly
         if (collation1 == collation2) {
             return true;
         }
-        // 有一个是倒序 就是不相同 ，其他都是相同
+        // One of them is in reverse order, which means they are different. The others are the same.
         return !(collation1 == CollationEnum.DESC || collation2 == CollationEnum.DESC);
     }
 }

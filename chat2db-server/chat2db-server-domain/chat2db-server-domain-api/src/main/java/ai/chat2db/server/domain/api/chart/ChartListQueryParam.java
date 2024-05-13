@@ -16,13 +16,13 @@ import lombok.NonNull;
 public class ChartListQueryParam {
 
     /**
-     * 主键
+     * primary key
      */
     @NonNull
     private List<Long> idList;
 
     /**
-     * 用户id
+     * user id
      */
     @NonNull
     private Long userId;

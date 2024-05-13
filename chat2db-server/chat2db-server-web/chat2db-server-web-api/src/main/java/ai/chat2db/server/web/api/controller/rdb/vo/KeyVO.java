@@ -6,29 +6,29 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version IndexVO.java, v 0.1 2022年09月16日 17:47 moji Exp $
+ * @version IndexVO.java, v 0.1 September 16, 2022 17:47 moji Exp $
  * @date 2022/09/16
  */
 @Data
 public class KeyVO {
 
     /**
-     * 包含列
+     * Contains columns
      */
     private String columns;
 
     /**
-     * 索引名称
+     * Index name
      */
     private String name;
 
     /**
-     * 注释
+     * Comment
      */
     private String comment;
 
     /**
-     * 索引包含的列
+     * Columns included in the index
      */
     private List<ColumnVO> columnList;
 }

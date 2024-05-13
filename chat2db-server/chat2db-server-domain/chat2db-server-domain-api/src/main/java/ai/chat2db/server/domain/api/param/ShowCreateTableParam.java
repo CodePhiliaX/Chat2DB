@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 查询建表语句
+ * Query table creation statement
  *
  * @author Jiaju Zhuang
  */
@@ -18,24 +18,24 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class ShowCreateTableParam {
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * 对应的连接数据库名称
+     * Corresponding connection database name
      */
     @NotNull
     private String databaseName;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 表所属schema
+     * The schema to which the table belongs
      */
     private String schemaName;
 }

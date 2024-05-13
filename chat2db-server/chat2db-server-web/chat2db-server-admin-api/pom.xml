@@ -42,7 +42,7 @@
         <!-- http -->
         <dependency>
             <groupId>com.dtflys.forest</groupId>
-            <artifactId>forest-spring-boot3-starter</artifactId>
+            <artifactId>forest-spring</artifactId>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>

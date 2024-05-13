@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 列
+ * Column
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -17,43 +17,43 @@ import lombok.experimental.SuperBuilder;
 public class ColumnRequest {
 
     /**
-     * 旧的列名，在修改列的时候需要这个参数
-     * 不修改也可以传
+     * The old column name, this parameter is needed when modifying the column
+     * You can send it without modification
      */
     private String oldName;
     /**
-     * 名称
+     * name
      */
     private String name;
 
     /**
-     * 列的类型
-     * 比如 varchar(100) ,double(10,6)
+     * Column type
+     * For example, varchar(100), double(10,6)
      */
     private String columnType;
 
     /**
-     * 是否为空
+     * Is it empty
      */
     private Integer nullable;
 
     /**
-     * 是否主键
+     * Is it a primary key?
      */
     private Boolean primaryKey;
 
     /**
-     * 默认值
+     * default value
      */
     private String defaultValue;
 
     /**
-     * 是否自增
+     * Whether to increment automatically
      */
     private Boolean autoIncrement;
 
     /**
-     * 注释
+     * comment
      */
     private String comment;
 }

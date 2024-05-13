@@ -1,12 +1,14 @@
 {
   "dbType": "PRESTO",
+  "supportDatabase": true,
+  "supportSchema": true,
   "driverConfigList": [
     {
       "url": "jdbc:presto://localhost:8080/",
       "custom": false,
       "defaultDriver": true,
       "downloadJdbcDriverUrls": [
-        "https://oss.sqlgpt.cn/lib/presto-jdbc-0.245.1.jar"
+        "https://cdn.chat2db-ai.com/lib/presto-jdbc-0.245.1.jar"
       ],
       "jdbcDriver": "presto-jdbc-0.245.1.jar",
       "jdbcDriverClass": "com.facebook.presto.jdbc.PrestoDriver"

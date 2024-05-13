@@ -1,0 +1,208 @@
+name: Build Test Client 2 
+
+on:
+  push:
+    branches:
+    - "release_test_2"
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            file_extension: ".exe"
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test%20Setup%2099.0.${{ github.run_id }}-Test.exe"
+            build_arg: "--win --x64"
+          - os: macos-latest
+            arch: x86_64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg"
+            file_extension: ".dmg"
+            build_arg: "--mac --x64"
+          - os: macos-latest
+            arch: arm64
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test-arm64.dmg"
+            file_extension: ".dmg"
+            build_arg: "--mac --arm64"
+          - os: ubuntu-latest
+            file_name: "https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/Chat2DB-Test-99.0.${{ github.run_id }}-Test.AppImage"
+            file_extension: ".AppImage"
+            build_arg: "--linux"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out git repository
+        uses: actions/checkout@main
+
+      # Install JRE
+      - name: Install JRE
+        uses: actions/setup-java@main
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          java-package: "jre"
+          # architecture: ${{ matrix.arch == 'arm64' && 'aarch64' || 'x64' }}
+
+      # Open TLS
+      - name: Enable TLS 1.0 and 1.1 in java.security
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "Linux" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          fi
+        shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
+      # Copy JRE to the front-end static directory
+      - name: Copy JRE to static directory
+        run: |
+          mkdir -p chat2db-client/static
+          cp -r "$JAVA_HOME"/ chat2db-client/static/jre
+          if [ "${{ runner.os }}" != "Windows" ]; then
+            chmod -R 777 chat2db-client/static/jre
+          fi
+        shell: bash
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
+      # Delete related files in jre in Linux
+      - if: ${{ runner.os == 'Linux' }}
+        name: Delete File on Linux
+        run: |
+          cd chat2db-client/static/jre/
+          ls -la
+          rm -rf legal
+          ls -la
+
+      # Install Node.js
+      - name: Install Node.js
+        uses: actions/setup-node@main
+        with:
+          node-version: "16"
+          cache: "yarn"
+          cache-dependency-path: chat2db-client/yarn.lock
+
+      # Install Java
+      - name: Install Java and Maven
+        uses: actions/setup-java@main
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+
+      # Packaging web front-end resources
+      - name: Build FE Static
+        run: |
+          cd chat2db-client
+          yarn
+          yarn run build:web:prod --app_version=99.0.${{ github.run_id }} --app_port=10822
+          cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front
+          cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf/
+          cd src/main
+          yarn
+          yarn run build
+
+      # Package backend project & send to frontend
+      - name: Build BE Static
+        run: |
+          mvn clean package -B '-Dmaven.test.skip=true' -f chat2db-server/pom.xml
+          mkdir -p chat2db-client/versions/99.0.${{ github.run_id }}/static
+          echo -n 99.0.${{ github.run_id }} > chat2db-client/version
+          cp -r chat2db-client/version chat2db-client/versions/
+          cp chat2db-server/chat2db-server-start/target/chat2db-server-start.jar chat2db-client/versions/99.0.${{ github.run_id }}/static/
+
+      # Packaging desktop front-end resources
+      - name: Prepare Build Electron
+        run: |
+          cd chat2db-client
+          yarn run build:web:desktop --app_version=99.0.${{ github.run_id }} --app_port=10822
+          cp -r dist ./versions/99.0.${{ github.run_id }}/
+          rm -r dist
+
+      # Packing Electron
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          package_root: "chat2db-client/"
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+          skip_build: true
+          args: >
+            -c.appId=com.chat2db.test
+            -c.productName=Chat2DB-Test
+            -c.win.publisherName=Chat2DB-Test
+            -c.nsis.shortcutName=Chat2DB-Test
+            -c.extraMetadata.version=99.0.${{ github.run_id }}-Test
+            ${{ matrix.build_arg}}
+
+      # Notarization & Signature Mac App
+      - name: Notarize MacOS x86_64 App
+        if: matrix.os == 'macos-latest' && matrix.arch == 'x86_64'
+        run: |
+          xcrun notarytool store-credentials "Chat2DB" --apple-id "${{ secrets.MAC_APPLE_ID }}" --password "${{ secrets.MAC_APPLE_PASSWORD }}" --team-id "${{ secrets.MAC_TEAM_ID }}"
+          xcrun notarytool submit chat2db-client/release/Chat2DB-Test-99.0.${{ github.run_id }}-Test.dmg --keychain-profile "Chat2DB"
+
+      # Build Jar
+      - name: Prepare upload for Jar
+        if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
+        run: |
+          mkdir -p oss_temp_file
+          cp chat2db-client/versions/99.0.${{ github.run_id }}/static/chat2db-server-start.jar   ./oss_temp_file
+          cp -r chat2db-client/release/*.dmg ./oss_temp_file
+          cp -r chat2db-client/versions/99.0.${{ github.run_id }}/dist ./oss_temp_file/dist
+          cd chat2db-client/versions/99.0.${{ github.run_id }}/ && zip -r 99.0.${{ github.run_id }}.zip ./
+          cp -r 99.0.${{ github.run_id }}.zip ../../../oss_temp_file
+          cd static/ && zip -r chat2db-server-start.zip ./ 
+          cp -r chat2db-server-start.zip ../../../../oss_temp_file
+
+      # Prepare files to be sent to OSS
+      - name: Prepare upload for OSS
+        run: |
+          mkdir -p oss_temp_file
+          cp -r chat2db-client/release/*${{ matrix.file_extension }} ./oss_temp_file
+
+      # Set up OSS
+      - name: Set up oss utils
+        uses: yizhoumo/setup-ossutil@v1
+        with:
+          endpoint: "oss-accelerate.aliyuncs.com"
+          access-key-id: ${{ secrets.OSS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+          ossutil-version: "1.7.16"
+
+      # Upload to OSS
+      - name: Upload to OSS
+        run: |
+          ossutil cp -rf --acl=public-read ./oss_temp_file/ oss://chat2db-client/test/99.0.${{ github.run_id }}/
+
+      # Send to DingTalk
+      - name: Send dingtalk message
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "${{ matrix.os }}-test-打包完成通知",
+              "text": "# ${{ matrix.os }}-test-打包完成通知\n ![bang](https://oss.sqlgpt.cn/static/bang100.gif)\n ###  任务id：[${{ github.run_id }}](https://github.com/chat2db/Chat2DB/actions/runs/${{ github.run_id }})\n ### 下载地址：[${{matrix.file_name}}](${{matrix.file_name}})"
+            }
+
+      # Send Jar address to DingTalk
+      - if: ${{ runner.os == 'macOS' && matrix.arch == 'x86_64' }}
+        name: Send dingtalk message
+        uses: ghostoy/dingtalk-action@master
+        with:
+          webhook: ${{ secrets.DINGTALK_WEBHOOK }}
+          msgtype: markdown
+          content: |
+            {
+              "title": "Jar-test-构建完成通知",
+              "text": "### jar包下载地址：[https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip](https://oss.sqlgpt.cn/test/99.0.${{ github.run_id }}/chat2db-server-start.zip) "
+            }

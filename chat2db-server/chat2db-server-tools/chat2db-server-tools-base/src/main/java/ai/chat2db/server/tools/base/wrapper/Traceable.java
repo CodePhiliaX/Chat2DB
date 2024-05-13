@@ -1,20 +1,20 @@
 package ai.chat2db.server.tools.base.wrapper;
 
 /**
- * 是否可以跟踪
+ * Is it possible to track
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public interface Traceable {
     /**
-     * 获取 traceId
+     * Get traceId
      *
      * @return traceId
      */
     String getTraceId();
 
     /**
-     * 设置traceId
+     * Set traceId
      *
      * @param traceId
      */

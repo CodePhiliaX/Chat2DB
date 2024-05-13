@@ -17,28 +17,28 @@ import lombok.experimental.SuperBuilder;
 public class UserUpdateRequest {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 昵称
+     * nickName
      */
     private String nickName;
 
 
     /**
-     * 邮箱
+     * email
      */
     private String email;
 }

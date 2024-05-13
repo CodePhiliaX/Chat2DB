@@ -47,6 +47,8 @@ export interface IChartItem {
   type?: string;
   /** db名称 */
   databaseName?: string;
+  /** schema名称 */
+  schemaName?: string;
   /** ddl内容 */
   ddl?: string;
   /** 是否链接 */

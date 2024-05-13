@@ -4,6 +4,7 @@ import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.web.api.controller.ai.claude.interceptor.ClaudeHeaderAuthorizationInterceptor;
 import ai.chat2db.server.web.api.controller.ai.claude.model.ClaudeChatMessage;
 import cn.hutool.http.ContentType;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 自定义AI接口client
+ * Custom AI interface client
  *
  * @author moji
  */
@@ -86,7 +87,7 @@ public class ClaudeAiStreamClient {
     }
 
     /**
-     * 构造
+     * structure
      *
      * @return
      */
@@ -104,7 +105,7 @@ public class ClaudeAiStreamClient {
         private String userId;
 
         /**
-         * 自定义OkhttpClient
+         * Customize OkhttpClient
          */
         private OkHttpClient okHttpClient;
 
@@ -167,13 +168,14 @@ public class ClaudeAiStreamClient {
             claudeChatMessage.setConversation_uuid(this.userId);
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String requestBody = mapper.writeValueAsString(claudeChatMessage);
 
             Request request = new Request.Builder()
                 .url(this.apiHost)
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), requestBody))
                 .build();
-            //创建事件
+            //Create event
             EventSource eventSource = factory.newEventSource(request, eventSourceListener);
             log.info("finish invoking claude ai");
         } catch (Exception e) {

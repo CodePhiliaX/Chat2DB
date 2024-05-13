@@ -30,7 +30,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     private List<String> systemDatabases = Arrays.asList("postgres");
     @Override
     public List<Database> databases(Connection connection) {
-        List<Database> list = SQLExecutor.getInstance().executeSql(connection, "SELECT datname FROM pg_database;", resultSet -> {
+        List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT datname FROM pg_database;", resultSet -> {
             List<Database> databases = new ArrayList<>();
             try {
                 while (resultSet.next()) {
@@ -102,13 +102,12 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        SQLExecutor.getInstance().executeSql(connection, FUNCTION_SQL.replaceFirst("tableSchema", schemaName),
-                resultSet -> null);
-        String ddlSql = "select showcreatetable('" + schemaName + "','" + tableName + "') as sql";
-        return SQLExecutor.getInstance().executeSql(connection, ddlSql, resultSet -> {
+        SQLExecutor.getInstance().execute(connection, FUNCTION_SQL, resultSet -> null);
+        String ddlSql = "select pg_get_tabledef" + "(" + "'" + schemaName + "'" + "," + "'" + tableName + "'" + "," + "false" + "," + "'" + "COMMENTS" + "'" + ")" + ";";
+        return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    return resultSet.getString("sql");
+                    return resultSet.getString(1);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -302,4 +301,18 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 .build();
     }
 
+    @Override
+    public String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+    }
+
+    @Override
+    public List<String> getSystemDatabases() {
+        return systemDatabases;
+    }
+
+    @Override
+    public List<String> getSystemSchemas() {
+        return systemSchemas;
+    }
 }

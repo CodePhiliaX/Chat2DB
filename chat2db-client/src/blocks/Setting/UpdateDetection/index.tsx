@@ -55,6 +55,9 @@ const UpdateDetection = memo(
         })
         .then((res) => {
           // 如果是服务端，那么就不用更新
+          if(!res) {
+            return
+          }
           if (res.desktop === false) {
             return;
           }

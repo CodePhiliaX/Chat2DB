@@ -6,10 +6,12 @@ import ScrollLoading from '@/components/ScrollLoading';
 import historyService, { IHistoryRecord } from '@/service/history';
 import * as monaco from 'monaco-editor';
 import i18n from '@/i18n';
+import { copy } from '@/utils';
+import { createConsole } from '@/pages/main/workspace/store/console';
+import { Popover } from 'antd';
 
 interface IProps {
   className?: string;
-  curWorkspaceParams: any;
 }
 
 interface IDatasource extends IHistoryRecord {
@@ -22,11 +24,11 @@ export default memo<IProps>((props) => {
   const outputContentRef = React.useRef<HTMLDivElement>(null);
   const curPageRef = React.useRef(1);
   const finishedRef = React.useRef(false);
-  
+
   const getHistoryList = () => {
     return historyService
       .getHistoryList({
-        dataSourceId:props.curWorkspaceParams.dataSourceId,
+        // dataSourceId:props.curWorkspaceParams.dataSourceId,
         pageNo: curPageRef.current++,
         pageSize: 40,
       })
@@ -35,7 +37,8 @@ export default memo<IProps>((props) => {
         const promiseList = res.data.map((item) => {
           return new Promise((resolve) => {
             // 不换行
-            const ddl = (item.ddl || '')?.replace(/\n/g, ' ');
+            // const ddl = (item.ddl || '')?.replace(/\n/g, ' ');
+            const ddl = item.ddl || '';
             monaco.editor.colorize(ddl, 'sql', {}).then((_res) => {
               resolve({
                 ...item,
@@ -50,10 +53,26 @@ export default memo<IProps>((props) => {
       });
   };
 
+  const copySql = (text: IDatasource['ddl']) => {
+    copy(text || '');
+  }
+
+  const openSql = (data: IDatasource) => {
+    createConsole({
+      ddl: data.ddl || '',
+      dataSourceId: data.dataSourceId!,
+      dataSourceName: data.dataSourceName!,
+      databaseType: data.type!,
+      databaseName: data.databaseName!,
+      schemaName: data.schemaName!,
+      // operationType: WorkspaceTabType,
+    })
+  }
+
   return (
     <div className={classnames(styles.output, className)}>
       <div className={styles.outputTitle}>
-        <Iconfont code="&#xe8ad;" />
+        {/* <Iconfont code="&#xe8ad;" /> */}
         {i18n('common.title.executiveLogging')}
       </div>
       <div className={styles.outputContent} ref={outputContentRef}>
@@ -65,19 +84,29 @@ export default memo<IProps>((props) => {
         >
           <>
             {dataSource.map((item, index) => {
-              const nameList = [item.databaseName, item.schemaName];
+              const nameList = [item.dataSourceName, item.databaseName, item.schemaName];
               return (
                 <div key={index} className={styles.outputItem}>
                   <div className={styles.timeBox}>
-                    <div className={classnames(styles.iconBox, { [styles.failureIconBox]: item.status !== 'success' })}>
-                      <Iconfont code="&#xe650;" />
-                    </div>
+                    <Iconfont classNameBox={classnames(styles.timeBoxIcon, { [styles.failureIconBox]: item.status !== 'success' })} box boxSize={20} code="&#xe650;" />
                     <span className={styles.timeSpan}>[{item.gmtCreate}]</span>
                     {/* {!!item.operationRows && <span>{item.operationRows} rows</span>} */}
-                    {!!item.useTime && <span>{i18n('common.text.executionTime',item.useTime)}</span>}
+                    {!!item.useTime && <span>{i18n('common.text.executionTime', item.useTime)}</span>}
                   </div>
-                  <div className={styles.sqlPlace}>{nameList.filter((name) => name).join(' > ')}</div>
-                  <div className={styles.sqlBox} dangerouslySetInnerHTML={{ __html: item.highlightedCode }} />
+                  <div className={styles.executedDatabaseBox}>
+                    <Popover mouseEnterDelay={0.8} content={i18n('workspace.tips.openExecutiveLogging')}>
+                      <Iconfont classNameBox={styles.iconBox} box boxSize={20} code="&#xe6bb;" onClick={()=>{openSql(item)}} />
+                    </Popover>
+                    <div className={styles.executedDatabase}>
+                      {nameList.filter((name) => name).join(' > ')}
+                    </div>
+                  </div>
+                  <div className={styles.sqlBox}>
+                    <Popover mouseEnterDelay={0.8} content={i18n('common.button.copy')}>
+                      <Iconfont classNameBox={styles.iconBox} box boxSize={20} code="&#xec7a;" onClick={()=>{copySql(item.ddl)}} />
+                    </Popover>
+                    <div className={styles.sqlContent} dangerouslySetInnerHTML={{ __html: item.highlightedCode }} />
+                  </div>
                 </div>
               );
             })}

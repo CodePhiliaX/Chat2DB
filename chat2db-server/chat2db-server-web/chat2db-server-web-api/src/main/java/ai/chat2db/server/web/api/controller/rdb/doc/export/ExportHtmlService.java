@@ -45,20 +45,20 @@ public class ExportHtmlService extends DatabaseExportService {
         StringBuilder catalogue = new StringBuilder();
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
             for (Map.Entry<String, List<Map.Entry<String, List<TableParameter>>>> myMap : allMap.entrySet()) {
-                //数据库名
+                //Database name
                 String database = myMap.getKey();
                 String title = MessageFormat.format(PatternConstant.HTML_TITLE, I18nUtils.getMessage("main.databaseText") + database);
-                //数据库名-目录
+                //Database name-directory
                 catalogue.append("<li>").append(MessageFormat.format(PatternConstant.HTML_INDEX_ITEM, I18nUtils.getMessage("main.databaseText")
                         + database, I18nUtils.getMessage("main.databaseText") + database)).append("<ol>");
                 htmlText.append(title).append("\n");
                 for (Map.Entry<String, List<TableParameter>> parameterMap : myMap.getValue()) {
-                    //表名
+                    //Table Name
                     String tableName = parameterMap.getKey().split("---")[1];
-                    //表名-目录
+                    //Table name-directory
                     catalogue.append("<li>").append(MessageFormat.format(PatternConstant.HTML_INDEX_ITEM, database + tableName, tableName));
                     htmlText.append(MessageFormat.format(PatternConstant.HTML_CATALOG, database + tableName, tableName)).append("\n<p></p>");
-                    //索引Table
+                    //IndexTable
                     if (!indexMap.isEmpty()) {
                         htmlText.append("<table>\n");
                         htmlText.append(PatternConstant.HTML_INDEX_TABLE_HEADER);
@@ -72,7 +72,7 @@ public class ExportHtmlService extends DatabaseExportService {
                     } else {
                         htmlText.append(String.format(PatternConstant.HTML_INDEX_TABLE_BODY, getIndexValues(new IndexInfo())));
                     }
-                    //字段Table
+                    //FieldTable
                     htmlText.append("<table>\n");
                     htmlText.append(PatternConstant.HTML_TABLE_HEADER);
                     List<TableParameter> exportList = parameterMap.getValue();

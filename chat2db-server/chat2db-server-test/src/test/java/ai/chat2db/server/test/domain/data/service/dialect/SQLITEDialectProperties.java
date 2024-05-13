@@ -48,14 +48,14 @@ public class SQLITEDialectProperties implements DialectProperties{
     public String getCrateTableSql(String tableName) {
         return "CREATE TABLE `" + tableName + "`\n\t"
             + "(\n\t"
-            + "    `id`     bigint PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT '主键自增',\n\t"
-            + "    `date`   datetime(3)                          not null COMMENT '日期',\n\t"
-            + "    `number` bigint COMMENT '长整型',\n\t"
-            + "    `string` VARCHAR(100) default 'DATA' COMMENT '名字',\n\t"
-            + "    index " + tableName + "_idx_date (date desc) comment '日期索引',\n\t"
-            + "    unique " + tableName + "_uk_number (number) comment '唯一索引',\n\t"
-            + "    index " + tableName + "_idx_number_string (number, date) comment '联合索引'\n\t"
-            + ") COMMENT ='测试表';";
+            + "    `id`     bigint PRIMARY KEY AUTO_INCREMENT NOT NULL COMMENT 'Primary key auto-increment',\n\t"
+            + "    `date`   datetime(3)                          not null COMMENT 'date',\n\t"
+            + "    `number` bigint COMMENT 'long integer',\n\t"
+            + "    `string` VARCHAR(100) default 'DATA' COMMENT 'name',\n\t"
+            + "    index " + tableName + "_idx_date (date desc) comment 'date index',\n\t"
+            + "    unique " + tableName + "_uk_number (number) comment 'unique index',\n\t"
+            + "    index " + tableName + "_idx_number_string (number, date) comment 'Union index'\n\t"
+            + ") COMMENT ='Test table';";
     }
 
     @Override

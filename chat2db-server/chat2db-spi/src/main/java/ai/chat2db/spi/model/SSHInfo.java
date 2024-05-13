@@ -1,6 +1,7 @@
 
 package ai.chat2db.spi.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import lombok.Data;
@@ -10,60 +11,61 @@ import lombok.Data;
  * @version : SSHInfo.java
  */
 @Data
-public class SSHInfo {
+public class SSHInfo  implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 是否使用ssh
+     * Whether to use ssh
      */
     private boolean use;
 
     /**
-     * ssh主机名
+     * ssh hostname
      */
     private String hostName;
 
     /**
-     * ssh端口
+     * ssh port
      */
     private String port;
 
     /**
-     * ssh用户名
+     * ssh username
      */
     private String userName;
 
     /**
-     * ssh本地端口
+     * ssh local port
      */
     private String localPort;
 
     /**
-     * ssh认证类型
+     * ssh Certification type
      */
     private String authenticationType;
 
     /**
-     * ssh密码
+     * ssh password
      */
     private String password;
 
     /**
-     * ssh密钥文件
+     * ssh key file
      */
     private String keyFile;
 
     /**
-     * ssh密钥文件密码
+     * ssh key file password
      */
     private String passphrase;
 
     /**
-     * ssh跳板机目标主机
+     * ssh springboard target host
      */
     private String rHost;
 
     /**
-     * ssh跳板目标端口
+     * ssh springboard target port
      */
     private String rPort;
 

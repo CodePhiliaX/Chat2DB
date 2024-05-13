@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class CipherFactory {
     /**
-     * NavicatCipher缓存池
+     * NavicatCipher cache pool
      */
     private static final Map<String, CommonCipher> REPORT_POOL = new ConcurrentHashMap<>(0);
 
@@ -28,9 +28,9 @@ public class CipherFactory {
     }
 
     /**
-     * 获取对应加/解密方法
+     * Get the corresponding encryption/decryption method
      *
-     * @param type 类型
+     * @param type type
      * @return ITokenGranter
      */
     @SneakyThrows

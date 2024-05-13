@@ -17,10 +17,11 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 /**
- * data的返回对象
- * 和 PageResult 比较一致 也可以直接用 PageResult。 这个是部分项目前端需要将 data+pageNo 封装到一起 所以额外创建的类
+ *The return object of data
+ * Consistent with PageResult, you can also use PageResult directly.
+ * This is an additional class created because the front end of some projects needs to encapsulate data+pageNo together.
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -28,21 +29,21 @@ import lombok.experimental.SuperBuilder;
 public class WebPageResult<T> implements Serializable, Result<List<T>> {
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 是否成功
+     * whether succeed
      *
      * @mock true
      */
     private Boolean success;
     /**
-     * 异常编码
+     * Exception coding
      */
     private String errorCode;
     /**
-     * 异常信息
+     * Exception information
      */
     private String errorMessage;
     /**
-     * 数据信息
+     * Data information
      */
     private Page<T> data;
     /**
@@ -76,76 +77,76 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
-     * 构建分页返回对象
+     * Build pagination return object
      *
-     * @param data     返回的对象
-     * @param total    总的条数
-     * @param pageNo   页码
-     * @param pageSize 分页大小
-     * @param <T>      返回的对象类型
-     * @return 分页返回对象
+     * @param data object returned
+     * @param total total number of items
+     * @param pageNo page number
+     * @param pageSize paging size
+     * @param <T> The returned object type
+     * @return paging return object
      */
     public static <T> WebPageResult<T> of(List<T> data, Long total, Long pageNo, Long pageSize) {
         return new WebPageResult<>(data, total, pageNo, pageSize);
     }
 
     /**
-     * 构建分页返回对象
+     * Construct paging return object
      *
-     * @param data     返回的对象
-     * @param total    总的条数
-     * @param pageNo   页码
-     * @param pageSize 分页大小
-     * @param <T>      返回的对象类型
-     * @return 分页返回对象
+     * @param data object returned
+     * @param total total number of items
+     * @param pageNo page number
+     * @param pageSize paging size
+     * @param <T> The returned object type
+     * @return paging return object
      */
     public static <T> WebPageResult<T> of(List<T> data, Long total, Integer pageNo, Integer pageSize) {
         return new WebPageResult<>(data, total, pageNo, pageSize);
     }
 
     /**
-     * 构建分页返回对象
+     * Construct paging return object
      *
-     * @param data  返回的对象
-     * @param total 总的条数
-     * @param param 分页参数
-     * @param <T>   返回的对象类型
-     * @return 分页返回对象
+     * @param data object returned
+     * @param total total number of items
+     * @param param paging parameters
+     * @param <T> The returned object type
+     * @return paging return object
      */
     public static <T> WebPageResult<T> of(List<T> data, Long total, PageQueryParam param) {
         return new WebPageResult<>(data, total, param.getPageNo(), param.getPageSize());
     }
 
     /**
-     * 构建空的返回对象
+     * Construct an empty return object
      *
-     * @param pageNo   页码
-     * @param pageSize 分页大小
-     * @param <T>      返回的对象类型
-     * @return 分页返回对象
+     * @param pageNo page number
+     * @param pageSize paging size
+     * @param <T> The returned object type
+     * @return paging return object
      */
     public static <T> WebPageResult<T> empty(Long pageNo, Long pageSize) {
         return of(Collections.emptyList(), 0L, pageNo, pageSize);
     }
 
     /**
-     * 构建空的返回对象
+     * Construct an empty return object
      *
-     * @param pageNo   页码
-     * @param pageSize 分页大小
-     * @param <T>      返回的对象类型
-     * @return 分页返回对象
+     * @param pageNo page number
+     * @param pageSize paging size
+     * @param <T> The returned object type
+     * @return paging return object
      */
     public static <T> WebPageResult<T> empty(Integer pageNo, Integer pageSize) {
         return of(Collections.emptyList(), 0L, pageNo, pageSize);
     }
 
     /**
-     * 判断是否还有下一页
-     * 根据分页大小来计算 防止total为空
+     * Determine whether there is a next page
+     * Calculated based on paging size to prevent total from being empty
      *
-     * @return 是否还有下一页
-     * @deprecated 使用 {@link #getHasNextPage()} ()}
+     * @return Is there a next page?
+     * @deprecated using {@link #getHasNextPage()} ()}
      */
     @Deprecated
     public boolean hasNextPage() {
@@ -160,12 +161,12 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
-     * 返回查询异常信息
+     * Return query exception information
      *
-     * @param errorCode    错误编码
-     * @param errorMessage 错误信息
-     * @param <T>          返回的对象
-     * @return 分页返回对象
+     * @param errorCode error code
+     * @param errorMessage error message
+     * @param <T> The returned object
+     * @return paging return object
      */
     public static <T> WebPageResult<T> error(String errorCode, String errorMessage) {
         WebPageResult<T> result = new WebPageResult<>();
@@ -176,10 +177,10 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
-     * 判断是否存在数据
+     * Determine whether data exists
      *
      * @param pageResult
-     * @return 是否存在数据
+     * @return whether data exists
      */
     public static boolean hasData(WebPageResult<?> pageResult) {
         return pageResult != null && pageResult.getSuccess() && pageResult.getData() != null
@@ -187,11 +188,11 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
-     * 将当前的类型转换成另外一个类型
+     * Convert the current type to another type
      *
-     * @param mapper 转换的方法
-     * @param <R>    返回的类型
-     * @return 分页返回对象
+     * @param mapper conversion method
+     * @param <R> Return type
+     * @return paging return object
      */
     public <R> WebPageResult<R> map(Function<T, R> mapper) {
         List<R> returnData = hasData(this) ? getData().getData().stream().map(mapper).collect(Collectors.toList())
@@ -201,7 +202,7 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
         pageResult.setErrorCode(getErrorCode());
         pageResult.setErrorMessage(getErrorMessage());
         pageResult.setTraceId(getTraceId());
-        // 重新设置一个分页信息
+        // Reset a paging information
         Page<R> page = new Page<>();
         pageResult.setData(page);
         page.setData(returnData);
@@ -262,30 +263,30 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
     }
 
     /**
-     * 分页信息
+     * Pagination information
      *
      * @param <T>
      */
     @Data
     public static class Page<T> {
         /**
-         * 数据信息
+         * Data information
          */
         private List<T> data;
         /**
-         * 分页编码
+         * Page coding
          */
         private Integer pageNo;
         /**
-         * 分页大小
+         * Paging Size
          */
         private Integer pageSize;
         /**
-         * 总的大小
+         * Total
          */
         private Long total;
         /**
-         * 是否存在下一页
+         * Is there a next page?
          */
         private Boolean hasNextPage;
 
@@ -327,21 +328,21 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
         }
 
         /**
-         * 判断是否还有下一页
-         * 根据分页大小来计算 防止total为空
+         * Determine whether there is a next page
+         * Calculated based on paging size to prevent total from being empty
          *
-         * @return 是否还有下一页
+         * @return Is there a next page?
          */
         public Boolean calculateHasNextPage() {
-            // 存在分页大小 根据分页来计算
+            // There is a paging size calculated based on the paging
             if (total > 0) {
                 return (long)pageSize * pageNo <= total;
             }
-            // 没有数据 肯定没有下一页
+            // No data, definitely no next page
             if (data == null || data.isEmpty()) {
                 return false;
             }
-            // 当前数量小于分页数量
+            // The current number is less than the number of pages
             return data.size() >= pageSize;
         }
     }

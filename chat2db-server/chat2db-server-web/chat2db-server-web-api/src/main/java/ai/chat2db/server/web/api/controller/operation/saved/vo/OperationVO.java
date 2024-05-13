@@ -5,64 +5,64 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DdlVO.java, v 0.1 2022年09月18日 11:06 moji Exp $
+ * @version DdlVO.java, v 0.1 September 18, 2022 11:06 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationVO {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 文件别名
+     * file alias
      */
     private String name;
 
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * 数据源名称
+     * Data source name
      */
     private String dataSourceName;
 
     /**
-     * 是否可连接
+     * Is it connectable?
      */
     private Boolean connectable;
 
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 表所在空间
+     * The space where the table is located
      */
     private String schemaName;
 
     /**
-     * ddl语言类型
+     * ddl language type
      */
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * ddl语句状态:DRAFT/RELEASE
+     * ddl statement status: DRAFT/RELEASE
      */
     private String status;
 
     /**
-     * 是否在tab中被打开,y表示打开,n表示未打开
+     * Whether it is opened in the tab, y means open, n means not opened
      */
     private String tabOpened;
 

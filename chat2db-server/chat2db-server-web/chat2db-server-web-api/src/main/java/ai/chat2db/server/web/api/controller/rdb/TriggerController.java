@@ -27,8 +27,8 @@ public class TriggerController {
     public WebPageResult<Trigger> list(@Valid TriggerPageRequest request) {
         ListResult<Trigger> listResult = triggerService.triggers(request.getDatabaseName(), request.getSchemaName());
         Long total = CollectionUtils.isNotEmpty(listResult.getData()) ? Long.valueOf(listResult.getData().size()) : 0L;
-        return WebPageResult.of(listResult.getData(), total, 1,
-                listResult.getData().size());
+        Integer pageSize = listResult.getData() != null ? listResult.getData().size() : 0;
+        return WebPageResult.of(listResult.getData(), total, 1, pageSize);
     }
 
     @GetMapping("/detail")

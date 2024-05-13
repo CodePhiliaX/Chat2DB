@@ -8,86 +8,86 @@ import java.time.LocalDateTime;
 
 /**
  * @author moji
- * @version DdlVO.java, v 0.1 2022年09月18日 11:06 moji Exp $
+ * @version DdlVO.java, v 0.1 September 18, 2022 11:06 moji Exp $
  * @date 2022/09/18
  */
 @Data
 public class OperationLogVO {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime gmtModified;
 
     /**
-     * 文件别名
+     * file alias
      */
     private String name;
 
     /**
-     * 数据源id
+     * Data source id
      */
     private Long dataSourceId;
 
     /**
-     * 数据源名称
+     * Data source name
      */
     private String dataSourceName;
 
     /**
-     * 是否可连接
+     * Is it connectable?
      */
     private Boolean connectable;
 
     /**
-     * DB名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * ddl语言类型
+     * ddl language type
      */
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
     /**
-     * 状态
+     * state
      */
     private String status;
 
     /**
-     * 操作行数
+     * Number of operation lines
      */
     private Long operationRows;
 
     /**
-     * 使用时长
+     * Length of use
      */
     private Long useTime;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private String extendInfo;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 }

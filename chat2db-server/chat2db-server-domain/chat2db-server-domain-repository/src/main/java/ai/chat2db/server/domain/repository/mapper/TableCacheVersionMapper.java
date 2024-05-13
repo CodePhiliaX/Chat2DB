@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * table cache version Mapper 接口
+ * table cache version Mapper interface
  * </p>
  *
  * @author chat2db

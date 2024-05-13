@@ -1,9 +1,15 @@
 @import '../../styles/var.less';
 
 .box {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.dataBaseListBox{
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   min-height: 100%;
 }
 
@@ -86,8 +92,11 @@
 }
 
 .createConnections {
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: var(--color-bg);
-  overflow-y: auto;
   transform: scale(0.2);
   transition: 0.1s ease-in-out;
 }
@@ -95,4 +104,27 @@
 .showCreateConnections {
   transform: scale(1);
   transition: transform 0.3s ease-in-out;
+}
+
+.notPermission {
+  display: flex;
+  flex-direction: column;
+  .notPermissionIconTips {
+    color: var(--color-text-tertiary);
+    text-align: center;
+    width: 340px;
+  }
+  .notPermissionIconBox,
+  .connectButtonBox {
+    display: flex;
+    justify-content: center;
+  }
+  .notPermissionIcon {
+    font-size: 200px;
+    color: var(--color-text-quaternary);
+    margin: 20px 0px;
+  }
+  .connectButton {
+    margin-top: 20px;
+  }
 }

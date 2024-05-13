@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * <p>
- * 我的保存表 Mapper 接口
+ * My save table Mapper interface
  * </p>
  *
  * @author ali-dbhub

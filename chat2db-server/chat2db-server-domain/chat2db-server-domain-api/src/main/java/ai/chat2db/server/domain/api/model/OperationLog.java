@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * <p>
- * 我的执行记录
+ * My execution record
  * </p>
  *
  * @author ali-dbhub
@@ -16,69 +16,67 @@ import lombok.Data;
 public class OperationLog {
 
     /**
-     * 主键
+     * primary key
      */
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private LocalDateTime gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private LocalDateTime gmtModified;
 
     /**
-     * 数据源连接ID
+     * Data source connection ID
      */
     private Long dataSourceId;
 
     /**
-     * 数据源
+     * data source
      */
     private String dataSourceName;
 
     /**
-     * db名称
+     * DB name
      */
     private String databaseName;
 
     /**
-     * 数据库类型
+     * Database type
      */
     private String type;
 
     /**
-     * ddl内容
+     * ddl content
      */
     private String ddl;
 
-
-
     /**
-     * 状态
+     * status
      */
     private String status;
 
     /**
-     * 操作行数
+     * Number of operation lines
      */
     private Long operationRows;
 
     /**
-     * 使用时长
+     * Length of use
      */
     private Long useTime;
 
     /**
-     * 扩展信息
+     * Extended Information
      */
     private String extendInfo;
 
     /**
-     * schema名称
+     * schema name
      */
     private String schemaName;
 }

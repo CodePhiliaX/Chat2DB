@@ -73,3 +73,16 @@ export function formatParams(obj: { [key: string]: any }) {
   });
   return params.toString();
 }
+
+/**
+ * 生成url
+ * @param key
+ * @returns
+ */
+
+export function generateUrl(key: string) { 
+  if (__ENV__ === 'desktop') {
+    return window.location.href.split('/#/')[0] + '/#/' + key;
+  }
+  return window.location.origin + '/' + key;
+}

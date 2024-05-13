@@ -14,23 +14,23 @@ import java.util.List;
 public class SelectResultUpdateRequest extends DataSourceBaseRequest implements DataSourceConsoleRequestInfo {
 
     /**
-     * 展示头的列表
+     * List of display headers
      */
     private List<Header> headerList;
 
     /**
-     * 修改后数据的列表
+     * List of modified data
      */
     @NotEmpty
     private List<SelectResultOperation> operations;
 
     /**
-     * 表名
+     * Table Name
      */
     private String tableName;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;

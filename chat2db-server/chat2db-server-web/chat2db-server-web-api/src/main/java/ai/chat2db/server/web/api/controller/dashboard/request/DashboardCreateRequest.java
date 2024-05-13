@@ -7,24 +7,24 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version DashboardSaveParam.java, v 0.1 2023年06月09日 15:29 moji Exp $
+ * @version DashboardSaveParam.java, v 0.1 June 9, 2023 15:29 moji Exp $
  * @date 2023/06/09
  */
 @Data
 public class DashboardCreateRequest {
 
     /**
-     * 报表名称
+     * Dashboard name
      */
     private String name;
 
     /**
-     * 报表布局信息
+     * Dashboard layout information
      */
     private String schema;
 
     /**
-     * 图表ID列表
+     * Chart ID list
      */
     private List<Long> chartIds;
 }

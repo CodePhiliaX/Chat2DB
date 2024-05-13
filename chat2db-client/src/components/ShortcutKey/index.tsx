@@ -69,7 +69,7 @@ export default memo<IProps>((props) => {
           );
         })}
       </div>
-      <div className={styles.slot}>{slot()}</div>
+      {slot()}
     </div>
   );
 });

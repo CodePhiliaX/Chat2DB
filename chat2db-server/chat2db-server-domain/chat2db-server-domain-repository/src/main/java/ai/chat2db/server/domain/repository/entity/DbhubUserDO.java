@@ -10,7 +10,7 @@ import lombok.Setter;
 
 /**
  * <p>
- * 数据源连接表
+ * Data source connection table
  * </p>
  *
  * @author chat2db
@@ -24,58 +24,58 @@ public class DbhubUserDO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     * primary key
      */
     @TableId(value = "ID", type = IdType.AUTO)
     private Long id;
 
     /**
-     * 创建时间
+     * creation time
      */
     private Date gmtCreate;
 
     /**
-     * 修改时间
+     * modified time
      */
     private Date gmtModified;
 
     /**
-     * 用户名
+     * userName
      */
     private String userName;
 
     /**
-     * 密码
+     * password
      */
     private String password;
 
     /**
-     * 昵称
+     * Nick name
      */
     private String nickName;
 
     /**
-     * 邮箱
+     * email
      */
     private String email;
 
     /**
-     * 角色编码
+     * role coding
      */
     private String roleCode;
 
     /**
-     * 用户状态
+     * user status
      */
     private String status;
 
     /**
-     * 创建人用户id
+     * Creator user id
      */
     private Long createUserId;
 
     /**
-     * 修改人用户id
+     * Modifier user id
      */
     private Long modifiedUserId;
 }

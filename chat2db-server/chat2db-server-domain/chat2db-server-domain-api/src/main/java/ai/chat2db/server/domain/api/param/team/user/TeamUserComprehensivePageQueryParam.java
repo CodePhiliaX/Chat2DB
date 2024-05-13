@@ -12,12 +12,12 @@ import lombok.Data;
 public class TeamUserComprehensivePageQueryParam extends PageQueryParam {
 
     /**
-     * 团队id
+     * team id
      */
     private Long teamId;
 
     /**
-     * 用户id
+     * user id
      */
     private Long userId;
     

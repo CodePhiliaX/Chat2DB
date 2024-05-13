@@ -1,13 +1,15 @@
-import { DatabaseTypeCode } from '@/constants';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import i18n from '@/i18n';
 
+export const resetSenseView = () => {
+  intelliSenseView.dispose();
+
+}
+
 /** 当前库下的表 */
 let intelliSenseView = monaco.languages.registerCompletionItemProvider('sql', {
-  provideCompletionItems: (model, position) => {
-    return {
-      suggestions: [],
-    };
+  provideCompletionItems: () => {
+    return { suggestions: [] };
   },
 });
 
@@ -28,7 +30,7 @@ const registerIntelliSenseView = (
   viewList: string[],
   databaseName?: string | null,
 ) => {
-  intelliSenseView.dispose();
+  resetSenseView();
   intelliSenseView = monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [' '],
     provideCompletionItems: (model, position) => {

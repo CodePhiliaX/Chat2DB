@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * @author jipengfei
  * @version : Procedure.java
@@ -15,7 +17,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Procedure {
+public class Procedure implements Serializable {
+    private static final long serialVersionUID = 1L;
     //PROCEDURE_CAT String => procedure catalog (may be null)
     //PROCEDURE_SCHEM String => procedure schema (may be null)
     //PROCEDURE_NAME String => procedure name

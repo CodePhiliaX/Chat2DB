@@ -6,14 +6,14 @@ import lombok.Data;
 
 /**
  * @author moji
- * @version ChartQueryRequest.java, v 0.1 2023年06月09日 17:46 moji Exp $
+ * @version ChartQueryRequest.java, v 0.1 June 9, 2023 17:46 moji Exp $
  * @date 2023/06/09
  */
 @Data
 public class ChartQueryRequest {
 
     /**
-     * 图表ID列表
+     * Chart ID list
      */
     private List<Long> ids;
 }

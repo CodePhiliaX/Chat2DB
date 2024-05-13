@@ -1,7 +1,6 @@
 .container {
   flex: 1;
   position: relative;
-  // border: 1px solid var(--color-gray-300);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-l-g);
   padding: 16px;
@@ -14,9 +13,6 @@
   justify-content: space-between;
   line-height: 20px;
   font-size: 14px;
-}
-
-.title {
 }
 
 .edit {
@@ -117,24 +113,26 @@
 }
 
 .editBlock {
-  border-radius: var(--border-radius-l-g);
-  background-color: var(--color-bg-subtle);
-  max-height: 600px;
+  border-radius: 4px;
+  // background-color: var(--color-bg-subtle);
+  max-height: 1000px;
 }
 
 .editorBlock {
   display: flex;
-  border-bottom: 1px solid var(--color-border-secondary);
+  // flex-direction: column;
   flex-wrap: wrap;
 }
 
 .editor {
   flex: 2;
   min-width: 320px;
-  max-height: 320px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
   position: relative;
+  border: 1px solid var(--color-border-secondary);
+  overflow: hidden;
 }
 
 .dataSourceSelect {
@@ -144,10 +142,11 @@
 }
 
 .chartParamsForm {
+  border: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
   color: var(--color-text);
   flex: 1;
   min-width: 120px;
-  border-left: 1px solid var(--color-border-secondary);
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -163,5 +162,7 @@
 }
 
 .editorOptionBlock {
-  padding: 12px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px 0px 0px 0px;
 }

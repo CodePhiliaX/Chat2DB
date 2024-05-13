@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 数据源关闭
+ * data source closed
  *
  * @author Jiaju Zhuang
  */
@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class DataSourceCloseParam {
     /**
-     * 对应数据库存储的来源id
+     * Corresponding source id stored in the database
      */
     @NotNull
     private Long dataSourceId;

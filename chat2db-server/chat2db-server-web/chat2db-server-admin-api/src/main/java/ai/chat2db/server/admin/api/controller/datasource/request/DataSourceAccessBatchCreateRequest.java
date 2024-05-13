@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 public class DataSourceAccessBatchCreateRequest {
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;

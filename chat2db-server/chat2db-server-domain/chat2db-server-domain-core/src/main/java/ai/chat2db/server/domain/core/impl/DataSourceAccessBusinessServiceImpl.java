@@ -6,6 +6,7 @@ import ai.chat2db.server.domain.api.model.DataSource;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.service.DataSourceAccessBusinessService;
 import ai.chat2db.server.domain.api.service.DataSourceAccessService;
+import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessCustomMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
@@ -27,9 +28,9 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
 
     @Resource
     private DataSourceAccessService dataSourceAccessService;
-    @Resource
-    private DataSourceAccessCustomMapper dataSourceAccessCustomMapper;
-
+    private DataSourceAccessCustomMapper getMapper() {
+        return Dbutils.getMapper(DataSourceAccessCustomMapper.class);
+    }
     @Override
     public ActionResult checkPermission(@NotNull DataSource dataSource) {
         LoginUser loginUser = ContextUtils.getLoginUser();
@@ -58,7 +59,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         }
 
         // Verify if the team has permission
-        if (dataSourceAccessCustomMapper.checkTeamPermission(dataSource.getId(), loginUser.getId()) != null) {
+        if (getMapper().checkTeamPermission(dataSource.getId(), loginUser.getId()) != null) {
             return ActionResult.isSuccess();
 
         }

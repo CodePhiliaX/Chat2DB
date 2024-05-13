@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
  * JDBC driver management
  *
  * @author moji
- * @version JdbcDriverController.java, v 0.1 2022年09月16日 17:41 moji Exp $
+ * @version JdbcDriverController.java, v 0.1 September 16, 2022 17:41 moji Exp $
  * @date 2022/09/16
  */
 @RequestMapping("/api/jdbc/driver")
@@ -37,7 +37,7 @@ public class JdbcDriverController {
     private JdbcDriverService jdbcDriverService;
 
     /**
-     * 查询当前DB驱动信息
+     * Query current DB driver information
      *
      * @param dbType
      * @return
@@ -48,7 +48,7 @@ public class JdbcDriverController {
     }
 
     /**
-     * 下载驱动
+     * Download driver
      *
      * @param dbType
      * @return
@@ -60,7 +60,7 @@ public class JdbcDriverController {
     }
 
     /**
-     * 上传驱动
+     * Upload driver
      *
      * @param multipartFiles
      * @return
@@ -97,7 +97,7 @@ public class JdbcDriverController {
     }
 
     ///**
-    // * 删除驱动
+    // * Delete driver
     // *
     // * @param request
     // * @return

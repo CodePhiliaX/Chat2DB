@@ -22,24 +22,24 @@ public class MyMergeExcel extends AbstractMergeStrategy {
             Row row = sheet.getRow(cell.getRowIndex());
             cell = row.getCell(0);
             Workbook workbook = sheet.getWorkbook();
-            // 生成一个样式
+            // generate a style
             CellStyle style = workbook.createCellStyle();
-            // 设置这些样式
+            // Set these styles
             style.setBorderBottom(BorderStyle.THIN);
             style.setBorderLeft(BorderStyle.THIN);
             style.setBorderRight(BorderStyle.THIN);
             style.setBorderTop(BorderStyle.THIN);
             style.setAlignment(HorizontalAlignment.CENTER);
             style.setVerticalAlignment(VerticalAlignment.CENTER);
-            //设置填充方案
+            //Set up filling scheme
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            //设置自定义填充颜色
+            //Set custom fill color
             style.setFillForegroundColor(IndexedColors.GREEN.getIndex());
-            // 生成一个字体
+            // generate a font
             Font font = workbook.createFont();
             font.setBold(true);
             font.setFontHeightInPoints((short) 14);
-            // 把字体应用到当前的样式
+            // Apply font to current style
             style.setFont(font);
             cell.setCellStyle(style);
         }

@@ -7,10 +7,10 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceBaseRe
 import lombok.Data;
 
 /**
- * chat查询入参
+ * Chat query input parameters
  *
  * @author moji
- * @version ChatQueryRequest.java, v 0.1 2023年04月02日 13:28 moji Exp $
+ * @version ChatQueryRequest.java, v 0.1 April 2, 2023 13:28 moji Exp $
  * @date 2023/04/02
  */
 @Data

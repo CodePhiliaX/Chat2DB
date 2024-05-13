@@ -10,7 +10,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * 基础测试类
+ * Basic test class
  *
  * @author Jiaju Zhuang
  **/

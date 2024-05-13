@@ -16,9 +16,9 @@ import lombok.Data;
 import lombok.experimental.SuperBuilder;
 
 /**
- * data的返回对象
+ * data return object
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 @SuperBuilder
@@ -27,22 +27,22 @@ public class ListResult<T> implements Serializable, Result<T> {
     @Serial
     private static final long serialVersionUID = EasyToolsConstant.SERIAL_VERSION_UID;
     /**
-     * 是否成功
+     * whether succeed
      *
      * @mock true
      */
     private Boolean success;
 
     /**
-     * 错误编码
+     * error coding
      */
     private String errorCode;
     /**
-     * 异常信息
+     * Exception information
      */
     private String errorMessage;
     /**
-     * 数据信息
+     * Data information
      */
     private List<T> data;
     /**
@@ -70,33 +70,33 @@ public class ListResult<T> implements Serializable, Result<T> {
     }
 
     /**
-     * 构建列表返回对象
+     * Build the list and return the object
      *
-     * @param data 需要构建的对象
-     * @param <T>  需要构建的对象类型
-     * @return 返回的列表
+     * @param data object to be constructed
+     * @param <T> The object type to be constructed
+     * @return the returned list
      */
     public static <T> ListResult<T> of(List<T> data) {
         return new ListResult<>(data);
     }
 
     /**
-     * 构建空的列表返回对象
+     * Build an empty list and return the object
      *
-     * @param <T> 需要构建的对象类型
-     * @return 返回的列表
+     * @param <T> The type of object to be constructed
+     * @return the returned list
      */
     public static <T> ListResult<T> empty() {
         return of(Collections.emptyList());
     }
 
     /**
-     * 构建异常返回列表
+     * Build exception return list
      *
-     * @param errorCode    错误编码
-     * @param errorMessage 错误信息
-     * @param <T>          需要构建的对象类型
-     * @return 返回的列表
+     * @param errorCode error coding
+     * @param errorMessage error message
+     * @param <T> The object type to be constructed
+     * @return the returned list
      */
     public static <T> ListResult<T> error(String errorCode, String errorMessage) {
         ListResult<T> result = new ListResult<>();
@@ -107,10 +107,10 @@ public class ListResult<T> implements Serializable, Result<T> {
     }
 
     /**
-     * 判断是否存在数据
+     * Determine whether data exists
      *
      * @param listResult
-     * @return 是否存在数据
+     * @return whether data exists
      */
     public static boolean hasData(ListResult<?> listResult) {
         return listResult != null && listResult.getSuccess() && listResult.getData() != null && !listResult.getData()
@@ -118,11 +118,11 @@ public class ListResult<T> implements Serializable, Result<T> {
     }
 
     /**
-     * 将当前的类型转换成另外一个类型
+     * Convert the current type to another type
      *
-     * @param mapper 转换的方法
-     * @param <R>    返回的类型
-     * @return 分页返回对象
+     * @param mapper conversion method
+     * @param <R> Return type
+     * @return paging return object
      */
     public <R> ListResult<R> map(Function<T, R> mapper) {
         List<R> returnData = hasData(this) ? getData().stream().map(mapper).collect(Collectors.toList())

@@ -23,7 +23,7 @@
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus</artifactId>
         </dependency>
         <dependency>
             <groupId>ai.chat2db</groupId>
@@ -109,11 +109,6 @@
         <dependency>
             <groupId>ai.chat2db</groupId>
             <artifactId>chat2db-presto</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>ai.chat2db</groupId>
-            <artifactId>chat2db-redis</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

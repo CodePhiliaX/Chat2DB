@@ -8,7 +8,7 @@ import ai.chat2db.spi.util.ExceptionUtils;
 /**
  * BusinessException
  *
- * @author 是仪
+ * @author Shi Yi
  */
 public class BusinessExceptionConvertor implements ExceptionConvertor<BusinessException> {
 

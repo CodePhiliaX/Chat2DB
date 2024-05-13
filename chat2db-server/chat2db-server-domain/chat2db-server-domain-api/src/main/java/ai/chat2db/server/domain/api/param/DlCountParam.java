@@ -5,33 +5,33 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * 统计数量
+ * total number
  *
- * @author 是仪
+ * @author Shi Yi
  */
 @Data
 public class DlCountParam {
 
     /**
-     * sql语句
+     * sql statement
      */
     @NotNull
     private String sql;
 
     /**
-     * 控制台id
+     * console id
      */
     @NotNull
     private Long consoleId;
 
     /**
-     * 数据源id
+     * Data source id
      */
     @NotNull
     private Long dataSourceId;
 
     /**
-     * DB名称
+     * databaseName
      */
     @NotNull
     private String databaseName;
