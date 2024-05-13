@@ -95,167 +95,141 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        StringBuilder sqlBuilder = new StringBuilder();
+        final StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append("CREATE TABLE ").append("[").append(schemaName).append("].[").append(tableName).append("] (").append("\n");
-        try (ResultSet columns = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COLUMNS, tableName, schemaName));
-             ResultSet indexInfo = connection.createStatement().executeQuery(String.format(INDEX_SQL, tableName, schemaName));
-             ResultSet tableComment = connection.createStatement().executeQuery(String.format(SELECT_TABLE_COMMENT_SQL, tableName, schemaName));
-             ResultSet foreignKeyInfo = connection.createStatement().executeQuery(String.format(SELECT_FOREIGN_KEY_SQL, schemaName, tableName));
-             ResultSet checkConstraintInfo = connection.createStatement().executeQuery(String.format(SELECT_CHECK_CONSTRAINT_SQL, tableName, schemaName))
-        ) {
-            List<TableColumn> tableColumns = new ArrayList<>();
-            while (columns.next()) {
-                configureColumn(schemaName, tableName, sqlBuilder, columns, tableColumns);
+        List<TableColumn> tableColumns = new ArrayList<>();
+        //build column
+        SQLExecutor.getInstance().execute(connection, String.format(SELECT_TABLE_COLUMNS, tableName, schemaName), resultSet -> {
+            while (resultSet.next()) {
+                TableColumn tableColumn = new TableColumn();
+                tableColumn.setSchemaName(schemaName);
+                tableColumn.setTableName(tableName);
+                tableColumn.setName(resultSet.getString("COLUMN_NAME"));
+                tableColumn.setColumnType(resultSet.getString("DATA_TYPE").toUpperCase());
+                tableColumn.setSparse(resultSet.getBoolean("IS_SPARSE"));
+                tableColumn.setDefaultValue(resultSet.getString("COLUMN_DEFAULT"));
+                tableColumn.setNullable(resultSet.getInt("IS_NULLABLE"));
+                tableColumn.setCollationName(resultSet.getString("COLLATION_NAME"));
+                tableColumn.setComment(resultSet.getString("COLUMN_COMMENT"));
+                configureColumnSize(resultSet, tableColumn);
+                tableColumns.add(tableColumn);
+                SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
+                sqlBuilder.append("\t").append(typeEnum.buildCreateColumnSql(tableColumn)).append(",\n");
             }
-            sqlBuilder = new StringBuilder(sqlBuilder.substring(0, sqlBuilder.length() - 2));
-            sqlBuilder.append("\n)\ngo\n");
-            if (tableComment.next()) {
-                configureTableComment(schemaName, tableName, sqlBuilder, tableComment);
+        });
+        String substring = sqlBuilder.substring(0, sqlBuilder.length() - 2);
+        sqlBuilder.setLength(0);
+        sqlBuilder.append(substring);
+        sqlBuilder.append("\n)\ngo\n");
+        //build table comment
+        SQLExecutor.getInstance().execute(connection, String.format(SELECT_TABLE_COMMENT_SQL, tableName, schemaName), resultSet -> {
+            if (resultSet.next()) {
+                String comment = resultSet.getString("TABLE_COMMENT");
+                if (StringUtils.isNotBlank(comment)) {
+                    Table table = new Table();
+                    table.setComment(comment);
+                    table.setName(tableName);
+                    table.setSchemaName(schemaName);
+                    sqlBuilder.append("\n").append(buildTableComment(table));
+                }
             }
-            for (TableColumn column : tableColumns) {
-                configureColumnComment(sqlBuilder, column);
-            }
-            while (foreignKeyInfo.next()) {
-                configureForeignKey(sqlBuilder, foreignKeyInfo);
-            }
-            while (checkConstraintInfo.next()) {
-                configureCheckConstraint(sqlBuilder, checkConstraintInfo);
-            }
-            HashMap<String, TableIndex> indexHashMap = new HashMap<>();
-            while (indexInfo.next()) {
-                setIndexInfo(schemaName, tableName, indexInfo, indexHashMap);
-            }
-            for (TableIndex index : indexHashMap.values()) {
-                configureIndex(sqlBuilder, index);
-            }
+        });
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        for (TableColumn column : tableColumns) {
+            if (StringUtils.isNotBlank(column.getName())
+                    && StringUtils.isNotBlank(column.getColumnType())
+                    && StringUtils.isNotBlank(column.getComment())) {
+                sqlBuilder.append("\n").append(buildColumnComment(column));
+            }
+        }
+        //build foreign key
+        SQLExecutor.getInstance().execute(connection, String.format(SELECT_FOREIGN_KEY_SQL, tableName, schemaName), resultSet -> {
+            while (resultSet.next()) {
+                sqlBuilder.append("ALTER TABLE ")
+                        .append(resultSet.getString("TableName"))
+                        .append(" ADD CONSTRAINT ")
+                        .append(resultSet.getString("ForeignKeyName"))
+                        .append(" FOREIGN KEY (")
+                        .append(resultSet.getString("ColumnName"))
+                        .append(") REFERENCES ")
+                        .append(resultSet.getString("ReferencedTableName"))
+                        .append("(")
+                        .append(resultSet.getString("ReferencedColumnName")).append(")\n");
+                if (resultSet.getInt("DeleteAction") == 1) {
+                    sqlBuilder.append(" ON DELETE CASCADE").append("\n");
+                }
+                if (resultSet.getInt("UpdateAction") == 1) {
+                    sqlBuilder.append(" ON UPDATE CASCADE").append("\n");
+                }
+                sqlBuilder.append("go\n");
+            }
+        });
+        //build check constraint
+        SQLExecutor.getInstance().execute(connection, String.format(SELECT_CHECK_CONSTRAINT_SQL, tableName, schemaName), resultSet -> {
+            while (resultSet.next()) {
+                sqlBuilder.append("ALTER TABLE ").append(resultSet.getString("TABLE_NAME"))
+                        .append(" ADD CONSTRAINT ")
+                        .append(resultSet.getString("CONSTRAINT_NAME"))
+                        .append(" CHECK (")
+                        .append(resultSet.getString("CHECK_DEFINITION"))
+                        .append(")\ngo\n");
+            }
+        });
+        //build index
+        HashMap<String, TableIndex> indexHashMap = new HashMap<>();
+        SQLExecutor.getInstance().execute(connection, String.format(INDEX_SQL, tableName, schemaName), resultSet -> {
+            while (resultSet.next()) {
+                String indexName = resultSet.getString("INDEX_NAME");
+                TableIndex index = indexHashMap.get(indexName);
+                if (Objects.isNull(index)) {
+                    index = new TableIndex();
+                    index.setSchemaName(schemaName);
+                    index.setTableName(tableName);
+                    index.setName(indexName);
+                    index.setColumnList(new ArrayList<>());
+                    boolean isPrimaryKey = resultSet.getBoolean("IS_PRIMARY");
+                    if (isPrimaryKey) {
+                        index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
+                    } else {
+                        String indexType = resultSet.getString("INDEX_TYPE");
+                        boolean isUnique = resultSet.getBoolean("IS_UNIQUE");
+                        if (isUnique) {
+                            if (Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType)) {
+                                index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
+                            } else {
+                                index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
+                            }
+                        } else {
+                            index.setType(indexType);
+                        }
+                    }
+                    indexHashMap.put(indexName, index);
+                }
+                index.setComment(resultSet.getString("INDEX_COMMENT"));
+                List<TableIndexColumn> columnList = index.getColumnList();
+                TableIndexColumn tableIndexColumn = new TableIndexColumn();
+                tableIndexColumn.setTableName(tableName);
+                tableIndexColumn.setSchemaName(schemaName);
+                tableIndexColumn.setColumnName(resultSet.getString("COLUMN_NAME"));
+                boolean descend = resultSet.getBoolean("DESCEND");
+                if (descend) {
+                    tableIndexColumn.setAscOrDesc("DESC");
+                } else {
+                    tableIndexColumn.setAscOrDesc("ASC");
+                }
+                columnList.add(tableIndexColumn);
+            }
+        });
+        for (TableIndex index : indexHashMap.values()) {
+            SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(index.getType());
+            sqlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
+            if (StringUtils.isNotBlank(index.getComment())) {
+                sqlBuilder.append("\n").append(buildIndexComment(index));
+            }
         }
         return sqlBuilder.toString();
     }
 
-    private void configureCheckConstraint(StringBuilder sqlBuilder, ResultSet checkConstraintInfo) throws SQLException {
-        sqlBuilder.append("ALTER TABLE ").append(checkConstraintInfo.getString("TABLE_NAME"))
-                .append(" ADD CONSTRAINT ")
-                .append(checkConstraintInfo.getString("CONSTRAINT_NAME"))
-                .append(" CHECK (")
-                .append(checkConstraintInfo.getString("CHECK_DEFINITION"))
-                .append(")\ngo\n");
-    }
-
-    private void setIndexInfo(String schemaName, String tableName, ResultSet indexInfo, HashMap<String, TableIndex> indexHashMap) throws SQLException {
-        String indexName = indexInfo.getString("INDEX_NAME");
-        TableIndex index = indexHashMap.get(indexName);
-        if (Objects.isNull(index)) {
-            index = new TableIndex();
-            index.setSchemaName(schemaName);
-            index.setTableName(tableName);
-            index.setName(indexName);
-            index.setColumnList(new ArrayList<>());
-            configureIndexType(indexInfo, index);
-            indexHashMap.put(indexName, index);
-        }
-        index.setComment(indexInfo.getString("INDEX_COMMENT"));
-        List<TableIndexColumn> columnList = index.getColumnList();
-        TableIndexColumn tableIndexColumn = new TableIndexColumn();
-        tableIndexColumn.setTableName(tableName);
-        tableIndexColumn.setSchemaName(schemaName);
-        tableIndexColumn.setColumnName(indexInfo.getString("COLUMN_NAME"));
-        configureAscOrDesc(indexInfo, tableIndexColumn);
-        columnList.add(tableIndexColumn);
-    }
-
-    private void configureColumn(String schemaName, String tableName, StringBuilder sqlBuilder, ResultSet columns, List<TableColumn> tableColumns) throws SQLException {
-        TableColumn tableColumn = new TableColumn();
-        tableColumn.setSchemaName(schemaName);
-        tableColumn.setTableName(tableName);
-        tableColumn.setName(columns.getString("COLUMN_NAME"));
-        tableColumn.setColumnType(columns.getString("DATA_TYPE").toUpperCase());
-        tableColumn.setSparse(columns.getBoolean("IS_SPARSE"));
-        tableColumn.setDefaultValue(columns.getString("COLUMN_DEFAULT"));
-        tableColumn.setNullable(columns.getInt("IS_NULLABLE"));
-        tableColumn.setCollationName(columns.getString("COLLATION_NAME"));
-        tableColumn.setComment(columns.getString("COLUMN_COMMENT"));
-        configureColumnSize(columns, tableColumn);
-        tableColumns.add(tableColumn);
-        SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
-        sqlBuilder.append("\t").append(typeEnum.buildCreateColumnSql(tableColumn)).append(",\n");
-    }
-
-    private void configureIndex(StringBuilder sqlBuilder, TableIndex index) {
-        SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(index.getType());
-        sqlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
-        if (StringUtils.isNotBlank(index.getComment())) {
-            sqlBuilder.append("\n").append(buildIndexComment(index));
-        }
-    }
-
-    private void configureColumnComment(StringBuilder sqlBuilder, TableColumn column) {
-        if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType()) || StringUtils.isBlank(column.getComment())) {
-            return;
-        }
-        sqlBuilder.append("\n").append(buildColumnComment(column));
-    }
-
-    private void configureTableComment(String schemaName, String tableName, StringBuilder sqlBuilder, ResultSet tableComment) throws SQLException {
-        String comment = tableComment.getString("TABLE_COMMENT");
-        if (StringUtils.isNotBlank(comment)) {
-            Table table = new Table();
-            table.setComment(comment);
-            table.setName(tableName);
-            table.setSchemaName(schemaName);
-            sqlBuilder.append("\n").append(buildTableComment(table));
-        }
-    }
-
-    private void configureForeignKey(StringBuilder sqlBuilder, ResultSet foreignKeyInfo) throws SQLException {
-        sqlBuilder.append("ALTER TABLE ")
-                .append(foreignKeyInfo.getString("TableName"))
-                .append(" ADD CONSTRAINT ")
-                .append(foreignKeyInfo.getString("ForeignKeyName"))
-                .append(" FOREIGN KEY (")
-                .append(foreignKeyInfo.getString("ColumnName"))
-                .append(") REFERENCES ")
-                .append(foreignKeyInfo.getString("ReferencedTableName"))
-                .append("(")
-                .append(foreignKeyInfo.getString("ReferencedColumnName")).append(")\n");
-        if (foreignKeyInfo.getInt("DeleteAction") == 1) {
-            sqlBuilder.append(" ON DELETE CASCADE").append("\n");
-        }
-        if (foreignKeyInfo.getInt("UpdateAction") == 1) {
-            sqlBuilder.append(" ON UPDATE CASCADE").append("\n");
-        }
-        sqlBuilder.append("go\n");
-    }
-
-    private void configureAscOrDesc(ResultSet indexInfo, TableIndexColumn tableIndexColumn) throws SQLException {
-        boolean descend = indexInfo.getBoolean("DESCEND");
-        if (descend) {
-            tableIndexColumn.setAscOrDesc("DESC");
-        } else {
-            tableIndexColumn.setAscOrDesc("ASC");
-        }
-    }
-
-    private void configureIndexType(ResultSet indexInfo, TableIndex index) throws SQLException {
-        boolean isPrimaryKey = indexInfo.getBoolean("IS_PRIMARY");
-        if (isPrimaryKey) {
-            index.setType(SqlServerIndexTypeEnum.PRIMARY_KEY.getName());
-        } else {
-            String indexType = indexInfo.getString("INDEX_TYPE");
-            boolean isUnique = indexInfo.getBoolean("IS_UNIQUE");
-            if (isUnique) {
-                if (Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType)) {
-                    index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
-                } else {
-                    index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
-                }
-            } else {
-                index.setType(indexType);
-            }
-        }
-    }
 
     private void configureColumnSize(ResultSet columns, TableColumn tableColumn) throws SQLException {
         if (Arrays.asList(SqlServerColumnTypeEnum.FLOAT.name(),
@@ -298,7 +272,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 .contains(tableColumn.getColumnType())) {
             tableColumn.setColumnSize(columnPrecision);
         } else {
-            if (columnSize!=1) {
+            if (columnSize != 1) {
                 tableColumn.setColumnSize(columnSize);
             }
 
