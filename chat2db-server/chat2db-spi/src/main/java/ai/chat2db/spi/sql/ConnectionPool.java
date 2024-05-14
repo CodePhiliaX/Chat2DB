@@ -19,11 +19,13 @@ public class ConnectionPool {
             while (true) {
                 try {
                     Thread.sleep(1000 * 60 * 10);
+                    log.info("CONNECTION_MAP size:{}",CONNECTION_MAP.size());
                     CONNECTION_MAP.forEach((k, v) -> {
-                        if (v.getLastAccessTime().getTime() + 1000 * 60 * 60 < System.currentTimeMillis()) {
+                        log.info("CONNECTION_key:{},value:{}",k,v.getRefCount());
+                        if (v.getLastAccessTime().getTime() + 1000 * 60 * 20 < System.currentTimeMillis() && v.getRefCount() == 0) {
                             try {
                                 Connection connection = v.getConnection();
-                                if (connection != null ) {
+                                if (connection != null) {
                                     connection.close();
                                     CONNECTION_MAP.remove(k);
                                 }
@@ -41,72 +43,82 @@ public class ConnectionPool {
     }
 
 
-    public static ConnectInfo getAndRemove(String key) {
-        return CONNECTION_MAP.computeIfPresent(key, (k, v) -> {
-            CONNECTION_MAP.remove(k); // 从 Map 中移除
-            return v;      // 返回值
-        });
-    }
-
     public static Connection getConnection(ConnectInfo connectInfo) {
-
+        Connection connection = connectInfo.getConnection();
         try {
-            Connection connection = connectInfo.getConnection();
             if (connection != null && !connection.isClosed()) {
                 log.info("get connection from loacl");
                 return connection;
             }
-            ConnectInfo cache = getAndRemove(connectInfo.getKey());
-            if (cache != null) {
-                connection = cache.getConnection();
-                if (connection != null && !connection.isClosed()) {
-                    log.info("get connection from cache");
-                    connectInfo.setConnection(connection);
-                    return connection;
-                }
-            }
-            synchronized (connectInfo) {
-                connection = connectInfo.getConnection();
-                try {
+            String key = connectInfo.getKey();
+            ConnectInfo lock = CONNECTION_MAP.computeIfAbsent(key, k -> connectInfo.copy());
+            try {
+                synchronized (lock) {
+                    connection = connectInfo.getConnection();
                     if (connection != null && !connection.isClosed()) {
-                        log.info("get connection from cache");
+                        log.info("get connection from loacl");
+                        return connection;
+                    }
+
+                    int n = lock.incrementRefCount();
+                    if (n == 1) {
+                        connection = lock.getConnection();
+                        if (connection != null && !connection.isClosed()) {
+                            log.info("get connection from cache");
+                            connectInfo.setConnection(connection);
+                            lock.setLastAccessTime(new Date());
+                            return connection;
+                        } else {
+                            log.info("get connection from db begin");
+                            connection = Chat2DBContext.getDBManage().getConnection(connectInfo);
+                            lock.setConnection(connection);
+                            lock.setLastAccessTime(new Date());
+                            log.info("get connection from db end");
+                        }
+                        connectInfo.setConnection(connection);
                         return connection;
                     } else {
-                        log.info("get connection from db begin");
                         connection = Chat2DBContext.getDBManage().getConnection(connectInfo);
-                        log.info("get connection from db end");
+                        connectInfo.setConnection(connection);
+                        return connection;
                     }
-                } catch (SQLException e) {
-                    log.error("get connection error", e);
-                    log.info("get connection from db begin2");
-                    connection = Chat2DBContext.getDBManage().getConnection(connectInfo);
-                    log.info("get connection from db end2");
+
                 }
-                connectInfo.setConnection(connection);
-                return connection;
+            } catch (SQLException e) {
+                log.error("get connection error", e);
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
             }
         } catch (SQLException e) {
             log.error("get connection error", e);
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (Exception e1) {
+                log.error("", e1);
+            }
         }
         return null;
     }
 
     public static void close(ConnectInfo connectInfo) {
         String key = connectInfo.getKey();
-        synchronized (key) {
-            ConnectInfo cache = getAndRemove(key);
-            if (cache != null) {
-                Connection connection = cache.getConnection();
-                if (connection != null) {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        log.error("close connection error", e);
-                    }
+        ConnectInfo lock = CONNECTION_MAP.get(key);
+        if (lock != null) {
+            synchronized (lock) {
+                int n = lock.decrementRefCount();
+                if (n == 0) {
+                    lock.setConnection(connectInfo.getConnection());
+                } else {
+                    connectInfo.close();
                 }
             }
-            connectInfo.setLastAccessTime(new Date());
-            CONNECTION_MAP.put(key, connectInfo);
+        } else {
+            connectInfo.close();
         }
+
+
     }
 }

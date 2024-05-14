@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ai.chat2db.spi.config.DriverConfig;
 import ai.chat2db.spi.model.KeyValue;
@@ -600,5 +601,19 @@ public class ConnectInfo {
 
     public void setLastAccessTime(Date lastAccessTime) {
         this.lastAccessTime = lastAccessTime;
+    }
+
+    private final AtomicInteger refCount = new AtomicInteger(0);
+
+    public int incrementRefCount() {
+       return refCount.incrementAndGet();
+    }
+
+    public int decrementRefCount() {
+       return refCount.decrementAndGet();
+    }
+
+    public int getRefCount() {
+        return refCount.get();
     }
 }
