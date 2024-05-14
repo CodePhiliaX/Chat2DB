@@ -56,7 +56,7 @@ public class ConnectionPool {
                 log.info("get connection from loacl");
                 return connection;
             }
-            ConnectInfo cache = getAndRemove(connectInfo.key());
+            ConnectInfo cache = getAndRemove(connectInfo.getKey());
             if (cache != null) {
                 connection = cache.getConnection();
                 if (connection != null && !connection.isClosed()) {
@@ -92,7 +92,7 @@ public class ConnectionPool {
     }
 
     public static void close(ConnectInfo connectInfo) {
-        String key = connectInfo.key();
+        String key = connectInfo.getKey();
         synchronized (key) {
             ConnectInfo cache = getAndRemove(key);
             if (cache != null) {

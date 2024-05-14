@@ -199,9 +199,6 @@ public class ConnectInfo {
         this.databaseName = database;
     }
 
-    public String key() {
-        return this.dataSourceId + "_" + this.databaseName;
-    }
 
     public void setUrl(String url) {
         this.url = url;
