@@ -13,116 +13,79 @@ import java.util.Map;
 
 public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
 
-
-    BFILE("BFILE", false, false, true, false, false, false, true, true, false, false),
+    TINYINT("TINYINT", false, false, true, false, false, false, true, true, false, false),
 
     BIGINT("BIGINT", false, false, true, false, false, false, true, true, false, false),
 
+    SMALLINT("SMALLINT", false, false, true, false, false, false, true, true, false, false),
 
-    BINARY("BINARY", false, false, true, false, false, false, true, true, false, false),
+    INTEGER("INTEGER", false, false, true, false, false, false, true, true, false, false),
 
-
-    BIT("BIT", false, false, true, false, false, false, true, true, false, false),
-
-
-    BLOB("BLOB", false, false, true, false, false, false, true, true, false, false),
-
-
-    CHAR("CHAR", true, false, true, false, false, false, true, true, false, true),
-
-//    CHAR_VARYING("CHAR VARYING", true, false, true, false, false, false, true, true, false, true),
-//
-//    CHARACTER("CHARACTER", true, false, true, false, false, false, true, true, false, true),
-//
-//    CHARACTER_VARYING("CHARACTER VARYING", true, false, true, false, false, false, true, true, false, true),
-
-    CLOB("CLOB", false, false, true, false, false, false, true, true, false, false),
-
-    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
-
-    DECIMAL("DECIMAL", true, true, true, false, false, false, true, true, false, false),
-    DEC("DEC", true, true, true, false, false, false, true, true, false, false),
-
-    DOUBLE("DOUBLE", false, false, true, false, false, false, true, true, false, false),
-
+    NUMERIC("NUMERIC", true, true, true, false, false, false, true, true, false, false),
 
     FLOAT("FLOAT", true, false, true, false, false, false, true, true, false, false),
 
-    INT("INT", false, false, true, true, false, false, true, true, false, false),
+    DOUBLE("DOUBLE", false, false, true, false, false, false, true, true, false, false),
 
-    // INTEGER("INTEGER", false, false, true, false, false, false, true, true, false, false),
+    CHAR("CHAR", true, false, true, false, false, false, true, true, false, true),
+
+    NCHAR("NCHAR", true, false, true, false, false, false, true, true, false, true),
+
+    VARCHAR("VARCHAR", true, false, true, false, false, false, true, true, false, true),
+
+    VARCHAR2("VARCHAR2", true, false, true, false, false, false, true, true, false, true),
+
+    DATE("DATE", false, false, true, false, false, false, true, true, false, false),
+
+    TIME("TIME", false, false, true, false, false, false, true, true, false, false),
+
+    TIME_WITH_TIME_ZONE("TIME WITH TIME ZONE", false, false, true, false, false, false, true, true, false, false),
+
+    DATETIME("DATETIME", false, false, true, false, false, false, true, true, false, false),
+
+    DATETIME_WITH_TIME_ZONE("DATETIME WITH TIME ZONE", false, false, true, false, false, false, true, true, false, false),
+
+    TIMESTAMP("TIMESTAMP", false, false, true, false, false, false, true, true, false, false),
+
+    TIMESTAMP_WITH_TIME_ZONE("TIMESTAMP WITH TIME ZONE", false, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL_YEAR("INTERVAL YEAR", false, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL_MONTH("INTERVAL MONTH", false, false, true, false, false, false, true, true, false, false),
 
     INTERVAL_DAY("INTERVAL DAY", false, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_DAY_TO_HOUR("INTERVAL DAY TO HOUR", true, false, true, false, false, false, true, true, false, false),
+    INTERVAL_HOUR("INTERVAL HOUR", false, false, true, false, false, false, true, true, false, false),
 
+    INTERVAL_MINUTE("INTERVAL MINUTE", false, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL_SECOND("INTERVAL SECOND", false, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL_YEAR_TO_MONTH("INTERVAL YEAR TO MONTH", true, false, true, false, false, false, true, true, false, false),
+
+    INTERVAL_DAY_TO_HOUR("INTERVAL DAY TO HOUR", true, false, true, false, false, false, true, true, false, false),
 
     INTERVAL_DAY_TO_MINUTE("INTERVAL DAY TO MINUTE", true, false, true, false, false, false, true, true, false, false),
 
     INTERVAL_DAY_TO_SECOND("INTERVAL DAY TO SECOND", true, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_HOUR("INTERVAL HOUR", false, false, true, false, false, false, true, true, false, false),
-
     INTERVAL_HOUR_TO_MINUTE("INTERVAL HOUR TO MINUTE", true, false, true, false, false, false, true, true, false, false),
 
     INTERVAL_HOUR_TO_SECOND("INTERVAL HOUR TO SECOND", true, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_MINUTE("INTERVAL MINUTE", false, false, true, false, false, false, true, true, false, false),
-
     INTERVAL_MINUTE_TO_SECOND("INTERVAL MINUTE TO SECOND", true, false, true, false, false, false, true, true, false, false),
 
+    BLOB("BLOB", false, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_MONTH("INTERVAL MONTH", false, false, true, false, false, false, true, true, false, false),
+    CLOB("CLOB", false, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_SECOND("INTERVAL SECOND", false, false, true, false, false, false, true, true, false, false),
+    BOOLEAN("BOOLEAN", false, false, true, false, false, false, true, true, false, false),
 
+    BINARY("BINARY", false, false, true, false, false, false, true, true, false, false),
 
-    INTERVAL_YEAR("INTERVAL YEAR", false, false, true, false, false, false, true, true, false, false),
+    OBJECT("OBJECT", false, false, true, false, false, false, true, true, false, false),
 
-
-    INTERVAL_YEAR_TO_MONTH("INTERVAL YEAR TO MONTH", true, false, true, false, false, false, true, true, false, false),
-
-    LONGVARBINARY("LONGVARBINARY", false, false, true, false, false, false, true, true, false, false),
-
-
-    LONGVARCHAR("LONGVARCHAR", false, false, true, false, false, false, true, true, false, false),
-    TEXT("TEXT", false, false, true, false, false, false, true, true, false, false),
-
-
-    NUMBERIC("NUMBERIC", true, true, true, false, false, false, true, true, false, false),
-
-
-    NUMBER("NUMBER", true, true, true, false, false, false, true, true, false, false),
-
-    REAL("REAL", false, false, true, false, false, false, true, true, false, false),
-
-
-    SMALLINT("SMALLINT", false, false, true, false, false, false, true, true, false, false),
-
-
-    TIME("TIME", false, false, true, false, false, false, true, true, false, false),
-
-
-    TIME_WITH_TIME_ZONE("TIME WITH TIME ZONE", false, false, true, false, false, false, true, true, false, false),
-
-
-    TIMESTAMP("TIMESTAMP", false, false, true, false, false, false, true, true, false, false),
-
-
-    TIMESTAMP_WITH_TIME_ZONE("TIMESTAMP WITH TIME ZONE", false, false, true, false, false, false, true, true, false, false),
-
-
-    TINYINT("TINYINT", false, false, true, false, false, false, true, true, false, false),
-
-
-    VARBINARY("VARBINARY", false, false, true, false, false, false, true, true, false, false),
-
-
-    VARCHAR("VARCHAR", true, false, true, false, false, false, true, true, false, true),
-
-
-    VARCHAR2("VARCHAR2", true, false, true, false, false, false, true, true, false, true),
-
+    VARRAY("VARRAY", false, false, true, false, false, false, true, true, false, false),
     ;
     private ColumnType columnType;
 
@@ -211,7 +174,7 @@ public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
 
     private String buildDataType(TableColumn column, XUGUDBColumnTypeEnum type) {
         String columnType = type.columnType.getTypeName();
-        if (Arrays.asList(CHAR, VARCHAR, VARCHAR2, LONGVARCHAR,TEXT).contains(type)) {
+        if (Arrays.asList(CHAR, VARCHAR, VARCHAR2).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && StringUtils.isEmpty(column.getUnit())) {
@@ -222,7 +185,7 @@ public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
             return script.toString();
         }
 
-        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
+        if (Arrays.asList(FLOAT, TIMESTAMP).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
