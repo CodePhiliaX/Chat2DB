@@ -193,11 +193,24 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                     } else {
                         String indexType = resultSet.getString("INDEX_TYPE");
                         boolean isUnique = resultSet.getBoolean("IS_UNIQUE");
+                        boolean isUniqueConstraint = resultSet.getBoolean("IS_UNIQUE_CONSTRAINT");
+                        boolean isNonClustered = Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType);
                         if (isUnique) {
-                            if (Objects.equals(SqlServerIndexTypeEnum.NONCLUSTERED.name(), indexType)) {
-                                index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
+                            if (isUniqueConstraint) {
+                                sqlBuilder.append("ALTER TABLE ")
+                                        .append(schemaName).append(".").append(tableName)
+                                        .append(" ADD CONSTRAINT ").append(indexName).append(" UNIQUE ");
+                                if (!isNonClustered) {
+                                    sqlBuilder.append("CLUSTERED ");
+                                }
+                                sqlBuilder.append("(").append(resultSet.getString("COLUMN_NAME")).append(")")
+                                        .append("\ngo\n");
                             } else {
-                                index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
+                                if (isNonClustered) {
+                                    index.setType(SqlServerIndexTypeEnum.UNIQUE_NONCLUSTERED.getName());
+                                } else {
+                                    index.setType(SqlServerIndexTypeEnum.UNIQUE_CLUSTERED.getName());
+                                }
                             }
                         } else {
                             index.setType(indexType);
@@ -221,7 +234,11 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             }
         });
         for (TableIndex index : indexHashMap.values()) {
-            SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(index.getType());
+            String type = index.getType();
+            if (Objects.isNull(type)) {
+                continue;
+            }
+            SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(type);
             sqlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
             if (StringUtils.isNotBlank(index.getComment())) {
                 sqlBuilder.append("\n").append(buildIndexComment(index));
@@ -526,7 +543,8 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                                                    col.name             AS COLUMN_NAME,
                                                    ind.type_desc        AS INDEX_TYPE,
                                                    ind.is_primary_key   AS IS_PRIMARY,
-                                                   ep.value             as INDEX_COMMENT
+                                                   ep.value             AS INDEX_COMMENT,
+                                                   ind.is_unique_constraint AS IS_UNIQUE_CONSTRAINT
                                             FROM sys.indexes ind
                                                      INNER JOIN sys.index_columns ic
                                                                 ON ind.object_id = ic.object_id and ind.index_id = ic.index_id and ic.key_ordinal > 0
