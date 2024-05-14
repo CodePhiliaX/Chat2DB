@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -117,34 +119,92 @@ public class SqlUtils {
         return null;
     }
 
+    private static final String DELIMITER_AFTER_REGEX = "^\\s*(?i)delimiter\\s+(\\S+)";
+    private static final String DELIMITER_REGEX = "(?mi)^\\s*delimiter\\s*;?";
+
+    private static final String EVENT_REGEX = "(?i)\\bcreate\\s+event\\b.*?\\bend\\b";
+
     public static List<String> parse(String sql, DbType dbType) {
         List<String> list = new ArrayList<>();
         try {
+            if (StringUtils.isBlank(sql)) {
+                return list;
+            }
+            sql = removeDelimiter(sql);
+            if (StringUtils.isBlank(sql)) {
+                return list;
+            }
             Statements statements = CCJSqlParserUtil.parseStatements(sql);
             // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
                 if (!(stmt instanceof CreateProcedure)) {
-                    list.add(updateNow(stmt.toString(),dbType));
+                    list.add(updateNow(stmt.toString(), dbType));
                 }
             }
             if (CollectionUtils.isEmpty(list)) {
                 list.add(sql);
             }
         } catch (Exception e) {
-            list = SQLParserUtils.splitAndRemoveComment(sql, dbType);
+            try {
+                return splitWithCreateEvent(sql, dbType);
+            } catch (Exception e1) {
+                return SQLParserUtils.splitAndRemoveComment(sql, dbType);
+            }
         }
         return list;
     }
 
-    private static String updateNow(String sql,DbType dbType) {
-        if(StringUtils.isBlank(sql) || !DbType.mysql.equals(dbType)){
+    private static String removeDelimiter(String str) {
+        try {
+            if (str.toUpperCase().contains("DELIMITER")) {
+                Pattern pattern = Pattern.compile(DELIMITER_AFTER_REGEX, Pattern.MULTILINE);
+                Matcher matcher = pattern.matcher(str);
+                while (matcher.find()) {
+                    // 获取并打印 "DELIMITER" 后的第一个字符串
+                    String mm = matcher.group(1);
+                    if (!";".equals(mm)) {
+                        str = str.replace(mm, "");
+                    }
+                }
+            }
+            return str.replaceAll(DELIMITER_REGEX, "");
+        }catch (Exception e){
+            return str;
+        }
+    }
+
+    private static List<String> splitWithCreateEvent(String str, DbType dbType) {
+        List<String> list = new ArrayList<>();
+        String sql = SQLParserUtils.removeComment(str, dbType).trim();
+        Pattern pattern = Pattern.compile(EVENT_REGEX, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(sql);
+        StringBuilder stringBuilder = new StringBuilder();
+        int lastEnd = 0; // 用于跟踪上一个匹配的结束位置
+        while (matcher.find()) {
+            if (matcher.start() > lastEnd) {
+                List<String> l = SQLParserUtils.split(sql.substring(lastEnd, matcher.start()), dbType);
+                list.addAll(l);
+            }
+            list.add(matcher.group());
+            lastEnd = matcher.end(); // 更新上一个匹配的结束位置
+        }
+        if (lastEnd < sql.length()) {
+            List<String> l = SQLParserUtils.split(sql.substring(lastEnd), dbType);
+            list.addAll(l);
+        }
+        return list;
+    }
+
+
+    private static String updateNow(String sql, DbType dbType) {
+        if (StringUtils.isBlank(sql) || !DbType.mysql.equals(dbType)) {
             return sql;
         }
-        if(sql.contains("default now ()")){
-            return sql.replace("default now ()","default CURRENT_TIMESTAMP");
+        if (sql.contains("default now ()")) {
+            return sql.replace("default now ()", "default CURRENT_TIMESTAMP");
         }
-        if(sql.contains("DEFAULT now ()")){
-            return sql.replace("DEFAULT now ()","DEFAULT CURRENT_TIMESTAMP");
+        if (sql.contains("DEFAULT now ()")) {
+            return sql.replace("DEFAULT now ()", "DEFAULT CURRENT_TIMESTAMP");
         }
         return sql;
     }
@@ -161,6 +221,7 @@ public class SqlUtils {
         DataTypeEnum dataTypeEnum = DataTypeEnum.getByCode(dataType);
         return dataTypeEnum.getSqlValue(value);
     }
+
 
     public static boolean hasPageLimit(String sql, DbType dbType) {
         try {
@@ -185,5 +246,4 @@ public class SqlUtils {
         }
         return false;
     }
-
 }

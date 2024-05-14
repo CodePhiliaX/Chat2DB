@@ -4,6 +4,7 @@ package ai.chat2db.spi.sql;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
@@ -142,6 +143,9 @@ public class ConnectInfo {
     private DriverConfig driverConfig;
 
 
+    private Date lastAccessTime;
+
+
     public String getDbVersion() {
         return dbVersion;
     }
@@ -168,6 +172,7 @@ public class ConnectInfo {
     }
 
     public Session session;
+
 
 
     public LinkedHashMap<String, Object> getExtendMap() {
@@ -590,5 +595,13 @@ public class ConnectInfo {
 
     public void setLoginUser(String loginUser) {
         this.loginUser = loginUser;
+    }
+
+    public Date getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public void setLastAccessTime(Date lastAccessTime) {
+        this.lastAccessTime = lastAccessTime;
     }
 }
