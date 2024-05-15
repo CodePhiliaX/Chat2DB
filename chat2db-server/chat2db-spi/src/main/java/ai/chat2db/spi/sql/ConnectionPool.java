@@ -105,6 +105,17 @@ public class ConnectionPool {
 
     public static void close(ConnectInfo connectInfo) {
         String key = connectInfo.getKey();
+        try {
+            Connection currentConnection = connectInfo.getConnection();
+            // 如果当前连接已经关闭，则不需要重复关闭
+            if (currentConnection == null || currentConnection.isClosed()) {
+                log.info("connection is already closed, key:{}, n:{}", connectInfo.getKey(), connectInfo.getRefCount());
+                return;
+            }
+        } catch (SQLException e) {
+            log.error("connection close error",e);
+        }
+        log.info("connection close, key:{}, n:{}", connectInfo.getKey(), connectInfo.getRefCount());
         ConnectInfo lock = CONNECTION_MAP.get(key);
         if (lock != null) {
             synchronized (lock) {
