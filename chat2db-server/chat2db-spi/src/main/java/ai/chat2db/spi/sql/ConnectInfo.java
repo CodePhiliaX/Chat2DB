@@ -556,6 +556,7 @@ public class ConnectInfo {
         copy.setDriverConfig(this.getDriverConfig());
         copy.setSid(this.getSid());
         copy.setUrlWithOutDatabase(this.getUrlWithOutDatabase());
+        copy.setLastAccessTime(new Date());
         return copy;
     }
 

@@ -120,6 +120,7 @@ public class ConnectionPool {
             synchronized (lock) {
                 int n = lock.decrementRefCount();
                 if (n == 0) {
+                    lock.setLastAccessTime(new Date());
                     lock.setConnection(connectInfo.getConnection());
                 } else {
                     connectInfo.close();
