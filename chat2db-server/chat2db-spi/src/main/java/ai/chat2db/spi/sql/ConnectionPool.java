@@ -115,7 +115,6 @@ public class ConnectionPool {
         } catch (SQLException e) {
             log.error("connection close error",e);
         }
-        log.info("connection close, key:{}, n:{}", connectInfo.getKey(), connectInfo.getRefCount());
         ConnectInfo lock = CONNECTION_MAP.get(key);
         if (lock != null) {
             synchronized (lock) {
