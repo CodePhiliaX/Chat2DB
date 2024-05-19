@@ -8,7 +8,7 @@
 
 # Chat2DB
 
-**中文** | [English](README.md)· [更新日志](CHANGELOG.md) · [文档]([https://docs.chat2db-ai.com/](https://github.com/chat2db/Chat2db-website-old/blob/main/docs/index.md)) · [报告问题](https://github.com/chat2db/Chat2DB/issues) · [提交PR](https://github.com/chat2db/Chat2DB/pulls)
+**中文** | [English](README.md)· [更新日志](CHANGELOG.md) · [文档]([https://docs.chat2db-ai.com/) · [报告问题](https://github.com/chat2db/Chat2DB/issues) · [提交PR](https://github.com/chat2db/Chat2DB/pulls)
 
 [![License](https://img.shields.io/github/license/alibaba/fastjson2?color=4D7A97&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Java support](https://img.shields.io/badge/Java-17+-green?logo=java&logoColor=white)](https://openjdk.java.net/)
