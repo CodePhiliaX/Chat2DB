@@ -8,7 +8,7 @@
 
 # Chat2DB
 
-**English** | [中文](README_CN.md)· [Changelog](CHANGELOG.md) · [Doc](https://docs./) · [Report Bug](https://github.com/chat2db/Chat2DB/issues) · [PR](https://github.com/chat2db/Chat2DB/pulls)
+**English** | [中文](README_CN.md)· [Changelog](CHANGELOG.md) · [Doc](https://github.com/chat2db/Chat2db-website-old/blob/main/docs/index.md) · [Report Bug](https://github.com/chat2db/Chat2DB/issues) · [PR](https://github.com/chat2db/Chat2DB/pulls)
 
 </div>
 
