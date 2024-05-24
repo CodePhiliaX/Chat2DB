@@ -1,6 +1,7 @@
 package ai.chat2db.plugin.mysql.type;
 
 import ai.chat2db.spi.SQLValueProcessor;
+import ai.chat2db.spi.jdbc.DefaultSQLValueProcessor;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKBReader;
 
@@ -10,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public enum MysqlValueProcessorEnum implements SQLValueProcessor {
-    GEOMETRY{
+    GEOMETRY {
         @Override
         public String getSqlValueString(ResultSet rs, int index) throws SQLException {
             try {
@@ -62,9 +63,9 @@ public enum MysqlValueProcessorEnum implements SQLValueProcessor {
                     dbGeometry = wkbReader.read(wkb);
                     dbGeometry.setSRID(srid);
                 }
-                return dbGeometry.toString();
+                return DefaultSQLValueProcessor.escapeString(dbGeometry.toString());
             } catch (Exception e) {
-                return rs.getString(index);
+                return DefaultSQLValueProcessor.escapeString(rs.getString(index));
             }
         }
     };

@@ -50,7 +50,7 @@ public class DefaultSQLValueProcessor implements SQLValueProcessor {
         return "'" + escapeString(object) + "'";
     }
 
-    private String escapeString(Object object) {
+    public static String escapeString(Object object) {
         String s = (String) object;
         if (StringUtils.isBlank(s)) {
             return "";
@@ -58,7 +58,7 @@ public class DefaultSQLValueProcessor implements SQLValueProcessor {
         return s.replace("\\", "\\\\").replace("'", "''");
     }
 
-    private String converterClob2Str(Clob c) {
+    public static String converterClob2Str(Clob c) {
         StringBuilder stringBuilder = new StringBuilder();
         try (Reader reader = c.getCharacterStream()) {
             BufferedReader bufferedReader = new BufferedReader(reader);
@@ -72,7 +72,7 @@ public class DefaultSQLValueProcessor implements SQLValueProcessor {
         }
     }
 
-    private String converterByteArray2Str(byte[] bytes) {
+    public static String converterByteArray2Str(byte[] bytes) {
         return "0x" + BaseEncoding.base16().encode(bytes);
     }
 }
