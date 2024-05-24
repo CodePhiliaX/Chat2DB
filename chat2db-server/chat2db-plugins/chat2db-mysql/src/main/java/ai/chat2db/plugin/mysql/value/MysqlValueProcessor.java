@@ -22,7 +22,7 @@ public class MysqlValueProcessor extends DefaultSQLValueProcessor {
     public String getSqlValueString(ResultSet rs, int index) throws SQLException {
         Object obj = rs.getObject(index);
         if (obj == null) {
-            return null;
+            return "NULL";
         }
         String columnTypeName = rs.getMetaData().getColumnTypeName(index);
         if (MysqlColumnTypeEnum.GEOMETRY.name().equalsIgnoreCase(columnTypeName)
