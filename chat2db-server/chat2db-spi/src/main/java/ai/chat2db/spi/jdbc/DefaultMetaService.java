@@ -1,10 +1,7 @@
 package ai.chat2db.spi.jdbc;
 
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
-import ai.chat2db.spi.CommandExecutor;
-import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.SqlBuilder;
-import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.*;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import com.google.common.collect.Lists;
@@ -165,6 +162,14 @@ public class DefaultMetaService implements MetaData {
     @Override
     public ValueHandler getValueHandler() {
         return new DefaultValueHandler();
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public SQLValueProcessor getSQLValueProcessor() {
+        return new DefaultSQLValueProcessor();
     }
 
     @Override

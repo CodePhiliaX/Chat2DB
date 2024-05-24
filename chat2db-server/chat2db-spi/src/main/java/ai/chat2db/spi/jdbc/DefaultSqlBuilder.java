@@ -17,7 +17,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DefaultSqlBuilder implements SqlBuilder<Table> {
 
@@ -122,13 +124,13 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         if (table == null || CollectionUtils.isEmpty(table.getColumnList()) || StringUtils.isBlank(type)) {
             return "";
         }
-        if(DmlType.INSERT.name().equalsIgnoreCase(type)) {
+        if (DmlType.INSERT.name().equalsIgnoreCase(type)) {
             return getInsertSql(table.getName(), table.getColumnList());
-        } else if(DmlType.UPDATE.name().equalsIgnoreCase(type)) {
+        } else if (DmlType.UPDATE.name().equalsIgnoreCase(type)) {
             return getUpdateSql(table.getName(), table.getColumnList());
-        } else if(DmlType.DELETE.name().equalsIgnoreCase(type)) {
+        } else if (DmlType.DELETE.name().equalsIgnoreCase(type)) {
             return getDeleteSql(table.getName(), table.getColumnList());
-        }else if(DmlType.SELECT.name().equalsIgnoreCase(type)) {
+        } else if (DmlType.SELECT.name().equalsIgnoreCase(type)) {
             return getSelectSql(table.getName(), table.getColumnList());
         }
         return "";
@@ -187,6 +189,29 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         return script.toString();
     }
 
+    private String getInsertSql(String schemaName, String tableName, List<String> columnList, List<String> valueList) {
+        StringBuilder script = new StringBuilder();
+        script.append("INSERT INTO ").append(schemaName).append(".").append(tableName)
+                .append(" (")
+                .append(String.join(",", columnList))
+                .append(") VALUES (")
+                .append(String.join(",", valueList))
+                .append(");");
+        return script.toString();
+    }
+
+    private String getMultiInsertSql(String schemaName, String tableName, List<String> columnList, List<List<String>> valueList) {
+        StringBuilder script = new StringBuilder();
+        script.append("INSERT INTO ").append(schemaName).append(".").append(tableName)
+                .append(" (")
+                .append(String.join(",", columnList))
+                .append(") VALUES ")
+                .append(valueList.stream()
+                                .map(values -> "(" + String.join(",", values) + ")")
+                                .collect(Collectors.joining(",\n")))
+                .append(");");
+        return script.toString();
+    }
     private List<String> getPrimaryColumns(List<Header> headerList) {
         if (CollectionUtils.isEmpty(headerList)) {
             return Lists.newArrayList();

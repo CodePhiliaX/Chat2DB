@@ -244,6 +244,8 @@ public interface MetaData {
      */
     ValueHandler getValueHandler();
 
+    SQLValueProcessor getSQLValueProcessor();
+
 
     /**
      * Get command executor.
