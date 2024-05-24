@@ -2,6 +2,7 @@ package ai.chat2db.spi.jdbc;
 
 import ai.chat2db.spi.SQLValueProcessor;
 import com.google.common.io.BaseEncoding;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,6 +52,9 @@ public class DefaultSQLValueProcessor implements SQLValueProcessor {
 
     private String escapeString(Object object) {
         String s = (String) object;
+        if (StringUtils.isBlank(s)) {
+            return "";
+        }
         return s.replace("\\", "\\\\").replace("'", "''");
     }
 
