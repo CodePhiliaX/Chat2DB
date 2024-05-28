@@ -77,12 +77,14 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
 
     @Override
     public String buildModifyTaleSql(Table oldTable, Table newTable) {
-        StringBuilder script = new StringBuilder();
-        script.append("ALTER TABLE ");
+        StringBuilder tableBuilder = new StringBuilder();
+        tableBuilder.append("ALTER TABLE ");
         if (StringUtils.isNotBlank(oldTable.getDatabaseName())) {
-            script.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
+            tableBuilder.append("`").append(oldTable.getDatabaseName()).append("`").append(".");
         }
-        script.append("`").append(oldTable.getName()).append("`").append("\n");
+        tableBuilder.append("`").append(oldTable.getName()).append("`").append("\n");
+
+        StringBuilder script = new StringBuilder();
         if (!StringUtils.equalsIgnoreCase(oldTable.getName(), newTable.getName())) {
             script.append("\t").append("RENAME TO ").append("`").append(newTable.getName()).append("`").append(",\n");
         }
@@ -115,9 +117,11 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         if (script.length() > 2) {
             script = new StringBuilder(script.substring(0, script.length() - 2));
             script.append(";");
+            return tableBuilder.append(script).toString();
+        }else {
+            return StringUtils.EMPTY;
         }
 
-        return script.toString();
     }
 
 

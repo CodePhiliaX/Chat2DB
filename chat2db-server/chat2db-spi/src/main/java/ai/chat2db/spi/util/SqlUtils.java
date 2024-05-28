@@ -130,7 +130,13 @@ public class SqlUtils {
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
-            sql = removeDelimiter(sql);
+            if (DbType.mysql.equals(dbType) ||
+                    DbType.oracle.equals(dbType) ||
+                    DbType.oceanbase.equals(dbType)) {
+                sql = updateNow(sql, dbType);
+                return split(new SqlSplitProcessor(dbType, false,false), sql);
+            }
+//            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
@@ -138,7 +144,7 @@ public class SqlUtils {
             // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
                 if (!(stmt instanceof CreateProcedure)) {
-                    list.add(updateNow(stmt.toString(), dbType));
+                    list.add(stmt.toString());
                 }
             }
             if (CollectionUtils.isEmpty(list)) {
@@ -168,7 +174,7 @@ public class SqlUtils {
                 }
             }
             return str.replaceAll(DELIMITER_REGEX, "");
-        }catch (Exception e){
+        } catch (Exception e) {
             return str;
         }
     }
@@ -199,6 +205,12 @@ public class SqlUtils {
     private static String updateNow(String sql, DbType dbType) {
         if (StringUtils.isBlank(sql) || !DbType.mysql.equals(dbType)) {
             return sql;
+        }
+        if (sql.contains("default now()")) {
+            return sql.replace("default now()", "default CURRENT_TIMESTAMP");
+        }
+        if (sql.contains("DEFAULT now()")) {
+            return sql.replace("DEFAULT now()", "default CURRENT_TIMESTAMP");
         }
         if (sql.contains("default now ()")) {
             return sql.replace("default now ()", "default CURRENT_TIMESTAMP");
@@ -246,4 +258,109 @@ public class SqlUtils {
         }
         return false;
     }
+
+    private static List<String> split(SqlSplitProcessor processor, String sql) {
+        StringBuffer buffer = new StringBuffer();
+        List<SplitSqlString> sqls = processor.split(buffer, sql);
+        String bufferStr = buffer.toString();
+        if (bufferStr.trim().length() != 0) {
+            // if buffer is not empty, there will be some errors in syntax
+            log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
+            int lastSqlOffset;
+            if (sqls.size() == 0) {
+                int index = sql.indexOf(bufferStr.trim(), 0);
+                lastSqlOffset = index == -1 ? 0 : index;
+            } else {
+                int from = sqls.get(sqls.size() - 1).getOffset() + sqls.get(sqls.size() - 1).getStr().length();
+                int index = sql.indexOf(bufferStr.trim(), from);
+                lastSqlOffset = index == -1 ? from : index;
+            }
+            sqls.add(new SplitSqlString(lastSqlOffset, bufferStr));
+        }
+        return sqls.stream().map(SplitSqlString::getStr).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        String sql = "DELIMITER //\n" +
+                "\n" +
+                "CREATE TRIGGER YS_production_dispatch_list_update\n" +
+                "BEFORE UPDATE ON production_dispatch_list\n" +
+                "FOR EACH ROW\n" +
+                "BEGIN\n" +
+                "  DECLARE rework_count INT DEFAULT 0;\n" +
+                "  DECLARE scrap_count INT DEFAULT 0;\n" +
+                "  DECLARE qualified_rate DOUBLE;\n" +
+                "\n" +
+                "    IF NEW.actual_completion_time IS NOT NULL THEN\n" +
+                "\n" +
+                "        SELECT COUNT(1) \n" +
+                "        INTO rework_count \n" +
+                "        FROM (\n" +
+                "            SELECT \n" +
+                "                uct.unique_code zz1, \n" +
+                "                fm.unique_code zz2, \n" +
+                "                ROW_NUMBER() OVER (PARTITION BY uct.unique_code, fm.unique_code ORDER BY fm.id) js\n" +
+                "            FROM (\n" +
+                "                SELECT DISTINCT unique_code\n" +
+                "                FROM mars_platform_prod.check_task\n" +
+                "                WHERE list_id = NEW.id\n" +
+                "            ) AS uct\n" +
+                "            INNER JOIN mars_platform_prod.flow_mgr AS fm \n" +
+                "            ON uct.unique_code = fm.unique_code \n" +
+                "            AND fm.is_deleted = 0 \n" +
+                "            AND handle_result = 3\n" +
+                "        ) AS bg \n" +
+                "        WHERE js = 1;\n" +
+                "        SET NEW.Rework_number_YS = rework_count;\n" +
+                "\n" +
+                "\n" +
+                "        SELECT COUNT(1) \n" +
+                "        INTO scrap_count \n" +
+                "        FROM (\n" +
+                "            SELECT \n" +
+                "                uct.unique_code zz1, \n" +
+                "                fm.unique_code zz2, \n" +
+                "                ROW_NUMBER() OVER (PARTITION BY uct.unique_code, fm.unique_code ORDER BY fm.id) js\n" +
+                "            FROM (\n" +
+                "                SELECT DISTINCT unique_code\n" +
+                "                FROM mars_platform_prod.check_task\n" +
+                "                WHERE list_id = NEW.id\n" +
+                "            ) AS uct\n" +
+                "            INNER JOIN mars_platform_prod.flow_mgr AS fm \n" +
+                "            ON uct.unique_code = fm.unique_code \n" +
+                "            AND fm.is_deleted = 0 \n" +
+                "            AND handle_result = 5\n" +
+                "        ) AS bg \n" +
+                "        WHERE js = 1;\n" +
+                "        SET NEW.Scrap_number_YS = scrap_count;\n" +
+                "\n" +
+                "        SELECT ROUND(SUM(CASE WHEN zz2 IS NULL THEN 1 ELSE 0 END) * 100.0 / COUNT(zz1), 2) \n" +
+                "        INTO qualified_rate \n" +
+                "        FROM (\n" +
+                "            SELECT \n" +
+                "                uct.unique_code zz1, \n" +
+                "                fm.unique_code zz2, \n" +
+                "                ROW_NUMBER() OVER (PARTITION BY uct.unique_code, fm.unique_code ORDER BY fm.id) js\n" +
+                "            FROM (\n" +
+                "                SELECT DISTINCT unique_code\n" +
+                "                FROM mars_platform_prod.check_task\n" +
+                "                WHERE list_id = NEW.id\n" +
+                "            ) AS uct\n" +
+                "            LEFT JOIN mars_platform_prod.flow_mgr AS fm \n" +
+                "            ON uct.unique_code = fm.unique_code \n" +
+                "            AND fm.is_deleted = 0\n" +
+                "            AND fm.`approval_result` = 1\n" +
+                "        ) AS bg \n" +
+                "        WHERE js = 1;\n" +
+                "        SET NEW.qualified_one_rate_YS = qualified_rate;\n" +
+                "    END IF;\n" +
+                "END //\n" +
+                "\n" +
+                "DELIMITER ;\n" +
+                "\n" +
+                "\n" + "select * from t1;select * from t2";
+        List<String> offsetStrings =  parse(sql, DbType.mysql);
+        System.out.println(offsetStrings);
+    }
+
 }
