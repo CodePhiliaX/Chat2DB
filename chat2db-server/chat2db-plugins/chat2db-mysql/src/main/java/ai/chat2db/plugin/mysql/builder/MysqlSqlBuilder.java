@@ -104,13 +104,18 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
 
         // 判断移动的字段
         List<TableColumn> moveColumnList = new ArrayList<>();
-        movedElements(oldTable.getColumnList(), newTable.getColumnList());
+        moveColumnList = movedElements(oldTable.getColumnList(), newTable.getColumnList());
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
+            if ((StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType())
+                    && StringUtils.isNotBlank(tableColumn.getName())) || moveColumnList.contains(tableColumn)) {
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
-                script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
+                if (moveColumnList.contains(tableColumn)) {
+                    script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, true, findPrevious(tableColumn, newTable))).append(",\n");
+                } else {
+                    script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
+                }
             }
         }
 
@@ -133,6 +138,13 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         return script.toString();
     }
 
+    private String findPrevious(TableColumn tableColumn, Table newTable) {
+        int index = newTable.getColumnList().indexOf(tableColumn);
+        if (index == 0) {
+            return "-1";
+        }
+        return newTable.getColumnList().get(index - 1).getName();
+    }
 
     @Override
     public String pageLimit(String sql, int offset, int pageNo, int pageSize) {
