@@ -93,7 +93,6 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             script.append("\t").append("AUTO_INCREMENT=").append(newTable.getIncrementValue()).append(",\n");
         }
 
-        // 判断是否有删除字段、新增字段及字段位置移动
         // 判断新增字段
         List<TableColumn> addColumnList = new ArrayList<>();
         for (TableColumn tableColumn : newTable.getColumnList()) {
@@ -109,9 +108,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if ((StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType())
-                    && StringUtils.isNotBlank(tableColumn.getName())) || moveColumnList.contains(tableColumn)) {
+                    && StringUtils.isNotBlank(tableColumn.getName())) || moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
-                if (moveColumnList.contains(tableColumn)) {
+                if (moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
                     script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, true, findPrevious(tableColumn, newTable))).append(",\n");
                 } else {
                     script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");

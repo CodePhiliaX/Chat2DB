@@ -220,6 +220,13 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
                 return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
             }
         }
+        if (isMove) {
+            if (columnName.equals("-1")) {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn)," FIRST");
+            } else {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn), " AFTER ", columnName);
+            }
+        }
         return "";
     }
 
