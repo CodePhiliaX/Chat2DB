@@ -104,8 +104,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         }
 
         // 判断移动的字段
-        List<TableColumn> moveColumnList = new ArrayList<>();
-        moveColumnList = movedElements(oldTable.getColumnList(), newTable.getColumnList());
+        List<TableColumn> moveColumnList = movedElements(oldTable.getColumnList(), newTable.getColumnList());
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
