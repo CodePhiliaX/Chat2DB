@@ -3,8 +3,7 @@ package ai.chat2db.spi.sql;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+import org.apache.commons.lang3.ClassUtils;
 
 /**
  * @author luojun
@@ -15,15 +14,21 @@ import com.alibaba.fastjson2.JSONObject;
 public class DocumentUtils {
 
     public static LinkedHashMap<String, Object> convertToMap(Object obj) {
+        if (obj == null) {
+            return new LinkedHashMap<>();
+        }
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
-        if (obj != null) {
-            String json = JSON.toJSONString(obj);
-            JSONObject jsonObject = JSON.parseObject(json);
-            JSONObject m = jsonObject.getJSONObject("documentAsMap");
-            if (m != null) {
-                for (Map.Entry<String, Object> entry : m.entrySet()) {
-                    map.put(entry.getKey(), entry.getValue());
-                }
+        for (Map.Entry<String, Object> entry : ((Map<String, Object>) obj).entrySet()) {
+            Object value = entry.getValue();
+            if (value == null) {
+                map.put(entry.getKey(), null);
+            } else if (ClassUtils.isPrimitiveOrWrapper(value.getClass()) || String.class.equals(value.getClass())) {
+                map.put(entry.getKey(), value);
+            } else if (entry.getValue() instanceof Map) {
+                LinkedHashMap<String, Object> mmp = convertToMap(entry.getValue());
+                map.put(entry.getKey(), mmp);
+            } else {
+                map.put(entry.getKey(), entry.getValue().toString());
             }
         }
         return map;
