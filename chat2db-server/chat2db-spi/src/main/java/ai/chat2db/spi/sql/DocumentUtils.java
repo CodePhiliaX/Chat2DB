@@ -14,10 +14,14 @@ import org.apache.commons.lang3.ClassUtils;
 public class DocumentUtils {
 
     public static LinkedHashMap<String, Object> convertToMap(Object obj) {
-        if (obj == null) {
-            return new LinkedHashMap<>();
-        }
         LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        if (obj == null) {
+            return map;
+        }
+        if (ClassUtils.isPrimitiveOrWrapper(obj.getClass()) || String.class.equals(obj.getClass())) {
+            map.put("result", obj);
+            return map;
+        }
         for (Map.Entry<String, Object> entry : ((Map<String, Object>) obj).entrySet()) {
             Object value = entry.getValue();
             if (value == null) {
