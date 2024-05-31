@@ -12,6 +12,7 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
+import com.oceanbase.tools.sqlparser.oracle.PlSqlLexer;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -130,11 +131,27 @@ public class SqlUtils {
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
-            if (DbType.mysql.equals(dbType) ||
-                    DbType.oracle.equals(dbType) ||
-                    DbType.oceanbase.equals(dbType)) {
-                sql = updateNow(sql, dbType);
-                return split(new SqlSplitProcessor(dbType, false,false), sql);
+            try {
+                if (DbType.oracle.equals(dbType)) {
+                    SqlSplitter sqlSplitter = new SqlSplitter(PlSqlLexer.class, ";", false);
+                    sqlSplitter.setRemoveCommentPrefix(true);
+                    List<SplitSqlString> sqls = sqlSplitter.split(sql);
+                    return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+                }
+            }catch (Exception e){
+                log.error("sqlSplitter error",e);
+            }
+            try {
+                if (DbType.mysql.equals(dbType) ||
+                        DbType.mariadb.equals(dbType) ||
+                        DbType.oceanbase.equals(dbType)) {
+                    sql = updateNow(sql, dbType);
+                    SqlSplitProcessor sqlSplitProcessor = new SqlSplitProcessor(dbType, true, true);
+                    sqlSplitProcessor.setDelimiter(";");
+                    return split(sqlSplitProcessor, sql, dbType);
+                }
+            }catch (Exception e){
+                log.error("sqlSplitProcessor error",e);
             }
 //            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
@@ -259,7 +276,7 @@ public class SqlUtils {
         return false;
     }
 
-    private static List<String> split(SqlSplitProcessor processor, String sql) {
+    private static List<String> split(SqlSplitProcessor processor, String sql, DbType dbType) {
         StringBuffer buffer = new StringBuffer();
         List<SplitSqlString> sqls = processor.split(buffer, sql);
         String bufferStr = buffer.toString();
@@ -277,7 +294,7 @@ public class SqlUtils {
             }
             sqls.add(new SplitSqlString(lastSqlOffset, bufferStr));
         }
-        return sqls.stream().map(SplitSqlString::getStr).collect(Collectors.toList());
+        return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
     }
 
 }
