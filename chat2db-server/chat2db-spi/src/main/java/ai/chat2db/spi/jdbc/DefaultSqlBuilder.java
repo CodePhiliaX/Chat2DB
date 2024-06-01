@@ -17,7 +17,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -189,29 +188,65 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         return script.toString();
     }
 
-    private String getInsertSql(String schemaName, String tableName, List<String> columnList, List<String> valueList) {
+    /**
+     * Generates the base part of the INSERT SQL statement.
+     * Optionally includes column names if provided.
+     *
+     * @param schemaName Name of the database schema.
+     * @param tableName  Name of the table to insert into.
+     * @param columnList Optional list of column names.
+     * @return The base part of the INSERT SQL statement.
+     */
+    private String generateBaseInsertSql(String schemaName, String tableName, List<String> columnList) {
         StringBuilder script = new StringBuilder();
-        script.append("INSERT INTO ").append(schemaName).append(".").append(tableName)
-                .append(" (")
-                .append(String.join(",", columnList))
-                .append(") VALUES (")
-                .append(String.join(",", valueList))
-                .append(");");
+
+        if (StringUtils.isNotBlank(schemaName)) {
+            script.append(schemaName).append('.');
+        }
+
+        script.append(tableName);
+
+        if (CollectionUtils.isNotEmpty(columnList)) {
+            script.append(" (")
+                    .append(String.join(",", columnList))
+                    .append(") ");
+        }
+
+        script.append("VALUES ");
         return script.toString();
     }
 
-    private String getMultiInsertSql(String schemaName, String tableName, List<String> columnList, List<List<String>> valueList) {
-        StringBuilder script = new StringBuilder();
-        script.append("INSERT INTO ").append(schemaName).append(".").append(tableName)
-                .append(" (")
-                .append(String.join(",", columnList))
-                .append(") VALUES ")
-                .append(valueList.stream()
-                                .map(values -> "(" + String.join(",", values) + ")")
-                                .collect(Collectors.joining(",\n")))
-                .append(");");
-        return script.toString();
+    /**
+     * Generates a single INSERT SQL statement for one record.
+     *
+     * @param schemaName Name of the database schema.
+     * @param tableName  Name of the table to insert into.
+     * @param columnList Optional list of column names.
+     * @param valueList  List of values to be inserted.
+     * @return The complete INSERT SQL statement for a single record.
+     */
+    public String generateSingleInsertSql(String schemaName, String tableName, List<String> columnList, List<String> valueList) {
+        String baseSql = generateBaseInsertSql(schemaName, tableName, columnList);
+        return baseSql + "(" + String.join(",", valueList) + ");";
     }
+
+    /**
+     * Generates a multi-row INSERT SQL statement.
+     *
+     * @param schemaName Name of the database schema.
+     * @param tableName  Name of the table to insert into.
+     * @param columnList Optional list of column names.
+     * @param valueLists List of lists, each inner list represents values for a row.
+     * @return The complete multi-row INSERT SQL statement.
+     */
+    public String generateMultiInsertSql(String schemaName, String tableName, List<String> columnList, List<List<String>> valueLists) {
+        String baseSql = generateBaseInsertSql(schemaName, tableName, columnList);
+        String valuesPart = valueLists.stream()
+                .map(values -> "(" + String.join(",", values) + ")")
+                .collect(Collectors.joining(",\n"));
+        return baseSql + valuesPart + ";";
+    }
+
     private List<String> getPrimaryColumns(List<Header> headerList) {
         if (CollectionUtils.isEmpty(headerList)) {
             return Lists.newArrayList();

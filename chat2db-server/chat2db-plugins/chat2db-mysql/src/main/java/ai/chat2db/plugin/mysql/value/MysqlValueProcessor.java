@@ -1,44 +1,69 @@
 package ai.chat2db.plugin.mysql.value;
 
 import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
-import ai.chat2db.plugin.mysql.type.MysqlValueProcessorEnum;
-import ai.chat2db.spi.jdbc.DefaultSQLValueProcessor;
+import ai.chat2db.spi.jdbc.DefaultValueProcessor;
+import ai.chat2db.spi.model.JDBCDataValue;
+import ai.chat2db.spi.model.SQLDataValue;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author: zgq
  * @date: 2024年05月24日 21:02
+ * <br>
+ *  TODO:
+ *      attribute: [zerofill] example tinyint[5] zerofill 34->00034
  */
-public class MysqlValueProcessor extends DefaultSQLValueProcessor {
-    /**
-     * @param rs
-     * @param index
-     * @return
-     * @throws SQLException
-     */
+public class MysqlValueProcessor extends DefaultValueProcessor {
+
+    private static final Set<String> GEOMETRY_TYPE = Set.of(MysqlColumnTypeEnum.GEOMETRY.name()
+            , MysqlColumnTypeEnum.POINT.name()
+            , MysqlColumnTypeEnum.LINESTRING.name()
+            , MysqlColumnTypeEnum.POLYGON.name()
+            , MysqlColumnTypeEnum.MULTIPOINT.name()
+            , MysqlColumnTypeEnum.MULTILINESTRING.name()
+            , MysqlColumnTypeEnum.MULTIPOLYGON.name()
+            , MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name());
+
+
+    private static final Map<String, DefaultValueProcessor> PROCESSOR_MAP = Map.of(
+            MysqlColumnTypeEnum.BIT.name(), new MysqlBitProcessor(),
+            MysqlColumnTypeEnum.YEAR.name(), new MysqlYearProcessor(),
+            MysqlColumnTypeEnum.DECIMAL.name(), new MysqlDecimalProcessor(),
+            MysqlColumnTypeEnum.TIMESTAMP.name(), new MysqlTimestampProcessor(),
+            MysqlColumnTypeEnum.DATETIME.name(), new MysqlDateTimeProcessor()
+    );
+    public static final Set<String> FUNCTION_SET = Set.of("now()");
+
     @Override
-    public String getSqlValueString(ResultSet rs, int index) throws SQLException {
-        Object obj = rs.getObject(index);
-        if (obj == null) {
-            return "NULL";
+    public String convertSQLValueByType(SQLDataValue dataValue) {
+        if (FUNCTION_SET.contains(dataValue.getValue())) {
+            return dataValue.getValue();
         }
-        String columnTypeName = rs.getMetaData().getColumnTypeName(index);
-        if (MysqlColumnTypeEnum.GEOMETRY.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.POINT.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.LINESTRING.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.POLYGON.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.MULTIPOINT.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.MULTILINESTRING.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.MULTIPOLYGON.name().equalsIgnoreCase(columnTypeName)
-                || MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name().equalsIgnoreCase(columnTypeName)
-        ) {
-            return MysqlValueProcessorEnum.GEOMETRY.getSqlValueString(rs, index);
-        } else {
-            super.getSqlValueString(rs, index);
+        String dataType = dataValue.getDateTypeName();
+        if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
+            return new MysqlGeometryProcessor().convertSQLValueByType(dataValue);
         }
-        return null;
+        return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertSQLValueByType(dataValue);
     }
 
+    @Override
+    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
+
+        String dataType = dataValue.getType();
+        if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
+            return new MysqlGeometryProcessor().convertJDBCValueByType(dataValue);
+        }
+        return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertJDBCValueByType(dataValue);
+    }
+
+    @Override
+    public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
+        String dataType = dataValue.getType();
+        if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
+            return new MysqlGeometryProcessor().convertJDBCValueStrByType(dataValue);
+        }
+        return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertJDBCValueStrByType(dataValue);
+    }
 }

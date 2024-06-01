@@ -164,12 +164,10 @@ public class DefaultMetaService implements MetaData {
         return new DefaultValueHandler();
     }
 
-    /**
-     * @return
-     */
+
     @Override
-    public SQLValueProcessor getSQLValueProcessor() {
-        return new DefaultSQLValueProcessor();
+    public ValueProcessor getValueProcessor() {
+        return new DefaultValueProcessor();
     }
 
     @Override

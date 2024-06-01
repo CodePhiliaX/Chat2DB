@@ -2,7 +2,9 @@ package ai.chat2db.plugin.mysql;
 
 import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
 import ai.chat2db.plugin.mysql.type.*;
+import ai.chat2db.plugin.mysql.value.MysqlValueProcessor;
 import ai.chat2db.spi.MetaData;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
@@ -10,7 +12,6 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.A;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -350,6 +351,11 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     @Override
     public ValueHandler getValueHandler() {
         return new MysqlValueHandler();
+    }
+
+    @Override
+    public ValueProcessor getValueProcessor() {
+        return new MysqlValueProcessor();
     }
 
     @Override
