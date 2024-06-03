@@ -27,7 +27,7 @@ public interface ValueProcessor {
      * @param dataValue ResultSetMetaData, ResultSet, columnIndex的组合对象，用于获取数据值。
      * @return 一个格式化后的字符串，适配于前端展示。例如，日期可能会转换为"YYYY-MM-DD"格式，以方便用户直观理解。
      */
-    Object getJdbcValue(JDBCDataValue dataValue);
+    String getJdbcValue(JDBCDataValue dataValue);
 
     /**
      * 将从JDBC ResultSet中获取的数据值转换并构造为适合DML语句的格式。

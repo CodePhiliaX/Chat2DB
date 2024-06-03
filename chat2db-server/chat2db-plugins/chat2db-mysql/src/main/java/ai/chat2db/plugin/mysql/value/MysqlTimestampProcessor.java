@@ -18,7 +18,7 @@ public class MysqlTimestampProcessor extends DefaultValueProcessor {
 
 
     @Override
-    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
+    public String convertJDBCValueByType(JDBCDataValue dataValue) {
         return isValidTimestamp(dataValue) ? new String(dataValue.getBytes()) : "0000-00-00 00:00:00";
     }
 

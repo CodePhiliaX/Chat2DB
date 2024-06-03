@@ -22,7 +22,7 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
 
 
     @Override
-    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
+    public String convertJDBCValueByType(JDBCDataValue dataValue) {
         int precision = dataValue.getPrecision();
         byte[] bytes = dataValue.getBytes();
         if (precision == 1) {
@@ -40,7 +40,7 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return getString((String) convertJDBCValueByType(dataValue));
+        return getString(convertJDBCValueByType(dataValue));
     }
 
     public String getString(String value) {

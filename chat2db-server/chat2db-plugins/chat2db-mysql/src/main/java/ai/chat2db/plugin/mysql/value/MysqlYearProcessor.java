@@ -22,7 +22,7 @@ public class MysqlYearProcessor extends DefaultValueProcessor {
 
 
     @Override
-    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
+    public String convertJDBCValueByType(JDBCDataValue dataValue) {
         Date date = dataValue.getDate();
         if (!isValidYear(dataValue)) {
             return "0000";
@@ -57,6 +57,6 @@ public class MysqlYearProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return (String) getJdbcValue(dataValue);
+        return getJdbcValue(dataValue);
     }
 }

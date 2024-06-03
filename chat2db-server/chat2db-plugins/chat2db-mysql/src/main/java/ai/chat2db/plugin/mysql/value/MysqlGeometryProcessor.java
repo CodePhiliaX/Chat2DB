@@ -14,7 +14,7 @@ import java.io.InputStream;
  * @author: zgq
  * @date: 2024年06月01日 12:42
  */
-public class MysqlGeometryProcessor extends DefaultValueProcessor  {
+public class MysqlGeometryProcessor extends DefaultValueProcessor {
 
 
     @Override
@@ -23,7 +23,7 @@ public class MysqlGeometryProcessor extends DefaultValueProcessor  {
     }
 
     @Override
-    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
+    public String convertJDBCValueByType(JDBCDataValue dataValue) {
         try {
             InputStream inputStream = dataValue.getBinaryStream();
             Geometry dbGeometry = null;
@@ -82,15 +82,11 @@ public class MysqlGeometryProcessor extends DefaultValueProcessor  {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        Object jdbcValue = getJdbcValue(dataValue);
-        if (jdbcValue == null) {
-            return super.getJdbcValueString(dataValue);
-        }
-        return wrap((String) jdbcValue);
+        return wrap(convertJDBCValueByType(dataValue));
     }
 
     private String wrap(String value) {
-        return String.format(MysqlDmlValueTemplate.GEOMETRY_TEMPLATE,value);
+        return String.format(MysqlDmlValueTemplate.GEOMETRY_TEMPLATE, value);
     }
 
 }

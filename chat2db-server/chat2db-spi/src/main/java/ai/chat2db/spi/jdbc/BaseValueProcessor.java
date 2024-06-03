@@ -1,5 +1,6 @@
 package ai.chat2db.spi.jdbc;
 
+import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
@@ -24,14 +25,14 @@ public abstract class BaseValueProcessor implements ValueProcessor {
 
 
     @Override
-    public Object getJdbcValue(JDBCDataValue dataValue) {
+    public String getJdbcValue(JDBCDataValue dataValue) {
         Object value = dataValue.getObject();
         if (Objects.isNull(dataValue.getObject())) {
             return null;
         }
-        if (value instanceof String stringValue) {
-            if (StringUtils.isBlank(stringValue)) {
-                return StringUtils.wrap(stringValue, "\"");
+        if (value instanceof String emptySry) {
+            if (StringUtils.isBlank(emptySry)) {
+                return emptySry;
             }
         }
         return convertJDBCValueByType(dataValue);
@@ -46,7 +47,7 @@ public abstract class BaseValueProcessor implements ValueProcessor {
         }
         if (value instanceof String stringValue) {
             if (StringUtils.isBlank(stringValue)) {
-                return StringUtils.wrap(stringValue, "'");
+                return EasyStringUtils.quoteString(stringValue);
             }
         }
         return convertJDBCValueStrByType(dataValue);
@@ -54,7 +55,7 @@ public abstract class BaseValueProcessor implements ValueProcessor {
 
     public abstract String convertSQLValueByType(SQLDataValue dataValue);
 
-    public abstract Object convertJDBCValueByType(JDBCDataValue dataValue);
+    public abstract String convertJDBCValueByType(JDBCDataValue dataValue);
 
     public abstract String convertJDBCValueStrByType(JDBCDataValue dataValue);
 }

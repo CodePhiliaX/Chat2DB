@@ -184,6 +184,32 @@ public class EasyStringUtils {
         return escapeString(str, escapeMap);
     }
 
+    /**
+     * @param value str="'abc\"
+     * @return "'''abc\\'"
+     */
+    public static String escapeAndQuoteString(String value) {
+        return quoteString(escapeString(value));
+    }
+
+    /**
+     * @param value  "abcd"
+     * @param quoteChar  '%'
+     * @return         "%abcd%"
+     */
+    public static String quoteString(String value, char quoteChar) {
+        return StringUtils.wrap(value, quoteChar);
+    }
+
+    /**
+     * @param value  "abcd"
+     * @return  "'abcd'"
+     */
+    public static String quoteString(String value) {
+        // (char)39 -> '
+        return quoteString(value, (char) 39);
+    }
+
     public static String getBitString(byte[] bytes, final int precision) {
         if (bytes == null || bytes.length == 0) {
             return "";

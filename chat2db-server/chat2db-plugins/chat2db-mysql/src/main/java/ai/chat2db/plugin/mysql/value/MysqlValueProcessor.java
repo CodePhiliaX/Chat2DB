@@ -26,34 +26,52 @@ public class MysqlValueProcessor extends DefaultValueProcessor {
             , MysqlColumnTypeEnum.MULTIPOLYGON.name()
             , MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name());
 
+    public static final Set<String> BINARY_TYPE = Set.of(MysqlColumnTypeEnum.VARBINARY.name()
+            , MysqlColumnTypeEnum.BLOB.name()
+            , MysqlColumnTypeEnum.LONGBLOB.name()
+            , MysqlColumnTypeEnum.TINYBLOB.name()
+            , MysqlColumnTypeEnum.MEDIUMBLOB.name());
+
+    public static final Set<String> DATE_TYPE = Set.of(MysqlColumnTypeEnum.TIMESTAMP.name(),
+                                                       MysqlColumnTypeEnum.DATETIME.name());
 
     private static final Map<String, DefaultValueProcessor> PROCESSOR_MAP = Map.of(
             MysqlColumnTypeEnum.BIT.name(), new MysqlBitProcessor(),
             MysqlColumnTypeEnum.YEAR.name(), new MysqlYearProcessor(),
             MysqlColumnTypeEnum.DECIMAL.name(), new MysqlDecimalProcessor(),
-            MysqlColumnTypeEnum.TIMESTAMP.name(), new MysqlTimestampProcessor(),
-            MysqlColumnTypeEnum.DATETIME.name(), new MysqlDateTimeProcessor()
+            MysqlColumnTypeEnum.BINARY.name(), new MysqlBinaryProcessor()
     );
-    public static final Set<String> FUNCTION_SET = Set.of("now()");
+    public static final Set<String> FUNCTION_SET = Set.of("now()", "default");
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        if (FUNCTION_SET.contains(dataValue.getValue())) {
+        if (FUNCTION_SET.contains(dataValue.getValue().toLowerCase())) {
             return dataValue.getValue();
         }
         String dataType = dataValue.getDateTypeName();
         if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
             return new MysqlGeometryProcessor().convertSQLValueByType(dataValue);
         }
+        if (BINARY_TYPE.contains(dataType)) {
+            return new MysqlVarBinaryProcessor().convertSQLValueByType(dataValue);
+        }
+        if (DATE_TYPE.contains(dataType)) {
+            return new MysqlTimestampProcessor().convertSQLValueByType(dataValue);
+        }
         return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertSQLValueByType(dataValue);
     }
 
     @Override
-    public Object convertJDBCValueByType(JDBCDataValue dataValue) {
-
+    public String convertJDBCValueByType(JDBCDataValue dataValue) {
         String dataType = dataValue.getType();
         if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
             return new MysqlGeometryProcessor().convertJDBCValueByType(dataValue);
+        }
+        if (BINARY_TYPE.contains(dataType)) {
+            return new MysqlVarBinaryProcessor().convertJDBCValueByType(dataValue);
+        }
+        if (DATE_TYPE.contains(dataType)) {
+            return new MysqlTimestampProcessor().convertJDBCValueByType(dataValue);
         }
         return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertJDBCValueByType(dataValue);
     }
@@ -63,6 +81,12 @@ public class MysqlValueProcessor extends DefaultValueProcessor {
         String dataType = dataValue.getType();
         if (GEOMETRY_TYPE.contains(dataType.toUpperCase())) {
             return new MysqlGeometryProcessor().convertJDBCValueStrByType(dataValue);
+        }
+        if (BINARY_TYPE.contains(dataType)) {
+            return new MysqlVarBinaryProcessor().convertJDBCValueStrByType(dataValue);
+        }
+        if (DATE_TYPE.contains(dataType)) {
+            return new MysqlTimestampProcessor().convertJDBCValueStrByType(dataValue);
         }
         return PROCESSOR_MAP.getOrDefault(dataType, new DefaultValueProcessor()).convertJDBCValueStrByType(dataValue);
     }
