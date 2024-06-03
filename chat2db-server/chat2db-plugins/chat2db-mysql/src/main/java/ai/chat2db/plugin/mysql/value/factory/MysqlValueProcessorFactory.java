@@ -2,7 +2,6 @@ package ai.chat2db.plugin.mysql.value.factory;
 
 import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
 import ai.chat2db.plugin.mysql.value.sub.*;
-import ai.chat2db.plugin.mysql.value.template.sub.*;
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 
 import java.util.Map;
@@ -47,6 +46,6 @@ public class MysqlValueProcessorFactory {
 
     public static DefaultValueProcessor getValueProcessor(String type) {
         DefaultValueProcessor processor = PROCESSOR_MAP.get(type);
-        return processor==null?new DefaultValueProcessor():processor;
+        return processor == null ? new DefaultValueProcessor() : processor;
     }
 }
