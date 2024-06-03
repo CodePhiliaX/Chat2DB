@@ -1,4 +1,4 @@
-package ai.chat2db.plugin.mysql.value;
+package ai.chat2db.plugin.oracle.value;
 
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
@@ -6,24 +6,25 @@ import ai.chat2db.spi.model.SQLDataValue;
 
 /**
  * @author: zgq
- * @date: 2024年06月01日 18:01
+ * @date: 2024年06月03日 22:30
  */
-public class MysqlDecimalProcessor extends DefaultValueProcessor {
+public class OracleValueProcessor extends DefaultValueProcessor {
+
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return dataValue.getValue();
+        return super.convertSQLValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return new String(dataValue.getBytes());
+        return super.convertJDBCValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return convertJDBCValueByType(dataValue);
+        return super.convertJDBCValueStrByType(dataValue);
     }
 }

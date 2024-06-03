@@ -1,4 +1,4 @@
-package ai.chat2db.plugin.oracle.template;
+package ai.chat2db.plugin.oracle.value.template;
 
 /**
  * @author: zgq

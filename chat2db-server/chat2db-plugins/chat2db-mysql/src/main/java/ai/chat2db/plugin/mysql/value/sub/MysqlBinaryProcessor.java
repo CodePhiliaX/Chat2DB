@@ -1,4 +1,4 @@
-package ai.chat2db.plugin.mysql.value;
+package ai.chat2db.plugin.mysql.value.sub;
 
 import ai.chat2db.plugin.mysql.value.template.MysqlDmlValueTemplate;
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
