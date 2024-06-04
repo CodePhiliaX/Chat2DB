@@ -12,6 +12,7 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
+import com.google.common.collect.Lists;
 import com.oceanbase.tools.sqlparser.oracle.PlSqlLexer;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
@@ -147,7 +148,7 @@ public class SqlUtils {
                         DbType.oceanbase.equals(dbType)) {
                     sql = updateNow(sql, dbType);
                     SqlSplitProcessor sqlSplitProcessor = new SqlSplitProcessor(dbType, true, true);
-//                    sqlSplitProcessor.setDelimiter(";");
+                    sqlSplitProcessor.setDelimiter(";");
                     return split(sqlSplitProcessor, sql, dbType);
                 }
             }catch (Exception e){
@@ -286,16 +287,8 @@ public class SqlUtils {
         if (bufferStr.trim().length() != 0) {
             // if buffer is not empty, there will be some errors in syntax
             log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
-            int lastSqlOffset;
-            if (sqls.size() == 0) {
-                int index = sql.indexOf(bufferStr.trim(), 0);
-                lastSqlOffset = index == -1 ? 0 : index;
-            } else {
-                int from = sqls.get(sqls.size() - 1).getOffset() + sqls.get(sqls.size() - 1).getStr().length();
-                int index = sql.indexOf(bufferStr.trim(), from);
-                lastSqlOffset = index == -1 ? from : index;
-            }
-            sqls.add(new SplitSqlString(lastSqlOffset, bufferStr));
+            String sqlstr = SQLParserUtils.removeComment(sql, dbType);
+            return Lists.newArrayList(sqlstr);
         }
         return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
     }
