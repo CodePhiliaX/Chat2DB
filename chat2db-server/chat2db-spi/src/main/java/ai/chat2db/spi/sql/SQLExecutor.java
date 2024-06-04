@@ -162,10 +162,11 @@ public class SQLExecutor implements CommandExecutor {
         try (Statement stmt = connection.createStatement()) {
             int affectedRows = stmt.executeUpdate(sql);
             if (affectedRows != n) {
-                executeResult.setSuccess(false);
-                executeResult.setMessage("Update error " + sql + " update affectedRows = " + affectedRows
-                    + ", Each SQL statement should update no more than one record. Please use a unique key for "
-                    + "updates.");
+                log.info("Update error {} update affectedRows = {}", sql, affectedRows);
+//                executeResult.setSuccess(false);
+//                executeResult.setMessage("Update error " + sql + " update affectedRows = " + affectedRows
+//                    + ", Each SQL statement should update no more than one record. Please use a unique key for "
+//                    + "updates.");
                 // connection.rollback();
             }
         }

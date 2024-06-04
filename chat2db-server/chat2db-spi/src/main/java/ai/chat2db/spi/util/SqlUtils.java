@@ -147,7 +147,7 @@ public class SqlUtils {
                         DbType.oceanbase.equals(dbType)) {
                     sql = updateNow(sql, dbType);
                     SqlSplitProcessor sqlSplitProcessor = new SqlSplitProcessor(dbType, true, true);
-                    sqlSplitProcessor.setDelimiter(";");
+//                    sqlSplitProcessor.setDelimiter(";");
                     return split(sqlSplitProcessor, sql, dbType);
                 }
             }catch (Exception e){
@@ -241,8 +241,11 @@ public class SqlUtils {
     private static final String DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
 
     public static String getSqlValue(String value, String dataType) {
-        if (value == null || value == "") {
+        if (value == null) {
             return null;
+        }
+        if("".equals(value)){
+            return "''";
         }
         if (DEFAULT_VALUE.equals(value)) {
             return "DEFAULT";
@@ -295,6 +298,15 @@ public class SqlUtils {
             sqls.add(new SplitSqlString(lastSqlOffset, bufferStr));
         }
         return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+        String sql = "CREATE DEFINER=`root`@`%` PROCEDURE `GetCategoryCount1`()\n" +
+                "BEGIN\n" +
+                "    SELECT COUNT(*) AS TotalCategories FROM Categories;\n" +
+                "END";
+        List<String> list = parse(sql, DbType.mysql);
+        System.out.println(list);
     }
 
 }
