@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.common.collect.Lists;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
@@ -155,6 +156,30 @@ public class ResultSetUtils {
     public static Timestamp getTimestamp(ResultSet resultSet, int columnIndex) {
         try {
             return resultSet.getTimestamp(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Clob getClob(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getClob(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Blob getBlob(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getBlob(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BigDecimal getBigDecimal(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getBigDecimal(columnIndex);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

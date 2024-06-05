@@ -1,14 +1,16 @@
-package ai.chat2db.plugin.mysql.value.sub;
+package ai.chat2db.plugin.oracle.value.sub;
 
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 
 /**
+ * 功能描述
+ *
  * @author: zgq
- * @date: 2024年06月01日 18:01
+ * @date: 2024年06月05日 20:00
  */
-public class MysqlDecimalProcessor extends DefaultValueProcessor {
+public class OracleNumberProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {

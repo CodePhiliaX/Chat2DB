@@ -18,7 +18,13 @@ public class MysqlValueProcessorFactory {
         MysqlGeometryProcessor mysqlGeometryProcessor = new MysqlGeometryProcessor();
         MysqlVarBinaryProcessor mysqlVarBinaryProcessor = new MysqlVarBinaryProcessor();
         MysqlTimestampProcessor mysqlTimestampProcessor = new MysqlTimestampProcessor();
+        MysqlTextProcessor mysqlTextProcessor = new MysqlTextProcessor();
         PROCESSOR_MAP = Map.ofEntries(
+                //text
+                Map.entry(MysqlColumnTypeEnum.TEXT.name(), mysqlTextProcessor),
+                Map.entry(MysqlColumnTypeEnum.TINYTEXT.name(), mysqlTextProcessor),
+                Map.entry(MysqlColumnTypeEnum.MEDIUMTEXT.name(), mysqlTextProcessor),
+                Map.entry(MysqlColumnTypeEnum.LONGTEXT.name(), mysqlTextProcessor),
                 // geometry
                 Map.entry(MysqlColumnTypeEnum.GEOMETRY.name(), mysqlGeometryProcessor),
                 Map.entry(MysqlColumnTypeEnum.POINT.name(), mysqlGeometryProcessor),

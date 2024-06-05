@@ -1,5 +1,6 @@
 package ai.chat2db.spi.model;
 
+import com.google.common.io.BaseEncoding;
 import lombok.Data;
 
 /**
@@ -11,11 +12,19 @@ public class SQLDataValue {
     private String value;
     private DataType dataType;
 
-    public String getDateTypeName(){
+    public String getDateTypeName() {
         return dataType.getDataTypeName();
     }
 
-    public int getPrecision(){
+    public int getPrecision() {
         return dataType.getPrecision();
+    }
+
+    public int getScale() {
+        return dataType.getScale();
+    }
+
+    public String getBlobHexString() {
+        return "0x" + BaseEncoding.base16().encode(value.getBytes());
     }
 }

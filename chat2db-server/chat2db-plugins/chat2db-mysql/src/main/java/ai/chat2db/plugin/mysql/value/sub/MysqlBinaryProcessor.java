@@ -14,22 +14,18 @@ public class MysqlBinaryProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return wrap(BaseEncoding.base16().encode(dataValue.getValue().getBytes()));
+        return dataValue.getBlobHexString();
     }
 
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return wrap(BaseEncoding.base16().encode(dataValue.getBytes()));
+        return dataValue.getBlobHexString();
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
         return convertJDBCValueByType(dataValue);
-    }
-
-    private String wrap(String value) {
-        return String.format(MysqlDmlValueTemplate.BINARY_TEMPLATE, value);
     }
 }
