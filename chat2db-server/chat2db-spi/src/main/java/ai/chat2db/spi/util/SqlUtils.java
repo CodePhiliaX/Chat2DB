@@ -129,6 +129,7 @@ public class SqlUtils {
     public static List<String> parse(String sql, DbType dbType) {
         List<String> list = new ArrayList<>();
         try {
+            sql = SQLParserUtils.removeComment(sql, dbType);
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
@@ -291,15 +292,6 @@ public class SqlUtils {
             return Lists.newArrayList(sqlstr);
         }
         return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) {
-        String sql = "CREATE DEFINER=`root`@`%` PROCEDURE `GetCategoryCount1`()\n" +
-                "BEGIN\n" +
-                "    SELECT COUNT(*) AS TotalCategories FROM Categories;\n" +
-                "END";
-        List<String> list = parse(sql, DbType.mysql);
-        System.out.println(list);
     }
 
 }
