@@ -1,6 +1,6 @@
 {
   "dbType": "XUGUDB",
-  "supportDatabase": false,
+  "supportDatabase": true,
   "supportSchema": true,
   "driverConfigList": [
     {
@@ -8,7 +8,7 @@
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
-        "https://cdn.chat2db-ai.com/lib/DmJdbcDriver18-8.1.2.141.jar"
+        "https://cdn.chat2db-ai.com/lib/xugu-jdbc-12.1.12.jar"
       ],
       "jdbcDriver": "xugu-jdbc-12.1.12.jar",
       "jdbcDriverClass": "com.xugu.cloudjdbc.Driver"

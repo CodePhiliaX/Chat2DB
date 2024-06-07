@@ -17,7 +17,7 @@ public enum XUGUDBIndexTypeEnum {
 
     UNIQUE("Unique", "UNIQUE INDEX"),
 
-    BITMAP("BITMAP", "BITMAP INDEX");
+    BTREE("BTREE", "btree");
 
 
 

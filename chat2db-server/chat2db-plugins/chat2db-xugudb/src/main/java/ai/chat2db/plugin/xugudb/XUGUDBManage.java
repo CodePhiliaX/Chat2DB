@@ -21,6 +21,7 @@ public class XUGUDBManage extends DefaultDBManage implements DBManage {
     private static String TRIGGER_SQL
             = "SELECT OWNER, TRIGGER_NAME, TABLE_OWNER, TABLE_NAME, TRIGGERING_TYPE, TRIGGERING_EVENT, STATUS, TRIGGER_BODY "
             + "FROM ALL_TRIGGERS WHERE OWNER = '%s' AND TRIGGER_NAME = '%s'";
+
     @Override
     public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
         StringBuilder sqlBuilder = new StringBuilder();
@@ -140,15 +141,13 @@ public class XUGUDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void connectDatabase(Connection connection, String database) {
-        ConnectInfo connectInfo = Chat2DBContext.getConnectInfo();
-        if (ObjectUtils.anyNull(connectInfo) || StringUtils.isEmpty(connectInfo.getSchemaName())) {
+        if (org.springframework.util.StringUtils.isEmpty(database)) {
             return;
         }
-        String schemaName = connectInfo.getSchemaName();
         try {
-            SQLExecutor.getInstance().execute(connection, "SET SCHEMA \"" + schemaName + "\"");
+            SQLExecutor.getInstance().execute(connection,"use " + database );
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
