@@ -42,9 +42,9 @@ public class ConnectionPool {
 
     }
 
-    public static synchronized void removeConnection(String key) {
+    public static synchronized void removeConnection(Long datasourceId) {
         CONNECTION_MAP.forEach((k, v) -> {
-            if (k.startsWith(key)) {
+            if (k.contains(String.valueOf(datasourceId))) {
                 try {
                     Connection connection = v.getConnection();
                     if (connection != null) {
