@@ -13,6 +13,7 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,6 +23,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DMMetaData extends DefaultMetaService implements MetaData {
 
     private List<String> systemSchemas = Arrays.asList("CTISYS", "SYS", "SYSDBA", "SYSSSO", "SYSAUDITOR");
@@ -78,11 +80,19 @@ public class DMMetaData extends DefaultMetaService implements MetaData {
                 String indexName = index.getName();
                 if (StringUtils.isNotBlank(indexName)) {
                     String sql = "select DBMS_METADATA.GET_DDL('INDEX','%s') as INDEX_DDL";
-                    SQLExecutor.getInstance().execute(connection, String.format(sql,indexName), resultSet -> {
-                        if (resultSet.next()) {
-                            ddlBuilder.append(resultSet.getString("INDEX_DDL")).append("\n");
+                    try {
+                        SQLExecutor.getInstance().execute(connection, String.format(sql,indexName), resultSet -> {
+                            if (resultSet.next()) {
+                                ddlBuilder.append(resultSet.getString("INDEX_DDL")).append("\n");
+                            }
+                        });
+                    } catch (Exception e) {
+                        log.warn("Failed to get the DDL of the index.");
+                        for (TableIndex tableIndex : indexes) {
+                            DMIndexTypeEnum indexTypeEnum = DMIndexTypeEnum.getByType(tableIndex.getType());
+                            ddlBuilder.append("\n").append(indexTypeEnum.buildIndexScript(tableIndex)).append(";");
                         }
-                    });
+                    }
                 }
             }
         }
