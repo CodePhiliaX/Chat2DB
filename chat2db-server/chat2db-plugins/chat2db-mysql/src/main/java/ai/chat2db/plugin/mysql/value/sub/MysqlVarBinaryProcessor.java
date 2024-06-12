@@ -1,8 +1,10 @@
 package ai.chat2db.plugin.mysql.value.sub;
 
+import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import ch.qos.logback.core.model.processor.DefaultProcessor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -10,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
  * @date: 2024年06月03日 20:48
  */
 @Slf4j
-public class MysqlVarBinaryProcessor extends MysqlBinaryProcessor {
+public class MysqlVarBinaryProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
@@ -22,9 +24,9 @@ public class MysqlVarBinaryProcessor extends MysqlBinaryProcessor {
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
         try {
-            return dataValue.getBlobString(true);
+            return dataValue.getBlobString();
         } catch (Exception e) {
-            log.warn("convertJDBCValueByType error database: {} , error dataType: {} ",
+            log.warn("convertJDBCValue error database: {} , error dataType: {} ",
                      Chat2DBContext.getDBConfig().getDbType(), dataValue.getType(), e);
             return super.convertJDBCValueByType(dataValue);
         }
@@ -33,7 +35,7 @@ public class MysqlVarBinaryProcessor extends MysqlBinaryProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return super.convertJDBCValueStrByType(dataValue);
+        return dataValue.getBlobHexString();
     }
 }
 

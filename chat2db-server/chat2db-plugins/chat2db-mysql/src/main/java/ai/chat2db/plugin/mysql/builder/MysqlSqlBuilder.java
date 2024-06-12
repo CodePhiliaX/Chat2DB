@@ -2,13 +2,11 @@ package ai.chat2db.plugin.mysql.builder;
 
 import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
 import ai.chat2db.plugin.mysql.type.MysqlIndexTypeEnum;
-import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
-import cn.hutool.core.util.ArrayUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -288,14 +286,14 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         // 连续数据数量
         if (from < to) {
             for (int i = to; i < originalArray.length - 1; i++) {
-                if (originalArray[i+1].equals(targetArray[findIndex(targetArray, originalArray[i]) +1])) {
+                if (originalArray[i + 1].equals(targetArray[findIndex(targetArray, originalArray[i]) + 1])) {
                     continuousDataCount.set(continuousDataCount.incrementAndGet());
                 } else {
                     break;
                 }
             }
             if (continuousDataCount.get() > 0) {
-                System.arraycopy(originalArray, from + 1, newArray, from, to - from +1);
+                System.arraycopy(originalArray, from + 1, newArray, from, to - from + 1);
                 isContinuousData = true;
             } else {
                 System.arraycopy(originalArray, from + 1, newArray, from, to - from);
@@ -303,12 +301,20 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         } else {
             System.arraycopy(originalArray, to, newArray, to + 1, from - to);
         }
-        if (isContinuousData){
-            newArray[to+continuousDataCount.get()] = temp;
+        if (isContinuousData) {
+            newArray[to + continuousDataCount.get()] = temp;
         } else {
             newArray[to] = temp;
         }
         return newArray;
     }
 
+
+    @Override
+    protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
+        if (StringUtils.isNotBlank(databaseName)) {
+            script.append("`").append(databaseName).append("`").append('.');
+        }
+        script.append("`").append(tableName).append("`");
+    }
 }

@@ -35,6 +35,7 @@ public class MysqlValueProcessorFactory {
                 Map.entry(MysqlColumnTypeEnum.MULTIPOLYGON.name(), mysqlGeometryProcessor),
                 Map.entry(MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name(), mysqlGeometryProcessor),
                 // binary
+                Map.entry(MysqlColumnTypeEnum.VARBINARY.name(), mysqlVarBinaryProcessor),
                 Map.entry(MysqlColumnTypeEnum.BLOB.name(), mysqlVarBinaryProcessor),
                 Map.entry(MysqlColumnTypeEnum.LONGBLOB.name(), mysqlVarBinaryProcessor),
                 Map.entry(MysqlColumnTypeEnum.TINYBLOB.name(), mysqlVarBinaryProcessor),

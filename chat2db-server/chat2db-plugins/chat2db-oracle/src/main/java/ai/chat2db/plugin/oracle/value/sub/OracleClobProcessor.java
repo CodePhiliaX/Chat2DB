@@ -19,13 +19,13 @@ public class OracleClobProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return dataValue.getClobString(true);
+        return dataValue.getClobString();
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(dataValue.getClobString(false));
+        return wrap(dataValue.getClobString());
     }
 
     private String wrap(String value) {

@@ -1,10 +1,8 @@
 package ai.chat2db.plugin.mysql.value.sub;
 
-import ai.chat2db.plugin.mysql.value.template.MysqlDmlValueTemplate;
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
-import com.google.common.io.BaseEncoding;
 
 /**
  * @author: zgq
@@ -26,6 +24,6 @@ public class MysqlBinaryProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return convertJDBCValueByType(dataValue);
+        return dataValue.getBlobHexString();
     }
 }

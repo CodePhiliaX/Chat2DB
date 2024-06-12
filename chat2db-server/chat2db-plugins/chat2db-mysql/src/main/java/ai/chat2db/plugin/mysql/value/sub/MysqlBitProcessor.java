@@ -40,7 +40,18 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return getString(convertJDBCValueByType(dataValue));
+        int precision = dataValue.getPrecision();
+        byte[] bytes = dataValue.getBytes();
+        if (precision == 1) {
+            //bit(1) [1 -> true] [0 -> false]
+            if (bytes.length == 1 && (bytes[0] == 0 || bytes[0] == 1)) {
+                return String.valueOf(dataValue.getBoolean());
+            }
+            // tinyint(1)
+            return String.valueOf(dataValue.getInt());
+        }
+        //bit(m) m: 2~64
+        return wrap(EasyStringUtils.getBitString(bytes, precision));
     }
 
     public String getString(String value) {

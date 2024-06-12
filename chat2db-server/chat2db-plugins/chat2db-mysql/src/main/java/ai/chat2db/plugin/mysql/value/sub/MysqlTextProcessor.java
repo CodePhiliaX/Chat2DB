@@ -25,17 +25,17 @@ public class MysqlTextProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return getClobString(dataValue, true, super::convertJDBCValueByType);
+        return getClobString(dataValue, super::convertJDBCValueByType);
     }
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(getClobString(dataValue, false, super::convertJDBCValueStrByType));
+        return wrap(getClobString(dataValue, super::convertJDBCValueStrByType));
     }
 
-    private String getClobString(JDBCDataValue dataValue, boolean limitSize, Function<JDBCDataValue, String> function) {
+    private String getClobString(JDBCDataValue dataValue, Function<JDBCDataValue, String> function) {
         try {
-            return dataValue.getClobString(limitSize);
+            return dataValue.getClobString();
         } catch (Exception e) {
             log.warn("convertJDBCValue error database: {} , error dataType: {} ",
                      Chat2DBContext.getDBConfig().getDbType(), dataValue.getType(), e);

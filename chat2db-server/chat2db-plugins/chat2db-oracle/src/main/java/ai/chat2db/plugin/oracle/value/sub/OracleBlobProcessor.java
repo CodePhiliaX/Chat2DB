@@ -21,7 +21,7 @@ public class OracleBlobProcessor extends DefaultValueProcessor {
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
         try {
-            return dataValue.getBlobString(true);
+            return dataValue.getBlobString();
         } catch (Exception e) {
             log.warn("convertJDBCValueByType error database: {} , error dataType: {} ",
                      Chat2DBContext.getDBConfig().getDbType(), dataValue.getType(), e);

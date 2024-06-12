@@ -27,11 +27,13 @@ public class MysqlValueProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return MysqlValueProcessorFactory.getValueProcessor(dataValue.getType()).convertJDBCValueByType(dataValue);
+        String type = dataValue.getType();
+        return MysqlValueProcessorFactory.getValueProcessor(type).convertJDBCValueByType(dataValue);
     }
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return MysqlValueProcessorFactory.getValueProcessor(dataValue.getType()).convertJDBCValueStrByType(dataValue);
+        String type = dataValue.getType();
+        return MysqlValueProcessorFactory.getValueProcessor(type).convertJDBCValueStrByType(dataValue);
     }
 }
