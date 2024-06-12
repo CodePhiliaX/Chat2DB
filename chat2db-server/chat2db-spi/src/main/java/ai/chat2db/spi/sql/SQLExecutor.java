@@ -274,9 +274,9 @@ public class SQLExecutor implements CommandExecutor {
                                 if (chat2dbAutoRowIdIndex == i) {
                                     continue;
                                 }
-                                ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
-                                row.add((String) valueProcessor.getJdbcValue(new JDBCDataValue(rs, resultSetMetaData, i)));
-//                                row.add(valueHandler.getString(rs, i, limitRowSize));
+//                                ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
+//                                row.add((String) valueProcessor.getJdbcValue(new JDBCDataValue(rs, resultSetMetaData, i)));
+                                row.add(valueHandler.getString(rs, i, limitRowSize));
                             }
                         } else {
                             for (int i = 1; i <= col; i++) {
