@@ -89,7 +89,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
     TEXT("TEXT", false, false, true, false, false, false, true, true, false, false),
 
 
-    NUMBERIC("NUMBERIC", true, true, true, false, false, false, true, true, false, false),
+    NUMERIC("NUMERIC", true, true, true, false, false, false, true, true, false, false),
 
 
     NUMBER("NUMBER", true, true, true, false, false, false, true, true, false, false),
@@ -222,7 +222,7 @@ public enum DMColumnTypeEnum implements ColumnBuilder {
             return script.toString();
         }
 
-        if (Arrays.asList(DECIMAL,DEC, FLOAT, NUMBER, TIMESTAMP, NUMBERIC).contains(type)) {
+        if (Arrays.asList(DECIMAL, DEC, FLOAT, NUMBER, TIMESTAMP, NUMERIC).contains(type)) {
             StringBuilder script = new StringBuilder();
             script.append(columnType);
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
