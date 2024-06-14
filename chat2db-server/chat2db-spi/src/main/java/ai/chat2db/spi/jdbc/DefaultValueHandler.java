@@ -37,6 +37,8 @@ public class DefaultValueHandler implements ValueHandler {
                 return largeStringBlob(blob, limitSize);
             } else if (obj instanceof Timestamp || obj instanceof LocalDateTime) {
                 return largeTime(obj);
+            } else if (obj instanceof SQLXML){
+                return ((SQLXML) obj).getString();
             } else {
                 return obj.toString();
             }
