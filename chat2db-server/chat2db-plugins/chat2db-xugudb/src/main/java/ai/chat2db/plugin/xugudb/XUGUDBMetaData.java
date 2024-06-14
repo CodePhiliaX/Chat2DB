@@ -8,7 +8,6 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
@@ -18,37 +17,42 @@ import org.apache.commons.lang3.StringUtils;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
     private List<String> systemDatabases = Arrays.asList("information_schema", "performance_schema", "sys");
+
     @Override
     public List<Database> databases(Connection connection) {
         List<Database> databases = SQLExecutor.getInstance().databases(connection);
         return sortDatabase(databases, systemDatabases, connection);
     }
 
-    private List<String> systemSchemas = Arrays.asList("CTISYS", "SYS","SYSDBA","SYSSSO","SYSAUDITOR");
+    private List<String> systemSchemas = Arrays.asList("CTISYS", "SYS", "SYSDBA", "SYSSSO", "SYSAUDITOR");
 
     @Override
     public List<Schema> schemas(Connection connection, String databaseName) {
         List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
         return SortUtils.sortSchema(schemas, systemSchemas);
     }
-      private String format(String tableName){
+
+    private String format(String tableName) {
         return "\"" + tableName + "\"";
-      }
+    }
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = """
-                     SELECT
-                         (SELECT dbms_metadata.get_ddl('%s.%s') FROM dual) AS ddl
-                     FROM dual;
-                     """;
+                SELECT
+                    (SELECT dbms_metadata.get_ddl('%s.%s') FROM dual) AS ddl
+                FROM dual;
+                """;
         StringBuilder ddlBuilder = new StringBuilder();
         String tableDDLSql = String.format(sql, schemaName, tableName);
         SQLExecutor.getInstance().execute(connection, tableDDLSql, resultSet -> {
@@ -60,18 +64,38 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
         return ddlBuilder.toString();
     }
 
+    private static String FUNCTIONS_SQL
+            = "select p.PROC_NAME From ALL_PROCEDURES p LEFT JOIN DBA_DATABASES DB ON p.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON p.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and p.RET_TYPE is not null ";
+
+
+    @Override
+    public List<Function> functions(Connection connection, String databaseName, String schemaName) {
+        List<Function> functions = new ArrayList<>();
+        String sql = String.format(FUNCTIONS_SQL, databaseName, schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Function function = new Function();
+                function.setDatabaseName(databaseName);
+                function.setSchemaName(schemaName);
+                function.setFunctionName(resultSet.getString("PROC_NAME"));
+                functions.add(function);
+            }
+            return functions;
+        });
+    }
+
     private static String ROUTINES_SQL
-        = "SELECT OWNER, NAME, TEXT FROM ALL_SOURCE WHERE TYPE = '%s' AND OWNER = '%s' AND NAME = '%s' ORDER BY LINE";
+            = "select DB.DB_NAME, CH.SCHEMA_NAME, p.PROC_NAME, p.DEFINE From ALL_PROCEDURES p LEFT JOIN DBA_DATABASES DB ON p.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON p.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and p.PROC_NAME = '%s' and p.RET_TYPE is not null ";
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
-        String functionName) {
+                             String functionName) {
 
-        String sql = String.format(ROUTINES_SQL, "PROC",schemaName, functionName);
+        String sql = String.format(ROUTINES_SQL, databaseName, schemaName, functionName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             StringBuilder sb = new StringBuilder();
             while (resultSet.next()) {
-                sb.append(resultSet.getString("TEXT") + "\n");
+                sb.append(resultSet.getString("DEFINE") + "\n");
             }
             Function function = new Function();
             function.setDatabaseName(databaseName);
@@ -84,14 +108,17 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
 
     }
 
+    private static String PROCEDURE_SQL
+            = "select DB.DB_NAME, CH.SCHEMA_NAME, p.PROC_NAME, p.DEFINE From ALL_PROCEDURES p LEFT JOIN DBA_DATABASES DB ON p.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON p.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and p.PROC_NAME = '%s' and p.RET_TYPE is null ";
+
     @Override
     public Procedure procedure(Connection connection, @NotEmpty String databaseName, String schemaName,
-        String procedureName) {
-        String sql = String.format(ROUTINES_SQL, "PROC", schemaName,procedureName);
+                               String procedureName) {
+        String sql = String.format(PROCEDURE_SQL, databaseName, schemaName, procedureName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             StringBuilder sb = new StringBuilder();
             while (resultSet.next()) {
-                sb.append(resultSet.getString("TEXT") + "\n");
+                sb.append(resultSet.getString("DEFINE") + "\n");
             }
             Procedure procedure = new Procedure();
             procedure.setDatabaseName(databaseName);
@@ -102,20 +129,40 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String TRIGGER_SQL
-        = "SELECT OWNER, TRIGGER_NAME, TABLE_OWNER, TABLE_NAME, TRIGGERING_TYPE, TRIGGERING_EVENT, STATUS, TRIGGER_BODY "
-        + "FROM ALL_TRIGGERS WHERE OWNER = '%s' AND TRIGGER_NAME = '%s'";
+    private static String PROCEDURES_SQL
+            = "select p.PROC_NAME From ALL_PROCEDURES p LEFT JOIN DBA_DATABASES DB ON p.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON p.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and p.RET_TYPE is null ";
 
-    private static String TRIGGER_SQL_LIST = "SELECT OWNER, TRIGGER_NAME FROM ALL_TRIGGERS WHERE OWNER = '%s'";
+
+    @Override
+    public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
+        List<Procedure> procedures = new ArrayList<>();
+        String sql = String.format(PROCEDURES_SQL, databaseName, schemaName);
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            while (resultSet.next()) {
+                Procedure procedure = new Procedure();
+                procedure.setDatabaseName(databaseName);
+                procedure.setSchemaName(schemaName);
+                procedure.setProcedureName(resultSet.getString("PROC_NAME"));
+                procedures.add(procedure);
+            }
+            return procedures;
+        });
+    }
+
+
+    private static String TRIGGER_SQL
+            = "select t.trig_name,t.DEFINE from all_triggers t LEFT JOIN DBA_DATABASES DB ON t.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON t.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and t.trig_name = '%s'";
+
+    private static String TRIGGER_SQL_LIST = "select t.trig_name from all_triggers t LEFT JOIN DBA_DATABASES DB ON t.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON t.SCHEMA_ID = CH.SCHEMA_ID where  DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s'";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         List<Trigger> triggers = new ArrayList<>();
-        String sql = String.format(TRIGGER_SQL_LIST, schemaName);
+        String sql = String.format(TRIGGER_SQL_LIST, databaseName, schemaName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
                 Trigger trigger = new Trigger();
-                trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
+                trigger.setTriggerName(resultSet.getString("trig_name"));
                 trigger.setSchemaName(schemaName);
                 trigger.setDatabaseName(databaseName);
                 triggers.add(trigger);
@@ -126,22 +173,23 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public Trigger trigger(Connection connection, @NotEmpty String databaseName, String schemaName,
-        String triggerName) {
+                           String triggerName) {
 
-        String sql = String.format(TRIGGER_SQL, schemaName, triggerName);
+        String sql = String.format(TRIGGER_SQL, databaseName, schemaName, triggerName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Trigger trigger = new Trigger();
             trigger.setDatabaseName(databaseName);
             trigger.setSchemaName(schemaName);
             trigger.setTriggerName(triggerName);
             if (resultSet.next()) {
-                trigger.setTriggerBody(resultSet.getString("TRIGGER_BODY"));
+                trigger.setTriggerBody(resultSet.getString("DEFINE"));
             }
             return trigger;
         });
     }
 
     private static String VIEW_SQL_LIST = "SELECT DB.DB_NAME, CH.SCHEMA_NAME, v.VIEW_NAME, v.DEFINE, v.OPTION,v.VALID, v.IS_SYS, v.COMMENTS FROM all_views v LEFT JOIN DBA_DATABASES DB ON v.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON v.SCHEMA_ID = CH.SCHEMA_ID where DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s'";
+
     @Override
     public List<Table> views(Connection connection, String databaseName, String schemaName) {
         String sql = String.format(VIEW_SQL_LIST, databaseName, schemaName);
@@ -161,26 +209,26 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
     }
 
     private static String VIEW_SQL
-        = "SELECT OWNER, VIEW_NAME, TEXT FROM ALL_VIEWS WHERE OWNER = '%s' AND VIEW_NAME = '%s'";
+            = " SELECT CH.SCHEMA_NAME, v.VIEW_NAME, v.DEFINE FROM ALL_VIEWS v LEFT JOIN DBA_DATABASES DB ON v.DB_ID = DB.DB_ID LEFT JOIN DBA_SCHEMAS CH ON v.SCHEMA_ID = CH.SCHEMA_ID where DB.DB_NAME = '%s' and CH.SCHEMA_NAME = '%s' and v.VIEW_NAME = '%s'";
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
-        String sql = String.format(VIEW_SQL, schemaName, viewName);
+        String sql = String.format(VIEW_SQL, databaseName, schemaName, viewName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Table table = new Table();
             table.setDatabaseName(databaseName);
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl(resultSet.getString("TEXT"));
+                table.setDdl(resultSet.getString("DEFINE"));
             }
             return table;
         });
     }
 
     private static String INDEX_SQL = "SELECT i.INDEX_NAME, CASE i.INDEX_TYPE WHEN 0 THEN 'BTREE' WHEN 1 THEN 'RTREE' WHEN 2 THEN 'FULLTEXT' WHEN 3 THEN 'BITMAP' WHEN 4 THEN 'UNION' END AS INDEX_TYPE, i.IS_PRIMARY,"
-                + " i.IS_UNIQUE, i.FIELD_NUM, REPLACE (KEYS, '\"', '') AS KEYS FROM ALL_INDEXES i LEFT JOIN ALL_TABLES T ON i.TABLE_ID = T.TABLE_ID LEFT JOIN ALL_SCHEMAS CH ON CH.USER_ID = T.USER_ID AND CH.DB_ID = i.DB_ID"
-                + " where CH.SCHEMA_NAME = '%s' and T.TABLE_NAME = '%s'";
+            + " i.IS_UNIQUE, i.FIELD_NUM, REPLACE (KEYS, '\"', '') AS KEYS FROM ALL_INDEXES i LEFT JOIN ALL_TABLES T ON i.TABLE_ID = T.TABLE_ID LEFT JOIN ALL_SCHEMAS CH ON CH.USER_ID = T.USER_ID AND CH.DB_ID = i.DB_ID"
+            + " where CH.SCHEMA_NAME = '%s' and T.TABLE_NAME = '%s'";
 
     @Override
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -232,6 +280,7 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
         return tableIndexColumnList;
     }
 
+
     private static String SELECT_TABLE_COLUMNS = "select c.* from ALL_COLUMNS c LEFT JOIN ALL_TABLES T ON c.TABLE_ID = T.TABLE_ID LEFT JOIN ALL_SCHEMAS CH ON CH.USER_ID = T.USER_ID AND CH.DB_ID = c.DB_ID where CH.SCHEMA_NAME = '%s' and T.TABLE_NAME = '%s' order by c.COL_NO";
 
     @Override
@@ -248,7 +297,7 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
                 //column.setColumnType(resultSet.getString("COLUMN_TYPE"));
                 if (resultSet.getBoolean("VARYING")) {
                     if (resultSet.getString("TYPE_NAME").toUpperCase().equals(XUGUDBColumnTypeEnum.CHAR.name())) {
-                        column.setColumnType("VAR"+resultSet.getString("TYPE_NAME").toUpperCase());
+                        column.setColumnType("VAR" + resultSet.getString("TYPE_NAME").toUpperCase());
                     } else {
                         column.setColumnType(resultSet.getString("TYPE_NAME").toUpperCase());
                     }
@@ -260,12 +309,12 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
                 column.setDefaultValue(resultSet.getString("DEF_VAL"));
                 //column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
                 column.setComment(resultSet.getString("COMMENTS"));
-               // column.setPrimaryKey("PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY")));
-                column.setNullable(resultSet.getBoolean("NOT_NULL") ? 1 : 0);
+                // column.setPrimaryKey("PRI".equalsIgnoreCase(resultSet.getString("COLUMN_KEY")));
+                column.setNullable(resultSet.getBoolean("NOT_NULL") ? 0 : 1);
                 column.setOrdinalPosition(resultSet.getInt("SCALE"));
-               // column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
+                // column.setDecimalDigits(resultSet.getInt("NUMERIC_SCALE"));
                 //column.setCharSetName(resultSet.getString("CHARACTER_SET_NAME"));
-               // column.setCollationName(resultSet.getString("COLLATION_NAME"));
+                // column.setCollationName(resultSet.getString("COLLATION_NAME"));
                 column.setColumnSize(resultSet.getInt("SCALE") == -1 ? null : resultSet.getInt("SCALE"));
                 tableColumns.add(column);
             }
@@ -291,6 +340,9 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String getMetaDataName(String... names) {
+        if (Arrays.stream(names).count() > 1) {
+            return Arrays.stream(names).skip(1).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
+        }
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "\"" + name + "\"").collect(Collectors.joining("."));
     }
 
@@ -299,4 +351,5 @@ public class XUGUDBMetaData extends DefaultMetaService implements MetaData {
     public List<String> getSystemSchemas() {
         return systemSchemas;
     }
+
 }

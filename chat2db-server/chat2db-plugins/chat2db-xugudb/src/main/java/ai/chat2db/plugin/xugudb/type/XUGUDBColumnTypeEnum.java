@@ -7,9 +7,7 @@ import ai.chat2db.spi.model.TableColumn;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
 
@@ -124,15 +122,44 @@ public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildDefaultValue(column, type)).append(" ");
 
-        script.append(buildAutoIncrement(column,type)).append(" ");
+        script.append(buildAutoIncrement(column, type)).append(" ");
 
         script.append(buildNullable(column, type)).append(" ");
 
         return script.toString();
     }
 
+    public String buildUpdateColumnSql(TableColumn column) {
+        XUGUDBColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+        script.append("ALTER TABLE ").append("\"").append(column.getSchemaName()).append("\".\"").append(column.getTableName()).append("\"");
+        script.append(" ").append("MODIFY (").append("\"").append(column.getName()).append("\"").append(" ");
+        boolean isModify = false;
+        Integer oldColumnSize = Optional.ofNullable(column.getOldColumn())
+                .map(TableColumn::getColumnSize)
+                .orElse(null);
+
+        Integer newColumnSize = Optional.ofNullable(column.getColumnSize())
+                .orElse(null);
+        if (!column.getOldColumn().getColumnType().equals(column.getColumnType())
+                || !Objects.equals(oldColumnSize, newColumnSize)) {
+            script.append(buildDataType(column, type)).append(" ");
+            isModify = true;
+        }
+        if (!Objects.equals(column.getOldColumn().getNullable(), column.getNullable())) {
+            script.append(buildNullable(column, type)).append(" ");
+            isModify = true;
+        }
+        script.append(") \n");
+
+        return isModify ? script.toString() : "";
+    }
+
     private String buildAutoIncrement(TableColumn column, XUGUDBColumnTypeEnum type) {
-        if(!type.getColumnType().isSupportAutoIncrement()){
+        if (!type.getColumnType().isSupportAutoIncrement()) {
             return "";
         }
         if (column.getAutoIncrement() != null && column.getAutoIncrement()
@@ -150,9 +177,17 @@ public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
             return "";
         }
         if (column.getNullable() != null && 1 == column.getNullable()) {
-            return "NULL";
+            if (EditStatus.MODIFY.name().equals(column.getEditStatus())) {
+                return "DROP NOT NULL";
+            } else {
+                return "NULL";
+            }
         } else {
-            return "NOT NULL";
+            if (EditStatus.MODIFY.name().equals(column.getEditStatus())) {
+                return "SET NOT NULL";
+            } else {
+                return "NOT NULL";
+            }
         }
     }
 
@@ -246,15 +281,15 @@ public enum XUGUDBColumnTypeEnum implements ColumnBuilder {
         }
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append(") \n");
-
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
-                script.append(";");
                 script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-                script.append(" ").append("RENAME COLUMN ").append("\"").append(tableColumn.getOldName()).append("\"").append(" TO ").append("\"").append(tableColumn.getName()).append("\"");
-
+                script.append(" ").append("RENAME COLUMN ").append("\"").append(tableColumn.getOldName()).append("\"").append(" TO ").append("\"").append(tableColumn.getName()).append("\" ").append(";\n").append(buildUpdateColumnSql(tableColumn));
+                //script.append(";\n");
+            } else {
+                //script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
+                script.append(buildUpdateColumnSql(tableColumn)).append("\n");
             }
+
             return script.toString();
 
         }
