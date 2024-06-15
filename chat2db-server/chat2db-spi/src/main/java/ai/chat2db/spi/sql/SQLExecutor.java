@@ -30,7 +30,6 @@ import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.parser.ParserException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +37,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.springframework.util.Assert;
+
+import java.sql.*;
 
 /**
  * Dbhub unified database connection management
@@ -74,6 +75,44 @@ public class SQLExecutor implements CommandExecutor {
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+
+    public <R> R preExecute(Connection connection, String sql, String[] parameters, ResultSetFunction<R> function) {
+        log.info("execute:{}", sql);
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                stmt.setString(i + 1, parameters[i]);
+            }
+            boolean query = stmt.execute();
+            if (query) {
+                // Represents the query
+                try (ResultSet rs = stmt.getResultSet();) {
+                    return function.apply(rs);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    public void preExecute(Connection connection, String sql, String[] parameters, ResultSetConsumer consumer) {
+        log.info("execute:{}", sql);
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            for (int i = 0; i < parameters.length; i++) {
+                stmt.setString(i + 1, parameters[i]);
+            }
+            boolean query = stmt.execute();
+            if (query) {
+                // Represents the query
+                try (ResultSet rs = stmt.getResultSet();) {
+                    consumer.accept(rs);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void execute(Connection connection, String sql, ResultSetConsumer consumer) {
@@ -671,7 +710,7 @@ public class SQLExecutor implements CommandExecutor {
         Header rowNumberHeader = Header.builder()
                 .name(I18nUtils.getMessage("sqlResult.rowNumber"))
                 .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                        .getCode()).build();
+                                  .getCode()).build();
 
         executeResult.setHeaderList(EasyCollectionUtils.union(Arrays.asList(rowNumberHeader), headers));
         if (executeResult.getDataList() != null) {
