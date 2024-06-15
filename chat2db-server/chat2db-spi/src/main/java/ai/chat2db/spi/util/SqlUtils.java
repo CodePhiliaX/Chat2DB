@@ -12,6 +12,8 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
+import com.google.common.collect.Lists;
+import com.oceanbase.tools.sqlparser.oracle.PlSqlLexer;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -127,10 +129,33 @@ public class SqlUtils {
     public static List<String> parse(String sql, DbType dbType) {
         List<String> list = new ArrayList<>();
         try {
+            sql = SQLParserUtils.removeComment(sql, dbType);
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
-            sql = removeDelimiter(sql);
+            try {
+                if (DbType.oracle.equals(dbType)) {
+                    SqlSplitter sqlSplitter = new SqlSplitter(PlSqlLexer.class, ";", false);
+                    sqlSplitter.setRemoveCommentPrefix(true);
+                    List<SplitSqlString> sqls = sqlSplitter.split(sql);
+                    return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+                }
+            }catch (Exception e){
+                log.error("sqlSplitter error",e);
+            }
+            try {
+                if (DbType.mysql.equals(dbType) ||
+                        DbType.mariadb.equals(dbType) ||
+                        DbType.oceanbase.equals(dbType)) {
+                    sql = updateNow(sql, dbType);
+                    SqlSplitProcessor sqlSplitProcessor = new SqlSplitProcessor(dbType, true, true);
+                    sqlSplitProcessor.setDelimiter(";");
+                    return split(sqlSplitProcessor, sql, dbType);
+                }
+            }catch (Exception e){
+                log.error("sqlSplitProcessor error",e);
+            }
+//            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
@@ -138,7 +163,7 @@ public class SqlUtils {
             // Iterate through each statement
             for (Statement stmt : statements.getStatements()) {
                 if (!(stmt instanceof CreateProcedure)) {
-                    list.add(updateNow(stmt.toString(), dbType));
+                    list.add(stmt.toString());
                 }
             }
             if (CollectionUtils.isEmpty(list)) {
@@ -168,7 +193,7 @@ public class SqlUtils {
                 }
             }
             return str.replaceAll(DELIMITER_REGEX, "");
-        }catch (Exception e){
+        } catch (Exception e) {
             return str;
         }
     }
@@ -200,6 +225,12 @@ public class SqlUtils {
         if (StringUtils.isBlank(sql) || !DbType.mysql.equals(dbType)) {
             return sql;
         }
+        if (sql.contains("default now()")) {
+            return sql.replace("default now()", "default CURRENT_TIMESTAMP");
+        }
+        if (sql.contains("DEFAULT now()")) {
+            return sql.replace("DEFAULT now()", "default CURRENT_TIMESTAMP");
+        }
         if (sql.contains("default now ()")) {
             return sql.replace("default now ()", "default CURRENT_TIMESTAMP");
         }
@@ -212,8 +243,11 @@ public class SqlUtils {
     private static final String DEFAULT_VALUE = "CHAT2DB_UPDATE_TABLE_DATA_USER_FILLED_DEFAULT";
 
     public static String getSqlValue(String value, String dataType) {
-        if (value == null || value == "") {
+        if (value == null) {
             return null;
+        }
+        if("".equals(value)){
+            return "''";
         }
         if (DEFAULT_VALUE.equals(value)) {
             return "DEFAULT";
@@ -246,4 +280,18 @@ public class SqlUtils {
         }
         return false;
     }
+
+    private static List<String> split(SqlSplitProcessor processor, String sql, DbType dbType) {
+        StringBuffer buffer = new StringBuffer();
+        List<SplitSqlString> sqls = processor.split(buffer, sql);
+        String bufferStr = buffer.toString();
+        if (bufferStr.trim().length() != 0) {
+            // if buffer is not empty, there will be some errors in syntax
+            log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
+            String sqlstr = SQLParserUtils.removeComment(sql, dbType);
+            return Lists.newArrayList(sqlstr);
+        }
+        return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+    }
+
 }
