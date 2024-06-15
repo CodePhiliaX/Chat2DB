@@ -1,18 +1,18 @@
 
 package ai.chat2db.spi.util;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.google.common.collect.Lists;
+
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -79,5 +79,109 @@ public class ResultSetUtils {
             return columnLabel;
         }
         return resultSetMetaData.getColumnName(column);
+    }
+
+    public static String getColumnDataTypeName(ResultSetMetaData resultSetMetaData, int columnIndex) {
+        try {
+            return resultSetMetaData.getColumnTypeName(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getColumnPrecision(ResultSetMetaData resultSetMetaData, int columnIndex){
+        try {
+            return resultSetMetaData.getPrecision(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getColumnScale(ResultSetMetaData resultSetMetaData, int columnIndex){
+        try {
+            return resultSetMetaData.getScale(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getString(ResultSet rs, int columnIndex){
+        try {
+            return rs.getString(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static InputStream getBinaryStream(ResultSet rs, int columnIndex) {
+        try {
+            return rs.getBinaryStream(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] getBytes(ResultSet rs, int columnIndex) {
+        try {
+            return rs.getBytes(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean getBoolean(ResultSet rs, int columnIndex) {
+        try {
+            return rs.getBoolean(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getInt(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getInt(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Date getDate(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getDate(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Timestamp getTimestamp(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getTimestamp(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Clob getClob(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getClob(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Blob getBlob(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getBlob(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BigDecimal getBigDecimal(ResultSet resultSet, int columnIndex) {
+        try {
+            return resultSet.getBigDecimal(columnIndex);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -11,8 +11,10 @@ import ai.chat2db.plugin.oracle.builder.OracleSqlBuilder;
 import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
 import ai.chat2db.plugin.oracle.type.OracleDefaultValueEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
+import ai.chat2db.plugin.oracle.value.OracleValueProcessor;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
@@ -343,5 +345,13 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<String> getSystemSchemas() {
         return systemSchemas;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public ValueProcessor getValueProcessor() {
+        return new OracleValueProcessor();
     }
 }

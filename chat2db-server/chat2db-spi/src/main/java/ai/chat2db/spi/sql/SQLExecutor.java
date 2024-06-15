@@ -18,6 +18,7 @@ import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.enums.SqlTypeEnum;
 import ai.chat2db.spi.jdbc.DefaultValueHandler;
@@ -31,7 +32,6 @@ import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.parser.ParserException;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -277,6 +277,8 @@ public class SQLExecutor implements CommandExecutor {
                                 if (chat2dbAutoRowIdIndex == i) {
                                     continue;
                                 }
+//                                ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
+//                                row.add((String) valueProcessor.getJdbcValue(new JDBCDataValue(rs, resultSetMetaData, i)));
                                 row.add(valueHandler.getString(rs, i, limitRowSize));
                             }
                         } else {
