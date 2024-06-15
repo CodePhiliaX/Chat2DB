@@ -448,21 +448,21 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.SMALLINT.getColumnType().getTypeName().toLowerCase()).append("[]");
                     } else if (udtName.contains(PostgreSQLColumnTypeEnum.INT8.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.BIGINT.getColumnType().getTypeName().toLowerCase()).append("[]");
-                    } else if (udtName.contains(PostgreSQLColumnTypeEnum.VARBIT.name().toLowerCase())) {
+                    } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.VARBIT.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.BITVARYING.getColumnType().getTypeName().toLowerCase()).append("[]");
                     } else if (udtName.contains(PostgreSQLColumnTypeEnum.VARCHAR.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.CHARACTERVARYING.getColumnType().getTypeName().toLowerCase()).append("[]");
-                    } else if (udtName.contains(PostgreSQLColumnTypeEnum.JSON.name().toLowerCase())) {
+                    } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.JSON.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.JSON.getColumnType().getTypeName().toLowerCase()).append("[]");
-                    } else if (udtName.contains(PostgreSQLColumnTypeEnum.JSONB.name().toLowerCase())) {
+                    } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.JSONB.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.JSONB.getColumnType().getTypeName().toLowerCase()).append("[]");
-                    } else if (udtName.contains(PostgreSQLColumnTypeEnum.JSONPATH.name().toLowerCase())) {
+                    } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.JSONPATH.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.JSONPATH.getColumnType().getTypeName().toLowerCase()).append("[]");
                     } else if (udtName.contains(PostgreSQLColumnTypeEnum.TEXT.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.TEXT.getColumnType().getTypeName().toLowerCase()).append("[]");
                     } else if (udtName.contains(PostgreSQLColumnTypeEnum.BPCHAR.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.CHAR.getColumnType().getTypeName().toLowerCase()).append("[]");
-                    } else if (udtName.contains(PostgreSQLColumnTypeEnum.BIT.name().toLowerCase())) {
+                    } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.BIT.name().toLowerCase())) {
                         ddlBuilder.append(PostgreSQLColumnTypeEnum.BIT.getColumnType().getTypeName().toLowerCase()).append("[]");
                     } else if (udtName.substring(1).equals(PostgreSQLColumnTypeEnum.TIME.name().toLowerCase())) {
                         ddlBuilder.append("time without time zone").append("[]");
