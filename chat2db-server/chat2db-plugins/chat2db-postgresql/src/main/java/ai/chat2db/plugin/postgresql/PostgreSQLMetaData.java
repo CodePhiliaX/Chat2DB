@@ -238,11 +238,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                                                     c.identity_generation,
                                                     c.is_generated,
                                                     c.generation_expression,
-                                                    c.identity_increment,
-                                                    case
-                                                        when pg_get_serial_sequence(table_schema || '.' || table_name,
-                                                                                    column_name) IS NOT NULL THEN True
-                                                        ELSE False end as is_serial
+                                                    c.identity_increment
                                              FROM information_schema.columns c
                                              WHERE (table_schema, table_name) = (?, ?)
                                              ORDER BY ordinal_position;""";
@@ -427,7 +423,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 String identityGeneration = resultSet.getString("identity_generation");
                 boolean isNullable = "YES".equals(resultSet.getString("is_nullable"));
                 boolean isIdentity = "YES".equals(resultSet.getString("is_identity"));
-                boolean isSerial = resultSet.getBoolean("is_serial");
+                boolean isSerial = false;
                 int identityIncrement = resultSet.getInt("identity_increment");
                 int identityStart = resultSet.getInt("identity_start");
                 int characterMaximumLength = resultSet.getInt("character_maximum_length");
