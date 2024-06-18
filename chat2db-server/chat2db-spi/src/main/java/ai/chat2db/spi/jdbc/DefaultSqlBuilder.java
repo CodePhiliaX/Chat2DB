@@ -13,15 +13,25 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DefaultSqlBuilder implements SqlBuilder<Table> {
 
+
+    @Override
+    public String buildTableQuerySql(String databaseName, String schemaName, String tableName) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT * FROM ");
+        buildTableName(databaseName, schemaName, tableName, sqlBuilder);
+        return sqlBuilder.toString();
+    }
 
     @Override
     public String buildCreateTableSql(Table table) {
@@ -198,19 +208,17 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
      * Generates the base part of the INSERT SQL statement.
      * Optionally includes column names if provided.
      *
-     * @param schemaName Name of the database schema.
-     * @param tableName  Name of the table to insert into.
-     * @param columnList Optional list of column names.
+     * @param databaseName
+     * @param schemaName   Name of the database schema.
+     * @param tableName    Name of the table to insert into.
+     * @param columnList   Optional list of column names.
      * @return The base part of the INSERT SQL statement.
      */
-    private String generateBaseInsertSql(String schemaName, String tableName, List<String> columnList) {
+    protected String buildBaseInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList) {
         StringBuilder script = new StringBuilder();
 
-        if (StringUtils.isNotBlank(schemaName)) {
-            script.append(schemaName).append('.');
-        }
-
-        script.append(tableName);
+        script.append("INSERT INTO ");
+        buildTableName(databaseName, schemaName, tableName, script);
 
         if (CollectionUtils.isNotEmpty(columnList)) {
             script.append(" (")
@@ -218,8 +226,19 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
                     .append(") ");
         }
 
-        script.append("VALUES ");
+        script.append(" VALUES ");
         return script.toString();
+    }
+
+    protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
+        if (StringUtils.isNotBlank(databaseName)) {
+            script.append(databaseName).append('.');
+        }
+        if (StringUtils.isNotBlank(schemaName)) {
+            script.append(schemaName).append('.');
+        }
+
+        script.append(tableName);
     }
 
     /**
@@ -231,8 +250,8 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
      * @param valueList  List of values to be inserted.
      * @return The complete INSERT SQL statement for a single record.
      */
-    public String generateSingleInsertSql(String schemaName, String tableName, List<String> columnList, List<String> valueList) {
-        String baseSql = generateBaseInsertSql(schemaName, tableName, columnList);
+    public String buildSingleInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<String> valueList) {
+        String baseSql = buildBaseInsertSql(databaseName, schemaName, tableName, columnList);
         return baseSql + "(" + String.join(",", valueList) + ");";
     }
 
@@ -245,12 +264,35 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
      * @param valueLists List of lists, each inner list represents values for a row.
      * @return The complete multi-row INSERT SQL statement.
      */
-    public String generateMultiInsertSql(String schemaName, String tableName, List<String> columnList, List<List<String>> valueLists) {
-        String baseSql = generateBaseInsertSql(schemaName, tableName, columnList);
+    public String buildMultiInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<List<String>> valueLists) {
+        String baseSql = buildBaseInsertSql(databaseName, schemaName, tableName, columnList);
         String valuesPart = valueLists.stream()
                 .map(values -> "(" + String.join(",", values) + ")")
                 .collect(Collectors.joining(",\n"));
         return baseSql + valuesPart + ";";
+    }
+
+
+    @Override
+    public String buildUpdateSql(String databaseName, String schemaName, String tableName, Map<String, String> row, Map<String, String> primaryKeyMap) {
+        StringBuilder script = new StringBuilder();
+        script.append("UPDATE ");
+        buildTableName(databaseName, schemaName, tableName, script);
+
+        script.append(" SET ");
+        List<String> setClauses = row.entrySet().stream()
+                .map(entry -> entry.getKey() + " = " + entry.getValue())
+                .collect(Collectors.toList());
+        script.append(String.join(",", setClauses));
+
+        if (MapUtils.isNotEmpty(primaryKeyMap)) {
+            script.append(" WHERE ");
+            List<String> whereClauses = primaryKeyMap.entrySet().stream()
+                    .map(entry -> entry.getKey() + " = " + entry.getValue())
+                    .collect(Collectors.toList());
+            script.append(String.join(" AND ", whereClauses));
+        }
+        return script + ";";
     }
 
     private List<String> getPrimaryColumns(List<Header> headerList) {

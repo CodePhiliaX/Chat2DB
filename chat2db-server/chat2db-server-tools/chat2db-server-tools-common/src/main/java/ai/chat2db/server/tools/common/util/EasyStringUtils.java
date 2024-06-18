@@ -193,17 +193,17 @@ public class EasyStringUtils {
     }
 
     /**
-     * @param value  "abcd"
-     * @param quoteChar  '%'
-     * @return         "%abcd%"
+     * @param value     "abcd"
+     * @param quoteChar '%'
+     * @return "%abcd%"
      */
     public static String quoteString(String value, char quoteChar) {
-        return StringUtils.wrap(value, quoteChar);
+        return quoteChar + value + quoteChar;
     }
 
     /**
-     * @param value  "abcd"
-     * @return  "'abcd'"
+     * @param value "abcd"
+     * @return "'abcd'"
      */
     public static String quoteString(String value) {
         // (char)39 -> '

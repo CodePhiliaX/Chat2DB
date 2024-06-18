@@ -385,11 +385,11 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
     }
 
 
-//    @Override
-//    protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
-//        if (StringUtils.isNotBlank(databaseName)) {
-//            script.append("`").append(databaseName).append("`").append('.');
-//        }
-//        script.append("`").append(tableName).append("`");
-//    }
+    @Override
+    protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
+        if (StringUtils.isNotBlank(databaseName)) {
+            script.append("`").append(databaseName).append("`").append('.');
+        }
+        script.append("`").append(tableName).append("`");
+    }
 }
