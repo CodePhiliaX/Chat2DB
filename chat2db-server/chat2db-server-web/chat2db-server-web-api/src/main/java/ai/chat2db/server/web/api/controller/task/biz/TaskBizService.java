@@ -217,7 +217,7 @@ public class TaskBizService {
         } else if (ExportTypeEnum.INSERT.getCode().equals(exportType)) {
             return FileUtil.createTempFile(fileName, ".sql", true);
         } else if (ExportTypeEnum.EXCEL.getCode().equals(exportType)) {
-            return FileUtil.createTempFile(fileName, ExportFileSuffix.EXCEL.getSuffix(), true);
+            return FileUtil.createTempFile(fileName, ExportFileSuffix.XLSX.getSuffix(), true);
         } else if (ExportTypeEnum.MARKDOWN.getCode().equals(exportType)) {
             return FileUtil.createTempFile(fileName, ExportFileSuffix.MARKDOWN.getSuffix(), true);
         } else if (ExportTypeEnum.WORD.getCode().equals(exportType)) {

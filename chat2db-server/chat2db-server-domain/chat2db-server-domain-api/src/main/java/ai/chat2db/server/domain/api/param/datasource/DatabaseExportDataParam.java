@@ -1,8 +1,13 @@
 package ai.chat2db.server.domain.api.param.datasource;
 
+import ai.chat2db.server.tools.common.model.rdb.data.option.AbstractExportDataOptions;
+import ai.chat2db.server.tools.common.model.rdb.data.option.table.BaseTableOptions;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author: zgq
@@ -14,5 +19,7 @@ import lombok.NoArgsConstructor;
 public class DatabaseExportDataParam {
     private String databaseName;
     private String schemaName;
-    private String exportType;
+    @NotNull
+    private AbstractExportDataOptions exportDataOption;
+    private List<BaseTableOptions> exportTableOptions;
 }

@@ -256,4 +256,5 @@ public abstract class RdbWebConverter {
     public abstract TablePageQueryParam schemaReq2page(EsTableSchemaRequest request);
 
     public abstract DmlSqlCopyParam dmlRequest2param(DmlSqlCopyRequest request) ;
+
 }

@@ -13,7 +13,7 @@ public enum ExportFileSuffix {
     //word
     WORD(".docx"),
     //excel
-    EXCEL(".xlsx"),
+    XLSX(".xlsx"),
     //markdown
     MARKDOWN(".md"),
     //html
@@ -26,7 +26,7 @@ public enum ExportFileSuffix {
     JSON(".json"),
 
     CSV(".csv"),
-
+    XLS(".xls"),
     ZIP(".zip");
 
     private String suffix;

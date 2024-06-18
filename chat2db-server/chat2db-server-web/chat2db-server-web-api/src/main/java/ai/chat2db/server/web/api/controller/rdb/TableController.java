@@ -18,8 +18,6 @@ import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.spi.sql.Chat2DBContext;
-import ai.chat2db.spi.sql.ConnectInfo;
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -78,7 +76,7 @@ public class TableController extends EmbeddingController {
 //            log.info("sync table vector finish");
 //        });
         return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-                request.getPageSize());
+                                request.getPageSize());
     }
 
     /**
@@ -93,9 +91,6 @@ public class TableController extends EmbeddingController {
         return tableService.queryTables(queryParam);
 
     }
-
-
-
 
 
     /**
@@ -203,7 +198,7 @@ public class TableController extends EmbeddingController {
      */
     @PostMapping("/modify/sql")
     public ListResult<SqlVO> modifySql(@Valid @RequestBody TableModifySqlRequest request) {
-        Table table =  rdbWebConverter.tableRequest2param(request.getNewTable());
+        Table table = rdbWebConverter.tableRequest2param(request.getNewTable());
         table.setSchemaName(request.getSchemaName());
         table.setDatabaseName(request.getDatabaseName());
         for (TableColumn tableColumn : table.getColumnList()) {
@@ -217,10 +212,9 @@ public class TableController extends EmbeddingController {
             tableIndex.setDatabaseName(request.getDatabaseName());
         }
 
-        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()),table)
+        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()), table)
                 .map(rdbWebConverter::dto2vo);
     }
-
 
 
     /**
@@ -255,4 +249,5 @@ public class TableController extends EmbeddingController {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
     }
+
 }
