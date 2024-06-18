@@ -349,7 +349,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 String tableOptions = resultSet.getString("table_options");
                 if (StringUtils.isNotBlank(tableOptions)) {
                     tableOptions = tableOptions.replace("{", "(").replace("}", ")");
-                    return optionBuilder.append("with ").append(tableOptions).toString();
+                    return optionBuilder.append(" with ").append(tableOptions).toString();
                 }
             }
             return null;
@@ -380,7 +380,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
         });
         if (subTable) {
             if (StringUtils.isNotBlank(options)) {
-                ddlBuilder.append("WITH ").append(options);
+                ddlBuilder.append(options);
             }
             return ddlBuilder.append("\n").append(tablespace).toString();
         }
