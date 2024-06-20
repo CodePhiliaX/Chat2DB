@@ -715,4 +715,20 @@ public class SQLExecutor implements CommandExecutor {
         }
         return executeResult;
     }
+
+    public void execute(Connection connection, String sql, int batchSize, ResultSetConsumer consumer) {
+        log.info("execute:{}", sql);
+        try (Statement stmt = connection.createStatement()) {
+            stmt.setFetchSize(batchSize);
+            boolean query = stmt.execute(sql);
+            // Represents the query
+            if (query) {
+                try (ResultSet rs = stmt.getResultSet()) {
+                    consumer.accept(rs);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
