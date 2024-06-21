@@ -20,22 +20,22 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
-        exportTables(connection, schemaName, asyncContext);
+        exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, schemaName, asyncContext);
         exportProceduresAndFunctions(connection, schemaName, asyncContext);
         exportTriggers(connection, schemaName, asyncContext);
     }
 
-    private void exportTables(Connection connection, String schemaName,  AsyncContext asyncContext) throws SQLException {
+    private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
-                exportTable(connection, schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
+                exportTable(connection, databaseName, schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         try {
             SQLExecutor.getInstance().execute(connection, SQLConstant.TABLE_DDL_FUNCTION_SQL, resultSet -> null);
         } catch (Exception e) {
@@ -48,7 +48,7 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
                 sqlBuilder.append(resultSet.getString("sql")).append("\n");
                 asyncContext.write(sqlBuilder.toString());
                 if (asyncContext.isContainsData()) {
-                    exportTableData(connection, schemaName, tableName, asyncContext);
+                    exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
             }
         }

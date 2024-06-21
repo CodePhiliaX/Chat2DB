@@ -55,7 +55,7 @@ public class ClickHouseDBManage extends DefaultDBManage implements DBManage {
                             .append(";").append("\n").append(ddl).append(";").append("\n");
                     asyncContext.write(sqlBuilder.toString());
                     if (asyncContext.isContainsData() && dataFlag) {
-                        exportTableData(connection,schemaName, tableOrViewName, asyncContext);
+                        exportTableData(connection, databaseName,schemaName, tableOrViewName, asyncContext);
                     }
                 }
             }

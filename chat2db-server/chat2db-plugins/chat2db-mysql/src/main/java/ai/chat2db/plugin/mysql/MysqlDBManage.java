@@ -7,13 +7,14 @@ import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.springframework.util.StringUtils;
 
-import java.sql.*;
-import java.util.Objects;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
-        exportTables(connection, databaseName, asyncContext);
+        exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, databaseName, asyncContext);
         exportProcedures(connection, asyncContext);
         exportTriggers(connection, asyncContext);
@@ -35,22 +36,22 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
             if (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
-                          .append(resultSet.getString("Create Function")).append(";").append("\n");
+                        .append(resultSet.getString("Create Function")).append(";").append("\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }
     }
 
-    private void exportTables(Connection connection, String databaseName, AsyncContext asyncContext) throws SQLException {
+    private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
-                exportTable(connection, resultSet.getString("TABLE_NAME"), asyncContext);
+                exportTable(connection, databaseName, schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("show create table %s ", tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
@@ -59,7 +60,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
                         .append(resultSet.getString("Create Table")).append(";").append("\n");
                 asyncContext.write(sqlBuilder.toString());
                 if (asyncContext.isContainsData()) {
-                    exportTableData(connection, null,tableName, asyncContext);
+                    exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
             }
         }
@@ -143,7 +144,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         } catch (Exception e) {
             connection.rollback();
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             connection.setAutoCommit(true);
         }
 
