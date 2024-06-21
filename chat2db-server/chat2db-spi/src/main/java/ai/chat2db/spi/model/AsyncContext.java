@@ -18,11 +18,29 @@ public class AsyncContext {
 
     private boolean containsData;
 
-    private Consumer<Long> consumer;
+    private AsyncCall call;
 
-    public void addProgress(Long progress) {
-        if (consumer != null) {
-            consumer.accept(progress);
+    public void setProgress(Integer progress) {
+        if (call != null) {
+            call.setProgress(progress);
+        }
+    }
+
+    public void info(String message) {
+        if (call != null) {
+            call.info(message);
+        }
+    }
+
+    public void error(String message) {
+        if (call != null) {
+            call.error(message);
+        }
+    }
+
+    public void finish() {
+        if (call != null) {
+            call.finish();
         }
     }
 

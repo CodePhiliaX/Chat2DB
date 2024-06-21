@@ -179,7 +179,27 @@ public class DatabaseServiceImpl implements DatabaseService {
     public String exportDatabase(DatabaseExportParam param) throws SQLException {
         AsyncContext asyncContext = new AsyncContext();
         asyncContext.setContainsData(param.getContainData());
-        asyncContext.setConsumer(aLong -> log.info("exportDatabase success"));
+        asyncContext.setCall(new AsyncCall() {
+            @Override
+            public void setProgress(int progress) {
+
+            }
+
+            @Override
+            public void info(String message) {
+
+            }
+
+            @Override
+            public void error(String message) {
+
+            }
+
+            @Override
+            public void finish() {
+
+            }
+        });
         Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
                                                           param.getDatabaseName(),
                                                           param.getSchemaName(), asyncContext);

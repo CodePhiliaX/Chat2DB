@@ -15,10 +15,15 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         exportTables(connection, databaseName, schemaName, asyncContext);
+        asyncContext.setProgress(50);
         exportViews(connection, databaseName, asyncContext);
+        asyncContext.setProgress(60);
         exportProcedures(connection, asyncContext);
+        asyncContext.setProgress(70);
         exportTriggers(connection, asyncContext);
+        asyncContext.setProgress(90);
         exportFunctions(connection, databaseName, asyncContext);
+        asyncContext.finish();
     }
 
     private void exportFunctions(Connection connection, String databaseName, AsyncContext asyncContext) throws SQLException {
