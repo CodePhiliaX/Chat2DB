@@ -20,13 +20,13 @@ public class SqliteDBManage extends DefaultDBManage implements DBManage {
     private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
-                exportTable(connection,schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
+                exportTable(connection, databaseName,schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT sql FROM sqlite_master WHERE type='table' AND name='%s'", tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
@@ -35,7 +35,7 @@ public class SqliteDBManage extends DefaultDBManage implements DBManage {
                         .append(resultSet.getString("sql")).append(";").append("\n");
                 asyncContext.write(sqlBuilder.toString());
                 if (asyncContext.isContainsData()) {
-                    exportTableData(connection,schemaName, tableName, asyncContext);
+                    exportTableData(connection, databaseName,schemaName, tableName, asyncContext);
                 }
             }
         }

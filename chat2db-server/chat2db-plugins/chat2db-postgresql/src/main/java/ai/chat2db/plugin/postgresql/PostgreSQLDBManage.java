@@ -8,11 +8,13 @@ import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Objects;
 
-import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.ENUM_TYPE_DDL_SQL;
 
 public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
@@ -25,17 +27,18 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTypes(Connection connection, AsyncContext asyncContext) throws SQLException {
-            try (ResultSet resultSet = connection.createStatement().executeQuery(ENUM_TYPE_DDL_SQL)) {
-                while (resultSet.next()) {
-                    StringBuilder sqlBuilder = new StringBuilder();
-                    sqlBuilder.append(resultSet.getString("ddl")).append("\n");
-                    asyncContext.write(sqlBuilder.toString());
-                }
+        try (ResultSet resultSet = connection.createStatement().executeQuery(ENUM_TYPE_DDL_SQL)) {
+            while (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
+                sqlBuilder.append(resultSet.getString("ddl")).append("\n");
+                asyncContext.write(sqlBuilder.toString());
+            }
         }
     }
+
     private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, schemaName, null,
-                                                                      new String[]{"TABLE", "SYSTEM TABLE","PARTITIONED TABLE"})) {
+                                                                      new String[]{"TABLE", "SYSTEM TABLE", "PARTITIONED TABLE"})) {
             ArrayList<String> tableNames = new ArrayList<>();
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
@@ -46,14 +49,14 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
             }
             if (asyncContext.isContainsData()) {
                 for (String tableName : tableNames) {
-                    exportTableData(connection, schemaName, tableName, asyncContext);
+                    exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
             }
         }
     }
 
     private void exportTable(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql =String.format( "select pg_get_tabledef('%s','%s',true,'COMMENTS') as ddl;", schemaName,tableName);
+        String sql = String.format("select pg_get_tabledef('%s','%s',true,'COMMENTS') as ddl;", schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
@@ -65,10 +68,9 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
     }
 
 
-
     private void exportViews(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
 
-        String sql = String.format("SELECT table_name, view_definition FROM information_schema.views WHERE table_schema = '%s'",schemaName);
+        String sql = String.format("SELECT table_name, view_definition FROM information_schema.views WHERE table_schema = '%s'", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
@@ -82,7 +84,7 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
 
     private void exportFunctions(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT proname, pg_get_functiondef(oid) AS function_definition FROM pg_proc " +
-                                                "WHERE pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = '%s')", schemaName);
+                                           "WHERE pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = '%s')", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();

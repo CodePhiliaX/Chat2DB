@@ -30,29 +30,25 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     private static String TRIGGER_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', trigger_name) AS ddl FROM all_triggers WHERE owner = '%s' AND trigger_name = '%s'";
     private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
 
-    @Override
-    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        exportTableData(connection, tableName, asyncContext);
-    }
     public void exportDatabase(Connection connection, String databaseName, String schemaName,AsyncContext asyncContext) throws SQLException {
-        exportTables(connection, schemaName, asyncContext);
+        exportTables(connection,databaseName, schemaName, asyncContext);
         exportViews(connection, asyncContext, schemaName);
         exportProcedures(connection, schemaName, asyncContext);
         exportTriggers(connection, schemaName, asyncContext);
         exportFunctions(connection, schemaName, asyncContext);
     }
 
-    private void exportTables(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
+    private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
-                exportTable(connection, schemaName, tableName, asyncContext);
+                exportTable(connection,databaseName, schemaName, tableName, asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(TABLE_DDL_SQL, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
@@ -64,7 +60,7 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
             exportTableComments(connection, tableName, asyncContext);
             exportTableColumnsComments(connection, tableName, asyncContext);
             if (asyncContext.isContainsData()) {
-                exportTableData(connection, tableName, asyncContext);
+                exportTableData(connection,databaseName,schemaName, tableName, asyncContext);
             }
         }
     }
@@ -86,36 +82,6 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
             while (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("column_comment_ddl")).append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
-    }
-
-    private void exportTableData(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format("SELECT * FROM %s", tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            while (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnValue = resultSet.getString(i);
-                    if (Objects.isNull(columnValue)) {
-                        sqlBuilder.append("NULL");
-                    } else if (metaData.getColumnTypeName(i).equalsIgnoreCase("DATE")) {
-                        // 处理日期值格式
-                        columnValue = "TO_DATE('" + columnValue + "', 'YYYY-MM-DD HH24:MI:SS')";
-                        sqlBuilder.append(columnValue);
-                    } else {
-                        sqlBuilder.append("'").append(columnValue).append("'");
-                    }
-                    if (i < columnCount) {
-                        sqlBuilder.append(", ");
-                    }
-                }
-                sqlBuilder.append(");");
-                sqlBuilder.append("\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }

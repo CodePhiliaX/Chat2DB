@@ -1,24 +1,28 @@
 package ai.chat2db.spi.jdbc;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Objects;
-
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.model.AsyncContext;
+import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.model.SSHInfo;
+import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.IDriverManager;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.ssh.SSHManager;
-import com.jcraft.jsch.JSchException;
+import ai.chat2db.spi.util.ResultSetUtils;
 import com.jcraft.jsch.Session;
 import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jipengfei
@@ -51,10 +55,10 @@ public class DefaultDBManage implements DBManage {
         }
         try {
             connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
-                    connectInfo.getDriverConfig(), connectInfo.getExtendMap());
+                                                      connectInfo.getDriverConfig(), connectInfo.getExtendMap());
 
-        }catch (Exception e1) {
-            close(connection,session,ssh);
+        } catch (Exception e1) {
+            close(connection, session, ssh);
             throw new BusinessException("connection.error", null, e1);
         }
         connectInfo.setSession(session);
@@ -64,7 +68,8 @@ public class DefaultDBManage implements DBManage {
         }
         return connection;
     }
-    private void close(Connection connection,Session session,SSHInfo ssh){
+
+    private void close(Connection connection, Session session, SSHInfo ssh) {
         if (connection != null) {
             try {
                 connection.close();
@@ -150,8 +155,9 @@ public class DefaultDBManage implements DBManage {
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
 
     }
-    public void  exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        exportTableData(connection, schemaName,tableName, asyncContext);
+
+    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+        exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
     }
 
     @Override
@@ -160,33 +166,26 @@ public class DefaultDBManage implements DBManage {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
-    public void exportTableData(Connection connection,String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql;
-        if (Objects.isNull(schemaName)) {
-            sql = String.format("select * from %s", tableName);
-        }else{
-            sql = String.format("select * from %s.%s",schemaName,tableName);
-        }
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+    public void exportTableData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        String tableQuerySql = sqlBuilder.buildTableQuerySql(databaseName, schemaName, tableName);
+        SQLExecutor.getInstance().execute(connection, tableQuerySql, 1000, resultSet -> {
             ResultSetMetaData metaData = resultSet.getMetaData();
+            List<String> columnList = ResultSetUtils.getRsHeader(resultSet);
+            List<String> valueList = new ArrayList<>();
             while (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
+                    ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
+                    JDBCDataValue jdbcDataValue = new JDBCDataValue(resultSet, metaData, i, false);
+                    String valueString = valueProcessor.getJdbcValueString(jdbcDataValue);
+                    valueList.add(valueString);
                 }
-                sqlBuilder.append(");\n");
-                asyncContext.write(sqlBuilder.toString());
+                String insertSql = sqlBuilder.buildSingleInsertSql(databaseName, schemaName, tableName, columnList, valueList);
+                asyncContext.write(insertSql);
+                valueList.clear();
             }
             asyncContext.write("\n");
-        }
+        });
+
     }
 }

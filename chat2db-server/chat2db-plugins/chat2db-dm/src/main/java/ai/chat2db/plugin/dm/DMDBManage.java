@@ -1,8 +1,5 @@
 package ai.chat2db.plugin.dm;
 
-import java.sql.*;
-import java.util.Objects;
-
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
@@ -12,6 +9,11 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 @Slf4j
 public class DMDBManage extends DefaultDBManage implements DBManage {
@@ -29,30 +31,30 @@ public class DMDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
-        exportTables(connection, schemaName, asyncContext);
+        exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, schemaName, asyncContext);
         exportProcedures(connection, schemaName, asyncContext);
         exportTriggers(connection, schemaName, asyncContext);
     }
 
-    private void exportTables(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
+    private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT TABLE_NAME FROM ALL_TABLES where OWNER='%s' and TABLESPACE_NAME='MAIN'", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
-                exportTable(connection, tableName, schemaName, asyncContext);
+                exportTable(connection, databaseName, tableName, schemaName, asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String tableName, String schemaName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String tableName, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = """
-                SELECT
-                    (SELECT comments FROM user_tab_comments WHERE table_name = '%s') AS comments,
-                    (SELECT dbms_metadata.get_ddl('TABLE', '%s', '%s') FROM dual) AS ddl
-                FROM dual;
-                """;
+                     SELECT
+                         (SELECT comments FROM user_tab_comments WHERE table_name = '%s') AS comments,
+                         (SELECT dbms_metadata.get_ddl('TABLE', '%s', '%s') FROM dual) AS ddl
+                     FROM dual;
+                     """;
         try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(String.format(sql, tableName, tableName, schemaName))) {
             String formatSchemaName = format(schemaName);
             String formatTableName = format(tableName);
@@ -70,14 +72,14 @@ public class DMDBManage extends DefaultDBManage implements DBManage {
                 exportTableColumnComment(connection, schemaName, tableName, asyncContext);
             }
             if (asyncContext.isContainsData()) {
-                exportTableData(connection, schemaName, tableName, asyncContext);
+                exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
     }
 
     private void exportTableColumnComment(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("select COLNAME,COMMENT$ from SYS.SYSCOLUMNCOMMENTS\n" +
-                "where SCHNAME = '%s' and TVNAME = '%s'and TABLE_TYPE = 'TABLE';", schemaName, tableName);
+                                           "where SCHNAME = '%s' and TVNAME = '%s'and TABLE_TYPE = 'TABLE';", schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();

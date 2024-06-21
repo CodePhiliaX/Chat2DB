@@ -1,11 +1,21 @@
 package ai.chat2db.plugin.sqlserver;
 
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
+import ai.chat2db.spi.model.JDBCDataValue;
+import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.ResultSetUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class SqlServerDBManage extends DefaultDBManage implements DBManage {
@@ -44,36 +54,37 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        exportTableData(connection, tableName, asyncContext);
+        exportTableData(connection,databaseName,schemaName, tableName, asyncContext);
     }
+
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
-        exportTables(connection, schemaName, asyncContext);
+        exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, databaseName, schemaName, asyncContext);
         exportFunctions(connection, schemaName, asyncContext);
         exportProcedures(connection, schemaName, asyncContext);
         exportTriggers(connection, asyncContext);
     }
 
-    private void exportTables(Connection connection, String schemaName,AsyncContext asyncContext) throws SQLException {
-        String sql ="SELECT name FROM SysObjects Where XType='U'";
+    private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
+        String sql = "SELECT name FROM SysObjects Where XType='U'";
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("name");
-                exportTable(connection, tableName, schemaName, asyncContext);
+                exportTable(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String tableName, String schemaName, AsyncContext asyncContext) throws SQLException {
+    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         try {
             SQLExecutor.getInstance().execute(connection, tableDDLFunction.replace("tableSchema", schemaName),
                                               resultSet -> null);
         } catch (Exception e) {
             //log.error("Failed to create function", e);
         }
-        String sql = String.format("SELECT %s.ufn_GetCreateTableScript('%s', '%s') as ddl",schemaName,schemaName,tableName);
+        String sql = String.format("SELECT %s.ufn_GetCreateTableScript('%s', '%s') as ddl", schemaName, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
@@ -81,7 +92,7 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
                         .append(resultSet.getString("ddl")).append("\n");
                 asyncContext.write(sqlBuilder.toString());
                 if (asyncContext.isContainsData()) {
-                    exportTableData(connection, tableName, asyncContext);
+                    exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 } else {
                     asyncContext.write("go \n");
                 }
@@ -90,29 +101,26 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
     }
 
 
-    private void exportTableData(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format("select * from %s", tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
+    public void exportTableData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        String tableQuerySql = sqlBuilder.buildTableQuerySql(databaseName, schemaName, tableName);
+        SQLExecutor.getInstance().execute(connection, tableQuerySql, 1000, resultSet -> {
             ResultSetMetaData metaData = resultSet.getMetaData();
+            List<String> columnList = ResultSetUtils.getRsHeader(resultSet);
+            List<String> valueList = new ArrayList<>();
             while (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String value = resultSet.getString(i);
-                    if (Objects.isNull(value)) {
-                        sqlBuilder.append("NULL");
-                    } else {
-                        sqlBuilder.append("'").append(value).append("'");
-                    }
-                    if (i < metaData.getColumnCount()) {
-                        sqlBuilder.append(", ");
-                    }
+                    ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
+                    JDBCDataValue jdbcDataValue = new JDBCDataValue(resultSet, metaData, i, false);
+                    String valueString = valueProcessor.getJdbcValueString(jdbcDataValue);
+                    valueList.add(valueString);
                 }
-                sqlBuilder.append(");\n");
-                asyncContext.write(sqlBuilder.toString());
+                String insertSql = sqlBuilder.buildSingleInsertSql(databaseName, schemaName, tableName, columnList, valueList);
+                asyncContext.write(insertSql);
+                valueList.clear();
             }
-        }
-        asyncContext.write("go \n");
+            asyncContext.write("go \n");
+        });
     }
 
     private void exportViews(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
@@ -190,6 +198,7 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
             }
         }
     }
+
     @Override
     public void connectDatabase(Connection connection, String database) {
         try {
