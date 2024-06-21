@@ -31,7 +31,6 @@ import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
-import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
@@ -135,7 +134,7 @@ public class RdbDmlExportController {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            }, false, new DefaultValueHandler());
+            }, false);
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -166,7 +165,7 @@ public class RdbDmlExportController {
                     sqlInsertStatement.setValues(valuesClause);
 
                     printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                }, false, new DefaultValueHandler());
+                }, false);
         }
     }
 

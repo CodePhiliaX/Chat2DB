@@ -4,9 +4,8 @@ import ai.chat2db.plugin.mysql.builder.MysqlSqlBuilder;
 import ai.chat2db.plugin.mysql.type.*;
 import ai.chat2db.plugin.mysql.value.MysqlValueProcessor;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.SqlBuilder;
-import ai.chat2db.spi.ValueHandler;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
@@ -348,10 +347,10 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         return Arrays.stream(names).filter(name -> StringUtils.isNotBlank(name)).map(name -> "`" + name + "`").collect(Collectors.joining("."));
     }
 
-    @Override
-    public ValueHandler getValueHandler() {
-        return new MysqlValueHandler();
-    }
+//    @Override
+//    public ValueHandler getValueHandler() {
+//        return new MysqlValueHandler();
+//    }
 
     @Override
     public ValueProcessor getValueProcessor() {

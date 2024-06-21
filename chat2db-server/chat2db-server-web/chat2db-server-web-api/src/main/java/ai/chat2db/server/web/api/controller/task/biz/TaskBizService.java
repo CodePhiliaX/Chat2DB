@@ -19,7 +19,6 @@ import ai.chat2db.server.web.api.controller.rdb.doc.conf.ExportOptions;
 import ai.chat2db.server.web.api.controller.rdb.factory.ExportServiceFactory;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
-import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -260,7 +259,7 @@ public class TaskBizService {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            }, false, new DefaultValueHandler());
+            }, false);
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -288,7 +287,7 @@ public class TaskBizService {
                         sqlInsertStatement.setValues(valuesClause);
 
                         printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                    }, false, new DefaultValueHandler());
+                    }, false);
         }
     }
 

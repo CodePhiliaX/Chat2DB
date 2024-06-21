@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
@@ -18,10 +19,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.MetaSchema;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Sql;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -179,10 +177,14 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public String exportDatabase(DatabaseExportParam param) throws SQLException {
-       return Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
+        AsyncContext asyncContext = new AsyncContext();
+        asyncContext.setContainsData(param.getContainData());
+        asyncContext.setConsumer(aLong -> log.info("exportDatabase success"));
+        Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
                                                           param.getDatabaseName(),
-                                                          param.getSchemaName(),
-                                                          param.getContainData());
+                                                          param.getSchemaName(), asyncContext);
+
+        return "exportDatabase success";
     }
 
 }

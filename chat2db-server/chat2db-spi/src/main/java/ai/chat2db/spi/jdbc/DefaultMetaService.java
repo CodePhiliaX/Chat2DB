@@ -160,12 +160,6 @@ public class DefaultMetaService implements MetaData {
     }
 
     @Override
-    public ValueHandler getValueHandler() {
-        return new DefaultValueHandler();
-    }
-
-
-    @Override
     public ValueProcessor getValueProcessor() {
         return new DefaultValueProcessor();
     }

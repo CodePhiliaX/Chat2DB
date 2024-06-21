@@ -9,6 +9,7 @@ import java.util.Objects;
 import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.DBManage;
+import ai.chat2db.spi.model.AsyncContext;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.model.SSHInfo;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -146,13 +147,11 @@ public class DefaultDBManage implements DBManage {
     }
 
     @Override
-    public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
-        return null;
+    public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
+
     }
-    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
-        StringBuilder sqlBuilder = new StringBuilder();
-        exportTableData(connection, schemaName,tableName, sqlBuilder);
-        return sqlBuilder.toString();
+    public void  exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+        exportTableData(connection, schemaName,tableName, asyncContext);
     }
 
     @Override
@@ -161,7 +160,7 @@ public class DefaultDBManage implements DBManage {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
-    public void exportTableData(Connection connection,String schemaName, String tableName, StringBuilder sqlBuilder) throws SQLException {
+    public void exportTableData(Connection connection,String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql;
         if (Objects.isNull(schemaName)) {
             sql = String.format("select * from %s", tableName);
@@ -171,6 +170,7 @@ public class DefaultDBManage implements DBManage {
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             while (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     String value = resultSet.getString(i);
@@ -184,8 +184,9 @@ public class DefaultDBManage implements DBManage {
                     }
                 }
                 sqlBuilder.append(");\n");
+                asyncContext.write(sqlBuilder.toString());
             }
-            sqlBuilder.append("\n");
+            asyncContext.write("\n");
         }
     }
 }

@@ -241,8 +241,6 @@ public interface MetaData {
      * Get column builder.
      *
      */
-    ValueHandler getValueHandler();
-
     ValueProcessor getValueProcessor();
 
 

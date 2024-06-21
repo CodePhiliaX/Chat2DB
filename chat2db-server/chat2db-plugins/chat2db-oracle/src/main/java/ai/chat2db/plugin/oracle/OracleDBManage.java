@@ -2,6 +2,7 @@ package ai.chat2db.plugin.oracle;
 
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
+import ai.chat2db.spi.model.AsyncContext;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
@@ -30,72 +31,73 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
 
     @Override
-    public String exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
-        StringBuilder sqlBuilder = new StringBuilder();
-        exportTableData(connection, tableName, sqlBuilder);
-        return sqlBuilder.toString();
+    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+        exportTableData(connection, tableName, asyncContext);
     }
-    public String exportDatabase(Connection connection, String databaseName, String schemaName, boolean containData) throws SQLException {
-        StringBuilder sqlBuilder = new StringBuilder();
-        exportTables(connection, schemaName, sqlBuilder, containData);
-        exportViews(connection, sqlBuilder, schemaName);
-        exportProcedures(connection, schemaName, sqlBuilder);
-        exportTriggers(connection, schemaName, sqlBuilder);
-        exportFunctions(connection, schemaName, sqlBuilder);
-        return sqlBuilder.toString();
+    public void exportDatabase(Connection connection, String databaseName, String schemaName,AsyncContext asyncContext) throws SQLException {
+        exportTables(connection, schemaName, asyncContext);
+        exportViews(connection, asyncContext, schemaName);
+        exportProcedures(connection, schemaName, asyncContext);
+        exportTriggers(connection, schemaName, asyncContext);
+        exportFunctions(connection, schemaName, asyncContext);
     }
 
-    private void exportTables(Connection connection, String schemaName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+    private void exportTables(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
-                exportTable(connection, schemaName, tableName, sqlBuilder, containData);
+                exportTable(connection, schemaName, tableName, asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String schemaName, String tableName, StringBuilder sqlBuilder, boolean containData) throws SQLException {
+    private void exportTable(Connection connection, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(TABLE_DDL_SQL, schemaName, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP TABLE ").append(schemaName).append(".").append(tableName).append(";")
                         .append(resultSet.getString("ddl")).append(";").append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
-            exportTableComments(connection, tableName, sqlBuilder);
-            exportTableColumnsComments(connection, tableName, sqlBuilder);
-            if (containData) {
-                exportTableData(connection, tableName, sqlBuilder);
+            exportTableComments(connection, tableName, asyncContext);
+            exportTableColumnsComments(connection, tableName, asyncContext);
+            if (asyncContext.isContainsData()) {
+                exportTableData(connection, tableName, asyncContext);
             }
         }
     }
 
-    private void exportTableComments(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTableComments(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(TABLE_COMMENT_SQL, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("table_comment_ddl")).append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
-        sqlBuilder.append("\n");
     }
 
-    private void exportTableColumnsComments(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTableColumnsComments(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(TABLE_COLUMN_COMMENT_SQL, tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("column_comment_ddl")).append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
-        sqlBuilder.append("\n");
     }
 
-    private void exportTableData(Connection connection, String tableName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTableData(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT * FROM %s", tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
             while (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("INSERT INTO ").append(tableName).append(" VALUES (");
                 for (int i = 1; i <= columnCount; i++) {
                     String columnValue = resultSet.getString(i);
@@ -114,80 +116,89 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
                 }
                 sqlBuilder.append(");");
                 sqlBuilder.append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
     }
 
-    private void exportViews(Connection connection, StringBuilder sqlBuilder, String schemaName) throws SQLException {
+    private void exportViews(Connection connection, AsyncContext asyncContext, String schemaName) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"VIEW"})) {
             while (resultSet.next()) {
                 String viewName = resultSet.getString("TABLE_NAME");
-                exportView(connection, sqlBuilder, schemaName, viewName);
+                exportView(connection, asyncContext, schemaName, viewName);
             }
         }
     }
 
-    private void exportView(Connection connection, StringBuilder sqlBuilder, String schemaName, String viewName) throws SQLException {
+    private void exportView(Connection connection, AsyncContext asyncContext, String schemaName, String viewName) throws SQLException {
         String sql = String.format(VIEW_DDL_SQL, schemaName, viewName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
     }
 
-    private void exportProcedures(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportProcedures(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(PROCEDURE_LIST_DDL,schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql))  {
             while (resultSet.next()) {
                 String procedureName = resultSet.getString("object_name");
-                exportProcedure(connection, schemaName, procedureName, sqlBuilder);
+                exportProcedure(connection, schemaName, procedureName, asyncContext);
             }
         }
     }
 
-    private void exportProcedure(Connection connection, String schemaName, String procedureName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportProcedure(Connection connection, String schemaName, String procedureName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(PROCEDURE_DDL_SQL, schemaName, procedureName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("ddl")).append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
     }
 
-    private void exportTriggers(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTriggers(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT TRIGGER_NAME FROM all_triggers where OWNER='%s'", schemaName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String triggerName = resultSet.getString("TRIGGER_NAME");
-                exportTrigger(connection, schemaName, triggerName, sqlBuilder);
+                exportTrigger(connection, schemaName, triggerName, asyncContext);
             }
         }
     }
 
-    private void exportTrigger(Connection connection, String schemaName, String triggerName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportTrigger(Connection connection, String schemaName, String triggerName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(TRIGGER_DDL_SQL, schemaName, triggerName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
     }
 
-    private void exportFunctions(Connection connection, String schemaName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportFunctions(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getFunctions(null, schemaName, null)) {
             while (resultSet.next()) {
                 String functionName = resultSet.getString("FUNCTION_NAME");
-                exportFunction(connection, schemaName, functionName, sqlBuilder);
+                exportFunction(connection, schemaName, functionName, asyncContext);
             }
         }
     }
 
-    private void exportFunction(Connection connection, String schemaName, String functionName, StringBuilder sqlBuilder) throws SQLException {
+    private void exportFunction(Connection connection, String schemaName, String functionName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format(FUNCTION_DDL_SQL, schemaName, functionName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append(resultSet.getString("ddl")).append("\n");
+                asyncContext.write(sqlBuilder.toString());
             }
         }
     }
