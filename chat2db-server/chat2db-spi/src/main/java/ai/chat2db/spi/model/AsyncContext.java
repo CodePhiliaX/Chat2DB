@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.io.PrintWriter;
 import java.util.function.Consumer;
@@ -11,7 +12,7 @@ import java.util.function.Consumer;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class AsyncContext {
 
     private PrintWriter writer;
@@ -39,9 +40,14 @@ public class AsyncContext {
     }
 
     public void finish() {
+        if (writer != null) {
+            writer.flush();
+            writer.close();
+        }
         if (call != null) {
             call.finish();
         }
+
     }
 
     public void write(String message) {
@@ -49,4 +55,5 @@ public class AsyncContext {
             writer.write(message);
         }
     }
+
 }

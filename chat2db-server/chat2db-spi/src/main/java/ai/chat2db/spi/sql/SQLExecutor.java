@@ -1,11 +1,6 @@
 package ai.chat2db.spi.sql;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -253,7 +248,7 @@ public class SQLExecutor implements CommandExecutor {
                     continue;
                 }
                 ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
-                row.add(valueProcessor.getJdbcValue(new JDBCDataValue(rs, rs.getMetaData(), i,false)));
+                row.add(valueProcessor.getJdbcValue(new JDBCDataValue(rs, rs.getMetaData(), i, false)));
             }
             if (count != null && count > 0 && rowCount++ >= count) {
                 break;
@@ -497,7 +492,7 @@ public class SQLExecutor implements CommandExecutor {
 
     @Override
     public List<ExecuteResult> execute(Command command) {
-        if(StringUtils.isBlank(command.getScript())){
+        if (StringUtils.isBlank(command.getScript())) {
             return Collections.emptyList();
         }
         // parse sql
@@ -643,6 +638,18 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void executeBatchInsert(Connection connection, List<String> sqlCacheList) {
+        try (Statement stmt = connection.createStatement()) {
+            for (String sql : sqlCacheList) {
+                stmt.addBatch(sql);
+            }
+            stmt.executeBatch();
+            stmt.clearBatch();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

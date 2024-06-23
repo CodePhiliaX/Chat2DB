@@ -94,7 +94,16 @@ public interface SqlBuilder<T> {
      */
     String getTableDmlSql(T table, String type);
 
+    /**
+     *
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @return
+     */
     String buildTableQuerySql(String databaseName, String schemaName, String tableName);
+
+
 
     String buildSingleInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<String> valueList);
 
