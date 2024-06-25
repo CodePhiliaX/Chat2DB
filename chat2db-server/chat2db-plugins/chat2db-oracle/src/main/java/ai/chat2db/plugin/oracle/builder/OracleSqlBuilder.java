@@ -20,6 +20,9 @@ public class OracleSqlBuilder extends DefaultSqlBuilder {
                 continue;
             }
             OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(column.getColumnType());
+            if(typeEnum == null){
+                continue;
+            }
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 
@@ -31,6 +34,9 @@ public class OracleSqlBuilder extends DefaultSqlBuilder {
                 continue;
             }
             OracleIndexTypeEnum oracleColumnTypeEnum = OracleIndexTypeEnum.getByType(tableIndex.getType());
+            if(oracleColumnTypeEnum == null){
+                continue;
+            }
             script.append("\n").append("").append(oracleColumnTypeEnum.buildIndexScript(tableIndex)).append(";");
         }
 
@@ -78,6 +84,9 @@ public class OracleSqlBuilder extends DefaultSqlBuilder {
         for (TableColumn tableColumn : newTable.getColumnList()) {
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
                 OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(tableColumn.getColumnType());
+                if(typeEnum == null){
+                    continue;
+                }
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
                 if (StringUtils.isNotBlank(tableColumn.getComment())) {
                     script.append("\n").append(buildComment(tableColumn)).append(";\n");
@@ -88,8 +97,11 @@ public class OracleSqlBuilder extends DefaultSqlBuilder {
         // append modify index
         for (TableIndex tableIndex : newTable.getIndexList()) {
             if (StringUtils.isNotBlank(tableIndex.getEditStatus()) && StringUtils.isNotBlank(tableIndex.getType())) {
-                OracleIndexTypeEnum mysqlIndexTypeEnum = OracleIndexTypeEnum.getByType(tableIndex.getType());
-                script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(";\n");
+                OracleIndexTypeEnum oracleIndexTypeEnum = OracleIndexTypeEnum.getByType(tableIndex.getType());
+                if(oracleIndexTypeEnum == null){
+                    continue;
+                }
+                script.append("\t").append(oracleIndexTypeEnum.buildModifyIndex(tableIndex)).append(";\n");
             }
         }
         if (script.length() > 2) {

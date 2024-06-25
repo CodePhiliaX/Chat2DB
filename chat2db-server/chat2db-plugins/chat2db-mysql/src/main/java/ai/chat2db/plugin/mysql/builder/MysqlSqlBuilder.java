@@ -30,6 +30,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
                 continue;
             }
             MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
+            if (typeEnum == null) {
+                continue;
+            }
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 
@@ -39,6 +42,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
                 continue;
             }
             MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
+            if (mysqlIndexTypeEnum == null) {
+                continue;
+            }
             script.append("\t").append("").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
         }
 
@@ -110,6 +116,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             if ((StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType())
                     && StringUtils.isNotBlank(tableColumn.getName())) || moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
+                if(typeEnum == null){
+                    continue;
+                }
                 if (moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
                     script.append("\t").append(typeEnum.buildModifyColumn(tableColumn, true, findPrevious(tableColumn, newTable))).append(",\n");
                 } else {
@@ -122,6 +131,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         for (TableIndex tableIndex : newTable.getIndexList()) {
             if (StringUtils.isNotBlank(tableIndex.getEditStatus()) && StringUtils.isNotBlank(tableIndex.getType())) {
                 MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
+                if(mysqlIndexTypeEnum == null){
+                    continue;
+                }
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
             }
         }
