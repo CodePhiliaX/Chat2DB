@@ -52,10 +52,6 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
             + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects "
             + "WHERE xtype = 'TR' ";
 
-    @Override
-    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        exportTableData(connection,databaseName,schemaName, tableName, asyncContext);
-    }
 
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
@@ -77,7 +73,7 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
     }
 
 
-    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         try {
             SQLExecutor.getInstance().execute(connection, tableDDLFunction.replace("tableSchema", schemaName),
                                               resultSet -> null);

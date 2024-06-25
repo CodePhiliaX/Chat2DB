@@ -139,5 +139,5 @@ public interface DBManage {
      * @param tableName
      * @return
      */
-    void exportDatabaseData(Connection connection, String databaseName, String schemaName,String tableName,AsyncContext asyncContext) throws SQLException;
+    void exportTable(Connection connection, String databaseName, String schemaName,String tableName,AsyncContext asyncContext) throws SQLException;
 }

@@ -218,7 +218,7 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         StringBuilder script = new StringBuilder();
 
         script.append("INSERT INTO ");
-        buildTableName(databaseName, schemaName, tableName, script);
+        buildTableName(null, null, tableName, script);
 
         if (CollectionUtils.isNotEmpty(columnList)) {
             script.append(" (")

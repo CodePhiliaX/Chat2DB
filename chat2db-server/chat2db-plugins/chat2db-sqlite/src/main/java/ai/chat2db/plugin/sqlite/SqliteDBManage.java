@@ -26,7 +26,7 @@ public class SqliteDBManage extends DefaultDBManage implements DBManage {
     }
 
 
-    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("SELECT sql FROM sqlite_master WHERE type='table' AND name='%s'", tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {

@@ -48,7 +48,7 @@ public class DMDBManage extends DefaultDBManage implements DBManage {
     }
 
 
-    private void exportTable(Connection connection, String databaseName, String tableName, String schemaName, AsyncContext asyncContext) throws SQLException {
+    public void exportTable(Connection connection, String databaseName, String tableName, String schemaName, AsyncContext asyncContext) throws SQLException {
         String sql = """
                      SELECT
                          (SELECT comments FROM user_tab_comments WHERE table_name = '%s') AS comments,

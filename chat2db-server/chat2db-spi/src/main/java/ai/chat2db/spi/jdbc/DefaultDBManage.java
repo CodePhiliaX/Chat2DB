@@ -30,6 +30,24 @@ import java.util.List;
  */
 public class DefaultDBManage implements DBManage {
 
+    protected static final String DIVIDING_LINE = "-- ----------------------------";
+
+    protected static final String NEW_LINE = "\n";
+
+    protected static final String EXPORT_TITLE = DIVIDING_LINE + NEW_LINE + "-- Chat2DB export data , export time: %s" + NEW_LINE + DIVIDING_LINE;
+
+    protected static final String TABLE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Table structure for table %s" + NEW_LINE + DIVIDING_LINE;
+
+    protected static final String VIEW_TITLE =  DIVIDING_LINE + NEW_LINE +"-- View structure for view %s"+ NEW_LINE + DIVIDING_LINE;
+
+    protected static final String FUNCTION_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Function structure for function %s"+ NEW_LINE + DIVIDING_LINE;
+
+    protected static final String TRIGGER_TITLE = DIVIDING_LINE + NEW_LINE + "-- Trigger structure for trigger %s"+ NEW_LINE + DIVIDING_LINE;
+
+    protected static final String PROCEDURE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Procedure structure for procedure %s"+ NEW_LINE + DIVIDING_LINE;
+
+    private static final String RECORD_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Records of "+ NEW_LINE + DIVIDING_LINE;
+
 
     @Override
     public Connection getConnection(ConnectInfo connectInfo) {
@@ -55,7 +73,7 @@ public class DefaultDBManage implements DBManage {
         }
         try {
             connection = IDriverManager.getConnection(url, connectInfo.getUser(), connectInfo.getPassword(),
-                                                      connectInfo.getDriverConfig(), connectInfo.getExtendMap());
+                    connectInfo.getDriverConfig(), connectInfo.getExtendMap());
 
         } catch (Exception e1) {
             close(connection, session, ssh);
@@ -156,9 +174,14 @@ public class DefaultDBManage implements DBManage {
 
     }
 
-    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
+    @Override
+    public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+
     }
+
+//    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+//        exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
+//    }
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -173,6 +196,7 @@ public class DefaultDBManage implements DBManage {
             ResultSetMetaData metaData = resultSet.getMetaData();
             List<String> columnList = ResultSetUtils.getRsHeader(resultSet);
             List<String> valueList = new ArrayList<>();
+            asyncContext.write(String.format(RECORD_TITLE, tableName));
             while (resultSet.next()) {
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();

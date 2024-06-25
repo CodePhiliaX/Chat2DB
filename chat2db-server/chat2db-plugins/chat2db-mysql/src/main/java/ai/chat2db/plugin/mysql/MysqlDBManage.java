@@ -5,15 +5,18 @@ import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
+import cn.hutool.core.date.DateUtil;
 import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
+        asyncContext.write(String.format(EXPORT_TITLE, DateUtil.formatDate(new Date())));
         exportTables(connection, databaseName, schemaName, asyncContext);
         asyncContext.setProgress(50);
         exportViews(connection, databaseName, asyncContext);
@@ -39,6 +42,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         String sql = String.format("SHOW CREATE FUNCTION %s;", functionName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                asyncContext.write(String.format(FUNCTION_TITLE, functionName));
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
                         .append(resultSet.getString("Create Function")).append(";").append("\n");
@@ -48,22 +52,26 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
+        asyncContext.write("SET FOREIGN_KEY_CHECKS=0;");
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
-                exportTable(connection, databaseName, schemaName, resultSet.getString("TABLE_NAME"), asyncContext);
+                String tableName = resultSet.getString("TABLE_NAME");
+                exportTable(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
     }
 
 
-    private void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
+    public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String sql = String.format("show create table %s ", tableName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
                 StringBuilder sqlBuilder = new StringBuilder();
+                asyncContext.write(String.format(EXPORT_TITLE, tableName));
                 sqlBuilder.append("DROP TABLE IF EXISTS ").append(format(tableName)).append(";").append("\n")
                         .append(resultSet.getString("Create Table")).append(";").append("\n");
                 asyncContext.write(sqlBuilder.toString());
+                asyncContext.write("\n");
                 if (asyncContext.isContainsData()) {
                     exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
@@ -84,9 +92,10 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         String sql = String.format("show create view %s ", viewName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                asyncContext.write(String.format(VIEW_TITLE, viewName));
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP VIEW IF EXISTS ").append(format(viewName)).append(";").append("\n")
-                        .append(resultSet.getString("Create View")).append(";").append("\n");
+                        .append(resultSet.getString("Create View")).append(";").append("\n\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }
@@ -105,10 +114,11 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         String sql = String.format("show create procedure %s ", procedureName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                asyncContext.write(String.format(PROCEDURE_TITLE, procedureName));
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP PROCEDURE IF EXISTS ").append(format(procedureName)).append(";").append("\n")
                         .append("delimiter ;;").append("\n").append(resultSet.getString("Create Procedure")).append(";;")
-                        .append("\n").append("delimiter ;").append("\n");
+                        .append("\n").append("delimiter ;").append("\n\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }
@@ -128,10 +138,11 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         String sql = String.format("show create trigger %s ", triggerName);
         try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             if (resultSet.next()) {
+                asyncContext.write(String.format(TRIGGER_TITLE, triggerName));
                 StringBuilder sqlBuilder = new StringBuilder();
                 sqlBuilder.append("DROP TRIGGER IF EXISTS ").append(format(triggerName)).append(";").append("\n")
                         .append("delimiter ;;").append("\n").append(resultSet.getString("SQL Original Statement")).append(";;")
-                        .append("\n").append("delimiter ;").append("\n");
+                        .append("\n").append("delimiter ;").append("\n\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }
@@ -140,12 +151,10 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void updateProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) throws SQLException {
         try {
-            connection.setAutoCommit(false);
             String sql = "DROP PROCEDURE " + procedure.getProcedureName();
             SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
             String procedureBody = procedure.getProcedureBody();
             SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {});
-            connection.commit();
         } catch (Exception e) {
             connection.rollback();
             throw new RuntimeException(e);
