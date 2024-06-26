@@ -2,13 +2,17 @@ package ai.chat2db.spi.model;
 
 import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.util.ContextUtils;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import static cn.hutool.core.date.DatePattern.NORM_DATETIME_PATTERN;
 
 @Slf4j
 public class AsyncContext {
@@ -35,6 +39,7 @@ public class AsyncContext {
         this.containsData = containsData;
         createWriter();
         asyncCallBack(context);
+        info("start:"+ DateUtil.format(new Date(),NORM_DATETIME_PATTERN));
     }
 
     private void createWriter() {
@@ -108,6 +113,7 @@ public class AsyncContext {
     public void finish() {
         finish = true;
         this.progress = 100;
+        info("finish:"+ DateUtil.format(new Date(),NORM_DATETIME_PATTERN));
         if (writer != null) {
             writer.flush();
             writer.close();
