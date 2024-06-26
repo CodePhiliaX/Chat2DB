@@ -1,5 +1,7 @@
 package ai.chat2db.spi.model;
 
+import java.util.Map;
+
 public interface AsyncCall {
 
 
@@ -10,6 +12,9 @@ public interface AsyncCall {
 
 
     void error(String message);
+
+
+    void update(Map<String,Object> map);
 
 
     void finish();

@@ -6,6 +6,7 @@ import ai.chat2db.spi.model.AsyncContext;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
 import cn.hutool.core.date.DateUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
+@Slf4j
 public class MysqlDBManage extends DefaultDBManage implements DBManage {
     @Override
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
@@ -52,13 +54,14 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
-        asyncContext.write("SET FOREIGN_KEY_CHECKS=0;");
+        asyncContext.write("SET FOREIGN_KEY_CHECKS=0;\n");
         try (ResultSet resultSet = connection.getMetaData().getTables(databaseName, null, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
                 exportTable(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
+        asyncContext.write("SET FOREIGN_KEY_CHECKS=1;");
     }
 
 
@@ -76,6 +79,9 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
                     exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
             }
+        }catch (Exception e){
+            log.error("export table error", e);
+            asyncContext.getCall().error(String.format("export table %s error:%s", tableName,e.getMessage()));
         }
     }
 

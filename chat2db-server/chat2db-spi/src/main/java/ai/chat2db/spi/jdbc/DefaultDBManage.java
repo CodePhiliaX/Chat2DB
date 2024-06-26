@@ -192,6 +192,7 @@ public class DefaultDBManage implements DBManage {
     public void exportTableData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         String tableQuerySql = sqlBuilder.buildTableQuerySql(databaseName, schemaName, tableName);
+        asyncContext.info("export table data sql: " + tableQuerySql);
         SQLExecutor.getInstance().execute(connection, tableQuerySql, 1000, resultSet -> {
             ResultSetMetaData metaData = resultSet.getMetaData();
             List<String> columnList = ResultSetUtils.getRsHeader(resultSet);

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 
@@ -192,6 +193,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             @Override
             public void error(String message) {
+
+            }
+
+            @Override
+            public void update(Map<String, Object> map) {
 
             }
 

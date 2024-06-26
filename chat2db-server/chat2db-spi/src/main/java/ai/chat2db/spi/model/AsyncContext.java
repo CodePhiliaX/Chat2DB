@@ -15,11 +15,11 @@ import java.util.function.Consumer;
 @SuperBuilder
 public class AsyncContext {
 
-    private PrintWriter writer;
+    protected PrintWriter writer;
 
-    private boolean containsData;
+    protected boolean containsData;
 
-    private AsyncCall call;
+    protected AsyncCall call;
 
     public void setProgress(Integer progress) {
         if (call != null) {
