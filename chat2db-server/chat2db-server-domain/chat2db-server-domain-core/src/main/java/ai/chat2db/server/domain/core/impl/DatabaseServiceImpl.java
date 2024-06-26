@@ -19,6 +19,7 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
@@ -178,34 +179,15 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public String exportDatabase(DatabaseExportParam param) throws SQLException {
-        AsyncContext asyncContext = new AsyncContext();
-        asyncContext.setContainsData(param.getContainData());
-        asyncContext.setCall(new AsyncCall() {
-            @Override
-            public void setProgress(int progress) {
-
-            }
-
-            @Override
-            public void info(String message) {
-
-            }
-
-            @Override
-            public void error(String message) {
-
-            }
+        AsyncCall call = new AsyncCall() {
 
             @Override
             public void update(Map<String, Object> map) {
 
             }
+        };
 
-            @Override
-            public void finish() {
-
-            }
-        });
+        AsyncContext asyncContext = new AsyncContext(call, ContextUtils.queryContext(), null, param.getContainData());
         Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
                                                           param.getDatabaseName(),
                                                           param.getSchemaName(), asyncContext);

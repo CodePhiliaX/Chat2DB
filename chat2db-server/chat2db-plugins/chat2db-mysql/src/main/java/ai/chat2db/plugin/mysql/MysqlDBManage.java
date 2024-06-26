@@ -61,7 +61,7 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
                 exportTable(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
-        asyncContext.write("SET FOREIGN_KEY_CHECKS=1;");
+        asyncContext.write("SET FOREIGN_KEY_CHECKS=1;\n");
     }
 
 
@@ -74,14 +74,13 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
                 sqlBuilder.append("DROP TABLE IF EXISTS ").append(format(tableName)).append(";").append("\n")
                         .append(resultSet.getString("Create Table")).append(";").append("\n");
                 asyncContext.write(sqlBuilder.toString());
-                asyncContext.write("\n");
                 if (asyncContext.isContainsData()) {
                     exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
                 }
             }
         }catch (Exception e){
             log.error("export table error", e);
-            asyncContext.getCall().error(String.format("export table %s error:%s", tableName,e.getMessage()));
+            asyncContext.error(String.format("export table %s error:%s", tableName,e.getMessage()));
         }
     }
 

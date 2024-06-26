@@ -46,7 +46,7 @@ public class DefaultDBManage implements DBManage {
 
     protected static final String PROCEDURE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Procedure structure for procedure %s"+ NEW_LINE + DIVIDING_LINE;
 
-    private static final String RECORD_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Records of "+ NEW_LINE + DIVIDING_LINE;
+    private static final String RECORD_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Records of %s"+ NEW_LINE + DIVIDING_LINE;
 
 
     @Override
@@ -209,7 +209,6 @@ public class DefaultDBManage implements DBManage {
                 asyncContext.write(insertSql);
                 valueList.clear();
             }
-            asyncContext.write("\n");
         });
 
     }
