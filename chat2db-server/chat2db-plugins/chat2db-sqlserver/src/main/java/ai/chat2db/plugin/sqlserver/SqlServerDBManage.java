@@ -203,4 +203,15 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+        String sql = "";
+        if(copyData){
+            sql = "SELECT * INTO " + newTableName + " FROM " + tableName;
+        }else {
+            sql = "SELECT * INTO " + newTableName + " FROM " + tableName + " WHERE 1=0";
+        }
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
 }

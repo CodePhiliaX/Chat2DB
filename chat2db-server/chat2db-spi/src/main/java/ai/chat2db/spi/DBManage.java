@@ -140,4 +140,27 @@ public interface DBManage {
      * @return
      */
     void exportTable(Connection connection, String databaseName, String schemaName,String tableName,AsyncContext asyncContext) throws SQLException;
+
+
+    /**
+     * truncate table
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @throws SQLException
+     */
+    void truncateTable(Connection connection, String databaseName, String schemaName, String tableName)throws SQLException;
+
+
+    /**
+     * copy table
+     *
+     * @param databaseName
+     * @param schemaName
+     * @param tableName
+     * @param newTableName
+     * @return
+     */
+    void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException;
 }

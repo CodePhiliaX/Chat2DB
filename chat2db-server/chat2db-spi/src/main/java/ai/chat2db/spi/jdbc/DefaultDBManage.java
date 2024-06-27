@@ -38,15 +38,15 @@ public class DefaultDBManage implements DBManage {
 
     protected static final String TABLE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Table structure for table %s" + NEW_LINE + DIVIDING_LINE;
 
-    protected static final String VIEW_TITLE =  DIVIDING_LINE + NEW_LINE +"-- View structure for view %s"+ NEW_LINE + DIVIDING_LINE;
+    protected static final String VIEW_TITLE = DIVIDING_LINE + NEW_LINE + "-- View structure for view %s" + NEW_LINE + DIVIDING_LINE;
 
-    protected static final String FUNCTION_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Function structure for function %s"+ NEW_LINE + DIVIDING_LINE;
+    protected static final String FUNCTION_TITLE = DIVIDING_LINE + NEW_LINE + "-- Function structure for function %s" + NEW_LINE + DIVIDING_LINE;
 
-    protected static final String TRIGGER_TITLE = DIVIDING_LINE + NEW_LINE + "-- Trigger structure for trigger %s"+ NEW_LINE + DIVIDING_LINE;
+    protected static final String TRIGGER_TITLE = DIVIDING_LINE + NEW_LINE + "-- Trigger structure for trigger %s" + NEW_LINE + DIVIDING_LINE;
 
-    protected static final String PROCEDURE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Procedure structure for procedure %s"+ NEW_LINE + DIVIDING_LINE;
+    protected static final String PROCEDURE_TITLE = DIVIDING_LINE + NEW_LINE + "-- Procedure structure for procedure %s" + NEW_LINE + DIVIDING_LINE;
 
-    private static final String RECORD_TITLE =  DIVIDING_LINE + NEW_LINE +"-- Records of %s"+ NEW_LINE + DIVIDING_LINE;
+    private static final String RECORD_TITLE = DIVIDING_LINE + NEW_LINE + "-- Records of %s" + NEW_LINE + DIVIDING_LINE;
 
 
     @Override
@@ -177,6 +177,23 @@ public class DefaultDBManage implements DBManage {
     @Override
     public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
 
+    }
+
+    @Override
+    public void truncateTable(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
+        String sql = "TRUNCATE TABLE " + tableName ;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+        String sql = "";
+        if(copyData){
+             sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
+        }else {
+            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName + " WHERE 1=0";
+        }
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
 //    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {

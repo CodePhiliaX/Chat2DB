@@ -184,4 +184,15 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+        String sql = "";
+        if(copyData){
+            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
+        }else {
+            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName + " WHERE 1=0";
+        }
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
 }

@@ -111,4 +111,14 @@ public class DB2DBManage extends DefaultDBManage implements DBManage {
         String sql = "DROP TABLE " + tableName;
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
+
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+        String sql = "CREATE TABLE " + newTableName + " LIKE " + tableName + " INCLUDING INDEXES";
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+        if(copyData){
+            sql = "INSERT INTO " + newTableName + " SELECT * FROM " + tableName;
+            SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+        }
+    }
 }

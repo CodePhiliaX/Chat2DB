@@ -159,4 +159,15 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+        String sql = "";
+        if(copyData){
+            sql = "CREATE TABLE " + newTableName + " AS TABLE " + tableName + " WITH DATA";
+        }else {
+            sql = "CREATE TABLE " + newTableName + " AS TABLE " + tableName + " WITH NO DATA";
+        }
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
 }
