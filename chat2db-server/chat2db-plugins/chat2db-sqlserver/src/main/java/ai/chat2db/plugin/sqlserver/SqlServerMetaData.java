@@ -55,6 +55,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         List<Schema> schemas = SQLExecutor.getInstance().schemas(connection, databaseName, null);
         return SortUtils.sortSchema(schemas, systemSchemas);
     }
+
     private static final String TABLE_COMMENT_SQL = """
                                                     SELECT
                                                         t.name AS TABLE_NAME,
@@ -403,7 +404,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
             if (resultSet.next()) {
                 String partitionColumnName = resultSet.getString("PARTITION_COLUMN_NAME");
                 String partitionSchemeName = resultSet.getString("PARTITION_SCHEME_NAME");
-                if (StringUtils.isNotBlank(partitionSchemeName)&&StringUtils.isNotBlank(partitionColumnName)) {
+                if (StringUtils.isNotBlank(partitionSchemeName) && StringUtils.isNotBlank(partitionColumnName)) {
                     ddlBuilder.append(" on ")
                             .append(format(partitionSchemeName))
                             .append(" (")
@@ -454,9 +455,8 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 tableIndexColumn.setColumnName(columnName);
                 tableIndexColumn.setAscOrDesc(ascOrDesc);
                 index.getColumnList().add(tableIndexColumn);
-                return new ArrayList<>(indexMap.values());
             }
-            return null;
+            return new ArrayList<>(indexMap.values());
         });
         SQLExecutor.getInstance().execute(connection, String.format(TABLE_COMMENT_SQL, tableName, schemaName), resultSet -> {
             if (resultSet.next()) {
@@ -484,9 +484,14 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         });
         if (CollectionUtils.isNotEmpty(indexList)) {
             indexList.forEach(index -> {
-                String comment = index.getComment();
-                if (StringUtils.isNotBlank(comment)) {
-                    ddlBuilder.append("\t").append(SQLTemplate.buildIndexComment(comment, schemaName, tableName, index.getName()));
+                String type = index.getType();
+                SqlServerIndexTypeEnum sqlServerIndexTypeEnum = SqlServerIndexTypeEnum.getByType(type);
+                if (Objects.nonNull(sqlServerIndexTypeEnum)) {
+                    ddlBuilder.append("\n").append(sqlServerIndexTypeEnum.buildIndexScript(index));
+                    String comment = index.getComment();
+                    if (StringUtils.isNotBlank(comment)) {
+                        ddlBuilder.append("\t").append(SQLTemplate.buildIndexComment(comment, schemaName, tableName, index.getName()));
+                    }
                 }
             });
         }
