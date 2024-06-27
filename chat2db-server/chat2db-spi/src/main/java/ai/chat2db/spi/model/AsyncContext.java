@@ -39,7 +39,7 @@ public class AsyncContext {
         this.containsData = containsData;
         createWriter();
         asyncCallBack(context);
-        info("start:"+ DateUtil.format(new Date(),NORM_DATETIME_PATTERN));
+        info("start:" + DateUtil.format(new Date(), NORM_DATETIME_PATTERN));
     }
 
     private void createWriter() {
@@ -57,8 +57,8 @@ public class AsyncContext {
                     int n = 1;
                     while (!finish) {
                         // 更新时间逐渐变长避免频繁更新
-                        Thread.sleep(2000 * n);
                         callUpdate();
+                        Thread.sleep(2000 * n);
                         if (n < 300) {
                             n++;
                         }
@@ -110,10 +110,17 @@ public class AsyncContext {
         info.append(message + "\n");
     }
 
+    public void stop(){
+        this.finish = true;
+    }
+
     public void finish() {
         finish = true;
         this.progress = 100;
-        info("finish:"+ DateUtil.format(new Date(),NORM_DATETIME_PATTERN));
+        info("finish:" + DateUtil.format(new Date(), NORM_DATETIME_PATTERN));
+        if (writeFile != null) {
+            info("file:" + writeFile.getAbsolutePath());
+        }
         if (writer != null) {
             writer.flush();
             writer.close();
