@@ -21,7 +21,7 @@ public class OracleValueProcessor extends DefaultValueProcessor {
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
         String type = dataValue.getType();
-        return OracleValueProcessorFactory.getValueProcessor(dataValue.getType()).convertJDBCValueByType(dataValue);
+        return OracleValueProcessorFactory.getValueProcessor(type).convertJDBCValueByType(dataValue);
     }
 
 

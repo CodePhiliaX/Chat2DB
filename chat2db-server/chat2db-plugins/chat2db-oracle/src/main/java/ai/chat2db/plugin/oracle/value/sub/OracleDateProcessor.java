@@ -21,7 +21,7 @@ public class OracleDateProcessor extends DefaultValueProcessor {
      */
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return wrap(dataValue.getValue());
+        return OracleDmlValueTemplate.wrapDate(dataValue.getValue());
     }
 
     /**
@@ -41,16 +41,9 @@ public class OracleDateProcessor extends DefaultValueProcessor {
 
     }
 
-    /**
-     * @param dataValue
-     * @return
-     */
+
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(convertJDBCValueByType(dataValue));
-    }
-
-    private String wrap(String value) {
-        return String.format(OracleDmlValueTemplate.DATE_TEMPLATE, value);
+        return OracleDmlValueTemplate.wrapDate(convertJDBCValueByType(dataValue));
     }
 }

@@ -21,21 +21,19 @@ public class OracleTimeStampTZProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        // TODO: return:2024-06-05 17:32:52.849 +8:00 but it actually is 2024-06-05 17:32:52.849000 +8:00
-        return super.convertJDBCValueByType(dataValue);
-
+        return dataValue.getStringValue();
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(convertJDBCValueByType(dataValue), dataValue.getScale());
+        return wrap(dataValue.getStringValue(), dataValue.getScale());
     }
 
     private String wrap(String value, int scale) {
         if (scale == 0) {
-            return String.format(OracleDmlValueTemplate.TIMESTAMP_TZ_WITHOUT_NANOS_TEMPLATE, value);
+            return OracleDmlValueTemplate.wrapTimestampTzWithOutNanos(value);
         }
-        return String.format(OracleDmlValueTemplate.TIMESTAMP_TZ_TEMPLATE, value, scale);
+        return OracleDmlValueTemplate.wrapTimestampTz(value, scale);
     }
 }
