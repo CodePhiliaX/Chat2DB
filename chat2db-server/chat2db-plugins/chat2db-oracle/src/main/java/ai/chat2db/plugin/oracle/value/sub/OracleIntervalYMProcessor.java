@@ -15,18 +15,22 @@ public class OracleIntervalYMProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalYearToMonth(dataValue.getValue(), dataValue.getPrecision());
+        return wrap(dataValue.getValue(), dataValue.getPrecision());
     }
 
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return dataValue.getStringValue();
+        return super.convertJDBCValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalYearToMonth(dataValue.getStringValue(), dataValue.getPrecision());
+        return wrap(convertJDBCValueByType(dataValue), dataValue.getPrecision());
+    }
+
+    public String wrap(String value, int precision) {
+        return String.format(OracleDmlValueTemplate.INTEGER_YEAR_TO_MONTH_TEMPLATE, value, precision);
     }
 }

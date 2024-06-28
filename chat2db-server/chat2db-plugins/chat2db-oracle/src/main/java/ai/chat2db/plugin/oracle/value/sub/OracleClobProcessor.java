@@ -13,7 +13,7 @@ public class OracleClobProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return EasyStringUtils.escapeAndQuoteString(dataValue.getValue());
+        return wrap(dataValue.getValue());
     }
 
 
@@ -25,6 +25,10 @@ public class OracleClobProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return EasyStringUtils.escapeAndQuoteString(dataValue.getClobString());
+        return wrap(dataValue.getClobString());
+    }
+
+    private String wrap(String value) {
+        return EasyStringUtils.escapeAndQuoteString(value);
     }
 }

@@ -14,19 +14,22 @@ public class OracleIntervalDSProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalDayToSecond(dataValue.getValue(), dataValue.getPrecision(), dataValue.getScale());
+        return wrap(dataValue.getValue(), dataValue.getPrecision(), dataValue.getScale());
     }
 
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return dataValue.getStringValue();
+        return super.convertJDBCValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalDayToSecond(convertJDBCValueByType(dataValue), dataValue.getPrecision(), dataValue.getScale());
+        return wrap(convertJDBCValueByType(dataValue), dataValue.getPrecision(), dataValue.getScale());
     }
 
+    private String wrap(String value, int precision, int scale) {
+        return String.format(OracleDmlValueTemplate.INTEGER_DAY_TO_SECOND_TEMPLATE, value, precision, scale);
+    }
 }
