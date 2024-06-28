@@ -24,7 +24,6 @@ public class OracleTimeStampProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        // TODO: datagrip对timestampLTZ的处理是不受时区影响的，但其实这个字段就是为了可以协同时区问题的，有待商讨
         Timestamp timestamp = dataValue.getTimestamp();
         int scale = dataValue.getScale();
         LocalDateTime localDateTime = timestamp.toLocalDateTime();
@@ -45,8 +44,8 @@ public class OracleTimeStampProcessor extends DefaultValueProcessor {
 
     private String wrap(String value, int scale) {
         if (scale == 0) {
-            return String.format(OracleDmlValueTemplate.DATE_TEMPLATE, value);
+            return OracleDmlValueTemplate.wrapDate(value);
         }
-        return String.format(OracleDmlValueTemplate.TIMESTAMP_TEMPLATE, value, scale);
+        return OracleDmlValueTemplate.wrapTimestamp(value, scale);
     }
 }

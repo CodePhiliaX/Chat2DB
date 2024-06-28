@@ -25,6 +25,6 @@ public class SQLDataValue {
     }
 
     public String getBlobHexString() {
-        return "0x" + BaseEncoding.base16().encode(value.getBytes());
+        return BaseEncoding.base16().encode(value.getBytes());
     }
 }

@@ -6,6 +6,8 @@ import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.WKBReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -17,9 +19,11 @@ import java.io.InputStream;
 public class MysqlGeometryProcessor extends DefaultValueProcessor {
 
 
+    private static final Logger log = LoggerFactory.getLogger(MysqlGeometryProcessor.class);
+
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return wrap(dataValue.getValue());
+        return MysqlDmlValueTemplate.wrapGeometry(dataValue.getValue());
     }
 
     @Override
@@ -75,18 +79,15 @@ public class MysqlGeometryProcessor extends DefaultValueProcessor {
             }
             return dbGeometry != null ? dbGeometry.toString() : null;
         } catch (Exception e) {
-            return super.getJdbcValue(dataValue);
+            log.warn("Error converting database geometry", e);
+            return dataValue.getStringValue();
         }
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(convertJDBCValueByType(dataValue));
-    }
-
-    private String wrap(String value) {
-        return String.format(MysqlDmlValueTemplate.GEOMETRY_TEMPLATE, value);
+        return MysqlDmlValueTemplate.wrapGeometry(convertJDBCValueByType(dataValue));
     }
 
 }

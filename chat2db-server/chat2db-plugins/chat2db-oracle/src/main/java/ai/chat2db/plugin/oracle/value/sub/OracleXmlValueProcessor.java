@@ -6,16 +6,14 @@ import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 
 /**
- * 功能描述
- *
  * @author: zgq
- * @date: 2024年06月05日 18:58
+ * @date: 2024年06月21日 12:55
  */
-public class OracleIntervalYMProcessor extends DefaultValueProcessor {
+public class OracleXmlValueProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalYearToMonth(dataValue.getValue(), dataValue.getPrecision());
+        return OracleDmlValueTemplate.wrapXml(dataValue.getValue());
     }
 
 
@@ -27,6 +25,6 @@ public class OracleIntervalYMProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return OracleDmlValueTemplate.wrapIntervalYearToMonth(dataValue.getStringValue(), dataValue.getPrecision());
+        return OracleDmlValueTemplate.wrapXml(dataValue.getString());
     }
 }

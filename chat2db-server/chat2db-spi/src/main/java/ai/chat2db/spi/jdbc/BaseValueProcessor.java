@@ -4,6 +4,7 @@ import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
+import ai.chat2db.spi.sql.Chat2DBContext;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
@@ -27,12 +28,19 @@ public abstract class BaseValueProcessor implements ValueProcessor {
     @Override
     public String getJdbcValue(JDBCDataValue dataValue) {
         Object value = dataValue.getObject();
-        if (Objects.isNull(dataValue.getObject())) {
+        if (Objects.isNull(value)) {
+            // mysql -> [date]->0000:00:00
+            if (Chat2DBContext.getDBConfig().getDbType().equalsIgnoreCase("mysql")) {
+                String stringValue = dataValue.getStringValue();
+                if (Objects.nonNull(stringValue)) {
+                    return stringValue;
+                }
+            }
             return null;
         }
-        if (value instanceof String emptySry) {
-            if (StringUtils.isBlank(emptySry)) {
-                return emptySry;
+        if (value instanceof String emptyStr) {
+            if (StringUtils.isBlank(emptyStr)) {
+                return emptyStr;
             }
         }
         return convertJDBCValueByType(dataValue);
@@ -43,6 +51,13 @@ public abstract class BaseValueProcessor implements ValueProcessor {
     public String getJdbcValueString(JDBCDataValue dataValue) {
         Object value = dataValue.getObject();
         if (Objects.isNull(value)) {
+            // mysql -> [date]->0000:00:00
+            if (Chat2DBContext.getDBConfig().getDbType().equalsIgnoreCase("mysql")) {
+                String stringValue = dataValue.getStringValue();
+                if (Objects.nonNull(stringValue)) {
+                    return EasyStringUtils.escapeAndQuoteString(stringValue);
+                }
+            }
             return "NULL";
         }
         if (value instanceof String stringValue) {

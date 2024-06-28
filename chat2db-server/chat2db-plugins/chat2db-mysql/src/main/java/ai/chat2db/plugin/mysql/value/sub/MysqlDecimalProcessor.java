@@ -12,7 +12,7 @@ public class MysqlDecimalProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return super.convertSQLValueByType(dataValue);
+        return dataValue.getValue();
     }
 
 
@@ -24,6 +24,6 @@ public class MysqlDecimalProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return convertJDBCValueByType(dataValue);
+        return dataValue.getBigDecimalString();
     }
 }
