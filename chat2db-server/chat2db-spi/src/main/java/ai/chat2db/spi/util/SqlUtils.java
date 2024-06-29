@@ -288,8 +288,19 @@ public class SqlUtils {
         if (bufferStr.trim().length() != 0) {
             // if buffer is not empty, there will be some errors in syntax
             log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
-            String sqlstr = SQLParserUtils.removeComment(sql, dbType);
-            return Lists.newArrayList(sqlstr);
+            int lastSqlOffset;
+            if (sqls.size() == 0) {
+                int index = sql.indexOf(bufferStr.trim(), 0);
+                lastSqlOffset = index == -1 ? 0 : index;
+            } else {
+                int from = sqls.get(sqls.size() - 1).getOffset() + sqls.get(sqls.size() - 1).getStr().length();
+                int index = sql.indexOf(bufferStr.trim(), from);
+                lastSqlOffset = index == -1 ? from : index;
+            }
+            sqls.add(new SplitSqlString(lastSqlOffset, bufferStr));
+
+//            String sqlstr = SQLParserUtils.removeComment(sql, dbType);
+//            return Lists.newArrayList(sqlstr);
         }
         return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
     }

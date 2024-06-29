@@ -220,7 +220,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             } else if (dp[i - 1][j] >= dp[i][j - 1]) {
                 moved.add(original.get(i - 1));
                 // modified List中找到original.get(i-1)的位置
-                System.out.println("Moved elements:"+ original.get(i-1).getName() + " after " + modified.indexOf(original.get(i-1)) );
+//                System.out.println("Moved elements:"+ original.get(i-1).getName() + " after " + modified.indexOf(original.get(i-1)) );
                 i--;
             } else {
                 j--;

@@ -59,7 +59,7 @@ public class AsyncContext {
                         // 更新时间逐渐变长避免频繁更新
                         callUpdate();
                         Thread.sleep(2000 * n);
-                        if (n < 300) {
+                        if (n < 15) {
                             n++;
                         }
                     }

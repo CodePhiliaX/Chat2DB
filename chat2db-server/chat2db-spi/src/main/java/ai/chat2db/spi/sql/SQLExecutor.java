@@ -56,7 +56,6 @@ public class SQLExecutor implements CommandExecutor {
 
 
     public <R> R execute(Connection connection, String sql, ResultSetFunction<R> function) {
-        log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement();) {
             boolean query = stmt.execute(sql);
             // Represents the query
@@ -66,13 +65,13 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
+            log.error("execute:{}", sql,e);
             throw new RuntimeException(e);
         }
         return null;
     }
 
     public void execute(Connection connection, String sql, ResultSetConsumer consumer) {
-        log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement()) {
             boolean query = stmt.execute(sql);
             // Represents the query
@@ -82,6 +81,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
+            log.error("execute:{}", sql,e);
             throw new RuntimeException(e);
         }
     }
@@ -94,7 +94,7 @@ public class SQLExecutor implements CommandExecutor {
     public void execute(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
                         Consumer<List<String>> rowConsumer, boolean limitSize) {
         Assert.notNull(sql, "SQL must not be null");
-        log.info("execute:{}", sql);
+
         ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
         try (Statement stmt = connection.createStatement();) {
             boolean query = stmt.execute(sql);
@@ -123,6 +123,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (SQLException e) {
+            log.error("execute:{}", sql,e);
             throw new RuntimeException(e);
         }
     }
@@ -143,7 +144,6 @@ public class SQLExecutor implements CommandExecutor {
     public ExecuteResult executeUpdate(String sql, Connection connection, int n)
             throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
-        log.info("execute:{}", sql);
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
             int affectedRows = stmt.executeUpdate(sql);
@@ -179,7 +179,6 @@ public class SQLExecutor implements CommandExecutor {
     public ExecuteResult execute(final String sql, Connection connection, boolean limitRowSize, Integer offset, Integer count)
             throws SQLException {
         Assert.notNull(sql, "SQL must not be null");
-        log.info("execute:{}", sql);
         ExecuteResult executeResult = ExecuteResult.builder().sql(sql).success(Boolean.TRUE).build();
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(EasyToolsConstant.MAX_PAGE_SIZE);
@@ -627,7 +626,6 @@ public class SQLExecutor implements CommandExecutor {
     }
 
     public void execute(Connection connection, String sql, int batchSize, ResultSetConsumer consumer) {
-        log.info("execute:{}", sql);
         try (Statement stmt = connection.createStatement()) {
             stmt.setFetchSize(batchSize);
             boolean query = stmt.execute(sql);
@@ -638,6 +636,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
+            log.error("execute error:{}", sql,e);
             throw new RuntimeException(e);
         }
     }
