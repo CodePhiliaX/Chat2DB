@@ -32,12 +32,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testCreateWithPermission() {
-        try {
-            userLoginIdentity(false, 4L);
-            userLoginIdentity(true, 3L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 4L);
+//        userLoginIdentity(true, 3L);
 
         ChartCreateParam createParam = new ChartCreateParam();
         Optional.of(createParam).ifPresent(param -> {
@@ -61,12 +57,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testUpdateWithPermission() {
-        try {
-            userLoginIdentity(false, 1L);
-            userLoginIdentity(true, 4L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 1L);
+//        userLoginIdentity(true, 4L);
 
         ChartUpdateParam chartUpdateParam = new ChartUpdateParam();
         Optional.of(chartUpdateParam).ifPresent(param -> {
@@ -87,12 +79,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testFind() {
-        try {
-            userLoginIdentity(false, 6L);
-            userLoginIdentity(true, 8L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 6L);
+//        userLoginIdentity(true, 8L);
 
         DataResult<Chart> result = chartService.find(2L);
         assertNotNull(result.getData());
@@ -101,12 +89,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testQueryExistent() {
-        try {
-            userLoginIdentity(false, 7L);
-            userLoginIdentity(true, 9L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 7L);
+//        userLoginIdentity(true, 9L);
 
         ChartQueryParam chartQueryParam = new ChartQueryParam();
         chartQueryParam.setId(1L);
@@ -121,12 +105,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testListQuery() {
-        try {
-            userLoginIdentity(false, 8L);
-            userLoginIdentity(true, 10L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 8L);
+//        userLoginIdentity(true, 10L);
 
         ChartListQueryParam param = new ChartListQueryParam();
         param.setIdList(Arrays.asList(4L, 5L, 6L));
@@ -140,12 +120,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testQueryByIds() {
-        try {
-            userLoginIdentity(false, 9L);
-            userLoginIdentity(true, 11L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 9L);
+//        userLoginIdentity(true, 11L);
 
         ListResult<Chart> chartListResult = chartService.queryByIds(Arrays.asList(1L, 2L, 3L));
         assertNotNull(chartListResult);
@@ -153,12 +129,8 @@ public class ChartServiceTest extends TestApplication {
 
     @Test
     public void testDeleteWithPermission() {
-        try {
-            userLoginIdentity(false, 10L);
-            userLoginIdentity(true, 12L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(false, 10L);
+//        userLoginIdentity(true, 12L);
 
         ActionResult actionResult = chartService.deleteWithPermission(3L);
         assertNotNull(actionResult);

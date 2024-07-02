@@ -25,12 +25,8 @@ public class ConfigServiceTest extends TestApplication {
 
     @Test
     public void testCreate() {
-        try {
-            userLoginIdentity(true, 1L);
-            userLoginIdentity(false, 2L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(true, 1L);
+//        userLoginIdentity(false, 2L);
 
         SystemConfigParam systemConfigParam = new SystemConfigParam();
         Optional.ofNullable(systemConfigParam).ifPresent(param -> {
@@ -45,12 +41,8 @@ public class ConfigServiceTest extends TestApplication {
 
     @Test
     public void testUpdate() {
-        try {
-            userLoginIdentity(true, 4L);
-            userLoginIdentity(false, 5L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(true, 4L);
+//        userLoginIdentity(false, 5L);
 
         SystemConfigParam systemConfigParam = new SystemConfigParam();
         systemConfigParam.setCode(RandomCodeGenerator.generateRandomCode(6));
@@ -64,12 +56,9 @@ public class ConfigServiceTest extends TestApplication {
 
     @Test
     public void testCreateOrUpdate() {
-        try {
-            userLoginIdentity(true, 3L);
-            userLoginIdentity(false, 6L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(true, 3L);
+//        userLoginIdentity(false, 6L);
+
 
         SystemConfigParam systemConfigParam = new SystemConfigParam();
         systemConfigParam.setCode(RandomCodeGenerator.generateRandomCode(6));
@@ -82,12 +71,8 @@ public class ConfigServiceTest extends TestApplication {
 
     @Test
     public void testFind() {
-        try {
-            userLoginIdentity(true, 9L);
-            userLoginIdentity(false, 4L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(true, 9L);
+//        userLoginIdentity(false, 4L);
 
         DataResult<Config> configDataResult = configService.find("4TxfzW");
         assertNotNull(configDataResult.getData());
@@ -95,12 +80,8 @@ public class ConfigServiceTest extends TestApplication {
 
     @Test
     public void testDelete() {
-        try {
-            userLoginIdentity(true, 11L);
-            userLoginIdentity(false, 12L);
-        } catch (Exception e) {
-            throw new RuntimeException("An unexpected exception occurred during userLoginIdentity: " + e.getMessage());
-        }
+        userLoginIdentity(true, 11L);
+//        userLoginIdentity(false, 12L);
 
         ActionResult result = configService.delete("4TxfzW");
         assertNotNull(result);
