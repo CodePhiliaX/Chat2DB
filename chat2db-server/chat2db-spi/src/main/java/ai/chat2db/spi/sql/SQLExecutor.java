@@ -262,7 +262,7 @@ public class SQLExecutor implements CommandExecutor {
             Header header = headerList.get(i);
             if ("CAHT2DB_AUTO_ROW_ID".equals(header.getName())) {
                 headerList.remove(i);
-                return i;
+                return i + 1;
             }
         }
         return -1;

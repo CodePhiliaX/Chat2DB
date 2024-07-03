@@ -99,6 +99,7 @@ public class ChartServiceTest extends TestApplication {
         DataResult<Chart> chartDataResult = chartService.queryExistent(chartQueryParam);
         DataResult<Chart> queryExistent = chartService.queryExistent(chartDataResult.getData().getId());
         assertNotNull(chartDataResult);
+        assertNotNull(queryExistent);
         assertEquals(chartDataResult, queryExistent);
     }
 
@@ -124,7 +125,7 @@ public class ChartServiceTest extends TestApplication {
 //        userLoginIdentity(true, 11L);
 
         ListResult<Chart> chartListResult = chartService.queryByIds(Arrays.asList(1L, 2L, 3L));
-        assertNotNull(chartListResult);
+        assertNotNull(chartListResult.getData());
     }
 
     @Test
