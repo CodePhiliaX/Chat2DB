@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://chat2db-ai.com/" target="_blank">
-        <img src="https://cdn.chat2db-ai.com/img/banner.png" alt="Chat2DB" />
+        <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/cover.png" alt="Chat2DB" />
     </a>
 </p>
 
