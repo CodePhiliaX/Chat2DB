@@ -48,8 +48,10 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
             if (resultSet.next()) {
                 asyncContext.write(String.format(FUNCTION_TITLE, functionName));
                 StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n")
-                        .append(resultSet.getString("Create Function")).append(";").append("\n");
+                sqlBuilder.append("DROP FUNCTION IF EXISTS ").append(functionName).append(";").append("\n");
+
+                sqlBuilder.append("delimiter ;;").append("\n").append(resultSet.getString("Create Function")).append(";;")
+                        .append("\n").append("delimiter ;").append("\n\n");
                 asyncContext.write(sqlBuilder.toString());
             }
         }
