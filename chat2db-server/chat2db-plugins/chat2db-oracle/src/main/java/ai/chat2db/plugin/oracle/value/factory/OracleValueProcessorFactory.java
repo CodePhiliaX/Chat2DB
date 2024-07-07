@@ -28,7 +28,7 @@ public class OracleValueProcessorFactory {
                 Map.entry(OracleColumnTypeEnum.DATE.name(), new OracleDateProcessor()),
                 //timestamp
                 Map.entry(OracleColumnTypeEnum.TIMESTAMP.name(), oracleTimeStampProcessor),
-                Map.entry(OracleColumnTypeEnum.TIMESTAMP_WITH_LOCAL_TIME_ZONE.getColumnType().getTypeName(), oracleTimeStampProcessor),
+                Map.entry(OracleColumnTypeEnum.TIMESTAMP_WITH_LOCAL_TIME_ZONE.getColumnType().getTypeName(), new OracleTimeStampLTZProcessor()),
                 Map.entry(OracleColumnTypeEnum.TIMESTAMP_WITH_TIME_ZONE.getColumnType().getTypeName(), new OracleTimeStampTZProcessor()),
                 //INTERVAL
                 Map.entry("INTERVALDS", new OracleIntervalDSProcessor()),

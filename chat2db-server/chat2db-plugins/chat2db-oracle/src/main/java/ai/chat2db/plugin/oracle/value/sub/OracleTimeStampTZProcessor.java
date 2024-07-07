@@ -21,13 +21,28 @@ public class OracleTimeStampTZProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return dataValue.getStringValue();
+        //2024-06-05 17:41:27.52 +0:00 ->
+        String timeStampString = dataValue.getStringValue();
+        int scale = dataValue.getScale();
+        int lastSpaceIndex = timeStampString.lastIndexOf(" ");
+        int nanosLength = lastSpaceIndex - timeStampString.indexOf(".") - 1;
+        if (scale != 0 && nanosLength < scale) {
+            // 计算需要补充的零的数量
+            int zerosToAdd = scale - nanosLength;
+            StringBuilder sb = new StringBuilder(timeStampString);
+            for (int i = 0; i < zerosToAdd; i++) {
+                sb.insert(lastSpaceIndex, '0');
+            }
+            return sb.toString();
+
+        }
+        return timeStampString;
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return wrap(dataValue.getStringValue(), dataValue.getScale());
+        return wrap(convertJDBCValueByType(dataValue), dataValue.getScale());
     }
 
     private String wrap(String value, int scale) {
