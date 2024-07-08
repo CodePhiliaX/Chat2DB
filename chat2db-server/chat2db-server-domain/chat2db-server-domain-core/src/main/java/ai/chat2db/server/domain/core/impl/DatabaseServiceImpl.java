@@ -152,7 +152,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ActionResult modifyDatabase(DatabaseCreateParam param) {
         Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getName(),
-                param.getName());
+                param.getNewName());
         return ActionResult.isSuccess();
     }
 
