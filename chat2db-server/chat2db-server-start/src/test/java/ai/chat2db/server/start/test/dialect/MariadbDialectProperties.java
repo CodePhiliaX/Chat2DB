@@ -14,12 +14,12 @@ public class MariadbDialectProperties implements DialectProperties{
 
     @Override
     public String getUrl() {
-        return "jdbc:mariadb://183.247.151.185:13303/";
+        return "jdbc:mariadb://localhost:3303/";
     }
 
     @Override
     public String getErrorUrl() {
-        return "jdbc:mariadb://error:13303/";
+        return "jdbc:mariadb://error:3303/";
     }
 
     @Override

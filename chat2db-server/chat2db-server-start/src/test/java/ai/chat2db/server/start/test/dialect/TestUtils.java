@@ -49,7 +49,7 @@ public class TestUtils {
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setUser(dialectProperties.getUsername());
         connectInfo.setPort(dialectProperties.getPort());
-        connectInfo.setHost("183.247.151.185");
+        connectInfo.setHost("localhost");
         connectInfo.setSsh(new SSHInfo());
         connectInfo.setConsoleId(consoleId);
         connectInfo.setDataSourceId(dataSourceId);
