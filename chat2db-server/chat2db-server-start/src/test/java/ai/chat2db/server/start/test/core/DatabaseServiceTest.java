@@ -36,7 +36,7 @@ public class DatabaseServiceTest extends TestApplication {
     @Test
     public void testQueryAll() {
 
-        // MYSQL  ORACLE  POSTGRESQL
+        // MYSQL  ORACLE  POSTGRESQL MONGODB MARIADB
         for (DialectProperties dialectProperties : dialectPropertiesList) {
             String dbType = dialectProperties.getDbType();
             Long dataSourceId = TestUtils.nextLong();
