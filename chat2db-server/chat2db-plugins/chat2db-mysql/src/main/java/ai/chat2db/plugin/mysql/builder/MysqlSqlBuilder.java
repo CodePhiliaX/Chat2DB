@@ -8,10 +8,13 @@ import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.util.SqlUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class MysqlSqlBuilder extends DefaultSqlBuilder {
@@ -103,7 +106,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         // 判断新增字段
         List<TableColumn> addColumnList = new ArrayList<>();
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (tableColumn.getEditStatus() != null ?  tableColumn.getEditStatus().equals("ADD") : false) {
+            if (tableColumn.getEditStatus() != null ? tableColumn.getEditStatus().equals("ADD") : false) {
                 addColumnList.add(tableColumn);
             }
         }
@@ -116,7 +119,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
             if ((StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType())
                     && StringUtils.isNotBlank(tableColumn.getName())) || moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
                 MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
-                if(typeEnum == null){
+                if (typeEnum == null) {
                     continue;
                 }
                 if (moveColumnList.contains(tableColumn) || addColumnList.contains(tableColumn)) {
@@ -131,7 +134,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         for (TableIndex tableIndex : newTable.getIndexList()) {
             if (StringUtils.isNotBlank(tableIndex.getEditStatus()) && StringUtils.isNotBlank(tableIndex.getType())) {
                 MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
-                if(mysqlIndexTypeEnum == null){
+                if (mysqlIndexTypeEnum == null) {
                     continue;
                 }
                 script.append("\t").append(mysqlIndexTypeEnum.buildModifyIndex(tableIndex)).append(",\n");
@@ -139,13 +142,13 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
         }
 
         // append reorder column
-       // script.append(buildGenerateReorderColumnSql(oldTable, newTable));
+        // script.append(buildGenerateReorderColumnSql(oldTable, newTable));
 
         if (script.length() > 2) {
             script = new StringBuilder(script.substring(0, script.length() - 2));
             script.append(";");
             return tableBuilder.append(script).toString();
-        }else {
+        } else {
             return StringUtils.EMPTY;
         }
 
@@ -400,8 +403,22 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder {
     @Override
     protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
         if (StringUtils.isNotBlank(databaseName)) {
-            script.append("`").append(databaseName).append("`").append('.');
+            script.append(SqlUtils.quoteObjectName(databaseName, "`")).append('.');
         }
-        script.append("`").append(tableName).append("`");
+        script.append(SqlUtils.quoteObjectName(tableName, "`"));
     }
+
+    /**
+     * @param columnList
+     * @param script
+     */
+    @Override
+    protected void buildColumns(List<String> columnList, StringBuilder script) {
+        if (CollectionUtils.isNotEmpty(columnList)) {
+            script.append(" (")
+                    .append(columnList.stream().map(s -> SqlUtils.quoteObjectName(s, "`")).collect(Collectors.joining(",")))
+                    .append(") ");
+        }
+    }
+
 }

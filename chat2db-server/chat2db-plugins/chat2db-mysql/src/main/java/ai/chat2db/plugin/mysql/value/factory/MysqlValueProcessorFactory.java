@@ -44,8 +44,8 @@ public class MysqlValueProcessorFactory {
                 Map.entry(MysqlColumnTypeEnum.TIMESTAMP.name(), mysqlTimestampProcessor),
                 Map.entry(MysqlColumnTypeEnum.DATETIME.name(), mysqlTimestampProcessor),
                 //others
-                Map.entry(MysqlColumnTypeEnum.BIT.name(), new MysqlBitProcessor()),
                 Map.entry(MysqlColumnTypeEnum.YEAR.name(), new MysqlYearProcessor()),
+                Map.entry(MysqlColumnTypeEnum.BIT.name(), new MysqlBitProcessor()),
                 Map.entry(MysqlColumnTypeEnum.DECIMAL.name(), new MysqlDecimalProcessor()),
                 Map.entry(MysqlColumnTypeEnum.BINARY.name(), new MysqlBinaryProcessor())
         );

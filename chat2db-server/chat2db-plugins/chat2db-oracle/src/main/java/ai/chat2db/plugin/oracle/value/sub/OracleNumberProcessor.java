@@ -14,7 +14,7 @@ public class OracleNumberProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return super.convertSQLValueByType(dataValue);
+        return dataValue.getValue();
     }
 
 
@@ -26,6 +26,6 @@ public class OracleNumberProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return convertJDBCValueByType(dataValue);
+        return dataValue.getBigDecimalString();
     }
 }

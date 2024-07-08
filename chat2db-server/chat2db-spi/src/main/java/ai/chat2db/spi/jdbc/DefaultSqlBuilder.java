@@ -1,5 +1,6 @@
 package ai.chat2db.spi.jdbc;
 
+import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.enums.DmlType;
@@ -218,16 +219,21 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         StringBuilder script = new StringBuilder();
 
         script.append("INSERT INTO ");
-        buildTableName(null, null, tableName, script);
 
+        buildTableName(databaseName, schemaName, tableName, script);
+
+        buildColumns(columnList, script);
+
+        script.append(" VALUES ");
+        return script.toString();
+    }
+
+    protected void buildColumns(List<String> columnList, StringBuilder script) {
         if (CollectionUtils.isNotEmpty(columnList)) {
             script.append(" (")
                     .append(String.join(",", columnList))
                     .append(") ");
         }
-
-        script.append(" VALUES ");
-        return script.toString();
     }
 
     protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
@@ -252,7 +258,8 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
      */
     public String buildSingleInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<String> valueList) {
         String baseSql = buildBaseInsertSql(databaseName, schemaName, tableName, columnList);
-        return baseSql + "(" + String.join(",", valueList) + ");";
+        List<String> list = valueList.stream().map(EasyStringUtils::escapeLineString).toList();
+        return baseSql + "(" + String.join(",", list) + ");";
     }
 
     /**
@@ -267,7 +274,7 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
     public String buildMultiInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<List<String>> valueLists) {
         String baseSql = buildBaseInsertSql(databaseName, schemaName, tableName, columnList);
         String valuesPart = valueLists.stream()
-                .map(values -> "(" + String.join(",", values) + ")")
+                .map(values -> "(" + String.join(",", values.stream().map(EasyStringUtils::escapeLineString).toList()) + ")")
                 .collect(Collectors.joining(",\n"));
         return baseSql + valuesPart + ";";
     }

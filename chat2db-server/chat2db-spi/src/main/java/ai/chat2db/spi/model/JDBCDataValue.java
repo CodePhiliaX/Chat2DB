@@ -7,14 +7,16 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.tika.Tika;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Objects;
 
@@ -25,6 +27,7 @@ import java.util.Objects;
 @Data
 @AllArgsConstructor
 public class JDBCDataValue {
+    private static final Logger log = LoggerFactory.getLogger(JDBCDataValue.class);
     private ResultSet resultSet;
     private ResultSetMetaData metaData;
     private int columnIndex;
@@ -34,6 +37,7 @@ public class JDBCDataValue {
         try {
             return resultSet.getObject(columnIndex);
         } catch (Exception e) {
+            log.warn("Failed to retrieve object from database", e);
             try {
                 return resultSet.getString(columnIndex);
             } catch (SQLException ex) {
@@ -71,7 +75,6 @@ public class JDBCDataValue {
     }
 
     public int getInt() {
-
         return ResultSetUtils.getInt(resultSet, columnIndex);
     }
 
@@ -91,123 +94,8 @@ public class JDBCDataValue {
         return ResultSetUtils.getBlob(resultSet, columnIndex);
     }
 
-    public String getBlobString() {
-        Blob blob = getBlob();
-        LOBInfo blobInfo = getBlobInfo(blob);
-        String unit = blobInfo.getUnit();
-        if (blobInfo.getSize() == 0) {
-            return "";
-        }
-
-        try (InputStream binaryStream = blob.getBinaryStream()) {
-            Tika tika = new Tika();
-            String contentType = tika.detect(binaryStream);
-            FileTypeEnum fileTypeEnum = FileTypeEnum.fromDescription(contentType);
-            if (Objects.isNull(fileTypeEnum)) {
-                if (limitSize && isBigSize(unit)) {
-                    return String.format("[%s] %d %s", getType(), blobInfo.getSize(), unit);
-                }
-                return getBlobHexString();
-            }
-            switch (fileTypeEnum) {
-                case IMAGE:
-                    if (limitSize) {
-                        try (InputStream imageStream = blob.getBinaryStream()) {
-                            BufferedImage bufferedImage = ImageIO.read(imageStream);
-                            return String.format("[%s] %dx%d JPEG image %d %s",
-                                                 getType(), bufferedImage.getWidth(),
-                                                 bufferedImage.getHeight(), blobInfo.getSize(), unit);
-                        }
-                    } else {
-                        return getBlobHexString();
-                    }
-                case STRING:
-                    if (isBigSize(unit) && limitSize) {
-                        return String.format("[%s] %d %s", getType(), blobInfo.getSize(), unit);
-                    } else {
-                        return new String(binaryStream.readAllBytes());
-                    }
-                default:
-                    if (isBigSize(unit) && limitSize) {
-                        return String.format("[%s] %d %s", getType(), blobInfo.getSize(), unit);
-                    }
-                    return getBlobHexString();
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private LOBInfo getBlobInfo(Blob blob) {
-        try {
-            long size = blob.length();
-            return getLobInfo(size);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String getClobString() {
-        Clob clob = getClob();
-        LOBInfo cLobInfo = getCLobInfo(clob);
-        int size = cLobInfo.getSize();
-        if (size == 0) {
-            return "";
-        }
-        String unit = cLobInfo.getUnit();
-        if (limitSize && isBigSize(unit)) {
-            return String.format("[%s] %d %s", getType(), size, unit);
-        }
-        StringBuilder builder = new StringBuilder(size);
-        String line;
-        try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())) {
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append("\n");
-            }
-        } catch (IOException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return builder.toString();
-    }
-
-    private boolean isBigSize(String unit) {
-        return LobUnit.G.unit.equals(unit) || LobUnit.M.unit.equals(unit);
-    }
-
-    public LOBInfo getCLobInfo(Clob clob) {
-        try {
-            long size = clob.length();
-            return getLobInfo(size);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @NotNull
-    private LOBInfo getLobInfo(long size) {
-        if (size == 0) {
-            return new LOBInfo(LobUnit.B.unit, 0);
-        }
-        return calculateSizeAndUnit(size);
-    }
-
-    @NotNull
-    private LOBInfo calculateSizeAndUnit(long size) {
-        if (size > LobUnit.G.size) {
-            return new LOBInfo(LobUnit.G.unit, (int) (size / LobUnit.G.size));
-        } else if (size > LobUnit.M.size) {
-            return new LOBInfo(LobUnit.M.unit, (int) (size / LobUnit.M.size));
-        } else if (size > LobUnit.K.size) {
-            return new LOBInfo(LobUnit.K.unit, (int) (size / LobUnit.K.size));
-        } else {
-            return new LOBInfo(LobUnit.B.unit, (int) size);
-        }
-    }
-
     public String getBlobHexString() {
-        return "0x" + BaseEncoding.base16().encode(getBytes());
+        return BaseEncoding.base16().encode(getBytes());
     }
 
     public BigDecimal getBigDecimal() {
@@ -219,25 +107,192 @@ public class JDBCDataValue {
         return bigDecimal == null ? new String(getBytes()) : bigDecimal.toPlainString();
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class LOBInfo {
-        private String unit;
-        private int size;
+
+    public String getBlobString() {
+        Blob blob = getBlob();
+        try (InputStream binaryStream = blob.getBinaryStream()) {
+            long length = blob.length();
+            return converterBinaryData(length, binaryStream);
+        } catch (SQLException | IOException e) {
+            log.warn("Error while reading binary stream", e);
+            return getString();
+        }
     }
+
+
+    public String getClobString() {
+        Clob clob = getClob();
+        try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())) {
+            long length = clob.length();
+            LOBInfo cLobInfo = getLobInfo(length);
+            double size = cLobInfo.getSize();
+            if (size == 0) {
+                return "";
+            }
+            String unit = cLobInfo.getUnit();
+            if (limitSize && isBigSize(unit)) {
+                return String.format("[%s] %s", getType(), cLobInfo);
+            }
+            StringBuilder builder = new StringBuilder((int) (Math.ceil(size)));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                // TODO: 优化换行符
+                builder.append(line).append("\n");
+            }
+            return builder.toString();
+        } catch (IOException | SQLException e) {
+            log.warn("Error while reading clob stream", e);
+            return getStringValue();
+        }
+    }
+
+    private String handleImageType(InputStream imageStream, LOBInfo lobInfo) {
+        if (limitSize) {
+            try {
+                BufferedImage bufferedImage = ImageIO.read(imageStream);
+                return String.format("[%s] %dx%d JPEG image  %s", getType(), bufferedImage.getWidth(), bufferedImage.getHeight(), lobInfo);
+            } catch (IOException e) {
+                log.warn("Error while reading image stream", e);
+                return getStringValue();
+            }
+        } else {
+            return "0x" + getBlobHexString();
+        }
+    }
+
+    private String handleStringType(InputStream binaryStream, LOBInfo lobInfo) throws IOException {
+        if (isBigSize(lobInfo.getUnit()) && limitSize) {
+            return String.format("[%s] %s", getType(), lobInfo);
+        } else {
+            return new String(binaryStream.readAllBytes());
+        }
+    }
+
+    private boolean isBigSize(String unit) {
+        return LobUnit.G.unit.equals(unit) || LobUnit.M.unit.equals(unit);
+    }
+
+
+    @NotNull
+    private LOBInfo getLobInfo(long size) {
+        if (size == 0) {
+            return new LOBInfo(LobUnit.B.unit, 0);
+        }
+        return new LOBInfo(size);
+    }
+
+    public String getStringValue() {
+        return ResultSetUtils.getStringValue(resultSet, columnIndex);
+    }
+
+    public String getBinaryDataString() {
+        InputStream binaryStream = null;
+        try {
+            binaryStream = getBinaryStream();
+            if (Objects.isNull(binaryStream)) {
+                return null;
+            }
+            // 检查流是否支持 mark 操作，不支持则用 BufferedInputStream 包装
+            if (!binaryStream.markSupported()) {
+                binaryStream = new BufferedInputStream(binaryStream);
+            }
+
+            binaryStream.mark(Integer.MAX_VALUE);
+
+            long size = 0;
+            byte[] buffer = new byte[8192]; // 缓冲区
+            int bytesRead;
+            while ((bytesRead = binaryStream.read(buffer)) != -1) {
+                size += bytesRead;
+            }
+            binaryStream.reset(); // 重置流到标记的位置
+            return converterBinaryData(size, binaryStream);
+        } catch (SQLException | IOException e) {
+            log.warn("Error while reading binary stream", e);
+            return getStringValue();
+        } finally {
+            // 关闭流
+            if (binaryStream != null) {
+                try {
+                    binaryStream.close();
+                } catch (IOException e) {
+                    log.warn("Error while closing binary stream", e);
+                }
+            }
+        }
+    }
+
+    private String converterBinaryData(long size, InputStream binaryStream) throws IOException, SQLException {
+        LOBInfo lobInfo = getLobInfo(size);
+        String unit = lobInfo.unit;
+        if (size == 0) {
+            return "";
+        }
+        Tika tika = new Tika();
+        String contentType = tika.detect(binaryStream);
+        FileTypeEnum fileTypeEnum = FileTypeEnum.fromDescription(contentType);
+        if (Objects.isNull(fileTypeEnum)) {
+            if (isBigSize(unit) && limitSize) {
+                return String.format("[%s] %s", getType(), lobInfo);
+            }
+            return "0x" + BaseEncoding.base16().encode(binaryStream.readAllBytes());
+        }
+
+        return switch (fileTypeEnum) {
+            case IMAGE -> handleImageType(binaryStream, lobInfo);
+            case STRING -> handleStringType(binaryStream, lobInfo);
+            default -> "";
+        };
+    }
+
 
     @Getter
     public enum LobUnit {
-        B("B", 1),
-        K("KB", 1024),
-        M("MB", 1024 * 1024),
-        G("GB", 1024 * 1024 * 1024);
-        private final String unit;
-        private final int size;
+        B("B", 1L),
+        K("KB", 1024L),
+        M("MB", 1024L * 1024L),
+        G("GB", 1024L * 1024L * 1024L);
 
-        LobUnit(String unit, int size) {
+        private final String unit;
+        private final long size;
+
+        LobUnit(String unit, long size) {
             this.unit = unit;
             this.size = size;
+        }
+
+    }
+
+    @Getter
+    public static class LOBInfo {
+        private final String unit;
+        private final double size;
+
+        public LOBInfo(String unit, double size) {
+            this.unit = unit;
+            this.size = size;
+        }
+
+        public LOBInfo(long size) {
+            if (size >= LobUnit.G.size) {
+                this.unit = LobUnit.G.unit;
+                this.size = (double) size / LobUnit.G.size;
+            } else if (size >= LobUnit.M.size) {
+                this.unit = LobUnit.M.unit;
+                this.size = (double) size / LobUnit.M.size;
+            } else if (size >= LobUnit.K.size) {
+                this.unit = LobUnit.K.unit;
+                this.size = (double) size / LobUnit.K.size;
+            } else {
+                this.unit = LobUnit.B.unit;
+                this.size = (double) size;
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%.2f %s", size, unit);
         }
     }
 

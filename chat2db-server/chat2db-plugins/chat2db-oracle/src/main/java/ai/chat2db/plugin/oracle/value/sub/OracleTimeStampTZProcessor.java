@@ -21,9 +21,22 @@ public class OracleTimeStampTZProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        // TODO: return:2024-06-05 17:32:52.849 +8:00 but it actually is 2024-06-05 17:32:52.849000 +8:00
-        return super.convertJDBCValueByType(dataValue);
+        //2024-06-05 17:41:27.52 +0:00 ->
+        String timeStampString = dataValue.getStringValue();
+        int scale = dataValue.getScale();
+        int lastSpaceIndex = timeStampString.lastIndexOf(" ");
+        int nanosLength = lastSpaceIndex - timeStampString.indexOf(".") - 1;
+        if (scale != 0 && nanosLength < scale) {
+            // 计算需要补充的零的数量
+            int zerosToAdd = scale - nanosLength;
+            StringBuilder sb = new StringBuilder(timeStampString);
+            for (int i = 0; i < zerosToAdd; i++) {
+                sb.insert(lastSpaceIndex, '0');
+            }
+            return sb.toString();
 
+        }
+        return timeStampString;
     }
 
 
@@ -34,8 +47,8 @@ public class OracleTimeStampTZProcessor extends DefaultValueProcessor {
 
     private String wrap(String value, int scale) {
         if (scale == 0) {
-            return String.format(OracleDmlValueTemplate.TIMESTAMP_TZ_WITHOUT_NANOS_TEMPLATE, value);
+            return OracleDmlValueTemplate.wrapTimestampTzWithOutNanos(value);
         }
-        return String.format(OracleDmlValueTemplate.TIMESTAMP_TZ_TEMPLATE, value, scale);
+        return OracleDmlValueTemplate.wrapTimestampTz(value, scale);
     }
 }

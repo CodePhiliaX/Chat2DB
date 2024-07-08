@@ -27,12 +27,12 @@ public abstract class BaseValueProcessor implements ValueProcessor {
     @Override
     public String getJdbcValue(JDBCDataValue dataValue) {
         Object value = dataValue.getObject();
-        if (Objects.isNull(dataValue.getObject())) {
+        if (Objects.isNull(value)) {
             return null;
         }
-        if (value instanceof String emptySry) {
-            if (StringUtils.isBlank(emptySry)) {
-                return emptySry;
+        if (value instanceof String emptyStr) {
+            if (StringUtils.isBlank(emptyStr)) {
+                return emptyStr;
             }
         }
         return convertJDBCValueByType(dataValue);

@@ -1,10 +1,5 @@
 package ai.chat2db.spi.sql;
 
-import java.sql.*;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import ai.chat2db.server.tools.base.constant.EasyToolsConstant;
 import ai.chat2db.server.tools.base.enums.DataSourceTypeEnum;
 import ai.chat2db.server.tools.base.excption.BusinessException;
@@ -15,24 +10,25 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.enums.DataTypeEnum;
 import ai.chat2db.spi.enums.SqlTypeEnum;
-import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlUtils;
 import cn.hutool.core.date.TimeInterval;
-
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.google.common.collect.Lists;
-
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
+
+import java.sql.*;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Dbhub unified database connection management
@@ -247,7 +243,7 @@ public class SQLExecutor implements CommandExecutor {
                     continue;
                 }
                 ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
-                row.add(valueProcessor.getJdbcValue(new JDBCDataValue(rs, rs.getMetaData(), i, false)));
+                row.add(valueProcessor.getJdbcValue(new JDBCDataValue(rs, rs.getMetaData(), i, limitRowSize)));
             }
             if (count != null && count > 0 && rowCount++ >= count) {
                 break;
@@ -385,7 +381,7 @@ public class SQLExecutor implements CommandExecutor {
             tableName,
                                      String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
-                columnName)) {
+                                                                       columnName)) {
             return ResultSetUtils.toObjectList(resultSet, TableColumn.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -404,8 +400,8 @@ public class SQLExecutor implements CommandExecutor {
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
-                false,
-                false)) {
+                                                                         false,
+                                                                         false)) {
             List<TableIndexColumn> tableIndexColumns = ResultSetUtils.toObjectList(resultSet, TableIndexColumn.class);
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
                             Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
@@ -581,7 +577,7 @@ public class SQLExecutor implements CommandExecutor {
         Header rowNumberHeader = Header.builder()
                 .name(I18nUtils.getMessage("sqlResult.rowNumber"))
                 .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                        .getCode()).build();
+                                  .getCode()).build();
         executeResult.setHeaderList(EasyCollectionUtils.union(Arrays.asList(rowNumberHeader), headers));
 
         // Add row number

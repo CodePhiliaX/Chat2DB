@@ -8,6 +8,7 @@ import ai.chat2db.spi.model.SQLDataValue;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * @author: zgq
@@ -23,23 +24,16 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        int precision = dataValue.getPrecision();
-        byte[] bytes = dataValue.getBytes();
-        if (precision == 1) {
-            //bit(1) [1 -> true] [0 -> false]
-            if (bytes.length == 1 && (bytes[0] == 0 || bytes[0] == 1)) {
-                return String.valueOf(dataValue.getBoolean());
-            }
-            // tinyint(1)
-            return String.valueOf(dataValue.getInt());
-        }
-        //bit(m) m: 1~64
-        return EasyStringUtils.getBitString(bytes, precision);
+        return getValue(dataValue, s -> s);
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
+        return getValue(dataValue, this::wrap);
+    }
+
+    private String getValue(JDBCDataValue dataValue, Function<String, String> function) {
         int precision = dataValue.getPrecision();
         byte[] bytes = dataValue.getBytes();
         if (precision == 1) {
@@ -51,7 +45,7 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
             return String.valueOf(dataValue.getInt());
         }
         //bit(m) m: 2~64
-        return wrap(EasyStringUtils.getBitString(bytes, precision));
+        return function.apply(EasyStringUtils.getBitString(bytes, precision));
     }
 
     public String getString(String value) {
@@ -65,10 +59,10 @@ public class MysqlBitProcessor extends DefaultValueProcessor {
         if (StringUtils.isBlank(value)) {
             return "NULL";
         }
-        return wrap(value);
+        return MysqlDmlValueTemplate.wrapBit(value);
     }
 
     private String wrap(String value) {
-        return String.format(MysqlDmlValueTemplate.BIT_TEMPLATE, value);
+        return MysqlDmlValueTemplate.wrapBit(value);
     }
 }

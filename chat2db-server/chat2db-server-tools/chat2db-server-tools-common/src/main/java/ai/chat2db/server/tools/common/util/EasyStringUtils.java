@@ -229,4 +229,14 @@ public class EasyStringUtils {
         return bitString;
     }
 
+
+    public static String escapeLineString(String str) {
+        if (StringUtils.isBlank(str)) {
+            return str;
+        }
+        return str.replace("\r\n", "\\r\\n")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
+
 }
