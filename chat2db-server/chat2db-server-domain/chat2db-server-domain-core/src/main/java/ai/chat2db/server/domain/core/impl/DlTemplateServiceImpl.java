@@ -96,7 +96,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         //RemoveSpecialGO(param);
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
-        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
+        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType,true);
         Connection connection = Chat2DBContext.getConnection();
         try {
 //            connection.setAutoCommit(false);
