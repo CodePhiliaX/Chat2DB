@@ -222,7 +222,7 @@ public class DefaultDBManage implements DBManage {
                     String valueString = valueProcessor.getJdbcValueString(jdbcDataValue);
                     valueList.add(valueString);
                 }
-                String insertSql = sqlBuilder.buildSingleInsertSql(databaseName, schemaName, tableName, columnList, valueList);
+                String insertSql = sqlBuilder.buildSingleInsertSql(null, null, tableName, columnList, valueList);
                 asyncContext.write(insertSql);
                 valueList.clear();
             }
