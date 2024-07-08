@@ -58,17 +58,6 @@ public class PostgresqlDialectProperties implements DialectProperties {
             + "    number int,\n"
             + "    string varchar(100) default 'DATA'\n"
             + ");\n";
-        sql += "comment on table " + tableName + " is 'Test table';\n";
-        sql += "comment on column " + tableName + ".id is 'Primary key auto-increment';\n";
-        sql += "comment on column " + tableName + ".date is 'date';\n";
-        sql += "comment on column " + tableName + ".number is 'long integer';\n";
-        sql += "comment on column " + tableName + ".string is 'name';\n";
-        sql += "create index " + tableName + "idx_date on " + tableName + " (date desc);";
-        sql += "create unique index " + tableName + "_uk_number on " + tableName + " (number);";
-        sql += "create index " + tableName + "_idx_number_string on " + tableName + " (number, date);";
-        sql += "comment on index " + tableName + "_uk_number is 'date index';";
-        sql += "comment on index " + tableName + "_uk_number is 'unique index';";
-        sql += "comment on index " + tableName + "_idx_number_string is 'Union index';";
         return sql;
     }
 
