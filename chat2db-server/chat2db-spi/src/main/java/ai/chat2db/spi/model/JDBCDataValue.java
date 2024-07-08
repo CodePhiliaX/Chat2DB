@@ -189,6 +189,9 @@ public class JDBCDataValue {
         InputStream binaryStream = null;
         try {
             binaryStream = getBinaryStream();
+            if (Objects.isNull(binaryStream)) {
+                return null;
+            }
             // 检查流是否支持 mark 操作，不支持则用 BufferedInputStream 包装
             if (!binaryStream.markSupported()) {
                 binaryStream = new BufferedInputStream(binaryStream);
@@ -232,7 +235,7 @@ public class JDBCDataValue {
             if (isBigSize(unit) && limitSize) {
                 return String.format("[%s] %s", getType(), lobInfo);
             }
-            return "0x" + getBlobHexString();
+            return "0x" + BaseEncoding.base16().encode(binaryStream.readAllBytes());
         }
 
         return switch (fileTypeEnum) {

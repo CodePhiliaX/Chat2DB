@@ -39,9 +39,11 @@ public class OracleValueProcessorFactory {
                 Map.entry(OracleColumnTypeEnum.BLOB.name(), oracleBlobProcessor),
                 //raw
                 Map.entry(OracleColumnTypeEnum.RAW.name(), oracleRawValueProcessor),
-                Map.entry(OracleColumnTypeEnum.LONG_RAW.getColumnType().getTypeName(), oracleRawValueProcessor),
+                //long raw
+                Map.entry(OracleColumnTypeEnum.LONG_RAW.getColumnType().getTypeName(), new OracleLongRawProcessor()),
                 //xml
-                Map.entry("SYS.XMLTYPE", new OracleXmlValueProcessor())
+                Map.entry("SYS.XMLTYPE", new OracleXmlValueProcessor()),
+                Map.entry("SYS.ANYDATA", new OracleAnyDataProcessor())
         );
 
     }

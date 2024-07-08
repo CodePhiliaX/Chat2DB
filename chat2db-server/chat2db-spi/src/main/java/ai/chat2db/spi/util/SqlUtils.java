@@ -12,7 +12,6 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
-import com.google.common.collect.Lists;
 import com.oceanbase.tools.sqlparser.oracle.PlSqlLexer;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Function;
@@ -140,8 +139,8 @@ public class SqlUtils {
                     List<SplitSqlString> sqls = sqlSplitter.split(sql);
                     return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
                 }
-            }catch (Exception e){
-                log.error("sqlSplitter error",e);
+            } catch (Exception e) {
+                log.error("sqlSplitter error", e);
             }
             try {
                 if (DbType.mysql.equals(dbType) ||
@@ -152,8 +151,8 @@ public class SqlUtils {
                     sqlSplitProcessor.setDelimiter(";");
                     return split(sqlSplitProcessor, sql, dbType);
                 }
-            }catch (Exception e){
-                log.error("sqlSplitProcessor error",e);
+            } catch (Exception e) {
+                log.error("sqlSplitProcessor error", e);
             }
 //            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
@@ -246,7 +245,7 @@ public class SqlUtils {
         if (value == null) {
             return null;
         }
-        if("".equals(value)){
+        if ("".equals(value)) {
             return "''";
         }
         if (DEFAULT_VALUE.equals(value)) {
@@ -304,5 +303,32 @@ public class SqlUtils {
         }
         return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
     }
+
+    public static String quoteObjectName(String name) {
+        return quoteObjectName(name, "\"");
+    }
+
+    public static String quoteObjectName(String name, String quoteSymbol) {
+        if (StringUtils.isNotBlank(name)) {
+            boolean startsWithQuote = name.startsWith(quoteSymbol);
+            boolean endsWithQuote = name.endsWith(quoteSymbol);
+
+            if (!startsWithQuote && !endsWithQuote) {
+                // 如果前后都没有quoteSymbol
+                return quoteSymbol + name + quoteSymbol;
+            } else if (startsWithQuote && !endsWithQuote) {
+                // 如果只有前面有quoteSymbol
+                return quoteSymbol + quoteSymbol + name + quoteSymbol;
+            } else if (!startsWithQuote) {
+                // 如果只有后面有quoteSymbol
+                return quoteSymbol + name + quoteSymbol + quoteSymbol;
+            }
+            // 如果前后都有quoteSymbol，直接返回原字符串
+            return name;
+        }
+        // 如果name为空或仅包含空白字符，返回原字符串
+        return name;
+    }
+
 
 }

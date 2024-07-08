@@ -1,4 +1,4 @@
-package ai.chat2db.plugin.mysql.value.sub;
+package ai.chat2db.plugin.oracle.value.sub;
 
 import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
@@ -7,9 +7,9 @@ import ai.chat2db.spi.model.SQLDataValue;
 
 /**
  * @author: zgq
- * @date: 2024年06月01日 18:26
+ * @date: 2024年07月07日 16:58
  */
-public class MysqlTimestampProcessor extends DefaultValueProcessor {
+public class OracleLongRawProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
@@ -19,12 +19,13 @@ public class MysqlTimestampProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return new String(dataValue.getBytes());
+        return dataValue.getBinaryDataString();
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return EasyStringUtils.quoteString(new String(dataValue.getBytes()));
+        return EasyStringUtils.quoteString(dataValue.getBlobHexString());
     }
+
 }
