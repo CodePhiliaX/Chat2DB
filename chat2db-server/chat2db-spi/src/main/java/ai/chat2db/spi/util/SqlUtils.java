@@ -126,10 +126,10 @@ public class SqlUtils {
 
     private static final String EVENT_REGEX = "(?i)\\bcreate\\s+event\\b.*?\\bend\\b";
 
-    public static List<String> parse(String sql, DbType dbType) {
+    public static List<String> parse(String sql, DbType dbType, boolean removeComment) {
         List<String> list = new ArrayList<>();
         try {
-            sql = SQLParserUtils.removeComment(sql, dbType);
+
             if (StringUtils.isBlank(sql)) {
                 return list;
             }
@@ -138,10 +138,10 @@ public class SqlUtils {
                     SqlSplitter sqlSplitter = new SqlSplitter(PlSqlLexer.class, ";", false);
                     sqlSplitter.setRemoveCommentPrefix(true);
                     List<SplitSqlString> sqls = sqlSplitter.split(sql);
-                    return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+                    return sqls.stream().map(splitSqlString -> removeComment ? SQLParserUtils.removeComment(splitSqlString.getStr(), dbType) : splitSqlString.getStr()).collect(Collectors.toList());
                 }
-            }catch (Exception e){
-                log.error("sqlSplitter error",e);
+            } catch (Exception e) {
+                log.error("sqlSplitter error", e);
             }
             try {
                 if (DbType.mysql.equals(dbType) ||
@@ -150,10 +150,13 @@ public class SqlUtils {
                     sql = updateNow(sql, dbType);
                     SqlSplitProcessor sqlSplitProcessor = new SqlSplitProcessor(dbType, true, true);
                     sqlSplitProcessor.setDelimiter(";");
-                    return split(sqlSplitProcessor, sql, dbType);
+                    return split(sqlSplitProcessor, sql, dbType, removeComment);
                 }
-            }catch (Exception e){
-                log.error("sqlSplitProcessor error",e);
+            } catch (Exception e) {
+                log.error("sqlSplitProcessor error", e);
+            }
+            if (removeComment) {
+                sql = SQLParserUtils.removeComment(sql, dbType);
             }
 //            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
@@ -173,7 +176,11 @@ public class SqlUtils {
             try {
                 return splitWithCreateEvent(sql, dbType);
             } catch (Exception e1) {
-                return SQLParserUtils.splitAndRemoveComment(sql, dbType);
+                if(removeComment) {
+                    return SQLParserUtils.splitAndRemoveComment(sql, dbType);
+                }{
+                    return SQLParserUtils.split(sql, dbType);
+                }
             }
         }
         return list;
@@ -246,7 +253,7 @@ public class SqlUtils {
         if (value == null) {
             return null;
         }
-        if("".equals(value)){
+        if ("".equals(value)) {
             return "''";
         }
         if (DEFAULT_VALUE.equals(value)) {
@@ -281,7 +288,7 @@ public class SqlUtils {
         return false;
     }
 
-    private static List<String> split(SqlSplitProcessor processor, String sql, DbType dbType) {
+    private static List<String> split(SqlSplitProcessor processor, String sql, DbType dbType, boolean removeComment) {
         StringBuffer buffer = new StringBuffer();
         List<SplitSqlString> sqls = processor.split(buffer, sql);
         String bufferStr = buffer.toString();
@@ -302,7 +309,11 @@ public class SqlUtils {
 //            String sqlstr = SQLParserUtils.removeComment(sql, dbType);
 //            return Lists.newArrayList(sqlstr);
         }
-        return sqls.stream().map(splitSqlString -> SQLParserUtils.removeComment(splitSqlString.getStr(), dbType)).collect(Collectors.toList());
+        return sqls.stream().map(splitSqlString -> removeComment ? SQLParserUtils.removeComment(splitSqlString.getStr(), dbType) : splitSqlString.getStr()).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) {
+
     }
 
 }

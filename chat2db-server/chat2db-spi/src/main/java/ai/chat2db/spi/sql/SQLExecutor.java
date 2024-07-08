@@ -497,7 +497,7 @@ public class SQLExecutor implements CommandExecutor {
         // parse sql
         String type = Chat2DBContext.getConnectInfo().getDbType();
         DbType dbType = JdbcUtils.parse2DruidDbType(type);
-        List<String> sqlList = SqlUtils.parse(command.getScript(), dbType);
+        List<String> sqlList = SqlUtils.parse(command.getScript(), dbType,true);
 
         if (CollectionUtils.isEmpty(sqlList)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
