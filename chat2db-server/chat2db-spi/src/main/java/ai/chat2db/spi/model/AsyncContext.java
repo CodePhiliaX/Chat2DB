@@ -59,7 +59,7 @@ public class AsyncContext {
                         // 更新时间逐渐变长避免频繁更新
                         callUpdate();
                         Thread.sleep(2000 * n);
-                        if (n < 15) {
+                        if (n < 5) {
                             n++;
                         }
                     }
@@ -98,6 +98,9 @@ public class AsyncContext {
         if (progress == null) {
             return;
         }
+        if (progress > 100) {
+            progress = 100;
+        }
         this.progress = progress;
     }
 
@@ -110,7 +113,7 @@ public class AsyncContext {
         info.append(message + "\n");
     }
 
-    public void stop(){
+    public void stop() {
         this.finish = true;
     }
 
@@ -140,6 +143,5 @@ public class AsyncContext {
     private StringBuffer info = new StringBuffer();
 
     private StringBuffer error = new StringBuffer();
-
 
 }

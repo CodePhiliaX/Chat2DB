@@ -293,7 +293,7 @@ public class SqlUtils {
         String bufferStr = buffer.toString();
         if (bufferStr.trim().length() != 0) {
             // if buffer is not empty, there will be some errors in syntax
-            log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
+//            log.info("sql processor's buffer is not empty, there may be some errors. buffer={}", bufferStr);
             int lastSqlOffset;
             if (sqls.size() == 0) {
                 int index = sql.indexOf(bufferStr.trim(), 0);

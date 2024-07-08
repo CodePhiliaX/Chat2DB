@@ -115,7 +115,9 @@ public class ResultSetUtils {
             if (obj == null) {
                 return null;
             }
-            if (obj instanceof BigDecimal bigDecimal) {
+            if(obj instanceof String){
+                return (String) obj;
+            }else if (obj instanceof BigDecimal bigDecimal) {
                 return bigDecimal.toPlainString();
             } else if (obj instanceof Double d) {
                 return BigDecimal.valueOf(d).toPlainString();
