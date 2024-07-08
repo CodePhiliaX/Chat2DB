@@ -14,7 +14,7 @@ public class MongodbDialectProperties implements DialectProperties{
 
     @Override
     public String getUrl() {
-        return "mongodb://183.247.151.185:27017/";
+        return "mongodb://localhost:27017/";
     }
 
     @Override

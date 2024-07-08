@@ -22,12 +22,12 @@ public class MysqlDialectProperties implements DialectProperties {
 
     @Override
     public String getUrl() {
-        return "jdbc:mysql://183.247.151.185:13306";
+        return "jdbc:mysql://localhost:3306";
     }
 
     @Override
     public String getErrorUrl() {
-        return "jdbc:mysql://error.rm-8vb099vo8309mcngk.mysql.zhangbei.rds.aliyuncs.com:13306";
+        return "jdbc:mysql://error.rm-8vb099vo8309mcngk.mysql.zhangbei.rds.aliyuncs.com:3306";
     }
 
     @Override

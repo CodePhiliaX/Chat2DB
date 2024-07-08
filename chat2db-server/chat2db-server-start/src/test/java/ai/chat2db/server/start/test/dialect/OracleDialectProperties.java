@@ -16,12 +16,12 @@ public class OracleDialectProperties implements DialectProperties {
 
     @Override
     public String getUrl() {
-        return "jdbc:oracle:thin:@192.168.0.120:1521:XE";
+        return "jdbc:oracle:thin:@localhost:1521:XE";
     }
 
     @Override
     public String getErrorUrl() {
-        return "jdbc:oracle:thin:@192.168.0.120:1521:XE1";
+        return "jdbc:oracle:thin:@localhost:1521:XE1";
     }
 
     @Override
