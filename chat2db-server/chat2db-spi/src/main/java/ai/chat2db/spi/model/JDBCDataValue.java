@@ -137,6 +137,7 @@ public class JDBCDataValue {
             String line;
 
             while ((line = reader.readLine()) != null) {
+                // TODO: 优化换行符
                 builder.append(line).append("\n");
             }
             return builder.toString();
