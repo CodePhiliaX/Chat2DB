@@ -98,8 +98,8 @@ public class AsyncContext {
         if (progress == null) {
             return;
         }
-        if (progress > 100) {
-            progress = 100;
+        if (progress >= 100) {
+            progress = 99;
         }
         this.progress = progress;
     }
