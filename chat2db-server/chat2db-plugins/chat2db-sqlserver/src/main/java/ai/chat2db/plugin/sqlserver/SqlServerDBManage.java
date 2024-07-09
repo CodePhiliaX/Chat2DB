@@ -112,7 +112,7 @@ public class SqlServerDBManage extends DefaultDBManage implements DBManage {
                     valueList.add(valueString);
                 }
                 String insertSql = sqlBuilder.buildSingleInsertSql(databaseName, schemaName, tableName, columnList, valueList);
-                asyncContext.write(insertSql);
+                asyncContext.write(insertSql+";");
                 valueList.clear();
             }
             asyncContext.write("go \n");

@@ -61,7 +61,7 @@ public class ClickHouseMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public List<Database> databases(Connection connection) {
-        List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT name FROM system.databases;;", resultSet -> {
+        List<Database> list = SQLExecutor.getInstance().execute(connection, "SELECT name FROM system.databases;", resultSet -> {
             List<Database> databases = new ArrayList<>();
             try {
                 while (resultSet.next()) {

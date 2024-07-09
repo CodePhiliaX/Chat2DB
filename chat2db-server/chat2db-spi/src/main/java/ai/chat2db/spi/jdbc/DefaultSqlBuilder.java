@@ -259,7 +259,7 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
     public String buildSingleInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<String> valueList) {
         String baseSql = buildBaseInsertSql(databaseName, schemaName, tableName, columnList);
         List<String> list = valueList.stream().map(EasyStringUtils::escapeLineString).toList();
-        return baseSql + "(" + String.join(",", list) + ");";
+        return baseSql + "(" + String.join(",", list) + ")";
     }
 
     /**
@@ -276,7 +276,7 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         String valuesPart = valueLists.stream()
                 .map(values -> "(" + String.join(",", values.stream().map(EasyStringUtils::escapeLineString).toList()) + ")")
                 .collect(Collectors.joining(",\n"));
-        return baseSql + valuesPart + ";";
+        return baseSql + valuesPart;
     }
 
 
@@ -299,7 +299,7 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
                     .collect(Collectors.toList());
             script.append(String.join(" AND ", whereClauses));
         }
-        return script + ";";
+        return script.toString();
     }
 
     private List<String> getPrimaryColumns(List<Header> headerList) {

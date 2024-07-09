@@ -12,6 +12,7 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.ResultSetUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -94,10 +95,13 @@ public class SqlDataExporter extends BaseDataExporter {
             while (resultSet.next()) {
                 List<String> rowData = extractRowData(resultSet, valueProcessor);
                 String sql = sqlBuilder.buildSingleInsertSql(databaseName, schemaName, tableName, header, rowData);
-                sqlList.add(sql);
-                if (sqlList.size() >= BATCH_SIZE || resultSet.isLast()) {
+                sqlList.add(sql+";");
+                if (sqlList.size() >= BATCH_SIZE) {
                     writeSqlList(writer, sqlList);
                 }
+            }
+            if(CollectionUtils.isNotEmpty(sqlList)){
+                writeSqlList(writer, sqlList);
             }
         });
         TaskManager.increaseCurrent();
@@ -113,7 +117,7 @@ public class SqlDataExporter extends BaseDataExporter {
                 dataList.add(extractRowData(resultSet, valueProcessor));
             }
             String sql = sqlBuilder.buildMultiInsertSql(databaseName, schemaName, tableName, header, dataList);
-            writer.println(sql);
+            writer.println(sql+";");
             writer.flush();
         });
         TaskManager.increaseCurrent();

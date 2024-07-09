@@ -223,7 +223,7 @@ public class DefaultDBManage implements DBManage {
                     valueList.add(valueString);
                 }
                 String insertSql = sqlBuilder.buildSingleInsertSql(null, null, tableName, columnList, valueList);
-                asyncContext.write(insertSql);
+                asyncContext.write(insertSql+";");
                 valueList.clear();
             }
         });
