@@ -1,20 +1,21 @@
 package ai.chat2db.plugin.oracle;
 
-import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
-import ai.chat2db.spi.model.AsyncContext;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Slf4j
 public class OracleDBManage extends DefaultDBManage implements DBManage {
@@ -23,12 +24,6 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
             "FROM user_col_comments " +
             "WHERE table_name = '%s' " +
             "AND comments IS NOT NULL";
-    private static String VIEW_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('VIEW', view_name) as ddl FROM all_views WHERE owner = '%s' AND view_name = '%s'";
-    private String PROCEDURE_LIST_DDL = "SELECT object_name FROM all_procedures where OWNER = '%s' and OBJECT_TYPE='PROCEDURE'";
-    private static String PROCEDURE_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('PROCEDURE', object_name) as ddl FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
-    private static String TRIGGER_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', trigger_name) AS ddl FROM all_triggers WHERE owner = '%s' AND trigger_name = '%s'";
-    private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
-
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, asyncContext, schemaName);
@@ -93,36 +88,26 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportView(Connection connection, AsyncContext asyncContext, String schemaName, String viewName) throws SQLException {
-        String sql = String.format(VIEW_DDL_SQL, schemaName, viewName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
+    private void exportView(Connection connection, AsyncContext asyncContext, String schemaName, String viewName) {
+        Table view = Chat2DBContext.getMetaData().view(connection, null, schemaName, viewName);
+        asyncContext.write(view.getDdl() + ";" + "\n");
     }
 
-    private void exportProcedures(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(PROCEDURE_LIST_DDL, schemaName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            while (resultSet.next()) {
-                String procedureName = resultSet.getString("object_name");
+    private void exportProcedures(Connection connection, String schemaName, AsyncContext asyncContext) {
+        List<Procedure> procedures = Chat2DBContext.getMetaData().procedures(connection, null, schemaName);
+        if (CollectionUtils.isNotEmpty(procedures)) {
+            for (Procedure procedure : procedures) {
+                String procedureName = procedure.getProcedureName();
                 exportProcedure(connection, schemaName, procedureName, asyncContext);
             }
         }
+
     }
 
-    private void exportProcedure(Connection connection, String schemaName, String procedureName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(PROCEDURE_DDL_SQL, schemaName, procedureName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("ddl")).append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
+    private void exportProcedure(Connection connection, String schemaName, String procedureName, AsyncContext asyncContext) {
+        Procedure procedure = Chat2DBContext.getMetaData().procedure(connection, null, schemaName, procedureName);
+        asyncContext.write(procedure.getProcedureBody() + "\n");
+
     }
 
     private void exportTriggers(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
@@ -135,15 +120,10 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportTrigger(Connection connection, String schemaName, String triggerName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(TRIGGER_DDL_SQL, schemaName, triggerName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("ddl")).append(";").append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
+    private void exportTrigger(Connection connection, String schemaName, String triggerName, AsyncContext asyncContext) {
+        Trigger trigger = Chat2DBContext.getMetaData().trigger(connection, null, schemaName, triggerName);
+        asyncContext.write(trigger.getTriggerBody() + ";" + "\n");
+
     }
 
     private void exportFunctions(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
@@ -155,15 +135,9 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         }
     }
 
-    private void exportFunction(Connection connection, String schemaName, String functionName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(FUNCTION_DDL_SQL, schemaName, functionName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("ddl")).append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
+    private void exportFunction(Connection connection, String schemaName, String functionName, AsyncContext asyncContext) {
+        Function function = Chat2DBContext.getMetaData().function(connection, null, schemaName, functionName);
+        asyncContext.write(function.getFunctionBody() + "\n");
     }
 
 
