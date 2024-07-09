@@ -172,9 +172,11 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             function.setDatabaseName(databaseName);
             function.setSchemaName(schemaName);
             function.setFunctionName(functionName);
-            if (resultSet.next()) {
-                function.setFunctionBody("CREATE " + resultSet.getString("TEXT"));
+            StringBuilder bodyBuilder = new StringBuilder("CREATE ");
+            while (resultSet.next()) {
+                bodyBuilder.append(resultSet.getString("TEXT")).append("\n");
             }
+            function.setFunctionBody(bodyBuilder.toString());
             return function;
 
         });
