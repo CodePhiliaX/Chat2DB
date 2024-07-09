@@ -12,26 +12,23 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Objects;
 
 @Slf4j
 public class OracleDBManage extends DefaultDBManage implements DBManage {
-    private static String TABLE_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TABLE', table_name)  as ddl FROM all_tables WHERE owner = '%s' AND table_name = '%s'";
     private static String TABLE_COMMENT_SQL = "SELECT 'COMMENT ON TABLE ' || table_name || ' IS ''' || comments || ''';' AS table_comment_ddl FROM user_tab_comments WHERE table_name = '%s'";
     private static String TABLE_COLUMN_COMMENT_SQL = "SELECT 'COMMENT ON COLUMN ' || table_name || '.' || column_name || ' IS ''' || comments || ''';' AS column_comment_ddl " +
             "FROM user_col_comments " +
             "WHERE table_name = '%s' " +
             "AND comments IS NOT NULL";
     private static String VIEW_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('VIEW', view_name) as ddl FROM all_views WHERE owner = '%s' AND view_name = '%s'";
-    private String PROCEDURE_LIST_DDL ="SELECT object_name FROM all_procedures where OWNER = '%s' and OBJECT_TYPE='PROCEDURE'";
+    private String PROCEDURE_LIST_DDL = "SELECT object_name FROM all_procedures where OWNER = '%s' and OBJECT_TYPE='PROCEDURE'";
     private static String PROCEDURE_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('PROCEDURE', object_name) as ddl FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
     private static String TRIGGER_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', trigger_name) AS ddl FROM all_triggers WHERE owner = '%s' AND trigger_name = '%s'";
     private static String FUNCTION_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('FUNCTION', object_name) as ddl  FROM all_procedures WHERE owner = '%s' AND object_name = '%s'";
 
-    public void exportDatabase(Connection connection, String databaseName, String schemaName,AsyncContext asyncContext) throws SQLException {
-        exportTables(connection,databaseName, schemaName, asyncContext);
+    public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
+        exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, asyncContext, schemaName);
         exportProcedures(connection, schemaName, asyncContext);
         exportTriggers(connection, schemaName, asyncContext);
@@ -42,27 +39,25 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"TABLE", "SYSTEM TABLE"})) {
             while (resultSet.next()) {
                 String tableName = resultSet.getString("TABLE_NAME");
-                exportTable(connection,databaseName, schemaName, tableName, asyncContext);
+                exportTable(connection, databaseName, schemaName, tableName, asyncContext);
             }
         }
     }
 
 
     public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(TABLE_DDL_SQL, schemaName, tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append("DROP TABLE ").append(schemaName).append(".").append(tableName).append(";")
-                        .append(resultSet.getString("ddl")).append(";").append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-            exportTableComments(connection, tableName, asyncContext);
-            exportTableColumnsComments(connection, tableName, asyncContext);
-            if (asyncContext.isContainsData()) {
-                exportTableData(connection,databaseName,schemaName, tableName, asyncContext);
-            }
+        String tableDDL = Chat2DBContext.getMetaData().tableDDL(connection, databaseName, schemaName, tableName);
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("DROP TABLE ").append(schemaName).append(".").append(tableName).append(";")
+                .append(tableDDL).append(";").append("\n");
+        asyncContext.write(sqlBuilder.toString());
+
+        exportTableComments(connection, tableName, asyncContext);
+        exportTableColumnsComments(connection, tableName, asyncContext);
+        if (asyncContext.isContainsData()) {
+            exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
         }
+
     }
 
     private void exportTableComments(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
@@ -108,8 +103,8 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     }
 
     private void exportProcedures(Connection connection, String schemaName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(PROCEDURE_LIST_DDL,schemaName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql))  {
+        String sql = String.format(PROCEDURE_LIST_DDL, schemaName);
+        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
             while (resultSet.next()) {
                 String procedureName = resultSet.getString("object_name");
                 exportProcedure(connection, schemaName, procedureName, asyncContext);
@@ -185,11 +180,11 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     }
 
     @Override
-    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName, boolean copyData) throws SQLException {
         String sql = "";
-        if(copyData){
+        if (copyData) {
             sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
-        }else {
+        } else {
             sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName + " WHERE 1=0";
         }
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
