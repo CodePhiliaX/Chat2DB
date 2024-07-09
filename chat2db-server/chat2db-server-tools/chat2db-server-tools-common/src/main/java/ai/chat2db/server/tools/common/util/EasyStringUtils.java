@@ -234,9 +234,11 @@ public class EasyStringUtils {
         if (StringUtils.isBlank(str)) {
             return str;
         }
-        return str.replace("\r\n", "\\r\\n")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r");
+        return str;
+        // TODO Need to be implemented in the future with different data types
+//        return str.replace("\r\n", "\\r\\n")
+//                .replace("\n", "\\n")
+//                .replace("\r", "\\r");
     }
 
 }
