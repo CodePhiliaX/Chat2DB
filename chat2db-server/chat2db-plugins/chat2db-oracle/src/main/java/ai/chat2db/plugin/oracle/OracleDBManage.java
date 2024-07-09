@@ -1,11 +1,13 @@
 package ai.chat2db.plugin.oracle;
 
+import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import ai.chat2db.spi.sql.SQLExecutor;
+import ai.chat2db.spi.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,7 +50,7 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String tableDDL = Chat2DBContext.getMetaData().tableDDL(connection, databaseName, schemaName, tableName);
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("DROP TABLE ").append(schemaName).append(".").append(tableName).append(";")
+        sqlBuilder.append("DROP TABLE ").append(SqlUtils.quoteObjectName(tableName)).append(";")
                 .append(tableDDL).append(";").append("\n");
         asyncContext.write(sqlBuilder.toString());
 

@@ -95,7 +95,11 @@ public class JDBCDataValue {
     }
 
     public String getBlobHexString() {
-        return BaseEncoding.base16().encode(getBytes());
+        byte[] bytes = getBytes();
+        if (Objects.isNull(bytes)) {
+            return "NULL";
+        }
+        return BaseEncoding.base16().encode(bytes);
     }
 
     public BigDecimal getBigDecimal() {
