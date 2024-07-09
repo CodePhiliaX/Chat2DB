@@ -21,12 +21,14 @@ public class OracleTimeStampTZProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        //2024-06-05 17:41:27.52 +0:00 ->
         String timeStampString = dataValue.getStringValue();
         int scale = dataValue.getScale();
         int lastSpaceIndex = timeStampString.lastIndexOf(" ");
-        int nanosLength = lastSpaceIndex - timeStampString.indexOf(".") - 1;
-        if (scale != 0 && nanosLength < scale) {
+        int lastDotIndex = timeStampString.indexOf(".");
+        int nanosLength = lastSpaceIndex - lastDotIndex - 1;
+        if (scale == 0) {
+            return timeStampString.substring(0, lastDotIndex) + timeStampString.substring(lastDotIndex + 2);
+        } else if (nanosLength < scale) {
             // 计算需要补充的零的数量
             int zerosToAdd = scale - nanosLength;
             StringBuilder sb = new StringBuilder(timeStampString);
