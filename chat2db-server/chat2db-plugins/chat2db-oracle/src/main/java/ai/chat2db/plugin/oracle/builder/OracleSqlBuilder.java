@@ -6,7 +6,12 @@ import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.util.SqlUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class OracleSqlBuilder extends DefaultSqlBuilder {
     @Override
@@ -149,4 +154,26 @@ public class OracleSqlBuilder extends DefaultSqlBuilder {
 //        }
 //        return sqlBuilder.toString();
 //    }
+
+
+    @Override
+    protected void buildTableName(String databaseName, String schemaName, String tableName, StringBuilder script) {
+        if (StringUtils.isNotBlank(databaseName)) {
+            script.append(SqlUtils.quoteObjectName(databaseName)).append('.');
+        }
+        script.append(SqlUtils.quoteObjectName(tableName));
+    }
+
+    /**
+     * @param columnList
+     * @param script
+     */
+    @Override
+    protected void buildColumns(List<String> columnList, StringBuilder script) {
+        if (CollectionUtils.isNotEmpty(columnList)) {
+            script.append(" (")
+                    .append(columnList.stream().map(SqlUtils::quoteObjectName).collect(Collectors.joining(",")))
+                    .append(") ");
+        }
+    }
 }
