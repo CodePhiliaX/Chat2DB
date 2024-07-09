@@ -5,6 +5,8 @@ import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 
+import java.util.Objects;
+
 /**
  * @author: zgq
  * @date: 2024年07月07日 16:58
@@ -25,7 +27,11 @@ public class OracleLongRawProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return EasyStringUtils.quoteString(dataValue.getBlobHexString());
+        String blobHexString = dataValue.getBlobHexString();
+        if (Objects.isNull(blobHexString)) {
+            return "NULL";
+        }
+        return EasyStringUtils.quoteString(blobHexString);
     }
 
 }

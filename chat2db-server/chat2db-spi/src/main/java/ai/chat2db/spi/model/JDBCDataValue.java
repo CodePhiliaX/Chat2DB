@@ -97,7 +97,7 @@ public class JDBCDataValue {
     public String getBlobHexString() {
         byte[] bytes = getBytes();
         if (Objects.isNull(bytes)) {
-            return "NULL";
+            return null;
         }
         return BaseEncoding.base16().encode(bytes);
     }
