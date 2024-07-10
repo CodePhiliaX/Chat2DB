@@ -24,6 +24,7 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
             "FROM user_col_comments " +
             "WHERE table_name = '%s' " +
             "AND comments IS NOT NULL";
+
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, asyncContext, schemaName);
@@ -159,11 +160,17 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
     public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName, boolean copyData) throws SQLException {
         String sql = "";
         if (copyData) {
-            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
+            sql = "CREATE TABLE " + SqlUtils.quoteObjectName(newTableName) + " AS SELECT * FROM " + SqlUtils.quoteObjectName(tableName);
         } else {
-            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName + " WHERE 1=0";
+            sql = "CREATE TABLE " + SqlUtils.quoteObjectName(newTableName) + " AS SELECT * FROM " + SqlUtils.quoteObjectName(tableName) + " WHERE 1=0";
         }
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
+    @Override
+    public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
+        String sql = "DROP TABLE " + SqlUtils.quoteObjectName(tableName);
+        SQLExecutor.getInstance().execute(connection, sql, (resultSet) -> null);
     }
 
 }

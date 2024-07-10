@@ -241,4 +241,15 @@ public class EasyStringUtils {
 //                .replace("\r", "\\r");
     }
 
+
+    public static String sqlEscape(String str) {
+        if (StringUtils.isBlank(str)) {
+            return str;
+        }
+        str = str.trim();
+        if (str.endsWith(";")) {
+            str = str.substring(0, str.length() - 1);
+        }
+        return str;
+    }
 }
