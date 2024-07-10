@@ -12,6 +12,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
@@ -106,11 +107,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         if (CollectionUtils.isNotEmpty(tableColumns)) {
             Map<String, TableColumn> tableColumnMap = getTableColumns(connection, databaseName, schemaName, tableName);
             for (TableColumn tableColumn : tableColumns) {
-//                String columnType = SqlUtils.removeDigits(tableColumn.getColumnType());
-//                if (columnType.startsWith("TIMESTAMP")) {
-//                    tableColumn.setColumnSize(0);
-//                }
-
+                tableColumn.setColumnType(SqlUtils.removeDigits(tableColumn.getColumnType()));
                 TableColumn column = tableColumnMap.get(tableColumn.getName());
                 if (column != null) {
                     tableColumn.setUnit(column.getUnit());
