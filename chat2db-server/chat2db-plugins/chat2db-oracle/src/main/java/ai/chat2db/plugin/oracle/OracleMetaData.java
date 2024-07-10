@@ -5,6 +5,7 @@ import ai.chat2db.plugin.oracle.type.OracleColumnTypeEnum;
 import ai.chat2db.plugin.oracle.type.OracleDefaultValueEnum;
 import ai.chat2db.plugin.oracle.type.OracleIndexTypeEnum;
 import ai.chat2db.plugin.oracle.value.OracleValueProcessor;
+import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.ValueProcessor;
@@ -30,14 +31,23 @@ import java.util.stream.Collectors;
 public class OracleMetaData extends DefaultMetaService implements MetaData {
 
     private static final String TABLE_DDL_SQL = "select dbms_metadata.get_ddl('TABLE','%s','%s') as sql from dual";
+    private static final String TABLE_COMMENT_SQL = "select owner, table_name, comments from ALL_TAB_COMMENTS where OWNER = '%s'  and TABLE_NAME = '%s'";
+    private static final String TABLE_COLUMN_COMMENT_SQL = """
+                                                           SELECT owner, table_name, column_name, comments
+                                                           FROM all_col_comments
+                                                           WHERE  owner = '%s' and table_name = '%s' and comments is not null""";
 
     private List<String> systemSchemas = Arrays.asList("ANONYMOUS", "APEX_030200", "APEX_PUBLIC_USER", "APPQOSSYS", "BI", "CTXSYS", "DBSNMP", "DIP", "EXFSYS", "FLOWS_FILES", "HR", "IX", "MDDATA", "MDSYS", "MGMT_VIEW", "OE", "OLAPSYS", "ORACLE_OCM", "ORDDATA", "ORDPLUGINS", "ORDSYS", "OUTLN", "OWBSYS", "OWBSYS_AUDIT", "PM", "SCOTT", "SH", "SI_INFORMTN_SCHEMA", "SPATIAL_CSW_ADMIN_USR", "SPATIAL_WFS_ADMIN_USR", "SYS", "SYSMAN", "SYSTEM", "WMSYS", "XDB", "XS$NULL");
 
-    private String PROCEDURE_LIST_DDL = """
-            SELECT OBJECT_NAME, OBJECT_TYPE
-            FROM ALL_OBJECTS
-            WHERE OBJECT_TYPE IN ('PROCEDURE')
-              AND OWNER = '%s'""";
+    private static final String PROCEDURE_LIST_DDL = """
+                                                     SELECT OBJECT_NAME, OBJECT_TYPE
+                                                     FROM ALL_OBJECTS
+                                                     WHERE OBJECT_TYPE IN ('PROCEDURE')
+                                                       AND OWNER = '%s'""";
+    public static final String TABLE_INDEX_DDL_SQL = """
+                                                     SELECT DBMS_METADATA.GET_DDL('INDEX', index_name, table_owner) AS ddl
+                                                     FROM all_indexes
+                                                     WHERE table_owner = '%s' AND table_name = '%s'""";
 
     @Override
     public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
@@ -61,18 +71,53 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
+        // TODO: only_read user can not get ddl
         String sql = String.format(TABLE_DDL_SQL, tableName, schemaName);
-        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+        String tableCommentSql = String.format(TABLE_COMMENT_SQL, schemaName, tableName);
+        String tableColumnCommentSql = String.format(TABLE_COLUMN_COMMENT_SQL, schemaName, tableName);
+        String tableIndexSql = String.format(TABLE_INDEX_DDL_SQL, schemaName, tableName);
+        StringBuilder ddlBuilder = new StringBuilder();
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    return resultSet.getString("sql");
+                    ddlBuilder.append(resultSet.getString("sql"));
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-
-            return null;
         });
+        SQLExecutor.getInstance().execute(connection, tableCommentSql, resultSet -> {
+            if (resultSet.next()) {
+                String tableComment = resultSet.getString("comments");
+                if (StringUtils.isNotBlank(tableComment)) {
+                    ddlBuilder.append("\nCOMMENT ON TABLE ").append(SqlUtils.quoteObjectName(tableName)).append(" IS ")
+                            .append(EasyStringUtils.escapeAndQuoteString(tableComment)).append(";");
+                }
+            }
+        });
+        SQLExecutor.getInstance().execute(connection, tableColumnCommentSql, resultSet -> {
+            while (resultSet.next()) {
+                String columnName = resultSet.getString("column_name");
+                String columnComment = resultSet.getString("comments");
+                if (StringUtils.isNotBlank(columnComment)) {
+                    ddlBuilder.append("\nCOMMENT ON COLUMN ")
+                            .append(SqlUtils.quoteObjectName(tableName)).append(".")
+                            .append(SqlUtils.quoteObjectName(columnName)).append(" IS ")
+                            .append(EasyStringUtils.escapeAndQuoteString(columnComment)).append(";");
+                }
+            }
+        });
+
+        SQLExecutor.getInstance().execute(connection, tableIndexSql, resultSet -> {
+            while (resultSet.next()) {
+                String ddl = resultSet.getString("ddl");
+                if (StringUtils.isNotBlank(ddl)) {
+                    ddlBuilder.append("\n").append(ddl).append(";");
+                }
+            }
+        });
+        return ddlBuilder.toString();
+
     }
 
     private static String SELECT_TABLE_SQL = "SELECT A.OWNER, A.TABLE_NAME, B.COMMENTS " +
@@ -219,11 +264,11 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         String pkSql = String.format(SELECT_PK_SQL, schemaName, tableName);
         Set<String> pkSet = new HashSet<>();
         SQLExecutor.getInstance().execute(connection, pkSql, resultSet -> {
-                    while (resultSet.next()) {
-                        pkSet.add(resultSet.getString("CONSTRAINT_NAME"));
-                    }
-                    return null;
-                }
+                                              while (resultSet.next()) {
+                                                  pkSet.add(resultSet.getString("CONSTRAINT_NAME"));
+                                              }
+                                              return null;
+                                          }
         );
 
         String sql = String.format(SELECT_TABLE_INDEX, schemaName, tableName);
@@ -286,17 +331,17 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
         List<Trigger> triggers = new ArrayList<>();
         return SQLExecutor.getInstance().execute(connection, String.format(TRIGGER_SQL_LIST, schemaName),
-                resultSet -> {
-                    while (resultSet.next()) {
-                        String triggerName = resultSet.getString("TRIGGER_NAME");
-                        Trigger trigger = new Trigger();
-                        trigger.setTriggerName(triggerName == null ? "" : triggerName.trim());
-                        trigger.setSchemaName(schemaName);
-                        trigger.setDatabaseName(databaseName);
-                        triggers.add(trigger);
-                    }
-                    return triggers;
-                });
+                                                 resultSet -> {
+                                                     while (resultSet.next()) {
+                                                         String triggerName = resultSet.getString("TRIGGER_NAME");
+                                                         Trigger trigger = new Trigger();
+                                                         trigger.setTriggerName(triggerName == null ? "" : triggerName.trim());
+                                                         trigger.setSchemaName(schemaName);
+                                                         trigger.setDatabaseName(databaseName);
+                                                         triggers.add(trigger);
+                                                     }
+                                                     return triggers;
+                                                 });
     }
 
     private static final String TRIGGER_DDL_SQL = "SELECT DBMS_METADATA.GET_DDL('TRIGGER', '%s', '%s') as ddl FROM DUAL";

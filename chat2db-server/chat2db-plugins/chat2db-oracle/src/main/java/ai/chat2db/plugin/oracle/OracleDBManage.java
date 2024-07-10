@@ -19,11 +19,6 @@ import java.util.List;
 
 @Slf4j
 public class OracleDBManage extends DefaultDBManage implements DBManage {
-    private static String TABLE_COMMENT_SQL = "SELECT 'COMMENT ON TABLE ' || table_name || ' IS ''' || comments || ''';' AS table_comment_ddl FROM user_tab_comments WHERE table_name = '%s'";
-    private static String TABLE_COLUMN_COMMENT_SQL = "SELECT 'COMMENT ON COLUMN ' || table_name || '.' || column_name || ' IS ''' || comments || ''';' AS column_comment_ddl " +
-            "FROM user_col_comments " +
-            "WHERE table_name = '%s' " +
-            "AND comments IS NOT NULL";
 
     public void exportDatabase(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {
         exportTables(connection, databaseName, schemaName, asyncContext);
@@ -45,40 +40,14 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
 
     public void exportTable(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
         String tableDDL = Chat2DBContext.getMetaData().tableDDL(connection, databaseName, schemaName, tableName);
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append("DROP TABLE ").append(SqlUtils.quoteObjectName(tableName)).append(";")
-                .append(tableDDL).append(";").append("\n");
-        asyncContext.write(sqlBuilder.toString());
-
-        exportTableComments(connection, tableName, asyncContext);
-        exportTableColumnsComments(connection, tableName, asyncContext);
+        String sqlBuilder = "DROP TABLE " + SqlUtils.quoteObjectName(tableName) + ";" + tableDDL + "\n";
+        asyncContext.write(sqlBuilder);
         if (asyncContext.isContainsData()) {
             exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
         }
 
     }
 
-    private void exportTableComments(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(TABLE_COMMENT_SQL, tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            if (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("table_comment_ddl")).append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
-    }
-
-    private void exportTableColumnsComments(Connection connection, String tableName, AsyncContext asyncContext) throws SQLException {
-        String sql = String.format(TABLE_COLUMN_COMMENT_SQL, tableName);
-        try (ResultSet resultSet = connection.createStatement().executeQuery(sql)) {
-            while (resultSet.next()) {
-                StringBuilder sqlBuilder = new StringBuilder();
-                sqlBuilder.append(resultSet.getString("column_comment_ddl")).append("\n");
-                asyncContext.write(sqlBuilder.toString());
-            }
-        }
-    }
 
     private void exportViews(Connection connection, AsyncContext asyncContext, String schemaName) throws SQLException {
         try (ResultSet resultSet = connection.getMetaData().getTables(null, schemaName, null, new String[]{"VIEW"})) {
