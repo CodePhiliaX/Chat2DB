@@ -105,6 +105,8 @@ public enum OracleColumnTypeEnum implements ColumnBuilder {
 
     VARCHAR2("VARCHAR2", true, false, true, false, false, false, true, true, false, true),
 
+    XMLTYPE("XMLTYPE", false, false, true, false, false, false, true, true, false, false),
+
     ;
     private ColumnType columnType;
 
