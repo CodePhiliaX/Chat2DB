@@ -44,10 +44,16 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                                                      FROM ALL_OBJECTS
                                                      WHERE OBJECT_TYPE IN ('PROCEDURE')
                                                        AND OWNER = '%s'""";
-    public static final String TABLE_INDEX_DDL_SQL = """
-                                                     SELECT DBMS_METADATA.GET_DDL('INDEX', index_name, table_owner) AS ddl
-                                                     FROM all_indexes
-                                                     WHERE table_owner = '%s' AND table_name = '%s'""";
+    private static final String TABLE_INDEX_DDL_SQL = """
+                                                      SELECT DBMS_METADATA.GET_DDL('INDEX', index_name, table_owner) AS ddl,
+                                                      index_name AS INDEX_NAME
+                                                      FROM all_indexes
+                                                      WHERE table_owner = '%s' AND table_name = '%s'""";
+    private static final String PU_INDEX_NAME_SQL = """
+                                                    SELECT DISTINCT AC.INDEX_NAME
+                                                    FROM ALL_CONSTRAINTS AC
+                                                    WHERE  AC.OWNER = '%s' AND AC.TABLE_NAME = '%s'
+                                                      AND AC.CONSTRAINT_TYPE IN ('P', 'U')""";
 
     @Override
     public List<Procedure> procedures(Connection connection, String databaseName, String schemaName) {
@@ -76,6 +82,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         String tableCommentSql = String.format(TABLE_COMMENT_SQL, schemaName, tableName);
         String tableColumnCommentSql = String.format(TABLE_COLUMN_COMMENT_SQL, schemaName, tableName);
         String tableIndexSql = String.format(TABLE_INDEX_DDL_SQL, schemaName, tableName);
+        String PUIndexSql = String.format(PU_INDEX_NAME_SQL, schemaName, tableName);
         StringBuilder ddlBuilder = new StringBuilder();
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             try {
@@ -107,9 +114,22 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
                 }
             }
         });
-
+        List<String> indexNames = SQLExecutor.getInstance().execute(connection, PUIndexSql, resultSet -> {
+            List<String> PUIndexNames = new ArrayList<>();
+            while (resultSet.next()) {
+                String indexName = resultSet.getString("index_name");
+                if (StringUtils.isNotBlank(indexName)) {
+                    PUIndexNames.add(indexName);
+                }
+            }
+            return PUIndexNames;
+        });
         SQLExecutor.getInstance().execute(connection, tableIndexSql, resultSet -> {
             while (resultSet.next()) {
+                String indexName = resultSet.getString("INDEX_NAME");
+                if (CollectionUtils.isNotEmpty(indexNames) && indexNames.contains(indexName)) {
+                    continue;
+                }
                 String ddl = resultSet.getString("ddl");
                 if (StringUtils.isNotBlank(ddl)) {
                     ddlBuilder.append("\n").append(ddl).append(";");
