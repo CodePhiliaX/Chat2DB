@@ -106,12 +106,19 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         if (CollectionUtils.isNotEmpty(tableColumns)) {
             Map<String, TableColumn> tableColumnMap = getTableColumns(connection, databaseName, schemaName, tableName);
             for (TableColumn tableColumn : tableColumns) {
+//                String columnType = SqlUtils.removeDigits(tableColumn.getColumnType());
+//                if (columnType.startsWith("TIMESTAMP")) {
+//                    tableColumn.setColumnSize(0);
+//                }
+
                 TableColumn column = tableColumnMap.get(tableColumn.getName());
-                tableColumn.setUnit(column.getUnit());
-                tableColumn.setComment(column.getComment());
-                tableColumn.setDefaultValue(column.getDefaultValue());
-                tableColumn.setOrdinalPosition(column.getOrdinalPosition());
-                tableColumn.setNullable(column.getNullable());
+                if (column != null) {
+                    tableColumn.setUnit(column.getUnit());
+                    tableColumn.setComment(column.getComment());
+                    tableColumn.setDefaultValue(column.getDefaultValue());
+                    tableColumn.setOrdinalPosition(column.getOrdinalPosition());
+                    tableColumn.setNullable(column.getNullable());
+                }
             }
         }
         return tableColumns;

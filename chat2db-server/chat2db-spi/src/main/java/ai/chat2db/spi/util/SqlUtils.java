@@ -175,7 +175,7 @@ public class SqlUtils {
             try {
                 return splitWithCreateEvent(sql, dbType);
             } catch (Exception e1) {
-                if(removeComment) {
+                if (removeComment) {
                     return SQLParserUtils.splitAndRemoveComment(sql, dbType);
                 }{
                     return SQLParserUtils.split(sql, dbType);
@@ -341,5 +341,18 @@ public class SqlUtils {
         return name;
     }
 
+    /**
+     * String input = "INTERVAL DAY(2) TO SECOND(6)";
+     * remove (2) and (6)
+     *
+     * @param input
+     * @return
+     */
+    public static String removeDigits(String input) {
+        if (StringUtils.isBlank(input)) {
+            return input;
+        }
+        return input.replaceAll("\\(\\d+\\)", "");
+    }
 
 }
