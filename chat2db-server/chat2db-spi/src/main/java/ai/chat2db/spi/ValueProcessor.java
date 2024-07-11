@@ -36,5 +36,5 @@ public interface ValueProcessor {
      *
      * @return 一个格式化后的字符串，可以直接用于DML语句中，确保数据的正确插入或更新。
      */
-    String getJdbcValueString(JDBCDataValue dataValue);
+    String getJdbcSqlValueString(JDBCDataValue dataValue);
 }

@@ -41,7 +41,7 @@ public class DefaultValueProcessor implements ValueProcessor {
 
 
     @Override
-    public String getJdbcValueString(JDBCDataValue dataValue) {
+    public String getJdbcSqlValueString(JDBCDataValue dataValue) {
 //        Object value = dataValue.getObject();
 //        if (Objects.isNull(value)) {
 //            return "NULL";

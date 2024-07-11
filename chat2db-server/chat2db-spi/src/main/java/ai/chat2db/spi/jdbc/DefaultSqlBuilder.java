@@ -3,6 +3,7 @@ package ai.chat2db.spi.jdbc;
 import ai.chat2db.server.tools.common.util.EasyStringUtils;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueProcessor;
 import ai.chat2db.spi.enums.DmlType;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
@@ -371,6 +372,8 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         StringBuilder script = new StringBuilder();
         script.append("INSERT INTO ").append(tableName)
                 .append(" (");
+
+        ValueProcessor valueProcessor = metaSchema.getValueProcessor();
         for (int i = 1; i < row.size(); i++) {
             Header header = headerList.get(i);
             //String newValue = row.get(i);
@@ -385,7 +388,9 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
             String newValue = row.get(i);
             //if (newValue != null) {
             Header header = headerList.get(i);
-            script.append(SqlUtils.getSqlValue(newValue, header.getDataType()))
+            SQLDataValue sqlDataValue =  new SQLDataValue();
+            String value =  valueProcessor.getSqlValueString(sqlDataValue);
+            script.append(value)
                     .append(",");
             //}
         }

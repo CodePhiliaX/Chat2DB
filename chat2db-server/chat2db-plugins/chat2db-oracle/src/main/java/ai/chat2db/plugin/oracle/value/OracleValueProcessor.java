@@ -36,7 +36,7 @@ public class OracleValueProcessor extends DefaultValueProcessor {
 
 
     @Override
-    public String getJdbcValueString(JDBCDataValue dataValue) {
+    public String getJdbcSqlValueString(JDBCDataValue dataValue) {
         if (OracleColumnTypeEnum.LONG_RAW.getColumnType().getTypeName().equalsIgnoreCase(dataValue.getType())) {
             return convertJDBCValueStrByType(dataValue);
         }

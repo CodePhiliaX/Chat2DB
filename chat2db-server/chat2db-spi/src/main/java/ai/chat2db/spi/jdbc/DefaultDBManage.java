@@ -219,7 +219,7 @@ public class DefaultDBManage implements DBManage {
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
                     JDBCDataValue jdbcDataValue = new JDBCDataValue(resultSet, metaData, i, false);
-                    String valueString = valueProcessor.getJdbcValueString(jdbcDataValue);
+                    String valueString = valueProcessor.getJdbcSqlValueString(jdbcDataValue);
                     valueList.add(valueString);
                 }
                 String insertSql = sqlBuilder.buildSingleInsertSql(null, null, tableName, columnList, valueList);

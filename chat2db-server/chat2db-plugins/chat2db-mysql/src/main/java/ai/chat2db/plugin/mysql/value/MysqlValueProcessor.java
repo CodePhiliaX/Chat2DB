@@ -42,7 +42,7 @@ public class MysqlValueProcessor extends DefaultValueProcessor {
 
 
     @Override
-    public String getJdbcValueString(JDBCDataValue dataValue) {
+    public String getJdbcSqlValueString(JDBCDataValue dataValue) {
         Object value = dataValue.getObject();
         if (Objects.isNull(value)) {
             // mysql -> example: [date]->0000-00-00

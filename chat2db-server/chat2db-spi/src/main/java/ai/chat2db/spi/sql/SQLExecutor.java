@@ -61,7 +61,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
-            log.error("execute:{}", sql,e);
+            log.error("execute:{}", sql, e);
             throw new RuntimeException(e);
         }
         return null;
@@ -77,7 +77,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
-            log.error("execute:{}", sql,e);
+            log.error("execute:{}", sql, e);
             throw new RuntimeException(e);
         }
     }
@@ -87,11 +87,14 @@ public class SQLExecutor implements CommandExecutor {
 //        execute(connection, sql, headerConsumer, rowConsumer, true, valueHandler);
 //    }
 
-    public void execute(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-                        Consumer<List<String>> rowConsumer, boolean limitSize) {
+    public void execute(
+            Connection connection, String sql,
+            Consumer<List<Header>> headerConsumer,
+            Consumer<List<String>> rowConsumer,
+            java.util.function.Function<JDBCDataValue,
+                    String> valueFunction,
+            boolean limitSize) {
         Assert.notNull(sql, "SQL must not be null");
-
-        ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
         try (Statement stmt = connection.createStatement();) {
             boolean query = stmt.execute(sql);
             // Represents the query
@@ -110,7 +113,8 @@ public class SQLExecutor implements CommandExecutor {
                     while (rs.next()) {
                         List<String> row = Lists.newArrayListWithExpectedSize(col);
                         for (int i = 1; i <= col; i++) {
-                            row.add(valueProcessor.getJdbcValue(new JDBCDataValue(rs, resultSetMetaData, i, limitSize)));
+                            JDBCDataValue jdbcDataValue = new JDBCDataValue(rs, resultSetMetaData, i, limitSize);
+                            row.add(valueFunction.apply(jdbcDataValue));
                         }
                         rowConsumer.accept(row);
                     }
@@ -119,7 +123,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (SQLException e) {
-            log.error("execute:{}", sql,e);
+            log.error("execute:{}", sql, e);
             throw new RuntimeException(e);
         }
     }
@@ -381,7 +385,7 @@ public class SQLExecutor implements CommandExecutor {
             tableName,
                                      String columnName) {
         try (ResultSet resultSet = connection.getMetaData().getColumns(databaseName, schemaName, tableName,
-                                                                       columnName)) {
+                columnName)) {
             return ResultSetUtils.toObjectList(resultSet, TableColumn.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -400,8 +404,8 @@ public class SQLExecutor implements CommandExecutor {
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
         List<TableIndex> tableIndices = Lists.newArrayList();
         try (ResultSet resultSet = connection.getMetaData().getIndexInfo(databaseName, schemaName, tableName,
-                                                                         false,
-                                                                         false)) {
+                false,
+                false)) {
             List<TableIndexColumn> tableIndexColumns = ResultSetUtils.toObjectList(resultSet, TableIndexColumn.class);
             tableIndexColumns.stream().filter(c -> c.getIndexName() != null).collect(
                             Collectors.groupingBy(TableIndexColumn::getIndexName)).entrySet()
@@ -493,8 +497,10 @@ public class SQLExecutor implements CommandExecutor {
         // parse sql
         String type = Chat2DBContext.getConnectInfo().getDbType();
         DbType dbType = JdbcUtils.parse2DruidDbType(type);
-        List<String> sqlList = SqlUtils.parse(command.getScript(), dbType,true);
-
+        List<String> sqlList = Lists.newArrayList(command.getScript());
+        if(!command.isSingle()) {
+            sqlList = SqlUtils.parse(command.getScript(), dbType, true);
+        }
         if (CollectionUtils.isEmpty(sqlList)) {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
@@ -577,7 +583,7 @@ public class SQLExecutor implements CommandExecutor {
         Header rowNumberHeader = Header.builder()
                 .name(I18nUtils.getMessage("sqlResult.rowNumber"))
                 .dataType(DataTypeEnum.CHAT2DB_ROW_NUMBER
-                                  .getCode()).build();
+                        .getCode()).build();
         executeResult.setHeaderList(EasyCollectionUtils.union(Arrays.asList(rowNumberHeader), headers));
 
         // Add row number
@@ -632,7 +638,7 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (Exception e) {
-            log.error("execute error:{}", sql,e);
+            log.error("execute error:{}", sql, e);
             throw new RuntimeException(e);
         }
     }

@@ -146,7 +146,7 @@ public class SqlDataExporter extends BaseDataExporter {
         List<String> rowData = new ArrayList<>(metaData.getColumnCount());
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
             JDBCDataValue jdbcDataValue = new JDBCDataValue(resultSet, metaData, i, false);
-            rowData.add(valueProcessor.getJdbcValueString(jdbcDataValue));
+            rowData.add(valueProcessor.getJdbcSqlValueString(jdbcDataValue));
         }
         return rowData;
     }
@@ -158,7 +158,7 @@ public class SqlDataExporter extends BaseDataExporter {
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
             JDBCDataValue jdbcDataValue = new JDBCDataValue(resultSet, metaData, i, false);
             String columnName = metaData.getColumnName(i);
-            String jdbcValueString = valueProcessor.getJdbcValueString(jdbcDataValue);
+            String jdbcValueString = valueProcessor.getJdbcSqlValueString(jdbcDataValue);
             if (primaryKeyMap.containsKey(columnName)) {
                 primaryKeyMap.put(columnName, jdbcValueString);
             } else {
