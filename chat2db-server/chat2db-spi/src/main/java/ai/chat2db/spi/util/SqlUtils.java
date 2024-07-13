@@ -128,9 +128,11 @@ public class SqlUtils {
     public static List<String> parse(String sql, DbType dbType, boolean removeComment) {
         List<String> list = new ArrayList<>();
         try {
-
             if (StringUtils.isBlank(sql)) {
                 return list;
+            }
+            if (removeComment) {
+                sql = SQLParserUtils.removeComment(sql, dbType);
             }
             try {
                 if (DbType.oracle.equals(dbType)) {
@@ -153,9 +155,6 @@ public class SqlUtils {
                 }
             } catch (Exception e) {
                 log.error("sqlSplitProcessor error", e);
-            }
-            if (removeComment) {
-                sql = SQLParserUtils.removeComment(sql, dbType);
             }
 //            sql = removeDelimiter(sql);
             if (StringUtils.isBlank(sql)) {
