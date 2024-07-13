@@ -24,8 +24,8 @@ public class OracleDBManage extends DefaultDBManage implements DBManage {
         exportTables(connection, databaseName, schemaName, asyncContext);
         exportViews(connection, asyncContext, schemaName);
         exportProcedures(connection, schemaName, asyncContext);
-        exportTriggers(connection, schemaName, asyncContext);
         exportFunctions(connection, schemaName, asyncContext);
+//        exportTriggers(connection, schemaName, asyncContext);
     }
 
     private void exportTables(Connection connection, String databaseName, String schemaName, AsyncContext asyncContext) throws SQLException {

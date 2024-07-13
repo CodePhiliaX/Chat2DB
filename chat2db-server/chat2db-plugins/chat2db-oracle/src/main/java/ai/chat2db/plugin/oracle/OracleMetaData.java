@@ -87,7 +87,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             try {
                 if (resultSet.next()) {
-                    ddlBuilder.append(resultSet.getString("sql"));
+                    ddlBuilder.append(resultSet.getString("sql")).append(";");
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -259,11 +259,15 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             function.setDatabaseName(databaseName);
             function.setSchemaName(schemaName);
             function.setFunctionName(functionName);
-            StringBuilder bodyBuilder = new StringBuilder("CREATE ");
+            StringBuilder bodyBuilder = new StringBuilder("CREATE OR REPLACE ");
             while (resultSet.next()) {
                 bodyBuilder.append(resultSet.getString("TEXT")).append("\n");
             }
-            function.setFunctionBody(bodyBuilder.toString());
+            String functionBody = bodyBuilder.toString().trim();
+            if (!functionBody.endsWith("/")) {
+                functionBody += "\n/";
+            }
+            function.setFunctionBody(functionBody);
             return function;
 
         });
@@ -391,11 +395,15 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             procedure.setDatabaseName(databaseName);
             procedure.setSchemaName(schemaName);
             procedure.setProcedureName(procedureName);
-            StringBuilder bodyBuilder = new StringBuilder("CREATE ");
+            StringBuilder bodyBuilder = new StringBuilder("CREATE OR REPLACE ");
             while (resultSet.next()) {
                 bodyBuilder.append(resultSet.getString("TEXT")).append("\n");
             }
-            procedure.setProcedureBody(bodyBuilder.toString());
+            String procedureBody = bodyBuilder.toString().trim(); // 去掉最后的空白字符
+            if (!procedureBody.endsWith("/")) {
+                procedureBody += "\n/";
+            }
+            procedure.setProcedureBody(procedureBody);
             return procedure;
         });
     }
@@ -412,7 +420,7 @@ public class OracleMetaData extends DefaultMetaService implements MetaData {
             table.setSchemaName(schemaName);
             table.setName(viewName);
             if (resultSet.next()) {
-                table.setDdl("CREATE VIEW " + viewName + " AS " + resultSet.getString("TEXT"));
+                table.setDdl("CREATE OR REPLACE VIEW " + viewName + " AS " + resultSet.getString("TEXT"));
             }
             return table;
         });
