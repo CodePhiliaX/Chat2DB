@@ -19,12 +19,12 @@ public class MysqlTimestampProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
-        return new String(dataValue.getBytes());
+        return dataValue.getStringValue();
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return EasyStringUtils.quoteString(new String(dataValue.getBytes()));
+        return EasyStringUtils.quoteString(dataValue.getStringValue());
     }
 }
