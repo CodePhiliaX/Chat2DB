@@ -7,6 +7,8 @@ import ai.chat2db.spi.jdbc.DefaultValueProcessor;
 import ai.chat2db.spi.model.JDBCDataValue;
 import ai.chat2db.spi.model.SQLDataValue;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -16,6 +18,8 @@ import java.util.Objects;
  */
 public class OracleValueProcessor extends DefaultValueProcessor {
 
+
+    private static final Logger log = LoggerFactory.getLogger(OracleValueProcessor.class);
 
     @Override
     public String getJdbcValue(JDBCDataValue dataValue) {
@@ -54,19 +58,47 @@ public class OracleValueProcessor extends DefaultValueProcessor {
 
     @Override
     public String convertSQLValueByType(SQLDataValue dataValue) {
-        return OracleValueProcessorFactory.getValueProcessor(dataValue.getDateTypeName()).convertSQLValueByType(dataValue);
+        try {
+            DefaultValueProcessor valueProcessor = OracleValueProcessorFactory.getValueProcessor(dataValue.getDateTypeName());
+            if (Objects.nonNull(valueProcessor)) {
+                return valueProcessor.convertSQLValueByType(dataValue);
+            }
+        } catch (Exception e) {
+            log.warn("convertSQLValueByType error", e);
+            return super.convertSQLValueByType(dataValue);
+        }
+        return super.convertSQLValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueByType(JDBCDataValue dataValue) {
         String type = dataValue.getType();
-        return OracleValueProcessorFactory.getValueProcessor(type).convertJDBCValueByType(dataValue);
+        try {
+            DefaultValueProcessor valueProcessor = OracleValueProcessorFactory.getValueProcessor(type);
+            if (Objects.nonNull(valueProcessor)) {
+                return valueProcessor.convertJDBCValueByType(dataValue);
+            }
+        } catch (Exception e) {
+            log.warn("convertJDBCValueByType error", e);
+            return super.convertJDBCValueByType(dataValue);
+        }
+        return super.convertJDBCValueByType(dataValue);
     }
 
 
     @Override
     public String convertJDBCValueStrByType(JDBCDataValue dataValue) {
-        return OracleValueProcessorFactory.getValueProcessor(dataValue.getType()).convertJDBCValueStrByType(dataValue);
+        String type = dataValue.getType();
+        try {
+            DefaultValueProcessor valueProcessor = OracleValueProcessorFactory.getValueProcessor(type);
+            if (Objects.nonNull(valueProcessor)) {
+                return valueProcessor.convertJDBCValueStrByType(dataValue);
+            }
+        } catch (Exception e) {
+            log.warn("convertJDBCValueStrByType error", e);
+            return super.convertJDBCValueStrByType(dataValue);
+        }
+        return super.convertJDBCValueStrByType(dataValue);
     }
 }

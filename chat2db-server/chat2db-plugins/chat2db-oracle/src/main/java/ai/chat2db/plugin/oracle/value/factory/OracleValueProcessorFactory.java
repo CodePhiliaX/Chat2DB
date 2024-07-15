@@ -49,7 +49,7 @@ public class OracleValueProcessorFactory {
     }
 
     public static DefaultValueProcessor getValueProcessor(String type) {
-        return PROCESSOR_MAP.getOrDefault(type, new DefaultValueProcessor());
+        return PROCESSOR_MAP.get(type);
     }
 
 }

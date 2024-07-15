@@ -1,5 +1,9 @@
-package ai.chat2db.plugin.mysql.value.factory;
+package ai.chat2db.plugin.mariadb.value.factory;
 
+import ai.chat2db.plugin.mariadb.value.sub.MariaDBBitProcessor;
+import ai.chat2db.plugin.mariadb.value.sub.MariaDBGeometryProcessor;
+import ai.chat2db.plugin.mariadb.value.sub.MariaDBTimestampProcessor;
+import ai.chat2db.plugin.mariadb.value.sub.MariaDBYearProcessor;
 import ai.chat2db.plugin.mysql.type.MysqlColumnTypeEnum;
 import ai.chat2db.plugin.mysql.value.sub.*;
 import ai.chat2db.spi.jdbc.DefaultValueProcessor;
@@ -10,14 +14,14 @@ import java.util.Map;
  * @author: zgq
  * @date: 2024年06月03日 23:16
  */
-public class MysqlValueProcessorFactory {
+public class MariaDBValueProcessorFactory {
 
     private static final Map<String, DefaultValueProcessor> PROCESSOR_MAP;
 
     static {
-        MysqlGeometryProcessor mysqlGeometryProcessor = new MysqlGeometryProcessor();
+        MariaDBGeometryProcessor mariaDBGeometryProcessor = new MariaDBGeometryProcessor();
         MysqlVarBinaryProcessor mysqlVarBinaryProcessor = new MysqlVarBinaryProcessor();
-        MysqlTimestampProcessor mysqlTimestampProcessor = new MysqlTimestampProcessor();
+        MariaDBTimestampProcessor mariaDBTimestampProcessor = new MariaDBTimestampProcessor();
         MysqlTextProcessor mysqlTextProcessor = new MysqlTextProcessor();
         PROCESSOR_MAP = Map.ofEntries(
                 //text
@@ -26,14 +30,14 @@ public class MysqlValueProcessorFactory {
                 Map.entry(MysqlColumnTypeEnum.MEDIUMTEXT.name(), mysqlTextProcessor),
                 Map.entry(MysqlColumnTypeEnum.LONGTEXT.name(), mysqlTextProcessor),
                 // geometry
-                Map.entry(MysqlColumnTypeEnum.GEOMETRY.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.POINT.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.LINESTRING.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.POLYGON.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.MULTIPOINT.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.MULTILINESTRING.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.MULTIPOLYGON.name(), mysqlGeometryProcessor),
-                Map.entry(MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name(), mysqlGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.GEOMETRY.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.POINT.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.LINESTRING.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.POLYGON.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.MULTIPOINT.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.MULTILINESTRING.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.MULTIPOLYGON.name(), mariaDBGeometryProcessor),
+                Map.entry(MysqlColumnTypeEnum.GEOMETRYCOLLECTION.name(), mariaDBGeometryProcessor),
                 // binary
                 Map.entry(MysqlColumnTypeEnum.VARBINARY.name(), mysqlVarBinaryProcessor),
                 Map.entry(MysqlColumnTypeEnum.BLOB.name(), mysqlVarBinaryProcessor),
@@ -41,17 +45,17 @@ public class MysqlValueProcessorFactory {
                 Map.entry(MysqlColumnTypeEnum.TINYBLOB.name(), mysqlVarBinaryProcessor),
                 Map.entry(MysqlColumnTypeEnum.MEDIUMBLOB.name(), mysqlVarBinaryProcessor),
                 // timestamp
-                Map.entry(MysqlColumnTypeEnum.TIMESTAMP.name(), mysqlTimestampProcessor),
-                Map.entry(MysqlColumnTypeEnum.DATETIME.name(), mysqlTimestampProcessor),
+                Map.entry(MysqlColumnTypeEnum.TIMESTAMP.name(), mariaDBTimestampProcessor),
+                Map.entry(MysqlColumnTypeEnum.DATETIME.name(), mariaDBTimestampProcessor),
                 //others
-                Map.entry(MysqlColumnTypeEnum.YEAR.name(), new MysqlYearProcessor()),
-                Map.entry(MysqlColumnTypeEnum.BIT.name(), new MysqlBitProcessor()),
+                Map.entry(MysqlColumnTypeEnum.YEAR.name(), new MariaDBYearProcessor()),
+                Map.entry(MysqlColumnTypeEnum.BIT.name(), new MariaDBBitProcessor()),
                 Map.entry(MysqlColumnTypeEnum.DECIMAL.name(), new MysqlDecimalProcessor()),
                 Map.entry(MysqlColumnTypeEnum.BINARY.name(), new MysqlBinaryProcessor())
         );
     }
 
     public static DefaultValueProcessor getValueProcessor(String type) {
-        return PROCESSOR_MAP.get(type);
+        return  PROCESSOR_MAP.get(type);
     }
 }

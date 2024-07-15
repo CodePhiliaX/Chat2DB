@@ -52,9 +52,4 @@ public class OracleLongRawProcessor extends DefaultValueProcessor {
         return EasyStringUtils.quoteString(blobHexString);
     }
 
-    public static void main(String[] args) {
-        String value = "0x123456";
-        value = value.substring(2);
-        System.out.println("value = " + value);
-    }
 }
