@@ -5,6 +5,7 @@ import com.google.common.io.BaseEncoding;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import org.apache.commons.io.IOUtils;
 import org.apache.tika.Tika;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -12,10 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Objects;
@@ -126,7 +124,7 @@ public class JDBCDataValue {
 
     public String getClobString() {
         Clob clob = getClob();
-        try (BufferedReader reader = new BufferedReader(clob.getCharacterStream())) {
+        try (Reader reader = clob.getCharacterStream()) {
             long length = clob.length();
             LOBInfo cLobInfo = getLobInfo(length);
             double size = cLobInfo.getSize();
@@ -137,14 +135,7 @@ public class JDBCDataValue {
             if (limitSize && isBigSize(unit)) {
                 return String.format("[%s] %s", getType(), cLobInfo);
             }
-            StringBuilder builder = new StringBuilder((int) (Math.ceil(size)));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                // TODO: 优化换行符
-                builder.append(line).append("\n");
-            }
-            return builder.toString();
+            return IOUtils.toString(reader);
         } catch (IOException | SQLException e) {
             log.warn("Error while reading clob stream", e);
             return getStringValue();
