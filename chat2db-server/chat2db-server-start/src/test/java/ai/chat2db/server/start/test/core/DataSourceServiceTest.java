@@ -152,7 +152,7 @@ public class DataSourceServiceTest extends TestApplication {
             param.setUrl(dialectProperties.getUrl());
             param.setPassword(dialectProperties.getPassword());
             param.setPort(String.valueOf(dialectProperties.getPort()));
-            param.setHost("183.247.151.185");
+            param.setHost("localhost");
             param.setSsh(new SSHInfo());
             param.setSsl(new SSLInfo());
             param.setExtendInfo(new ArrayList<KeyValue>());
