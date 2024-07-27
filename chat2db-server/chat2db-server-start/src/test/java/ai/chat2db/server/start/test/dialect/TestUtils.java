@@ -45,7 +45,16 @@ public class TestUtils {
         return defaultValue;
     }
 
-    public static void buildContext(DialectProperties dialectProperties,Long dataSourceId,Long consoleId){
+    public static void buildContext(DialectProperties dialectProperties, Long dataSourceId, Long consoleId) {
+        buildContext(dialectProperties, dataSourceId, consoleId, dialectProperties.getDatabaseName());
+    }
+
+    public static void buildContext(DialectProperties dialectProperties, Long dataSourceId, Long consoleId, String databaseName) {
+        ConnectInfo connectInfo = createConnectInfo(dialectProperties, dataSourceId, consoleId, databaseName);
+        Chat2DBContext.putContext(connectInfo);
+    }
+
+    private static ConnectInfo createConnectInfo(DialectProperties dialectProperties, Long dataSourceId, Long consoleId, String databaseName) {
         ConnectInfo connectInfo = new ConnectInfo();
         connectInfo.setUser(dialectProperties.getUsername());
         connectInfo.setPort(dialectProperties.getPort());
@@ -56,8 +65,9 @@ public class TestUtils {
         connectInfo.setPassword(dialectProperties.getPassword());
         connectInfo.setDbType(dialectProperties.getDbType());
         connectInfo.setUrl(dialectProperties.getUrl());
-        connectInfo.setDatabase(dialectProperties.getDatabaseName());
+        connectInfo.setDatabase(databaseName);
         connectInfo.setConsoleOwn(false);
-        Chat2DBContext.putContext(connectInfo);
+        return connectInfo;
     }
+
 }
