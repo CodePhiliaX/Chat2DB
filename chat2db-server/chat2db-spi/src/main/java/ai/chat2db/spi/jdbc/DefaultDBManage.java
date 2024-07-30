@@ -181,24 +181,27 @@ public class DefaultDBManage implements DBManage {
 
     @Override
     public void truncateTable(Connection connection, String databaseName, String schemaName, String tableName) throws SQLException {
-        String sql = "TRUNCATE TABLE " + tableName ;
+        String sql = "TRUNCATE TABLE " + tableName;
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
     @Override
-    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName, boolean copyData) throws SQLException {
         String sql = "";
-        if(copyData){
-             sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
-        }else {
+        if (copyData) {
+            sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName;
+        } else {
             sql = "CREATE TABLE " + newTableName + " AS SELECT * FROM " + tableName + " WHERE 1=0";
         }
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
-//    public void exportDatabaseData(Connection connection, String databaseName, String schemaName, String tableName, AsyncContext asyncContext) throws SQLException {
-//        exportTableData(connection, databaseName, schemaName, tableName, asyncContext);
-//    }
+    @Override
+    public void deleteProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure) {
+        String procedureNewName = getSchemaOrProcedureName(procedure.getProcedureBody(), schemaName, procedure);
+        String sql = "DROP PROCEDURE " + procedureNewName;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -223,10 +226,18 @@ public class DefaultDBManage implements DBManage {
                     valueList.add(valueString);
                 }
                 String insertSql = sqlBuilder.buildSingleInsertSql(null, null, tableName, columnList, valueList);
-                asyncContext.write(insertSql+";");
+                asyncContext.write(insertSql + ";");
                 valueList.clear();
             }
         });
 
+    }
+
+    private static String getSchemaOrProcedureName(String procedureBody, String schemaName, Procedure procedure) {
+        if (procedureBody.toLowerCase().contains(schemaName.toLowerCase())) {
+            return procedure.getProcedureName();
+        } else {
+            return schemaName + "." + procedure.getProcedureName();
+        }
     }
 }

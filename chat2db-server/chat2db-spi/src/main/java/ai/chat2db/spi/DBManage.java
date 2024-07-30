@@ -163,4 +163,13 @@ public interface DBManage {
      * @return
      */
     void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException;
+
+    /**
+     * delete procedure
+     *
+     * @param databaseName
+     * @param schemaName
+     * @param procedure
+     */
+    void deleteProcedure(Connection connection, String databaseName, String schemaName, Procedure procedure);
 }
