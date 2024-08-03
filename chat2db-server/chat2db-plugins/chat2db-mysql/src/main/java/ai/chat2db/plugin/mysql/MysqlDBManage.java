@@ -3,6 +3,7 @@ package ai.chat2db.plugin.mysql;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
+import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.SQLExecutor;
 import cn.hutool.core.date.DateUtil;
@@ -223,11 +224,26 @@ public class MysqlDBManage extends DefaultDBManage implements DBManage {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
+    @Override
+    public void deleteFunction(Connection connection, String databaseName, String schemaName, Function function) {
+        String functionNewName = getSchemaOrFunctionName(function.getFunctionBody(), databaseName, function);
+        String sql = "DROP FUNCTION " + functionNewName;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
     private static String getSchemaOrProcedureName(String procedureBody, String schemaName, Procedure procedure) {
         if (procedureBody.toLowerCase().contains(schemaName.toLowerCase())) {
             return procedure.getProcedureName();
         } else {
             return schemaName + "." + procedure.getProcedureName();
+        }
+    }
+
+    private static String getSchemaOrFunctionName(String functionBody, String schemaName, Function function) {
+        if (functionBody.toLowerCase().contains(schemaName.toLowerCase())) {
+            return function.getFunctionName();
+        } else {
+            return schemaName + "." + function.getFunctionName();
         }
     }
 

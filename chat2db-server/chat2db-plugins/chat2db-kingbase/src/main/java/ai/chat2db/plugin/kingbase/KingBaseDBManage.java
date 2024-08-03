@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
+import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -31,8 +32,10 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
                 procedureBody = procedureBody.replace(procedure.getProcedureName(), procedureNewName);
             }
             String dropSql = "DROP PROCEDURE IF EXISTS " + procedureNewName + parameterSignature;
-            SQLExecutor.getInstance().execute(connection, dropSql, resultSet -> {});
-            SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {});
+            SQLExecutor.getInstance().execute(connection, dropSql, resultSet -> {
+            });
+            SQLExecutor.getInstance().execute(connection, procedureBody, resultSet -> {
+            });
         } catch (Exception e) {
             connection.rollback();
             throw new RuntimeException(e);
@@ -89,8 +92,8 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
 
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = "drop table if exists " +tableName;
-        SQLExecutor.getInstance().execute(connection,sql, resultSet -> null);
+        String sql = "drop table if exists " + tableName;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 
     @Override
@@ -103,11 +106,20 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
     }
 
     @Override
-    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName,boolean copyData) throws SQLException {
+    public void deleteFunction(Connection connection, String databaseName, String schemaName, Function function) {
+        String functionBody = function.getFunctionBody();
+        String parameterSignature = extractParameterSignature(functionBody);
+        String functionNewName = getSchemaOrFunctionName(functionBody, schemaName, function);
+        String sql = "DROP FUNCTION" + functionNewName + parameterSignature;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
+    }
+
+    @Override
+    public void copyTable(Connection connection, String databaseName, String schemaName, String tableName, String newTableName, boolean copyData) throws SQLException {
         String sql = "";
-        if(copyData){
+        if (copyData) {
             sql = "CREATE TABLE " + newTableName + " AS TABLE " + tableName + " WITH DATA";
-        }else {
+        } else {
             sql = "CREATE TABLE " + newTableName + " AS TABLE " + tableName + " WITH NO DATA";
         }
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
@@ -134,6 +146,14 @@ public class KingBaseDBManage extends DefaultDBManage implements DBManage {
             return procedure.getProcedureName();
         } else {
             return schemaName + "." + procedure.getProcedureName();
+        }
+    }
+
+    private static String getSchemaOrFunctionName(String functionBody, String schemaName, Function function) {
+        if (functionBody.toLowerCase().contains(schemaName.toLowerCase())) {
+            return function.getFunctionName();
+        } else {
+            return schemaName + "." + function.getFunctionName();
         }
     }
 }

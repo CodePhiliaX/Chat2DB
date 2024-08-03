@@ -3,6 +3,7 @@ package ai.chat2db.plugin.postgresql;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.jdbc.DefaultDBManage;
 import ai.chat2db.spi.model.AsyncContext;
+import ai.chat2db.spi.model.Function;
 import ai.chat2db.spi.model.Procedure;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -209,6 +210,15 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> {});
     }
 
+    @Override
+    public void deleteFunction(Connection connection, String databaseName, String schemaName, Function function) {
+        String functionBody = function.getFunctionBody();
+        String parameterSignature = extractParameterSignature(functionBody);
+        String functionNewName = getSchemaOrFunctionName(functionBody, schemaName, function);
+        String sql = "DROP FUNCTION" + functionNewName + parameterSignature;
+        SQLExecutor.getInstance().execute(connection,sql,resultSet -> {});
+    }
+
     private String extractParameterSignature(String input) {
         int depth = 0, start = -1;
         for (int i = 0; i < input.length(); i++) {
@@ -230,6 +240,14 @@ public class PostgreSQLDBManage extends DefaultDBManage implements DBManage {
             return procedure.getProcedureName();
         } else {
             return schemaName + "." + procedure.getProcedureName();
+        }
+    }
+
+    private static String getSchemaOrFunctionName(String functionBody, String schemaName, Function function) {
+        if (functionBody.toLowerCase().contains(schemaName.toLowerCase())) {
+            return function.getFunctionName();
+        } else {
+            return schemaName + "." + function.getFunctionName();
         }
     }
 }
