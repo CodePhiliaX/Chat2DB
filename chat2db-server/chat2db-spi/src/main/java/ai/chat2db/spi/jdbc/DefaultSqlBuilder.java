@@ -388,7 +388,13 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
             String newValue = row.get(i);
             //if (newValue != null) {
             Header header = headerList.get(i);
-            SQLDataValue sqlDataValue =  new SQLDataValue();
+            SQLDataValue sqlDataValue = new SQLDataValue();
+            DataType dataType = new DataType();
+            dataType.setDataTypeName(header.getDataType());
+            dataType.setScale(header.getDecimalDigits());
+            dataType.setPrecision(header.getColumnSize());
+            sqlDataValue.setValue(newValue);
+            sqlDataValue.setDataType(dataType);
             String value =  valueProcessor.getSqlValueString(sqlDataValue);
             script.append(value)
                     .append(",");
