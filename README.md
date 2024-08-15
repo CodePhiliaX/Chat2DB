@@ -146,6 +146,7 @@ Thanks to all who contributed to Chat2DB~~
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
   </picture>
 </a>
+
 ## link
 <p align="left">
     <a href="https://sa-token.cc" target="_blank">
