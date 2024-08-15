@@ -152,7 +152,7 @@ Chat2DB Pro支持以下所有数据库，包括备受期待的Redis功能。
 ## 友情链接
 <p align="center">
     <a href="https://sa-token.cc" target="_blank">
-        <img src="https://github.com/user-attachments/assets/d2182835-057a-47e6-80fc-e9efc4792a7f" alt="sa-token" width="20%/>
+        <img src="https://github.com/user-attachments/assets/d2182835-057a-47e6-80fc-e9efc4792a7f" alt="sa-token" width="20%"/>
     </a>
 </p>
 
