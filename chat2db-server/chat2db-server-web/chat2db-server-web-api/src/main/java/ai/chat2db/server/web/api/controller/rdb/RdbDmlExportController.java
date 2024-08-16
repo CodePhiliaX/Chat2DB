@@ -84,7 +84,7 @@ public class RdbDmlExportController {
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
         String sql;
         if (exportSize == ExportSizeEnum.CURRENT_PAGE) {
-            sql = request.getSql();
+            sql = request.getOriginalSql() + " LIMIT " + request.getPageSize() + " OFFSET " + (request.getPageNo() - 1) * request.getPageSize();
         } else {
             sql = request.getOriginalSql();
         }
