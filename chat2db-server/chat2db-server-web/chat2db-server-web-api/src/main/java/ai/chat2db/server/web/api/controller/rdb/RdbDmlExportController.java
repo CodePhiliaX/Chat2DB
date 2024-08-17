@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import ai.chat2db.spi.SqlBuilder;
@@ -154,12 +155,20 @@ public class RdbDmlExportController {
         SqlBuilder sqlBuilder = Chat2DBContext.getMetaData().getSqlBuilder();
         try (PrintWriter printWriter = response.getWriter()) {
             List<String> headerColumns = Lists.newArrayList();
+            List<SQLIdentifierExpr> headers = new ArrayList<>();
             InsertWrapper insertWrapper = new InsertWrapper();
             SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(), sql,
                     headerList -> {
                         headerList.forEach(sqlIdentifierExpr -> headerColumns.add(sqlIdentifierExpr.getName()));
                     }
                     , dataList -> {
+                        for (String header : headerColumns) {
+                            SQLIdentifierExpr expr = new SQLIdentifierExpr(header);
+                            expr.setName(header);
+                            headers.add(expr);
+                        }
+                        insertWrapper.setHeaderList(headers);
+
                         SQLInsertStatement sqlInsertStatement = new SQLInsertStatement();
                         sqlInsertStatement.setDbType(dbType);
                         sqlInsertStatement.setTableSource(new SQLExprTableSource(tableName));
