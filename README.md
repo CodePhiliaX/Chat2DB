@@ -10,7 +10,6 @@
 
 
 
-<div align="center">
 <p align="center"><b>Share Chat2DB Repository </b></p>
 <p align="center">
 
