@@ -1,13 +1,7 @@
-<p align="center">
-    <a href="https://chat2db.ai/" target="_blank">
-        <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/cover.png" alt="Chat2DB" />
-    </a>
-</p>
 
 # Chat2DB
 
 **English** | [中文](README_CN.md)· <a href="https://www.benchcouncil.org/evaluation/opencs/annual.html#Achievements">🏆 Top 100 Open Project!</a>
-
 
 
 <p align="left"><b>Share Chat2DB Repository </b></p>
@@ -22,7 +16,7 @@
 
 ## Download and Install Chat2DB(Pro)
 
-- Download installation package from [official website](https://chat2db.ai/download)
+- [Download](https://chat2db.ai/download)
 - Double click package to install
 
 # NEWS
