@@ -20,11 +20,15 @@
 <a href="mailto:?subject=Check%20this%20GitHub%20repository%20out.&body=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%3A%0Ahttps://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Gmail&logo=Gmail&style=social&url=https://github.com/chat2db/Chat2DB"/></a>
 </p>
 
+## Download and Install Chat2DB(Pro)
+
+- Download installation package from [official website](https://chat2db.ai/download)
+- Double click package to install
 
 # NEWS
 
-### 🚀🚀🚀 The long-awaited Chat2DB Pro version is finally here, with the following key highlights added.
-#### 🔥🔥🔥AI-driven intelligent SQL development
+### The long-awaited Chat2DB Pro version is finally here, with the following key highlights added.
+#### AI-driven intelligent SQL development
 <a href="https://chat2db.ai/" target="_blank">
     <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/9664f2fd-250b-478e-a2a1-4b96464ba718.gif" alt="Chat2DB" />
 </a>
@@ -35,26 +39,26 @@
 <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/47a61ae7-2e21-45e7-a41e-e2559f51919d.gif" alt="Chat2DB" />
 </a>
 
-#### ✨✨✨AI-driven Intelligent Reports
+#### AI-driven Intelligent Reports
 <a href="https://chat2db.ai/" target="_blank">
     <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/d070ca11-8bdd-4ff4-a435-ecfc623103cb.gif" alt="Chat2DB" />
 </a>
 
-#### 🎉🎉🎉AI-driven Data Exploration
+#### AI-driven Data Exploration
 <a href="https://chat2db.ai/" target="_blank">
 <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/WechatIMG5138.jpg" alt="Chat2DB" />
 </a>
 
-### 🎁🎁🎁 We have also open-sourced our first GLM, [Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM). You can refer more details from below links.
+### We have also open-sourced our first GLM, [Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM). You can refer more details from below links.
 
 - github: [Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM)
 - huggingface🤗：[Chat2DB-SQL-7B](https://huggingface.co/Chat2DB/Chat2DB-SQL-7B)
 - modelscope：[Chat2DB-SQL-7B](https://modelscope.cn/models/Chat2DB/Chat2DB-SQL-7B/summary)
 
-### 🎁🎁🎁 Deploy the InternLM model on Chat2DB
+### Deploy the InternLM model on Chat2DB
 Thanks to [InternLM](https://github.com/InternLM/InternLM) for the strong support for this project. In the custom models of this project, multiple model weights from InternLM can be integrated. For more details, please refer to [chat2db-internlm-deploy](https://github.com/chat2db/chat2db-internlm-deploy)
 
-## 🚀 Supported databases
+## Supported databases
 Chat2DB Pro supports all the following databases, including the most requested Redis feature.
 - MySQL
 - PostgreSQL
@@ -74,13 +78,10 @@ Chat2DB Pro supports all the following databases, including the most requested R
 - Redis
 - Snowflake
 
-## ⏬ Download and Install Chat2DB(Pro)
-
-- Download installation package from [official website](https://chat2db.ai/download)
-- Double click package to install
 
 
-## 🌰 Using Chat2DB
+
+## Using Chat2DB
 Refer to the [Quick Start Guide](https://docs.chat2db.ai/) to get started with Chat2DB.
 
 
