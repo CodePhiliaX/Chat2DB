@@ -8,9 +8,6 @@
 [Download](https://chat2db.ai/download)
 Double click package to install
 
-# NEWS
-
-### The long-awaited Chat2DB Pro version is finally here, with the following key highlights added.
 #### AI-driven intelligent SQL development
 <a href="https://chat2db.ai/" target="_blank">
     <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/9664f2fd-250b-478e-a2a1-4b96464ba718.gif" alt="Chat2DB" />
@@ -60,8 +57,6 @@ Chat2DB Pro supports all the following databases, including the most requested R
 - MongoDB
 - Redis
 - Snowflake
-
-
 
 
 ## Using Chat2DB
