@@ -10,8 +10,8 @@
 
 
 
-<p align="center"><b>Share Chat2DB Repository </b></p>
-<p align="center">
+<p align="left"><b>Share Chat2DB Repository </b></p>
+<p align="left">
 
 <a href="https://twitter.com/intent/tweet?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB&hashtags=ChatGPT,AGI,SQL%20Client,Reporting%20tool" target="blank" > <img src="https://img.shields.io/twitter/follow/_Chat2DB?label=Share on Twitter&style=social" alt=""/> </a> 
 <a href="https://t.me/share/url?text=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.&url=https://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Telegram&logo=Telegram&style=social&url=https://github.com/chat2db/Chat2DB" alt="Share on Telegram"/></a>
