@@ -4,8 +4,6 @@
     </a>
 </p>
 
-<div align="center">
-
 # Chat2DB
 
 **English** | [中文](README_CN.md)· <a href="https://www.benchcouncil.org/evaluation/opencs/annual.html#Achievements">🏆 Top 100 Open Project!</a>
