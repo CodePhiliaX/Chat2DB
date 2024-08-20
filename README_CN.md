@@ -36,10 +36,15 @@
 
 </div>
 
+## ⏬ 下载和安装Chat2DB(Pro)
+
+- 从[官网](https://chat2db-ai.com/download)下载安装包
+- 双击安装包进行安装
+
 # 最近更新
 
-### 🚀🚀🚀 期待已久的Chat2DB Pro版本终于来了，新增了以下几个核心亮点。
-#### 🔥🔥🔥AI驱动的智能SQL开发
+### 期待已久的Chat2DB Pro版本终于来了，新增了以下几个核心亮点。
+#### AI驱动的智能SQL开发
 <a href="https://chat2db-ai.com/" target="_blank">
     <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/9664f2fd-250b-478e-a2a1-4b96464ba718.gif" alt="Chat2DB" />
 </a>
@@ -50,26 +55,26 @@
 <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/47a61ae7-2e21-45e7-a41e-e2559f51919d.gif" alt="Chat2DB" />
 </a>
 
-#### ✨✨✨AI驱动的智能报告
+#### AI驱动的智能报告
 <a href="https://chat2db-ai.com/" target="_blank">
     <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/d070ca11-8bdd-4ff4-a435-ecfc623103cb.gif" alt="Chat2DB" />
 </a>
 
-#### 🎉🎉🎉AI驱动的数据探索
+#### AI驱动的数据探索
 <a href="https://chat2db-ai.com/" target="_blank">
 <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/WechatIMG5138.jpg" alt="Chat2DB" />
 </a>
 
-### 🎁🎁🎁 我们还开源了我们的第一个GLM，[Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM)。你可以从下面的链接了解更多详情。
+### 我们还开源了我们的第一个GLM，[Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM)。你可以从下面的链接了解更多详情。
 
 - GitHub: [Chat2DB-SQL-7B](https://github.com/chat2db/Chat2DB-GLM)
 - huggingface🤗：[Chat2DB-SQL-7B](https://huggingface.co/Chat2DB/Chat2DB-SQL-7B)
 - modelscope：[Chat2DB-SQL-7B](https://modelscope.cn/models/Chat2DB/Chat2DB-SQL-7B/summary)
 
-### 🎁🎁🎁 在Chat2DB上即成InternLM模型
+### 在Chat2DB上即成InternLM模型
 感谢InternLM对本项目的大力支持，在本项目中的自定义模型中，可以集成InternLM的多个模型权重，具体请参考[chat2db-internlm-deploy](https://github.com/chat2db/chat2db-internlm-deploy)
 
-## 🚀 支持的数据库
+## 支持的数据库
 Chat2DB Pro支持以下所有数据库，包括备受期待的Redis功能。
 - MySQL
 - PostgreSQL
@@ -89,12 +94,8 @@ Chat2DB Pro支持以下所有数据库，包括备受期待的Redis功能。
 - Redis
 - Snowflake
 
-## ⏬ 下载和安装Chat2DB(Pro)
 
-- 从[官网](https://chat2db-ai.com/download)下载安装包
-- 双击安装包进行安装
-
-## 🌰 使用Chat2DB
+## 使用Chat2DB
 参考[快速开始指南](https://docs.chat2db-ai.com/)，开始使用Chat2DB。
 
 ## 常见问题
