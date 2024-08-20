@@ -8,7 +8,7 @@
 
 # Chat2DB
 
-**English** | [中文](README_CN.md)· [Changelog](CHANGELOG.md) · [Doc](https://github.com/chat2db/Chat2db-website-old/blob/main/docs/index.md) · [Report Bug](https://github.com/chat2db/Chat2DB/issues) · [PR](https://github.com/chat2db/Chat2DB/pulls)
+**English** | [中文](README_CN.md)· <a href="https://www.benchcouncil.org/evaluation/opencs/annual.html#Achievements">🏆 Top 100 Open Project!</a>
 
 </div>
 
@@ -25,15 +25,6 @@
 <a href="mailto:?subject=Check%20this%20GitHub%20repository%20out.&body=Chat2DB-An%20intelligent%20and%20versatile%20general-purpose%20SQL%20client%20and%20reporting%20tool%20for%20databases%20which%20integrates%20ChatGPT%20capabilities.%3A%0Ahttps://github.com/chat2db/Chat2DB" target="_blank"><img src="https://img.shields.io/twitter/url?label=Gmail&logo=Gmail&style=social&url=https://github.com/chat2db/Chat2DB"/></a>
 </p>
 
-
-<div style="display: flex; align-items: center;">
-  If you think Chat2DB helpful, please click ⭐ Star<a style="display: flex; align-items: center;margin:0px 6px" target="_blank" href='https://github.com/chat2db/Chat2db'><img src="https://img.shields.io/github/stars/chat2db/Chat2DB.svg?style=flat-square&label=Stars&logo=github" alt="github star"/></a> and Fork this repo in the top right corner
-</div>
-<div style="display: flex; align-items: center;">
-  Or upvote on Product Hunt
-   <a href="https://www.producthunt.com/posts/chat2db-pro?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chat2db&#0045;pro" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=450017&theme=light" alt="Chat2DB&#0032;Pro - AI&#0032;driven&#0032;data&#0032;development&#0032;and&#0032;analysis&#0032;platform | Product Hunt" style="width: 200px; height: 40px;" width="250" height="54" /></a> your support is the biggest motivation for Chat2DB to get better
-</div>
-</div>
 
 # NEWS
 
