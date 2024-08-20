@@ -5,8 +5,8 @@
 
 ## Download and Install Chat2DB(Pro)
 
-- [Download](https://chat2db.ai/download)
-- Double click package to install
+[Download](https://chat2db.ai/download)
+Double click package to install
 
 # NEWS
 
