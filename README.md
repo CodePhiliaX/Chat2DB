@@ -106,9 +106,9 @@ Thanks to all who contributed to Chat2DB~~
 
 <a href="https://star-history.com/#chat2db/chat2db&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=chat2db/chat2db&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=CodePhiliaX/chat2db&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=CodePhiliaX/chat2db&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=CodePhiliaX/chat2db&type=Date" />
   </picture>
 </a>
 
