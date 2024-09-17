@@ -1,10 +1,11 @@
-<p align="center">
-    <a href="https://chat2db-ai.com/" target="_blank">
-        <img src="https://chat2db-cdn.oss-us-west-1.aliyuncs.com/website/img/cover.png" alt="Chat2DB" />
-    </a>
-</p>
 
-<div align="center">
+# 加入交流群
+
+![52](https://github.com/user-attachments/assets/8d0b3575-d38f-43a2-9d43-11d6475da0c7)
+加群前请先 Star 和 Fork，谢谢~关注微信公众号可加入微信、钉钉、QQ 群一起讨论，并可以获取 Chat2DB 最新动态和更新。
+
+<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="30%"/></a>
+
 
 # Chat2DB
 
@@ -128,9 +129,6 @@ Chat2DB Pro支持以下所有数据库，包括备受期待的Redis功能。
 
 ## ☎️ 加入我们
 
-加群前请先 Star 和 Fork，谢谢~关注微信公众号可加入微信、钉钉、QQ 群一起讨论，并可以获取 Chat2DB 最新动态和更新。
-
-<a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="30%"/></a>
 
 ## ❤️ 致谢
 
