@@ -1,5 +1,4 @@
 
-# Chat2DB 加入交流群
 
 <a><img src="https://github.com/user-attachments/assets/8d0b3575-d38f-43a2-9d43-11d6475da0c7" width="30%"/></a>
 <a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="20%"/></a>
