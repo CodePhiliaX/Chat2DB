@@ -1,6 +1,10 @@
 
 # Chat2DB
 
+Coming soon on 10.25 for offline version, please get notified on Product Hunt!
+
+<a href="https://www.producthunt.com/posts/chat2db-local?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-chat2db&#0045;local" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=497460&theme=dark" alt="Chat2DB&#0032;Local - Make&#0032;everyone&#0032;a&#0032;database&#0032;expert&#0032;and&#0032;data&#0032;analyst&#0046; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 **English** | [中文](README_CN.md)· <a href="https://www.benchcouncil.org/evaluation/opencs/annual.html#Achievements">🏆 Top 100 Open Project!</a>
 
 ## Download and Install Chat2DB(Pro)
