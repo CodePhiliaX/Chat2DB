@@ -231,12 +231,14 @@ public class ConverterServiceImpl implements ConverterService {
                             dataSourceDO.setSsh(JSON.toJSONString(sshInfo));
                             if (null != credentialsJson) {
                                 JSONObject userInfo = credentialsJson.getJSONObject(key);
-                                JSONObject userPassword = userInfo.getJSONObject(connection);
-                                dataSourceDO.setUserName(userPassword.getString("user"));
-                                DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
-                                String password = userPassword.getString("password");
-                                String encryptStr = desUtil.encrypt(Optional.ofNullable(password).orElse(""), "CBC");
-                                dataSourceDO.setPassword(encryptStr);
+                                if (null != userInfo) {
+                                    JSONObject userPassword = userInfo.getJSONObject(connection);
+                                    dataSourceDO.setUserName(userPassword.getString("user"));
+                                    DesUtil desUtil = new DesUtil(DesUtil.DES_KEY);
+                                    String password = userPassword.getString("password");
+                                    String encryptStr = desUtil.encrypt(Optional.ofNullable(password).orElse(""), "CBC");
+                                    dataSourceDO.setPassword(encryptStr);
+                                }
                             }
                             dataSourceDO.setType(dataBaseType.name());
                             getDataSourceMapper().insert(dataSourceDO);
