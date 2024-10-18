@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
 import { Button, Form, Input, Tooltip } from 'antd';
-import { userLogin } from '@/service/user';
-import LogoImg from '@/assets/logo/logo.png';
-import styles from './index.less';
-import Setting from '@/blocks/Setting';
-import Iconfont from '@/components/Iconfont';
-import i18n from '@/i18n';
+import React, { useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
 import { logoutClearSomeLocalStorage, navigate } from '@/utils';
+
+import Iconfont from '@/components/Iconfont';
+import LogoImg from '@/assets/logo/logo.png';
+import Setting from '@/blocks/Setting';
+import i18n from '@/i18n';
 import { queryCurUser } from '@/store/user';
+import styles from './index.less';
+import { userLogin } from '@/service/user';
 
 interface IFormData {
   userName: string;
@@ -22,6 +23,12 @@ const Login: React.FC = () => {
 
   const handleLogin = async (formData: IFormData) => {
     const token = await userLogin(formData);
+    // 这里兼容token的null的情况，这里配置一下token内容
+    if(!token){
+        navigate('/');
+        return
+    }
+   
     const res = await queryCurUser();
     if (token && res) {
       navigate('/');

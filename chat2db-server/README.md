@@ -1,3 +1,27 @@
+# 部署使用说明
+账号密码：这里都是：chat2db
+
+## 项目使用java17
+配置好项目的jdk17
+
+## 第一步清理mvn
+（清理并编译代码，跳过测试运行）
+mvn clean install -DskipTests
+
+## 第二步：找到target目录内容，然后进行执行启动：
+进入：命令： cd chat2db-server-start
+启动
+
+
+
+
+
+## 第三步：查看这里的启动端口：这里是默认8000
+前端项目启动：
+第一个访问：127.O.O.1:8000/login
+注意：这里可以正常访问：chat2db，但是不能跳转，修改一下前端代码
+第二个访问：http://localhost:8000/connections
+
 # 内部协作规范
 ## 接口规范
 不会使用的参照：https://yuque.antfin-inc.com/docs/share/8a5ff21a-6367-4c77-9e3c-1d5ae9570060?# 《yapi》
