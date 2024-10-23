@@ -48,7 +48,7 @@ export default {
   'setting.text.isLatestVersion': 'This is the latest version',
   'setting.button.changeLog': 'Changelog',
   'setting.title.updateRule': 'Update rule',
-  'setting.text.autoUpdate': 'The new version automatically downloads and installs updates',
+  'setting.text.autoUpdate': 'The new version will be automatically downloaded and installed',
   'setting.text.manualUpdate': 'Only alert me when a new version is released',
   'setting.button.iSee': 'I see',
   'setting.text.newEditionIsReady':
