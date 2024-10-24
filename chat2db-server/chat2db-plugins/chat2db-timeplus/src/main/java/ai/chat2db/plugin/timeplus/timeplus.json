@@ -1,7 +1,7 @@
 {
   "dbType": "TIMEPLUS",
-  "supportDatabase": false,
-  "supportSchema": true,
+  "supportDatabase": true,
+  "supportSchema": false,
   "driverConfigList": [
     {
       "url": "jdbc:timeplus://localhost:8463",
