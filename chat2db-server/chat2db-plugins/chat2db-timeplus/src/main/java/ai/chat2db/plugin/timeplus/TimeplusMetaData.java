@@ -198,18 +198,15 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         String schemaName,
         String tableName
     ) {
-        String sql = String.format(
-            SELECT_TABLE_COLUMNS,
-            tableName,
-            databaseName
-        );
+        final String db = "default";
+        String sql = String.format(SELECT_TABLE_COLUMNS, tableName, db);
         List<TableColumn> tableColumns = new ArrayList<>();
 
         return SQLExecutor.getInstance()
             .execute(connection, sql, resultSet -> {
                 while (resultSet.next()) {
                     TableColumn column = new TableColumn();
-                    column.setDatabaseName(databaseName);
+                    column.setDatabaseName(db);
                     column.setTableName(tableName);
                     column.setOldName(resultSet.getString("name"));
                     column.setName(resultSet.getString("name"));
@@ -261,7 +258,9 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
                     }
                 }
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -271,11 +270,12 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         String schemaName,
         String viewName
     ) {
-        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        final String db = "default";
+        String sql = String.format(VIEW_SQL, db, viewName);
         return SQLExecutor.getInstance()
             .execute(connection, sql, resultSet -> {
                 Table table = new Table();
-                table.setDatabaseName(databaseName);
+                table.setDatabaseName(db);
                 table.setSchemaName(schemaName);
                 table.setName(viewName);
                 if (resultSet.next()) {
@@ -292,10 +292,11 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         String schemaName,
         String tableName
     ) {
+        final String db = "default";
         StringBuilder queryBuf = new StringBuilder("SHOW INDEX FROM ");
         queryBuf.append("`").append(schemaName).append("`");
         queryBuf.append(" FROM ");
-        queryBuf.append("`").append(databaseName).append("`");
+        queryBuf.append("`").append(db).append("`");
         return SQLExecutor.getInstance()
             .execute(connection, queryBuf.toString(), resultSet -> {
                 LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
@@ -303,7 +304,7 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
                     String keyName = resultSet.getString("Key_name");
 
                     TableIndex index = new TableIndex();
-                    index.setDatabaseName(databaseName);
+                    index.setDatabaseName(db);
                     index.setSchemaName(schemaName);
                     index.setTableName(tableName);
                     index.setName(keyName);
