@@ -238,7 +238,7 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
                 String size = columnType.substring(
                     columnType.indexOf("(") + 1,
                     columnType.indexOf(")")
-                );
+                ); //"size" can be a number or "3, 'UTC'" with timezone for datetime objects
                 if (
                     "SET".equalsIgnoreCase(column.getColumnType()) ||
                     "ENUM".equalsIgnoreCase(column.getColumnType())
@@ -251,7 +251,12 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
                             column.setColumnSize(Integer.parseInt(sizes[0]));
                         }
                         if (StringUtils.isNotBlank(sizes[1])) {
-                            column.setDecimalDigits(Integer.parseInt(sizes[1]));
+                            //can be " 'UTC'"
+                            if (sizes[1].contains("'") == false) {
+                                column.setDecimalDigits(
+                                    Integer.parseInt(sizes[1])
+                                );
+                            }
                         }
                     } else {
                         column.setColumnSize(Integer.parseInt(size));
