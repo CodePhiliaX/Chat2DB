@@ -297,60 +297,13 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         String schemaName,
         String tableName
     ) {
-        final String db = "default";
-        StringBuilder queryBuf = new StringBuilder("SHOW INDEX FROM ");
-        queryBuf.append("`").append(schemaName).append("`");
-        queryBuf.append(" FROM ");
-        queryBuf.append("`").append(db).append("`");
-        return SQLExecutor.getInstance()
-            .execute(connection, queryBuf.toString(), resultSet -> {
-                LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
-                while (resultSet.next()) {
-                    String keyName = resultSet.getString("Key_name");
-
-                    TableIndex index = new TableIndex();
-                    index.setDatabaseName(db);
-                    index.setSchemaName(schemaName);
-                    index.setTableName(tableName);
-                    index.setName(keyName);
-                    index.setUnique(!resultSet.getBoolean("Non_unique"));
-                    index.setType(resultSet.getString("Index_type"));
-                    //                    index.setComment(resultSet.getString("Index_comment"));
-                    List<TableIndexColumn> tableIndexColumns =
-                        new ArrayList<>();
-                    tableIndexColumns.addAll(getTableIndexColumn(resultSet));
-                    index.setColumnList(tableIndexColumns);
-                    if ("PRIMARY".equalsIgnoreCase(keyName)) {
-                        index.setType(TimeplusIndexTypeEnum.PRIMARY.getName());
-                    }
-                    map.put(keyName, index);
-                }
-                return map.values().stream().collect(Collectors.toList());
-            });
+        List<TableIndex> rv = new ArrayList<>();
+        return rv;
     }
 
     private List<TableIndexColumn> getTableIndexColumn(ResultSet resultSet)
         throws SQLException {
         List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
-        String name = StringUtils.isBlank(resultSet.getString("column_name"))
-            ? resultSet.getString("expression")
-            : resultSet.getString("column_name");
-        if (StringUtils.isNotBlank(name)) {
-            String[] split = name.split(",");
-            for (String columName : split) {
-                TableIndexColumn tableIndexColumn = new TableIndexColumn();
-                tableIndexColumn.setColumnName(columName);
-                tableIndexColumn.setOrdinalPosition(
-                    resultSet.getShort("seq_in_index")
-                );
-                tableIndexColumn.setCollation(resultSet.getString("collation"));
-                tableIndexColumn.setCardinality(
-                    resultSet.getLong("cardinality")
-                );
-                tableIndexColumn.setSubPart(resultSet.getLong("sub_part"));
-                tableIndexColumns.add(tableIndexColumn);
-            }
-        }
         return tableIndexColumns;
     }
 
@@ -368,7 +321,7 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         return TableMeta.builder()
             .columnTypes(TimeplusColumnTypeEnum.getTypes())
             .engineTypes(TimeplusEngineTypeEnum.getTypes())
-            .indexTypes(TimeplusIndexTypeEnum.getIndexTypes())
+            //.indexTypes(TimeplusIndexTypeEnum.getIndexTypes())
             .build();
     }
 
