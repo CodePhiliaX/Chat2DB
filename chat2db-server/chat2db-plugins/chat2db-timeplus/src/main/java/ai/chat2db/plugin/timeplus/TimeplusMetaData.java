@@ -24,15 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 
 public class TimeplusMetaData extends DefaultMetaService implements MetaData {
 
-    private static String ROUTINES_SQL =
-        "SELECT SPECIFIC_NAME, ROUTINE_COMMENT, ROUTINE_DEFINITION FROM information_schema.routines WHERE " +
-        "routine_type = '%s' AND ROUTINE_SCHEMA ='%s'  AND " +
-        "routine_name = '%s';";
-    private static String TRIGGER_SQL =
-        "SELECT TRIGGER_NAME,EVENT_MANIPULATION, ACTION_STATEMENT  FROM INFORMATION_SCHEMA.TRIGGERS where " +
-        "TRIGGER_SCHEMA = '%s' AND TRIGGER_NAME = '%s';";
-    private static String TRIGGER_SQL_LIST =
-        "SELECT TRIGGER_NAME FROM INFORMATION_SCHEMA.TRIGGERS where TRIGGER_SCHEMA = '%s';";
+    private static String ROUTINES_SQL = "";
+    private static String TRIGGER_SQL = "";
+    private static String TRIGGER_SQL_LIST = "";
     private static String SELECT_TABLE_COLUMNS =
         "select * from `system`.columns where table ='%s' and database='%s';";
     private static String VIEW_SQL =
@@ -42,7 +36,7 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         "system"
     );
     public static final String FUNCTION_SQL =
-        "SELECT name,create_query as ddl from system.functions where origin='SQLUserDefined'";
+        "SELECT name,create_query as ddl from system.functions where origin='ExecutableUserDefined'";
 
     public static String format(String tableName) {
         return "`" + tableName + "`";
@@ -98,14 +92,11 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         @NotEmpty String tableName
     ) {
         String sql =
-            "SHOW CREATE STREAM " +
-            format(schemaName) +
-            "." +
-            format(tableName);
+            "SHOW CREATE " + format(schemaName) + "." + format(tableName);
         return SQLExecutor.getInstance()
             .execute(connection, sql, resultSet -> {
                 if (resultSet.next()) {
-                    return resultSet.getString("Create STREAM");
+                    return resultSet.getString("statement");
                 }
                 return null;
             });
@@ -140,18 +131,7 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
         String schemaName
     ) {
         List<Trigger> triggers = new ArrayList<>();
-        String sql = String.format(TRIGGER_SQL_LIST, schemaName);
-        return SQLExecutor.getInstance()
-            .execute(connection, sql, resultSet -> {
-                while (resultSet.next()) {
-                    Trigger trigger = new Trigger();
-                    trigger.setTriggerName(resultSet.getString("TRIGGER_NAME"));
-                    trigger.setSchemaName(schemaName);
-                    trigger.setDatabaseName(databaseName);
-                    triggers.add(trigger);
-                }
-                return triggers;
-            });
+        return triggers;
     }
 
     @Override
