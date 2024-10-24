@@ -32,7 +32,7 @@ public class TimeplusDBManage extends DefaultDBManage implements DBManage {
         AsyncContext asyncContext
     ) throws SQLException {
         String sql =
-            "SELECT name,create_query from system.functions where origin='SQLUserDefined'";
+            "SELECT name,create_query from system.functions where origin='ExecutableUserDefined'";
         try (
             ResultSet resultSet = connection.createStatement().executeQuery(sql)
         ) {
