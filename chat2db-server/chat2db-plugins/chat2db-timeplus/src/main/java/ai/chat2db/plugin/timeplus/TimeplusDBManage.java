@@ -132,7 +132,7 @@ public class TimeplusDBManage extends DefaultDBManage implements DBManage {
     }
 
     private String setDatabaseInJdbcUrl(ConnectInfo connectInfo) {
-        String databaseName;
+        String databaseName; //sometimes it's null, sometimes not. Need special handling
         String url = connectInfo.getUrl();
         if (
             StringUtils.isBlank(
@@ -151,14 +151,17 @@ public class TimeplusDBManage extends DefaultDBManage implements DBManage {
             // Remove / from connection parameters
             connectParams = connectParams.substring(1);
         }
+        if (connectParams.equals(databaseName)) {
+            return url;
+        }
         // Add database name
-        return (
+        String rv =
             addressSplit[0] +
             connectAddress +
             "/" +
             databaseName +
-            connectParams
-        );
+            connectParams;
+        return rv;
     }
 
     @Override
