@@ -7,10 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 public enum TimeplusEngineTypeEnum {
-    AzureBlobStorage(
-        "AzureBlobStorage",
+    Stream("Stream", true, true, true, false, true, true, true, true),
+    ExternalStream(
+        "ExternalStream",
         false,
-        true,
+        false,
         false,
         false,
         true,
@@ -18,45 +19,41 @@ public enum TimeplusEngineTypeEnum {
         false,
         false
     ),
-    KeeperMap(
-        "KeeperMap",
+    ExternalTable(
+        "ExternalTable",
         false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false
+    ),
+    MutableStream(
+        "MutableStream",
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+    ),
+    View("View", false, false, false, false, false, false, false, false),
+    MaterializedView(
+        "MaterializedView",
         true,
         false,
         false,
         false,
         true,
         false,
-        false
-    ),
-    SQLite("SQLite", false, false, false, false, false, false, false, false),
-    ExternalDistributed(
-        "ExternalDistributed",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
         false,
         false
     ),
-    PostgreSQL(
-        "PostgreSQL",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    NATS("NATS", false, false, false, false, true, false, false, false),
-    RabbitMQ("RabbitMQ", false, false, false, false, true, false, false, false),
-    Kafka("Kafka", false, false, false, false, true, false, false, false),
-    MongoDB("MongoDB", false, false, false, false, false, false, false, false),
-    FileLog("FileLog", false, false, false, false, true, false, false, false),
+    Random("Random", false, false, false, false, true, false, false, false),
     Dictionary(
         "Dictionary",
         false,
@@ -68,128 +65,7 @@ public enum TimeplusEngineTypeEnum {
         false,
         false
     ),
-    MySQL("MySQL", false, false, false, false, true, false, false, false),
-    S3Queue("S3Queue", false, false, false, false, true, false, false, false),
-    HDFS("HDFS", false, true, false, false, false, false, false, false),
-    MaterializedPostgreSQL(
-        "MaterializedPostgreSQL",
-        false,
-        true,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false
-    ),
     S3("S3", false, true, false, false, true, false, false, false),
-    FuzzJSON(
-        "FuzzJSON",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    OSS("OSS", false, true, false, false, true, false, false, false),
-    WindowView(
-        "WindowView",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    Distributed(
-        "Distributed",
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-    ),
-    ReplicatedSummingMergeTree(
-        "ReplicatedSummingMergeTree",
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-    ),
-    ExecutablePool(
-        "ExecutablePool",
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false
-    ),
-    COSN("COSN", false, true, false, false, true, false, false, false),
-    Iceberg("Iceberg", false, false, false, false, false, false, false, false),
-    MaterializedView(
-        "MaterializedView",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    View("View", false, false, false, false, false, false, false, false),
-    JDBC("JDBC", false, false, false, false, false, false, false, false),
-    Join("Join", false, false, false, false, true, false, false, false),
-    Executable(
-        "Executable",
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false
-    ),
-    Set("Set", false, false, false, false, true, false, false, false),
-    Redis("Redis", false, true, false, false, false, true, false, false),
-    GenerateRandom(
-        "GenerateRandom",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    LiveView(
-        "LiveView",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
     MergeTree("MergeTree", true, true, true, false, true, true, true, false),
     ReplicatedReplacingMergeTree(
         "ReplicatedReplacingMergeTree",
@@ -203,31 +79,6 @@ public enum TimeplusEngineTypeEnum {
         true
     ),
     Memory("Memory", false, false, false, false, true, true, false, false),
-    Buffer("Buffer", false, false, false, false, false, true, false, false),
-    URL("URL", false, false, false, false, true, false, false, false),
-    ReplicatedVersionedCollapsingMergeTree(
-        "ReplicatedVersionedCollapsingMergeTree",
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-    ),
-    VersionedCollapsingMergeTree(
-        "VersionedCollapsingMergeTree",
-        true,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        false
-    ),
-    Hive("Hive", false, true, false, false, true, false, false, false),
     ReplacingMergeTree(
         "ReplacingMergeTree",
         true,
@@ -261,28 +112,6 @@ public enum TimeplusEngineTypeEnum {
         true,
         true
     ),
-    DeltaLake(
-        "DeltaLake",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    ),
-    EmbeddedRocksDB(
-        "EmbeddedRocksDB",
-        true,
-        true,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false
-    ),
     ReplicatedCollapsingMergeTree(
         "ReplicatedCollapsingMergeTree",
         true,
@@ -295,32 +124,8 @@ public enum TimeplusEngineTypeEnum {
         true
     ),
     File("File", false, false, false, false, true, false, false, false),
-    TinyLog("TinyLog", false, false, false, false, true, false, false, false),
-    ReplicatedGraphiteMergeTree(
-        "ReplicatedGraphiteMergeTree",
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true
-    ),
     SummingMergeTree(
         "SummingMergeTree",
-        true,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        false
-    ),
-    Hudi("Hudi", false, false, false, false, false, false, false, false),
-    GraphiteMergeTree(
-        "GraphiteMergeTree",
         true,
         true,
         true,
@@ -353,19 +158,8 @@ public enum TimeplusEngineTypeEnum {
         true,
         false
     ),
-    ODBC("ODBC", false, false, false, false, false, false, false, false),
     Null("Null", false, false, false, false, false, true, false, false),
-    StripeLog(
-        "StripeLog",
-        false,
-        false,
-        false,
-        false,
-        true,
-        false,
-        false,
-        false
-    ),
+
     Log("Log", false, false, false, false, true, false, false, false);
 
     private static Map<String, TimeplusEngineTypeEnum> ENGINE_TYPE_MAP =
