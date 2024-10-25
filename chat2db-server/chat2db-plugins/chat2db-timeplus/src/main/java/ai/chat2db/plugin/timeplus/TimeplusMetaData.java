@@ -327,10 +327,13 @@ public class TimeplusMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String getMetaDataName(String... names) {
-        return Arrays.stream(names)
+        //avoid default.default.abc
+        String rv = Arrays.stream(names)
             .filter(name -> StringUtils.isNotBlank(name))
             .map(name -> "`" + name + "`")
             .collect(Collectors.joining("."));
+        rv = rv.replaceFirst("`default`.`default`", "`default`");
+        return rv;
     }
 
     @Override
