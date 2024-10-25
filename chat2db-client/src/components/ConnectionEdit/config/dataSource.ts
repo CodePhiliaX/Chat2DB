@@ -2026,7 +2026,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           },
         },
         {
-          defaultValue: '8463',
+          defaultValue: '7587',
           inputType: InputType.INPUT,
           labelNameCN: '端口',
           labelNameEN: 'Port',
@@ -2090,7 +2090,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
         },
         {
-          defaultValue: 'jdbc:timeplus://localhost:8463',
+          defaultValue: 'jdbc:timeplus://localhost:7587',
           inputType: InputType.INPUT,
           labelNameCN: 'URL',
           labelNameEN: 'URL',
@@ -2101,7 +2101,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       pattern: /jdbc:timeplus:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:timeplus://{host}:{port}/{database}',
       excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
-      //排除掉导出ddl 和 创建表功能 支持的功能见 ./enum.ts => OperationColumn
     },
     ssh: sshConfig,
   },

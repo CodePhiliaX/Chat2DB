@@ -4,7 +4,7 @@
   "supportSchema": false,
   "driverConfigList": [
     {
-      "url": "jdbc:timeplus://localhost:8463",
+      "url": "jdbc:timeplus://localhost:7587",
       "defaultDriver": true,
       "custom": false,
       "downloadJdbcDriverUrls": [
