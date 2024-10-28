@@ -1,0 +1,18 @@
+{
+  "dbType": "TIMEPLUS",
+  "supportDatabase": true,
+  "supportSchema": false,
+  "driverConfigList": [
+    {
+      "url": "jdbc:timeplus://localhost:7587",
+      "defaultDriver": true,
+      "custom": false,
+      "downloadJdbcDriverUrls": [
+        "https://timeplus.io/downloads/timeplus-native-jdbc-shaded-2.0.5.jar"
+      ],
+      "jdbcDriver": "timeplus-native-jdbc-shaded-2.0.5.jar",
+      "jdbcDriverClass": "com.timeplus.jdbc.TimeplusDriver"
+    }
+  ],
+  "name": "Timeplus"
+}

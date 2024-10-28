@@ -4,6 +4,7 @@ import ai.chat2db.spi.ColumnBuilder;
 import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.model.ColumnType;
 import ai.chat2db.spi.model.TableColumn;
+import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,9 +16,9 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     BIT("BIT", true, false, true, false, false, false, true, true, false, false),
 
-    TINYINT("TINYINT", true, false, true, true, false, false, true, true, false, false),
+    TINYINT("TINYINT", false, false, true, true, false, false, true, true, false, false),
 
-    TINYINT_UNSIGNED("TINYINT UNSIGNED", true, false, true, true, false, false, true, true, false, false),
+    TINYINT_UNSIGNED("TINYINT UNSIGNED", false, false, true, true, false, false, true, true, false, false),
 
     SMALLINT("SMALLINT", false, false, true, true, false, false, true, true, false, false),
 
@@ -116,7 +117,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     private ColumnType columnType;
 
     public static MysqlColumnTypeEnum getByType(String dataType) {
-        return COLUMN_TYPE_MAP.get(dataType.toUpperCase());
+        return COLUMN_TYPE_MAP.get(SqlUtils.removeDigits(dataType.toUpperCase()));
     }
 
     public ColumnType getColumnType() {
@@ -194,6 +195,37 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
                 return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
             } else {
                 return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+            }
+        }
+        return "";
+    }
+
+    public String buildModifyColumn(TableColumn tableColumn, boolean isMove, String columnName) {
+        if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
+            return StringUtils.join("DROP COLUMN `", tableColumn.getName() + "`");
+        }
+        if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
+            if (isMove){
+                if (columnName.equals("-1")) {
+                    return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn)," FIRST");
+                } else {
+                    return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn), " AFTER ", columnName);
+                }
+            }
+            return StringUtils.join("ADD COLUMN ", buildCreateColumnSql(tableColumn));
+        }
+        if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
+            if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
+                return StringUtils.join("CHANGE COLUMN `", tableColumn.getOldName(), "` ", buildCreateColumnSql(tableColumn));
+            } else {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn));
+            }
+        }
+        if (isMove) {
+            if (columnName.equals("-1")) {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn)," FIRST");
+            } else {
+                return StringUtils.join("MODIFY COLUMN ", buildCreateColumnSql(tableColumn), " AFTER ", columnName);
             }
         }
         return "";
@@ -284,7 +316,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
 
-        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE,TINYINT).contains(type)) {
+        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE).contains(type)) {
             if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
                 return columnType;
             }
@@ -296,7 +328,7 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             }
         }
 
-        if (Arrays.asList(DECIMAL_UNSIGNED, FLOAT_UNSIGNED, DECIMAL_UNSIGNED,TINYINT_UNSIGNED).contains(type)) {
+        if (Arrays.asList(DECIMAL_UNSIGNED, FLOAT_UNSIGNED, DECIMAL_UNSIGNED).contains(type)) {
             if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
                 return columnType;
             }

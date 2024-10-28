@@ -17,6 +17,7 @@ import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
+import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
@@ -91,7 +92,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         });
     }
 
-    private static String SELECT_TABLES_SQL = "SELECT t.name AS TableName, mm.value as comment FROM sys.tables t LEFT JOIN(SELECT * from sys.extended_properties ep where ep.minor_id = 0 AND ep.name = 'MS_Description') mm ON t.object_id = mm.major_id WHERE t.schema_id= SCHEMA_ID('%S') ";
+    private static String SELECT_TABLES_SQL = "SELECT t.name AS TableName, mm.value as comment FROM sys.tables t LEFT JOIN(SELECT * from sys.extended_properties ep where ep.minor_id = 0 AND ep.name = 'MS_Description') mm ON t.object_id = mm.major_id WHERE t.schema_id= SCHEMA_ID('%s')";
 
     @Override
     public List<Table> tables(Connection connection, String databaseName, String schemaName, String tableName) {
@@ -99,7 +100,10 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
         String sql = String.format(SELECT_TABLES_SQL, schemaName);
         if (StringUtils.isNotBlank(tableName)) {
             sql += " AND t.name = '" + tableName + "'";
+        }else {
+            sql += " ORDER BY t.name";
         }
+
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             while (resultSet.next()) {
                 Table table = new Table();
@@ -128,7 +132,9 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
                 column.setOldName(resultSet.getString("COLUMN_NAME"));
                 column.setName(resultSet.getString("COLUMN_NAME"));
                 //column.setColumnType(resultSet.getString("COLUMN_TYPE"));
-                column.setColumnType(resultSet.getString("DATA_TYPE").toUpperCase());
+                String dataType = resultSet.getString("DATA_TYPE").toUpperCase();
+                column.setColumnType(SqlUtils.removeDigits(dataType));
+
                 //column.setDataType(resultSet.getInt("DATA_TYPE"));
                 column.setDefaultValue(resultSet.getString("COLUMN_DEFAULT"));
                 //column.setAutoIncrement(resultSet.getString("EXTRA").contains("auto_increment"));
@@ -153,7 +159,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
 
 
     private static String OBJECT_SQL
-            = "SELECT name FROM sys.objects WHERE type = '%s' and SCHEMA_ID = SCHEMA_ID('%s');";
+            = "SELECT name FROM sys.objects WHERE type = '%s' and SCHEMA_ID = SCHEMA_ID('%s') order by name;";
 
     @Override
     public Function function(Connection connection, @NotEmpty String databaseName, String schemaName,
@@ -232,7 +238,7 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     private static String TRIGGER_SQL_LIST
             = "SELECT OBJECT_NAME(parent_obj) AS TableName, name AS triggerName, OBJECT_DEFINITION(id) AS "
             + "triggerDefinition, CASE WHEN status & 1 = 1 THEN 'Enabled' ELSE 'Disabled' END AS Status FROM sysobjects "
-            + "WHERE xtype = 'TR' ";
+            + "WHERE xtype = 'TR' order by name";
 
     @Override
     public List<Trigger> triggers(Connection connection, String databaseName, String schemaName) {
@@ -409,4 +415,5 @@ public class SqlServerMetaData extends DefaultMetaService implements MetaData {
     public List<String> getSystemSchemas() {
         return systemSchemas;
     }
+
 }

@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
@@ -17,11 +19,9 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
+import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.MetaSchema;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Sql;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import cn.hutool.core.thread.ThreadUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -80,27 +80,23 @@ public class DatabaseServiceImpl implements DatabaseService {
         if (CollectionUtils.isEmpty(schemas)) {
             return;
         }
-        String url = null;
+        String ulr = null;
         try {
-            if (connection.getMetaData().getClass().getName().contains("HiveDatabaseMetaData")) {
-                url = "";
-            } else {
-                url = connection.getMetaData().getURL();
-            }
+            ulr = connection.getMetaData().getURL();
         } catch (SQLException e) {
             log.error("get url error", e);
         }
         // If the database name contains the name of the current database, the current database is placed in the first place
-        int num = -1;
+        int targetIndex = -1;
         for (int i = 0; i < schemas.size(); i++) {
             String schema = schemas.get(i).getName();
-            if (StringUtils.isNotBlank(url) && schema!=null && url.contains(schema)) {
-                num = i;
+            if (StringUtils.isNotBlank(ulr) && schema!=null && ulr.contains(schema)) {
+                targetIndex = i;
                 break;
             }
         }
-        if (num != -1 && num != 0) {
-            Collections.swap(schemas, num, 0);
+        if (targetIndex != -1 && targetIndex != 0) {
+            Collections.swap(schemas, targetIndex, 0);
         }
     }
 
@@ -157,7 +153,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public ActionResult modifyDatabase(DatabaseCreateParam param) {
         Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getName(),
-                param.getName());
+                param.getNewName());
         return ActionResult.isSuccess();
     }
 
@@ -184,10 +180,20 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public String exportDatabase(DatabaseExportParam param) throws SQLException {
-       return Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
+        AsyncCall call = new AsyncCall() {
+
+            @Override
+            public void update(Map<String, Object> map) {
+
+            }
+        };
+
+        AsyncContext asyncContext = new AsyncContext(call, ContextUtils.queryContext(), null, param.getContainData());
+        Chat2DBContext.getDBManage().exportDatabase(Chat2DBContext.getConnection(),
                                                           param.getDatabaseName(),
-                                                          param.getSchemaName(),
-                                                          param.getContainData());
+                                                          param.getSchemaName(), asyncContext);
+
+        return "exportDatabase success";
     }
 
 }
