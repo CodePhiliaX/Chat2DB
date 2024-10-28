@@ -10,6 +10,8 @@ import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
+
 
 public class ClickHouseSqlBuilder extends DefaultSqlBuilder {
     @Override
