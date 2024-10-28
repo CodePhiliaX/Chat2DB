@@ -20,7 +20,7 @@ import java.io.Serializable;
 public class Procedure implements Serializable {
     private static final long serialVersionUID = 1L;
     //PROCEDURE_CAT String => procedure catalog (may be null)
-    //PROCEDURE_SCHEM String => procedure schema (may be null)
+    //PROCEDURE_SCHEME String => procedure schema (may be null)
     //PROCEDURE_NAME String => procedure name
     //REMARKS String => explanatory comment on the procedure
     //PROCEDURE_TYPE short => kind of procedure:
@@ -34,7 +34,6 @@ public class Procedure implements Serializable {
     private String databaseName;
 
     @JsonAlias({"PROCEDURE_SCHEM"})
-
     private String schemaName;
 
     @JsonAlias({"PROCEDURE_NAME"})
@@ -44,7 +43,6 @@ public class Procedure implements Serializable {
     private String remarks;
 
     @JsonAlias({"PROCEDURE_TYPE"})
-
     private Short procedureType;
 
     @JsonAlias({"SPECIFIC_NAME"})

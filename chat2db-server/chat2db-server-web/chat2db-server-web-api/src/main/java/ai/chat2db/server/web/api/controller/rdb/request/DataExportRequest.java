@@ -23,6 +23,9 @@ public class DataExportRequest extends DataSourceBaseRequest {
      */
     private String originalSql;
 
+    private Integer pageNo;
+    private Integer pageSize;
+
     /**
      * export type
      *

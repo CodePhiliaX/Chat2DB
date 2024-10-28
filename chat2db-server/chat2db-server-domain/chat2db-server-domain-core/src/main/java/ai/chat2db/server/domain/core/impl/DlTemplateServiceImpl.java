@@ -13,7 +13,6 @@ import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.SqlBuilder;
-import ai.chat2db.spi.ValueHandler;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
@@ -97,16 +96,16 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         //RemoveSpecialGO(param);
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
-        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
+        List<String> sqlList = SqlUtils.parse(param.getSql(), dbType,true);
         Connection connection = Chat2DBContext.getConnection();
         try {
-            connection.setAutoCommit(false);
+//            connection.setAutoCommit(false);
             for (String originalSql : sqlList) {
                 ExecuteResult executeResult = executor.executeUpdate(originalSql, connection, 1);
                 dataResult.setData(executeResult);
                 addOperationLog(executeResult);
             }
-            connection.commit();
+//            connection.commit();
         } catch (Exception e) {
             log.error("executeUpdate error", e);
             dataResult.setSuccess(false);
@@ -135,9 +134,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         sql = PagerUtils.count(sql, dbType);
         ExecuteResult executeResult;
         try {
-            ValueHandler valueHandler = Chat2DBContext.getMetaData().getValueHandler();
-            executeResult = Chat2DBContext.getMetaData().getCommandExecutor().execute(sql, Chat2DBContext.getConnection(), true, null, null,
-                    valueHandler);
+            executeResult = Chat2DBContext.getMetaData().getCommandExecutor().execute(sql, Chat2DBContext.getConnection(), true, null, null);
         } catch (SQLException e) {
             log.warn("Execute sql: {} exception", sql, e);
             executeResult = ExecuteResult.builder()
@@ -176,7 +173,22 @@ public class DlTemplateServiceImpl implements DlTemplateService {
         return DataResult.of(orderSql);
     }
 
-
+    
+    /**
+     * The method getGroupBySql constructs a GROUP BY SQL query string from the provided parameters.
+     *
+     * @param param - a GroupByParam object containing the original SQL query and the list of columns to group by
+     * @return DataResult<String> - a DataResult object containing the constructed GROUP BY SQL query string
+    */
+   @Override
+    public DataResult<String> getGroupBySql(GroupByParam param) {
+        // - Retrieve the SqlBuilder instance from Chat2DBContext
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        // Build the GROUP BY SQL using the provided parameters
+        String groupSql = sqlBuilder.buildGroupBySql(param.getOriginSql(), param.getGroupByList());
+        // Return the built SQL as a DataResult
+        return DataResult.of(groupSql);
+    }
     private List<Header> setColumnInfo(List<Header> headers, String tableName, String schemaName, String databaseName) {
         try {
             TableQueryParam tableQueryParam = new TableQueryParam();

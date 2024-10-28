@@ -3,7 +3,7 @@ import redisLogo from '@/assets/img/databaseImg/redis.png';
 import h2Logo from '@/assets/img/databaseImg/h2.png';
 import moreDBLogo from '@/assets/img/databaseImg/other.png';
 import { IDatabase } from '@/typings';
-import { DatabaseTypeCode } from '@/constants'
+import { DatabaseTypeCode } from '@/constants';
 
 export enum ConnectionEnvType {
   DAILY = 'DAILY',
@@ -94,7 +94,7 @@ export const databaseMap: {
     name: 'OceanBase',
     img: moreDBLogo,
     code: DatabaseTypeCode.OCEANBASE,
-    // port: 2883, 
+    // port: 2883,
     icon: '\ue982',
   },
   [DatabaseTypeCode.HIVE]: {
@@ -117,6 +117,13 @@ export const databaseMap: {
     code: DatabaseTypeCode.MONGODB,
     // port: 27017,
     icon: '\uec21',
+  },
+  [DatabaseTypeCode.TIMEPLUS]: {
+    name: 'Timeplus',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.TIMEPLUS,
+    // port: 8123,
+    icon: '\ue8f4',
   },
   // [DatabaseTypeCode.REDIS]: {
   //   name: 'Redis',

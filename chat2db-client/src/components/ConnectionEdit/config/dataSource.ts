@@ -22,7 +22,6 @@ export const sshConfig: IConnectionConfig['ssh'] = {
           value: true,
         },
       ],
-
     },
     {
       defaultValue: '',
@@ -33,7 +32,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       required: false,
       styles: {
         width: '70%',
-      }
+      },
     },
     {
       defaultValue: '22',
@@ -46,8 +45,8 @@ export const sshConfig: IConnectionConfig['ssh'] = {
         width: '30%',
         labelWidthEN: '40px',
         labelWidthCN: '70px',
-        labelAlign: 'right'
-      }
+        labelAlign: 'right',
+      },
     },
     {
       defaultValue: '',
@@ -58,7 +57,7 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       required: false,
       styles: {
         width: '70%',
-      }
+      },
     },
     {
       defaultValue: '',
@@ -73,8 +72,8 @@ export const sshConfig: IConnectionConfig['ssh'] = {
         width: '30%',
         labelWidthEN: '70px',
         labelWidthCN: '70px',
-        labelAlign: 'right'
-      }
+        labelAlign: 'right',
+      },
     },
     {
       defaultValue: 'password',
@@ -125,13 +124,12 @@ export const sshConfig: IConnectionConfig['ssh'] = {
       ],
       styles: {
         width: '50%',
-      }
+      },
     },
+  ],
+};
 
-  ]
-}
-
-const  envItem = {
+const envItem = {
   defaultValue: '',
   inputType: InputType.SELECT,
   labelNameCN: '环境',
@@ -141,8 +139,8 @@ const  envItem = {
   selects: [],
   styles: {
     width: '50%',
-  }
-}
+  },
+};
 
 export const dataSourceFormConfigs: IConnectionConfig[] = [
   // MYSQL
@@ -167,7 +165,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '3306',
@@ -181,8 +179,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -218,12 +216,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -248,13 +245,17 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
     ssh: sshConfig,
     extendInfo: [
       {
-        "key": "zeroDateTimeBehavior",
-        "value": "convertToNull"
+        key: 'zeroDateTimeBehavior',
+        value: 'convertToNull',
       },
       {
-        "key": "useInformationSchema",
-        "value": "true"
-      }
+        key: 'useInformationSchema',
+        value: 'true',
+      },
+      {
+        key: 'tinyInt1isBit',
+        value: 'false',
+      },
     ],
     type: DatabaseTypeCode.MYSQL,
   },
@@ -281,8 +282,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
-          }
+          },
         },
         {
           defaultValue: '5432',
@@ -296,8 +296,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -316,7 +316,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -325,24 +324,20 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
               label: 'User&Password',
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: 'postgres',
@@ -351,7 +346,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:postgresql://localhost:5432',
@@ -360,7 +354,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:postgresql:\/\/(.*):(\d+)(\/(\w+))?/,
@@ -391,8 +384,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
-          }
+          },
         },
         {
           defaultValue: '1521',
@@ -406,8 +398,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: 'sid',
@@ -430,39 +422,41 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '70%',
-                  }
+                  },
                 },
               ],
               onChange: (data: IConnectionConfig) => {
                 data.baseInfo.pattern = /jdbc:oracle:(.*):@(.*):(\d+):(.*)/;
                 data.baseInfo.template = 'jdbc:oracle:{driver}:@{host}:{port}:{sid}';
-                return data
-              }
+                return data;
+              },
             },
             {
               label: 'Service',
               value: 'service',
-              items: [{
-                defaultValue: 'XE',
-                inputType: InputType.INPUT,
-                labelNameCN: '服务名',
-                labelNameEN: 'Service name',
-                name: 'serviceName',
-                required: true,
-                styles: {
-                  width: '70%',
+              items: [
+                {
+                  defaultValue: 'XE',
+                  inputType: InputType.INPUT,
+                  labelNameCN: '服务名',
+                  labelNameEN: 'Service name',
+                  name: 'serviceName',
+                  required: true,
+                  styles: {
+                    width: '70%',
+                  },
                 },
-              }],
+              ],
               onChange: (data: IConnectionConfig) => {
                 data.baseInfo.pattern = /jdbc:oracle:(.*):@\/\/(.*):(\d+)\/(.*)/;
                 data.baseInfo.template = 'jdbc:oracle:{driver}:@//{host}:{port}/{serviceName}';
-                return data
-              }
+                return data;
+              },
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: 'thin',
@@ -482,7 +476,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'oci',
             },
             {
-
               value: 'oci8',
               label: 'oci8',
             },
@@ -491,8 +484,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '70px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -511,7 +504,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -520,24 +512,20 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
               label: 'User&Password',
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: 'jdbc:oracle:thin:@localhost:1521:XE',
@@ -576,7 +564,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '9092',
@@ -590,8 +578,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: 'TCP',
@@ -608,8 +596,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               onChange: (data: IConnectionConfig) => {
                 data.baseInfo.pattern = /jdbc:h2:tcp:\/\/(.*):(\d+)(\/(\w+))?/;
                 data.baseInfo.template = 'jdbc:h2:tcp://{host}:{port}/{database}';
-                return data
-              }
+                return data;
+              },
             },
             {
               label: i18n('common.label.LocalFile'),
@@ -627,13 +615,13 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               onChange: (data: IConnectionConfig) => {
                 data.baseInfo.pattern = /jdbc:h2:(.*)?/;
                 data.baseInfo.template = 'jdbc:h2:{file}';
-                return data
-              }
+                return data;
+              },
             },
           ],
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -652,7 +640,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -661,7 +648,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
 
@@ -669,7 +655,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
@@ -677,8 +662,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: '',
@@ -695,7 +679,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:h2:tcp:\/\/(.*):(\d+)(\/(\w+))?/,
@@ -708,20 +691,20 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
     type: DatabaseTypeCode.SQLSERVER,
     extendInfo: [
       {
-        "key": "encrypt",
-        "value": "false"
+        key: 'encrypt',
+        value: 'false',
       },
       {
-        "key": "trustServerCertificate",
-        "value": "true"
+        key: 'trustServerCertificate',
+        value: 'true',
       },
       {
-        "key": "integratedSecurity",
-        "value": "false"
+        key: 'integratedSecurity',
+        value: 'false',
       },
       {
-        "key": "Trusted_Connection",
-        "value": "yes"
+        key: 'Trusted_Connection',
+        value: 'yes',
       },
     ],
     baseInfo: {
@@ -744,7 +727,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '1433',
@@ -758,8 +741,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: '',
@@ -786,7 +769,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -795,7 +777,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
 
@@ -803,17 +784,14 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: '',
@@ -849,7 +827,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -867,7 +844,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:sqlite:(.*)?/,
@@ -887,7 +863,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -899,8 +874,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
-          }
+          },
         },
         {
           defaultValue: '3306',
@@ -914,8 +888,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -934,7 +908,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -943,7 +916,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
 
@@ -951,17 +923,14 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: '',
@@ -970,7 +939,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:mariadb://localhost:3306',
@@ -979,7 +947,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:mariadb:\/\/(.*):(\d+)(\/(\w+))?/,
@@ -999,7 +966,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -1011,8 +977,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
-          }
+          },
         },
         {
           defaultValue: '8123',
@@ -1026,8 +991,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1046,7 +1011,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -1055,7 +1019,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'Password',
                   name: 'password',
                   required: true,
-
                 },
               ],
 
@@ -1063,17 +1026,14 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               value: AuthenticationType.USERANDPASSWORD,
             },
             {
-
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1082,7 +1042,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:clickhouse://localhost:8123',
@@ -1091,12 +1050,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:clickhouse:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:clickhouse://{host}:{port}/{database}',
-      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable,OperationColumn.EditTable]
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
       //排除掉导出ddl 和 创建表功能 支持的功能见 ./enum.ts => OperationColumn
     },
     ssh: sshConfig,
@@ -1112,7 +1070,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Name',
           name: 'alias',
           required: true,
-
         },
         envItem,
         {
@@ -1124,8 +1081,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-
-          }
+          },
         },
         {
           defaultValue: '5236',
@@ -1139,8 +1095,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1159,7 +1115,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   labelNameEN: 'User',
                   name: 'user',
                   required: true,
-
                 },
                 {
                   defaultValue: '',
@@ -1181,8 +1136,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           ],
           styles: {
             width: '50%',
-
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1191,7 +1145,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'Database',
           name: 'database',
           required: false,
-
         },
         {
           defaultValue: 'jdbc:dm://localhost:5236',
@@ -1200,22 +1153,20 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           labelNameEN: 'URL',
           name: 'url',
           required: true,
-
         },
       ],
       pattern: /jdbc:dm:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:dm://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
     extendInfo: [
       {
-        "key": "zeroDateTimeBehavior",
-        "value": "convertToNull"
+        key: 'zeroDateTimeBehavior',
+        value: 'convertToNull',
       },
     ],
-    type: DatabaseTypeCode.DM
+    type: DatabaseTypeCode.DM,
   },
   //DB2
   {
@@ -1230,7 +1181,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1242,7 +1193,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '50000',
@@ -1256,8 +1207,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1278,7 +1229,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1289,7 +1240,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1299,12 +1250,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1315,7 +1265,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:db2://localhost:50000',
@@ -1326,20 +1276,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:db2:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:db2://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.DB2
+    extendInfo: [],
+    type: DatabaseTypeCode.DB2,
   },
   //presto
   {
@@ -1354,7 +1300,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1366,7 +1312,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '8080',
@@ -1380,8 +1326,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1402,7 +1348,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1413,7 +1359,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1423,12 +1369,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1439,7 +1384,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:presto://localhost:8080',
@@ -1450,20 +1395,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:presto:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:presto://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.PRESTO
+    extendInfo: [],
+    type: DatabaseTypeCode.PRESTO,
   },
   //oceanbase
   {
@@ -1478,7 +1419,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1490,7 +1431,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '2883',
@@ -1504,8 +1445,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1526,7 +1467,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1537,7 +1478,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1547,12 +1488,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1563,7 +1503,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:oceanbase://localhost:2883',
@@ -1574,20 +1514,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:oceanbase:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:oceanbase://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.OCEANBASE
+    extendInfo: [],
+    type: DatabaseTypeCode.OCEANBASE,
   },
   //redis
   {
@@ -1602,7 +1538,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1614,7 +1550,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '6379',
@@ -1628,8 +1564,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1650,7 +1586,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1661,7 +1597,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1671,12 +1607,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1687,7 +1622,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:redis://localhost:6379',
@@ -1698,18 +1633,15 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:redis:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:redis://{host}:{port}/{database}',
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.REDIS
+    extendInfo: [],
+    type: DatabaseTypeCode.REDIS,
   },
   //hive
   {
@@ -1724,7 +1656,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1736,7 +1668,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '10000',
@@ -1750,8 +1682,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1772,7 +1704,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1783,7 +1715,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1793,12 +1725,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1809,7 +1740,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:hive2://localhost:10000',
@@ -1820,20 +1751,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:hive2:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:hive2://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.HIVE
+    extendInfo: [],
+    type: DatabaseTypeCode.HIVE,
   },
   //KINGBASE
   {
@@ -1848,7 +1775,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1860,7 +1787,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '54321',
@@ -1874,8 +1801,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -1896,7 +1823,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -1907,7 +1834,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -1917,12 +1844,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -1933,7 +1859,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'jdbc:kingbase8://127.0.0.1:54321',
@@ -1944,20 +1870,16 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /jdbc:kingbase8:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'jdbc:kingbase8://{host}:{port}/{database}',
       // excludes: [OperationColumn.EditTable]
-
     },
     ssh: sshConfig,
-    extendInfo: [
-
-    ],
-    type: DatabaseTypeCode.KINGBASE
+    extendInfo: [],
+    type: DatabaseTypeCode.KINGBASE,
   },
   //MONGODB
   {
@@ -1972,7 +1894,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
         envItem,
         {
@@ -1984,7 +1906,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '70%',
-          }
+          },
         },
         {
           defaultValue: '27017',
@@ -1998,8 +1920,8 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
             width: '30%',
             labelWidthEN: '40px',
             labelWidthCN: '40px',
-            labelAlign: 'right'
-          }
+            labelAlign: 'right',
+          },
         },
         {
           defaultValue: AuthenticationType.USERANDPASSWORD,
@@ -2020,7 +1942,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
                 {
                   defaultValue: '',
@@ -2031,7 +1953,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
                   required: true,
                   styles: {
                     width: '100%',
-                  }
+                  },
                 },
               ],
               label: 'User&Password',
@@ -2041,12 +1963,11 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
               label: 'NONE',
               value: AuthenticationType.NONE,
               items: [],
-
             },
           ],
           styles: {
             width: '50%',
-          }
+          },
         },
         {
           defaultValue: '',
@@ -2057,7 +1978,7 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: false,
           styles: {
             width: '100%',
-          }
+          },
         },
         {
           defaultValue: 'mongodb://localhost:27017',
@@ -2068,16 +1989,119 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
           required: true,
           styles: {
             width: '100%',
-          }
+          },
         },
-
       ],
       pattern: /mongodb:\/\/(.*):(\d+)(\/(\w+))?/,
       template: 'mongodb://{host}:{port}/{database}',
-      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable,OperationColumn.EditTable]
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
     },
     ssh: sshConfig,
     extendInfo: [],
-    type: DatabaseTypeCode.MONGODB
+    type: DatabaseTypeCode.MONGODB,
+  },
+  // TIMEPLUS
+  {
+    type: DatabaseTypeCode.TIMEPLUS,
+    baseInfo: {
+      items: [
+        {
+          defaultValue: 'timeplus',
+          inputType: InputType.INPUT,
+          labelNameCN: '名称',
+          labelNameEN: 'Name',
+          name: 'alias',
+          required: true,
+        },
+        envItem,
+        {
+          defaultValue: 'localhost',
+          inputType: InputType.INPUT,
+          labelNameCN: '主机',
+          labelNameEN: 'Host',
+          name: 'host',
+          required: true,
+          styles: {
+            width: '70%',
+          },
+        },
+        {
+          defaultValue: '7587',
+          inputType: InputType.INPUT,
+          labelNameCN: '端口',
+          labelNameEN: 'Port',
+          name: 'port',
+          labelTextAlign: 'right',
+          required: true,
+          styles: {
+            width: '30%',
+            labelWidthEN: '40px',
+            labelWidthCN: '40px',
+            labelAlign: 'right',
+          },
+        },
+        {
+          defaultValue: AuthenticationType.USERANDPASSWORD,
+          inputType: InputType.SELECT,
+          labelNameCN: '身份验证',
+          labelNameEN: 'Authentication',
+          name: 'authenticationType',
+          required: true,
+          selects: [
+            {
+              items: [
+                {
+                  defaultValue: 'default',
+                  inputType: InputType.INPUT,
+                  labelNameCN: '用户名',
+                  labelNameEN: 'User',
+                  name: 'user',
+                  required: true,
+                },
+                {
+                  defaultValue: '',
+                  inputType: InputType.PASSWORD,
+                  labelNameCN: '密码',
+                  labelNameEN: 'Password',
+                  name: 'password',
+                  required: true,
+                },
+              ],
+
+              label: 'User&Password',
+              value: AuthenticationType.USERANDPASSWORD,
+            },
+            {
+              label: 'NONE',
+              value: AuthenticationType.NONE,
+              items: [],
+            },
+          ],
+          styles: {
+            width: '50%',
+          },
+        },
+        {
+          defaultValue: '',
+          inputType: InputType.INPUT,
+          labelNameCN: '数据库',
+          labelNameEN: 'Database',
+          name: 'database',
+          required: false,
+        },
+        {
+          defaultValue: 'jdbc:timeplus://localhost:7587',
+          inputType: InputType.INPUT,
+          labelNameCN: 'URL',
+          labelNameEN: 'URL',
+          name: 'url',
+          required: true,
+        },
+      ],
+      pattern: /jdbc:timeplus:\/\/(.*):(\d+)(\/(\w+))?/,
+      template: 'jdbc:timeplus://{host}:{port}/{database}',
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
+    },
+    ssh: sshConfig,
   },
 ];

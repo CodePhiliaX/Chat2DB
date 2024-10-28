@@ -5,8 +5,11 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.ValueProcessor;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.SQLUtils.FormatOption;
@@ -31,7 +34,6 @@ import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.request.DataExportRequest;
-import ai.chat2db.spi.jdbc.DefaultValueHandler;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.JdbcUtils;
@@ -83,7 +85,7 @@ public class RdbDmlExportController {
         ExportTypeEnum exportType = EasyEnumUtils.getEnum(ExportTypeEnum.class, request.getExportType());
         String sql;
         if (exportSize == ExportSizeEnum.CURRENT_PAGE) {
-            sql = request.getSql();
+            sql = request.getOriginalSql() + " LIMIT " + request.getPageSize() + " OFFSET " + (request.getPageNo() - 1) * request.getPageSize();
         } else {
             sql = request.getOriginalSql();
         }
@@ -104,9 +106,9 @@ public class RdbDmlExportController {
 
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode(
-                tableName + "_" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
-                StandardCharsets.UTF_8)
-            .replaceAll("\\+", "%20");
+                        tableName + "_" + LocalDateTime.now().format(DatePattern.PURE_DATETIME_FORMATTER),
+                        StandardCharsets.UTF_8)
+                .replaceAll("\\+", "%20");
 
         if (exportType == ExportTypeEnum.CSV) {
             doExportCsv(sql, response, fileName);
@@ -116,26 +118,27 @@ public class RdbDmlExportController {
     }
 
     private void doExportCsv(String sql, HttpServletResponse response, String fileName)
-        throws IOException {
+            throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".csv");
 
         ExcelWrapper excelWrapper = new ExcelWrapper();
         try {
+            ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
             ExcelWriterBuilder excelWriterBuilder = EasyExcel.write(response.getOutputStream())
-                .charset(StandardCharsets.UTF_8)
-                .excelType(ExcelTypeEnum.CSV);
+                    .charset(StandardCharsets.UTF_8)
+                    .excelType(ExcelTypeEnum.CSV);
             excelWrapper.setExcelWriterBuilder(excelWriterBuilder);
             SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(), sql, headerList -> {
                 excelWriterBuilder.head(
-                    EasyCollectionUtils.toList(headerList, header -> Lists.newArrayList(header.getName())));
+                        EasyCollectionUtils.toList(headerList, header -> Lists.newArrayList(header.getName())));
                 excelWrapper.setExcelWriter(excelWriterBuilder.build());
                 excelWrapper.setWriteSheet(EasyExcel.writerSheet(0).build());
             }, dataList -> {
                 List<List<String>> writeDataList = Lists.newArrayList();
                 writeDataList.add(dataList);
                 excelWrapper.getExcelWriter().write(writeDataList, excelWrapper.getWriteSheet());
-            }, false, new DefaultValueHandler());
+            }, jdbcDataValue -> valueProcessor.getJdbcValue(jdbcDataValue), false);
         } finally {
             if (excelWrapper.getExcelWriter() != null) {
                 excelWrapper.getExcelWriter().finish();
@@ -144,29 +147,40 @@ public class RdbDmlExportController {
     }
 
     private void doExportInsert(String sql, HttpServletResponse response, String fileName, DbType dbType,
-        String tableName)
-        throws IOException {
+                                String tableName)
+            throws IOException {
         response.setContentType("text/sql");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".sql");
-
+        ValueProcessor valueProcessor = Chat2DBContext.getMetaData().getValueProcessor();
+        SqlBuilder sqlBuilder = Chat2DBContext.getMetaData().getSqlBuilder();
         try (PrintWriter printWriter = response.getWriter()) {
+            List<String> headerColumns = Lists.newArrayList();
+            List<SQLIdentifierExpr> headers = new ArrayList<>();
             InsertWrapper insertWrapper = new InsertWrapper();
             SQLExecutor.getInstance().execute(Chat2DBContext.getConnection(), sql,
-                headerList -> insertWrapper.setHeaderList(
-                    EasyCollectionUtils.toList(headerList, header -> new SQLIdentifierExpr(header.getName())))
-                , dataList -> {
-                    SQLInsertStatement sqlInsertStatement = new SQLInsertStatement();
-                    sqlInsertStatement.setDbType(dbType);
-                    sqlInsertStatement.setTableSource(new SQLExprTableSource(tableName));
-                    sqlInsertStatement.getColumns().addAll(insertWrapper.getHeaderList());
-                    ValuesClause valuesClause = new ValuesClause();
-                    for (String s : dataList) {
-                        valuesClause.addValue(s);
+                    headerList -> {
+                        headerList.forEach(sqlIdentifierExpr -> headerColumns.add(sqlIdentifierExpr.getName()));
                     }
-                    sqlInsertStatement.setValues(valuesClause);
+                    , dataList -> {
+                        for (String header : headerColumns) {
+                            SQLIdentifierExpr expr = new SQLIdentifierExpr(header);
+                            expr.setName(header);
+                            headers.add(expr);
+                        }
+                        insertWrapper.setHeaderList(headers);
 
-                    printWriter.println(SQLUtils.toSQLString(sqlInsertStatement, dbType, INSERT_FORMAT_OPTION) + ";");
-                }, false, new DefaultValueHandler());
+                        SQLInsertStatement sqlInsertStatement = new SQLInsertStatement();
+                        sqlInsertStatement.setDbType(dbType);
+                        sqlInsertStatement.setTableSource(new SQLExprTableSource(tableName));
+                        sqlInsertStatement.getColumns().addAll(insertWrapper.getHeaderList());
+                        ValuesClause valuesClause = new ValuesClause();
+                        for (String s : dataList) {
+                            valuesClause.addValue(s);
+                        }
+                        sqlInsertStatement.setValues(valuesClause);
+                        String sqls = sqlBuilder.buildSingleInsertSql(null, null, tableName, headerColumns, dataList);
+                        printWriter.println(sqls + ";");
+                    }, jdbcDataValue -> valueProcessor.getJdbcSqlValueString(jdbcDataValue), false);
         }
     }
 
