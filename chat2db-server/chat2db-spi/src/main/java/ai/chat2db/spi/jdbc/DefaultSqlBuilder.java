@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.OrderByElement;
+import net.sf.jsqlparser.statement.select.GroupByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import org.apache.commons.collections4.CollectionUtils;
@@ -101,6 +102,33 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         }
         return originSql;
     }
+
+    @Override
+	public String buildGroupBySql(String originSql, List<String> groupByList) {
+		if (CollectionUtils.isEmpty(groupByList)) {
+			return originSql;
+		}
+		try {
+			Statement statement = CCJSqlParserUtil.parse(originSql);
+			if (statement instanceof Select) {
+				Select selectStatement = (Select) statement;
+				PlainSelect plainSelect = (PlainSelect) selectStatement.getSelectBody();
+
+				// Create a new GROUP BY clause
+				// Replace the original GROUP BY clause
+				GroupByElement grouByElement = new GroupByElement();
+				grouByElement.setGroupingSets(groupByList);
+				plainSelect.setGroupByElement(grouByElement);
+				// Output the modified SQL
+				return plainSelect.toString();
+			}
+
+		} catch (Exception e) {
+		}
+
+		return originSql;
+	}
+
 
     @Override
     public String buildSqlByQuery(QueryResult queryResult) {
@@ -388,7 +416,13 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
             String newValue = row.get(i);
             //if (newValue != null) {
             Header header = headerList.get(i);
-            SQLDataValue sqlDataValue =  new SQLDataValue();
+            SQLDataValue sqlDataValue = new SQLDataValue();
+            DataType dataType = new DataType();
+            dataType.setDataTypeName(header.getDataType());
+            dataType.setScale(header.getDecimalDigits());
+            dataType.setPrecision(header.getColumnSize());
+            sqlDataValue.setValue(newValue);
+            sqlDataValue.setDataType(dataType);
             String value =  valueProcessor.getSqlValueString(sqlDataValue);
             script.append(value)
                     .append(",");

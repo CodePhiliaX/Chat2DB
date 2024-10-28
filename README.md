@@ -40,6 +40,7 @@ Double click package to install
 - modelscope：[Chat2DB-SQL-7B](https://modelscope.cn/models/Chat2DB/Chat2DB-SQL-7B/summary)
 
 ### Deploy the InternLM model on Chat2DB
+
 Thanks to [InternLM](https://github.com/InternLM/InternLM) for the strong support for this project. In the custom models of this project, multiple model weights from InternLM can be integrated. For more details, please refer to [chat2db-internlm-deploy](https://github.com/chat2db/chat2db-internlm-deploy)
 
 ## Supported databases

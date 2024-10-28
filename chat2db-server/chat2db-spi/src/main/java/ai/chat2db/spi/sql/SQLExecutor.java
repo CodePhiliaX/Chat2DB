@@ -82,10 +82,6 @@ public class SQLExecutor implements CommandExecutor {
         }
     }
 
-//    public void execute(Connection connection, String sql, Consumer<List<Header>> headerConsumer,
-//        Consumer<List<String>> rowConsumer, ValueHandler valueHandler) {
-//        execute(connection, sql, headerConsumer, rowConsumer, true, valueHandler);
-//    }
 
     public void execute(
             Connection connection, String sql,
@@ -625,6 +621,32 @@ public class SQLExecutor implements CommandExecutor {
                     .build();
         }
         return executeResult;
+    }
+    
+    /**
+     * Formats the given table name by stripping off any schema or catalog prefixes.
+     * If the table name contains a dot ('.'), it splits the string by the dot
+     * and returns the last part, which is generally the actual table name.
+     * If the table name is blank (null, empty, or only whitespace), it returns the original table name.
+     *
+     * @param tableName the original table name, potentially including schema or catalog prefixes.
+     * @return the formatted table name, or the original table name if it's blank or contains no dot.
+     */
+    public static String formatTableName(String tableName) {
+        // Check if the table name is blank (null, empty, or only whitespace)
+        if (StringUtils.isBlank(tableName)) {
+            return tableName;
+        }
+
+        // Check if the table name contains a dot ('.')
+        if (tableName.contains(".")) {
+            // Split the table name by the dot and return the last part
+            String[] split = tableName.split("\\.");
+            return split[split.length - 1];
+        }
+
+        // Return the original table name if it contains no dot
+        return tableName;
     }
 
     public void execute(Connection connection, String sql, int batchSize, ResultSetConsumer consumer) {
