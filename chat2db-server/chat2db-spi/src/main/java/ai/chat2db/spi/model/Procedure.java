@@ -34,7 +34,6 @@ public class Procedure implements Serializable {
     private String databaseName;
 
     @JsonAlias({"PROCEDURE_SCHEM"})
-
     private String schemaName;
 
     @JsonAlias({"PROCEDURE_NAME"})
@@ -44,7 +43,6 @@ public class Procedure implements Serializable {
     private String remarks;
 
     @JsonAlias({"PROCEDURE_TYPE"})
-
     private Short procedureType;
 
     @JsonAlias({"SPECIFIC_NAME"})
