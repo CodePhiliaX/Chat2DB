@@ -10,7 +10,9 @@ import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class HiveSqlBuilder extends DefaultSqlBuilder {
+
+public class HiveSqlBuilder extends DefaultSqlBuilder implements SqlBuilder<Table> {
+
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
