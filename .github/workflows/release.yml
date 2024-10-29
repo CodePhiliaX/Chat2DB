@@ -83,17 +83,31 @@ jobs:
           java-package: "jre"
 
       # java.security open tls1 Windows
-      - name: Enable tls1
-        if: ${{ runner.os == 'Windows' }}
+#      - name: Enable tls1
+#        if: ${{ runner.os == 'Windows' }}
+#        run: |
+#          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+#        shell: pwsh
+#
+#      # java.security open tls1 macOS
+#      - name: Enable tls1
+#        if: ${{ runner.os == 'macOS' }}
+#        run: |
+#          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+      # 开放TLS
+      - name: Enable TLS 1.0 and 1.1 in java.security
         run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
-        shell: pwsh
-
-      # java.security open tls1 macOS
-      - name: Enable tls1
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" $JAVA_HOME/conf/security/java.security
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "Linux" ]; then
+            sed -i "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\(TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "$JAVA_HOME/conf/security/java.security"
+          fi
+        shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       # Copy jre Windows
       - name: Copy Jre for Windows
