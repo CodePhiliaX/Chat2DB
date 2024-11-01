@@ -8,13 +8,13 @@ package ai.chat2db.server.web.api.controller.data.source.request;
 public interface DataSourceBaseRequestInfo {
 
     /**
-     * Get datasoure id
+     * Get datasource id
      * @return
      */
     Long getDataSourceId();
 
     /**
-     * get datasoure name
+     * get datasource name
      * @return
      */
     String getDatabaseName();

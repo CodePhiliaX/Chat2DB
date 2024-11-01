@@ -58,7 +58,7 @@ public class UserTeamAdminController {
      * @version 2.1.0
      */
     @PostMapping("/batch_create")
-    public ActionResult bacthCreate(@Valid @RequestBody UserTeamBatchCreateRequest request) {
+    public ActionResult batchCreate(@Valid @RequestBody UserTeamBatchCreateRequest request) {
         request.getTeamIdList()
             .forEach(teamId -> {
                 TeamUserPageQueryParam teamUserPageQueryParam = new TeamUserPageQueryParam();

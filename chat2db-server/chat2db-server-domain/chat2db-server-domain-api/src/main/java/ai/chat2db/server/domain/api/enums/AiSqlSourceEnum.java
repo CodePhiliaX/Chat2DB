@@ -38,7 +38,7 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
     CLAUDEAI("CLAUDE AI"),
 
     /**
-     * WNEXIN AI
+     * WENXIN AI
      */
     WENXINAI("WENXIN AI"),
 
