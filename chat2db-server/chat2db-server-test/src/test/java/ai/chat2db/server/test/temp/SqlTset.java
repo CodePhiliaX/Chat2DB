@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
-public class SqlTeset extends BaseTest {
+public class SqlTset extends BaseTest {
 
     @Resource
     private TableService tableService;

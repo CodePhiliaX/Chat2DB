@@ -13,7 +13,7 @@ public interface ValueProcessor {
      * <br>
      * Input oracle DATE : '2024-05-29 11:35:20.0'
      * <br>
-     * Output for Oracle DATE: TO_DATE('2024-05-29 14:25:00', 'SYYYY-MM-DD HH24:MI:SS')
+     * Output for Oracle DATE: TO_DATE('2024-05-29 14:25:00', 'YYYY-MM-DD HH24:MI:SS')
      */
     String getSqlValueString(SQLDataValue dataValue);
 
