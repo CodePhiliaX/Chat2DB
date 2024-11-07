@@ -1,6 +1,5 @@
 
-
-<a><img src="https://github.com/user-attachments/assets/8d0b3575-d38f-43a2-9d43-11d6475da0c7" width="30%"/></a>
+<a><img src="https://github.com/user-attachments/assets/cdb1f367-bd8e-47af-be31-d8269a3c6a31" width="20%"/></a>
 <a><img src="https://github.com/chat2db/Chat2DB/assets/22975773/81d13eff-c615-49f5-aee3-4107089593e0" width="20%"/></a>
 
 加群前请先 Star 和 Fork，谢谢~关注微信公众号可加入微信、钉钉、QQ 群一起讨论，并可以获取 Chat2DB 最新动态和更新。
