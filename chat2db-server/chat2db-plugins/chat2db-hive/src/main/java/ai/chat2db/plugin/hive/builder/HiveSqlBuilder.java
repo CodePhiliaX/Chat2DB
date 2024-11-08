@@ -2,6 +2,7 @@ package ai.chat2db.plugin.hive.builder;
 
 import ai.chat2db.plugin.hive.type.HiveColumnTypeEnum;
 import ai.chat2db.plugin.hive.type.HiveIndexTypeEnum;
+import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
@@ -9,6 +10,7 @@ import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 
 
 public class HiveSqlBuilder extends DefaultSqlBuilder implements SqlBuilder<Table> {

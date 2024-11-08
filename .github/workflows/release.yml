@@ -62,6 +62,7 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           java-package: "jre"
+          architecture: "x64"
 
       # Install jre MacOS arm64
       - name: Install Jre MacOS arm64
@@ -86,7 +87,7 @@ jobs:
       - name: Enable tls1
         if: ${{ runner.os == 'Windows' }}
         run: |
-          # sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}/conf/security/java.security"
+          # sed -i '' "s/\(^jdk.tls.disabledAlgorithms=\)\(.*\)\( TLSv1, TLSv1.1,\)\(.*\)/\1\2\4/" "${{ env.JAVA_HOME }}\conf\security\java.security"
           $filePath = "${{ env.JAVA_HOME }}\conf\security\java.security"
           $content = Get-Content $filePath -Raw
           $updatedContent = $content -replace '^(jdk.tls.disabledAlgorithms=)(.*)( TLSv1, TLSv1.1,)(.*)', '$1$2$4'
@@ -210,7 +211,7 @@ jobs:
         run: |
           xcrun notarytool store-credentials "Chat2DB" --apple-id "${{secrets.MAC_APPLE_ID}}" --password "${{secrets.MAC_APPLE_PASSWORD}}" --team-id "${{secrets.MAC_TEAM_ID}}"
           xcrun notarytool submit chat2db-client/release/Chat2DB-${{ steps.chat2db_version.outputs.substring }}.dmg --keychain-profile "Chat2DB"
-      
+
       # macos arm64
       - name: Build/release Electron app for MacOS arm64
         if: ${{ runner.os == 'macOS' && matrix.arch == 'arm64' }}
