@@ -63,7 +63,7 @@ public class ConnectionPool {
         Connection connection = connectInfo.getConnection();
         try {
             if (connection != null && !connection.isClosed()) {
-                log.info("get connection from loacl");
+                log.info("get connection from local");
                 return connection;
             }
             String key = connectInfo.getKey();
@@ -72,7 +72,7 @@ public class ConnectionPool {
                 synchronized (lock) {
                     connection = connectInfo.getConnection();
                     if (connection != null && !connection.isClosed()) {
-                        log.info("get connection from loacl");
+                        log.info("get connection from local");
                         return connection;
                     }
 
