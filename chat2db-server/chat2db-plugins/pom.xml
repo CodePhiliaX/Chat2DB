@@ -30,6 +30,7 @@
         <module>chat2db-hive</module>
         <module>chat2db-kingbase</module>
         <module>chat2db-timeplus</module>
+        <module>chat2db-duckdb</module>
     </modules>
 
 </project>

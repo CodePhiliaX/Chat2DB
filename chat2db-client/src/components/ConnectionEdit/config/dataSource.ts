@@ -2104,4 +2104,44 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
     },
     ssh: sshConfig,
   },
+  // DUCKDB
+  {
+    type: DatabaseTypeCode.DUCKDB,
+    baseInfo: {
+      items: [
+        {
+          defaultValue: '@localhost',
+          inputType: InputType.INPUT,
+          labelNameCN: '名称',
+          labelNameEN: 'Name',
+          name: 'alias',
+          required: true,
+        },
+        envItem,
+        {
+          defaultValue: 'localhost',
+          inputType: InputType.INPUT,
+          labelNameCN: '路径',
+          labelNameEN: 'Host',
+          name: 'host',
+          required: true,
+          styles: {
+            width: '70%',
+          },
+        },
+        {
+          defaultValue: 'jdbc:duckdb:{filePath}',
+          inputType: InputType.INPUT,
+          labelNameCN: 'URL',
+          labelNameEN: 'URL',
+          name: 'url',
+          required: true,
+        },
+      ],
+      pattern: /jdbc:duckdb:\/\/(\w+)/,
+      template: 'jdbc:duckdb://{host}',
+      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
+    },
+    ssh: sshConfig,
+  },
 ];

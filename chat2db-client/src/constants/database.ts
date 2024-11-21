@@ -125,6 +125,13 @@ export const databaseMap: {
     // port: 8123,
     icon: '\ue8f4',
   },
+  [DatabaseTypeCode.DUCKDB]: {
+    name: 'DuckDB',
+    img: moreDBLogo,
+    code: DatabaseTypeCode.DUCKDB,
+    // port: 8123,
+    icon: '\ue8f4',
+  },
   // [DatabaseTypeCode.REDIS]: {
   //   name: 'Redis',
   //   img: moreDBLogo,
