@@ -184,7 +184,7 @@ public enum DuckDBColumnTypeEnum implements ColumnBuilder {
         }
         StringBuilder script = new StringBuilder();
 
-        script.append("\"").append(column.getName()).append("\"").append(" ");
+        script.append(column.getName()).append(" ");
 
         script.append(buildDataType(column, type)).append(" ");
 
@@ -192,7 +192,7 @@ public enum DuckDBColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildAutoIncrement(column,type)).append(" ");
 
-        script.append(buildNullable(column, type)).append(" ");
+        script.append(buildCreateNullable(column, type)).append(" ");
 
         return script.toString();
     }
@@ -216,7 +216,18 @@ public enum DuckDBColumnTypeEnum implements ColumnBuilder {
             return "";
         }
         if (column.getNullable() != null && 1 == column.getNullable()) {
-            return "NULL";
+            return "DROP NOT NULL";
+        } else {
+            return "SET NOT NULL";
+        }
+    }
+
+    private String buildCreateNullable(TableColumn column, DuckDBColumnTypeEnum type) {
+        if (!type.getColumnType().isSupportNullable()) {
+            return "";
+        }
+        if (column.getNullable() != null && 1 == column.getNullable()) {
+            return "";
         } else {
             return "NOT NULL";
         }
@@ -227,15 +238,18 @@ public enum DuckDBColumnTypeEnum implements ColumnBuilder {
             return "";
         }
 
+        StringBuilder script = new StringBuilder();
+        script.append("ALTER TABLE ").append(column.getSchemaName()).append(".").append(column.getTableName());
+        script.append(column.getOldName()).append(" ");
         if ("EMPTY_STRING".equalsIgnoreCase(column.getDefaultValue().trim())) {
-            return StringUtils.join("DEFAULT ''");
+            return script.append("SET DEFAULT '';\n").toString();
         }
 
         if ("NULL".equalsIgnoreCase(column.getDefaultValue().trim())) {
-            return StringUtils.join("DEFAULT NULL");
+            return script.append("SET DEFAULT NULL;\n").toString();
         }
 
-        return StringUtils.join("DEFAULT ", column.getDefaultValue());
+        return script.append("SET DEFAULT ").append(column.getDefaultValue()).append(";\n").toString();
     }
 
     private String buildDataType(TableColumn column, DuckDBColumnTypeEnum type) {
@@ -275,37 +289,120 @@ public enum DuckDBColumnTypeEnum implements ColumnBuilder {
         return columnType;
     }
 
+    private String buildModifyDataType(TableColumn column, DuckDBColumnTypeEnum type) {
+        String columnType = type.columnType.getTypeName();
+        if (Arrays.asList(VARCHAR, STRING, BPCHAR, NVARCHAR, TEXT).contains(type)) {
+            StringBuilder script = new StringBuilder();
+            script.append(columnType);
+            if (column.getColumnSize() != null && StringUtils.isEmpty(column.getUnit())) {
+                script.append("(").append(column.getColumnSize()).append(")");
+            } else if (column.getColumnSize() != null && !StringUtils.isEmpty(column.getUnit())) {
+                script.append("(").append(column.getColumnSize()).append(" ").append(column.getUnit()).append(")");
+            }
+            return script.toString();
+        }
+
+        if (Arrays.asList(DECIMAL, FLOAT, TIMESTAMP).contains(type)) {
+            StringBuilder script = new StringBuilder();
+            script.append(columnType);
+            if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
+                script.append("(").append(column.getColumnSize()).append(")");
+            } else if (column.getColumnSize() != null && column.getDecimalDigits() != null) {
+                script.append("(").append(column.getColumnSize()).append(",").append(column.getDecimalDigits()).append(")");
+            }
+            return script.toString();
+        }
+
+        if (Arrays.asList(TIME_WITH_TIME_ZONE, TIMSTAMP_US).contains(type)) {
+            StringBuilder script = new StringBuilder();
+            if (column.getColumnSize() == null) {
+                script.append(columnType);
+            } else {
+                String[] split = columnType.split("TIMESTAMP");
+                script.append("TIMESTAMP").append("(").append(column.getColumnSize()).append(")").append(split[1]);
+            }
+            return script.toString();
+        }
+        return columnType;
+    }
+
+
 
     @Override
     public String buildModifyColumn(TableColumn tableColumn) {
 
         if (EditStatus.DELETE.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("DROP COLUMN ").append("\"").append(tableColumn.getName()).append("\"");
+            script.append("ALTER TABLE ").append(tableColumn.getSchemaName()).append(".").append(tableColumn.getTableName());
+            script.append(" ").append("DROP ").append(tableColumn.getName()).append(";\n");
             return script.toString();
         }
         if (EditStatus.ADD.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("ADD (").append(buildCreateColumnSql(tableColumn)).append(")");
+            script.append(buildModifyADDColumnSql(tableColumn)).append(";\n");
             return script.toString();
         }
         if (EditStatus.MODIFY.name().equals(tableColumn.getEditStatus())) {
             StringBuilder script = new StringBuilder();
-            script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-            script.append(" ").append("MODIFY (").append(buildCreateColumnSql(tableColumn)).append(") \n");
+
+            script.append(buildModifyColumnSql(tableColumn, tableColumn.getOldColumn())).append(" \n");
 
             if (!StringUtils.equalsIgnoreCase(tableColumn.getOldName(), tableColumn.getName())) {
-                script.append(";");
-                script.append("ALTER TABLE ").append("\"").append(tableColumn.getSchemaName()).append("\".\"").append(tableColumn.getTableName()).append("\"");
-                script.append(" ").append("RENAME COLUMN ").append("\"").append(tableColumn.getOldName()).append("\"").append(" TO ").append("\"").append(tableColumn.getName()).append("\"");
-
+                script.append("ALTER TABLE ").append(tableColumn.getSchemaName()).append(".").append(tableColumn.getTableName());
+                script.append(" ").append("RENAME ").append(tableColumn.getOldName()).append(" TO ").append(tableColumn.getName()).append(";\n");
             }
             return script.toString();
 
         }
         return "";
+    }
+
+    public String buildModifyColumnSql(TableColumn column, TableColumn oldColumn) {
+        DuckDBColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+
+        if (!column.getColumnType().equals(oldColumn.getColumnType())) {
+            script.append("ALTER TABLE ").append(column.getSchemaName()).append(".").append(column.getTableName()).append(" ");
+            script.append("ALTER ").append(oldColumn.getName()).append(" SET DATA TYPE ").append(buildModifyDataType(column, type)).append(";\n");
+        }
+
+        script.append(buildDefaultValue(column, type)).append(" ");
+
+        if (oldColumn.getNullable() != column.getNullable()) {
+            script.append("ALTER TABLE ").append(column.getSchemaName()).append(".").append(column.getTableName()).append(" ");
+            script.append("ALTER COLUMN ").append(column.getName()).append(" ").append(buildNullable(column, type)).append(";\n");
+        }
+
+        return script.toString();
+    }
+
+    public String buildModifyADDColumnSql(TableColumn column) {
+        DuckDBColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        if (type == null) {
+            return "";
+        }
+        StringBuilder script = new StringBuilder();
+        script.append("ALTER TABLE ").append(column.getSchemaName()).append(".").append(column.getTableName());
+        script.append(" ").append("ADD COLUMN ").append(column.getName()).append(" ").append(buildModifyDataType(column, type));
+        if (!type.getColumnType().isSupportDefaultValue() || StringUtils.isEmpty(column.getDefaultValue())) {
+            return script.append(";\n").toString();
+        } else {
+            if ("EMPTY_STRING".equalsIgnoreCase(column.getDefaultValue().trim())) {
+                return script.append(" ").append("DEFAULT '';\n").toString();
+            }
+
+            if ("NULL".equalsIgnoreCase(column.getDefaultValue().trim())) {
+                return script.append(" ").append("DEFAULT NULL;\n").toString();
+            }
+            script.append(" ").append("DEFAULT ").append(column.getDefaultValue()).append(";\n");
+        }
+
+
+
+        return script.toString();
     }
 
     public static List<ColumnType> getTypes() {

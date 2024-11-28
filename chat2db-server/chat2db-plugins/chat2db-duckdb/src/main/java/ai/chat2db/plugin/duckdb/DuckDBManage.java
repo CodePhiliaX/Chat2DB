@@ -204,7 +204,7 @@ public class DuckDBManage extends DefaultDBManage implements DBManage {
             return;
         }
         try {
-            SQLExecutor.getInstance().execute(connection, "use `" + database + "`;");
+            SQLExecutor.getInstance().execute(connection, "use " + database + ";");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

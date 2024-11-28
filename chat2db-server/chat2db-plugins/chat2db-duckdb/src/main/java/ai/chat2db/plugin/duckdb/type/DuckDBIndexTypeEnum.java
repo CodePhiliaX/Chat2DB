@@ -64,7 +64,7 @@ public enum DuckDBIndexTypeEnum {
     public String buildIndexScript(TableIndex tableIndex) {
         StringBuilder script = new StringBuilder();
         if (PRIMARY_KEY.equals(this)) {
-            script.append("ALTER TABLE \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ADD PRIMARY KEY ").append(buildIndexColumn(tableIndex));
+            script.append("ALTER TABLE ").append(tableIndex.getSchemaName()).append(".").append(tableIndex.getTableName()).append(" ADD PRIMARY KEY ").append(buildIndexColumn(tableIndex));
         } else {
             if (UNIQUE.equals(this)) {
                 script.append("CREATE UNIQUE INDEX ");
@@ -76,13 +76,27 @@ public enum DuckDBIndexTypeEnum {
         return script.toString();
     }
 
+    public String buildCreateIndexScript(TableIndex tableIndex) {
+        StringBuilder script = new StringBuilder();
+        if (PRIMARY_KEY.equals(this)) {
+            script.append("CONSTRAINT ").append(tableIndex.getTableName()).append("_").append("PK PRIMARY KEY ").append(buildIndexColumn(tableIndex));
+        } else {
+            if (UNIQUE.equals(this)) {
+                script.append("CREATE UNIQUE INDEX ");
+            } else {
+                script.append("CREATE INDEX ");
+            }
+            script.append(buildIndexName(tableIndex)).append(" ON \"").append(tableIndex.getSchemaName()).append("\".\"").append(tableIndex.getTableName()).append("\" ").append(buildIndexColumn(tableIndex));
+        }
+        return script.toString();
+    }
 
     private String buildIndexColumn(TableIndex tableIndex) {
         StringBuilder script = new StringBuilder();
         script.append("(");
         for (TableIndexColumn column : tableIndex.getColumnList()) {
             if (StringUtils.isNotBlank(column.getColumnName())) {
-                script.append("\"").append(column.getColumnName()).append("\"");
+                script.append(column.getColumnName());
                 if (!StringUtils.isBlank(column.getAscOrDesc()) && !PRIMARY_KEY.equals(this)) {
                     script.append(" ").append(column.getAscOrDesc());
                 }
@@ -113,7 +127,7 @@ public enum DuckDBIndexTypeEnum {
 
     private String buildDropIndex(TableIndex tableIndex) {
         if (DuckDBIndexTypeEnum.PRIMARY_KEY.getName().equals(tableIndex.getType())) {
-            String tableName = "\"" + tableIndex.getSchemaName() + "\"." + "\"" + tableIndex.getTableName() + "\"";
+            String tableName = "" + tableIndex.getSchemaName() + "."  + tableIndex.getTableName() ;
             return StringUtils.join("ALTER TABLE ",tableName," DROP PRIMARY KEY");
         }
         StringBuilder script = new StringBuilder();

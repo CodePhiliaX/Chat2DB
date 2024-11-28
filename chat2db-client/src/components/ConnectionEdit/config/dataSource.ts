@@ -2140,7 +2140,6 @@ export const dataSourceFormConfigs: IConnectionConfig[] = [
       ],
       pattern: /jdbc:duckdb:\/\/(\w+)/,
       template: 'jdbc:duckdb://{host}',
-      excludes: [OperationColumn.ViewDDL, OperationColumn.CreateTable, OperationColumn.EditTable],
     },
     ssh: sshConfig,
   },
