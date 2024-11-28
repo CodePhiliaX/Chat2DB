@@ -1,0 +1,45 @@
+{
+  "baseInfo": {
+    "items": [
+      {
+        "defaultValue": "@localhost",
+        "inputType": "INPUT",
+        "labelNameCN": "名称",
+        "labelNameEN": "Name",
+        "name": "alias",
+        "required": true,
+        "width": 100,
+      },
+      {
+        "defaultValue": "localhost",
+        "inputType": "INPUT",
+        "labelNameCN": "主机",
+        "labelNameEN": "Host",
+        "name": "host",
+        "required": true,
+        "width": 70,
+      },
+      {
+        "defaultValue": "",
+        "inputType": "INPUT",
+        "labelNameCN": "数据库",
+        "labelNameEN": "Database",
+        "name": "database",
+        "required": false,
+        "width": 100
+      },
+      {
+        "defaultValue": "jdbc:duckdb:{file}",
+        "inputType": "INPUT",
+        "labelNameCN": "URL",
+        "labelNameEN": "URL",
+        "name": "url",
+        "required": true,
+        "width": 100
+      }
+    ],
+    "pattern": "/jdbc:duckdb:\/\/(\\w+)",
+    "template": "jdbc:duckdb://{host}"
+  },
+  "type":"DuckDB"
+}

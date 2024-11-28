@@ -2,6 +2,7 @@ export enum InputType {
   INPUT = 'input',
   PASSWORD = 'password',
   SELECT = 'select',
+  FILE = 'file',
 }
 
 export enum AuthenticationType {

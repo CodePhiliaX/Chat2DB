@@ -127,6 +127,11 @@
             <version>${revision}</version>
         </dependency>
         <dependency>
+            <groupId>ai.chat2db</groupId>
+            <artifactId>chat2db-duckdb</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
             <version>1.11</version>
