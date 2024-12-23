@@ -83,7 +83,7 @@ public class ConfigController {
                 saveChat2dbAIConfig(request);
                 break;
             case RESTAI:
-                saveFastChatAIConfig(request);
+                saveRestAIConfig(request);
                 break;
             case AZUREAI:
                 saveAzureAIConfig(request);
@@ -152,12 +152,15 @@ public class ConfigController {
      * @param request
      */
     private void saveRestAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam param = SystemConfigParam.builder().code(RestAIClient.REST_AI_API_KEY).content(
+                request.getApiKey()).build();
+        configService.createOrUpdate(param);
         SystemConfigParam restParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_URL).content(
             request.getApiHost()).build();
         configService.createOrUpdate(restParam);
-        SystemConfigParam methodParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_STREAM_OUT).content(
-            request.getStream().toString()).build();
-        configService.createOrUpdate(methodParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(RestAIClient.REST_AI_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
         RestAIClient.refresh();
     }
 
