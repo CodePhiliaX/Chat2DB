@@ -301,7 +301,15 @@ $ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resource
 # 再打包后端服务
 ```
 
-##  加入我们
+##  联系我们
+
+![image](https://github.com/user-attachments/assets/20c99be6-e6ff-4f18-972c-cea9a6ab7971)
+
+- Email: Chat2DB@ch2db.com
+- Discord: [Join our Discord server](https://discord.gg/JDkwB6JS8A)
+- Twitter: [@Chat2DB](https://x.com/Chat2DB_AI)
+- YouTube: [Chat2DB Channel](https://www.youtube.com/@chat2db.tutorial)
+- GitHub: [Chat2DB GitHub](https://github.com/codePhiliaX/chat2db)
 
 
 ##  致谢
