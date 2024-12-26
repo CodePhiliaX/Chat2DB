@@ -4,8 +4,8 @@
 <div align="center">
     <a href="https://trendshift.io/repositories/11808" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11808" alt="CodePhiliaX%2FChat2DB | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
+<br/>
 <p align="center">
-
  <a href="https://discord.com/invite/uNjb3n5JVN" target="_blank">
     <img src="https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white"
             alt="chat on Discord"></a>
@@ -29,8 +29,7 @@
   <a href="./README_VI.md"><img alt="README Tiếng Việt" src="https://img.shields.io/badge/Ti%E1%BA%BFng%20Vi%E1%BB%87t-d9d9d9"></a>
 </div>
 
-
-
+# 
 Chat2DB 是一个智能的通用SQL客户端和数据报表工具，它集成了AI的能力。Chat2DB可以帮助您更快地编写SQL查询、管理数据库、生成报告、探索数据、并且可以与多种数据库进行交互。Chat2DB是一个开源项目，我们欢迎您的贡献。
 
 **1. 智能生成SQL**:
