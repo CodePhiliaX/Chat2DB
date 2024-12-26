@@ -23,7 +23,10 @@
 </div>
 
 
-https://github.com/user-attachments/assets/4ae824cf-7d14-4d5b-9ceb-66481bcefc19
+
+https://github.com/user-attachments/assets/bd5d5f64-540f-4793-a801-17fa96c4766e
+
+
 
 
 Chat2DBはAI機能を統合したインテリジェントで汎用的なSQLクライアントおよびデータ報告ツールです。Chat2DBは、SQLクエリの作成を迅速化し、データベースの管理、レポートの生成、データの探索、および複数のデータベースとのインタラクションをサポートします。Chat2DBはオープンソースプロジェクトであり、皆様の貢献を歓迎します。
