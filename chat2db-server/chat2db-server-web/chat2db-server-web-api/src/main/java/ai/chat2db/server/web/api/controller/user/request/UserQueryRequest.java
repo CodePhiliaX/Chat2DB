@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 
 /**
  * @author jipengfei
- * @version : UserQueyRequest.java
+ * @version : UserQueryRequest.java
  */
 @Data
 @SuperBuilder

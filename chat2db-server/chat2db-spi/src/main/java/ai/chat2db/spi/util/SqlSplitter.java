@@ -563,7 +563,7 @@ public class SqlSplitter {
         int posShift = 0;
         /**
          * <pre>
-         * `subPLStack` in this function must not be empty because this fuction must be called when state in PL_STMT
+         * `subPLStack` in this function must not be empty because this function must be called when state in PL_STMT
          * `subPLStack` must have been pushed at least once before enter PL_STMT
          * </pre>
          */
