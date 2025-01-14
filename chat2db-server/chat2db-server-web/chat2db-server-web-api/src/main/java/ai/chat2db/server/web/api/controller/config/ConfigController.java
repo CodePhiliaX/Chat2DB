@@ -333,6 +333,13 @@ public class ConfigController {
                 config.setModel(Objects.nonNull(azureDeployId.getData()) ? azureDeployId.getData().getContent() : "");
                 break;
             case RESTAI:
+                DataResult<Config> restAIApiKey = configService.find(RestAIClient.REST_AI_API_KEY);
+                DataResult<Config> restAIApiHost = configService.find(RestAIClient.REST_AI_URL);
+                DataResult<Config> restAIModel = configService.find(RestAIClient.REST_AI_MODEL);
+                config.setApiKey(Objects.nonNull(restAIApiKey.getData()) ? restAIApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(restAIApiHost.getData()) ? restAIApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(restAIModel.getData()) ? restAIModel.getData().getContent() : "");
+                break;
             case FASTCHATAI:
                 DataResult<Config> fastChatApiKey = configService.find(FastChatAIClient.FASTCHAT_API_KEY);
                 DataResult<Config> fastChatApiHost = configService.find(FastChatAIClient.FASTCHAT_HOST);
