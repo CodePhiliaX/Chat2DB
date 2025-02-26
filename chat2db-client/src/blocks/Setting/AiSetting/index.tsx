@@ -54,9 +54,9 @@ export default function SettingAI(props: IProps) {
   /** 应用Ai配置 */
   const handleApplyAiConfig = () => {
     const newAiConfig = { ...aiConfig };
-    if (newAiConfig.apiHost && !newAiConfig.apiHost?.endsWith('/')) {
+    /*if (newAiConfig.apiHost && !newAiConfig.apiHost?.endsWith('/')) {
       newAiConfig.apiHost = newAiConfig.apiHost + '/';
-    }
+    }*/
     if (aiConfig?.aiSqlSource === AIType.CHAT2DBAI) {
       newAiConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
     }
