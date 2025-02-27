@@ -2,13 +2,14 @@ package ai.chat2db.plugin.clickhouse.builder;
 
 import ai.chat2db.plugin.clickhouse.type.ClickHouseColumnTypeEnum;
 import ai.chat2db.plugin.clickhouse.type.ClickHouseIndexTypeEnum;
-import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 
 public class ClickHouseSqlBuilder extends DefaultSqlBuilder {

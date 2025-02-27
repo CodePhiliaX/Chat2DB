@@ -3,6 +3,7 @@ package ai.chat2db.plugin.h2;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
