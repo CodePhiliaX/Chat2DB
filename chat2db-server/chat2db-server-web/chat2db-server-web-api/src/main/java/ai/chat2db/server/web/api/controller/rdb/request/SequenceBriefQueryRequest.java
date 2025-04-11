@@ -34,14 +34,4 @@ public class SequenceBriefQueryRequest extends PageQueryRequest implements DataS
      * The space where the sequence is located is required by pg and oracle, but not by mysql.
      */
     private String schemaName;
-
-    /**
-     * Fuzzy search terms
-     */
-    private String searchKey;
-
-    /**
-     * if true, refresh the cache
-     */
-    private boolean refresh;
 }

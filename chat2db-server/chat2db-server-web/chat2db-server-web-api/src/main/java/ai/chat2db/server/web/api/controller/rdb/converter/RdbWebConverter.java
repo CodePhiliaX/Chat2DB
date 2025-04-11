@@ -84,6 +84,14 @@ public abstract class RdbWebConverter {
     /**
      * Parameter conversion
      *
+     * @param request
+     * @return
+     */
+    public abstract Sequence sequenceRequest2param(SequenceRequest request);
+
+    /**
+     * Parameter conversion
+     *
      * @param dto
      * @return
      */
@@ -214,20 +222,6 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract List<TableVO> tableDto2vo(List<Table> dtos);
-    /**
-     * Model conversion
-     *
-     * @param dtos
-     * @return
-     */
-    public abstract SimpleSequence SequenceDto2vo(Sequence dtos);
-    /**
-     * Model conversion
-     *
-     * @param dtos
-     * @return
-     */
-    public abstract List<SimpleSequence> SequenceDto2vo(List<Sequence> dtos);
     /**
      * Model conversion
      * @param tableColumns

@@ -8,7 +8,6 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
-import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.SneakyThrows;
@@ -21,6 +20,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
@@ -343,37 +343,37 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                             default -> typname = "INTEGER";
                         }
 
-                        stringBuilder.append("CREATE SEQUENCE ").append(nspname).append(".").append(relname).append("\n ");
+                        stringBuilder.append(CREATE_SEQUENCE).append(nspname).append(DOT).append(relname).append(NEW_LINE);
 
                         if (databaseProductVersion >= 10.0) {
-                            stringBuilder.append(" AS ").append(typname).append("\n ");
+                            stringBuilder.append(AS).append(typname).append(NEW_LINE);
                         }
 
-                        Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(" START WITH ").append(v).append("\n "));
+                        Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(START_WITH).append(v).append(NEW_LINE));
 
-                        Optional.ofNullable(seqincrement).ifPresent(v -> stringBuilder.append(" INCREMENT BY ").append(v).append("\n "));
+                        Optional.ofNullable(seqincrement).ifPresent(v -> stringBuilder.append(INCREMENT_BY).append(v).append(NEW_LINE));
 
-                        Optional.ofNullable(seqmin).ifPresent(v -> stringBuilder.append(" MINVALUE ").append(v).append("\n "));
+                        Optional.ofNullable(seqmin).ifPresent(v -> stringBuilder.append(MINVALUE).append(v).append(NEW_LINE));
 
-                        Optional.ofNullable(seqmax).ifPresent(v -> stringBuilder.append(" MAXVALUE ").append(v).append("\n "));
+                        Optional.ofNullable(seqmax).ifPresent(v -> stringBuilder.append(MAXVALUE).append(v).append(NEW_LINE));
 
-                        Optional.ofNullable(seqcache).ifPresent(v -> stringBuilder.append(" CACHE ").append(v).append("\n "));
+                        Optional.ofNullable(seqcache).ifPresent(v -> stringBuilder.append(CACHE).append(v).append(NEW_LINE));
 
                         Optional.ofNullable(seqcycle).ifPresent(v -> {
-                            if (seqcycle) {
-                                stringBuilder.append(" CYCLE ").append("\n ");
+                            if (Boolean.TRUE.equals(seqcycle)) {
+                                stringBuilder.append(CYCLE).append(NEW_LINE);
                             }
                         });
 
-                        stringBuilder.append(";").append("\n ").append("\n ");
+                        stringBuilder.append(SEMICOLON).append(BLANK_LINE);
 
-                        Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append("COMMENT ON SEQUENCE ")
-                                .append(nspname).append(".").append(relname)
-                                .append(" IS '").append(comment).append("';").append("\n ").append("\n "));
+                        Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append(COMMENT_ON_SEQUENCE)
+                                .append(nspname).append(DOT).append(relname)
+                                .append(IS).append(SINGLE_QUOTE).append(comment).append(SINGLE_QUOTE).append(SEMICOLON).append(BLANK_LINE));
 
-                        Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append("ALTER SEQUENCE ")
-                                .append(nspname).append(".").append(relname)
-                                .append(" OWNED BY ").append(v).append(";"));
+                        Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append(ALTER_SEQUENCE)
+                                .append(nspname).append(DOT).append(relname)
+                                .append(OWNED_BY).append(v).append(SEMICOLON));
                     }
                     return stringBuilder.toString();
                 },

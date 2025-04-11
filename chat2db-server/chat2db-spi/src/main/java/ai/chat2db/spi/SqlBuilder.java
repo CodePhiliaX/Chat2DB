@@ -1,9 +1,6 @@
 package ai.chat2db.spi;
 
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.OrderBy;
-import ai.chat2db.spi.model.QueryResult;
-import ai.chat2db.spi.model.Schema;
+import ai.chat2db.spi.model.*;
 
 import java.util.List;
 import java.util.Map;
@@ -110,7 +107,23 @@ public interface SqlBuilder<T> {
      */
     String buildTableQuerySql(String databaseName, String schemaName, String tableName);
 
+    /**
+     * Generate create sequence sql
+     *
+     * @param sequence
+     * @return
+     */
+    String buildCreateSequenceSql(Sequence sequence);
 
+
+    /**
+     * Generate modify sequence sql
+     *
+     * @param newSequence
+     * @param oldSequence
+     * @return
+     */
+    String buildModifySequenceSql(Sequence oldSequence, Sequence newSequence);
 
     String buildSingleInsertSql(String databaseName, String schemaName, String tableName, List<String> columnList, List<String> valueList);
 

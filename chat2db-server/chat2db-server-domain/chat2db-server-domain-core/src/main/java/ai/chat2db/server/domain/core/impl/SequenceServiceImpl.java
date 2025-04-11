@@ -7,11 +7,14 @@ import ai.chat2db.server.domain.api.service.SequenceService;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.MetaData;
-import ai.chat2db.spi.model.SimpleSequence;
+import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.Chat2DBContext;
+import cn.hutool.core.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,5 +36,16 @@ public class SequenceServiceImpl implements SequenceService {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         List<SimpleSequence> sequences = metaSchema.sequences(Chat2DBContext.getConnection(), request.getDatabaseName(), request.getSchemaName());
         return ListResult.of(sequences);
+    }
+
+    public ListResult<Sql> buildSql(Sequence oldSequence, Sequence newSequence) {
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        List<Sql> sqls = new ArrayList<>();
+        if (ObjectUtil.isEmpty(oldSequence)) {
+            sqls.add(Sql.builder().sql(sqlBuilder.buildCreateSequenceSql(newSequence)).build());
+        } else {
+            sqls.add(Sql.builder().sql(sqlBuilder.buildModifySequenceSql(oldSequence, newSequence)).build());
+        }
+        return ListResult.of(sqls);
     }
 }

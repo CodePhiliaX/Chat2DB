@@ -42,9 +42,4 @@ public class SequencePageQueryParam extends PageQueryParam {
      * schema
      */
     private String schemaName;
-
-    /**
-     * if true, refresh the cache
-     */
-    private boolean refresh;
 }

@@ -1,14 +1,13 @@
-package ai.chat2db.spi.model;
+package ai.chat2db.server.web.api.controller.rdb.request;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
-
 /**
- * Sequence information
+ * Modify sequence sql request
  *
  * @author Sylphy
  */
@@ -16,8 +15,7 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sequence implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class SequenceRequest {
     /**
      * Schema name
      */
