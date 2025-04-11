@@ -345,7 +345,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
                         stringBuilder.append("CREATE SEQUENCE ").append(nspname).append(".").append(relname).append("\n ");
 
-                        if (databaseProductVersion >= 10.0){
+                        if (databaseProductVersion >= 10.0) {
                             stringBuilder.append(" AS ").append(typname).append("\n ");
                         }
 
@@ -378,5 +378,22 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                     return stringBuilder.toString();
                 },
                 sequenceName, schemaName);
+    }
+
+    @Override
+    public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName) {
+        List<SimpleSequence> simpleSequences = new ArrayList<>();
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCES_SQL, resultSet -> {
+                    while (resultSet.next()) {
+                        String relname = resultSet.getString("relname");
+                        String comment = resultSet.getString("comment");
+                        simpleSequences.add(SimpleSequence.builder()
+                                .name(relname)
+                                .comment(comment)
+                                .build());
+                    }
+                    return simpleSequences;
+                },
+                schemaName);
     }
 }

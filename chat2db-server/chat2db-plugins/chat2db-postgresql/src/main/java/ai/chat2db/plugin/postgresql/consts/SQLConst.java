@@ -665,4 +665,14 @@ public class SQLConst {
             WHERE c.relname = ?
               and n.nspname = ?;
             """;
+
+    public static final String EXPORT_SEQUENCES_SQL = """
+            SELECT c.relname, obj_description(c.oid, 'pg_class') AS comment
+            FROM pg_sequence s
+                     JOIN
+                 pg_class c ON c.oid = s.seqrelid
+                     JOIN
+                 pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = ?;
+            """;
 }

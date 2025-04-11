@@ -193,4 +193,9 @@ public class DefaultMetaService implements MetaData {
                               @NotEmpty String tableName){
         return null;
     }
+
+    @Override
+    public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName){
+        return null;
+    }
 }

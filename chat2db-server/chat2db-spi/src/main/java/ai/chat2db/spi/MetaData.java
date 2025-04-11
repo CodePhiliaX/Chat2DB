@@ -271,4 +271,13 @@ public interface MetaData {
      */
     String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                        @NotEmpty String tableName);
+
+    /**
+     * Querying sequences simple information
+     *
+     * @param connection
+     * @param databaseName
+     * @return
+     */
+    List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName);
 }

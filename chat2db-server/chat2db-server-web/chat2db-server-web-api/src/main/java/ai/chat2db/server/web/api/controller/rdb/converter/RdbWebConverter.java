@@ -5,22 +5,9 @@ import java.util.List;
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
-import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.*;
 import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.spi.model.MetaSchema;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Sql;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -115,6 +102,13 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract TablePageQueryParam tablePageRequest2param(DataExportRequest request);
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    public abstract SequencePageQueryParam sequencePageRequest2param(SequenceBriefQueryRequest request);
     /**
      * Parameter conversion
      *
@@ -220,7 +214,20 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract List<TableVO> tableDto2vo(List<Table> dtos);
-
+    /**
+     * Model conversion
+     *
+     * @param dtos
+     * @return
+     */
+    public abstract SimpleSequence SequenceDto2vo(Sequence dtos);
+    /**
+     * Model conversion
+     *
+     * @param dtos
+     * @return
+     */
+    public abstract List<SimpleSequence> SequenceDto2vo(List<Sequence> dtos);
     /**
      * Model conversion
      * @param tableColumns

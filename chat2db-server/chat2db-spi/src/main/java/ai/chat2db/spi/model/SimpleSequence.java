@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 import java.io.Serializable;
 
 /**
- * Sequence information
+ * Simple sequence information
  *
  * @author Sylphy
  */
@@ -16,11 +16,15 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sequence implements Serializable {
+public class SimpleSequence implements Serializable {
     private static final long serialVersionUID = 1L;
-    private String nspname;
-    private String relname;
-    private String typname;
-    private String seqcache;
-    private String rolname;
+    /**
+     * Sequence Name
+     */
+    private String name;
+
+    /**
+     * description
+     */
+    private String comment;
 }
