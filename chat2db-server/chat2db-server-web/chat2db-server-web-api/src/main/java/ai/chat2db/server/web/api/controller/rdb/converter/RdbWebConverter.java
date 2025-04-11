@@ -129,7 +129,17 @@ public abstract class RdbWebConverter {
      * @param request
      * @return
      */
-    public abstract ShowCreateTableParam ddlExport2showCreate(DdlExportRequest request);
+    @Mapping(source = "name", target = "tableName")
+    public abstract ShowCreateTableParam ddlExport2showTableCreate(DdlExportRequest request);
+
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    @Mapping(source = "name", target = "sequenceName")
+    public abstract ShowCreateSequenceParam ddlExport2showSequenceCreate(DdlExportRequest request);
 
     /**
      * Parameter conversion

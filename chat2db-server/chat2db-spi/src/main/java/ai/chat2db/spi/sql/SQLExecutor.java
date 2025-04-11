@@ -124,6 +124,25 @@ public class SQLExecutor implements CommandExecutor {
         }
     }
 
+    public <R> R preExecute(Connection connection, String sql, ResultSetFunction<R> function, String... args) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; i++) {
+                preparedStatement.setObject(i + 1, args[i]);
+            }
+            boolean query = preparedStatement.execute();
+            // Represents the query
+            if (query) {
+                try (ResultSet rs = preparedStatement.getResultSet()) {
+                    return function.apply(rs);
+                }
+            }
+        } catch (Exception e) {
+            log.error("execute:{}", sql, e);
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
 //    /**
 //     * Execute SQL
 //     *

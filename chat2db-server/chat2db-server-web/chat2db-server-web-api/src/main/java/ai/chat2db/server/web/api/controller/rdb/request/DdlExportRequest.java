@@ -15,9 +15,9 @@ import lombok.Data;
 public class DdlExportRequest extends DataSourceBaseRequest {
 
     /**
-     * Table Name
+     * Name
      */
     @NotNull
-    private String tableName;
+    private String name;
 
 }

@@ -261,4 +261,14 @@ public interface MetaData {
      */
     List<String> getSystemSchemas();
 
+    /**
+     * Querying DDL information
+     *
+     * @param connection
+     * @param databaseName
+     * @param tableName
+     * @return
+     */
+    String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                       @NotEmpty String tableName);
 }

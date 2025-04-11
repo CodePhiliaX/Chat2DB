@@ -11,16 +11,17 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ai.chat2db.plugin.postgresql.consts.SQLConst.DROP_TYPE_SQL;
-import static ai.chat2db.plugin.postgresql.consts.SQLConst.TABLE_DEF_FUNCTION_SQL;
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
@@ -104,7 +105,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL,schemaName,"tabledefs"), resultSet -> null);
+        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL, schemaName, "tabledefs"), resultSet -> null);
         SQLExecutor.getInstance().execute(connection, TABLE_DEF_FUNCTION_SQL, resultSet -> null);
         String ddlSql = String.format("select * from pg_get_tabledef('%s','%s',false,'COMMENTS') as ddl;", schemaName, tableName);
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
@@ -313,5 +314,69 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<String> getSystemSchemas() {
         return systemSchemas;
+    }
+
+    @Override
+    @SneakyThrows
+    public String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                              @NotEmpty String sequenceName) {
+        DatabaseMetaData metaData = connection.getMetaData();
+        Double databaseProductVersion = Double.valueOf(metaData.getDatabaseProductVersion());
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, resultSet -> {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (resultSet.next()) {
+                        String nspname = resultSet.getString("nspname");
+                        String relname = resultSet.getString("relname");
+                        String typname = resultSet.getString("typname");
+                        String seqcache = resultSet.getString("seqcache");
+                        String rolname = resultSet.getString("rolname");
+                        String comment = resultSet.getString("comment");
+                        String seqstart = resultSet.getString("seqstart");
+                        String seqincrement = resultSet.getString("seqincrement");
+                        String seqmax = resultSet.getString("seqmax");
+                        String seqmin = resultSet.getString("seqmin");
+                        Boolean seqcycle = resultSet.getBoolean("seqcycle");
+
+                        switch (typname) {
+                            case "int2" -> typname = "SMALLINT";
+                            case "int8" -> typname = "BIGINT";
+                            default -> typname = "INTEGER";
+                        }
+
+                        stringBuilder.append("CREATE SEQUENCE ").append(nspname).append(".").append(relname).append("\n ");
+
+                        if (databaseProductVersion >= 10.0){
+                            stringBuilder.append(" AS ").append(typname).append("\n ");
+                        }
+
+                        Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(" START WITH ").append(v).append("\n "));
+
+                        Optional.ofNullable(seqincrement).ifPresent(v -> stringBuilder.append(" INCREMENT BY ").append(v).append("\n "));
+
+                        Optional.ofNullable(seqmin).ifPresent(v -> stringBuilder.append(" MINVALUE ").append(v).append("\n "));
+
+                        Optional.ofNullable(seqmax).ifPresent(v -> stringBuilder.append(" MAXVALUE ").append(v).append("\n "));
+
+                        Optional.ofNullable(seqcache).ifPresent(v -> stringBuilder.append(" CACHE ").append(v).append("\n "));
+
+                        Optional.ofNullable(seqcycle).ifPresent(v -> {
+                            if (seqcycle) {
+                                stringBuilder.append(" CYCLE ").append("\n ");
+                            }
+                        });
+
+                        stringBuilder.append(";").append("\n ").append("\n ");
+
+                        Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append("COMMENT ON SEQUENCE ")
+                                .append(nspname).append(".").append(relname)
+                                .append(" IS '").append(comment).append("';").append("\n ").append("\n "));
+
+                        Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append("ALTER SEQUENCE ")
+                                .append(nspname).append(".").append(relname)
+                                .append(" OWNED BY ").append(v).append(";"));
+                    }
+                    return stringBuilder.toString();
+                },
+                sequenceName, schemaName);
     }
 }
