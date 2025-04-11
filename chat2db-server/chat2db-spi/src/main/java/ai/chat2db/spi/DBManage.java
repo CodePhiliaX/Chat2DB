@@ -85,6 +85,15 @@ public interface DBManage {
     void dropTable(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String tableName);
 
     /**
+     * Delete sequence structure
+     *
+     * @param databaseName
+     * @param sequenceName
+     * @return
+     */
+    void dropSequence(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String sequenceName);
+
+    /**
      * delete function
      *
      * @param databaseName

@@ -27,9 +27,4 @@ public class SequenceCommonConst {
     public static final String OWNED_BY = " OWNED BY ";
     public static final String IS = " IS ";
     public static final String AS = " AS ";
-    public static final String BLANK_LINE = "\n\n";
-    public static final String NEW_LINE = "\n";
-    public static final String SEMICOLON = ";";
-    public static final String DOT = ".";
-    public static final String SINGLE_QUOTE = "'";
 }

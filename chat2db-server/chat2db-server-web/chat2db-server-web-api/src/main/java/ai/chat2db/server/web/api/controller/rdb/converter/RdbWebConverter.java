@@ -149,7 +149,23 @@ public abstract class RdbWebConverter {
      * @param request
      * @return
      */
+    @Mappings({
+            @Mapping(source = "tableName", target = "name"),
+            @Mapping(source = "schemaName", target = "schema")
+    })
     public abstract DropParam tableDelete2dropParam(TableDeleteRequest request);
+
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    @Mappings({
+            @Mapping(source = "sequenceName", target = "name"),
+            @Mapping(source = "schemaName", target = "schema")
+    })
+    public abstract DropParam sequenceDelete2dropParam(SequenceDeleteRequest request);
 
 
     /**

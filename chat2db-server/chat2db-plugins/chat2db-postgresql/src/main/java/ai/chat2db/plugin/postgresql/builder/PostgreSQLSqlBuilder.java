@@ -17,6 +17,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.BLANK_LINE;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.SQUOT;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.DOT;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.SEMICOLON;
 
 
 public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
@@ -282,7 +286,7 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
             sqlBuilder.append(ALTER_SEQUENCE).append(oldSequence.getNspname()).append(DOT).append(oldSequence.getRelname()).append(RENAME_TO).append(newSequence.getRelname()).append(SEMICOLON).append(BLANK_LINE);
         }
         if (!StringUtils.equals(oldSequence.getComment(), newSequence.getComment())) {
-            sqlBuilder.append(COMMENT_ON_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(IS).append(SINGLE_QUOTE).append(newSequence.getComment()).append(SINGLE_QUOTE).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(COMMENT_ON_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(IS).append(SQUOT).append(newSequence.getComment()).append(SQUOT).append(SEMICOLON).append(BLANK_LINE);
         }
         if (!StringUtils.equals(oldSequence.getSeqcache(), newSequence.getSeqcache())) {
             sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(CACHE).append(newSequence.getSeqcache()).append(SEMICOLON).append(BLANK_LINE);

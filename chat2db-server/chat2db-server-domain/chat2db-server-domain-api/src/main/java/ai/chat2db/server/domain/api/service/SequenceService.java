@@ -1,7 +1,9 @@
 package ai.chat2db.server.domain.api.service;
 
+import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.SequencePageQueryParam;
 import ai.chat2db.server.domain.api.param.ShowCreateSequenceParam;
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Sequence;
@@ -19,4 +21,6 @@ public interface SequenceService {
     ListResult<SimpleSequence> pageQuery(SequencePageQueryParam request);
 
     ListResult<Sql> buildSql(Sequence oldSequence, Sequence newSequence);
+
+    ActionResult drop(DropParam dropParam);
 }

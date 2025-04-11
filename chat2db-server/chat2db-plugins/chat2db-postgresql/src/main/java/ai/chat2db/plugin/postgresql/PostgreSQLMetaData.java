@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 
 import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.*;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.DOT;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.SEMICOLON;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
@@ -369,7 +372,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
                         Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append(COMMENT_ON_SEQUENCE)
                                 .append(nspname).append(DOT).append(relname)
-                                .append(IS).append(SINGLE_QUOTE).append(comment).append(SINGLE_QUOTE).append(SEMICOLON).append(BLANK_LINE));
+                                .append(IS).append(SQUOT).append(comment).append(SQUOT).append(SEMICOLON).append(BLANK_LINE));
 
                         Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append(ALTER_SEQUENCE)
                                 .append(nspname).append(DOT).append(relname)

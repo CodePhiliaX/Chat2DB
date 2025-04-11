@@ -1,16 +1,18 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 
+import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.SequencePageQueryParam;
 import ai.chat2db.server.domain.api.param.ShowCreateSequenceParam;
-import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.SequenceService;
+import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.SequenceBriefQueryRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.SequenceDeleteRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.SequenceModifySqlRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.spi.model.*;
@@ -31,7 +33,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/rdb/sequence")
 public class SequenceController {
     private final RdbWebConverter rdbWebConverter;
-    private final DatabaseService databaseService;
     private final SequenceService sequenceService;
 
     /**
@@ -69,5 +70,17 @@ public class SequenceController {
         Sequence sequence = rdbWebConverter.sequenceRequest2param(request.getNewSequence());
         return sequenceService.buildSql(rdbWebConverter.sequenceRequest2param(request.getOldSequence()), sequence)
                 .map(rdbWebConverter::dto2vo);
+    }
+
+    /**
+     * Delete sequence
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/delete")
+    public ActionResult delete(@Valid @RequestBody SequenceDeleteRequest request){
+        DropParam dropParam = rdbWebConverter.sequenceDelete2dropParam(request);
+        return sequenceService.drop(dropParam);
     }
 }

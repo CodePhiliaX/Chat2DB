@@ -13,6 +13,7 @@ import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.ssh.SSHManager;
 import ai.chat2db.spi.util.ResultSetUtils;
 import com.jcraft.jsch.Session;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
@@ -20,6 +21,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.DOT;
 
 /**
  * @author jipengfei
@@ -210,6 +213,12 @@ public class DefaultDBManage implements DBManage {
     @Override
     public void dropTable(Connection connection, String databaseName, String schemaName, String tableName) {
         String sql = "DROP TABLE " + tableName;
+        SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
+    }
+
+    @Override
+    public void dropSequence(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String sequenceName){
+        String sql = "DROP SEQUENCE " + schemaName + DOT + sequenceName;
         SQLExecutor.getInstance().execute(connection, sql, resultSet -> null);
     }
 

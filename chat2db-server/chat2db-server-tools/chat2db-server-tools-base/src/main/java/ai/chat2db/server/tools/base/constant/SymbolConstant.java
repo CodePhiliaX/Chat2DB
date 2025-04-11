@@ -54,5 +54,13 @@ public class SymbolConstant {
      * colon ":"
      */
     public static final String COLON = ":";
+    /**
+     * blank line "\n\n"
+     */
+    public static final String BLANK_LINE = "\n\n";
+    /**
+     * new line "\n"
+     */
+    public static final String NEW_LINE = "\n";
 
 }
