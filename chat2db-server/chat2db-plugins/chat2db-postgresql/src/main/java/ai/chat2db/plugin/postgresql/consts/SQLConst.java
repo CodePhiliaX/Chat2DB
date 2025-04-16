@@ -659,7 +659,7 @@ public class SQLConst {
                      JOIN
                  pg_namespace n ON n.oid = c.relnamespace
                      JOIN
-                 pg_authid a ON a.oid = c.relowner
+                 pg_roles a ON a.oid = c.relowner
                      JOIN
                  pg_type t ON s.seqtypid = t.oid
             WHERE c.relname = ?

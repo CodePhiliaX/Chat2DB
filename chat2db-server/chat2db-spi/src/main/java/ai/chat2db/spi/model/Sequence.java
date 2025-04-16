@@ -16,8 +16,7 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sequence implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class Sequence {
     /**
      * Schema name
      */

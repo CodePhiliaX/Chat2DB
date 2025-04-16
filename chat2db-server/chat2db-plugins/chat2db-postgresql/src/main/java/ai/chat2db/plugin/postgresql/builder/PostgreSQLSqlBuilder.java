@@ -11,16 +11,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.BLANK_LINE;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.SQUOT;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.DOT;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.SEMICOLON;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.*;
 
 
 public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
@@ -247,7 +245,7 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
         
         Double databaseProductVersion = Double.valueOf(Chat2DBContext.getConnection().getMetaData().getDatabaseProductVersion());
         StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(CREATE_SEQUENCE).append(sequence.getNspname()).append(DOT).append(sequence.getRelname()).append("\n ");
+        sqlBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(sequence.getNspname(), sequence.getRelname())).append("\n ");
         if (databaseProductVersion >= 10.0) {
             sqlBuilder.append(AS).append(sequence.getTypname()).append("\n ");
         }
@@ -270,12 +268,12 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
         sqlBuilder.append(SEMICOLON).append("\n ").append("\n ");
 
         Optional.ofNullable(sequence.getComment()).ifPresent(v -> sqlBuilder.append(COMMENT_ON_SEQUENCE)
-                .append(sequence.getNspname()).append(DOT).append(sequence.getRelname())
-                .append(IS).append(sequence.getComment()).append(SEMICOLON).append("\n ").append("\n "));
+                .append(getMetaDataName(sequence.getNspname(), sequence.getRelname()))
+                .append(IS).append(SQUOT).append(v).append(SQUOT).append(SEMICOLON).append("\n ").append("\n "));
 
         Optional.ofNullable(sequence.getRolname()).ifPresent(v -> sqlBuilder.append(ALTER_SEQUENCE)
-                .append(sequence.getNspname()).append(DOT).append(sequence.getRelname())
-                .append(OWNED_BY).append(v).append(SEMICOLON));
+                .append(getMetaDataName(sequence.getNspname(), sequence.getRelname()))
+                .append(OWNED_BY).append(getMetaDataName(v)).append(SEMICOLON));
         return sqlBuilder.toString();
     }
 
@@ -283,19 +281,19 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
     public String buildModifySequenceSql(Sequence oldSequence, Sequence newSequence) {
         StringBuilder sqlBuilder = new StringBuilder();
         if (!StringUtils.equalsIgnoreCase(oldSequence.getRelname(), newSequence.getRelname())) {
-            sqlBuilder.append(ALTER_SEQUENCE).append(oldSequence.getNspname()).append(DOT).append(oldSequence.getRelname()).append(RENAME_TO).append(newSequence.getRelname()).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(oldSequence.getNspname(), oldSequence.getRelname())).append(RENAME_TO).append(getMetaDataName(newSequence.getRelname())).append(SEMICOLON).append(BLANK_LINE);
         }
         if (!StringUtils.equals(oldSequence.getComment(), newSequence.getComment())) {
-            sqlBuilder.append(COMMENT_ON_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(IS).append(SQUOT).append(newSequence.getComment()).append(SQUOT).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(COMMENT_ON_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(IS).append(SQUOT).append(newSequence.getComment()).append(SQUOT).append(SEMICOLON).append(BLANK_LINE);
         }
         if (!StringUtils.equals(oldSequence.getSeqcache(), newSequence.getSeqcache())) {
-            sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(CACHE).append(newSequence.getSeqcache()).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(CACHE).append(getMetaDataName(newSequence.getSeqcache())).append(SEMICOLON).append(BLANK_LINE);
         }
         if (BooleanUtil.xor(oldSequence.getSeqcycle(), newSequence.getSeqcycle())) {
             if (Boolean.TRUE.equals(newSequence.getSeqcycle())) {
-                sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(CYCLE).append(BLANK_LINE);
+                sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(CYCLE).append(BLANK_LINE);
             } else {
-                sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(NO_CYCLE).append(BLANK_LINE);
+                sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(NO_CYCLE).append(BLANK_LINE);
             }
         }
 
@@ -305,7 +303,7 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
                 !StringUtils.equals(oldSequence.getSeqmin(), newSequence.getSeqmin())) {
             sqlBuilder.append(ALTER_SEQUENCE);
             if (!StringUtils.equals(oldSequence.getSeqstart(), newSequence.getSeqstart())) {
-                sqlBuilder.append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(RESTART_WITH).append(newSequence.getSeqstart());
+                sqlBuilder.append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(RESTART_WITH).append(newSequence.getSeqstart());
             }
             if (!StringUtils.equals(oldSequence.getSeqincrement(), newSequence.getSeqincrement())) {
                 sqlBuilder.append(INCREMENT_BY).append(newSequence.getSeqincrement());
@@ -320,11 +318,16 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
         }
 
         if (!StringUtils.equals(oldSequence.getTypname(), newSequence.getTypname())) {
-            sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(AS).append(newSequence.getTypname()).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(AS).append(newSequence.getTypname()).append(SEMICOLON).append(BLANK_LINE);
         }
         if (!StringUtils.equals(oldSequence.getRolname(), newSequence.getRolname())) {
-            sqlBuilder.append(ALTER_SEQUENCE).append(newSequence.getNspname()).append(DOT).append(newSequence.getRelname()).append(OWNER_TO).append(newSequence.getRolname()).append(SEMICOLON).append(BLANK_LINE);
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(OWNER_TO).append(getMetaDataName(newSequence.getRolname())).append(SEMICOLON).append(BLANK_LINE);
         }
         return sqlBuilder.toString();
     }
+
+    private String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(StringUtils::isNotBlank).map(name -> DOUBLE_SQUOT + name + DOUBLE_SQUOT).collect(Collectors.joining(DOT));
+    }
+
 }

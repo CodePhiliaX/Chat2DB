@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
 import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
 import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
 import static ai.chat2db.server.tools.base.constant.SymbolConstant.*;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.DOT;
-import static ai.chat2db.server.tools.base.constant.SymbolConstant.SEMICOLON;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
@@ -324,8 +322,9 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     public String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                               @NotEmpty String sequenceName) {
         DatabaseMetaData metaData = connection.getMetaData();
-        Double databaseProductVersion = Double.valueOf(metaData.getDatabaseProductVersion());
-        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, resultSet -> {
+        double databaseProductVersion = Double.parseDouble(metaData.getDatabaseProductVersion());
+        String[] args = new String[]{sequenceName, schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, args, resultSet -> {
                     StringBuilder stringBuilder = new StringBuilder();
                     if (resultSet.next()) {
                         String nspname = resultSet.getString("nspname");
@@ -346,10 +345,10 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                             default -> typname = "INTEGER";
                         }
 
-                        stringBuilder.append(CREATE_SEQUENCE).append(nspname).append(DOT).append(relname).append(NEW_LINE);
+                        stringBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(nspname, relname)).append(NEW_LINE);
 
                         if (databaseProductVersion >= 10.0) {
-                            stringBuilder.append(AS).append(typname).append(NEW_LINE);
+                            stringBuilder.append(AS).append(getMetaDataName(typname)).append(NEW_LINE);
                         }
 
                         Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(START_WITH).append(v).append(NEW_LINE));
@@ -371,22 +370,22 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                         stringBuilder.append(SEMICOLON).append(BLANK_LINE);
 
                         Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append(COMMENT_ON_SEQUENCE)
-                                .append(nspname).append(DOT).append(relname)
-                                .append(IS).append(SQUOT).append(comment).append(SQUOT).append(SEMICOLON).append(BLANK_LINE));
+                                .append(getMetaDataName(nspname, relname))
+                                .append(IS).append(SQUOT).append(v).append(SQUOT).append(SEMICOLON).append(BLANK_LINE));
 
                         Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append(ALTER_SEQUENCE)
-                                .append(nspname).append(DOT).append(relname)
-                                .append(OWNED_BY).append(v).append(SEMICOLON));
+                                .append(getMetaDataName(nspname, relname))
+                                .append(OWNED_BY).append(getMetaDataName(v)).append(SEMICOLON));
                     }
                     return stringBuilder.toString();
-                },
-                sequenceName, schemaName);
+                });
     }
 
     @Override
     public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName) {
         List<SimpleSequence> simpleSequences = new ArrayList<>();
-        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCES_SQL, resultSet -> {
+        String[] args = new String[]{schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCES_SQL, args, resultSet -> {
                     while (resultSet.next()) {
                         String relname = resultSet.getString("relname");
                         String comment = resultSet.getString("comment");
@@ -396,7 +395,6 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                                 .build());
                     }
                     return simpleSequences;
-                },
-                schemaName);
+                });
     }
 }

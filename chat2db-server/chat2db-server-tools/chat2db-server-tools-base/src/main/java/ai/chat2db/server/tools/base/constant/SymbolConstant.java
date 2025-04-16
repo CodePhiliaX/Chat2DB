@@ -27,6 +27,10 @@ public class SymbolConstant {
      */
     public static final String SQUOT = "'";
     /**
+     * apostrophe"""
+     */
+    public static final String DOUBLE_SQUOT = "\"";
+    /**
      * empty string ""
      */
     public static final String EMPTY = "";
