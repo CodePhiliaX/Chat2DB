@@ -360,6 +360,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       treeNodeData.treeNodeType === TreeNodeType.VIEW ||
       treeNodeData.treeNodeType === TreeNodeType.PROCEDURE ||
       treeNodeData.treeNodeType === TreeNodeType.FUNCTION ||
+      treeNodeData.treeNodeType === TreeNodeType.SEQUENCE ||
       treeNodeData.treeNodeType === TreeNodeType.TRIGGER
     ) {
       rightClickMenu.find((item) => item.doubleClickTrigger)?.onClick(treeNodeData);

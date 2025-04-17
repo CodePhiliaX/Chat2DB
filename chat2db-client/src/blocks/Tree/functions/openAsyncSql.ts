@@ -141,7 +141,6 @@ export const openSequence = (props:{
     databaseName: treeNodeData.extraParams?.databaseName,
     schemaName: treeNodeData.extraParams?.schemaName,
     loadSQL: ()=>{
-      console.log('loadSQL',treeNodeData);
       return new Promise((resolve) => {
         sqlService
         .exportCreateSequenceSql({
@@ -152,7 +151,6 @@ export const openSequence = (props:{
           name: treeNodeData.name
         } as any)
         .then((res) => {
-          console.log('openSequence', res);
           // 更新ddl
           resolve(res);
         });

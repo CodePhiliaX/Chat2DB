@@ -104,6 +104,7 @@ export interface Schema {
 }
 
 const deleteTable = createRequest<ITableParams, void>('/api/rdb/ddl/delete', { method: 'post' });
+const deleteSequence = createRequest<ITableParams, void>('/api/rdb/sequence/delete', { method: 'post' });
 const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', {
   method: 'get',
 });
@@ -353,5 +354,6 @@ export default {
   getAllTableList,
   getAllFieldByTable,
   getSequenceList,
-  exportCreateSequenceSql
+  exportCreateSequenceSql,
+  deleteSequence
 };

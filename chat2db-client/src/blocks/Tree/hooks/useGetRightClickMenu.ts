@@ -20,6 +20,7 @@ import { openView, openFunction, openProcedure, openTrigger, openSequence} from 
 import { handelPinTable } from '../functions/pinTable';
 import { viewDDL } from '../functions/viewDDL';
 import { deleteTable } from '../functions/deleteTable';
+import { deleteSequence } from '../functions/deleteSequence';
 
 // ----- utils -----
 import { compatibleDataBaseName } from '@/utils/database';
@@ -331,6 +332,15 @@ export const useGetRightClickMenu = (props: IProps) => {
         },
       },
 
+      // 删除序列
+      [OperationColumn.DeleteSequence]: {
+        text: i18n('workspace.menu.deleteSequence'),
+        icon: '\ue6a7',
+        handle: () => {
+          deleteSequence(treeNodeData,loadData);
+        },
+      },
+
       // 创建数据库
       [OperationColumn.CreateDatabase]: {
         text: i18n('workspace.menu.createDatabase'),
@@ -611,6 +621,15 @@ export const getRightClickMenu = (props: IProps) => {
           addWorkspaceTab,
           treeNodeData,
         });
+      },
+    },
+
+    // 删除序列
+    [OperationColumn.DeleteSequence]: {
+      text: i18n('workspace.menu.deleteSequence'),
+      icon: '\ue6a7',
+      handle: () => {
+        deleteSequence(treeNodeData);
       },
     },
 

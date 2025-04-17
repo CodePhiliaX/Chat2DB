@@ -48,4 +48,5 @@ export enum OperationColumn {
   CreateDatabase = 'createDatabase', // 新建database
   ViewAllTable = 'viewAllTable', // 查看所有的表
   OpenSequence = 'openSequence', // 打开序列
+  DeleteSequence = 'deleteSequence' // 删除序列
 }

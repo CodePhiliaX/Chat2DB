@@ -686,6 +686,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.SEQUENCE]: {
     icon: '\ue611',
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenSequence, OperationColumn.CopyName,],
+    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenSequence, OperationColumn.CopyName,OperationColumn.DeleteSequence],
   },
 };
