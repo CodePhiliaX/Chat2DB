@@ -178,6 +178,7 @@ const SaveList = () => {
             name: editData.name,
           };
           historyServer.updateSavedConsole(params).then(() => {
+      
             getSavedConsoleList();
             setEditData(null);
           });

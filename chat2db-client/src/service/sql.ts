@@ -54,7 +54,7 @@ const connectConsole = createRequest<IConnectConsoleParams, void>('/api/connecti
 
 //表操作
 export interface ITableParams {
-  name: string;
+  Name: string;
   dataSourceId: number;
   databaseName: string;
   schemaName?: string;
@@ -121,6 +121,10 @@ const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_
   method: 'get',
   delayTime: 200,
 });
+const getSequenceList = createRequest<ITableParams, IColumn[]>('/api/rdb/sequence/list', { 
+  method: 'get',
+  delayTime: 200,
+});
 const getKeyList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/key_list', { method: 'get', delayTime: 200 });
 const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', {
   method: 'get',
@@ -148,6 +152,7 @@ export interface IExportParams extends IExecuteSqlParams {
  * 导出-表格
  */
 // const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
+const exportCreateSequenceSql = createRequest<ITableParams, string>('/api/rdb/sequence/export', { method: 'get' });
 
 /** 获取视图列表 */
 const getViewList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', {
@@ -173,6 +178,8 @@ const getProcedureList = createRequest<IGetTableListParams, IPageResponse<IRouti
 const getViewColumnList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', {
   method: 'get',
 });
+
+
 
 /** 获取视图详情 */
 const getViewDetail = createRequest<
@@ -217,6 +224,9 @@ const getProcedureDetail = createRequest<
   },
   { procedureBody: string }
 >('/api/rdb/procedure/detail', { method: 'get' });
+
+
+
 
 /** 格式化sql */
 const sqlFormat = createRequest<
@@ -342,4 +352,6 @@ export default {
   // exportResultTable
   getAllTableList,
   getAllFieldByTable,
+  getSequenceList,
+  exportCreateSequenceSql
 };

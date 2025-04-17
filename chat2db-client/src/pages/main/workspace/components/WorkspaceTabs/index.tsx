@@ -111,6 +111,7 @@ const WorkspaceTabs = memo(() => {
           editData?.type === WorkspaceTabType.PROCEDURE ||
           editData?.type === WorkspaceTabType.TRIGGER ||
           editData?.type === WorkspaceTabType.VIEW ||
+          editData?.type === WorkspaceTabType.SEQUENCE ||
           // table 和 !editData?.type 为了兼容老数据
           editData?.type === ('table' as any) ||
           !editData?.type
@@ -229,6 +230,7 @@ const WorkspaceTabs = memo(() => {
       case null as any: // 为了兼容老数据
       case WorkspaceTabType.CONSOLE:
       case WorkspaceTabType.FUNCTION:
+      case WorkspaceTabType.SEQUENCE:
       case WorkspaceTabType.PROCEDURE:
       case WorkspaceTabType.TRIGGER:
       case WorkspaceTabType.VIEW:

@@ -16,7 +16,7 @@ import { createConsole, addWorkspaceTab } from '@/pages/main/workspace/store/con
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 // ---- functions -----
-import { openView, openFunction, openProcedure, openTrigger } from '../functions/openAsyncSql';
+import { openView, openFunction, openProcedure, openTrigger, openSequence} from '../functions/openAsyncSql';
 import { handelPinTable } from '../functions/pinTable';
 import { viewDDL } from '../functions/viewDDL';
 import { deleteTable } from '../functions/deleteTable';
@@ -283,6 +283,7 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue651',
         doubleClickTrigger: true,
         handle: () => {
+          console.log('OpenFunction',treeNodeData);
           openFunction({
             addWorkspaceTab,
             treeNodeData,
@@ -310,6 +311,20 @@ export const useGetRightClickMenu = (props: IProps) => {
         doubleClickTrigger: true,
         handle: () => {
           openTrigger({
+            addWorkspaceTab,
+            treeNodeData,
+          });
+        },
+      },
+
+      // 打开序列
+      [OperationColumn.OpenSequence]: {
+        text: i18n('workspace.menu.view'),
+        icon: '\ue651',
+        doubleClickTrigger: true,
+        handle: () => {
+          console.log('OpenSequence', treeNodeData);
+          openSequence({
             addWorkspaceTab,
             treeNodeData,
           });
@@ -578,7 +593,21 @@ export const getRightClickMenu = (props: IProps) => {
       icon: '\ue651',
       doubleClickTrigger: true,
       handle: () => {
+        console.log('openFunction');
         openFunction({
+          addWorkspaceTab,
+          treeNodeData,
+        });
+      },
+    },
+    
+    // 打开序列
+    [OperationColumn.OpenSequence]: {
+      text: i18n('workspace.menu.view'),
+      icon: '\ue651',
+      doubleClickTrigger: true,
+      handle: () => {
+        openSequence({
           addWorkspaceTab,
           treeNodeData,
         });

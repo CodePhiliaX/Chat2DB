@@ -21,6 +21,8 @@ export enum TreeNodeType {
   PROCEDURE = 'procedure', // procedure
   TRIGGERS = 'triggers',  // trigger组
   TRIGGER = 'trigger',  // trigger
+  SEQUENCES = 'sequences',
+  SEQUENCE = 'sequence',
 }
 
 // 树右键支持的功能
@@ -45,4 +47,5 @@ export enum OperationColumn {
   CreateSchema = 'createSchema', // 新建schema
   CreateDatabase = 'createDatabase', // 新建database
   ViewAllTable = 'viewAllTable', // 查看所有的表
+  OpenSequence = 'openSequence', // 打开序列
 }
