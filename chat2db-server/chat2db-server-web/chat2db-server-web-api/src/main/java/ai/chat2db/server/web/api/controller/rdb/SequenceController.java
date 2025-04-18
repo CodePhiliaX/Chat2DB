@@ -60,7 +60,7 @@ public class SequenceController {
     }
 
     /**
-     * Get the sql statement that modifies the sequence
+     * Get a SQL statement that modifies or creates a new sequence
      *
      * @param request
      * @return

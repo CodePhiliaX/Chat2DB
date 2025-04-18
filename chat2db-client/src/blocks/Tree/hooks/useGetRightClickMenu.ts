@@ -324,7 +324,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue651',
         doubleClickTrigger: true,
         handle: () => {
-          console.log('OpenSequence', treeNodeData);
           openSequence({
             addWorkspaceTab,
             treeNodeData,
@@ -603,7 +602,6 @@ export const getRightClickMenu = (props: IProps) => {
       icon: '\ue651',
       doubleClickTrigger: true,
       handle: () => {
-        console.log('openFunction');
         openFunction({
           addWorkspaceTab,
           treeNodeData,

@@ -12,14 +12,14 @@ public class SequenceCommonConst {
     }
 
     public static final String CREATE_SEQUENCE = "CREATE SEQUENCE ";
-    public static final String START_WITH = " START WITH ";
-    public static final String INCREMENT_BY = " INCREMENT BY ";
-    public static final String MAXVALUE = " MAXVALUE ";
-    public static final String MINVALUE = " MINVALUE ";
-    public static final String CYCLE = " CYCLE ";
-    public static final String NO_CYCLE = " NO CYCLE ";
-    public static final String CACHE = " CACHE ";
-    public static final String RESTART_WITH = " RESTART WITH ";
+    public static final String START_WITH = "\tSTART WITH ";
+    public static final String INCREMENT_BY = "\tINCREMENT BY ";
+    public static final String MAXVALUE = "\tMAXVALUE ";
+    public static final String MINVALUE = "\tMINVALUE ";
+    public static final String CYCLE = "\tCYCLE ";
+    public static final String NO_CYCLE = "\tNO CYCLE ";
+    public static final String CACHE = "\tCACHE ";
+    public static final String RESTART_WITH = "\tRESTART WITH ";
     public static final String ALTER_SEQUENCE = "ALTER SEQUENCE ";
     public static final String COMMENT_ON_SEQUENCE = "COMMENT ON SEQUENCE ";
     public static final String RENAME_TO = " RENAME TO ";

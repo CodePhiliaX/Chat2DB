@@ -347,8 +347,8 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
                         stringBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(nspname, relname)).append(NEW_LINE);
 
-                        if (databaseProductVersion >= 10.0) {
-                            stringBuilder.append(AS).append(getMetaDataName(typname)).append(NEW_LINE);
+                        if (Double.compare(databaseProductVersion, 10.0) >= 0) {
+                            stringBuilder.append(AS).append(typname).append(NEW_LINE);
                         }
 
                         Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(START_WITH).append(v).append(NEW_LINE));
@@ -375,7 +375,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
                         Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append(ALTER_SEQUENCE)
                                 .append(getMetaDataName(nspname, relname))
-                                .append(OWNED_BY).append(getMetaDataName(v)).append(SEMICOLON));
+                                .append(OWNER_TO).append(getMetaDataName(v)).append(SEMICOLON));
                     }
                     return stringBuilder.toString();
                 });

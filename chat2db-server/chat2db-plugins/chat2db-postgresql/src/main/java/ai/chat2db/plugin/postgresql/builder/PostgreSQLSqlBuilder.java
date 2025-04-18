@@ -242,11 +242,11 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
     @Override
     @SneakyThrows
     public String buildCreateSequenceSql(Sequence sequence) {
-        
-        Double databaseProductVersion = Double.valueOf(Chat2DBContext.getConnection().getMetaData().getDatabaseProductVersion());
+
+        double databaseProductVersion = Double.parseDouble(Chat2DBContext.getConnection().getMetaData().getDatabaseProductVersion());
         StringBuilder sqlBuilder = new StringBuilder();
         sqlBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(sequence.getNspname(), sequence.getRelname())).append("\n ");
-        if (databaseProductVersion >= 10.0) {
+        if (Double.compare(databaseProductVersion, 10.0) >= 0) {
             sqlBuilder.append(AS).append(sequence.getTypname()).append("\n ");
         }
         Optional.ofNullable(sequence.getSeqstart()).ifPresent(v -> sqlBuilder.append(START_WITH).append(v).append("\n "));
@@ -273,7 +273,7 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
 
         Optional.ofNullable(sequence.getRolname()).ifPresent(v -> sqlBuilder.append(ALTER_SEQUENCE)
                 .append(getMetaDataName(sequence.getNspname(), sequence.getRelname()))
-                .append(OWNED_BY).append(getMetaDataName(v)).append(SEMICOLON));
+                .append(OWNER_TO).append(getMetaDataName(v)).append(SEMICOLON));
         return sqlBuilder.toString();
     }
 
