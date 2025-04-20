@@ -71,8 +71,13 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract TableQueryParam tableRequest2param(TableDetailQueryRequest request);
-
-
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    public abstract SequenceQueryParam sequenceRequest2param(SequenceDetailQueryRequest request);
     /**
      * Parameter conversion
      *
@@ -230,6 +235,14 @@ public abstract class RdbWebConverter {
         @Mapping(source = "indexList", target = "indexList"),
     })
     public abstract TableVO tableDto2vo(Table dto);
+
+    /**
+     * Model conversion
+     *
+     * @param dto
+     * @return
+     */
+    public abstract SequenceVO sequenceDto2vo(Sequence dto);
 
     /**
      * Model conversion

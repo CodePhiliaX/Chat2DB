@@ -663,7 +663,7 @@ public class SQLConst {
                      JOIN
                  pg_type t ON s.seqtypid = t.oid
             WHERE c.relname = ?
-              and n.nspname = ?;
+              AND n.nspname = ?;
             """;
 
     public static final String EXPORT_SEQUENCES_SQL = """

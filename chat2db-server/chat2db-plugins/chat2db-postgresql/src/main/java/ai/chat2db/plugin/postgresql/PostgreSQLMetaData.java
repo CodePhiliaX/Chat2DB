@@ -397,4 +397,27 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                     return simpleSequences;
                 });
     }
+
+    @Override
+    public Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName) {
+        String[] args = new String[]{sequenceName, schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, args, resultSet -> {
+            if (resultSet.next()) {
+                return Sequence.builder()
+                        .nspname(resultSet.getString("nspname"))
+                        .relname(resultSet.getString("relname"))
+                        .typname(resultSet.getString("typname"))
+                        .seqcache(resultSet.getString("seqcache"))
+                        .rolname(resultSet.getString("rolname"))
+                        .comment(resultSet.getString("comment"))
+                        .seqstart(resultSet.getString("seqstart"))
+                        .seqincrement(resultSet.getString("seqincrement"))
+                        .seqmax(resultSet.getString("seqmax"))
+                        .seqmin(resultSet.getString("seqmin"))
+                        .seqcycle(resultSet.getBoolean("seqcycle"))
+                        .build();
+            }
+            return null;
+        });
+    }
 }

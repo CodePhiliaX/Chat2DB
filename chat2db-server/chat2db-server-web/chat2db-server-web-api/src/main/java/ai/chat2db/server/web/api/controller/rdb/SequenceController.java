@@ -1,19 +1,15 @@
 package ai.chat2db.server.web.api.controller.rdb;
 
 
-import ai.chat2db.server.domain.api.param.DropParam;
-import ai.chat2db.server.domain.api.param.SequencePageQueryParam;
-import ai.chat2db.server.domain.api.param.ShowCreateSequenceParam;
+import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.service.SequenceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
-import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.SequenceBriefQueryRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.SequenceDeleteRequest;
-import ai.chat2db.server.web.api.controller.rdb.request.SequenceModifySqlRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.*;
+import ai.chat2db.server.web.api.controller.rdb.vo.SequenceVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.spi.model.*;
 import jakarta.validation.Valid;
@@ -82,5 +78,19 @@ public class SequenceController {
     public ActionResult delete(@Valid @RequestBody SequenceDeleteRequest request){
         DropParam dropParam = rdbWebConverter.sequenceDelete2dropParam(request);
         return sequenceService.drop(dropParam);
+    }
+
+    /**
+     * Get information such as table columns and indexes
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/query")
+    public DataResult<SequenceVO> query(@Valid SequenceDetailQueryRequest request) {
+        SequenceQueryParam queryParam = rdbWebConverter.sequenceRequest2param(request);
+        DataResult<Sequence> sequenceDTODataResult = sequenceService.query(queryParam);
+        SequenceVO sequenceVO = rdbWebConverter.sequenceDto2vo(sequenceDTODataResult.getData());
+        return DataResult.of(sequenceVO);
     }
 }

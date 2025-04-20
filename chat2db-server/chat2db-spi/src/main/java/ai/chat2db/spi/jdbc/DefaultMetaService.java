@@ -198,4 +198,9 @@ public class DefaultMetaService implements MetaData {
     public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName){
         return null;
     }
+
+    @Override
+    public Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName){
+        return null;
+    }
 }

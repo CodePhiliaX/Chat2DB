@@ -280,4 +280,16 @@ public interface MetaData {
      * @return
      */
     List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName);
+
+    /**
+     * Querying all sequence under a schema.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param sequenceName
+     * @return
+     */
+    Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName);
+
 }

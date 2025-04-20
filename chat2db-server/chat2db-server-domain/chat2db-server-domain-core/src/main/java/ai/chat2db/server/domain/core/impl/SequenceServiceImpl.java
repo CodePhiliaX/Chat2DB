@@ -3,6 +3,7 @@ package ai.chat2db.server.domain.core.impl;
 
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.SequencePageQueryParam;
+import ai.chat2db.server.domain.api.param.SequenceQueryParam;
 import ai.chat2db.server.domain.api.param.ShowCreateSequenceParam;
 import ai.chat2db.server.domain.api.service.SequenceService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
@@ -59,5 +60,12 @@ public class SequenceServiceImpl implements SequenceService {
         DBManage metaSchema = Chat2DBContext.getDBManage();
         metaSchema.dropSequence(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchema(), param.getName());
         return ActionResult.isSuccess();
+    }
+
+    @Override
+    public DataResult<Sequence> query(SequenceQueryParam param){
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        Sequence sequences = metaSchema.sequences(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(), param.getSequenceName());
+        return DataResult.of(sequences);
     }
 }
