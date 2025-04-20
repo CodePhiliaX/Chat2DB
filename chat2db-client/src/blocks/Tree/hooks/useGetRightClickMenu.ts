@@ -222,7 +222,6 @@ export const useGetRightClickMenu = (props: IProps) => {
               schemaName: treeNodeData.extraParams?.schemaName,
               tableName: treeNodeData?.name,
               submitCallback: () => {
-              
                 loadData({
                   treeNodeData: treeNodeData.parentNode,
                   refresh: true
@@ -284,7 +283,6 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue651',
         doubleClickTrigger: true,
         handle: () => {
-          console.log('OpenFunction',treeNodeData);
           openFunction({
             addWorkspaceTab,
             treeNodeData,
@@ -330,7 +328,51 @@ export const useGetRightClickMenu = (props: IProps) => {
           });
         },
       },
-
+      //创建序列
+      [OperationColumn.CreateSequence]:{
+        text: i18n('editSequence.button.createSequence'),
+        icon: '\ue792',
+        handle: () => {
+          addWorkspaceTab({
+            id: uuid(),
+            title: i18n('editSequence.button.createSequence'),
+            type: WorkspaceTabType.CreateSequence,
+            uniqueData: {
+              dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+              databaseType: treeNodeData.extraParams!.databaseType!,
+              databaseName: treeNodeData.extraParams?.databaseName,
+              schemaName: treeNodeData.extraParams?.schemaName,
+              submitCallback: () => {loadData?.({refresh: true})},
+            },
+          });
+        },
+        discard: (treeNodeData.treeNodeType === TreeNodeType.SEQUENCE && currentConnectionDetails?.supportSchema),
+      },
+      // 编辑序列
+      [OperationColumn.EditSequence]: {
+        text: i18n('workspace.menu.editSequence'),
+        icon: '\ue602',
+        handle: () => {
+          addWorkspaceTab({
+            id: `${OperationColumn.EditSequence}-${treeNodeData.uuid}`,
+            title: treeNodeData?.name,
+            type: WorkspaceTabType.EditSequence,
+            uniqueData: {
+              dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+              databaseType: treeNodeData.extraParams!.databaseType!,
+              databaseName: treeNodeData.extraParams?.databaseName,
+              schemaName: treeNodeData.extraParams?.schemaName,
+              tableName: treeNodeData?.name,
+              submitCallback: () => {
+                loadData({
+                  treeNodeData: treeNodeData.parentNode,
+                  refresh: true
+                })
+              },
+            },
+          });
+        },
+      },
       // 删除序列
       [OperationColumn.DeleteSequence]: {
         text: i18n('workspace.menu.deleteSequence'),
@@ -630,7 +672,26 @@ export const getRightClickMenu = (props: IProps) => {
         deleteSequence(treeNodeData);
       },
     },
-
+    // 创建序列
+    [OperationColumn.CreateSequence]: {
+      text: i18n('editSequence.button.createSequence'),
+      icon: '\ue792',
+      handle: () => {
+        addWorkspaceTab({
+          id: uuid(),
+          title: i18n('editSequence.button.createSequence'),
+          type: WorkspaceTabType.CreateSequence,
+          uniqueData: {
+            dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+            databaseType: treeNodeData.extraParams!.databaseType!,
+            databaseName: treeNodeData.extraParams?.databaseName,
+            schemaName: treeNodeData.extraParams?.schemaName,
+            submitCallback: () => {treeNodeData.loadData?.({refresh: true})},
+          },
+        });
+      },
+      discard: (treeNodeData.treeNodeType === TreeNodeType.SEQUENCES && currentConnectionDetails?.supportSchema),
+    },
     // 打开存储过程
     [OperationColumn.OpenProcedure]: {
       text: i18n('workspace.menu.view'),
@@ -676,7 +737,7 @@ export const getRightClickMenu = (props: IProps) => {
       discard: !currentConnectionDetails?.supportSchema,
     },
   };
-
+  
   // 根据配置生成右键菜单
   const finalList: IRightClickMenu[] = [];
   excludeSomeOperation().forEach((t,i) => {

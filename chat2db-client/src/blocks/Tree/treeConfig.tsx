@@ -679,13 +679,13 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       })
     },
     operationColumn: [
-      OperationColumn.CreateConsole,
+      OperationColumn.CreateSequence,
       OperationColumn.CopyName,
       OperationColumn.Refresh,
     ],
   },
   [TreeNodeType.SEQUENCE]: {
     icon: '\ue611',
-    operationColumn: [OperationColumn.CreateConsole, OperationColumn.OpenSequence, OperationColumn.CopyName,OperationColumn.DeleteSequence],
+    operationColumn: [OperationColumn.OpenSequence, OperationColumn.EditSequence, OperationColumn.CopyName,OperationColumn.DeleteSequence],
   },
 };

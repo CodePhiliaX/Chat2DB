@@ -64,7 +64,6 @@ export interface IIndexIncludeColumnItem {
   pages: number | null; // 页数
 }
 
-
 // 编辑表时索引的数据结构
 export interface IIndexItem {
   key?: string;
@@ -73,7 +72,6 @@ export interface IIndexItem {
   type: any | null;
   columnList: IIndexIncludeColumnItem[];
   editStatus: EditColumnOperationType | null; // 操作类型
-
 }
 
 // 编辑表时整体的数据结构

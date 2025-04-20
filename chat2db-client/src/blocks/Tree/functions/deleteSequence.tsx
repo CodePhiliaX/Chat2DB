@@ -7,7 +7,6 @@ import styles from './deleteTable.less';
 import i18n from '@/i18n';
 
 export const deleteSequence = (treeNodeData,loadData) => {
-  console.log('deleteSequence', treeNodeData);
   openModal({
     width: '450px',
     content: <DeleteModalContent treeNodeData={treeNodeData} loadData={loadData} openModal={openModal} />,

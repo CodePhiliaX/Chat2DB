@@ -8,6 +8,7 @@ import {
   IDatabaseSupportField,
   IEditTableInfo,
   ITable,
+  ISequenceInfo,
 } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
@@ -258,7 +259,6 @@ const getTableDetails = createRequest<
   },
   IEditTableInfo
 >('/api/rdb/table/query', { method: 'get' });
-
 /** 获取库的所有表 */
 const getAllTableList = createRequest<
   { dataSourceId: number; databaseName?: string | null; schemaName?: string | null },
@@ -283,6 +283,33 @@ export interface IModifyTableSqlParams {
 
 /** 获取修改表的sql */
 const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', {
+  method: 'post',
+});
+
+export interface IModifySequenceSqlParams {
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string | null;
+  sequenceName?: string;
+  oldSequence?: ISequenceInfo;
+  newSequence: ISequenceInfo;
+  refresh: boolean;
+}
+/** 获取序列的详情 */
+const getSequenceDetails = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string | null;
+    sequenceName: string;
+    refresh: boolean;
+  },
+  ISequenceInfo
+>('/api/rdb/sequence/query', { method: 'get' });
+/**
+ * 获取修改序列的sql
+*/
+const getModifySequenceSql = createRequest<IModifySequenceSqlParams, { sql: string }[]>('/api/rdb/sequence/modify/sql', {
   method: 'post',
 });
 
@@ -355,5 +382,7 @@ export default {
   getAllFieldByTable,
   getSequenceList,
   exportCreateSequenceSql,
-  deleteSequence
+  getModifySequenceSql,
+  getSequenceDetails,
+  deleteSequence,
 };

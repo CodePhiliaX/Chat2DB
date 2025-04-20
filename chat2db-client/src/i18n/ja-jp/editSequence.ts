@@ -1,0 +1,15 @@
+export default {
+    'editSequence.button.createSequence': '新規シーケンス',
+    'editSequence.button.editSequence': 'シーケンスの編集',
+    'editSequence.label.comment': 'コメント',
+    'editSequence.label.relname': 'シーケンス名',
+    'editSequence.label.typname': 'データ型',
+    'editSequence.label.seqcache': 'キャッシュ',
+    'editSequence.label.rolname': '所有者',
+    'editSequence.label.seqstart': '開始値',
+    'editSequence.label.seqincrement': '増分値',
+    'editSequence.label.seqmax': '最大値',
+    'editSequence.label.seqmin': '最小値',
+    'editSequence.label.seqcycle': '周期',
+    'editSequence.title.sqlPreview': 'SQLプレビュー',
+};

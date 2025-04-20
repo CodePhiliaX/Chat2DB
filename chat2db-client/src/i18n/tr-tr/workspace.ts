@@ -16,6 +16,8 @@ export default {
   'workspace.menu.createDatabase': 'Veritabanı Oluştur',
   'workspace.menu.createSchema': 'Şema Oluştur',
   'workspace.menu.deleteTablePlaceHolder': 'Silmek istediğiniz tablonun adını giriniz',
+  'workspace.menu.createSequence': 'Sıra Oluştur',
+  'workspace.menu.editSequence': 'Sırayı Düzenle',
   'workspace.menu.deleteSequence': 'Sıradan Sil',
   'workspace.tips.affirmDeleteTable': 'Girdiğiniz tablo adı, silmek istediğiniz tablo adı ile aynı değil, lütfen tekrar doğrulayın',
   'workspace.table.total': 'Toplam',

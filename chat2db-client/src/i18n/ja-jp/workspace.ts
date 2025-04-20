@@ -16,6 +16,8 @@ export default {
   'workspace.menu.createDatabase': 'データベースを作成',
   'workspace.menu.createSchema': 'スキーマを作成',
   'workspace.menu.deleteTablePlaceHolder': '削除するテーブル名を入力してください',
+  'workspace.menu.createSequence': 'シーケンスを作成',
+  'workspace.menu.editSequence': 'シーケンスを編集',
   'workspace.menu.deleteSequence': 'シーケンスを削除',
   'workspace.tips.affirmDeleteTable': '入力したテーブル名と削除するテーブル名が一致しません。再確認してください',
   'workspace.table.total': '合計',

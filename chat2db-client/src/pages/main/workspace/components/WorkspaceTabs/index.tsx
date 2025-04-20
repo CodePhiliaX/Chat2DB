@@ -11,6 +11,7 @@ import { IWorkspaceTab } from '@/typings';
 import Tabs, { ITabItem } from '@/components/Tabs';
 import SearchResult from '@/components/SearchResult';
 import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
+import SequenceEditor from '@/blocks/SequenceEditor';
 import SQLExecute from '../SQLExecute';
 import ViewAllTable from '../ViewAllTable';
 import Iconfont from '@/components/Iconfont';
@@ -83,7 +84,7 @@ const WorkspaceTabs = memo(() => {
   };
 
   const createNewConsole = () => {
-    const { databaseName, schemaName } =  useTreeStore.getState().focusTreeNode || {};
+    const { databaseName, schemaName } = useTreeStore.getState().focusTreeNode || {};
     if (currentConnectionDetails) {
       createConsole({
         dataSourceId: currentConnectionDetails.id,
@@ -185,7 +186,22 @@ const WorkspaceTabs = memo(() => {
       />
     );
   };
-
+  // 渲染序列编辑器
+  const renderSequenceEditor = (item: IWorkspaceTab) => {
+    const { uniqueData } = item;
+    return (
+      <SequenceEditor
+        tabDetails={item}
+        changeTabDetails={changeTabDetails}
+        dataSourceId={uniqueData.dataSourceId}
+        databaseName={uniqueData.databaseName!}
+        databaseType={uniqueData?.databaseType}
+        schemaName={uniqueData?.schemaName}
+        tableName={uniqueData.tableName}
+        submitCallback={uniqueData.submitCallback}
+      />
+    );
+  };
   // 渲染表格编辑器
   const renderTableEditor = (item: IWorkspaceTab) => {
     const { uniqueData } = item;
@@ -242,6 +258,9 @@ const WorkspaceTabs = memo(() => {
         return renderSearchResult(item);
       case WorkspaceTabType.ViewAllTable:
         return renderViewAllTable(item);
+      case WorkspaceTabType.CreateSequence:
+      case WorkspaceTabType.EditSequence:
+        return renderSequenceEditor(item);
       default:
         return <div>Unknown</div>;
     }
