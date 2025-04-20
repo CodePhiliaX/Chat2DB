@@ -164,12 +164,11 @@ export default memo((props: IProps) => {
 
   function submit() {
     const sequenceInfo = sequenceInfoRef.current.getSequenceInfo();
-    if (sequenceInfo.seqmin ?? 0 > sequenceInfo.seqstart ?? 0) {
+    if (sequenceInfo.seqmin > sequenceInfo.seqstart) {
       message.error("最小值不能大于起始值"); // 或其他提示逻辑
       return;
     }
     if (sequenceInfoRef.current) {
-      console.log('newSequence',sequenceInfoRef.current.getSequenceInfo())
       const newSequence = {
         ...oldSequenceDetails,
         ...sequenceInfoRef.current.getSequenceInfo(),
