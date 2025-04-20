@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Form, Input, Switch } from 'antd';
+import { Form, Input, Switch, Select } from 'antd';
 import { Context } from '../index';
 import { ISequenceInfo } from '@/typings';
 import i18n from '@/i18n';
@@ -43,6 +43,12 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
     });
   }
 
+  function handleChange(value: string) {
+    form.setFieldsValue({
+      typname: value,
+    });
+  }
+
   useImperativeHandle(ref, () => ({
     getSequenceInfo,
   }));
@@ -64,7 +70,15 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
             <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.typname')}:`} name="typname">
-            <Input autoComplete="off" />
+            <Select
+              defaultValue={sequenceDetails?.typname ?? 'INTEGER'}
+              onChange={handleChange}
+              options={[
+                { value: 'SMALLINT', label: 'SMALLINT' },
+                { value: 'BIGINT', label: 'BIGINT' },
+                { value: 'INTEGER', label: 'INTEGER' },
+              ]}
+            />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.seqcache')}:`} name="seqcache">
             <Input autoComplete="off" />
@@ -85,7 +99,7 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
             <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.seqcycle')}:`}>
-            <Switch defaultChecked onChange={onChange} />;
+            <Switch defaultChecked onChange={onChange} />
           </Form.Item>
         </Form>
       </div>
