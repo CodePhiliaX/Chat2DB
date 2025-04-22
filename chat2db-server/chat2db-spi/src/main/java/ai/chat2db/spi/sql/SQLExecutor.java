@@ -14,7 +14,9 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlUtils;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -125,10 +127,12 @@ public class SQLExecutor implements CommandExecutor {
     }
 
     public <R> R preExecute(Connection connection, String sql, String[] args, ResultSetFunction<R> function) {
-        log.info("execute:{}", sql);
+        log.info("preExecute:{}", sql);
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < args.length; i++) {
-                preparedStatement.setObject(i + 1, args[i]);
+            if (ArrayUtil.isNotEmpty(args)) {
+                for (int i = 0; i < args.length; i++) {
+                    preparedStatement.setObject(i + 1, args[i]);
+                }
             }
             boolean query = preparedStatement.execute();
             // Represents the query
@@ -642,7 +646,7 @@ public class SQLExecutor implements CommandExecutor {
         }
         return executeResult;
     }
-    
+
     /**
      * Formats the given table name by stripping off any schema or catalog prefixes.
      * If the table name contains a dot ('.'), it splits the string by the dot

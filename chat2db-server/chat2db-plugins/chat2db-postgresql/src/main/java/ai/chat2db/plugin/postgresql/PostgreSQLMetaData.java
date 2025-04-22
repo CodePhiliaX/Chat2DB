@@ -329,7 +329,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                     if (resultSet.next()) {
                         String nspname = resultSet.getString("nspname");
                         String relname = resultSet.getString("relname");
-                        String typname = resultSet.getString("typname");
+                        String typname = getConversionType(resultSet.getString("typname"));
                         String seqcache = resultSet.getString("seqcache");
                         String rolname = resultSet.getString("rolname");
                         String comment = resultSet.getString("comment");
@@ -338,12 +338,6 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                         String seqmax = resultSet.getString("seqmax");
                         String seqmin = resultSet.getString("seqmin");
                         Boolean seqcycle = resultSet.getBoolean("seqcycle");
-
-                        switch (typname) {
-                            case "int2" -> typname = "SMALLINT";
-                            case "int8" -> typname = "BIGINT";
-                            default -> typname = "INTEGER";
-                        }
 
                         stringBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(nspname, relname)).append(NEW_LINE);
 
@@ -406,7 +400,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
                 return Sequence.builder()
                         .nspname(resultSet.getString("nspname"))
                         .relname(resultSet.getString("relname"))
-                        .typname(resultSet.getString("typname"))
+                        .typname(getConversionType(resultSet.getString("typname")))
                         .seqcache(resultSet.getString("seqcache"))
                         .rolname(resultSet.getString("rolname"))
                         .comment(resultSet.getString("comment"))
@@ -419,5 +413,26 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
             }
             return null;
         });
+    }
+
+    @Override
+    public List<String> usernames(Connection connection) {
+        List<String> usernames = new ArrayList<>();
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_USERS_SQL, null, resultSet -> {
+            while (resultSet.next()) {
+                String username = resultSet.getString("username");
+                usernames.add(username);
+            }
+            return usernames;
+        });
+    }
+
+    private String getConversionType(String typname) {
+        switch (typname) {
+            case "int2" -> typname = "SMALLINT";
+            case "int8" -> typname = "BIGINT";
+            default -> typname = "INTEGER";
+        }
+        return typname;
     }
 }

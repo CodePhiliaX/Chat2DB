@@ -150,4 +150,14 @@ public class DatabaseController {
         }
         return DataResult.of(task.getExportStatus());
     }
+
+    /**
+     * Query the database_user_list contained in the database
+     *
+     * @return username list
+     */
+    @GetMapping("/database_username_list")
+    public ListResult<String> databaseUsernameList(@Valid DataSourceBaseRequest dataSourceBaseRequest) {
+        return databaseService.getUsernameList();
+    }
 }

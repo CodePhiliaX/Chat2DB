@@ -675,4 +675,10 @@ public class SQLConst {
                  pg_namespace n ON n.oid = c.relnamespace
             WHERE n.nspname = ?;
             """;
+
+	public static final String EXPORT_USERS_SQL = """
+			SELECT rolname AS username
+			FROM pg_roles
+			ORDER BY rolname;
+			""";
 }

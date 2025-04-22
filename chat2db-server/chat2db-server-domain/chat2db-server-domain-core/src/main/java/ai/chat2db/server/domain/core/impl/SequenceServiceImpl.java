@@ -45,7 +45,7 @@ public class SequenceServiceImpl implements SequenceService {
 
     @Override
     public ListResult<Sql> buildSql(Sequence oldSequence, Sequence newSequence) {
-        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        SqlBuilder<?> sqlBuilder = Chat2DBContext.getSqlBuilder();
         List<Sql> sqls = new ArrayList<>();
         if (ObjectUtil.isEmpty(oldSequence)) {
             sqls.add(Sql.builder().sql(sqlBuilder.buildCreateSequenceSql(newSequence)).build());
