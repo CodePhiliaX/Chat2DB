@@ -18,8 +18,8 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
   const { className } = props;
   const { sequenceDetails } = useContext(Context);
   const [form] = Form.useForm();
-
   useEffect(() => {
+    console.log('sequenceDetails', sequenceDetails);
     form.setFieldsValue({
       comment: sequenceDetails.comment,
       relname: sequenceDetails.relname,
@@ -32,6 +32,7 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
       seqmin: sequenceDetails.seqmin,
       seqcycle: sequenceDetails.seqcycle,
     });
+    console.log('form', sequenceDetails.rolname);
   }, [sequenceDetails]);
   function getSequenceInfo(): ISequenceInfo {
     return form.getFieldsValue();
@@ -84,7 +85,7 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
             <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.rolname')}:`} name="rolname">
-            <Input autoComplete="off" />
+            <Input autoComplete="off" disabled />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.seqstart')}:`} name="seqstart">
             <Input autoComplete="off" />

@@ -22,6 +22,7 @@ export interface IConnectionListItem {
   type: DatabaseTypeCode;
   supportDatabase: boolean;
   supportSchema: boolean;
+  user: string;
 }
 
 
@@ -53,6 +54,7 @@ export interface IConnectionListItem {
   type: DatabaseTypeCode;
   supportDatabase: boolean; 
   supportSchema: boolean;
+  user: string;
 }
 
 export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>

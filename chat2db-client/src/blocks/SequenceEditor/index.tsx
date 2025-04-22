@@ -5,11 +5,12 @@ import lodash from 'lodash';
 import styles from './index.less';
 import classnames from 'classnames';
 import BaseInfo, { ISequenceInfoRef } from './BaseInfo';
-import sqlService, { IModifySequenceSqlParams, IModifyTableSqlParams } from '@/service/sql';
+import sqlService, { IModifySequenceSqlParams } from '@/service/sql';
 import ExecuteSQL from '@/components/ExecuteSQL';
 import { ISequenceInfo, IWorkspaceTab, IColumnTypes } from '@/typings';
 import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import LoadingContent from '@/components/Loading/LoadingContent';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 interface IProps {
   dataSourceId: number;
   databaseName: string;
@@ -62,80 +63,18 @@ export default memo((props: IProps) => {
   const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
   const sequenceInfoRef = useRef<ISequenceInfoRef>(null);
   const [appendValue, setAppendValue] = useState<string>('');
-  const [databaseSupportField, setDatabaseSupportField] = useState<IDatabaseSupportField>({
-    columnTypes: [],
-    charsets: [],
-    collations: [],
-    indexTypes: [],
-    defaultValues: [],
-  });
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const user = useWorkspaceStore.getState().currentConnectionDetails
 
   useEffect(() => {
     if (tableName) {
       getSequenceDetails();
+    }else{
+      const newSequenceDetails = { ...sequenceDetails, rolname: useWorkspaceStore.getState().currentConnectionDetails?.user ?? '' };
+      setSequenceDetails(newSequenceDetails)
     }
     // getDatabaseFieldTypeList();
   }, []);
-
-  // // 获取数据库字段类型列表
-  // const getDatabaseFieldTypeList = () => {
-  //   sqlService
-  //     .getDatabaseFieldTypeList({
-  //       dataSourceId,
-  //       databaseName,
-  //     })
-  //     .then((res) => {
-  //       const columnTypes =
-  //         res?.columnTypes?.map((i) => {
-  //           return {
-  //             ...i,
-  //             value: i.typeName,
-  //             label: i.typeName,
-  //           };
-  //         }) || [];
-
-  //       const charsets =
-  //         res?.charsets?.map((i) => {
-  //           return {
-  //             value: i.charsetName,
-  //             label: i.charsetName,
-  //           };
-  //         }) || [];
-
-  //       const collations =
-  //         res?.collations?.map((i) => {
-  //           return {
-  //             value: i.collationName,
-  //             label: i.collationName,
-  //           };
-  //         }) || [];
-
-  //       const indexTypes =
-  //         res?.indexTypes?.map((i) => {
-  //           return {
-  //             value: i.typeName,
-  //             label: i.typeName,
-  //           };
-  //         }) || [];
-
-  //       const defaultValues =
-  //         res?.defaultValues?.map((i) => {
-  //           return {
-  //             value: i.defaultValue,
-  //             label: i.defaultValue,
-  //           };
-  //         }) || [];
-
-  //       setDatabaseSupportField({
-  //         columnTypes,
-  //         charsets,
-  //         collations,
-  //         indexTypes,
-  //         defaultValues,
-  //       });
-  //     });
-  // };
 
   const getSequenceDetails = (myParams?: { sequenceNameProps?: string }) => {
     const { sequenceNameProps } = myParams || {};
