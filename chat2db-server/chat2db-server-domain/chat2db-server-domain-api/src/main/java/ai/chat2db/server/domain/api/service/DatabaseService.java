@@ -98,4 +98,11 @@ public interface DatabaseService {
      * @return
      */
     String exportDatabase(DatabaseExportParam param) throws SQLException;
+
+    /**
+     * Query the user under a database
+     *
+     * @return User list
+     */
+    ListResult<String> getUsernameList();
 }

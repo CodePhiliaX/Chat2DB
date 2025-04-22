@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Consumer;
 
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseExportParam;
@@ -196,4 +195,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         return "exportDatabase success";
     }
 
+    @Override
+    public ListResult<String> getUsernameList(){
+        MetaData metaSchema = Chat2DBContext.getMetaData();
+        List<String> usernames = metaSchema.usernames(Chat2DBContext.getConnection());
+        return ListResult.of(usernames);
+    }
 }

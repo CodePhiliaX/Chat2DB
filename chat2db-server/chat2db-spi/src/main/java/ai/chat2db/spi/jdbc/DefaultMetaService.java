@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -196,11 +197,16 @@ public class DefaultMetaService implements MetaData {
 
     @Override
     public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName){
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName){
         return null;
+    }
+
+    @Override
+    public List<String> usernames(Connection connection){
+        return Collections.emptyList();
     }
 }

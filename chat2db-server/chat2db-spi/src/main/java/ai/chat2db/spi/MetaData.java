@@ -292,4 +292,6 @@ public interface MetaData {
      */
     Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName);
 
+    List<String> usernames(Connection connection);
+
 }
