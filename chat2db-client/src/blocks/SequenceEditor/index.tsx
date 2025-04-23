@@ -158,7 +158,9 @@ export default memo((props: IProps) => {
         ...props,
         sequenceDetails,
         sequenceInfoRef,
-        databaseType,
+        dataSourceId,
+        databaseName,
+        schemaName,
       }}
     >
       <LoadingContent coverLoading isLoading={isLoading} className={classnames(styles.box)}>

@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useImperativeHandle, ForwardedRef, forwardRef } from 'react';
+import React, { useContext, useEffect, useImperativeHandle, ForwardedRef, forwardRef, useState } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 import { Form, Input, Switch, Select } from 'antd';
 import { Context } from '../index';
 import { ISequenceInfo } from '@/typings';
+import sqlService from '@/service/sql';
 import i18n from '@/i18n';
 
 export interface ISequenceInfoRef {
@@ -16,10 +17,10 @@ interface IProps {
 
 const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>) => {
   const { className } = props;
-  const { sequenceDetails } = useContext(Context);
+  const { sequenceDetails,databaseType,databaseName,dataSourceId,schemaName } = useContext(Context);
+  const [userOptions, setUserOptions] = useState<{ value: string; label: string }[]>([]);
   const [form] = Form.useForm();
   useEffect(() => {
-    console.log('sequenceDetails', sequenceDetails);
     form.setFieldsValue({
       comment: sequenceDetails.comment,
       relname: sequenceDetails.relname,
@@ -32,8 +33,19 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
       seqmin: sequenceDetails.seqmin,
       seqcycle: sequenceDetails.seqcycle,
     });
-    console.log('form', sequenceDetails.rolname);
+    const params = {
+      databaseType,
+      databaseName,
+      dataSourceId,
+      schemaName,
+      refresh: true,
+    };
+    sqlService.
+      getDatabaseUserNameList(params).then((res) => {
+        setUserOptions(res.map(user => ({value: user,label: user})));
+      });
   }, [sequenceDetails]);
+
   function getSequenceInfo(): ISequenceInfo {
     return form.getFieldsValue();
   }
@@ -47,6 +59,11 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
   function handleChange(value: string) {
     form.setFieldsValue({
       typname: value,
+    });
+  }
+  function rolnameChange(value: string) {
+    form.setFieldsValue({
+      rolname: value,
     });
   }
 
@@ -85,7 +102,11 @@ const BaseInfo = forwardRef((props: IProps, ref: ForwardedRef<ISequenceInfoRef>)
             <Input autoComplete="off" />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.rolname')}:`} name="rolname">
-            <Input autoComplete="off" disabled />
+            <Select
+              defaultValue={sequenceDetails?.rolname ?? ''}
+              onChange={rolnameChange}
+              options={userOptions}
+            />
           </Form.Item>
           <Form.Item label={`${i18n('editSequence.label.seqstart')}:`} name="seqstart">
             <Input autoComplete="off" />

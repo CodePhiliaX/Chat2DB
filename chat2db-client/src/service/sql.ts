@@ -341,6 +341,13 @@ const getCreateSchemaSql = createRequest<{
   schemaName?: string;
 }, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
 
+/** 查询数据库用户名列表  */
+const getDatabaseUserNameList = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string | null;
+  refresh: boolean;
+},{sql:[]}>('/api/rdb/database/database_username_list', { method: 'get' });
 export default {
   getCreateSchemaSql,
   getCreateDatabaseSql,
@@ -385,4 +392,5 @@ export default {
   getModifySequenceSql,
   getSequenceDetails,
   deleteSequence,
+  getDatabaseUserNameList,
 };
