@@ -295,6 +295,11 @@ $ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resource
 Thanks to everyone who has contributed to Chat2DB~~
 
 
+<a href="https://openomy.app/github/CodePhiliaX/Chat2DB" target="_blank" style="display: block; width: 100%;" align="center">
+  <img src="https://openomy.app/svg?repo=CodePhiliaX/Chat2DB&chart=bubble&latestMonth=12" target="_blank" alt="Contribution Leaderboard" style="display: block; width: 100%;" />
+ </a>
+
+
 <a href="https://github.com/chat2db/Chat2DB/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=chat2db/Chat2DB" />
 </a>
