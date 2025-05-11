@@ -186,6 +186,7 @@ public class TongyiChatAIStreamClient {
             chatCompletionsOptions.setModel(this.model);
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("result_format", "text");
+            parameters.put("incremental_output", true);
             chatCompletionsOptions.setParameters(parameters);
             TongyiChatMessage tongyiChatMessage = new TongyiChatMessage();
             tongyiChatMessage.setMessages(chatMessages);
