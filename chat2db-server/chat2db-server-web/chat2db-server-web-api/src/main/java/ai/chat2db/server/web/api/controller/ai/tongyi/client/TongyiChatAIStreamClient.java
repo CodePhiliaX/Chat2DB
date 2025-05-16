@@ -189,7 +189,7 @@ public class TongyiChatAIStreamClient {
             chatCompletionsOptions.setParameters(parameters);
             TongyiChatMessage tongyiChatMessage = new TongyiChatMessage();
             tongyiChatMessage.setMessages(chatMessages);
-            chatCompletionsOptions.setInput(tongyiChatMessage);
+            chatCompletionsOptions.setMessages(chatMessages);
 
             EventSource.Factory factory = EventSources.createFactory(this.okHttpClient);
             ObjectMapper mapper = new ObjectMapper();
