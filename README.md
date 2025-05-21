@@ -2,8 +2,12 @@
 <a href="https://trendshift.io/repositories/11808" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11808" alt="CodePhiliaX%2FChat2DB | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
 </div>
 <br/>
-[![ReadmeX](https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg)](https://github.com/CodePhiliaX/Chat2DB)
+ 
+
 <p align="center">
+ 
+[![ReadmeX](https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg)](https://github.com/CodePhiliaX/Chat2DB)
+
  <a href="https://discord.com/invite/uNjb3n5JVN" target="_blank">
     <img src="https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white"
             alt="chat on Discord"></a>
