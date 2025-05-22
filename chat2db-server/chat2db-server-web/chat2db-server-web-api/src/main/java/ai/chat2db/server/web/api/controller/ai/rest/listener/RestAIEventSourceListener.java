@@ -77,14 +77,16 @@ public class RestAIEventSourceListener extends EventSourceListener {
     public void onClosed(EventSource eventSource) {
         log.info("REST AI close sse connection...");
         try {
-            sseEmitter.send(SseEmitter.event()
+            // 使用 try-catch 直接尝试发送事件，如果已完成会抛出异常被捕获
+            this.sseEmitter.send(SseEmitter.event()
                     .id("[DONE]")
                     .data("[DONE]")
                     .reconnectTime(3000));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            this.sseEmitter.complete();
+        } catch (Exception e) {
+            // 可能是 SseEmitter 已经完成状态，记录日志但不重新抛出异常
+            log.info("SseEmitter may already be completed: {}", e.getMessage());
         }
-        sseEmitter.complete();
     }
 
     @Override
