@@ -4,13 +4,21 @@ import ai.chat2db.plugin.postgresql.type.PostgreSQLColumnTypeEnum;
 import ai.chat2db.plugin.postgresql.type.PostgreSQLIndexTypeEnum;
 import ai.chat2db.spi.jdbc.DefaultSqlBuilder;
 import ai.chat2db.spi.model.*;
+import ai.chat2db.spi.sql.Chat2DBContext;
+import cn.hutool.core.util.BooleanUtil;
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.*;
 
 
 public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
@@ -230,4 +238,96 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder {
         }
         return sqlBuilder.toString();
     }
+
+    @Override
+    @SneakyThrows
+    public String buildCreateSequenceSql(Sequence sequence) {
+
+        double databaseProductVersion = Double.parseDouble(Chat2DBContext.getConnection().getMetaData().getDatabaseProductVersion());
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(sequence.getNspname(), sequence.getRelname())).append("\n ");
+        if (Double.compare(databaseProductVersion, 10.0) >= 0) {
+            sqlBuilder.append(AS).append(sequence.getTypname()).append("\n ");
+        }
+        Optional.ofNullable(sequence.getSeqstart()).ifPresent(v -> sqlBuilder.append(START_WITH).append(v).append("\n "));
+
+        Optional.ofNullable(sequence.getSeqincrement()).ifPresent(v -> sqlBuilder.append(INCREMENT_BY).append(v).append("\n "));
+
+        Optional.ofNullable(sequence.getSeqmin()).ifPresent(v -> sqlBuilder.append(MINVALUE).append(v).append("\n "));
+
+        Optional.ofNullable(sequence.getSeqmax()).ifPresent(v -> sqlBuilder.append(MAXVALUE).append(v).append("\n "));
+
+        Optional.ofNullable(sequence.getSeqcache()).ifPresent(v -> sqlBuilder.append(CACHE).append(v).append("\n "));
+
+        Optional.ofNullable(sequence.getSeqcycle()).ifPresent(v -> {
+            if (Boolean.TRUE.equals(sequence.getSeqcycle())) {
+                sqlBuilder.append(CYCLE).append("\n ");
+            }
+        });
+
+        sqlBuilder.append(SEMICOLON).append("\n ").append("\n ");
+
+        Optional.ofNullable(sequence.getComment()).ifPresent(v -> sqlBuilder.append(COMMENT_ON_SEQUENCE)
+                .append(getMetaDataName(sequence.getNspname(), sequence.getRelname()))
+                .append(IS).append(SQUOT).append(v).append(SQUOT).append(SEMICOLON).append("\n ").append("\n "));
+
+        Optional.ofNullable(sequence.getRolname()).ifPresent(v -> sqlBuilder.append(ALTER_SEQUENCE)
+                .append(getMetaDataName(sequence.getNspname(), sequence.getRelname()))
+                .append(OWNER_TO).append(getMetaDataName(v)).append(SEMICOLON));
+        return sqlBuilder.toString();
+    }
+
+    @Override
+    public String buildModifySequenceSql(Sequence oldSequence, Sequence newSequence) {
+        StringBuilder sqlBuilder = new StringBuilder();
+        if (!StringUtils.equalsIgnoreCase(oldSequence.getRelname(), newSequence.getRelname())) {
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(oldSequence.getNspname(), oldSequence.getRelname())).append(RENAME_TO).append(getMetaDataName(newSequence.getRelname())).append(SEMICOLON).append(BLANK_LINE);
+        }
+        if (!StringUtils.equals(oldSequence.getComment(), newSequence.getComment())) {
+            sqlBuilder.append(COMMENT_ON_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(IS).append(SQUOT).append(newSequence.getComment()).append(SQUOT).append(SEMICOLON).append(BLANK_LINE);
+        }
+        if (!StringUtils.equals(oldSequence.getSeqcache(), newSequence.getSeqcache())) {
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(CACHE).append(getMetaDataName(newSequence.getSeqcache())).append(SEMICOLON).append(BLANK_LINE);
+        }
+        if (BooleanUtil.xor(oldSequence.getSeqcycle(), newSequence.getSeqcycle())) {
+            if (Boolean.TRUE.equals(newSequence.getSeqcycle())) {
+                sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(CYCLE).append(BLANK_LINE);
+            } else {
+                sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(NO_CYCLE).append(BLANK_LINE);
+            }
+        }
+
+        if (!StringUtils.equals(oldSequence.getSeqstart(), newSequence.getSeqstart()) ||
+                !StringUtils.equals(oldSequence.getSeqincrement(), newSequence.getSeqincrement()) ||
+                !StringUtils.equals(oldSequence.getSeqmax(), newSequence.getSeqmax()) ||
+                !StringUtils.equals(oldSequence.getSeqmin(), newSequence.getSeqmin())) {
+            sqlBuilder.append(ALTER_SEQUENCE);
+            if (!StringUtils.equals(oldSequence.getSeqstart(), newSequence.getSeqstart())) {
+                sqlBuilder.append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(RESTART_WITH).append(newSequence.getSeqstart());
+            }
+            if (!StringUtils.equals(oldSequence.getSeqincrement(), newSequence.getSeqincrement())) {
+                sqlBuilder.append(INCREMENT_BY).append(newSequence.getSeqincrement());
+            }
+            if (!StringUtils.equals(oldSequence.getSeqmax(), newSequence.getSeqmax())) {
+                sqlBuilder.append(MAXVALUE).append(newSequence.getSeqmax());
+            }
+            if (!StringUtils.equals(oldSequence.getSeqmin(), newSequence.getSeqmin())) {
+                sqlBuilder.append(MINVALUE).append(newSequence.getSeqmin());
+            }
+            sqlBuilder.append(SEMICOLON).append(BLANK_LINE);
+        }
+
+        if (!StringUtils.equals(oldSequence.getTypname(), newSequence.getTypname())) {
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(AS).append(newSequence.getTypname()).append(SEMICOLON).append(BLANK_LINE);
+        }
+        if (!StringUtils.equals(oldSequence.getRolname(), newSequence.getRolname())) {
+            sqlBuilder.append(ALTER_SEQUENCE).append(getMetaDataName(newSequence.getNspname(), newSequence.getRelname())).append(OWNER_TO).append(getMetaDataName(newSequence.getRolname())).append(SEMICOLON).append(BLANK_LINE);
+        }
+        return sqlBuilder.toString();
+    }
+
+    private String getMetaDataName(String... names) {
+        return Arrays.stream(names).filter(StringUtils::isNotBlank).map(name -> DOUBLE_SQUOT + name + DOUBLE_SQUOT).collect(Collectors.joining(DOT));
+    }
+
 }

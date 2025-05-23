@@ -8,19 +8,21 @@ import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.jdbc.DefaultMetaService;
 import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
-import ai.chat2db.spi.util.SortUtils;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ai.chat2db.plugin.postgresql.consts.SQLConst.DROP_TYPE_SQL;
-import static ai.chat2db.plugin.postgresql.consts.SQLConst.TABLE_DEF_FUNCTION_SQL;
+import static ai.chat2db.plugin.postgresql.consts.SequenceCommonConst.*;
+import static ai.chat2db.plugin.postgresql.consts.SQLConst.*;
+import static ai.chat2db.server.tools.base.constant.SymbolConstant.*;
 import static ai.chat2db.spi.util.SortUtils.sortDatabase;
 
 public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
@@ -104,7 +106,7 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public String tableDDL(Connection connection, String databaseName, String schemaName, String tableName) {
-        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL,schemaName,"tabledefs"), resultSet -> null);
+        SQLExecutor.getInstance().execute(connection, String.format(DROP_TYPE_SQL, schemaName, "tabledefs"), resultSet -> null);
         SQLExecutor.getInstance().execute(connection, TABLE_DEF_FUNCTION_SQL, resultSet -> null);
         String ddlSql = String.format("select * from pg_get_tabledef('%s','%s',false,'COMMENTS') as ddl;", schemaName, tableName);
         return SQLExecutor.getInstance().execute(connection, ddlSql, resultSet -> {
@@ -313,5 +315,124 @@ public class PostgreSQLMetaData extends DefaultMetaService implements MetaData {
     @Override
     public List<String> getSystemSchemas() {
         return systemSchemas;
+    }
+
+    @Override
+    @SneakyThrows
+    public String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                              @NotEmpty String sequenceName) {
+        DatabaseMetaData metaData = connection.getMetaData();
+        double databaseProductVersion = Double.parseDouble(metaData.getDatabaseProductVersion());
+        String[] args = new String[]{sequenceName, schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, args, resultSet -> {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (resultSet.next()) {
+                        String nspname = resultSet.getString("nspname");
+                        String relname = resultSet.getString("relname");
+                        String typname = getConversionType(resultSet.getString("typname"));
+                        String seqcache = resultSet.getString("seqcache");
+                        String rolname = resultSet.getString("rolname");
+                        String comment = resultSet.getString("comment");
+                        String seqstart = resultSet.getString("seqstart");
+                        String seqincrement = resultSet.getString("seqincrement");
+                        String seqmax = resultSet.getString("seqmax");
+                        String seqmin = resultSet.getString("seqmin");
+                        Boolean seqcycle = resultSet.getBoolean("seqcycle");
+
+                        stringBuilder.append(CREATE_SEQUENCE).append(getMetaDataName(nspname, relname)).append(NEW_LINE);
+
+                        if (Double.compare(databaseProductVersion, 10.0) >= 0) {
+                            stringBuilder.append(AS).append(typname).append(NEW_LINE);
+                        }
+
+                        Optional.ofNullable(seqstart).ifPresent(v -> stringBuilder.append(START_WITH).append(v).append(NEW_LINE));
+
+                        Optional.ofNullable(seqincrement).ifPresent(v -> stringBuilder.append(INCREMENT_BY).append(v).append(NEW_LINE));
+
+                        Optional.ofNullable(seqmin).ifPresent(v -> stringBuilder.append(MINVALUE).append(v).append(NEW_LINE));
+
+                        Optional.ofNullable(seqmax).ifPresent(v -> stringBuilder.append(MAXVALUE).append(v).append(NEW_LINE));
+
+                        Optional.ofNullable(seqcache).ifPresent(v -> stringBuilder.append(CACHE).append(v).append(NEW_LINE));
+
+                        Optional.ofNullable(seqcycle).ifPresent(v -> {
+                            if (Boolean.TRUE.equals(seqcycle)) {
+                                stringBuilder.append(CYCLE).append(NEW_LINE);
+                            }
+                        });
+
+                        stringBuilder.append(SEMICOLON).append(BLANK_LINE);
+
+                        Optional.ofNullable(comment).ifPresent(v -> stringBuilder.append(COMMENT_ON_SEQUENCE)
+                                .append(getMetaDataName(nspname, relname))
+                                .append(IS).append(SQUOT).append(v).append(SQUOT).append(SEMICOLON).append(BLANK_LINE));
+
+                        Optional.ofNullable(rolname).ifPresent(v -> stringBuilder.append(ALTER_SEQUENCE)
+                                .append(getMetaDataName(nspname, relname))
+                                .append(OWNER_TO).append(getMetaDataName(v)).append(SEMICOLON));
+                    }
+                    return stringBuilder.toString();
+                });
+    }
+
+    @Override
+    public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName) {
+        List<SimpleSequence> simpleSequences = new ArrayList<>();
+        String[] args = new String[]{schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCES_SQL, args, resultSet -> {
+                    while (resultSet.next()) {
+                        String relname = resultSet.getString("relname");
+                        String comment = resultSet.getString("comment");
+                        simpleSequences.add(SimpleSequence.builder()
+                                .name(relname)
+                                .comment(comment)
+                                .build());
+                    }
+                    return simpleSequences;
+                });
+    }
+
+    @Override
+    public Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName) {
+        String[] args = new String[]{sequenceName, schemaName};
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_SEQUENCE_DDL_SQL, args, resultSet -> {
+            if (resultSet.next()) {
+                return Sequence.builder()
+                        .nspname(resultSet.getString("nspname"))
+                        .relname(resultSet.getString("relname"))
+                        .typname(getConversionType(resultSet.getString("typname")))
+                        .seqcache(resultSet.getString("seqcache"))
+                        .rolname(resultSet.getString("rolname"))
+                        .comment(resultSet.getString("comment"))
+                        .seqstart(resultSet.getString("seqstart"))
+                        .seqincrement(resultSet.getString("seqincrement"))
+                        .seqmax(resultSet.getString("seqmax"))
+                        .seqmin(resultSet.getString("seqmin"))
+                        .seqcycle(resultSet.getBoolean("seqcycle"))
+                        .build();
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public List<String> usernames(Connection connection) {
+        List<String> usernames = new ArrayList<>();
+        return SQLExecutor.getInstance().preExecute(connection, EXPORT_USERS_SQL, null, resultSet -> {
+            while (resultSet.next()) {
+                String username = resultSet.getString("username");
+                usernames.add(username);
+            }
+            return usernames;
+        });
+    }
+
+    private String getConversionType(String typname) {
+        switch (typname) {
+            case "int2" -> typname = "SMALLINT";
+            case "int8" -> typname = "BIGINT";
+            default -> typname = "INTEGER";
+        }
+        return typname;
     }
 }

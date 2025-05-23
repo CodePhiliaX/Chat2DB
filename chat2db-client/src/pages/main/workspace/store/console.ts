@@ -55,6 +55,7 @@ export const setWorkspaceTabList = (items: IConsoleStore['workspaceTabList']) =>
 };
 
 export const createConsole = (params: ICreateConsoleParams) => {
+  
   const workspaceTabList = useWorkspaceStore.getState().workspaceTabList;
   const currentConnectionDetails = useWorkspaceStore.getState().currentConnectionDetails;
   const newConsole = {
@@ -67,12 +68,12 @@ export const createConsole = (params: ICreateConsoleParams) => {
     supportDatabase: currentConnectionDetails?.supportDatabase,
     supportSchema: currentConnectionDetails?.supportSchema,
   };
-
   return new Promise((resolve) => {
     if ((workspaceTabList?.length || 0) >= 20) {
       message.warning(i18n('workspace.tips.maxConsole'));
       return;
     }
+
     useWorkspaceStore.setState({ createConsoleLoading: true });
     historyService.createConsole(newConsole).then((res) => {
       const newList = [

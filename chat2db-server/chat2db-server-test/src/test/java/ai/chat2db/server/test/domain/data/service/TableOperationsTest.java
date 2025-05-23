@@ -182,7 +182,7 @@ public class TableOperationsTest extends BaseTest {
             DropParam dropParam = DropParam.builder()
                 .dataSourceId(dataSourceId)
                 .databaseName(dialectProperties.getDatabaseName())
-                .tableName(dialectProperties.toCase(TABLE_NAME))
+                .name(dialectProperties.toCase(TABLE_NAME))
                 .build();
             tableService.drop(dropParam);
             //  Query table structure
@@ -389,7 +389,7 @@ public class TableOperationsTest extends BaseTest {
         DropParam dropParam = DropParam.builder()
             .dataSourceId(dataSourceId)
             .databaseName(dialectProperties.getDatabaseName())
-            .tableName(dialectProperties.toCase(tableName))
+            .name(dialectProperties.toCase(tableName))
             .build();
         tableService.drop(dropParam);
         //  Query table structure

@@ -42,6 +42,10 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
   },
+  [TreeNodeType.VIEWS]: {
+    icon: '\ueabe',
+    unfoldIcon: '\ueabf',
+  },
   [TreeNodeType.VIEW]: {
     icon: '\ue70c',
   },
@@ -73,9 +77,12 @@ export const switchIcon: Partial<{ [key in TreeNodeType]: { icon: string; unfold
     icon: '\ueabe',
     unfoldIcon: '\ueabf',
   },
-  [TreeNodeType.VIEWS]: {
+  [TreeNodeType.SEQUENCES]: {
     icon: '\ueabe',
     unfoldIcon: '\ueabf',
+  },
+  [TreeNodeType.SEQUENCE]: {
+    icon: '\ue611',
   },
 };
 
@@ -232,6 +239,15 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             extraParams: parentData.extraParams,
           },
         ];
+        if((parentData.extraParams?.databaseType === 'POSTGRESQL'|| parentData.extraParams?.databaseType === 'ORACLE')&& schemaName==='public'){
+          data.push({
+            uuid: uuid(),
+            key: `${preCode}-sequences`,
+            name: 'sequences',
+            treeNodeType: TreeNodeType.SEQUENCES,
+            extraParams: parentData.extraParams,
+          });
+        }
         r(data);
       });
     },
@@ -630,5 +646,46 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.INDEX]: {
     icon: '\ue65b',
     operationColumn: [OperationColumn.CreateConsole, OperationColumn.CopyName],
+  },
+  [TreeNodeType.SEQUENCES]: {
+    icon: '\ueabe', // 使用现有图标（如文件夹折叠）
+   
+    getChildren: (params) => {
+      const _extraParams = params.extraParams;
+      delete params.extraParams;
+      return new Promise((r: (value: ITreeNode[]) => void, j) => {
+        mysqlServer
+          .getSequenceList(params)
+          .then((res) => {
+            const data: ITreeNode[] = res?.map((item:any) => {
+              return {
+                uuid: uuid(),
+                key: item.name,
+                name: item.name,
+                treeNodeType: TreeNodeType.SEQUENCE,
+                sequenceName: item.name,
+                isLeaf: true,
+                extraParams: {
+                  ..._extraParams,
+                  sequenceName: item.name,
+                },
+              };
+            });
+            r(data);
+          })
+          .catch((error) => {
+            j(error);
+          });
+      })
+    },
+    operationColumn: [
+      OperationColumn.CreateSequence,
+      OperationColumn.CopyName,
+      OperationColumn.Refresh,
+    ],
+  },
+  [TreeNodeType.SEQUENCE]: {
+    icon: '\ue611',
+    operationColumn: [OperationColumn.OpenSequence, OperationColumn.EditSequence, OperationColumn.CopyName,OperationColumn.DeleteSequence],
   },
 };

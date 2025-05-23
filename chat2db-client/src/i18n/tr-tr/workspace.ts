@@ -16,6 +16,9 @@ export default {
   'workspace.menu.createDatabase': 'Veritabanı Oluştur',
   'workspace.menu.createSchema': 'Şema Oluştur',
   'workspace.menu.deleteTablePlaceHolder': 'Silmek istediğiniz tablonun adını giriniz',
+  'workspace.menu.createSequence': 'Sıra Oluştur',
+  'workspace.menu.editSequence': 'Sırayı Düzenle',
+  'workspace.menu.deleteSequence': 'Sıradan Sil',
   'workspace.tips.affirmDeleteTable': 'Girdiğiniz tablo adı, silmek istediğiniz tablo adı ile aynı değil, lütfen tekrar doğrulayın',
   'workspace.table.total': 'Toplam',
   'workspace.table.total.tip': 'Toplam satır sayısını yükle',
@@ -31,4 +34,5 @@ export default {
   'workspace.tree.delete.tip': 'Bu işlemin kalıcı olarak silindiğini anlıyorum',
   'workspace.tree.delete.table.tip': '{1} tablosunu silmek istediğinizden emin misiniz?',
   'workspace.tips.noConnection': 'Henüz bir bağlantı oluşturmadınız',
+  'workspace.tree.delete.sequence.tip': '{1} i silmek istediğinize emin misiniz?'
 };

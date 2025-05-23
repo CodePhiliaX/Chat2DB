@@ -27,6 +27,10 @@ public class SymbolConstant {
      */
     public static final String SQUOT = "'";
     /**
+     * apostrophe"""
+     */
+    public static final String DOUBLE_SQUOT = "\"";
+    /**
      * empty string ""
      */
     public static final String EMPTY = "";
@@ -54,5 +58,13 @@ public class SymbolConstant {
      * colon ":"
      */
     public static final String COLON = ":";
+    /**
+     * blank line "\n\n"
+     */
+    public static final String BLANK_LINE = "\n\n";
+    /**
+     * new line "\n"
+     */
+    public static final String NEW_LINE = "\n";
 
 }

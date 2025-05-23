@@ -14,7 +14,9 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.util.JdbcUtils;
 import ai.chat2db.spi.util.ResultSetUtils;
 import ai.chat2db.spi.util.SqlUtils;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.TimeInterval;
+import cn.hutool.core.util.ArrayUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -122,6 +124,28 @@ public class SQLExecutor implements CommandExecutor {
             log.error("execute:{}", sql, e);
             throw new RuntimeException(e);
         }
+    }
+
+    public <R> R preExecute(Connection connection, String sql, String[] args, ResultSetFunction<R> function) {
+        log.info("preExecute:{}", sql);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            if (ArrayUtil.isNotEmpty(args)) {
+                for (int i = 0; i < args.length; i++) {
+                    preparedStatement.setObject(i + 1, args[i]);
+                }
+            }
+            boolean query = preparedStatement.execute();
+            // Represents the query
+            if (query) {
+                try (ResultSet rs = preparedStatement.getResultSet()) {
+                    return function.apply(rs);
+                }
+            }
+        } catch (Exception e) {
+            log.error("execute:{}", sql, e);
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
 //    /**
@@ -622,7 +646,7 @@ public class SQLExecutor implements CommandExecutor {
         }
         return executeResult;
     }
-    
+
     /**
      * Formats the given table name by stripping off any schema or catalog prefixes.
      * If the table name contains a dot ('.'), it splits the string by the dot

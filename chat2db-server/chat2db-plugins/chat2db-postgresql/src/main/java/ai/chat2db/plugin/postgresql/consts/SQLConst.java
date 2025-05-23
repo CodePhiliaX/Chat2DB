@@ -640,4 +640,45 @@ public class SQLConst {
                                                    JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
                                                    WHERE t.typtype = 'e'
                                                    GROUP BY n.nspname, t.typname;""";
+
+    public static final String EXPORT_SEQUENCE_DDL_SQL = """
+            SELECT n.nspname,
+                   c.relname,
+                   t.typname,
+                   a.rolname,
+                   obj_description(c.oid, 'pg_class') AS comment,
+                   s.seqstart,
+                   s.seqincrement,
+                   s.seqmax,
+                   s.seqmin,
+                   s.seqcycle,
+                   s.seqcache
+            FROM pg_sequence s
+                     JOIN
+                 pg_class c ON c.oid = s.seqrelid
+                     JOIN
+                 pg_namespace n ON n.oid = c.relnamespace
+                     JOIN
+                 pg_roles a ON a.oid = c.relowner
+                     JOIN
+                 pg_type t ON s.seqtypid = t.oid
+            WHERE c.relname = ?
+              AND n.nspname = ?;
+            """;
+
+    public static final String EXPORT_SEQUENCES_SQL = """
+            SELECT c.relname, obj_description(c.oid, 'pg_class') AS comment
+            FROM pg_sequence s
+                     JOIN
+                 pg_class c ON c.oid = s.seqrelid
+                     JOIN
+                 pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = ?;
+            """;
+
+	public static final String EXPORT_USERS_SQL = """
+			SELECT rolname AS username
+			FROM pg_roles
+			ORDER BY rolname;
+			""";
 }

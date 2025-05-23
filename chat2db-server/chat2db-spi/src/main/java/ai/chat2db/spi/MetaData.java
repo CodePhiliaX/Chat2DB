@@ -261,4 +261,37 @@ public interface MetaData {
      */
     List<String> getSystemSchemas();
 
+    /**
+     * Querying DDL information
+     *
+     * @param connection
+     * @param databaseName
+     * @param tableName
+     * @return
+     */
+    String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                       @NotEmpty String tableName);
+
+    /**
+     * Querying sequences simple information
+     *
+     * @param connection
+     * @param databaseName
+     * @return
+     */
+    List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName);
+
+    /**
+     * Querying all sequence under a schema.
+     *
+     * @param connection
+     * @param databaseName
+     * @param schemaName
+     * @param sequenceName
+     * @return
+     */
+    Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName);
+
+    List<String> usernames(Connection connection);
+
 }

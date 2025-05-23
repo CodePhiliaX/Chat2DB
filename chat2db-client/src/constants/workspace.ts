@@ -11,10 +11,13 @@ export enum WorkspaceTabType {
   PROCEDURE = 'procedure',
   VIEW = 'view',
   TRIGGER = 'trigger',
+  SEQUENCE = 'sequence',
   EditTable = 'editTable',
   CreateTable = 'createTable',
   EditTableData = 'editTableData',
   ViewAllTable = 'viewAllTable',
+  CreateSequence = 'createSequence',
+  EditSequence = 'editSequence',
 }
 
 // 工作台Tab的类型对应的一些配置
@@ -38,6 +41,9 @@ export const workspaceTabConfig: {
   [WorkspaceTabType.TRIGGER]: {
     icon: '\ue64a'
   },
+  [WorkspaceTabType.SEQUENCE]: {
+    icon: '\ue63e'
+  },
   [WorkspaceTabType.EditTable]: {
     icon: '\ue6f3'
   },
@@ -50,5 +56,11 @@ export const workspaceTabConfig: {
   [WorkspaceTabType.ViewAllTable]: {
     icon: '\ue611'
   },
+  [WorkspaceTabType.CreateSequence]: {
+    icon: '\ue63e'
+  },
+  [WorkspaceTabType.EditSequence]: {
+    icon: '\ue63e'
+  }
 }
 

@@ -16,7 +16,7 @@ export const viewDDL = (treeNodeData) => {
           dataSourceId: treeNodeData.extraParams.dataSourceId,
           databaseName: treeNodeData.extraParams.databaseName,
           schemaName: treeNodeData.extraParams.schemaName,
-          tableName: treeNodeData.name,
+          name: treeNodeData.name,
         })
         .then((res) => {
           resolve(res);

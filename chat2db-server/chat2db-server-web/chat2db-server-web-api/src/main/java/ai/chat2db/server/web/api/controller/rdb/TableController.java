@@ -152,7 +152,7 @@ public class TableController extends EmbeddingController {
      */
     @GetMapping("/export")
     public DataResult<String> export(@Valid DdlExportRequest request) {
-        ShowCreateTableParam param = rdbWebConverter.ddlExport2showCreate(request);
+        ShowCreateTableParam param = rdbWebConverter.ddlExport2showTableCreate(request);
         return tableService.showCreateTable(param);
     }
 

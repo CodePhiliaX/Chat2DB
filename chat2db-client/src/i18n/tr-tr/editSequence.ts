@@ -1,0 +1,15 @@
+export default {
+    'editSequence.button.createSequence': 'Sıradan oluştur',
+    'editSequence.button.editSequence': 'Sıralamayı Düzenle',
+    'editSequence.label.comment': 'Yorum',
+    'editSequence.label.relname': 'Sıra Adı',
+    'editSequence.label.typname': 'Veri Türü',
+    'editSequence.label.seqcache': 'Önbelleğe Alma',
+    'editSequence.label.rolname': 'Sahibi',
+    'editSequence.label.seqstart': 'Başlangıç Değeri',
+    'editSequence.label.seqincrement': 'Artış Değeri',
+    'editSequence.label.seqmax': 'En Büyük Değer',
+    'editSequence.label.seqmin': 'En Küçük Değer',
+    'editSequence.label.seqcycle': 'bisiklet',
+    'editSequence.title.sqlPreview': 'SQL Önizleme',
+};

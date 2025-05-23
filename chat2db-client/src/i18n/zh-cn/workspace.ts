@@ -16,6 +16,9 @@ export default {
   'workspace.menu.createDatabase': '创建数据库',
   'workspace.menu.createSchema': '创建Schema',
   'workspace.menu.deleteTablePlaceHolder': '请输入你要删除的表名',
+  'workspace.menu.createSequence': '创建序列',
+  'workspace.menu.editSequence': '修改序列',
+  'workspace.menu.deleteSequence': '删除序列',
   'workspace.tips.affirmDeleteTable': '输入的表名与要删除的表名不一致，请再次确认',
   'workspace.table.total': '总数',
   'workspace.table.total.tip': '加载总行数',
@@ -33,4 +36,5 @@ export default {
   'workspace.tips.noConnection': '你还没有创建连接',
   'workspace.tips.maxConsole': '最多只能打开20个控制台',
   'workspace.tips.openExecutiveLogging': '打开执行记录',
+  'workspace.tree.delete.sequence.tip': '确定要删除序列{1}吗？',
 };

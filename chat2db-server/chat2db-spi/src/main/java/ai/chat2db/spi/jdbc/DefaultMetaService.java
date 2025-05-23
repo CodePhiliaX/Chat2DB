@@ -6,11 +6,13 @@ import ai.chat2db.spi.model.*;
 import ai.chat2db.spi.sql.SQLExecutor;
 import ai.chat2db.spi.util.SqlUtils;
 import com.google.common.collect.Lists;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.Connection;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -185,5 +187,26 @@ public class DefaultMetaService implements MetaData {
     @Override
     public List<String> getSystemSchemas() {
         return Lists.newArrayList();
+    }
+
+    @Override
+    public String sequenceDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
+                              @NotEmpty String tableName){
+        return null;
+    }
+
+    @Override
+    public List<SimpleSequence> sequences(Connection connection, String databaseName, String schemaName){
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Sequence sequences(Connection connection, @NotEmpty String databaseName, String schemaName, String sequenceName){
+        return null;
+    }
+
+    @Override
+    public List<String> usernames(Connection connection){
+        return Collections.emptyList();
     }
 }

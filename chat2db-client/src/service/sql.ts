@@ -8,6 +8,7 @@ import {
   IDatabaseSupportField,
   IEditTableInfo,
   ITable,
+  ISequenceInfo,
 } from '@/typings';
 import { DatabaseTypeCode } from '@/constants';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
@@ -54,7 +55,7 @@ const connectConsole = createRequest<IConnectConsoleParams, void>('/api/connecti
 
 //表操作
 export interface ITableParams {
-  tableName: string;
+  Name: string;
   dataSourceId: number;
   databaseName: string;
   schemaName?: string;
@@ -104,6 +105,7 @@ export interface Schema {
 }
 
 const deleteTable = createRequest<ITableParams, void>('/api/rdb/ddl/delete', { method: 'post' });
+const deleteSequence = createRequest<ITableParams, void>('/api/rdb/sequence/delete', { method: 'post' });
 const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', {
   method: 'get',
 });
@@ -118,6 +120,10 @@ const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/colum
   delayTime: 200,
 });
 const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', {
+  method: 'get',
+  delayTime: 200,
+});
+const getSequenceList = createRequest<ITableParams, IColumn[]>('/api/rdb/sequence/list', { 
   method: 'get',
   delayTime: 200,
 });
@@ -148,6 +154,7 @@ export interface IExportParams extends IExecuteSqlParams {
  * 导出-表格
  */
 // const exportResultTable = createRequest<IExportParams, any>('/api/rdb/dml/export', { method: 'post' });
+const exportCreateSequenceSql = createRequest<ITableParams, string>('/api/rdb/sequence/export', { method: 'get' });
 
 /** 获取视图列表 */
 const getViewList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/list', {
@@ -173,6 +180,8 @@ const getProcedureList = createRequest<IGetTableListParams, IPageResponse<IRouti
 const getViewColumnList = createRequest<IGetTableListParams, IPageResponse<IRoutines>>('/api/rdb/view/column_list', {
   method: 'get',
 });
+
+
 
 /** 获取视图详情 */
 const getViewDetail = createRequest<
@@ -218,6 +227,9 @@ const getProcedureDetail = createRequest<
   { procedureBody: string }
 >('/api/rdb/procedure/detail', { method: 'get' });
 
+
+
+
 /** 格式化sql */
 const sqlFormat = createRequest<
   {
@@ -247,7 +259,6 @@ const getTableDetails = createRequest<
   },
   IEditTableInfo
 >('/api/rdb/table/query', { method: 'get' });
-
 /** 获取库的所有表 */
 const getAllTableList = createRequest<
   { dataSourceId: number; databaseName?: string | null; schemaName?: string | null },
@@ -272,6 +283,33 @@ export interface IModifyTableSqlParams {
 
 /** 获取修改表的sql */
 const getModifyTableSql = createRequest<IModifyTableSqlParams, { sql: string }[]>('/api/rdb/table/modify/sql', {
+  method: 'post',
+});
+
+export interface IModifySequenceSqlParams {
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string | null;
+  sequenceName?: string;
+  oldSequence?: ISequenceInfo;
+  newSequence: ISequenceInfo;
+  refresh: boolean;
+}
+/** 获取序列的详情 */
+const getSequenceDetails = createRequest<
+  {
+    dataSourceId: number;
+    databaseName: string;
+    schemaName?: string | null;
+    sequenceName: string;
+    refresh: boolean;
+  },
+  ISequenceInfo
+>('/api/rdb/sequence/query', { method: 'get' });
+/**
+ * 获取修改序列的sql
+*/
+const getModifySequenceSql = createRequest<IModifySequenceSqlParams, { sql: string }[]>('/api/rdb/sequence/modify/sql', {
   method: 'post',
 });
 
@@ -303,6 +341,13 @@ const getCreateSchemaSql = createRequest<{
   schemaName?: string;
 }, {sql:string}>('/api/rdb/schema/create_schema_sql', { method: 'post' });
 
+/** 查询数据库用户名列表  */
+const getDatabaseUserNameList = createRequest<{
+  dataSourceId: number;
+  databaseName: string;
+  schemaName?: string | null;
+  refresh: boolean;
+},{sql:[]}>('/api/rdb/database/database_username_list', { method: 'get' });
 export default {
   getCreateSchemaSql,
   getCreateDatabaseSql,
@@ -342,4 +387,10 @@ export default {
   // exportResultTable
   getAllTableList,
   getAllFieldByTable,
+  getSequenceList,
+  exportCreateSequenceSql,
+  getModifySequenceSql,
+  getSequenceDetails,
+  deleteSequence,
+  getDatabaseUserNameList,
 };

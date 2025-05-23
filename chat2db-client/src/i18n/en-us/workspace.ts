@@ -16,6 +16,9 @@ export default {
   'workspace.menu.createDatabase': 'Create database',
   'workspace.menu.createSchema': 'Create schema',
   'workspace.menu.deleteTablePlaceHolder': 'Please enter the name of the table you want to delete',
+  'workspace.menu.createSequence': 'Create sequence',
+  'workspace.menu.editSequence': 'Edit sequence',
+  'workspace.menu.deleteSequence': 'Delete sequence',
   'workspace.tips.affirmDeleteTable':
     'The table name you entered is not the same as the table name you want to delete, please confirm again',
   'workspace.table.total': 'Total',
@@ -34,4 +37,5 @@ export default {
   'workspace.tips.noConnection': 'You have not created a connection yet',
   'workspace.tips.maxConsole': 'You can only open up to 20 consoles',
   'workspace.tips.openExecutiveLogging': 'Open this executive logging',
+  'workspace.tree.delete.sequence.tip': 'Are you sure you want to delete the sequence {1}?',
 };

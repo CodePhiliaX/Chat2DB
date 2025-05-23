@@ -30,12 +30,12 @@ public class DropParam {
     private String databaseName;
 
     /**
-     * Table Name
+     * Name
      */
-    private String tableName;
+    private String name;
 
     /**
      * schema
      */
-    private String tableSchema;
+    private String schema;
 }

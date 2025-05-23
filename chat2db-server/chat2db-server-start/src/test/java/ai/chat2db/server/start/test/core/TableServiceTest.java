@@ -89,32 +89,32 @@ public class TableServiceTest extends TestApplication {
             if (Objects.equals(dialectProperties.getDbType(), "MYSQL")) {
                 DropParam param = new DropParam();
                 param.setDatabaseName(dialectProperties.getDatabaseName());
-                param.setTableSchema("");
-                param.setTableName("employee_details");
+                param.setSchema("");
+                param.setName("employee_details");
 
                 ActionResult result = tableService.drop(param);
                 Assertions.assertTrue(result.success(), result.errorMessage());
             } else if (Objects.equals(dialectProperties.getDbType(), "ORACLE")) {
                 DropParam param = new DropParam();
                 param.setDatabaseName(dialectProperties.getDatabaseName());
-                param.setTableSchema("TEST_USER");
-                param.setTableName("TEST_USER.DEMO");
+                param.setSchema("TEST_USER");
+                param.setName("TEST_USER.DEMO");
 
                 ActionResult result = tableService.drop(param);
                 Assertions.assertTrue(result.success(), result.errorMessage());
             } else if (Objects.equals(dialectProperties.getDbType(), "MARIADB")) {
                 DropParam param = new DropParam();
                 param.setDatabaseName(dialectProperties.getDatabaseName());
-                param.setTableSchema("");
-                param.setTableName("test_data");
+                param.setSchema("");
+                param.setName("test_data");
 
                 ActionResult result = tableService.drop(param);
                 Assertions.assertTrue(result.success(), result.errorMessage());
             } else if (Objects.equals(dialectProperties.getDbType(), "POSTGRESQL")) {
                 DropParam param = new DropParam();
                 param.setDatabaseName(dialectProperties.getDatabaseName());
-                param.setTableSchema("test");
-                param.setTableName("test.categories_2");
+                param.setSchema("test");
+                param.setName("test.categories_2");
 
                 ActionResult result = tableService.drop(param);
                 Assertions.assertTrue(result.success(), result.errorMessage());

@@ -88,7 +88,7 @@ public class TableServiceImpl implements TableService {
     @Override
     public ActionResult drop(DropParam param) {
         DBManage metaSchema = Chat2DBContext.getDBManage();
-        metaSchema.dropTable(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getTableSchema(), param.getTableName());
+        metaSchema.dropTable(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchema(), param.getName());
         return ActionResult.isSuccess();
     }
 

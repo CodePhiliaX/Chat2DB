@@ -5,22 +5,9 @@ import java.util.List;
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.web.api.controller.data.source.vo.DatabaseVO;
 import ai.chat2db.server.web.api.controller.rdb.request.*;
-import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.MetaSchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SchemaVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
-import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.*;
 import ai.chat2db.server.web.api.http.request.EsTableSchemaRequest;
-import ai.chat2db.spi.model.Database;
-import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.spi.model.MetaSchema;
-import ai.chat2db.spi.model.Schema;
-import ai.chat2db.spi.model.Sql;
-import ai.chat2db.spi.model.Table;
-import ai.chat2db.spi.model.TableColumn;
-import ai.chat2db.spi.model.TableIndex;
+import ai.chat2db.spi.model.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -84,8 +71,13 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract TableQueryParam tableRequest2param(TableDetailQueryRequest request);
-
-
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    public abstract SequenceQueryParam sequenceRequest2param(SequenceDetailQueryRequest request);
     /**
      * Parameter conversion
      *
@@ -93,6 +85,14 @@ public abstract class RdbWebConverter {
      * @return
      */
     public abstract Table tableRequest2param(TableRequest request);
+
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    public abstract Sequence sequenceRequest2param(SequenceRequest request);
 
     /**
      * Parameter conversion
@@ -121,6 +121,13 @@ public abstract class RdbWebConverter {
      * @param request
      * @return
      */
+    public abstract SequencePageQueryParam sequencePageRequest2param(SequenceBriefQueryRequest request);
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
     public abstract TableQueryParam tableRequest2param(DataExportRequest request);
 
     /**
@@ -129,7 +136,8 @@ public abstract class RdbWebConverter {
      * @param request
      * @return
      */
-    public abstract ShowCreateTableParam ddlExport2showCreate(DdlExportRequest request);
+    @Mapping(source = "name", target = "tableName")
+    public abstract ShowCreateTableParam ddlExport2showTableCreate(DdlExportRequest request);
 
     /**
      * Parameter conversion
@@ -137,7 +145,32 @@ public abstract class RdbWebConverter {
      * @param request
      * @return
      */
+    @Mapping(source = "name", target = "sequenceName")
+    public abstract ShowCreateSequenceParam ddlExport2showSequenceCreate(DdlExportRequest request);
+
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    @Mappings({
+            @Mapping(source = "tableName", target = "name"),
+            @Mapping(source = "schemaName", target = "schema")
+    })
     public abstract DropParam tableDelete2dropParam(TableDeleteRequest request);
+
+    /**
+     * Parameter conversion
+     *
+     * @param request
+     * @return
+     */
+    @Mappings({
+            @Mapping(source = "sequenceName", target = "name"),
+            @Mapping(source = "schemaName", target = "schema")
+    })
+    public abstract DropParam sequenceDelete2dropParam(SequenceDeleteRequest request);
 
 
     /**
@@ -206,11 +239,18 @@ public abstract class RdbWebConverter {
     /**
      * Model conversion
      *
+     * @param dto
+     * @return
+     */
+    public abstract SequenceVO sequenceDto2vo(Sequence dto);
+
+    /**
+     * Model conversion
+     *
      * @param dtos
      * @return
      */
     public abstract List<TableVO> tableDto2vo(List<Table> dtos);
-
     /**
      * Model conversion
      * @param tableColumns

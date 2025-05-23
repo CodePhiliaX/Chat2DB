@@ -331,6 +331,17 @@ public class DefaultSqlBuilder implements SqlBuilder<Table> {
         return script.toString();
     }
 
+    @Override
+    public String buildCreateSequenceSql(Sequence sequence) {
+        return null;
+    }
+
+    @Override
+    public String buildModifySequenceSql(Sequence oldSequence, Sequence newSequence) {
+        return null;
+    }
+
+
     private List<String> getPrimaryColumns(List<Header> headerList) {
         if (CollectionUtils.isEmpty(headerList)) {
             return Lists.newArrayList();

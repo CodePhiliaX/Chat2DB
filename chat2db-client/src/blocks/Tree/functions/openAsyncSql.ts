@@ -50,6 +50,7 @@ export const openFunction = (props:{
       return new Promise((resolve) => {
         sqlService
         .getFunctionDetail({
+          name:treeNodeData.name,
           dataSourceId: treeNodeData.extraParams!.dataSourceId!,
           databaseType: treeNodeData.extraParams!.databaseType!,
           databaseName: treeNodeData.extraParams!.databaseName!,
@@ -127,7 +128,36 @@ export const openTrigger = (props:{
   })
 }
 
-
+export const openSequence = (props:{
+  treeNodeData: any;
+}) => {
+  const { treeNodeData } = props;
+  createConsole({
+    name: treeNodeData.name,
+    operationType: WorkspaceTabType.SEQUENCE,
+    dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+    dataSourceName: treeNodeData.extraParams!.dataSourceName!,
+    databaseType: treeNodeData.extraParams!.databaseType!,
+    databaseName: treeNodeData.extraParams?.databaseName,
+    schemaName: treeNodeData.extraParams?.schemaName,
+    loadSQL: ()=>{
+      return new Promise((resolve) => {
+        sqlService
+        .exportCreateSequenceSql({
+          dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+          databaseType: treeNodeData.extraParams!.databaseType!,
+          databaseName: treeNodeData.extraParams!.databaseName!,
+          schemaName: treeNodeData.extraParams?.schemaName,
+          name: treeNodeData.name
+        } as any)
+        .then((res) => {
+          // 更新ddl
+          resolve(res);
+        });
+      });
+    }
+  })
+}
 
 
 

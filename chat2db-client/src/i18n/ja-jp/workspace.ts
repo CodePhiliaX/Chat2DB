@@ -16,6 +16,9 @@ export default {
   'workspace.menu.createDatabase': 'データベースを作成',
   'workspace.menu.createSchema': 'スキーマを作成',
   'workspace.menu.deleteTablePlaceHolder': '削除するテーブル名を入力してください',
+  'workspace.menu.createSequence': 'シーケンスを作成',
+  'workspace.menu.editSequence': 'シーケンスを編集',
+  'workspace.menu.deleteSequence': 'シーケンスを削除',
   'workspace.tips.affirmDeleteTable': '入力したテーブル名と削除するテーブル名が一致しません。再確認してください',
   'workspace.table.total': '合計',
   'workspace.table.total.tip': '合計行数をロード',
@@ -33,4 +36,6 @@ export default {
   'workspace.tips.noConnection': 'まだ接続が作成されていません',
   'workspace.tips.maxConsole': 'コンソールは最大20個まで開くことができます',
   'workspace.tips.openExecutiveLogging': '実行ログを開く',
+  'workspace.tree.delete.sequence.tip': 'シーケンス{1}を削除してもよろしいですか？',
+  
 };

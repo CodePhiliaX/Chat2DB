@@ -10,6 +10,7 @@ import login from './login';
 import editTable from './editTable';
 import editTableData from './editTableData';
 import sqlEditor from './sqlEditor'
+import editSequence from './editSequence';
 
 export default {
   lang: 'tr',
@@ -24,5 +25,6 @@ export default {
   ...login,
   ...editTable,
   ...editTableData,
-  ...sqlEditor
+  ...sqlEditor,
+  ...editSequence
 };

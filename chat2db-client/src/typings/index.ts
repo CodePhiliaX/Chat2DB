@@ -10,3 +10,4 @@ export * from './team';
 export * from './workspace';
 export * from './editTable';
 export * from './console';
+export * from './editSequence';
