@@ -462,14 +462,28 @@ public class ChatController {
      * @return
      */
     private List<FastChatMessage> getFastChatMessage(String uid, String prompt) {
-        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
+        List<FastChatMessage> messages = null;
+        Object cachedItem = LocalCache.CACHE.get(uid);
+        
+        if (cachedItem instanceof List) {
+            try {
+                messages = (List<FastChatMessage>) cachedItem;
+            } catch (ClassCastException e) {
+                // 处理类型转换异常，创建新的消息列表
+                log.warn("Error casting cached item to List<FastChatMessage>: {}", e.getMessage());
+                messages = Lists.newArrayList();
+            }
+        } else {
+            // 如果缓存项不是List类型，创建新的消息列表
+            messages = Lists.newArrayList();
+        }
+        
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
                 messages = messages.subList(1, contextLength);
             }
-        } else {
-            messages = Lists.newArrayList();
         }
+        
         FastChatMessage currentMessage = new FastChatMessage(FastChatRole.USER).setContent(prompt);
         messages.add(currentMessage);
         return messages;
