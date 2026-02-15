@@ -45,23 +45,90 @@ export default function SettingAI(props: IProps) {
     const aiSqlSource = e.target.value;
 
     // 查询对应ai类型的配置
-    const res = await configService.getAiSystemConfig({
-      aiSqlSource,
-    });
-    setAiConfig(res);
+    try {
+      const res = await configService.getAiSystemConfig({
+        aiSqlSource,
+      });
+      
+      // Special handling for Ollama AI - set defaults if no config found
+      if (aiSqlSource === AIType.OLLAMAAI) {
+        if (!res || !res.apiHost || !res.model) {
+          const ollamaConfig: IAiConfig = {
+            aiSqlSource: AIType.OLLAMAAI,
+            ollamaApiHost: res?.apiHost || 'http://localhost:11434',
+            ollamaModel: res?.model || 'qwen3-coder',
+            apiHost: res?.apiHost || 'http://localhost:11434',
+            model: res?.model || 'qwen3-coder',
+          };
+          setAiConfig(ollamaConfig);
+        } else {
+          // Map server response to Ollama config
+          const ollamaConfig: IAiConfig = {
+            aiSqlSource: AIType.OLLAMAAI,
+            ollamaApiHost: res.apiHost,
+            ollamaModel: res.model,
+            apiHost: res.apiHost,
+            model: res.model,
+          };
+          setAiConfig(ollamaConfig);
+        }
+      } else {
+        setAiConfig(res);
+      }
+    } catch (error) {
+      console.error('Failed to get AI config:', error);
+      // Set default config for other AI types
+      if (aiSqlSource === AIType.OLLAMAAI) {
+        setAiConfig({
+          aiSqlSource: AIType.OLLAMAAI,
+          ollamaApiHost: 'http://localhost:11434',
+          ollamaModel: 'qwen3-coder',
+        });
+      } else {
+        setAiConfig({
+          aiSqlSource: aiSqlSource as AIType,
+        });
+      }
+    }
   };
 
   /** 应用Ai配置 */
   const handleApplyAiConfig = () => {
     const newAiConfig = { ...aiConfig };
-    /*if (newAiConfig.apiHost && !newAiConfig.apiHost?.endsWith('/')) {
-      newAiConfig.apiHost = newAiConfig.apiHost + '/';
-    }*/
+    
     if (aiConfig?.aiSqlSource === AIType.CHAT2DBAI) {
       newAiConfig.apiHost = `${window._appGatewayParams.baseUrl || 'http://test.sqlgpt.cn/gateway'}${'/model/'}`;
     }
+    
+    // Special handling for Ollama AI
+    if (aiConfig?.aiSqlSource === AIType.OLLAMAAI) {
+      // Ensure Ollama config has proper defaults
+      if (!newAiConfig.ollamaApiHost) {
+        newAiConfig.ollamaApiHost = 'http://localhost:11434';
+      }
+      if (!newAiConfig.ollamaModel) {
+        newAiConfig.ollamaModel = 'deepseek-v3.1:671b-cloud';
+      }
+      
+      // Map Ollama fields to standard AI config fields for server compatibility
+      newAiConfig.apiHost = newAiConfig.ollamaApiHost;
+      newAiConfig.model = newAiConfig.ollamaModel;
+      
+      // Create JSON content for server storage
+      const configContent = JSON.stringify({
+        ollamaApiHost: newAiConfig.ollamaApiHost,
+        ollamaModel: newAiConfig.ollamaModel
+      });
+      
+      // Update content for server storage
+      newAiConfig.content = configContent;
+      
+      // Debug logging
+      console.log('DEBUG: Ollama config being sent:', newAiConfig);
+    }
 
     if (props.handleApplyAiConfig) {
+      console.log('DEBUG: Calling handleApplyAiConfig with:', newAiConfig);
       props.handleApplyAiConfig(newAiConfig);
     }
   };
@@ -82,6 +149,48 @@ export default function SettingAI(props: IProps) {
         </Flex>
       );
     }
+    
+    // Special handling for Ollama AI
+    if (aiConfig?.aiSqlSource === AIType.OLLAMAAI) {
+      return (
+        <>
+          <Form layout="vertical">
+            <Form.Item
+              label="Ollama API Host"
+              className={styles.title}
+            >
+              <Input
+                autoComplete="off"
+                value={aiConfig.ollamaApiHost || 'http://localhost:11434'}
+                placeholder="http://localhost:11434"
+                onChange={(e) => {
+                  setAiConfig({ ...aiConfig, ollamaApiHost: e.target.value });
+                }}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Ollama Model"
+              className={styles.title}
+            >
+              <Input
+                autoComplete="off"
+                value={aiConfig.ollamaModel || 'qwen2.5-coder'}
+                placeholder="qwen2.5-coder"
+                onChange={(e) => {
+                  setAiConfig({ ...aiConfig, ollamaModel: e.target.value });
+                }}
+              />
+            </Form.Item>
+          </Form>
+          <div className={styles.bottomButton}>
+            <Button type="primary" onClick={handleApplyAiConfig}>
+              {i18n('setting.button.apply')}
+            </Button>
+          </div>
+        </>
+      );
+    }
+    
     return (
       <>
         <Form layout="vertical">
@@ -95,7 +204,11 @@ export default function SettingAI(props: IProps) {
               <Input
                 autoComplete="off"
                 value={aiConfig[key]}
-                placeholder={AIFormConfig[aiConfig?.aiSqlSource]?.[key]}
+                placeholder={
+                  typeof AIFormConfig[aiConfig?.aiSqlSource]?.[key] === 'boolean' 
+                    ? '' 
+                    : AIFormConfig[aiConfig?.aiSqlSource]?.[key] || ''
+                }
                 onChange={(e) => {
                   setAiConfig({ ...aiConfig, [key]: e.target.value });
                 }}

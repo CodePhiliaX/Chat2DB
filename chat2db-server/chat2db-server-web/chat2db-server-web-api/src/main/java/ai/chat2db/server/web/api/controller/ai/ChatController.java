@@ -37,6 +37,7 @@ import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.openai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
 import ai.chat2db.server.web.api.controller.ai.request.ChatRequest;
+import ai.chat2db.server.web.api.controller.ai.response.ChatCompletionResponse;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.listener.RestAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
@@ -45,6 +46,7 @@ import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.listener.WenxinAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.zhipu.client.ZhipuChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.zhipu.listener.ZhipuChatAIEventSourceListener;
+import ai.chat2db.server.web.api.controller.ai.ollama.client.OllamaAIClient;
 import ai.chat2db.server.web.api.http.GatewayClientService;
 import ai.chat2db.server.web.api.http.model.EsTableSchema;
 import ai.chat2db.server.web.api.http.model.TableSchema;
@@ -250,6 +252,8 @@ public class ChatController {
                 return chatWithTongyiChatAi(queryRequest, sseEmitter, uid);
             case ZHIPUAI:
                 return chatWithZhipuChatAi(queryRequest, sseEmitter, uid);
+            case OLLAMAAI:
+                return chatWithOllamaAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -817,6 +821,92 @@ public class ChatController {
     private FastChatEmbeddingResponse embeddingWithChat2dbAi(String input) {
         FastChatEmbeddingResponse embeddings = Chat2dbAIClient.getInstance().embeddings(input);
         return embeddings;
+    }
+
+    /**
+     * Chat with Ollama AI
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     */
+    private SseEmitter chatWithOllamaAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) {
+        try {
+            ConfigService configService = ApplicationContextUtil.getBean(ConfigService.class);
+            Config config = configService.find(AiSqlSourceEnum.OLLAMAAI.getCode()).getData();
+            
+            // Default Ollama settings
+            String ollamaApiHost = "http://localhost:11434";
+            String ollamaModel = "qwen2.5-coder";
+            
+            // Parse config content if available
+            if (config != null && config.getContent() != null && !config.getContent().isEmpty()) {
+                try {
+                    // Parse JSON content for Ollama settings
+                    String content = config.getContent();
+                    if (content.contains("ollamaApiHost")) {
+                        // Simple parsing for ollamaApiHost
+                        String[] parts = content.split("\"ollamaApiHost\":\"");
+                        if (parts.length > 1) {
+                            String hostPart = parts[1].split("\"")[0];
+                            if (!hostPart.isEmpty()) {
+                                ollamaApiHost = hostPart;
+                            }
+                        }
+                    }
+                    if (content.contains("ollamaModel")) {
+                        // Simple parsing for ollamaModel
+                        String[] parts = content.split("\"ollamaModel\":\"");
+                        if (parts.length > 1) {
+                            String modelPart = parts[1].split("\"")[0];
+                            if (!modelPart.isEmpty()) {
+                                ollamaModel = modelPart;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to parse Ollama config, using defaults", e);
+                }
+            }
+            
+            log.info("Using Ollama config - Host: {}, Model: {}", ollamaApiHost, ollamaModel);
+            
+            OllamaAIClient ollamaClient = new OllamaAIClient(ollamaApiHost, ollamaModel);
+            
+            // Test connection first
+            if (!ollamaClient.testConnection()) {
+                throw new RuntimeException("Cannot connect to Ollama at " + ollamaApiHost);
+            }
+            
+            // Convert ChatQueryRequest to ChatRequest
+            ChatRequest chatRequest = new ChatRequest();
+            chatRequest.setPrompt(queryRequest.getMessage());
+            
+            // Get response from Ollama
+            ChatCompletionResponse response = ollamaClient.chatCompletion(chatRequest);
+            
+            // Send response through SSE
+            if (response != null && response.getChoices() != null && !response.getChoices().isEmpty()) {
+                String content = response.getChoices().get(0).getMessage().getContent();
+                sseEmitter.send(SseEmitter.event().data(content));
+            } else {
+                sseEmitter.send(SseEmitter.event().data("No response from Ollama"));
+            }
+            
+            sseEmitter.complete();
+            return sseEmitter;
+            
+        } catch (Exception e) {
+            log.error("Error chatting with Ollama AI", e);
+            try {
+                sseEmitter.send(SseEmitter.event().data("Error: " + e.getMessage()));
+                sseEmitter.complete();
+            } catch (Exception ex) {
+                log.error("Error sending error response", ex);
+            }
+            return sseEmitter;
+        }
     }
 
 }

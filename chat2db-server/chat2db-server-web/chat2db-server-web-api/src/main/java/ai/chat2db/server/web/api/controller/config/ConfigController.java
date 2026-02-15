@@ -24,6 +24,8 @@ import ai.chat2db.server.web.api.controller.config.request.AIConfigCreateRequest
 import ai.chat2db.server.web.api.controller.config.request.SystemConfigRequest;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,6 +42,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/config")
 @RestController
 public class ConfigController {
+
+    private static final Logger log = LoggerFactory.getLogger(ConfigController.class);
 
     @Autowired
     private ConfigService configService;
@@ -288,14 +292,74 @@ public class ConfigController {
      */
     @GetMapping("/system_config/ai")
     public DataResult<AIConfig> getChatAiSystemConfig(String aiSqlSource) {
-        DataResult<Config> dbSqlSource = configService.find(RestAIClient.AI_SQL_SOURCE);
+        // Debug logging
+        log.info("DEBUG: Received aiSqlSource parameter: " + aiSqlSource);
+        
+        DataResult<Config> dbSqlSource = configService.find(aiSqlSource);
         if (StringUtils.isBlank(aiSqlSource)) {
             if (Objects.nonNull(dbSqlSource.getData())) {
                 aiSqlSource = dbSqlSource.getData().getContent();
             }
         }
+        
+        // Debug logging
+        log.info("DEBUG: Final aiSqlSource: " + aiSqlSource);
+        
         AIConfig config = new AIConfig();
+        
+        // Check if Ollama config exists in database
+        DataResult<Config> ollamaConfigCheck = configService.find("OLLAMAAI");
+        boolean ollamaConfigExists = Objects.nonNull(ollamaConfigCheck.getData()) && 
+                                   StringUtils.isNotBlank(ollamaConfigCheck.getData().getContent());
+        
+        // Special handling for Ollama AI - check parameter directly
+        if ("OLLAMAAI".equals(aiSqlSource) || ollamaConfigExists) {
+            log.info("DEBUG: Handling OLLAMAAI directly");
+            config.setAiSqlSource("OLLAMAAI");
+            
+            // Get Ollama config from database
+            DataResult<Config> ollamaConfig = configService.find("OLLAMAAI");
+            if (Objects.nonNull(ollamaConfig.getData()) && StringUtils.isNotBlank(ollamaConfig.getData().getContent())) {
+                // Parse JSON content for Ollama settings
+                String content = ollamaConfig.getData().getContent();
+                log.info("DEBUG: Found Ollama config content: " + content);
+                try {
+                    if (content.contains("ollamaApiHost")) {
+                        String[] parts = content.split("\"ollamaApiHost\":\"");
+                        if (parts.length > 1) {
+                            String hostPart = parts[1].split("\"")[0];
+                            config.setApiHost(hostPart);
+                            log.info("DEBUG: Parsed host: " + hostPart);
+                        }
+                    }
+                    if (content.contains("ollamaModel")) {
+                        String[] parts = content.split("\"ollamaModel\":\"");
+                        if (parts.length > 1) {
+                            String modelPart = parts[1].split("\"")[0];
+                            config.setModel(modelPart);
+                            log.info("DEBUG: Parsed model: " + modelPart);
+                        }
+                    }
+                } catch (Exception e) {
+                    log.info("DEBUG: Parse failed, using defaults");
+                    // Set defaults if parsing fails
+                    config.setApiHost("http://localhost:11434");
+                    config.setModel("deepseek-v3.1:671b-cloud");
+                }
+            } else {
+                log.info("DEBUG: No config found, using defaults");
+                // Set defaults if no config found
+                config.setApiHost("http://localhost:11434");
+                config.setModel("deepseek-v3.1:671b-cloud");
+            }
+            return DataResult.of(config);
+        }
+        
         AiSqlSourceEnum aiSqlSourceEnum = AiSqlSourceEnum.getByName(aiSqlSource);
+        
+        // Debug logging
+        log.info("DEBUG: AiSqlSourceEnum result: " + (aiSqlSourceEnum != null ? aiSqlSourceEnum.name() : "null"));
+        
         if (Objects.isNull(aiSqlSourceEnum)) {
             aiSqlSource = AiSqlSourceEnum.CHAT2DBAI.getCode();
             config.setAiSqlSource(aiSqlSource);
@@ -379,6 +443,38 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(zhipuApiKey.getData()) ? zhipuApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(zhipuApiHost.getData()) ? zhipuApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(zhipuModel.getData()) ? zhipuModel.getData().getContent() : "");
+                break;
+            case OLLAMAAI:
+                // Get Ollama config from database
+                DataResult<Config> ollamaConfig = configService.find(aiSqlSource);
+                if (Objects.nonNull(ollamaConfig.getData()) && StringUtils.isNotBlank(ollamaConfig.getData().getContent())) {
+                    // Parse JSON content for Ollama settings
+                    String content = ollamaConfig.getData().getContent();
+                    try {
+                        if (content.contains("ollamaApiHost")) {
+                            String[] parts = content.split("\"ollamaApiHost\":\"");
+                            if (parts.length > 1) {
+                                String hostPart = parts[1].split("\"")[0];
+                                config.setApiHost(hostPart);
+                            }
+                        }
+                        if (content.contains("ollamaModel")) {
+                            String[] parts = content.split("\"ollamaModel\":\"");
+                            if (parts.length > 1) {
+                                String modelPart = parts[1].split("\"")[0];
+                                config.setModel(modelPart);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Set defaults if parsing fails
+                        config.setApiHost("http://localhost:11434");
+                        config.setModel("qwen3-coder");
+                    }
+                } else {
+                    // Set defaults if no config found
+                    config.setApiHost("http://localhost:11434");
+                    config.setModel("qwen3-coder");
+                }
                 break;
             default:
                 break;

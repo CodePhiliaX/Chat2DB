@@ -71,4 +71,14 @@ public class ChatGptConfig {
      * deploymentId of the deployed model, default gpt-3.5-turbo
      */
     private String azureDeploymentId;
+
+    /**
+     * Ollama API endpoint, default http://localhost:11434
+     */
+    private String ollamaApiHost;
+
+    /**
+     * Ollama model name, e.g., qwen3-coder, deepseek-v3.1
+     */
+    private String ollamaModel;
 }
