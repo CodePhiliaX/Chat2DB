@@ -269,7 +269,7 @@ public class ChatController {
 
         RestAIEventSourceListener restAIEventSourceListener = new RestAIEventSourceListener(sseEmitter);
         RestAIClient.getInstance().streamCompletions(messages, restAIEventSourceListener);
-        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
+        LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
         return sseEmitter;
     }
 
@@ -462,7 +462,8 @@ public class ChatController {
      * @return
      */
     private List<FastChatMessage> getFastChatMessage(String uid, String prompt) {
-        List<FastChatMessage> messages = (List<FastChatMessage>)LocalCache.CACHE.get(uid);
+        Object cached = LocalCache.CACHE.get(uid);
+        List<FastChatMessage> messages = (cached instanceof List) ? (List<FastChatMessage>) cached : null;
         if (CollectionUtils.isNotEmpty(messages)) {
             if (messages.size() >= contextLength) {
                 messages = messages.subList(1, contextLength);
