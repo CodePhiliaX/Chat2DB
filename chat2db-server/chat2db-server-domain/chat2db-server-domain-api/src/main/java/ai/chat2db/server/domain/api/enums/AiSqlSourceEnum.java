@@ -62,6 +62,11 @@ public enum AiSqlSourceEnum implements BaseEnum<String> {
      */
     FASTCHATAI("FAST CHAT AI"),
 
+    /**
+     * MINIMAX AI
+     */
+    MINIMAXAI("MINIMAX AI"),
+
     ;
 
     final String description;

@@ -33,6 +33,8 @@ import ai.chat2db.server.web.api.controller.ai.fastchat.embeddings.FastChatEmbed
 import ai.chat2db.server.web.api.controller.ai.fastchat.listener.FastChatAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatMessage;
 import ai.chat2db.server.web.api.controller.ai.fastchat.model.FastChatRole;
+import ai.chat2db.server.web.api.controller.ai.minimax.client.MiniMaxAIClient;
+import ai.chat2db.server.web.api.controller.ai.minimax.listener.MiniMaxAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.openai.client.OpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.openai.listener.OpenAIEventSourceListener;
 import ai.chat2db.server.web.api.controller.ai.request.ChatQueryRequest;
@@ -250,6 +252,8 @@ public class ChatController {
                 return chatWithTongyiChatAi(queryRequest, sseEmitter, uid);
             case ZHIPUAI:
                 return chatWithZhipuChatAi(queryRequest, sseEmitter, uid);
+            case MINIMAXAI:
+                return chatWithMiniMaxAi(queryRequest, sseEmitter, uid);
         }
         return chatWithOpenAi(queryRequest, sseEmitter, uid);
     }
@@ -451,6 +455,27 @@ public class ChatController {
         BaichuanChatAIEventSourceListener sourceListener = new BaichuanChatAIEventSourceListener(sseEmitter);
         BaichuanAIClient.getInstance().streamCompletions(messages, sourceListener);
         LocalCache.CACHE.put(uid, messages, LocalCache.TIMEOUT);
+        return sseEmitter;
+    }
+
+    /**
+     * chat with MiniMax AI
+     *
+     * @param queryRequest
+     * @param sseEmitter
+     * @param uid
+     * @return
+     * @throws IOException
+     */
+    private SseEmitter chatWithMiniMaxAi(ChatQueryRequest queryRequest, SseEmitter sseEmitter, String uid) throws IOException {
+        String prompt = buildPrompt(queryRequest);
+        List<FastChatMessage> messages = getFastChatMessage(uid, prompt);
+
+        buildSseEmitter(sseEmitter, uid);
+
+        MiniMaxAIEventSourceListener sourceListener = new MiniMaxAIEventSourceListener(sseEmitter);
+        MiniMaxAIClient.getInstance().streamCompletions(messages, sourceListener);
+        LocalCache.CACHE.put(uid, JSONUtil.toJsonStr(messages), LocalCache.TIMEOUT);
         return sseEmitter;
     }
 

@@ -14,6 +14,7 @@ const AITypeName = {
   [AIType.TONGYIQIANWENAI]: i18n('setting.tab.aiType.tongyiqianwen'),
   [AIType.OPENAI]: 'Open AI',
   [AIType.AZUREAI]: 'Azure AI',
+  [AIType.MINIMAXAI]: 'MiniMax AI',
   [AIType.RESTAI]: i18n('setting.tab.custom'),
 };
 
@@ -52,6 +53,11 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
     apiKey: true,
     apiHost: true,
     model: true,
+  },
+  [AIType.MINIMAXAI]: {
+    apiKey: true,
+    apiHost: 'https://api.minimax.io/v1/chat/completions',
+    model: 'MiniMax-M2.5',
   },
   [AIType.RESTAI]: {
     apiKey: true,

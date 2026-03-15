@@ -16,6 +16,7 @@ import ai.chat2db.server.web.api.controller.ai.azure.client.AzureOpenAIClient;
 import ai.chat2db.server.web.api.controller.ai.baichuan.client.BaichuanAIClient;
 import ai.chat2db.server.web.api.controller.ai.chat2db.client.Chat2dbAIClient;
 import ai.chat2db.server.web.api.controller.ai.fastchat.client.FastChatAIClient;
+import ai.chat2db.server.web.api.controller.ai.minimax.client.MiniMaxAIClient;
 import ai.chat2db.server.web.api.controller.ai.rest.client.RestAIClient;
 import ai.chat2db.server.web.api.controller.ai.tongyi.client.TongyiChatAIClient;
 import ai.chat2db.server.web.api.controller.ai.wenxin.client.WenxinAIClient;
@@ -102,6 +103,9 @@ public class ConfigController {
                 break;
             case ZHIPUAI:
                 saveZhipuChatAIConfig(request);
+                break;
+            case MINIMAXAI:
+                saveMiniMaxAIConfig(request);
                 break;
         }
         return ActionResult.isSuccess();
@@ -275,6 +279,24 @@ public class ConfigController {
         BaichuanAIClient.refresh();
     }
 
+    /**
+     * save MiniMax AI config
+     *
+     * @param request
+     */
+    private void saveMiniMaxAIConfig(AIConfigCreateRequest request) {
+        SystemConfigParam apikeyParam = SystemConfigParam.builder().code(MiniMaxAIClient.MINIMAX_API_KEY)
+                .content(request.getApiKey()).build();
+        configService.createOrUpdate(apikeyParam);
+        SystemConfigParam apiHostParam = SystemConfigParam.builder().code(MiniMaxAIClient.MINIMAX_HOST)
+                .content(request.getApiHost()).build();
+        configService.createOrUpdate(apiHostParam);
+        SystemConfigParam modelParam = SystemConfigParam.builder().code(MiniMaxAIClient.MINIMAX_MODEL)
+                .content(request.getModel()).build();
+        configService.createOrUpdate(modelParam);
+        MiniMaxAIClient.refresh();
+    }
+
     @GetMapping("/system_config/{code}")
     public DataResult<Config> getSystemConfig(@PathVariable("code") String code) {
         DataResult<Config> result = configService.find(code);
@@ -379,6 +401,14 @@ public class ConfigController {
                 config.setApiKey(Objects.nonNull(zhipuApiKey.getData()) ? zhipuApiKey.getData().getContent() : "");
                 config.setApiHost(Objects.nonNull(zhipuApiHost.getData()) ? zhipuApiHost.getData().getContent() : "");
                 config.setModel(Objects.nonNull(zhipuModel.getData()) ? zhipuModel.getData().getContent() : "");
+                break;
+            case MINIMAXAI:
+                DataResult<Config> minimaxApiKey = configService.find(MiniMaxAIClient.MINIMAX_API_KEY);
+                DataResult<Config> minimaxApiHost = configService.find(MiniMaxAIClient.MINIMAX_HOST);
+                DataResult<Config> minimaxModel = configService.find(MiniMaxAIClient.MINIMAX_MODEL);
+                config.setApiKey(Objects.nonNull(minimaxApiKey.getData()) ? minimaxApiKey.getData().getContent() : "");
+                config.setApiHost(Objects.nonNull(minimaxApiHost.getData()) ? minimaxApiHost.getData().getContent() : "");
+                config.setModel(Objects.nonNull(minimaxModel.getData()) ? minimaxModel.getData().getContent() : "");
                 break;
             default:
                 break;
