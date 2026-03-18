@@ -57,7 +57,7 @@ const AIFormConfig: Record<AIType, IAiConfigBooleans> = {
   [AIType.MINIMAXAI]: {
     apiKey: true,
     apiHost: 'https://api.minimax.io/v1/chat/completions',
-    model: 'MiniMax-M2.5',
+    model: 'MiniMax-M2.7',
   },
   [AIType.RESTAI]: {
     apiKey: true,

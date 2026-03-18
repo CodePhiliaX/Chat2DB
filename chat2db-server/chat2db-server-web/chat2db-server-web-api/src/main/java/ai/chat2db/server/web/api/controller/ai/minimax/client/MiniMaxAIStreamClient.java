@@ -34,7 +34,7 @@ public class MiniMaxAIStreamClient {
 
     private static final String DEFAULT_HOST = "https://api.minimax.io/v1/chat/completions";
 
-    private static final String DEFAULT_MODEL = "MiniMax-M2.5";
+    private static final String DEFAULT_MODEL = "MiniMax-M2.7";
 
     /**
      * apikey
