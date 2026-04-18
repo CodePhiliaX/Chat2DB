@@ -62,6 +62,11 @@ public class ZhipuChatAIEventSourceListener extends EventSourceListener {
         String text = chatCompletions.getChoices().get(0).getDelta()==null?
                 chatCompletions.getChoices().get(0).getText()
                 :chatCompletions.getChoices().get(0).getDelta().getContent();
+        // The first SSE chunk may carry only "role" with null "content".
+        // Guard against NullPointerException from Message.setContent().
+        if (text == null) {
+            text = "";
+        }
 
         Message message = new Message();
         message.setContent(text);

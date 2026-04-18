@@ -64,6 +64,11 @@ public class RestAIEventSourceListener extends EventSourceListener {
             String text = chatCompletions.getChoices().get(0).getDelta()==null?
                     chatCompletions.getChoices().get(0).getText()
                     :chatCompletions.getChoices().get(0).getDelta().getContent();
+            // Local LLMs (e.g. llama.cpp) may return null content in the first SSE chunk
+            // (only role is present). Treat null as empty string to avoid NullPointerException.
+            if (text == null) {
+                text = "";
+            }
             message.setContent(text);
             sseEmitter.send(SseEmitter.event()
                 .id(id)
