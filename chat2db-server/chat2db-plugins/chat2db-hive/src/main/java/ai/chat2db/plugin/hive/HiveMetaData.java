@@ -48,7 +48,9 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
     @Override
     public String tableDDL(Connection connection, @NotEmpty String databaseName, String schemaName,
                            @NotEmpty String tableName) {
-        String sql = "SHOW CREATE TABLE " + format(databaseName) + "."
+        // In Hive, schema and database are the same concept. Fall back to schemaName when databaseName is absent.
+        String effectiveDb = StringUtils.isNotBlank(databaseName) ? databaseName : schemaName;
+        String sql = "SHOW CREATE TABLE " + format(effectiveDb) + "."
                 + format(tableName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             StringBuilder sb = new StringBuilder();
@@ -97,7 +99,9 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
     // TODO 待完善
     @Override
     public List<TableColumn> columns(Connection connection, String databaseName, String schemaName, String tableName) {
-        String sql = String.format(SELECT_TAB_COLS, databaseName, tableName);
+        // In Hive, schema and database are the same concept. Fall back to schemaName when databaseName is absent.
+        String effectiveDb = StringUtils.isNotBlank(databaseName) ? databaseName : schemaName;
+        String sql = String.format(SELECT_TAB_COLS, effectiveDb, tableName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             List<TableColumn> tableColumns = new ArrayList<>();
             Map<String, String> detailTableInfo = new HashMap<>();
@@ -268,7 +272,9 @@ public class HiveMetaData extends DefaultMetaService implements MetaData {
 
     @Override
     public Table view(Connection connection, String databaseName, String schemaName, String viewName) {
-        String sql = String.format(VIEW_SQL, databaseName, viewName);
+        // In Hive, schema and database are the same concept. Fall back to schemaName when databaseName is absent.
+        String effectiveDb = StringUtils.isNotBlank(databaseName) ? databaseName : schemaName;
+        String sql = String.format(VIEW_SQL, effectiveDb, viewName);
         return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
             Table table = new Table();
             table.setDatabaseName(databaseName);
