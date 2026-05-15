@@ -111,8 +111,8 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
       form.setFieldsValue({ ...record });
       setEditingData(record);
       // 根据当前字段类型，设置编辑配置
-      // 需要匹配基础类型名，忽略长度等信息（如 bigint(20) -> BIGINT）
-      const baseColumnType = record.columnType?.toUpperCase().replace(/\(.*\)/, '').trim();
+      // 需要匹配基础类型名
+      const baseColumnType = record.dataType?.toUpperCase().trim();
       databaseSupportField.columnTypes.forEach((i) => {
         if (i.typeName === baseColumnType) {
           setEditingConfig({
@@ -182,14 +182,14 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
     },
     {
       title: i18n('editTable.label.columnType'),
-      dataIndex: 'columnType',
+      dataIndex: 'dataType',
       width: '200px',
       render: (text: string, record: IColumnItemNew) => {
         const editable = isEditing(record);
         return (
           <div>
             {editable ? (
-              <Form.Item name="columnType" style={{ margin: 0, maxWidth: '184px' }}>
+              <Form.Item name="dataType" style={{ margin: 0, maxWidth: '184px' }}>
                 <Select showSearch options={databaseSupportField.columnTypes} />
               </Form.Item>
             ) : (
@@ -413,7 +413,10 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
         if (name === 'columnType') {
           // 根据当前字段类型，设置编辑配置
           // 需要匹配基础类型名，忽略长度等信息（如 bigint(20) -> BIGINT）
-          const baseType = value?.toUpperCase().replace(/\(.*\)/, '').trim();
+          const baseType = value
+            ?.toUpperCase()
+            .replace(/\(.*\)/, '')
+            .trim();
           databaseSupportField.columnTypes.forEach((i) => {
             if (i.typeName === baseType) {
               setEditingConfig({
@@ -497,11 +500,11 @@ const ColumnList = forwardRef((props: IProps, ref: ForwardedRef<IColumnListRef>)
               ...column,
               comment,
               aiComment: comment,
-              editStatus:EditColumnOperationType.Modify,
+              editStatus: EditColumnOperationType.Modify,
             };
           }
           return column;
-        })
+        }),
       );
     },
   }));

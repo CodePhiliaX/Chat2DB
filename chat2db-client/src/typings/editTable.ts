@@ -22,7 +22,7 @@ export interface IColumnItemNew {
   tableName: string | null; // 表名
 
   columnType: string | null; // 列的类型 比如 varchar(100) ,double(10,6)
-  dataType: number | null; // 数据类型
+  dataType: string | null; // 数据类型
   defaultValue: string | null; // 默认值
   autoIncrement: boolean | null; // 是否自增
   comment: string | null; // 注释
