@@ -24,6 +24,8 @@ import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
+import ai.chat2db.server.tools.base.excption.BusinessException;
+import ai.chat2db.server.tools.common.util.I18nUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,13 +253,13 @@ public class DataGenerationServiceImpl implements DataGenerationService {
     }
 
     private void executeDataGenerationAsync(Long taskId, DataGenerationRequest request) {
+        Exception error = null;
         try {
             updateTaskProgress(taskId, TaskStatusEnum.PROCESSING, 0);
 
             List<ColumnConfigParam> columns = resolveColumns(request);
             if (columns == null) {
-                updateTaskProgress(taskId, TaskStatusEnum.ERROR, 0);
-                return;
+                throw new RuntimeException("获取表列信息失败");
             }
 
             int totalRows = request.getRowCount() != null ? request.getRowCount() : 100;
@@ -274,11 +276,33 @@ public class DataGenerationServiceImpl implements DataGenerationService {
                 updateTaskProgress(taskId, TaskStatusEnum.PROCESSING, progress);
             }
 
-            updateTaskProgress(taskId, TaskStatusEnum.FINISH, 100);
             log.info("Data generation completed successfully for table: {}", request.getTableName());
         } catch (Exception e) {
             log.error("Data generation failed for table: " + request.getTableName(), e);
-            updateTaskProgress(taskId, TaskStatusEnum.ERROR, 0);
+            error = e;
+        } finally {
+            updateGenerationStatus(taskId, error);
+        }
+    }
+
+    private void updateGenerationStatus(Long taskId, Exception throwable) {
+        try {
+            TaskUpdateParam updateParam = new TaskUpdateParam();
+            updateParam.setId(taskId);
+            if (throwable != null) {
+                updateParam.setTaskStatus(TaskStatusEnum.ERROR.name());
+                if (throwable instanceof BusinessException businessException) {
+                    updateParam.setContent(I18nUtils.getMessage(businessException.getCode(), businessException.getArgs()));
+                } else {
+                    updateParam.setContent(throwable.getMessage());
+                }
+            } else {
+                updateParam.setTaskStatus(TaskStatusEnum.FINISH.name());
+                updateParam.setTaskProgress("100");
+            }
+            taskService.updateStatus(updateParam);
+        } catch (Exception e) {
+            log.error("Failed to update generation status", e);
         }
     }
 
@@ -322,13 +346,13 @@ public class DataGenerationServiceImpl implements DataGenerationService {
             } catch (SQLException e) {
                 connection.rollback();
                 log.error("Batch insert error, SQL: {}", sql, e);
-                throw e;
+                throw new BusinessException("dataGeneration.batchInsertFailed", new Object[]{e.getMessage()}, e);
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
         } catch (SQLException e) {
             log.error("Batch insert error, SQL: {}", sql, e);
-            throw new RuntimeException("Batch insert failed", e);
+            throw new BusinessException("dataGeneration.batchInsertFailed", new Object[]{e.getMessage()}, e);
         }
     }
 
