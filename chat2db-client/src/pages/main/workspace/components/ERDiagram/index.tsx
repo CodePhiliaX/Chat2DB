@@ -55,6 +55,12 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = 'TB') => {
   dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 80 });
 
+  const connectedNodeIds = new Set<string>();
+  edges.forEach((e) => {
+    connectedNodeIds.add(e.source);
+    connectedNodeIds.add(e.target);
+  });
+
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: 160, height: 60 });
   });
@@ -64,6 +70,34 @@ const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = '
   });
 
   dagre.layout(dagreGraph);
+
+  const connectedNodes = nodes.filter((n) => connectedNodeIds.has(n.id));
+  const isolatedNodes = nodes.filter((n) => !connectedNodeIds.has(n.id));
+
+  if (isolatedNodes.length > 0 && connectedNodes.length > 0) {
+    const connectedBounds = connectedNodes.reduce(
+      (acc, n) => {
+        const pos = dagreGraph.node(n.id);
+        return {
+          minX: Math.min(acc.minX, pos.x),
+          maxX: Math.max(acc.maxX, pos.x),
+          minY: Math.min(acc.minY, pos.y),
+          maxY: Math.max(acc.maxY, pos.y),
+        };
+      },
+      { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
+    );
+
+    const isolatedStartX = connectedBounds.maxX + 150;
+    const isolatedStartY = connectedBounds.minY;
+
+    isolatedNodes.forEach((node, i) => {
+      const col = Math.floor(i / 3);
+      const row = i % 3;
+      dagreGraph.node(node.id).x = isolatedStartX + col * 180;
+      dagreGraph.node(node.id).y = isolatedStartY + row * 80;
+    });
+  }
 
   return nodes.map((node) => {
     const pos = dagreGraph.node(node.id);
@@ -84,11 +118,18 @@ const getForceLayout = (nodes: Node[], edges: Edge[]) => {
   const attraction = 0.005;
   const damping = 0.9;
 
+  const connectedNodeIds = new Set<string>();
+  edges.forEach((e) => {
+    connectedNodeIds.add(e.source);
+    connectedNodeIds.add(e.target);
+  });
+
   nodes.forEach((node, i) => {
     const angle = (2 * Math.PI * i) / nodes.length;
+    const radius = connectedNodeIds.has(node.id) ? 200 : 400;
     nodeMap.set(node.id, {
-      x: Math.cos(angle) * 200,
-      y: Math.sin(angle) * 200,
+      x: Math.cos(angle) * radius,
+      y: Math.sin(angle) * radius,
       vx: 0,
       vy: 0,
     });
@@ -121,8 +162,17 @@ const getForceLayout = (nodes: Node[], edges: Edge[]) => {
       p2.vy -= dy * attraction;
     });
 
+    const isIsolated = (nodeId: string) => !connectedNodeIds.has(nodeId);
+
     nodes.forEach((node) => {
       const p = nodeMap.get(node.id)!;
+      if (isIsolated(node.id)) {
+        const distFromCenter = Math.sqrt(p.x * p.x + p.y * p.y);
+        if (distFromCenter > 0) {
+          p.vx += (p.x / distFromCenter) * 2;
+          p.vy += (p.y / distFromCenter) * 2;
+        }
+      }
       p.vx *= damping;
       p.vy *= damping;
       p.x += p.vx;
@@ -190,7 +240,7 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
 
   useEffect(() => {
     fetchData();
-  }, [uniqueData.dataSourceId, uniqueData.databaseName, uniqueData.schemaName]);
+  }, [uniqueData.dataSourceId, uniqueData.databaseName, uniqueData.schemaName, showOnlyRelatedTables]);
 
   useEffect(() => {
     if (!erDiagramData) return;
@@ -254,7 +304,10 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
         sourceColumn: e.sourceColumn,
         targetColumn: e.targetColumn,
       },
-      markerEnd: { type: 'arrowclosed' as const },
+      markerEnd: {
+        type: 'arrowclosed' as const,
+        color: e.virtual ? '#faad14' : '#8c8c8c',
+      },
       style: e.virtual
         ? { stroke: '#faad14', strokeWidth: 1.5, strokeDasharray: '5 3' }
         : { stroke: '#8c8c8c', strokeWidth: 2 },
