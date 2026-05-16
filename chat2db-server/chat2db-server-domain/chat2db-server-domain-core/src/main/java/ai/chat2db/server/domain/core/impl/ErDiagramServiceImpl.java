@@ -244,9 +244,10 @@ public class ErDiagramServiceImpl implements ErDiagramService {
     private VirtualForeignKey analyzeColumnRelation(Table currentTable, TableColumn currentColumn, ErDiagramQueryParam param) {
         String columnName = currentColumn.getName();
         String referencedTableName = columnName.substring(0, columnName.length() - 3);
+        String currentTableName = currentTable.getName();
 
         // 排除自关联
-        if (referencedTableName.equalsIgnoreCase(currentTable.getName())) {
+        if (referencedTableName.equalsIgnoreCase(currentTableName)) {
             return null;
         }
 
@@ -265,7 +266,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
 
         // 排除自关联
         Table targetTable = tables.stream()
-                .filter(t -> !referencedTableName.equalsIgnoreCase(t.getName()))
+                .filter(t -> !currentTableName.equalsIgnoreCase(t.getName()))
                 .findFirst()
                 .orElse(null);
 
@@ -287,8 +288,8 @@ public class ErDiagramServiceImpl implements ErDiagramService {
         }
 
         return VirtualForeignKey.builder()
-                .name(String.format("VFK_%s_%s", currentTable.getName(), columnName))
-                .tableName(currentTable.getName())
+                .name(String.format("VFK_%s_%s", currentTableName, columnName))
+                .tableName(currentTableName)
                 .column(columnName)
                 .referencedTable(targetTable.getName())
                 .referencedColumn(referencedColumnName)
