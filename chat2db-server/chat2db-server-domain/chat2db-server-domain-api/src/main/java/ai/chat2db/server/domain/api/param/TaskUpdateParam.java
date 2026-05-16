@@ -37,5 +37,5 @@ public class TaskUpdateParam implements Serializable {
     /**
      * task content
      */
-    private byte[] content;
+    private String content;
 }

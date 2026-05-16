@@ -307,11 +307,7 @@ const DataGenerationModal: React.FC = () => {
             setTaskStatus('ERROR');
             let errorMsg = '数据生成失败';
             if (task.content) {
-              try {
-                errorMsg = decodeURIComponent(escape(atob(task.content)));
-              } catch {
-                errorMsg = task.content;
-              }
+              errorMsg = task.content;
             }
             addLog(`错误: ${errorMsg}`);
             message.error(errorMsg);

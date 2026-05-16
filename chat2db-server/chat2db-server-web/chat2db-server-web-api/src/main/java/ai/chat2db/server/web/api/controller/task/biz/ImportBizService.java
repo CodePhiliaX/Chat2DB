@@ -33,7 +33,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -189,9 +188,9 @@ public class ImportBizService {
             log.error("import error", throwable);
             updateParam.setTaskStatus(TaskStatusEnum.ERROR.name());
             if (throwable.getCause() instanceof BusinessException businessException) {
-                updateParam.setContent(I18nUtils.getMessage(businessException.getCode(), businessException.getArgs()).getBytes(StandardCharsets.UTF_8));
+                updateParam.setContent(I18nUtils.getMessage(businessException.getCode(), businessException.getArgs()));
             } else {
-                updateParam.setContent(throwable.getMessage().getBytes(StandardCharsets.UTF_8));
+                updateParam.setContent(throwable.getMessage());
             }
         } else {
             updateParam.setTaskStatus(TaskStatusEnum.FINISH.name());

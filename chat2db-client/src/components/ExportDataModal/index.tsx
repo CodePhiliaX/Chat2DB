@@ -102,11 +102,7 @@ const ExportDataModal = () => {
             pollingRef.current = null;
             let errorMsg = i18n('workspace.table.export.failed');
             if (task.content) {
-              try {
-                errorMsg = decodeURIComponent(escape(atob(task.content)));
-              } catch (e) {
-                errorMsg = task.content;
-              }
+              errorMsg = task.content;
             }
             addLog(`Error: ${errorMsg}`);
             message.error(errorMsg);

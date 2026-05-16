@@ -232,11 +232,7 @@ const ImportDataModal = () => {
             pollingRef.current = null;
             let errorMsg = i18n('common.text.importFailed');
             if (task.content) {
-              try {
-                errorMsg = decodeURIComponent(escape(atob(task.content)));
-              } catch (e) {
-                errorMsg = task.content;
-              }
+              errorMsg = task.content;
             }
             addLog(`Error: ${errorMsg}`);
             message.error(errorMsg);

@@ -30,7 +30,7 @@ public class GeneratorTemplate implements Serializable {
 
     public static List<GeneratorTemplate> getDefaultTemplates() {
         return List.of(
-                GeneratorTemplate.of("UUID", "基础", "#{Regexify '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}'}", "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "VARCHAR"),
+                GeneratorTemplate.of("UUID", "基础", "#{IdNumber.valid}", "a1b2c3d4-e5f6-7890-abcd-ef1234567890", "VARCHAR"),
                 GeneratorTemplate.of("布尔值", "基础", "#{Options.option 'true','false'}", "true", "BOOLEAN"),
 
                 GeneratorTemplate.of("姓", "姓名", "#{Name.last_name}", "Smith", "VARCHAR"),
