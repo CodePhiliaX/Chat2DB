@@ -1,2 +1,24 @@
--- 将 TASK 表的 content 字段从 BLOB 改为 CLOB (对应 Java 层从 byte[] 改为 String)
-ALTER TABLE `task` MODIFY COLUMN `content` longtext COMMENT 'task content';
+-- H2 不支持 BLOB 直接转 CLOB，删除表重建
+DROP TABLE IF EXISTS TASK;
+
+CREATE TABLE IF NOT EXISTS TASK (
+    ID bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+    GMT_CREATE datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    GMT_MODIFIED datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    DATA_SOURCE_ID bigint unsigned NULL COMMENT '数据源连接ID',
+    DATABASE_NAME varchar(128) DEFAULT NULL COMMENT 'db名称',
+    SCHEMA_NAME varchar(128) DEFAULT NULL COMMENT 'schema名称',
+    TABLE_NAME varchar(128) DEFAULT NULL COMMENT 'table_name',
+    DELETED varchar(10) DEFAULT NULL COMMENT '是否被删除,y表示删除,n表示未删除',
+    USER_ID bigint unsigned NOT NULL DEFAULT 0 COMMENT '用户id',
+    TASK_TYPE varchar(128) DEFAULT NULL COMMENT 'task type',
+    TASK_STATUS varchar(128) DEFAULT NULL COMMENT 'task status',
+    TASK_PROGRESS varchar(128) DEFAULT NULL COMMENT 'task progress',
+    TASK_NAME varchar(128) DEFAULT NULL COMMENT 'task name',
+    CONTENT CLOB DEFAULT NULL COMMENT 'task content',
+    DOWNLOAD_URL varchar(512) DEFAULT NULL COMMENT 'down load url',
+    TOTAL_COUNT int DEFAULT 0 COMMENT 'total count',
+    PRIMARY KEY (ID)
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_user_id ON TASK(USER_ID);
