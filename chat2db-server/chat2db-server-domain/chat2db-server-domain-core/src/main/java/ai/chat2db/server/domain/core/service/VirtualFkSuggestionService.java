@@ -67,8 +67,10 @@ public class VirtualFkSuggestionService {
     private void extractSuggestions(PlainSelect plainSelect, Map<String, String> aliasMap, List<VirtualForeignKeySuggestion> suggestions, Set<String> existingFKKeys) {
         if (plainSelect.getJoins() != null) {
             for (Join join : plainSelect.getJoins()) {
-                if (join.getOnExpression() != null) {
-                    processExpression(join.getOnExpression(), aliasMap, suggestions, existingFKKeys);
+                if (join.getOnExpressions() != null) {
+                    for (Expression onExpression : join.getOnExpressions()) {
+                        processExpression(onExpression, aliasMap, suggestions, existingFKKeys);
+                    }
                 }
             }
         }

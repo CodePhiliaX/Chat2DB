@@ -104,8 +104,4 @@ public class ExecuteResultVO {
      */
     private List<VirtualForeignKeySuggestion> vkSuggestions;
 
-    /**
-     * JSqlParser parsed AST statement (cached for reuse)
-     */
-    private transient net.sf.jsqlparser.statement.Statement jsqlStatement;
 }

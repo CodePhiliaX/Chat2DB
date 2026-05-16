@@ -113,7 +113,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
             const parentName = boundInfo.schemaName || boundInfo.databaseName || '';
             return data.map((table) => {
               const name = table.name;
-              const alias = name.charAt(0).toLowerCase();
+              const alias = name.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
               const label = parentName ? `${name} (${parentName})` : name;
               return {
                 label,
@@ -128,7 +128,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
         }
 
         const currentTableName = joinInfo.currentTable.tableName?.value;
-        const currentTableAlias = joinInfo.currentTableAlias || currentTableName?.charAt(0).toLowerCase();
+        const currentTableAlias = joinInfo.currentTableAlias || joinInfo.currentTable.tableName?.value.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
         if (!currentTableName) {
           console.warn('[SQL 补全 - JOIN] 当前表名为空，返回所有表');
           return [];
@@ -163,7 +163,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
 
         // 生成表别名：取首字母，如果冲突则加数字
         const generateAlias = (tableName: string, usedAliases: Set<string>): string => {
-          let alias = tableName.charAt(0).toLowerCase();
+          let alias = tableName.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
           if (usedAliases.has(alias)) {
             let i = 1;
             while (usedAliases.has(`${alias}${i}`)) {

@@ -73,8 +73,8 @@ public class RdbDmlController {
         List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
         
         // Add Virtual FK suggestions using cached JSqlParser AST
-        if (!resultVOS.isEmpty()) {
-            ExecuteResultVO firstResult = resultVOS.get(0);
+        if (!resultDTOListResult.getData().isEmpty()) {
+            ExecuteResult firstResult = resultDTOListResult.getData().get(0);
             if (firstResult.getJsqlStatement() != null) {
                 List<VirtualForeignKey> existingFKs = foreignKeySyncService.listAllForeignKeys(
                         request.getDataSourceId(),
