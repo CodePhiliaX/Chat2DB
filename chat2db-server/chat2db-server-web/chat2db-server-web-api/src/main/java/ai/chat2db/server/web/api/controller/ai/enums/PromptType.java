@@ -72,10 +72,12 @@ public enum PromptType implements BaseEnum<String> {
     /**
      * 判断是否为简单任务类型（可以使用快速模型）
      * 简单任务通常不需要复杂的推理，如选表、生成标题等
+     *
      * @return true 如果是简单任务
      */
     public boolean isSimpleTask() {
-        return this == SELECT_TABLES || this == TITLE_GENERATION || this == NL_2_COMMENT_BATCH;
+        return this == SELECT_TABLES || this == TITLE_GENERATION || this == NL_2_COMMENT_BATCH
+                || this == NL_2_COMMENT || this == NL_2_FIELD_MAPPING || this == NL_2_DATA_EXPRESSION;
     }
 
     PromptType(String description) {
