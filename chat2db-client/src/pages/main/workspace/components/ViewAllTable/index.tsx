@@ -2,7 +2,7 @@ import React, { memo, useEffect, useState, useCallback } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
 import classnames from 'classnames';
-import { Table, Dropdown, Input, Pagination, Button, Form, Modal, message } from 'antd';
+import { Table, Dropdown, Input, Pagination, Button, Form, Modal, message, Spin } from 'antd';
 import { DatabaseTypeCode, TreeNodeType, OperationColumn, WorkspaceTabType } from '@/constants';
 import sqlServer, { IBatchModifyTableSqlParams } from '@/service/sql';
 import type { ColumnsType } from 'antd/es/table';
@@ -48,6 +48,7 @@ export default memo<IProps>((props) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
   const [appendValue, setAppendValue] = useState<string>('');
+  const [guessLoading, setGuessLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
@@ -433,6 +434,8 @@ export default memo<IProps>((props) => {
     }
     pendingBatchesRef.current = batches.slice(1);
     const firstBatch = batches[0];
+
+    setGuessLoading(true);
     setPendingAiChat({
       dataSourceId: Number(uniqueData.dataSourceId),
       databaseName: uniqueData.databaseName,
@@ -443,6 +446,8 @@ export default memo<IProps>((props) => {
       onBatchCommentGenerated: handleBatchCommentGenerated,
     });
     setCurrentWorkspaceExtend('ai');
+    setGuessLoading(false);
+    message.success('已切换到 AI 助手，请在 AI 聊天面板中查看推荐结果');
   }, [tableData, uniqueData, handleBatchCommentGenerated]);
 
   return (
@@ -467,9 +472,11 @@ export default memo<IProps>((props) => {
           <Search size="small" placeholder={i18n('common.text.search')} onSearch={onSearch} style={{ width: 150 }} />
           {isEditing ? (
             <>
-              <Button onClick={openAiChatForGuess} style={{ marginLeft: 8 }}>
-                {i18n('common.button.guess')}
-              </Button>
+              <Spin spinning={guessLoading}>
+                <Button onClick={openAiChatForGuess} style={{ marginLeft: 8 }}>
+                  {i18n('common.button.guess')}
+                </Button>
+              </Spin>
               <Button onClick={saveAll} style={{ marginLeft: 8 }}>
                 {i18n('common.button.saveAll')}
               </Button>

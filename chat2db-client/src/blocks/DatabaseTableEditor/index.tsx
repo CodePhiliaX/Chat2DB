@@ -4,7 +4,7 @@ import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
 import sqlService, { IModifyTableSqlParams } from '@/service/sql';
 import { IColumnTypes, IEditTableInfo, IWorkspaceTab } from '@/typings';
-import { Button, Modal, message } from 'antd';
+import { Button, Modal, message, Spin } from 'antd';
 import classnames from 'classnames';
 import lodash from 'lodash';
 import React, { createContext, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -76,6 +76,7 @@ export default memo((props: IProps) => {
   const [tableDetails, setTableDetails] = useState<IEditTableInfo>({} as any);
   const [oldTableDetails, setOldTableDetails] = useState<IEditTableInfo>({} as any);
   const [viewSqlModal, setViewSqlModal] = useState<boolean>(false);
+  const [guessLoading, setGuessLoading] = useState<boolean>(false);
   const baseInfoRef = useRef<IBaseInfoRef>(null);
   const columnListRef = useRef<IColumnListRef>(null);
   const indexListRef = useRef<IIndexListRef>(null);
@@ -261,6 +262,7 @@ export default memo((props: IProps) => {
       return;
     }
 
+    setGuessLoading(true);
     setPendingAiChat({
       dataSourceId,
       databaseName,
@@ -272,6 +274,8 @@ export default memo((props: IProps) => {
     });
 
     setCurrentWorkspaceExtend('ai');
+    setGuessLoading(false);
+    message.success('已切换到 AI 助手，请在 AI 聊天面板中查看推荐结果');
   }, [dataSourceId, databaseName, schemaName, tableName, handleCommentGenerated]);
 
   const executeSuccessCallBack = () => {
@@ -323,9 +327,11 @@ export default memo((props: IProps) => {
             })}
           </div>
           <div className={styles.saveButton}>
-            <Button type="link" onClick={openAiChatForGuess}>
-              {i18n('common.button.guess')}
-            </Button>
+            <Spin spinning={guessLoading}>
+              <Button type="link" onClick={openAiChatForGuess}>
+                {i18n('common.button.guess')}
+              </Button>
+            </Spin>
           </div>
           <div className={styles.saveButton}>
             <Button type="primary" onClick={submit}>
