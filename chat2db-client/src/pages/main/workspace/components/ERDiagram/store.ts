@@ -3,7 +3,7 @@
  * 使用Zustand管理ER图的状态，包括数据、加载状态、过滤条件、布局类型等
  */
 import { create } from 'zustand';
-import sqlServer, { IErDiagram, IErParams } from '@/service/sql';
+import sqlServer, { IErDiagram, IErParams, IInferVirtualFkResult } from '@/service/sql';
 
 /** 布局类型：力导向布局或层级布局 */
 export type LayoutType = 'force' | 'dagre';
@@ -19,7 +19,7 @@ interface IErDiagramStore {
   selectedTableId: string | null;
 
   fetchErDiagram: (params: IErParams) => Promise<void>;
-  inferVirtualForeignKeys: (params: IErParams) => Promise<number>;
+  inferVirtualForeignKeys: (params: IErParams) => Promise<IInferVirtualFkResult>;
   deleteVirtualForeignKey: (edgeId: string, params: IErParams) => Promise<void>;
   setFilterText: (text: string) => void;
   setLayoutType: (type: LayoutType) => void;

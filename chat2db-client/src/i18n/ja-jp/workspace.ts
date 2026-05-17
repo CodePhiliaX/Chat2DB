@@ -37,4 +37,10 @@ export default {
   'workspace.tips.noConnection': 'まだ接続が作成されていません',
   'workspace.tips.maxConsole': 'コンソールは最大20個まで開くことができます',
   'workspace.tips.openExecutiveLogging': '実行ログを開く',
+  'workspace.erDiagram.inferVirtualFk': '仮想FKを推測',
+  'workspace.erDiagram.inferVirtualFkNoResult': '新しい仮想外部キーが見つかりませんでした',
+  'workspace.erDiagram.inferVirtualFkError': '仮想外部キーの推測に失敗しました',
+  'workspace.erDiagram.inferResult.title': '仮想FK推測結果',
+  'workspace.erDiagram.inferResult.added': '追加 ({1})',
+  'workspace.erDiagram.inferResult.deleted': '削除 ({1})',
 };

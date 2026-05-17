@@ -1,6 +1,7 @@
 package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.ErDiagramQueryParam;
+import ai.chat2db.server.domain.api.vo.InferVirtualFkResultVO;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.ErDiagram;
 
@@ -23,7 +24,7 @@ public interface ErDiagramService {
      * 根据命名规范（如 user_id -> users.id）自动推断可能的虚拟外键关系
      *
      * @param param 查询参数
-     * @return 推断出的虚拟外键数量
+     * @return 推断结果，包含新增和删除的虚拟外键列表
      */
-    DataResult<Integer> inferVirtualForeignKeys(ErDiagramQueryParam param);
+    DataResult<InferVirtualFkResultVO> inferVirtualForeignKeys(ErDiagramQueryParam param);
 }

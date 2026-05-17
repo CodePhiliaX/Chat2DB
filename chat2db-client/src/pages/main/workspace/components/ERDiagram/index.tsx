@@ -4,7 +4,7 @@
  * 支持表过滤、布局切换、虚拟外键显示/推断/删除、缩放控制、PNG导出等功能
  */
 import React, { useCallback, useEffect, useRef } from 'react';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -29,6 +29,7 @@ import RelationEdge from './components/RelationEdge';
 import Toolbar from './components/Toolbar';
 import TableFilter from './components/TableFilter';
 import Legend from './components/Legend';
+import { IInferVirtualFkItem } from '@/service/sql';
 import styles from './index.less';
 
 /** ER图组件Props */
@@ -347,14 +348,56 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
   const handleInferVirtualFk = useCallback(async () => {
     setInferring(true);
     try {
-      const count = await inferVirtualForeignKeys({
+      const result = await inferVirtualForeignKeys({
         dataSourceId: uniqueData.dataSourceId,
         databaseName: uniqueData.databaseName,
         schemaName: uniqueData.schemaName,
         tableNameFilter: filterText || undefined,
       });
-      if (count > 0) {
-        message.success(i18n('workspace.erDiagram.inferVirtualFkSuccess', [count]));
+
+      if (result.addedCount > 0 || result.deletedCount > 0) {
+        const formatItem = (item: IInferVirtualFkItem) =>
+          `${item.tableName}.${item.columnName} → ${item.referencedTable}.${item.referencedColumnName}`;
+
+        const content = (
+          <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+            {result.addedCount > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ color: '#52c41a', fontWeight: 'bold', marginBottom: 8 }}>
+                  {i18n('workspace.erDiagram.inferResult.added', [result.addedCount])}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {result.added.map((item, i) => (
+                    <li key={`add-${i}`} style={{ marginBottom: 4, fontFamily: 'monospace' }}>
+                      {formatItem(item)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.deletedCount > 0 && (
+              <div>
+                <div style={{ color: '#ff4d4f', fontWeight: 'bold', marginBottom: 8 }}>
+                  {i18n('workspace.erDiagram.inferResult.deleted', [result.deletedCount])}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                  {result.deleted.map((item, i) => (
+                    <li key={`del-${i}`} style={{ marginBottom: 4, fontFamily: 'monospace' }}>
+                      {formatItem(item)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        );
+
+        Modal.info({
+          title: i18n('workspace.erDiagram.inferResult.title'),
+          content,
+          width: 520,
+          okText: i18n('common.button.confirm'),
+        });
       } else {
         message.info(i18n('workspace.erDiagram.inferVirtualFkNoResult'));
       }

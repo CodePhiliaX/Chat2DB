@@ -366,6 +366,14 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
     }
 
     @Override
+    public List<VirtualForeignKey> queryAllVirtualForeignKeys(Long dataSourceId, String databaseName, String schemaName) {
+        List<VirtualForeignKeyDO> doList = queryVirtualFKsFromH2(dataSourceId, databaseName, schemaName, null);
+        return doList.stream()
+                .map(this::convertVirtualDOToModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public int cleanInvalidVirtualForeignKeys(Long dataSourceId, String databaseName, String schemaName, List<String> existingTableNames) {
         if (CollectionUtils.isEmpty(existingTableNames)) {
             return 0;

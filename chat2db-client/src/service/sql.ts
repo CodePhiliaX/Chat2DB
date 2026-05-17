@@ -531,12 +531,28 @@ export interface IInferVirtualFKParams {
   tableNameFilter?: string;
 }
 
+/** 虚拟外键推断结果项 */
+export interface IInferVirtualFkItem {
+  tableName: string;
+  columnName: string;
+  referencedTable: string;
+  referencedColumnName: string;
+}
+
+/** 虚拟外键推断结果 */
+export interface IInferVirtualFkResult {
+  addedCount: number;
+  deletedCount: number;
+  added: IInferVirtualFkItem[];
+  deleted: IInferVirtualFkItem[];
+}
+
 const syncForeignKeys = createRequest<IForeignKeySyncParams, ISyncResult>('/api/rdb/fk/sync', { method: 'post' });
 const getForeignKeyList = createRequest<IForeignKeyListParams, IForeignKeyVO[]>('/api/rdb/fk/list', { method: 'get' });
 const createVirtualForeignKey = createRequest<ICreateVirtualFKParams, IForeignKey>('/api/rdb/fk/virtual/create', { method: 'post' });
 const updateVirtualForeignKey = createRequest<IUpdateVirtualFKParams, IForeignKey>('/api/rdb/fk/virtual/update', { method: 'post' });
 const deleteForeignKey = createRequest<IDeleteFKParams, IDeleteFKResult>('/api/rdb/fk/delete', { method: 'post' });
-const inferVirtualForeignKeys = createRequest<IInferVirtualFKParams, number>('/api/rdb/er/infer-virtual-fk', { method: 'post' });
+const inferVirtualForeignKeys = createRequest<IInferVirtualFKParams, IInferVirtualFkResult>('/api/rdb/er/infer-virtual-fk', { method: 'post' });
 
 export default {
   searchTree,

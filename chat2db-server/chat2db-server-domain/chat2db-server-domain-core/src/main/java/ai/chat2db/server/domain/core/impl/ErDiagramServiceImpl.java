@@ -17,6 +17,7 @@ import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.service.ErDiagramService;
 import ai.chat2db.server.domain.api.service.ForeignKeySyncService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.domain.api.vo.InferVirtualFkResultVO;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.spi.model.ErDiagram;
@@ -132,7 +133,13 @@ public class ErDiagramServiceImpl implements ErDiagramService {
     }
 
     @Override
-    public DataResult<Integer> inferVirtualForeignKeys(ErDiagramQueryParam param) {
+    public DataResult<InferVirtualFkResultVO> inferVirtualForeignKeys(ErDiagramQueryParam param) {
+        List<VirtualForeignKey> beforeInfer = foreignKeySyncService.queryAllVirtualForeignKeys(
+                param.getDataSourceId(),
+                param.getDatabaseName(),
+                param.getSchemaName()
+        );
+
         List<Table> tables = queryTables(param);
         
         List<String> existingTableNames = tables.stream()
@@ -147,26 +154,25 @@ public class ErDiagramServiceImpl implements ErDiagramService {
         );
         log.info("Cleaned {} invalid virtual foreign keys before inference", cleanedCount);
 
-        int totalInferred = 0;
-
+        List<VirtualForeignKey> addedList = new ArrayList<>();
         for (Table table : tables) {
             List<VirtualForeignKey> inferredFKs = findVirtualForeignKeys(table, param);
             for (VirtualForeignKey vfk : inferredFKs) {
                 try {
-                foreignKeySyncService.createVirtualFK(
-                        CreateVirtualFKParam.builder()
-                                .dataSourceId(param.getDataSourceId())
-                                .databaseName(param.getDatabaseName())
-                                .schemaName(param.getSchemaName())
-                                .tableName(table.getName())
-                                .columnName(vfk.getColumn())
-                                .referencedTable(vfk.getReferencedTable())
-                                .referencedColumnName(vfk.getReferencedColumn())
-                                .comment("Inferred from column naming convention")
-                                .sourceType("INFERRED")
-                                .build()
-                );
-                    totalInferred++;
+                    foreignKeySyncService.createVirtualFK(
+                            CreateVirtualFKParam.builder()
+                                    .dataSourceId(param.getDataSourceId())
+                                    .databaseName(param.getDatabaseName())
+                                    .schemaName(param.getSchemaName())
+                                    .tableName(table.getName())
+                                    .columnName(vfk.getColumn())
+                                    .referencedTable(vfk.getReferencedTable())
+                                    .referencedColumnName(vfk.getReferencedColumn())
+                                    .comment("Inferred from column naming convention")
+                                    .sourceType("INFERRED")
+                                    .build()
+                    );
+                    addedList.add(vfk);
                 } catch (Exception e) {
                     log.warn("Failed to create inferred virtual FK for {}.{} -> {}.{}",
                             table.getName(), vfk.getColumn(),
@@ -175,7 +181,46 @@ public class ErDiagramServiceImpl implements ErDiagramService {
             }
         }
 
-        return DataResult.of(totalInferred);
+        List<VirtualForeignKey> afterInfer = foreignKeySyncService.queryAllVirtualForeignKeys(
+                param.getDataSourceId(),
+                param.getDatabaseName(),
+                param.getSchemaName()
+        );
+
+        Set<String> beforeKeys = beforeInfer.stream()
+                .map(vfk -> vfk.getTableName() + "." + vfk.getColumn())
+                .collect(Collectors.toSet());
+        Set<String> afterKeys = afterInfer.stream()
+                .map(vfk -> vfk.getTableName() + "." + vfk.getColumn())
+                .collect(Collectors.toSet());
+
+        List<InferVirtualFkResultVO.VirtualFkItem> deletedItems = beforeInfer.stream()
+                .filter(vfk -> !afterKeys.contains(vfk.getTableName() + "." + vfk.getColumn()))
+                .map(vfk -> InferVirtualFkResultVO.VirtualFkItem.builder()
+                        .tableName(vfk.getTableName())
+                        .columnName(vfk.getColumn())
+                        .referencedTable(vfk.getReferencedTable())
+                        .referencedColumnName(vfk.getReferencedColumn())
+                        .build())
+                .collect(Collectors.toList());
+
+        List<InferVirtualFkResultVO.VirtualFkItem> addedItems = addedList.stream()
+                .map(vfk -> InferVirtualFkResultVO.VirtualFkItem.builder()
+                        .tableName(vfk.getTableName())
+                        .columnName(vfk.getColumn())
+                        .referencedTable(vfk.getReferencedTable())
+                        .referencedColumnName(vfk.getReferencedColumn())
+                        .build())
+                .collect(Collectors.toList());
+
+        InferVirtualFkResultVO result = InferVirtualFkResultVO.builder()
+                .addedCount(addedItems.size())
+                .deletedCount(deletedItems.size())
+                .added(addedItems)
+                .deleted(deletedItems)
+                .build();
+
+        return DataResult.of(result);
     }
 
     /**
