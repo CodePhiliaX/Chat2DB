@@ -44,11 +44,13 @@
     ↓                                            ↓
 promptType = NL_2_FIELD_MAPPING              AiChat 检测到 pendingAiChat
     ↓                                            ↓
-传入: 源字段列表 + 目标列信息 + 表名          调用 /api/ai/chat SSE接口
+传入: 源字段列表 + 表名                       调用 /api/ai/chat SSE接口
     ↓                                            ↓
                                              后端状态机执行:
-                                             IDLE → BUILDING_PROMPT
-                                             → 组装 prompt (源字段+目标表结构+映射要求)
+                                             IDLE → FETCHING_TABLE_SCHEMA
+                                             → FetchSchemaAction 自动获取目标表 DDL
+                                             → BUILDING_PROMPT
+                                             → 组装 prompt (源字段+目标表DDL+映射要求)
                                              → STREAMING
                                              → 调用 AI 生成映射建议
                                              → COMPLETED
@@ -77,11 +79,13 @@ promptType = NL_2_FIELD_MAPPING              AiChat 检测到 pendingAiChat
     ↓                                            ↓
 promptType = NL_2_DATA_EXPRESSION            AiChat 检测到 pendingAiChat
     ↓                                            ↓
-传入: 表名 + 列名 + 数据类型 + 注释           调用 /api/ai/chat SSE接口
+传入: 表名                                   调用 /api/ai/chat SSE接口
     ↓                                            ↓
                                              后端状态机执行:
-                                             IDLE → BUILDING_PROMPT
-                                             → 组装 prompt (表结构+列信息+datafaker要求)
+                                             IDLE → FETCHING_TABLE_SCHEMA
+                                             → FetchSchemaAction 自动获取目标表 DDL
+                                             → BUILDING_PROMPT
+                                             → 组装 prompt (目标表DDL+datafaker要求)
                                              → STREAMING
                                              → 调用 AI 生成表达式建议
                                              → COMPLETED
@@ -112,7 +116,6 @@ promptType = NL_2_DATA_EXPRESSION            AiChat 检测到 pendingAiChat
  |                        |   promptType: 'NL_2_FIELD_MAPPING',      |                    |                    |                    |                    |
  |                        |   dataSourceId, databaseName, schemaName,|                    |                    |                    |                    |
  |                        |   tableName, sourceFields[],             |                    |                    |                    |                    |
- |                        |   targetColumns[],                       |                    |                    |                    |                    |
  |                        |   onMappingGenerated: callback           |                    |                    |                    |                    |
  |                        |   })                 |                    |                    |                    |                    |                    |
  |                        |--->|                 |                    |                    |                    |                    |                    |
@@ -131,8 +134,13 @@ promptType = NL_2_DATA_EXPRESSION            AiChat 检测到 pendingAiChat
  |                        |                      |                    |                    |                    |-- 创建 ChatContext |                    |
  |                        |                      |                    |                    |                    |-- sendEvent(TABLES_PROVIDED) ->|      |
  |                        |                      |                    |                    |                    |                    |                    |
- |                        |                      |                    |                    |                    |--- IDLE → BUILDING_PROMPT --->|      |
- |                        |                      |                    |                    |                    |--- 组装 prompt (包含源字段+目标表结构) |
+ |                        |                      |                    |                    |                    |--- IDLE → FETCHING_TABLE_SCHEMA --->|
+ |                        |                      |                    |                    |                    |--- FetchSchemaAction 获取目标表DDL -->|
+ |                        |                      |                    |                    |                    |    (从数据库自动获取)                    |
+ |                        |                      |                    |                    |                    |--- 存储到 context.schemaDdl ----------|
+ |                        |                      |                    |                    |                    |                    |                    |
+ |                        |                      |                    |                    |                    |--- FETCHING_TABLE_SCHEMA → BUILDING_PROMPT ->|
+ |                        |                      |                    |                    |                    |--- 组装 prompt (源字段+目标表DDL)      |
  |                        |                      |                    |                    |                    |                    |                    |
  |                        |                      |                    |                    |                    |--- BUILDING_PROMPT → STREAMING ->|    |
  |                        |                      |                    |                    |                    |--- ChatClient.prompt().stream() ------->|
@@ -172,7 +180,7 @@ promptType = NL_2_DATA_EXPRESSION            AiChat 检测到 pendingAiChat
  |                        |-- setPendingAiChat({ |                    |                    |                    |                    |                    |
  |                        |   promptType: 'NL_2_DATA_EXPRESSION',    |                    |                    |                    |                    |
  |                        |   dataSourceId, databaseName, schemaName,|                    |                    |                    |                    |
- |                        |   tableName, columns[],                  |                    |                    |                    |                    |
+ |                        |   tableName,                             |                    |                    |                    |                    |
  |                        |   onExpressionGenerated: callback        |                    |                    |                    |                    |
  |                        |   })                 |                    |                    |                    |                    |                    |
  |                        |--->|                 |                    |                    |                    |                    |                    |
@@ -191,8 +199,13 @@ promptType = NL_2_DATA_EXPRESSION            AiChat 检测到 pendingAiChat
  |                        |                      |                    |                    |                    |-- 创建 ChatContext |                    |
  |                        |                      |                    |                    |                    |-- sendEvent(TABLES_PROVIDED) ->|      |
  |                        |                      |                    |                    |                    |                    |                    |
- |                        |                      |                    |                    |                    |--- IDLE → BUILDING_PROMPT --->|      |
- |                        |                      |                    |                    |                    |--- 组装 prompt (包含列信息+datafaker要求)|
+ |                        |                      |                    |                    |                    |--- IDLE → FETCHING_TABLE_SCHEMA --->|
+ |                        |                      |                    |                    |                    |--- FetchSchemaAction 获取目标表DDL -->|
+ |                        |                      |                    |                    |                    |    (从数据库自动获取)                    |
+ |                        |                      |                    |                    |                    |--- 存储到 context.schemaDdl ----------|
+ |                        |                      |                    |                    |                    |                    |                    |
+ |                        |                      |                    |                    |                    |--- FETCHING_TABLE_SCHEMA → BUILDING_PROMPT ->|
+ |                        |                      |                    |                    |                    |--- 组装 prompt (目标表DDL+datafaker)  |
  |                        |                      |                    |                    |                    |                    |                    |
  |                        |                      |                    |                    |                    |--- BUILDING_PROMPT → STREAMING ->|    |
  |                        |                      |                    |                    |                    |--- ChatClient.prompt().stream() ------->|
@@ -310,7 +323,7 @@ nl_2_field_mapping:
     **源文件字段列表**:
     {source_fields}
     
-    **目标表字段结构**:
+    **目标表字段结构** (自动获取):
     {schema}
     
     **要求**:
@@ -340,6 +353,10 @@ nl_2_field_mapping:
     4. 确保所有 targetField 都在目标表字段结构中存在
 ```
 
+**说明**: 
+- `{schema}` 占位符由后端 `FetchSchemaAction` 自动获取目标表 DDL 填充
+- 前端只需传 `sourceFields`（源文件字段列表）
+
 #### nl_2_data_expression - 数据生成表达式
 
 ```yaml
@@ -352,8 +369,8 @@ nl_2_data_expression:
     **目标表**: {table_name}
     **数据库类型**: {db_type}
     
-    **表字段信息**:
-    {columns_info}
+    **表字段信息** (自动获取):
+    {schema}
     
     **可用的 datafaker 表达式示例**:
     - 姓名: #{Name.first_name}, #{Name.last_name}, #{Name.full_name}
@@ -394,6 +411,10 @@ nl_2_data_expression:
     4. 确保所有 column_name 都在表字段信息中存在
 ```
 
+**说明**:
+- `{schema}` 占位符由后端 `FetchSchemaAction` 自动获取目标表 DDL 填充
+- 前端只需传 `tableName`，不需要传列信息
+
 ### 5.4 前端集成实现
 
 #### 5.4.1 ImportDataModal - 字段映射猜一猜
@@ -427,8 +448,7 @@ const ImportDataModal = () => {
       message: `请为表 ${params.tableName} 推荐字段映射方案`,
       promptType: 'NL_2_FIELD_MAPPING',
       ext: JSON.stringify({
-        sourceFields: previewData.headers,
-        targetColumns: previewData.tableColumns,
+        sourceFields: previewData.headers,  // 只需要传源文件字段
       }),
       onMappingGenerated: handleMappingGenerated,
     });
@@ -532,16 +552,6 @@ const DataGenerationModal: React.FC = () => {
       tableNames: [tableInfo.tableName],
       message: `请为表 ${tableInfo.tableName} 的字段推荐 datafaker 表达式`,
       promptType: 'NL_2_DATA_EXPRESSION',
-      ext: JSON.stringify({
-        columns: columns.map(col => ({
-          name: col.columnName,
-          type: col.dataType,
-          comment: col.comment,
-          nullable: col.nullable,
-          maxLength: col.maxLength,
-          scale: col.scale,
-        })),
-      }),
       onExpressionGenerated: handleExpressionGenerated,
     });
     setCurrentWorkspaceExtend('ai');
@@ -640,9 +650,6 @@ public class BuildPromptAction implements Action<ChatState, ChatEvent> {
     @Autowired
     private PromptTemplateRegistry promptTemplateRegistry;
     
-    @Autowired
-    private DatabaseService databaseService;
-    
     @Override
     public void execute(StateMachine<ChatState, ChatEvent> stateMachine, 
                        Event<ChatEvent> event, 
@@ -664,19 +671,19 @@ public class BuildPromptAction implements Action<ChatState, ChatEvent> {
             // 根据不同类型处理特殊逻辑
             if (PromptType.NL_2_COMMENT.name().equals(promptType) || 
                 PromptType.NL_2_COMMENT_BATCH.name().equals(promptType)) {
-                // 原有逻辑：获取表结构 DDL
-                String ddl = fetchTableDDL(context);
+                // 原有逻辑：schema DDL 已由 FetchSchemaAction 获取并存入 context
+                String ddl = context.getSchemaDdl();
                 prompt = prompt.replace("{schema}", ddl);
                 prompt = prompt.replace("{description}", "");
                 prompt = prompt.replace("{ext}", StringUtils.defaultString(request.getExt(), ""));
                 prompt = prompt.replace("{message}", StringUtils.defaultString(request.getMessage(), ""));
                 
             } else if (PromptType.NL_2_FIELD_MAPPING.name().equals(promptType)) {
-                // 新增：字段映射
+                // 新增：字段映射 - schema DDL 已由 FetchSchemaAction 获取
                 prompt = handleFieldMappingPrompt(prompt, context);
                 
             } else if (PromptType.NL_2_DATA_EXPRESSION.name().equals(promptType)) {
-                // 新增：数据生成表达式
+                // 新增：数据生成表达式 - schema DDL 已由 FetchSchemaAction 获取
                 prompt = handleDataExpressionPrompt(prompt, context);
             }
             
@@ -694,27 +701,24 @@ public class BuildPromptAction implements Action<ChatState, ChatEvent> {
         String tableName = CollectionUtils.isEmpty(request.getTableNames()) 
             ? "" : request.getTableNames().get(0);
         
-        // 从 ext 解析源字段和目标列信息
+        // schema DDL 已由 FetchSchemaAction 获取
+        String schemaDdl = context.getSchemaDdl();
+        
+        // 从 ext 解析源字段列表
         String ext = request.getExt();
-        FieldMappingExt extData = null;
-        if (StringUtils.isNotBlank(ext)) {
-            extData = JSON.parseObject(ext, FieldMappingExt.class);
-        }
-        
-        // 构建源字段文本
         String sourceFieldsText = "";
-        if (extData != null && extData.getSourceFields() != null) {
-            sourceFieldsText = extData.getSourceFields().stream()
-                .map(f -> "- " + f)
-                .collect(Collectors.joining("\n"));
+        if (StringUtils.isNotBlank(ext)) {
+            FieldMappingExt extData = JSON.parseObject(ext, FieldMappingExt.class);
+            if (extData != null && extData.getSourceFields() != null) {
+                sourceFieldsText = extData.getSourceFields().stream()
+                    .map(f -> "- " + f)
+                    .collect(Collectors.joining("\n"));
+            }
         }
-        
-        // 获取目标表结构
-        String schema = fetchTableDDL(context);
         
         prompt = prompt.replace("{table_name}", tableName);
         prompt = prompt.replace("{source_fields}", sourceFieldsText);
-        prompt = prompt.replace("{schema}", schema);
+        prompt = prompt.replace("{schema}", schemaDdl);
         prompt = prompt.replace("{message}", StringUtils.defaultString(request.getMessage(), ""));
         
         return prompt;
@@ -725,27 +729,11 @@ public class BuildPromptAction implements Action<ChatState, ChatEvent> {
         String tableName = CollectionUtils.isEmpty(request.getTableNames()) 
             ? "" : request.getTableNames().get(0);
         
-        // 从 ext 解析列信息
-        String ext = request.getExt();
-        DataExpressionExt extData = null;
-        if (StringUtils.isNotBlank(ext)) {
-            extData = JSON.parseObject(ext, DataExpressionExt.class);
-        }
-        
-        // 构建列信息文本
-        String columnsInfo = "";
-        if (extData != null && extData.getColumns() != null) {
-            columnsInfo = extData.getColumns().stream()
-                .map(c -> String.format("- %s (%s) - 注释: %s, 可空: %s, 最大长度: %s",
-                    c.getName(), c.getType(), 
-                    StringUtils.defaultString(c.getComment(), "无"),
-                    c.getNullable(),
-                    c.getMaxLength() != null ? c.getMaxLength() : "无"))
-                .collect(Collectors.joining("\n"));
-        }
+        // schema DDL 已由 FetchSchemaAction 获取
+        String schemaDdl = context.getSchemaDdl();
         
         prompt = prompt.replace("{table_name}", tableName);
-        prompt = prompt.replace("{columns_info}", columnsInfo);
+        prompt = prompt.replace("{schema}", schemaDdl);
         prompt = prompt.replace("{message}", StringUtils.defaultString(request.getMessage(), ""));
         
         return prompt;
@@ -754,26 +742,15 @@ public class BuildPromptAction implements Action<ChatState, ChatEvent> {
     // 辅助类
     @Data
     public static class FieldMappingExt {
-        private List<String> sourceFields;
-        private List<TableColumnInfo> targetColumns;
-    }
-    
-    @Data
-    public static class DataExpressionExt {
-        private List<ColumnInfo> columns;
-        
-        @Data
-        public static class ColumnInfo {
-            private String name;
-            private String type;
-            private String comment;
-            private Boolean nullable;
-            private Integer maxLength;
-            private Integer scale;
-        }
+        private List<String> sourceFields;  // 只需要源文件字段
     }
 }
 ```
+
+**关键说明**:
+- `FetchSchemaAction` 会在 `FETCHING_TABLE_SCHEMA` 状态时自动获取目标表 DDL 并存储到 `context.schemaDdl`
+- `BuildPromptAction` 直接使用 `context.getSchemaDdl()` 即可，不需要前端传列信息
+- 前端只需要传 `sourceFields`（导入映射场景）或直接传 `tableName`（生成表达式场景）
 
 #### 5.5.2 AiChat 组件扩展 - JSON 解析
 
@@ -942,73 +919,17 @@ useEffect(() => {
 
 文件路径: `chat2db-server/chat2db-server-web/chat2db-server-web-api/src/main/java/ai/chat2db/server/web/api/controller/ai/statemachine/ChatStateMachineConfig.java`
 
-```java
-@Configuration
-@Slf4j
-public class ChatStateMachineConfig {
-    
-    @Bean
-    public StateMachine<ChatState, ChatEvent> chatStateMachine(
-            FetchSchemaAction fetchSchemaAction,
-            BuildPromptAction buildPromptAction,
-            StreamAction streamAction,
-            SaveAiCommentAction saveAiCommentAction) {
-        
-        StateMachineBuilder.Builder<ChatState, ChatEvent> builder = StateMachineBuilder.builder();
-        
-        builder.configureStates()
-            .withStates()
-                .initial(ChatState.IDLE)
-                .state(ChatState.FETCHING_TABLE_SCHEMA, fetchSchemaAction)
-                .state(ChatState.BUILDING_PROMPT, buildPromptAction)
-                .state(ChatState.STREAMING, streamAction)
-                .state(ChatState.COMPLETED, saveAiCommentAction)
-                .end(ChatState.COMPLETED)
-                .end(ChatState.FAILED);
-        
-        builder.configureTransitions()
-            .withExternal()
-                .source(ChatState.IDLE)
-                .target(ChatState.FETCHING_TABLE_SCHEMA)
-                .event(ChatEvent.TABLES_PROVIDED)
-            .and()
-            .withExternal()
-                .source(ChatState.FETCHING_TABLE_SCHEMA)
-                .target(ChatState.BUILDING_PROMPT)
-                .event(ChatEvent.SCHEMA_FETCHED)
-            .and()
-            .withExternal()
-                .source(ChatState.BUILDING_PROMPT)
-                .target(ChatState.STREAMING)
-                .event(ChatEvent.PROMPT_BUILT)
-            .and()
-            .withExternal()
-                .source(ChatState.STREAMING)
-                .target(ChatState.COMPLETED)
-                .event(ChatEvent.STREAM_FINISHED)
-            .and()
-            .withExternal()
-                .source(ChatState.IDLE)
-                .target(ChatState.BUILDING_PROMPT)
-                .event(ChatEvent.TABLES_NOT_NEEDED);  // 新增：不需要表结构的场景
-        
-        return builder.build();
-    }
-}
+**说明**: 状态机不需要修改，因为新类型也走相同的流程：
 ```
+IDLE → FETCHING_TABLE_SCHEMA → BUILDING_PROMPT → STREAMING → COMPLETED
+```
+
+`FetchSchemaAction` 会根据 `tableNames` 自动获取目标表 DDL 并存储到 `context.schemaDdl`。
 
 **ChatController 中判断初始事件：**
 ```java
 private ChatEvent determineInitialEvent(ChatQueryRequest request) {
-    String promptType = request.getPromptType();
-    
-    // 新增：字段映射和数据表达式不需要获取表结构 DDL
-    if (PromptType.NL_2_FIELD_MAPPING.name().equals(promptType) ||
-        PromptType.NL_2_DATA_EXPRESSION.name().equals(promptType)) {
-        return ChatEvent.TABLES_NOT_NEEDED;
-    }
-    
-    // 原有逻辑
+    // 所有需要表结构的场景都使用 TABLES_PROVIDED
     if (CollectionUtils.isNotEmpty(request.getTableNames())) {
         return ChatEvent.TABLES_PROVIDED;
     } else {
@@ -1016,6 +937,11 @@ private ChatEvent determineInitialEvent(ChatQueryRequest request) {
     }
 }
 ```
+
+**关键说明**:
+- `NL_2_FIELD_MAPPING` 和 `NL_2_DATA_EXPRESSION` 都需要表结构
+- 直接复用现有的 `TABLES_PROVIDED` 事件即可
+- `FetchSchemaAction` 会自动处理 DDL 获取逻辑
 
 ## 六、i18n 国际化
 
@@ -1034,8 +960,8 @@ private ChatEvent determineInitialEvent(ChatQueryRequest request) {
 | 文件 | 修改内容 |
 |------|----------|
 | `src/pages/main/workspace/store/common.ts` | 新增 2 个 PromptType、2 个结果接口、扩展 IPendingAiChat |
-| `src/components/ImportDataModal/index.tsx` | 添加猜一猜按钮、handleAiGuessMapping、handleMappingGenerated |
-| `src/components/DataGenerationModal/index.tsx` | 添加猜一猜按钮、handleAiGuessExpression、handleExpressionGenerated |
+| `src/components/ImportDataModal/index.tsx` | 添加猜一猜按钮、handleAiGuessMapping、handleMappingGenerated<br/>**只需传 sourceFields** |
+| `src/components/DataGenerationModal/index.tsx` | 添加猜一猜按钮、handleAiGuessExpression、handleExpressionGenerated<br/>**只需传 tableName** |
 | `src/components/AiChat/index.tsx` | 添加 2 个 JSON 解析函数、2 个 callback ref、onDone 中处理新类型 |
 | `src/i18n/zh-cn/common.ts` | 添加国际化文案 |
 
@@ -1045,9 +971,13 @@ private ChatEvent determineInitialEvent(ChatQueryRequest request) {
 |------|----------|
 | `PromptType.java` | 新增 NL_2_FIELD_MAPPING、NL_2_DATA_EXPRESSION |
 | `prompt-templates.yml` | 新增 nl_2_field_mapping、nl_2_data_expression 模板 |
-| `BuildPromptAction.java` | 扩展 handleFieldMappingPrompt、handleDataExpressionPrompt 方法 |
-| `ChatStateMachineConfig.java` | 添加 TABLES_NOT_NEEDED 事件转换 |
-| `ChatController.java` | 修改 determineInitialEvent 方法，支持新类型 |
+| `BuildPromptAction.java` | 扩展 handleFieldMappingPrompt、handleDataExpressionPrompt 方法<br/>**使用 context.getSchemaDdl() 获取 DDL** |
+
+**关键优化**:
+- 前端**不需要**传 schema 或列信息
+- `FetchSchemaAction` 自动从数据库获取表 DDL 存入 `context.schemaDdl`
+- `BuildPromptAction` 直接使用 `context.getSchemaDdl()` 填充 `{schema}` 占位符
+- 完全复用现有状态机流程，无需修改状态机配置
 
 ## 八、测试要点
 
