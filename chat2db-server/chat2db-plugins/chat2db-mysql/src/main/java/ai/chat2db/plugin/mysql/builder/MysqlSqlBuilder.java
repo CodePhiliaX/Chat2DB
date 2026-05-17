@@ -30,10 +30,17 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     protected void appendColumns(StringBuilder script, List<TableColumn> columns) {
         for (TableColumn column : columns) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getColumnType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getDataType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(column.getColumnType());
+            MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(columnType);
+            if (typeEnum == null) {
+                continue;
+            }
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
     }

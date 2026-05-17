@@ -139,7 +139,11 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     @Override
     public String buildCreateColumnSql(TableColumn column) {
-        MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        String colType = column.getColumnType();
+        if (StringUtils.isBlank(colType)) {
+            colType = column.getDataType();
+        }
+        MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(colType.toUpperCase());
         if (type == null) {
             return "";
         }
@@ -319,7 +323,11 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
     }
 
     public String buildColumn(TableColumn column) {
-        MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(column.getColumnType().toUpperCase());
+        String colType = column.getColumnType();
+        if (StringUtils.isBlank(colType)) {
+            colType = column.getDataType();
+        }
+        MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(colType.toUpperCase());
         if (type == null) {
             return "";
         }
