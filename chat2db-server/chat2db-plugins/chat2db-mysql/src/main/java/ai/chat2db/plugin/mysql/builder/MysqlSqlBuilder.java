@@ -169,7 +169,7 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
                 .collect(Collectors.toList());
         List<String> targetColumns = newTable.getColumnList().stream()
                 .filter(column -> !EditStatus.ADD.name().equals(column.getEditStatus()))
-                .map(TableColumn::getName)
+                .map(column -> StringUtils.isNotBlank(column.getOldName()) ? column.getOldName() : column.getName())
                 .collect(Collectors.toList());
         // 初始化SQL构建器
         StringBuilder sql = new StringBuilder();
