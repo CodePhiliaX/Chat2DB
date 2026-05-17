@@ -19,10 +19,14 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
         // append column
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(column.getColumnType());
+            SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
         for (TableIndex tableIndex : table.getIndexList()) {
@@ -58,9 +62,13 @@ public class SqliteBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(columnType) && StringUtils.isNotBlank(tableColumn.getName())) {
                 script.append("ALTER TABLE ").append("\"").append(newTable.getDatabaseName()).append("\".\"").append(newTable.getName()).append("\"").append("\n");
-                SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(tableColumn.getColumnType());
+                SqliteColumnTypeEnum typeEnum = SqliteColumnTypeEnum.getByType(columnType);
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
             }
         }

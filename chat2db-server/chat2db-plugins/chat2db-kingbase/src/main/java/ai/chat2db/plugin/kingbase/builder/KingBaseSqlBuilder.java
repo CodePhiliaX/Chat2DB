@@ -22,10 +22,14 @@ public class KingBaseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder 
         script.append("\"").append(table.getName()).append("\"").append(" (").append(" ").append("\n");
         // append column
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(column.getColumnType());
+            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
         Map<Boolean, List<TableIndex>> tableIndexMap = table.getIndexList().stream()
@@ -69,7 +73,11 @@ public class KingBaseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder 
         }
         List<TableColumn> tableColumnList = table.getColumnList().stream().filter(v -> StringUtils.isNotBlank(v.getComment())).toList();
         for (TableColumn tableColumn : tableColumnList) {
-            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(columnType);
             script.append(typeEnum.buildComment(tableColumn, typeEnum)).append("\n");
             ;
         }
@@ -108,7 +116,11 @@ public class KingBaseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder 
         scriptModify.append("ALTER TABLE ").append("\"").append(newTable.getName()).append("\" \n");
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(columnType);
             scriptModify.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             modify = true;
 
@@ -144,7 +156,11 @@ public class KingBaseSqlBuilder extends DefaultSqlBuilder implements SqlBuilder 
                     .append(newTable.getComment()).append("';\n");
         }
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            KingBaseColumnTypeEnum typeEnum = KingBaseColumnTypeEnum.getByType(columnType);
             script.append(typeEnum.buildComment(tableColumn, typeEnum)).append("\n");
             ;
         }

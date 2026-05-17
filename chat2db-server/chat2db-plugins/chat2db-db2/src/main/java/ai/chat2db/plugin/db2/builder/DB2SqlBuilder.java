@@ -18,10 +18,10 @@ public class DB2SqlBuilder extends DefaultSqlBuilder {
         script.append("CREATE TABLE ").append("\"").append(table.getSchemaName()).append("\".\"").append(table.getName()).append("\" (").append("\n");
 
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getDataType())) {
                 continue;
             }
-            DB2ColumnTypeEnum typeEnum = DB2ColumnTypeEnum.getByType(column.getColumnType());
+            DB2ColumnTypeEnum typeEnum = DB2ColumnTypeEnum.getByType(column.getDataType());
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 

@@ -54,10 +54,14 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
     @Override
     protected void appendColumns(StringBuilder script, List<TableColumn> columns) {
         for (TableColumn column : columns) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            PhoenixColumnTypeEnum typeEnum = PhoenixColumnTypeEnum.getByType(column.getColumnType());
+            PhoenixColumnTypeEnum typeEnum = PhoenixColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",");
             if(StringUtils.isNotBlank(column.getAiComment())){
                 script.append(" -- ").append(column.getAiComment());
@@ -103,8 +107,12 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
     // 修改列的方法
     protected void modifyColumns(StringBuilder script, Table oldTable, Table newTable) {
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(tableColumn.getColumnType()) && StringUtils.isNotBlank(tableColumn.getName())) {
-                PhoenixColumnTypeEnum typeEnum = PhoenixColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            if (StringUtils.isNotBlank(tableColumn.getEditStatus()) && StringUtils.isNotBlank(columnType) && StringUtils.isNotBlank(tableColumn.getName())) {
+                PhoenixColumnTypeEnum typeEnum = PhoenixColumnTypeEnum.getByType(columnType);
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             }
         }

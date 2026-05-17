@@ -30,9 +30,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     @Override
     protected void appendColumns(StringBuilder script, List<TableColumn> columns) {
         for (TableColumn column : columns) {
-            String columnType = column.getColumnType();
+            String columnType = column.getDataType();
             if (StringUtils.isBlank(columnType)) {
-                columnType = column.getDataType();
+                columnType = column.getColumnType();
             }
             if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
@@ -84,10 +84,14 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
     // 修改列的方法
     protected void modifyColumns(StringBuilder script, Table oldTable, Table newTable) {
         for (TableColumn tableColumn : newTable.getColumnList()) {
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())
-                    && StringUtils.isNotBlank(tableColumn.getColumnType())
+                    && StringUtils.isNotBlank(columnType)
                     && StringUtils.isNotBlank(tableColumn.getName())) {
-                MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(tableColumn.getColumnType());
+                MysqlColumnTypeEnum typeEnum = MysqlColumnTypeEnum.getByType(columnType);
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             }
         }
@@ -224,7 +228,11 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
     // 辅助方法：构建列定义
     private String buildColumnDefinition(TableColumn column) {
-        MysqlColumnTypeEnum type = MysqlColumnTypeEnum.getByType(column.getColumnType());
+        String columnType = column.getDataType();
+        if (StringUtils.isBlank(columnType)) {
+            columnType = column.getColumnType();
+        }
+        MysqlColumnTypeEnum type = MysqlColumnTypeEnum.getByType(columnType);
         return type.buildColumn(column);
     }
 

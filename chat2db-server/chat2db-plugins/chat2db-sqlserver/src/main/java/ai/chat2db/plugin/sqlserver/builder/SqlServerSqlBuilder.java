@@ -19,10 +19,14 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         script.append("CREATE TABLE ").append("[").append(table.getSchemaName()).append("].[").append(table.getName()).append("] (").append("\n");
 
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(column.getColumnType());
+            SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 
@@ -41,7 +45,11 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
         }
 
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType()) || StringUtils.isBlank(column.getComment())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType) || StringUtils.isBlank(column.getComment())) {
                 continue;
             }
             script.append("\n").append(buildColumnComment(column));
@@ -93,8 +101,12 @@ public class SqlServerSqlBuilder extends DefaultSqlBuilder implements SqlBuilder
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
-                SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(tableColumn.getColumnType());
+                SqlServerColumnTypeEnum typeEnum = SqlServerColumnTypeEnum.getByType(columnType);
                 script.append(typeEnum.buildModifyColumn(tableColumn)).append("\n");
             }
         }

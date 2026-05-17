@@ -21,10 +21,14 @@ public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         script.append("CREATE TABLE ").append("\"").append(table.getSchemaName()).append("\".\"").append(table.getName()).append("\" (").append("\n");
 
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(column.getColumnType());
+            OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
 
@@ -40,7 +44,11 @@ public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         }
 
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType()) || StringUtils.isBlank(column.getComment())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType) || StringUtils.isBlank(column.getComment())) {
                 continue;
             }
             script.append("\n").append(buildComment(column)).append(";");
@@ -81,8 +89,12 @@ public class OracleSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
             if (StringUtils.isNotBlank(tableColumn.getEditStatus())) {
-                OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(tableColumn.getColumnType());
+                OracleColumnTypeEnum typeEnum = OracleColumnTypeEnum.getByType(columnType);
                 script.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(";\n");
                 if (StringUtils.isNotBlank(tableColumn.getComment())) {
                     script.append("\n").append(buildComment(tableColumn)).append(";\n");

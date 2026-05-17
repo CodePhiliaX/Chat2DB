@@ -23,10 +23,14 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         script.append("\"").append(table.getName()).append("\"").append(" (").append(" ").append("\n");
         // append column
         for (TableColumn column : table.getColumnList()) {
-            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(column.getColumnType())) {
+            String columnType = column.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = column.getColumnType();
+            }
+            if (StringUtils.isBlank(column.getName()) || StringUtils.isBlank(columnType)) {
                 continue;
             }
-            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(column.getColumnType());
+            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(columnType);
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
         }
         Map<Boolean, List<TableIndex>> tableIndexMap = table.getIndexList().stream()
@@ -66,7 +70,11 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         }
         List<TableColumn> tableColumnList = table.getColumnList().stream().filter(v -> StringUtils.isNotBlank(v.getComment())).toList();
         for (TableColumn tableColumn : tableColumnList) {
-            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(columnType);
             script.append(typeEnum.buildComment(tableColumn, typeEnum)).append("\n");
             ;
         }
@@ -106,7 +114,11 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         scriptModify.append("ALTER TABLE ").append("\"").append(newTable.getName()).append("\" \n");
         // append modify column
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(columnType);
             scriptModify.append("\t").append(typeEnum.buildModifyColumn(tableColumn)).append(",\n");
             modify = true;
 
@@ -142,7 +154,11 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
                     .append(newTable.getComment()).append("';\n");
         }
         for (TableColumn tableColumn : newTable.getColumnList()) {
-            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(tableColumn.getColumnType());
+            String columnType = tableColumn.getDataType();
+            if (StringUtils.isBlank(columnType)) {
+                columnType = tableColumn.getColumnType();
+            }
+            PostgreSQLColumnTypeEnum typeEnum = PostgreSQLColumnTypeEnum.getByType(columnType);
             script.append(typeEnum.buildComment(tableColumn, typeEnum)).append("\n");
             ;
         }

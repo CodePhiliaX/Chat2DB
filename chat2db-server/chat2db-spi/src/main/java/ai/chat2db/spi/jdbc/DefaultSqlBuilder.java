@@ -144,7 +144,7 @@ public class DefaultSqlBuilder implements SqlBuilder {
     protected void appendColumns(StringBuilder script, List<TableColumn> columnList) {
         for (TableColumn column : columnList) {
             script.append("    `").append(column.getName()).append("` ")
-                    .append(column.getColumnType());
+                    .append(column.getDataType());
 
             // 添加列的大小（如果适用）
             if (column.getColumnSize() != null && column.getColumnSize() > 0) {
