@@ -7,6 +7,7 @@ import SearchResult, { ISearchResultRef } from '@/components/SearchResult';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { IBoundInfo } from '@/typings';
 import { registerConsoleEditor, unregisterConsoleEditor } from './consoleEditorRegistry';
+import { registerSearchResult, unregisterSearchResult } from './searchResultRegistry';
 
 interface IProps {
   boundInfo: IBoundInfo;
@@ -29,10 +30,12 @@ const SQLExecute = memo<IProps>((props) => {
   useEffect(() => {
     const consoleId = boundInfo.consoleId;
     registerConsoleEditor(consoleId, consoleRef);
+    registerSearchResult(consoleId, searchResultRef);
 
     return () => {
       // 组件卸载时移除
       unregisterConsoleEditor(consoleId);
+      unregisterSearchResult(consoleId);
     };
   }, [boundInfo.consoleId]);
 

@@ -56,7 +56,7 @@ export interface IPendingAiChat {
   onBatchCommentGenerated?: (result: IBatchTableCommentResult) => void;
   onMappingGenerated?: (result: IFieldMappingResult) => void;
   onExpressionGenerated?: (result: IDataExpressionResult) => void;
-  onSqlFixed?: (result: ISqlFixResult) => void;
+  onSqlFixed?: (sql: string) => void;
   ext?: string;
 }
 

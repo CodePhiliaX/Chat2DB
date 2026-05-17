@@ -86,6 +86,9 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         originalSql,
         errorMessage,
       }),
+      onSqlFixed: (sql) => {
+        console.log('[SearchResult] SQL fixed:', sql);
+      },
     });
     setCurrentWorkspaceExtend('ai');
   }, []);
