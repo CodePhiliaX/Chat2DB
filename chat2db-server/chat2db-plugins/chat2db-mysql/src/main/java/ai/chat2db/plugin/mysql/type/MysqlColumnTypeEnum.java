@@ -139,9 +139,9 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
     @Override
     public String buildCreateColumnSql(TableColumn column) {
-        String colType = column.getColumnType();
+        String colType = column.getDataType();
         if (StringUtils.isBlank(colType)) {
-            colType = column.getDataType();
+            colType = column.getColumnType();
         }
         MysqlColumnTypeEnum type = COLUMN_TYPE_MAP.get(colType.toUpperCase());
         if (type == null) {
