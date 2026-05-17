@@ -53,15 +53,20 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
  * 使用dagre算法计算层级布局
  */
 const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = 'TB') => {
-  dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 80 });
-
+  // 1. 先分堆
   const connectedNodeIds = new Set<string>();
   edges.forEach((e) => {
     connectedNodeIds.add(e.source);
     connectedNodeIds.add(e.target);
   });
 
-  nodes.forEach((node) => {
+  const connectedNodes = nodes.filter((n) => connectedNodeIds.has(n.id));
+  const isolatedNodes = nodes.filter((n) => !connectedNodeIds.has(n.id));
+
+  // 2. 【关键】只把“有关系的表”交给 Dagre 去算
+  dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 80 });
+
+  connectedNodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: 160, height: 60 });
   });
 
@@ -69,43 +74,31 @@ const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = '
     dagreGraph.setEdge(edge.source, edge.target);
   });
 
-  dagre.layout(dagreGraph);
+  dagre.layout(dagreGraph); // 此时 Dagre 眼里只有业务表，字典表不存在
 
-  const connectedNodes = nodes.filter((n) => connectedNodeIds.has(n.id));
-  const isolatedNodes = nodes.filter((n) => !connectedNodeIds.has(n.id));
+  // 3. 收集业务表的位置
+  const layoutedNodes = connectedNodes.map((node) => {
+    const pos = dagreGraph.node(node.id);
+    return { ...node, position: { x: pos.x - 80, y: pos.y - 30 } };
+  });
 
-  if (isolatedNodes.length > 0 && connectedNodes.length > 0) {
-    const connectedBounds = connectedNodes.reduce(
-      (acc, n) => {
-        const pos = dagreGraph.node(n.id);
-        return {
-          minX: Math.min(acc.minX, pos.x),
-          maxX: Math.max(acc.maxX, pos.x),
-          minY: Math.min(acc.minY, pos.y),
-          maxY: Math.max(acc.maxY, pos.y),
-        };
-      },
-      { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity },
-    );
-
-    const isolatedStartX = connectedBounds.maxX + 150;
-    const isolatedStartY = connectedBounds.minY;
+  // 4. 【关键】手动放置孤立节点（放在最右边，远离业务流）
+  if (isolatedNodes.length > 0) {
+    const lastX = layoutedNodes.reduce((max, n) => Math.max(max, n.position.x), 0);
+    const startX = lastX + 300; // 留出足够空隙
 
     isolatedNodes.forEach((node, i) => {
-      const col = Math.floor(i / 3);
-      const row = i % 3;
-      dagreGraph.node(node.id).x = isolatedStartX + col * 180;
-      dagreGraph.node(node.id).y = isolatedStartY + row * 80;
+      layoutedNodes.push({
+        ...node,
+        position: {
+          x: startX,
+          y: i * 100, // 纵向排列
+        },
+      });
     });
   }
 
-  return nodes.map((node) => {
-    const pos = dagreGraph.node(node.id);
-    return {
-      ...node,
-      position: { x: pos.x - 80, y: pos.y - 30 },
-    };
-  });
+  return layoutedNodes;
 };
 
 /**
@@ -113,10 +106,11 @@ const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = '
  */
 const getForceLayout = (nodes: Node[], edges: Edge[]) => {
   const nodeMap = new Map<string, { x: number; y: number; vx: number; vy: number }>();
-  const iterations = 100;
-  const repulsion = 800;
-  const attraction = 0.005;
-  const damping = 0.9;
+  const iterations = 300;
+  const repulsion = 5000;
+  const attraction = 0.001;
+  const damping = 0.85;
+  const idealEdgeLength = 150;
 
   const connectedNodeIds = new Set<string>();
   edges.forEach((e) => {
@@ -156,10 +150,12 @@ const getForceLayout = (nodes: Node[], edges: Edge[]) => {
       if (!p1 || !p2) return;
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
-      p1.vx += dx * attraction;
-      p1.vy += dy * attraction;
-      p2.vx -= dx * attraction;
-      p2.vy -= dy * attraction;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const displacement = (dist - idealEdgeLength) * attraction;
+      p1.vx += (dx / dist) * displacement;
+      p1.vy += (dy / dist) * displacement;
+      p2.vx -= (dx / dist) * displacement;
+      p2.vy -= (dy / dist) * displacement;
     });
 
     const isIsolated = (nodeId: string) => !connectedNodeIds.has(nodeId);
@@ -254,9 +250,7 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
       : erDiagramData.nodes;
 
     let filteredEdges = erDiagramData.edges.filter(
-      (e) =>
-        filteredNodes.some((n) => n.id === e.source) &&
-        filteredNodes.some((n) => n.id === e.target),
+      (e) => filteredNodes.some((n) => n.id === e.source) && filteredNodes.some((n) => n.id === e.target),
     );
 
     if (showOnlyRelatedTables) {
@@ -269,9 +263,7 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
     }
 
     const filteredNodeIds = new Set(filteredNodes.map((n) => n.id));
-    filteredEdges = filteredEdges.filter(
-      (e) => filteredNodeIds.has(e.source) && filteredNodeIds.has(e.target),
-    );
+    filteredEdges = filteredEdges.filter((e) => filteredNodeIds.has(e.source) && filteredNodeIds.has(e.target));
 
     const selectedRelatedNodeIds = new Set<string>();
     if (selectedTableId) {
