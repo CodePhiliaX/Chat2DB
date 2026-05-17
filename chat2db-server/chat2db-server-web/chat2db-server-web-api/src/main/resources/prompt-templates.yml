@@ -224,7 +224,7 @@ prompts:
       **可用的 datafaker 表达式示例**:
       - 姓名: #{Name.first_name}, #{Name.last_name}, #{Name.full_name}
       - 邮箱: #{Internet.email_address}, #{Internet.url}
-      - 电话: #{Phone.cell_phone}, #{Phone.phone_number}
+      - 电话: #{PhoneNumber.cell_phone}, #{PhoneNumber.phone_number}
       - 地址: #{Address.full_address}, #{Address.city}, #{Address.country}
       - 日期: #{Date.past '30','DAYS'}, #{Date.future}, #{Date.birthday}
       - 数值: #{Number.number_between '1','1000'}, #{Number.random_double '2','0','9999'}

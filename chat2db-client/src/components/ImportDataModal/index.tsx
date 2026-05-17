@@ -44,6 +44,7 @@ const ImportDataModal = () => {
   const [previewLoading, setPreviewLoading] = useState<boolean>(false);
   const [previewData, setPreviewData] = useState<IPreviewHeadersResult | null>(null);
   const [fieldMappings, setFieldMappings] = useState<IFieldMapping[]>([]);
+  const [guessLoading, setGuessLoading] = useState<boolean>(false);
 
   // 导入模式
   const [importMode, setImportMode] = useState<string>('INSERT');
@@ -85,6 +86,7 @@ const ImportDataModal = () => {
       return;
     }
 
+    setGuessLoading(true);
     setPendingAiChat({
       dataSourceId: params.dataSourceId,
       databaseName: params.databaseName,
@@ -98,6 +100,8 @@ const ImportDataModal = () => {
       onMappingGenerated: handleMappingGenerated,
     });
     setCurrentWorkspaceExtend('ai');
+    setGuessLoading(false);
+    message.success('已切换到 AI 助手，请在 AI 聊天面板中查看推荐结果');
   }, [params, previewData]);
 
   const handleMappingGenerated = useCallback((result: IFieldMappingResult) => {
@@ -446,15 +450,17 @@ const ImportDataModal = () => {
               <div style={{ color: 'var(--color-text)' }}>
                 {i18n('workspace.table.import.fieldMapping.description')}
               </div>
-              <Button
-                type="primary"
-                icon={<BulbFilled />}
-                onClick={handleAiGuessMapping}
-                disabled={!previewData || previewLoading}
-                size="small"
-              >
-                猜一猜
-              </Button>
+              <Spin spinning={guessLoading}>
+                <Button
+                  type="primary"
+                  icon={<BulbFilled />}
+                  onClick={handleAiGuessMapping}
+                  disabled={!previewData || previewLoading}
+                  size="small"
+                >
+                  猜一猜
+                </Button>
+              </Spin>
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8, color: 'var(--color-text)' }}>

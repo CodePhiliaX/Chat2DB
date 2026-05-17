@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Modal, Form, Button, Table, Select, Input, InputNumber, message, Progress } from 'antd';
-import { BulbFilled } from '@ant-design/icons';
+import { Modal, Form, Button, Table, Select, Input, InputNumber, message, Progress, Spin } from 'antd';
+import { BulbFilled, ReloadOutlined } from '@ant-design/icons';
 import { setOpenDataGenerationModal } from '@/pages/main/workspace/store/modal';
 import { setPendingAiChat, setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
 import { IDataExpressionResult } from '@/pages/main/workspace/store/common';
@@ -123,6 +123,7 @@ const DataGenerationModal: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [rowCount, setRowCount] = useState(100);
+  const [guessLoading, setGuessLoading] = useState(false);
   const tableInfoRef = useRef<IDataGenerationModalParams | null>(null);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -137,6 +138,7 @@ const DataGenerationModal: React.FC = () => {
       return;
     }
 
+    setGuessLoading(true);
     setPendingAiChat({
       dataSourceId: tableInfo.dataSourceId,
       databaseName: tableInfo.databaseName,
@@ -147,6 +149,8 @@ const DataGenerationModal: React.FC = () => {
       onExpressionGenerated: handleExpressionGenerated,
     });
     setCurrentWorkspaceExtend('ai');
+    setGuessLoading(false);
+    message.success('已切换到 AI 助手，请在 AI 聊天面板中查看推荐结果');
   }, [tableInfo, columns]);
 
   const handleExpressionGenerated = useCallback((result: IDataExpressionResult) => {
@@ -471,15 +475,27 @@ const DataGenerationModal: React.FC = () => {
           alignItems: 'center'
         }}>
           <h4 style={{ margin: 0 }}>列配置</h4>
-          <Button
-            type="primary"
-            icon={<BulbFilled />}
-            onClick={handleAiGuessExpression}
-            disabled={columns.length === 0 || loading}
-            size="small"
-          >
-            猜一猜
-          </Button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={fetchTableColumns}
+              disabled={loading}
+              size="small"
+            >
+              刷新
+            </Button>
+            <Spin spinning={guessLoading}>
+              <Button
+                type="primary"
+                icon={<BulbFilled />}
+                onClick={handleAiGuessExpression}
+                disabled={columns.length === 0 || loading}
+                size="small"
+              >
+                猜一猜
+              </Button>
+            </Spin>
+          </div>
         </div>
 
         <Table
