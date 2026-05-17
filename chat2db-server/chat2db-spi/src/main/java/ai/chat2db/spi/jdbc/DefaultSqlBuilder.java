@@ -51,6 +51,9 @@ public class DefaultSqlBuilder implements SqlBuilder {
         // 添加索引
         appendIndexes(script, table.getIndexList());
 
+        // 添加外键约束
+        appendForeignKeys(script, table.getForeignKeyList());
+
         // 移除最后的逗号
         if (script.length() > 2) {
             script.setLength(script.length() - 2);
@@ -126,6 +129,15 @@ public class DefaultSqlBuilder implements SqlBuilder {
             }
 
             script.append(",\n");
+        }
+    }
+
+    protected void appendForeignKeys(StringBuilder script, List<ForeignKey> foreignKeyList) {
+        if (CollectionUtils.isEmpty(foreignKeyList)) {
+            return;
+        }
+        for (ForeignKey fk : foreignKeyList) {
+            script.append("    ").append(buildForeignKeyClause(fk)).append(",\n");
         }
     }
 
@@ -243,25 +255,7 @@ public class DefaultSqlBuilder implements SqlBuilder {
 
         for (ForeignKey newFK : newFKs) {
             if (!oldFKMap.containsKey(buildFKKey(newFK))) {
-                script.append("\t").append("ADD CONSTRAINT `").append(newFK.getName()).append("` FOREIGN KEY (")
-                        .append("`").append(newFK.getColumn()).append("`) REFERENCES `")
-                        .append(newFK.getReferencedTable()).append("` (`")
-                        .append(newFK.getReferencedColumn()).append("`)");
-                if (newFK.getDeleteRule() == 0) {
-                    script.append(" ON DELETE CASCADE");
-                } else if (newFK.getDeleteRule() == 1) {
-                    script.append(" ON DELETE RESTRICT");
-                } else if (newFK.getDeleteRule() == 2) {
-                    script.append(" ON DELETE SET NULL");
-                }
-                if (newFK.getUpdateRule() == 0) {
-                    script.append(" ON UPDATE CASCADE");
-                } else if (newFK.getUpdateRule() == 1) {
-                    script.append(" ON UPDATE RESTRICT");
-                } else if (newFK.getUpdateRule() == 2) {
-                    script.append(" ON UPDATE SET NULL");
-                }
-                script.append(",\n");
+                script.append("\t").append("ADD ").append(buildForeignKeyClause(newFK)).append(",\n");
             }
         }
 
@@ -279,28 +273,38 @@ public class DefaultSqlBuilder implements SqlBuilder {
                 + StringUtils.defaultString(fk.getReferencedColumn());
     }
 
+    protected String buildForeignKeyClause(ForeignKey fk) {
+        StringBuilder script = new StringBuilder();
+        script.append("CONSTRAINT `").append(fk.getName()).append("` FOREIGN KEY (`")
+                .append(fk.getColumn()).append("`) REFERENCES `")
+                .append(fk.getReferencedTable()).append("` (`")
+                .append(fk.getReferencedColumn()).append("`)");
+
+        if (fk.getDeleteRule() == 0) {
+            script.append(" ON DELETE CASCADE");
+        } else if (fk.getDeleteRule() == 1) {
+            script.append(" ON DELETE RESTRICT");
+        } else if (fk.getDeleteRule() == 2) {
+            script.append(" ON DELETE SET NULL");
+        }
+        if (fk.getUpdateRule() == 0) {
+            script.append(" ON UPDATE CASCADE");
+        } else if (fk.getUpdateRule() == 1) {
+            script.append(" ON UPDATE RESTRICT");
+        } else if (fk.getUpdateRule() == 2) {
+            script.append(" ON UPDATE SET NULL");
+        }
+        return script.toString();
+    }
+
     public String buildAddForeignKeySql(ForeignKey fk) {
         StringBuilder script = new StringBuilder();
         script.append("ALTER TABLE ");
         if (StringUtils.isNotBlank(fk.getDatabaseName())) {
             script.append("`").append(fk.getDatabaseName()).append("`.`");
         }
-        script.append("`").append(fk.getTableName()).append("` ADD CONSTRAINT `")
-                .append(fk.getName() != null ? fk.getName() : "FK_" + fk.getName() + "_" + fk.getColumn())
-                .append("` FOREIGN KEY (`").append(fk.getColumn())
-                .append("`) REFERENCES `").append(fk.getReferencedTable())
-                .append("` (`").append(fk.getReferencedColumn()).append("`)");
-        if (fk.getDeleteRule() == 0) {
-            script.append(" ON DELETE CASCADE");
-        } else if (fk.getDeleteRule() == 2) {
-            script.append(" ON DELETE SET NULL");
-        }
-        if (fk.getUpdateRule() == 0) {
-            script.append(" ON UPDATE CASCADE");
-        } else if (fk.getUpdateRule() == 2) {
-            script.append(" ON UPDATE SET NULL");
-        }
-        script.append(";");
+        script.append("`").append(fk.getTableName()).append("` ADD ")
+                .append(buildForeignKeyClause(fk)).append(";");
         return script.toString();
     }
 

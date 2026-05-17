@@ -199,11 +199,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             TableSelector tableSelector = new TableSelector();
             tableSelector.setColumnList(true);
-            tableSelector.setIndexList(false);
+            tableSelector.setIndexList(true);
+            tableSelector.setForeignKey(true);
 
             PageResult<Table> tables = tableService.pageQuery(param, tableSelector);
+            SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
             if (!CollectionUtils.isEmpty(tables.getData())) {
-                SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
                 return sqlBuilder.buildCreateTableSql(tables.getData().get(0));
             }
         } catch (Exception e) {
