@@ -70,8 +70,7 @@ public class RdbDmlController {
     public ListResult<ExecuteResultVO> manage(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
         ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
-        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
-        
+
         // Add Virtual FK suggestions using cached JSqlParser AST
         if (!resultDTOListResult.getData().isEmpty()) {
             ExecuteResult firstResult = resultDTOListResult.getData().get(0);
@@ -92,7 +91,7 @@ public class RdbDmlController {
                 }
             }
         }
-        
+        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
         return ListResult.of(resultVOS);
     }
 
