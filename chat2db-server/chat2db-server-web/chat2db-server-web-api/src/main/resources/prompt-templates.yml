@@ -227,7 +227,7 @@ prompts:
       - 电话: #{Phone.cell_phone}, #{Phone.phone_number}
       - 地址: #{Address.full_address}, #{Address.city}, #{Address.country}
       - 日期: #{Date.past '30','DAYS'}, #{Date.future}, #{Date.birthday}
-      - 数值: #{Number.number_between '1','1000'}, #{number.random_double}
+      - 数值: #{Number.number_between '1','1000'}, #{Number.random_double '2','0','9999'}
       - 文本: #{Lorem.sentence}, #{Lorem.word}, #{Lorem.paragraph}
       - 公司: #{Company.name}, #{Company.industry}, #{Company.catch_phrase}
       - ID: #{Code.isbn}, #{Code.asin}, #{Number.uuid}
@@ -258,3 +258,40 @@ prompts:
       2. expression 必须是有效的 datafaker 表达式，以 # 开头
       3. reason 简要说明为什么推荐这个表达式
       4. 确保所有 column_name 都在表字段信息中存在
+
+  # SQL错误修复
+  sql_fix:
+    name: "sql_fix"
+    description: "SQL错误修复"
+    template: |
+      ### 任务：分析并修复SQL执行错误
+      
+      **数据库类型**: {db_type}
+      
+      **错误信息**:
+      {error_message}
+      
+      **原始SQL**:
+      {original_sql}
+      
+      **要求**:
+      1. 分析错误原因
+      2. 提供修复后的SQL
+      3. 解释修复的内容
+      4. 如果无法修复，请说明原因并提供建议
+      
+      **输出格式（严格 JSON，不要包含其他文字）**:
+      ```json
+      {
+        "error_analysis": "错误原因分析",
+        "fixed_sql": "修复后的SQL语句",
+        "explanation": "修复说明",
+        "can_fix": true
+      }
+      ```
+      
+      **注意事项**:
+      1. 只输出 JSON 内容，不要包含其他解释文字
+      2. fixed_sql 必须是完整可执行的SQL
+      3. can_fix 表示是否可以修复（true/false）
+      4. 如果无法修复，can_fix 设为 false，fixed_sql 留空

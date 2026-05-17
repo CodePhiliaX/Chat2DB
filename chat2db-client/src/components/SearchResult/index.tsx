@@ -23,7 +23,9 @@ import EmptyImg from '@/assets/img/empty.svg';
 import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams, ICreateVirtualFKParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
-import { Spin, Modal, message } from 'antd';
+import { Spin, Modal, message, Button } from 'antd';
+import { setPendingAiChat } from '@/pages/main/workspace/store/common';
+import { setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
 
 interface IProps {
   className?: string;
@@ -60,6 +62,33 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   const controllerRef = useRef<AbortController>();
   const [activeTabId, setActiveTabId] = useState<string>('');
   const [notChangedSql, setNotChangedSql] = useState<string>('');
+  const executeSqlParamsRef = useRef(executeSqlParams);
+
+  useEffect(() => {
+    executeSqlParamsRef.current = executeSqlParams;
+  }, [executeSqlParams]);
+
+  const handleAiFix = useCallback((originalSql: string, errorMessage: string) => {
+    const params = executeSqlParamsRef.current;
+    if (!params) {
+      message.warning(i18n('common.message.noConnection'));
+      return;
+    }
+
+    setPendingAiChat({
+      dataSourceId: params.dataSourceId,
+      databaseName: params.databaseName,
+      schemaName: params.schemaName,
+      tableNames: params.tableName ? [params.tableName] : null,
+      message: `请修复以下SQL错误：\n\n错误信息：${errorMessage}\n\n原始SQL：\n${originalSql}`,
+      promptType: 'SQL_FIX',
+      ext: JSON.stringify({
+        originalSql,
+        errorMessage,
+      }),
+    });
+    setCurrentWorkspaceExtend('ai');
+  }, []);
 
   useEffect(() => {
     if (sql) {
@@ -194,12 +223,24 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         {queryResultData.success ? (
           renderSuccessResult()
         ) : (
-          <StateIndicator
-            className={styles.stateIndicator}
-            key={queryResultData.uuid}
-            state="error"
-            text={queryResultData.message}
-          />
+          <div className={styles.errorContainer}>
+            <div className={styles.errorContent}>
+              <StateIndicator
+                className={styles.stateIndicator}
+                key={queryResultData.uuid}
+                state="error"
+                text={queryResultData.message}
+              />
+              <Button
+                type="primary"
+                className={styles.aiFixButton}
+                onClick={() => handleAiFix(queryResultData.originalSql || queryResultData.sql, queryResultData.message)}
+              >
+                <Iconfont code="&#xe6ae;" />
+                {i18n('common.button.aiFix')}
+              </Button>
+            </div>
+          </div>
         )}
       </Fragment>
     );

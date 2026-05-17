@@ -28,6 +28,7 @@ export default {
   "common.button.import": 'Import SQL',
   'common.button.format': 'Format',
   'common.button.guess': 'Guess',
+  'common.button.aiFix': 'AI Fix',
   'common.message.successfulConfig': 'Successful configuration',
   'common.text.successful': 'successful',
   'common.text.failure': 'failure',

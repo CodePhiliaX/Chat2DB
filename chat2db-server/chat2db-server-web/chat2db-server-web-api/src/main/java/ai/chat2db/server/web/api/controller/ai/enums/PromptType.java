@@ -65,6 +65,11 @@ public enum PromptType implements BaseEnum<String> {
      * 智能数据生成表达式推荐
      */
     NL_2_DATA_EXPRESSION("智能数据生成表达式推荐"),
+
+    /**
+     * SQL错误修复
+     */
+    SQL_FIX("SQL错误修复"),
     ;
 
     final String description;

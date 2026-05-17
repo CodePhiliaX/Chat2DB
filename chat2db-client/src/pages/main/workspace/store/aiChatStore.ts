@@ -34,6 +34,7 @@ interface ILastRequest {
   databaseName?: string;
   schemaName?: string | null;
   tableNames?: string[] | null;
+  ext?: string;
 }
 
 interface IAiChatStore {

@@ -108,3 +108,30 @@
     }
   }
 }
+
+.errorContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: auto;
+
+  .errorContent {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .stateIndicator {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .aiFixButton {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+}

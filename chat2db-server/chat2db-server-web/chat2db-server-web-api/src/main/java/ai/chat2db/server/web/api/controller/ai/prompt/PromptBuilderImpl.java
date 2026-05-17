@@ -113,7 +113,8 @@ public class PromptBuilderImpl implements PromptBuilder {
                 && !Objects.equals(context.getPromptType(), PromptType.NL_2_COMMENT)
                 && !Objects.equals(context.getPromptType(), PromptType.NL_2_COMMENT_BATCH)
                 && !Objects.equals(context.getPromptType(), PromptType.NL_2_FIELD_MAPPING)
-                && !Objects.equals(context.getPromptType(), PromptType.NL_2_DATA_EXPRESSION)) {
+                && !Objects.equals(context.getPromptType(), PromptType.NL_2_DATA_EXPRESSION)
+                && !Objects.equals(context.getPromptType(), PromptType.SQL_FIX)) {
             throw new IllegalArgumentException("Message is required");
         }
     }
@@ -137,6 +138,23 @@ public class PromptBuilderImpl implements PromptBuilder {
         if (filledTemplate.contains("{source_fields}")) {
             String sourceFieldsText = formatSourceFields(context.getSourceFields());
             filledTemplate = filledTemplate.replace("{source_fields}", sourceFieldsText);
+        }
+
+        // 处理 SQL_FIX 的占位符
+        if (filledTemplate.contains("{error_message}") || filledTemplate.contains("{original_sql}")) {
+            String errorMessage = "";
+            String originalSql = "";
+            if (StringUtils.isNotBlank(context.getExt())) {
+                try {
+                    com.alibaba.fastjson2.JSONObject extJson = com.alibaba.fastjson2.JSON.parseObject(context.getExt());
+                    errorMessage = extJson.getString("errorMessage");
+                    originalSql = extJson.getString("originalSql");
+                } catch (Exception e) {
+                    // 忽略解析错误
+                }
+            }
+            filledTemplate = filledTemplate.replace("{error_message}", Objects.toString(errorMessage, ""));
+            filledTemplate = filledTemplate.replace("{original_sql}", Objects.toString(originalSql, ""));
         }
 
         return filledTemplate;

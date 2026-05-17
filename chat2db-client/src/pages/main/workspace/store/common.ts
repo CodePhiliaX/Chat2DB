@@ -1,7 +1,7 @@
 import { IConnectionListItem } from '@/typings/connection';
 import { useWorkspaceStore } from './index';
 
-export type IAiChatPromptType = 'NL_2_SQL' | 'SQL_EXPLAIN' | 'SQL_OPTIMIZER' | 'SQL_2_SQL' | 'NL_2_COMMENT' | 'NL_2_COMMENT_BATCH' | 'NL_2_FIELD_MAPPING' | 'NL_2_DATA_EXPRESSION';
+export type IAiChatPromptType = 'NL_2_SQL' | 'SQL_EXPLAIN' | 'SQL_OPTIMIZER' | 'SQL_2_SQL' | 'NL_2_COMMENT' | 'NL_2_COMMENT_BATCH' | 'NL_2_FIELD_MAPPING' | 'NL_2_DATA_EXPRESSION' | 'SQL_FIX';
 
 export interface IColumnComment {
   column_name: string;
@@ -38,6 +38,13 @@ export interface IDataExpressionResult {
   }[];
 }
 
+export interface ISqlFixResult {
+  error_analysis: string;
+  fixed_sql: string;
+  explanation: string;
+  can_fix: boolean;
+}
+
 export interface IPendingAiChat {
   dataSourceId: number;
   databaseName?: string;
@@ -49,6 +56,7 @@ export interface IPendingAiChat {
   onBatchCommentGenerated?: (result: IBatchTableCommentResult) => void;
   onMappingGenerated?: (result: IFieldMappingResult) => void;
   onExpressionGenerated?: (result: IDataExpressionResult) => void;
+  onSqlFixed?: (result: ISqlFixResult) => void;
   ext?: string;
 }
 

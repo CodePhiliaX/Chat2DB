@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { formatParams } from '@/utils/url';
 import connectToEventSource, { cancelChatSession } from '@/utils/eventSource';
 import CascaderDB from '@/components/CascaderDB';
-import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult, IFieldMappingResult, IDataExpressionResult } from '@/pages/main/workspace/store/common';
+import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult, IFieldMappingResult, IDataExpressionResult, ISqlFixResult } from '@/pages/main/workspace/store/common';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { useAiChatStore, ChatStateType, IChatMessage } from '@/pages/main/workspace/store/aiChatStore';
 import styles from './index.less';
@@ -110,6 +110,22 @@ function extractDataExpressionFromContent(content: string): IDataExpressionResul
   return null;
 }
 
+function extractSqlFixFromContent(content: string): ISqlFixResult | null {
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*"error_analysis"[\s\S]*"fixed_sql"[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as ISqlFixResult;
+    }
+    const directJson = JSON.parse(content);
+    if (directJson.fixed_sql) {
+      return directJson as ISqlFixResult;
+    }
+  } catch (e) {
+    console.error('[extractSqlFixFromContent] Parse error:', e);
+  }
+  return null;
+}
+
 interface IProps {
   className?: string;
   data?: any;
@@ -123,6 +139,7 @@ export default memo<IProps>(() => {
   const batchCommentCallbackRef = useRef<(result: IBatchTableCommentResult) => void>();
   const mappingCallbackRef = useRef<(result: IFieldMappingResult) => void>();
   const expressionCallbackRef = useRef<(result: IDataExpressionResult) => void>();
+  const sqlFixCallbackRef = useRef<(result: ISqlFixResult) => void>();
 
   const {
     currentSessionId,
@@ -197,21 +214,24 @@ export default memo<IProps>(() => {
       if (pendingAiChat.onExpressionGenerated) {
         expressionCallbackRef.current = pendingAiChat.onExpressionGenerated;
       }
-      sendAiChatInternal(pendingAiChat.message, pendingAiChat.promptType, overrideBoundInfo);
+      if (pendingAiChat.onSqlFixed) {
+        sqlFixCallbackRef.current = pendingAiChat.onSqlFixed;
+      }
+      sendAiChatInternal(pendingAiChat.message, pendingAiChat.promptType, overrideBoundInfo, pendingAiChat.ext);
       useWorkspaceStore.setState({ pendingAiChat: null });
     }
   }, [pendingAiChat, boundInfo, sendAiChatInternal]);
 
-  const sendAiChat = (messageText: string, promptType: IAiChatPromptType = 'NL_2_SQL', tableNames?: string[] | null) => {
+  const sendAiChat = (messageText: string, promptType: IAiChatPromptType = 'NL_2_SQL', tableNames?: string[] | null, ext?: string) => {
     const infoWithTables = {
       ...boundInfo,
       tableNames: tableNames !== undefined ? tableNames : boundInfo.tableNames,
     };
-    sendAiChatInternal(messageText, promptType, infoWithTables);
+    sendAiChatInternal(messageText, promptType, infoWithTables, ext);
   };
 
   const sendAiChatInternal = useCallback(
-    (messageText: string, promptType: IAiChatPromptType = 'NL_2_SQL', info: typeof boundInfo) => {
+    (messageText: string, promptType: IAiChatPromptType = 'NL_2_SQL', info: typeof boundInfo, ext?: string) => {
       console.log('[AiChat] sendAiChat called with:', { messageText, promptType, info });
       if (!messageText.trim()) {
         message.warning('请输入问题');
@@ -242,6 +262,7 @@ export default memo<IProps>(() => {
         databaseName: info.databaseName,
         schemaName: info.schemaName,
         tableNames: info.tableNames,
+        ext,
       });
 
       resetCurrentContent(sessionId);
@@ -253,6 +274,7 @@ export default memo<IProps>(() => {
         databaseName: info.databaseName,
         schemaName: info.schemaName,
         tableNames: info.tableNames,
+        ext,
       });
 
       closeEventSource.current = connectToEventSource({
@@ -351,6 +373,25 @@ export default memo<IProps>(() => {
                 message.warning('无法解析 AI 生成的表达式，请手动查看');
               }
               expressionCallbackRef.current = undefined;
+            }
+
+            if (promptType === 'SQL_FIX' && sqlFixCallbackRef.current) {
+              try {
+                const jsonContent = extractSqlFixFromContent(session.currentContent);
+                if (jsonContent) {
+                  console.log('[AiChat] Parsed sql fix result:', jsonContent);
+                  sqlFixCallbackRef.current(jsonContent);
+                  if (jsonContent.can_fix) {
+                    message.success('AI 已修复SQL错误，请查看并确认');
+                  } else {
+                    message.warning('AI 无法自动修复此错误，请查看分析');
+                  }
+                }
+              } catch (e) {
+                console.error('[AiChat] Failed to parse sql fix JSON:', e);
+                message.warning('无法解析 AI 生成的修复结果，请手动查看');
+              }
+              sqlFixCallbackRef.current = undefined;
             }
           }
           closeEventSource.current = undefined;

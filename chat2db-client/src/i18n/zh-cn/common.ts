@@ -28,6 +28,7 @@ export default {
   "common.button.import": '导入SQL',
   'common.button.format': '格式化',
   'common.button.guess': '猜一猜',
+  'common.button.aiFix': 'AI修复',
   'common.message.successfulConfig': '配置成功',
   'common.text.successful': '成功',
   'common.text.failure': '失败',
