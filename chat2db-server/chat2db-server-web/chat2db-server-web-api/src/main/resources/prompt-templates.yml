@@ -167,4 +167,94 @@ prompts:
       2. 注释应该简洁明了，不超过 50 字
       3. 注释应该准确反映表的业务含义
       4. 使用中文注释
-      5. 必须为每个表都生成注释
+
+  # 智能字段映射推荐
+  nl_2_field_mapping:
+    name: "nl_2_field_mapping"
+    description: "智能字段映射推荐"
+    template: |
+      ### 任务：根据源文件字段和目标数据库表结构，推荐最佳字段映射方案
+      
+      **数据库类型**: {db_type}
+      
+      **源文件字段列表**:
+      {source_fields}
+      
+      **目标表字段结构**:
+      {schema}
+      
+      **要求**:
+      1. 根据字段名、数据类型、语义智能匹配源字段到目标字段
+      2. 考虑数据类型兼容性
+      3. 考虑字段命名语义相似性（如 name -> user_name, email -> user_email）
+      4. 为每个源字段推荐最合适的目标字段
+      5. 如果某个源字段没有合适的目标字段，可以省略
+      
+      **输出格式（严格 JSON，不要包含其他文字）**:
+      ```json
+      {
+        "mappings": [
+          {
+            "sourceField": "源字段名",
+            "targetField": "目标字段名",
+            "confidence": 0.95
+          }
+        ]
+      }
+      ```
+      
+      **注意事项**:
+      1. 只输出 JSON 内容，不要包含其他解释文字
+      2. confidence 值为 0-1 之间的小数，表示匹配置信度
+      3. 确保所有 sourceField 都在源字段列表中存在
+      4. 确保所有 targetField 都在目标表字段结构中存在
+
+  # 智能数据生成表达式推荐
+  nl_2_data_expression:
+    name: "nl_2_data_expression"
+    description: "智能数据生成表达式推荐"
+    template: |
+      ### 任务：为数据库表的每个字段推荐合适的 datafaker 表达式
+
+      **数据库类型**: {db_type}
+      
+      **表字段信息**:
+      {schema}
+      
+      **可用的 datafaker 表达式示例**:
+      - 姓名: #{Name.first_name}, #{Name.last_name}, #{Name.full_name}
+      - 邮箱: #{Internet.email_address}, #{Internet.url}
+      - 电话: #{Phone.cell_phone}, #{Phone.phone_number}
+      - 地址: #{Address.full_address}, #{Address.city}, #{Address.country}
+      - 日期: #{Date.past '30','DAYS'}, #{Date.future}, #{Date.birthday}
+      - 数值: #{Number.number_between '1','1000'}, #{number.random_double}
+      - 文本: #{Lorem.sentence}, #{Lorem.word}, #{Lorem.paragraph}
+      - 公司: #{Company.name}, #{Company.industry}, #{Company.catch_phrase}
+      - ID: #{Code.isbn}, #{Code.asin}, #{Number.uuid}
+      - 布尔: #{bool.bool}
+      
+      **要求**:
+      1. 根据字段名、数据类型、注释推荐合适的表达式
+      2. 考虑数据类型和长度限制（如 VARCHAR 长度、DECIMAL 精度）
+      3. 表达式必须符合 datafaker 语法
+      4. 如果字段是主键或自增，可以跳过
+      5. 如果字段允许 NULL 且没有合适表达式，可以留空
+      
+      **输出格式（严格 JSON，不要包含其他文字）**:
+      ```json
+      {
+        "column_expressions": [
+          {
+            "column_name": "字段名",
+            "expression": "#{Name.first_name}",
+            "reason": "推荐原因"
+          }
+        ]
+      }
+      ```
+      
+      **注意事项**:
+      1. 只输出 JSON 内容，不要包含其他解释文字
+      2. expression 必须是有效的 datafaker 表达式，以 # 开头
+      3. reason 简要说明为什么推荐这个表达式
+      4. 确保所有 column_name 都在表字段信息中存在

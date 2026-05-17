@@ -44,4 +44,9 @@ public class PromptContext {
      * 目标 SQL 类型（用于 SQL 转换）
      */
     private String targetSqlType;
+
+    /**
+     * 源文件字段列表（用于字段映射推荐）
+     */
+    private String sourceFields;
 }

@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Modal, Form, Button, Table, Select, Input, InputNumber, message, Progress } from 'antd';
+import { BulbFilled } from '@ant-design/icons';
 import { setOpenDataGenerationModal } from '@/pages/main/workspace/store/modal';
+import { setPendingAiChat, setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
+import { IDataExpressionResult } from '@/pages/main/workspace/store/common';
 import createRequest from '@/service/base';
 import taskService from '@/service/task';
 
@@ -127,6 +130,42 @@ const DataGenerationModal: React.FC = () => {
     const timestamp = new Date().toLocaleTimeString();
     setLogs(prev => [...prev, `${timestamp}: ${log}`]);
   };
+
+  const handleAiGuessExpression = useCallback(() => {
+    if (!tableInfo || columns.length === 0) {
+      message.warning('请先加载表列信息');
+      return;
+    }
+
+    setPendingAiChat({
+      dataSourceId: tableInfo.dataSourceId,
+      databaseName: tableInfo.databaseName,
+      schemaName: tableInfo.schemaName,
+      tableNames: [tableInfo.tableName],
+      message: `请为表 ${tableInfo.tableName} 的字段推荐 datafaker 表达式`,
+      promptType: 'NL_2_DATA_EXPRESSION',
+      onExpressionGenerated: handleExpressionGenerated,
+    });
+    setCurrentWorkspaceExtend('ai');
+  }, [tableInfo, columns]);
+
+  const handleExpressionGenerated = useCallback((result: IDataExpressionResult) => {
+    if (!result || !result.column_expressions || result.column_expressions.length === 0) {
+      message.warning('未获取到表达式推荐');
+      return;
+    }
+
+    const newColumns = columns.map(col => {
+      const matched = result.column_expressions.find(e => e.column_name === col.columnName);
+      if (matched && matched.expression) {
+        return { ...col, expression: matched.expression };
+      }
+      return col;
+    });
+
+    setColumns(newColumns);
+    message.success(`AI 已推荐 ${result.column_expressions.length} 个字段表达式，请查看并确认`);
+  }, [columns]);
 
   const openDataGenerationModal = useCallback((params: IDataGenerationModalParams) => {
     setOpen(true);
@@ -420,20 +459,38 @@ const DataGenerationModal: React.FC = () => {
           <Button key="generate" type="primary" onClick={handleGenerate} loading={loading}>确定生成</Button>,
         ]}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item label="生成行数" name="rowCount" initialValue={100}>
-            <InputNumber min={1} max={100000} style={{ width: 200 }} />
-          </Form.Item>
+      <Form form={form} layout="vertical">
+        <Form.Item label="生成行数" name="rowCount" initialValue={100}>
+          <InputNumber min={1} max={100000} style={{ width: 200 }} />
+        </Form.Item>
 
-          <Table
-            columns={tableColumns}
-            dataSource={columns}
-            rowKey="columnName"
-            pagination={false}
+        <div style={{ 
+          marginBottom: 16, 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <h4 style={{ margin: 0 }}>列配置</h4>
+          <Button
+            type="primary"
+            icon={<BulbFilled />}
+            onClick={handleAiGuessExpression}
+            disabled={columns.length === 0 || loading}
             size="small"
-            loading={loading}
-            scroll={{ y: 300 }}
-          />
+          >
+            猜一猜
+          </Button>
+        </div>
+
+        <Table
+          columns={tableColumns}
+          dataSource={columns}
+          rowKey="columnName"
+          pagination={false}
+          size="small"
+          loading={loading}
+          scroll={{ y: 300 }}
+        />
 
           {showPreview && (
             <div style={{ marginTop: 16 }}>

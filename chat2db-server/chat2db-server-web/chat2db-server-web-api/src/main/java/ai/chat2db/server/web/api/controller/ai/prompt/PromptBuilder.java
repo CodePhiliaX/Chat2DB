@@ -54,6 +54,14 @@ public interface PromptBuilder {
     PromptBuilder targetSqlType(String targetSqlType);
 
     /**
+     * 设置源文件字段列表（用于字段映射推荐）
+     *
+     * @param sourceFields 源文件字段列表（JSON 格式）
+     * @return 构建器
+     */
+    PromptBuilder sourceFields(String sourceFields);
+
+    /**
      * 构建提示词
      *
      * @return 提示词

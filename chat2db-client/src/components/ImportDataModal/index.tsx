@@ -1,10 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Modal, Upload, Select, message, Button, Progress, Steps, Table, Space, Spin, Radio, Popconfirm } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, BulbFilled } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import i18n from '@/i18n';
 import taskService, { IPreviewHeadersResult, ITableColumnInfo, IAutoMapping } from '@/service/task';
 import { setOpenImportDataModal } from '@/pages/main/workspace/store/modal';
+import { setPendingAiChat, setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
+import { IFieldMappingResult } from '@/pages/main/workspace/store/common';
 
 const { Dragger } = Upload;
 const { Step } = Steps;
@@ -76,6 +78,50 @@ const ImportDataModal = () => {
       setFile(info.file.originFileObj || info.file);
     }
   };
+
+  const handleAiGuessMapping = useCallback(() => {
+    if (!params || !previewData) {
+      message.warning('请先上传文件并预览');
+      return;
+    }
+
+    setPendingAiChat({
+      dataSourceId: params.dataSourceId,
+      databaseName: params.databaseName,
+      schemaName: params.schemaName,
+      tableNames: [params.tableName],
+      message: `请为表 ${params.tableName} 推荐字段映射方案`,
+      promptType: 'NL_2_FIELD_MAPPING',
+      ext: JSON.stringify({
+        sourceFields: previewData.headers.map(h => h.name),
+      }),
+      onMappingGenerated: handleMappingGenerated,
+    });
+    setCurrentWorkspaceExtend('ai');
+  }, [params, previewData]);
+
+  const handleMappingGenerated = useCallback((result: IFieldMappingResult) => {
+    if (!result || !result.mappings || result.mappings.length === 0) {
+      message.warning('未获取到映射推荐');
+      return;
+    }
+
+    const newMappings = fieldMappings.map(m => {
+      const matched = result.mappings.find(r => r.sourceField === m.sourceField);
+      if (matched && matched.targetField) {
+        const targetCol = previewData?.tableColumns.find(col => col.name === matched.targetField);
+        return {
+          ...m,
+          targetField: matched.targetField,
+          primaryKey: !!targetCol?.primaryKey,
+        };
+      }
+      return m;
+    });
+
+    setFieldMappings(newMappings);
+    message.success(`AI 已推荐 ${result.mappings.length} 个字段映射，请查看并确认`);
+  }, [fieldMappings, previewData]);
 
   const addLog = (log: string) => {
     const timestamp = new Date().toLocaleString();
@@ -391,8 +437,24 @@ const ImportDataModal = () => {
       case 1:
         return (
           <div style={{ padding: '16px 0' }}>
-            <div style={{ marginBottom: 16, color: 'var(--color-text)' }}>
-              {i18n('workspace.table.import.fieldMapping.description')}
+            <div style={{ 
+              marginBottom: 16, 
+              display: 'flex', 
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ color: 'var(--color-text)' }}>
+                {i18n('workspace.table.import.fieldMapping.description')}
+              </div>
+              <Button
+                type="primary"
+                icon={<BulbFilled />}
+                onClick={handleAiGuessMapping}
+                disabled={!previewData || previewLoading}
+                size="small"
+              >
+                猜一猜
+              </Button>
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', marginBottom: 8, color: 'var(--color-text)' }}>

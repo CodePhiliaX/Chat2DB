@@ -54,6 +54,9 @@ public class BuildPromptAction extends BaseChatAction {
 
             PromptType promptType = determinePromptType(request);
 
+            // 解析 ext 中的 sourceFields（用于字段映射）
+            String sourceFields = extractSourceFields(request.getExt());
+
             PromptContext promptContext = PromptContext.builder()
                     .promptType(promptType)
                     .message(request.getMessage())
@@ -61,6 +64,7 @@ public class BuildPromptAction extends BaseChatAction {
                     .schemaDdl(schemaDdl)
                     .dataSourceType(dataSourceService.queryDatabaseType(request.getDataSourceId()))
                     .targetSqlType(request.getDestSqlType())
+                    .sourceFields(sourceFields)
                     .build();
 
             String builtPrompt = promptBuilder.context(promptContext).build();
@@ -88,5 +92,20 @@ public class BuildPromptAction extends BaseChatAction {
                 ? PromptType.NL_2_SQL.getCode()
                 : request.getPromptType();
         return PromptType.valueOf(promptType);
+    }
+
+    private String extractSourceFields(String ext) {
+        if (StringUtils.isBlank(ext)) {
+            return null;
+        }
+        try {
+            com.alibaba.fastjson2.JSONObject extJson = com.alibaba.fastjson2.JSON.parseObject(ext);
+            if (extJson.containsKey("sourceFields")) {
+                return extJson.getString("sourceFields");
+            }
+        } catch (Exception e) {
+            log.warn("[BuildPromptAction] Failed to parse sourceFields from ext", e);
+        }
+        return null;
     }
 }

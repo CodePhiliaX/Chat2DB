@@ -76,6 +76,15 @@ public class PromptBuilderImpl implements PromptBuilder {
     }
 
     @Override
+    public PromptBuilder sourceFields(String sourceFields) {
+        if (this.context == null) {
+            this.context = new PromptContext();
+        }
+        this.context.setSourceFields(sourceFields);
+        return this;
+    }
+
+    @Override
     public String build() {
         validateContext();
 
@@ -102,7 +111,9 @@ public class PromptBuilderImpl implements PromptBuilder {
         }
         if (StringUtils.isBlank(context.getMessage())
                 && !Objects.equals(context.getPromptType(), PromptType.NL_2_COMMENT)
-                && !Objects.equals(context.getPromptType(), PromptType.NL_2_COMMENT_BATCH)) {
+                && !Objects.equals(context.getPromptType(), PromptType.NL_2_COMMENT_BATCH)
+                && !Objects.equals(context.getPromptType(), PromptType.NL_2_FIELD_MAPPING)
+                && !Objects.equals(context.getPromptType(), PromptType.NL_2_DATA_EXPRESSION)) {
             throw new IllegalArgumentException("Message is required");
         }
     }
@@ -113,7 +124,7 @@ public class PromptBuilderImpl implements PromptBuilder {
                 ? context.getPromptType().getDescription()
                 : "将自然语言转换成 SQL 查询";
 
-        return templateStr
+        String filledTemplate = templateStr
                 .replace("{description}", description)
                 .replace("{ext}", Objects.toString(context.getExt(), ""))
                 .replace("{db_type}", Objects.toString(context.getDataSourceType(), "MYSQL"))
@@ -121,5 +132,30 @@ public class PromptBuilderImpl implements PromptBuilder {
                 .replace("{message}", Objects.toString(context.getMessage(), ""))
                 .replace("{target_sql_type}", Objects.toString(context.getTargetSqlType(),
                         Objects.toString(context.getDataSourceType(), "MYSQL")));
+
+        // 处理 source_fields 占位符（用于字段映射）
+        if (filledTemplate.contains("{source_fields}")) {
+            String sourceFieldsText = formatSourceFields(context.getSourceFields());
+            filledTemplate = filledTemplate.replace("{source_fields}", sourceFieldsText);
+        }
+
+        return filledTemplate;
+    }
+
+    private String formatSourceFields(String sourceFieldsJson) {
+        if (StringUtils.isBlank(sourceFieldsJson)) {
+            return "";
+        }
+        try {
+            if (sourceFieldsJson.trim().startsWith("[")) {
+                com.alibaba.fastjson2.JSONArray fields = com.alibaba.fastjson2.JSON.parseArray(sourceFieldsJson);
+                return fields.stream()
+                        .map(field -> "- " + field.toString())
+                        .collect(java.util.stream.Collectors.joining("\n"));
+            }
+            return sourceFieldsJson;
+        } catch (Exception e) {
+            return sourceFieldsJson;
+        }
     }
 }

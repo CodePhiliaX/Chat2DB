@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { formatParams } from '@/utils/url';
 import connectToEventSource, { cancelChatSession } from '@/utils/eventSource';
 import CascaderDB from '@/components/CascaderDB';
-import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult } from '@/pages/main/workspace/store/common';
+import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult, IFieldMappingResult, IDataExpressionResult } from '@/pages/main/workspace/store/common';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { useAiChatStore, ChatStateType, IChatMessage } from '@/pages/main/workspace/store/aiChatStore';
 import styles from './index.less';
@@ -78,6 +78,38 @@ function extractBatchJsonFromContent(content: string): IBatchTableCommentResult 
   return null;
 }
 
+function extractFieldMappingFromContent(content: string): IFieldMappingResult | null {
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*"mappings"[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as IFieldMappingResult;
+    }
+    const directJson = JSON.parse(content);
+    if (directJson.mappings) {
+      return directJson as IFieldMappingResult;
+    }
+  } catch (e) {
+    console.error('[extractFieldMappingFromContent] Parse error:', e);
+  }
+  return null;
+}
+
+function extractDataExpressionFromContent(content: string): IDataExpressionResult | null {
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*"column_expressions"[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as IDataExpressionResult;
+    }
+    const directJson = JSON.parse(content);
+    if (directJson.column_expressions) {
+      return directJson as IDataExpressionResult;
+    }
+  } catch (e) {
+    console.error('[extractDataExpressionFromContent] Parse error:', e);
+  }
+  return null;
+}
+
 interface IProps {
   className?: string;
   data?: any;
@@ -89,6 +121,8 @@ export default memo<IProps>(() => {
   const sessionIdRef = useRef<string>();
   const commentCallbackRef = useRef<(result: ITableCommentResult) => void>();
   const batchCommentCallbackRef = useRef<(result: IBatchTableCommentResult) => void>();
+  const mappingCallbackRef = useRef<(result: IFieldMappingResult) => void>();
+  const expressionCallbackRef = useRef<(result: IDataExpressionResult) => void>();
 
   const {
     currentSessionId,
@@ -156,6 +190,12 @@ export default memo<IProps>(() => {
       }
       if (pendingAiChat.onBatchCommentGenerated) {
         batchCommentCallbackRef.current = pendingAiChat.onBatchCommentGenerated;
+      }
+      if (pendingAiChat.onMappingGenerated) {
+        mappingCallbackRef.current = pendingAiChat.onMappingGenerated;
+      }
+      if (pendingAiChat.onExpressionGenerated) {
+        expressionCallbackRef.current = pendingAiChat.onExpressionGenerated;
       }
       sendAiChatInternal(pendingAiChat.message, pendingAiChat.promptType, overrideBoundInfo);
       useWorkspaceStore.setState({ pendingAiChat: null });
@@ -281,6 +321,36 @@ export default memo<IProps>(() => {
                 message.warning('无法解析 AI 生成的批量注释，请手动查看');
               }
               batchCommentCallbackRef.current = undefined;
+            }
+
+            if (promptType === 'NL_2_FIELD_MAPPING' && mappingCallbackRef.current) {
+              try {
+                const jsonContent = extractFieldMappingFromContent(session.currentContent);
+                if (jsonContent) {
+                  console.log('[AiChat] Parsed field mapping result:', jsonContent);
+                  mappingCallbackRef.current(jsonContent);
+                  message.success('AI 字段映射推荐已生成，请查看并确认');
+                }
+              } catch (e) {
+                console.error('[AiChat] Failed to parse field mapping JSON:', e);
+                message.warning('无法解析 AI 生成的映射推荐，请手动查看');
+              }
+              mappingCallbackRef.current = undefined;
+            }
+
+            if (promptType === 'NL_2_DATA_EXPRESSION' && expressionCallbackRef.current) {
+              try {
+                const jsonContent = extractDataExpressionFromContent(session.currentContent);
+                if (jsonContent) {
+                  console.log('[AiChat] Parsed data expression result:', jsonContent);
+                  expressionCallbackRef.current(jsonContent);
+                  message.success('AI 表达式推荐已生成，请查看并确认');
+                }
+              } catch (e) {
+                console.error('[AiChat] Failed to parse data expression JSON:', e);
+                message.warning('无法解析 AI 生成的表达式，请手动查看');
+              }
+              expressionCallbackRef.current = undefined;
             }
           }
           closeEventSource.current = undefined;

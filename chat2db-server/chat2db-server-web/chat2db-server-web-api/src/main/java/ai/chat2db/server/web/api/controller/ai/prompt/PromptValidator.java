@@ -48,6 +48,6 @@ public class PromptValidator {
         if (StringUtils.isEmpty(prompt)) {
             return "";
         }
-        return prompt.replaceAll("[\r\t]", "").replaceAll("#", "");
+        return prompt.replaceAll("[\r\t]", "");
     }
 }

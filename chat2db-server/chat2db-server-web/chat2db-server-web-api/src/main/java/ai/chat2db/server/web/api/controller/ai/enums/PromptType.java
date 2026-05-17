@@ -55,6 +55,16 @@ public enum PromptType implements BaseEnum<String> {
     NL_2_COMMENT("猜测表和字段注释"),
 
     NL_2_COMMENT_BATCH("批量猜测表注释"),
+
+    /**
+     * 智能字段映射推荐
+     */
+    NL_2_FIELD_MAPPING("智能字段映射推荐"),
+
+    /**
+     * 智能数据生成表达式推荐
+     */
+    NL_2_DATA_EXPRESSION("智能数据生成表达式推荐"),
     ;
 
     final String description;
