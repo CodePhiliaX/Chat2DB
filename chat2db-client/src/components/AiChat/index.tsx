@@ -1,13 +1,13 @@
 import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { Button, Input, Spin, message, Tag, Alert } from 'antd';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { DownOutlined, RightOutlined, PlayCircleOutlined, SendOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { v4 as uuidv4 } from 'uuid';
 import { formatParams } from '@/utils/url';
 import connectToEventSource, { cancelChatSession } from '@/utils/eventSource';
 import CascaderDB from '@/components/CascaderDB';
-import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult, IFieldMappingResult, IDataExpressionResult, ISqlFixResult } from '@/pages/main/workspace/store/common';
+import { IAiChatPromptType, ITableCommentResult, IBatchTableCommentResult, IFieldMappingResult, IDataExpressionResult } from '@/pages/main/workspace/store/common';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { useAiChatStore, ChatStateType, IChatMessage } from '@/pages/main/workspace/store/aiChatStore';
 import styles from './index.less';
@@ -110,28 +110,53 @@ function extractDataExpressionFromContent(content: string): IDataExpressionResul
   return null;
 }
 
-function extractSqlFixFromContent(content: string): ISqlFixResult | null {
+function extractSqlFromContent(content: string): string | null {
   try {
-    const jsonMatch = content.match(/\{[\s\S]*"error_analysis"[\s\S]*"fixed_sql"[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]) as ISqlFixResult;
+    const sqlMatch = content.match(/```sql\s*([\s\S]*?)```/i);
+    if (sqlMatch && sqlMatch[1]) {
+      return sqlMatch[1].trim();
     }
-    const directJson = JSON.parse(content);
-    if (directJson.fixed_sql) {
-      return directJson as ISqlFixResult;
+    const genericCodeMatch = content.match(/```\s*([\s\S]*?)```/);
+    if (genericCodeMatch && genericCodeMatch[1]) {
+      const code = genericCodeMatch[1].trim();
+      if (code.match(/select|insert|update|delete|create|alter|drop/i)) {
+        return code;
+      }
     }
   } catch (e) {
-    console.error('[extractSqlFixFromContent] Parse error:', e);
+    console.error('[extractSqlFromContent] Parse error:', e);
   }
   return null;
 }
+
+const SqlActionButtons = memo<{ sql: string; onExecute?: (sql: string) => void; onSendToEditor?: (sql: string) => void }>(({ sql, onExecute, onSendToEditor }) => {
+  return (
+    <div className={styles.sqlActionButtons}>
+      <Button
+        type="primary"
+        icon={<PlayCircleOutlined />}
+        onClick={() => onExecute?.(sql)}
+        size="small"
+      >
+        执行SQL
+      </Button>
+      <Button
+        icon={<SendOutlined />}
+        onClick={() => onSendToEditor?.(sql)}
+        size="small"
+      >
+        发送到编辑器
+      </Button>
+    </div>
+  );
+});
 
 interface IProps {
   className?: string;
   data?: any;
 }
 
-export default memo<IProps>(() => {
+export default memo<IProps>((props) => {
   const [inputValue, setInputValue] = useState('');
   const closeEventSource = useRef<() => void>();
   const sessionIdRef = useRef<string>();
@@ -139,7 +164,8 @@ export default memo<IProps>(() => {
   const batchCommentCallbackRef = useRef<(result: IBatchTableCommentResult) => void>();
   const mappingCallbackRef = useRef<(result: IFieldMappingResult) => void>();
   const expressionCallbackRef = useRef<(result: IDataExpressionResult) => void>();
-  const sqlFixCallbackRef = useRef<(result: ISqlFixResult) => void>();
+  const sqlFixCallbackRef = useRef<(sql: string) => void>();
+  const extractedSqlRef = useRef<string | null>(null);
 
   const {
     currentSessionId,
@@ -377,19 +403,18 @@ export default memo<IProps>(() => {
 
             if (promptType === 'SQL_FIX' && sqlFixCallbackRef.current) {
               try {
-                const jsonContent = extractSqlFixFromContent(session.currentContent);
-                if (jsonContent) {
-                  console.log('[AiChat] Parsed sql fix result:', jsonContent);
-                  sqlFixCallbackRef.current(jsonContent);
-                  if (jsonContent.can_fix) {
-                    message.success('AI 已修复SQL错误，请查看并确认');
-                  } else {
-                    message.warning('AI 无法自动修复此错误，请查看分析');
-                  }
+                const sql = extractSqlFromContent(session.currentContent);
+                if (sql) {
+                  console.log('[AiChat] Extracted SQL:', sql);
+                  extractedSqlRef.current = sql;
+                  sqlFixCallbackRef.current(sql);
+                  message.success('AI 已修复SQL，请查看并确认');
+                } else {
+                  message.warning('AI 未能生成修复后的SQL');
                 }
               } catch (e) {
-                console.error('[AiChat] Failed to parse sql fix JSON:', e);
-                message.warning('无法解析 AI 生成的修复结果，请手动查看');
+                console.error('[AiChat] Failed to extract SQL:', e);
+                message.warning('无法提取 AI 生成的SQL');
               }
               sqlFixCallbackRef.current = undefined;
             }
@@ -427,6 +452,34 @@ export default memo<IProps>(() => {
       clearSession(sessionIdRef.current);
     }
   };
+
+  const handleExecuteSql = useCallback((sql: string) => {
+    const activeConsoleInfo = consoleList?.find((c) => c.id === activeConsoleId);
+    if (activeConsoleInfo) {
+      const { getSearchResult } = require('@/pages/main/workspace/components/SQLExecute/searchResultRegistry');
+      const searchResultRef = getSearchResult(activeConsoleInfo.consoleId);
+      if (searchResultRef?.current) {
+        searchResultRef.current.handleExecuteSQL(sql);
+        message.success('SQL已执行');
+      } else {
+        message.warning('未找到执行结果组件');
+      }
+    }
+  }, [consoleList, activeConsoleId]);
+
+  const handleSendToEditor = useCallback((sql: string) => {
+    const activeConsoleInfo = consoleList?.find((c) => c.id === activeConsoleId);
+    if (activeConsoleInfo) {
+      const { getConsoleEditor } = require('@/pages/main/workspace/components/SQLExecute/consoleEditorRegistry');
+      const consoleRef = getConsoleEditor(activeConsoleInfo.consoleId);
+      if (consoleRef?.current?.editorRef) {
+        consoleRef.current.editorRef.setValue(sql, 'cover');
+        message.success('SQL已发送到编辑器');
+      } else {
+        message.warning('未找到编辑器组件');
+      }
+    }
+  }, [consoleList, activeConsoleId]);
 
   const handleRetry = () => {
     if (lastRequest) {
@@ -477,12 +530,22 @@ export default memo<IProps>(() => {
       )}
 
       <div className={styles.contentArea}>
-        {currentSession?.messages.map((msg) => (
-          <div key={msg.id} className={msg.role === 'user' ? styles.userBlock : styles.aiBlock}>
-            {msg.thinking && <ThinkingBlock thinking={msg.thinking} />}
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
-          </div>
-        ))}
+        {currentSession?.messages.map((msg) => {
+          const extractedSql = msg.role === 'assistant' ? extractSqlFromContent(msg.content) : null;
+          return (
+            <div key={msg.id} className={msg.role === 'user' ? styles.userBlock : styles.aiBlock}>
+              {msg.thinking && <ThinkingBlock thinking={msg.thinking} />}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              {extractedSql && msg.role === 'assistant' && (
+                <SqlActionButtons
+                  sql={extractedSql}
+                  onExecute={handleExecuteSql}
+                  onSendToEditor={handleSendToEditor}
+                />
+              )}
+            </div>
+          );
+        })}
         {currentSession?.state === 'STREAMING' && (currentSession.currentContent || currentSession.currentThinking) && (
           <div className={styles.aiBlock}>
             <Spin size="small">
