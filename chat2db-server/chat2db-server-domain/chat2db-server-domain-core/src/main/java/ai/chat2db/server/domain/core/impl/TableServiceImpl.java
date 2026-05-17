@@ -57,7 +57,9 @@ import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
+import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.enums.EditStatus;
+import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.ForeignKey;
 import ai.chat2db.spi.model.IndexModel;
 import ai.chat2db.spi.model.IndexType;
@@ -670,6 +672,74 @@ public class TableServiceImpl implements TableService {
                 .parentPath(parentPath)
                 .extraParams(extraParams)
                 .build();
+    }
+
+    @Override
+    public ListResult<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName) {
+        List<ExecuteResult> results = new ArrayList<>();
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        MetaData metaData = Chat2DBContext.getMetaData();
+        Connection connection = Chat2DBContext.getConnection();
+
+        for (String tableName : tableNames) {
+            String sql = sqlBuilder.buildOptimizeTableSql(databaseName, schemaName, tableName);
+            if (sql == null) {
+                results.add(ExecuteResult.builder()
+                        .success(false)
+                        .message("OPTIMIZE TABLE is not supported for this database type")
+                        .sql(sql)
+                        .build());
+                continue;
+            }
+            try {
+                CommandExecutor commandExecutor = metaData.getCommandExecutor();
+                ExecuteResult result = commandExecutor.execute(sql, connection, false, null, null, metaData.getValueHandler());
+                result.setSql(sql);
+                results.add(result);
+            } catch (Exception e) {
+                log.error("Failed to optimize table: {}", tableName, e);
+                results.add(ExecuteResult.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .sql(sql)
+                        .build());
+            }
+        }
+        return ListResult.of(results);
+    }
+
+    @Override
+    public ListResult<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName) {
+        List<ExecuteResult> results = new ArrayList<>();
+        SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+        MetaData metaData = Chat2DBContext.getMetaData();
+        Connection connection = Chat2DBContext.getConnection();
+
+        for (String tableName : tableNames) {
+            String sql = sqlBuilder.buildAnalyzeTableSql(databaseName, schemaName, tableName);
+            if (sql == null) {
+                results.add(ExecuteResult.builder()
+                        .success(false)
+                        .message("ANALYZE TABLE is not supported for this database type")
+                        .sql(sql)
+                        .build());
+                continue;
+            }
+            try {
+                CommandExecutor commandExecutor = metaData.getCommandExecutor();
+                ExecuteResult result = commandExecutor.execute(sql, connection, false, null, null, metaData.getValueHandler());
+                result.setSql(sql);
+                results.add(result);
+            } catch (Exception e) {
+                log.error("Failed to analyze table: {}", tableName, e);
+                results.add(ExecuteResult.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .sql(sql)
+                        .build());
+            }
+        }
+        return ListResult.of(results);
     }
 
 }

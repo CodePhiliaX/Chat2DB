@@ -294,4 +294,14 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         return sql.toString();
     }
 
+    @Override
+    public String buildOptimizeTableSql(String databaseName, String schemaName, String tableName) {
+        return "OPTIMIZE TABLE `" + databaseName + "`.`" + tableName + "`";
+    }
+
+    @Override
+    public String buildAnalyzeTableSql(String databaseName, String schemaName, String tableName) {
+        return "ANALYZE TABLE `" + databaseName + "`.`" + tableName + "`";
+    }
+
 }

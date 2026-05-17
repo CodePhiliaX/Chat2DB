@@ -254,4 +254,16 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         }
         return sql.toString();
     }
+
+    @Override
+    public String buildOptimizeTableSql(String databaseName, String schemaName, String tableName) {
+        String tableRef = schemaName != null ? "\"" + schemaName + "\".\"" + tableName + "\"" : "\"" + tableName + "\"";
+        return "VACUUM ANALYZE " + tableRef;
+    }
+
+    @Override
+    public String buildAnalyzeTableSql(String databaseName, String schemaName, String tableName) {
+        String tableRef = schemaName != null ? "\"" + schemaName + "\".\"" + tableName + "\"" : "\"" + tableName + "\"";
+        return "ANALYZE " + tableRef;
+    }
 }

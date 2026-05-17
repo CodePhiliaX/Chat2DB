@@ -355,6 +355,98 @@ export default memo<IProps>((props) => {
     });
   };
 
+  const batchOptimizeTable = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning(i18n('common.viewAllTable.noSelectedTablesForOptimize'));
+      return;
+    }
+
+    Modal.confirm({
+      title: i18n('common.viewAllTable.batchOptimizeConfirmTitle'),
+      content: i18n('common.viewAllTable.batchOptimizeConfirmContent', selectedRowKeys.length),
+      okText: i18n('common.button.confirm'),
+      cancelText: i18n('common.button.cancel'),
+      onOk: async () => {
+        const selectedTables = tableData?.filter((item) => selectedRowKeys.includes(item.key)) || [];
+        const tableNames = selectedTables.map(t => t.name);
+
+        try {
+          const results = await sqlServer.batchOptimizeTables({
+            dataSourceId: Number(uniqueData.dataSourceId),
+            databaseName: uniqueData.databaseName,
+            schemaName: uniqueData.schemaName,
+            tableNames,
+          });
+
+          const successCount = results.filter((r: any) => r.success).length;
+          const failCount = results.length - successCount;
+
+          setSelectedRowKeys([]);
+          
+          if (failCount === 0) {
+            message.success(i18n('common.viewAllTable.batchOptimizeSuccess', successCount));
+          } else {
+            message.warning(i18n('common.viewAllTable.batchOptimizePartialSuccess', successCount, failCount));
+          }
+
+          getTable({
+            pageNo: currentPageNo,
+            pageSize: 1000,
+          });
+        } catch (error) {
+          message.error(i18n('common.viewAllTable.batchOptimizePartialSuccess', 0, tableNames.length));
+          console.error('Failed to optimize tables:', error);
+        }
+      },
+    });
+  };
+
+  const batchAnalyzeTable = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning(i18n('common.viewAllTable.noSelectedTablesForAnalyze'));
+      return;
+    }
+
+    Modal.confirm({
+      title: i18n('common.viewAllTable.batchAnalyzeConfirmTitle'),
+      content: i18n('common.viewAllTable.batchAnalyzeConfirmContent', selectedRowKeys.length),
+      okText: i18n('common.button.confirm'),
+      cancelText: i18n('common.button.cancel'),
+      onOk: async () => {
+        const selectedTables = tableData?.filter((item) => selectedRowKeys.includes(item.key)) || [];
+        const tableNames = selectedTables.map(t => t.name);
+
+        try {
+          const results = await sqlServer.batchAnalyzeTables({
+            dataSourceId: Number(uniqueData.dataSourceId),
+            databaseName: uniqueData.databaseName,
+            schemaName: uniqueData.schemaName,
+            tableNames,
+          });
+
+          const successCount = results.filter((r: any) => r.success).length;
+          const failCount = results.length - successCount;
+
+          setSelectedRowKeys([]);
+          
+          if (failCount === 0) {
+            message.success(i18n('common.viewAllTable.batchAnalyzeSuccess', successCount));
+          } else {
+            message.warning(i18n('common.viewAllTable.batchAnalyzePartialSuccess', successCount, failCount));
+          }
+
+          getTable({
+            pageNo: currentPageNo,
+            pageSize: 1000,
+          });
+        } catch (error) {
+          message.error(i18n('common.viewAllTable.batchAnalyzePartialSuccess', 0, tableNames.length));
+          console.error('Failed to analyze tables:', error);
+        }
+      },
+    });
+  };
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
@@ -492,6 +584,20 @@ export default memo<IProps>((props) => {
                 style={{ marginLeft: 8 }}
               >
                 {i18n('common.viewAllTable.batchDeprecated')}
+              </Button>
+              <Button
+                onClick={batchOptimizeTable}
+                disabled={selectedRowKeys.length === 0}
+                style={{ marginLeft: 8 }}
+              >
+                {i18n('common.viewAllTable.batchOptimize')}
+              </Button>
+              <Button
+                onClick={batchAnalyzeTable}
+                disabled={selectedRowKeys.length === 0}
+                style={{ marginLeft: 8 }}
+              >
+                {i18n('common.viewAllTable.batchAnalyze')}
               </Button>
               <Button onClick={startEditing} style={{ marginLeft: 8 }}>
                 {i18n('common.button.editAll')}

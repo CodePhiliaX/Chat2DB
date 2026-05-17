@@ -554,6 +554,20 @@ const updateVirtualForeignKey = createRequest<IUpdateVirtualFKParams, IForeignKe
 const deleteForeignKey = createRequest<IDeleteFKParams, IDeleteFKResult>('/api/rdb/fk/delete', { method: 'post' });
 const inferVirtualForeignKeys = createRequest<IInferVirtualFKParams, IInferVirtualFkResult>('/api/rdb/er/infer-virtual-fk', { method: 'post' });
 
+const batchOptimizeTables = createRequest<{
+  dataSourceId: number;
+  databaseName?: string;
+  schemaName?: string;
+  tableNames: string[];
+}, any[]>('/api/rdb/table/batch/optimize', { method: 'post' });
+
+const batchAnalyzeTables = createRequest<{
+  dataSourceId: number;
+  databaseName?: string;
+  schemaName?: string;
+  tableNames: string[];
+}, any[]>('/api/rdb/table/batch/analyze', { method: 'post' });
+
 export default {
   searchTree,
   getCreateSchemaSql,
@@ -606,4 +620,6 @@ export default {
   inferVirtualForeignKeys,
   createVirtualForeignKey,
   syncForeignKeys,
+  batchOptimizeTables,
+  batchAnalyzeTables,
 };

@@ -30,6 +30,7 @@ import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
 import ai.chat2db.server.web.api.controller.rdb.request.BatchTableModifySqlRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.BatchTableOperationRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.CreateVirtualFKRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.ForeignKeySyncRequest;
@@ -42,6 +43,7 @@ import ai.chat2db.server.web.api.controller.rdb.request.TableUpdateDdlQueryReque
 import ai.chat2db.server.web.api.controller.rdb.request.TypeQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.UpdateVirtualFKRequest;
 import ai.chat2db.server.web.api.controller.rdb.vo.ColumnVO;
+import ai.chat2db.server.web.api.controller.rdb.vo.ExecuteResultVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.IndexVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SyncResult;
@@ -53,6 +55,7 @@ import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.model.Type;
 import ai.chat2db.spi.model.VirtualForeignKey;
+import ai.chat2db.spi.model.ExecuteResult;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
@@ -249,6 +252,55 @@ public class TableController {
     public ActionResult delete(@Valid @RequestBody TableDeleteRequest request) {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
+    }
+
+    /**
+     * 批量优化表
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/batch/optimize")
+    public ListResult<ExecuteResultVO> batchOptimize(@Valid @RequestBody BatchTableOperationRequest request) {
+        ListResult<ExecuteResult> results = tableService.batchOptimizeTables(
+                request.getTableNames(), request.getDatabaseName(), request.getSchemaName());
+        List<ExecuteResultVO> voList = results.getData().stream().map(this::executeResult2vo).toList();
+        return ListResult.of(voList);
+    }
+
+    /**
+     * 批量分析表
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/batch/analyze")
+    public ListResult<ExecuteResultVO> batchAnalyze(@Valid @RequestBody BatchTableOperationRequest request) {
+        ListResult<ExecuteResult> results = tableService.batchAnalyzeTables(
+                request.getTableNames(), request.getDatabaseName(), request.getSchemaName());
+        List<ExecuteResultVO> voList = results.getData().stream().map(this::executeResult2vo).toList();
+        return ListResult.of(voList);
+    }
+
+    private ExecuteResultVO executeResult2vo(ExecuteResult result) {
+        ExecuteResultVO vo = new ExecuteResultVO();
+        vo.setSql(result.getSql());
+        vo.setOriginalSql(result.getOriginalSql());
+        vo.setDescription(result.getDescription());
+        vo.setMessage(result.getMessage());
+        vo.setSuccess(result.getSuccess());
+        vo.setUpdateCount(result.getUpdateCount());
+        vo.setHeaderList(result.getHeaderList());
+        vo.setDataList(result.getDataList());
+        vo.setSqlType(result.getSqlType());
+        vo.setHasNextPage(result.getHasNextPage());
+        vo.setPageNo(result.getPageNo());
+        vo.setPageSize(result.getPageSize());
+        vo.setFuzzyTotal(result.getFuzzyTotal());
+        vo.setDuration(result.getDuration());
+        vo.setTableName(result.getTableName());
+        vo.setVkSuggestions(result.getVkSuggestions());
+        return vo;
     }
 
 }

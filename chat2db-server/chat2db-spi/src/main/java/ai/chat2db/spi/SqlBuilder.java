@@ -106,4 +106,20 @@ public interface SqlBuilder {
         return null;
     }
 
+    /**
+     * Generate OPTIMIZE TABLE SQL
+     * Returns null if not supported by this database
+     */
+    default String buildOptimizeTableSql(String databaseName, String schemaName, String tableName) {
+        return null;
+    }
+
+    /**
+     * Generate ANALYZE TABLE SQL
+     * Returns null if not supported by this database
+     */
+    default String buildAnalyzeTableSql(String databaseName, String schemaName, String tableName) {
+        return null;
+    }
+
 }

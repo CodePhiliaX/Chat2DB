@@ -19,6 +19,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.ForeignKey;
 import ai.chat2db.spi.model.SimpleTable;
 import ai.chat2db.spi.model.Sql;
@@ -187,5 +188,23 @@ public interface TableService {
      * @return
      */
     ListResult<String> queryDeprecatedTables(DeprecatedTableParam param);
+
+    /**
+     * Batch optimize tables
+     * @param tableNames
+     * @param databaseName
+     * @param schemaName
+     * @return
+     */
+    ListResult<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName);
+
+    /**
+     * Batch analyze tables
+     * @param tableNames
+     * @param databaseName
+     * @param schemaName
+     * @return
+     */
+    ListResult<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName);
 
 }
