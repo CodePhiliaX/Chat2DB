@@ -115,23 +115,48 @@
   flex-direction: column;
   padding: 20px;
   overflow: auto;
+  align-items: center;
+  justify-content: flex-start;
 
   .errorContent {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     gap: 16px;
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 800px;
     width: 100%;
+    padding-top: 20px;
   }
 
-  .stateIndicator {
-    flex: 1;
-    min-width: 0;
+  .errorMessage {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    background: var(--color-error-bg, rgba(255, 77, 79, 0.1));
+    border-radius: 8px;
+    border: 1px solid var(--color-error-border, rgba(255, 77, 79, 0.3));
+  }
+
+  .errorIcon {
+    font-size: 48px;
+    color: var(--color-error);
+  }
+
+  .errorText {
+    width: 100%;
+    font-size: 14px;
+    color: var(--color-error);
+    text-align: center;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
   }
 
   .aiFixButton {
     flex-shrink: 0;
-    white-space: nowrap;
+    margin-top: 8px;
   }
 }

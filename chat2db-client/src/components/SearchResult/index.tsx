@@ -228,12 +228,10 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         ) : (
           <div className={styles.errorContainer}>
             <div className={styles.errorContent}>
-              <StateIndicator
-                className={styles.stateIndicator}
-                key={queryResultData.uuid}
-                state="error"
-                text={queryResultData.message}
-              />
+              <div className={styles.errorMessage}>
+                <Iconfont code="&#xe755;" className={styles.errorIcon} />
+                <div className={styles.errorText}>{queryResultData.message}</div>
+              </div>
               <Button
                 type="primary"
                 className={styles.aiFixButton}

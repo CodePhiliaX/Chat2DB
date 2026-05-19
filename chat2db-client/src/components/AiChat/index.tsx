@@ -457,7 +457,7 @@ export default memo<IProps>((props) => {
     const activeConsoleInfo = consoleList?.find((c) => c.id === activeConsoleId);
     if (activeConsoleInfo) {
       const { getSearchResult } = require('@/pages/main/workspace/components/SQLExecute/searchResultRegistry');
-      const searchResultRef = getSearchResult(activeConsoleInfo.consoleId);
+      const searchResultRef = getSearchResult(activeConsoleInfo.id);
       if (searchResultRef?.current) {
         searchResultRef.current.handleExecuteSQL(sql);
         message.success('SQL已执行');
@@ -471,7 +471,7 @@ export default memo<IProps>((props) => {
     const activeConsoleInfo = consoleList?.find((c) => c.id === activeConsoleId);
     if (activeConsoleInfo) {
       const { getConsoleEditor } = require('@/pages/main/workspace/components/SQLExecute/consoleEditorRegistry');
-      const consoleRef = getConsoleEditor(activeConsoleInfo.consoleId);
+      const consoleRef = getConsoleEditor(activeConsoleInfo.id);
       if (consoleRef?.current?.editorRef) {
         consoleRef.current.editorRef.setValue(sql, 'cover');
         message.success('SQL已发送到编辑器');
