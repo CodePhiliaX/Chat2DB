@@ -19,10 +19,10 @@ import ai.chat2db.server.domain.core.cache.CacheManage;
 import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
 import ai.chat2db.spi.model.*;
@@ -202,7 +202,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             tableSelector.setIndexList(true);
             tableSelector.setForeignKey(true);
 
-            PageResult<Table> tables = tableService.pageQuery(param, tableSelector);
+            ServicePage<Table> tables = tableService.pageQuery(param, tableSelector);
             SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
             if (!CollectionUtils.isEmpty(tables.getData())) {
                 return sqlBuilder.buildCreateTableSql(tables.getData().get(0));
@@ -245,7 +245,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     .foreignKey(true)
                     .build();
 
-            PageResult<Table> tables = tableService.pageQuery(queryParam, tableSelector);
+            ServicePage<Table> tables = tableService.pageQuery(queryParam, tableSelector);
             return tables.getData().stream().map(table -> {
                 StringBuilder sb = new StringBuilder(table.getName());
                 String comment = StringUtils.defaultString(table.getComment(), table.getAiComment());

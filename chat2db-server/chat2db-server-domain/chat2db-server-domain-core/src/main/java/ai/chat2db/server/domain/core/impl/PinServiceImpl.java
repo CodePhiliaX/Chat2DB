@@ -7,7 +7,6 @@ import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.PinTableDO;
 import ai.chat2db.server.domain.repository.mapper.PinTableMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -58,7 +57,7 @@ public class PinServiceImpl implements PinService {
     }
 
     @Override
-    public ListResult<String> queryPinTables(PinTableParam param) {
+    public List<String> queryPinTables(PinTableParam param) {
         List<String> result = new ArrayList<>();
         LambdaQueryWrapper<PinTableDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PinTableDO::getUserId, param.getUserId());
@@ -77,6 +76,6 @@ public class PinServiceImpl implements PinService {
         if (!CollectionUtils.isEmpty(list)) {
             result = list.stream().map(pinTableDO -> pinTableDO.getTableName()).collect(Collectors.toList());
         }
-        return ListResult.of(result);
+        return result;
     }
 }

@@ -48,10 +48,7 @@ import ai.chat2db.server.domain.core.converter.PinTableConverter;
 import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.VirtualForeignKeyDO;
 import ai.chat2db.server.domain.repository.mapper.VirtualForeignKeyMapper;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.DBManage;
@@ -102,35 +99,31 @@ public class TableServiceImpl implements TableService {
     private LuceneIndexManagerFactory managerFactory;
 
     @Override
-    public DataResult<String> showCreateTable(ShowCreateTableParam param) {
+    public String showCreateTable(ShowCreateTableParam param) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
-        String ddl = metaSchema.tableDDL(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(),
+        return metaSchema.tableDDL(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(),
                 param.getTableName());
-        return DataResult.of(ddl);
     }
 
     @Override
-    public ActionResult drop(DropParam param) {
+    public void drop(DropParam param) {
         DBManage metaSchema = Chat2DBContext.getDBManage();
         metaSchema.dropTable(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(),
                 param.getTableName());
-        return ActionResult.isSuccess();
     }
 
     @Override
-    public DataResult<String> createTableExample(String dbType) {
-        String sql = Chat2DBContext.getDBConfig().getSimpleCreateTable();
-        return DataResult.of(sql);
+    public String createTableExample(String dbType) {
+        return Chat2DBContext.getDBConfig().getSimpleCreateTable();
     }
 
     @Override
-    public DataResult<String> alterTableExample(String dbType) {
-        String sql = Chat2DBContext.getDBConfig().getSimpleAlterTable();
-        return DataResult.of(sql);
+    public String alterTableExample(String dbType) {
+        return Chat2DBContext.getDBConfig().getSimpleAlterTable();
     }
 
     @Override
-    public DataResult<Table> query(TableQueryParam param, TableSelector selector) {
+    public Table query(TableQueryParam param, TableSelector selector) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         List<Table> tables = metaSchema.tables(Chat2DBContext.getConnection(), param.getDatabaseName(),
                 param.getSchemaName(), param.getTableName());
@@ -146,9 +139,9 @@ public class TableServiceImpl implements TableService {
                     metaSchema.foreignKeys(Chat2DBContext.getConnection(), param.getDatabaseName(),
                             param.getSchemaName(), param.getTableName()));
             setPrimaryKey(table);
-            return DataResult.of(table);
+            return table;
         }
-        return DataResult.of(null);
+        return null;
     }
 
     private void setPrimaryKey(Table table) {
@@ -187,7 +180,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public ListResult<Sql> buildSql(Table oldTable, Table newTable) {
+    public List<Sql> buildSql(Table oldTable, Table newTable) {
         initOldTable(oldTable, newTable);
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         List<Sql> sqls = new ArrayList<>();
@@ -198,20 +191,19 @@ public class TableServiceImpl implements TableService {
             initUpdatePrimaryKey(oldTable, newTable);
             sqls.add(Sql.builder().sql(sqlBuilder.buildModifyTaleSql(oldTable, newTable)).build());
         }
-        return ListResult.of(sqls);
+        return sqls;
     }
 
     @Override
-    public ListResult<String> buildBatchSql(List<Table> oldTables, List<Table> newTables) {
+    public List<String> buildBatchSql(List<Table> oldTables, List<Table> newTables) {
         if (oldTables.size() != newTables.size()) {
             throw new IllegalArgumentException("Old tables and new tables lists must have the same size.");
         }
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
-        List<String> batchSqls = IntStream.range(0, oldTables.size())
+        return IntStream.range(0, oldTables.size())
                 .mapToObj(i -> sqlBuilder.buildModifyTaleSql(oldTables.get(i), newTables.get(i)))
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.toList());
-        return ListResult.of(batchSqls);
     }
 
     private void initUpdatePrimaryKey(Table oldTable, Table newTable) {
@@ -360,15 +352,13 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
+    public ServicePage<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
         LuceneIndexManager<Table> luceneMgr = managerFactory.getManager(param.getDataSourceId());
         Long version = luceneMgr.getMaxVersion(param);
-        // 仅对元数据加载环节加锁
         if (needRefreshCache(param, version)) {
             loadAndCacheMetadata(luceneMgr, param.getDatabaseName(), param.getSchemaName(), version);
         }
         List<Table> tables;
-        // 处理排序参数
         if (StringUtils.isNotBlank(param.getSortField())) {
             boolean reverse = "descend".equals(param.getSortOrder());
             tables = luceneMgr.search(param, param.getLastDocId(), param.getSearchKey(), param.getSortField(), reverse);
@@ -413,12 +403,12 @@ public class TableServiceImpl implements TableService {
         }
         param.setLastDocId(luceneMgr.getLastDocId());
 
-        return PageResult.of(tables, total, param);
+        return ServicePage.of(tables, total, param.getPageNo(), param.getPageSize(), luceneMgr.getLastDocId());
     }
 
 
     @Override
-    public ListResult<SimpleTable> queryTables(TablePageQueryParam param) {
+    public List<SimpleTable> queryTables(TablePageQueryParam param) {
         LuceneIndexManager<Table> luceneMgr = managerFactory.getManager(param.getDataSourceId());
         Long version = luceneMgr.getMaxVersion(param);
         if (needRefreshCache(param, version)) {
@@ -432,7 +422,7 @@ public class TableServiceImpl implements TableService {
             t.setComment(table.getComment());
             tables.add(t);
         }
-        return ListResult.of(tables);
+        return tables;
     }
 
     private boolean needRefreshCache(TablePageQueryParam param, Long version) {
@@ -459,14 +449,14 @@ public class TableServiceImpl implements TableService {
         }
         PinTableParam pinTableParam = pinTableConverter.toPinTableParam(param);
         pinTableParam.setUserId(ContextUtils.getUserId());
-        ListResult<String> listResult = pinService.queryPinTables(pinTableParam);
-        if (!listResult.success() || CollectionUtils.isEmpty(listResult.getData())) {
+        List<String> pinnedTables = pinService.queryPinTables(pinTableParam);
+        if (CollectionUtils.isEmpty(pinnedTables)) {
             return list;
         }
         List<Table> tables = new ArrayList<>();
         Map<String, Table> tableMap = list.stream()
                 .collect(Collectors.toMap(Table::getName, Function.identity(), (o1, o2) -> o1));
-        for (String tableName : listResult.getData()) {
+        for (String tableName : pinnedTables) {
             Table table = tableMap.get(tableName);
             if (table != null) {
                 table.setPinned(true);
@@ -491,11 +481,11 @@ public class TableServiceImpl implements TableService {
         deprecatedTableParam.setDatabaseName(param.getDatabaseName());
         deprecatedTableParam.setSchemaName(param.getSchemaName());
         deprecatedTableParam.setUserId(ContextUtils.getUserId());
-        ListResult<String> listResult = deprecatedTableService.queryDeprecatedTables(deprecatedTableParam);
-        if (!listResult.success() || CollectionUtils.isEmpty(listResult.getData())) {
+        List<String> deprecatedTables = deprecatedTableService.queryDeprecatedTables(deprecatedTableParam);
+        if (CollectionUtils.isEmpty(deprecatedTables)) {
             return list;
         }
-        Set<String> deprecatedTableNames = new java.util.HashSet<>(listResult.getData());
+        Set<String> deprecatedTableNames = new java.util.HashSet<>(deprecatedTables);
         List<Table> filteredTables = new ArrayList<>();
         for (Table table : list) {
             if (table != null && !deprecatedTableNames.contains(table.getName())) {
@@ -506,17 +496,17 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public PageResult<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector) {
+    public ServicePage<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector) {
         DeprecatedTableParam deprecatedTableParam = new DeprecatedTableParam();
         deprecatedTableParam.setDataSourceId(param.getDataSourceId());
         deprecatedTableParam.setDatabaseName(param.getDatabaseName());
         deprecatedTableParam.setSchemaName(param.getSchemaName());
         deprecatedTableParam.setUserId(ContextUtils.getUserId());
-        ListResult<String> listResult = deprecatedTableService.queryDeprecatedTables(deprecatedTableParam);
-        if (!listResult.success() || CollectionUtils.isEmpty(listResult.getData())) {
-            return PageResult.of(Lists.newArrayList(), 0L, param);
+        List<String> tableNames = deprecatedTableService.queryDeprecatedTables(deprecatedTableParam);
+        if (CollectionUtils.isEmpty(tableNames)) {
+            return ServicePage.empty(param.getPageNo(), param.getPageSize());
         }
-        Set<String> deprecatedTableNames = new java.util.HashSet<>(listResult.getData());
+        Set<String> deprecatedTableNames = new java.util.HashSet<>(tableNames);
         List<Table> allTables = queryAllTables(param);
         List<Table> deprecatedTables = new ArrayList<>();
         for (Table table : allTables) {
@@ -525,7 +515,7 @@ public class TableServiceImpl implements TableService {
                 deprecatedTables.add(table);
             }
         }
-        return PageResult.of(deprecatedTables, (long) deprecatedTables.size(), param);
+        return ServicePage.of(deprecatedTables, (long) deprecatedTables.size(), param.getPageNo(), param.getPageSize());
     }
 
     private List<Table> queryAllTables(TablePageQueryParam param) {
@@ -538,19 +528,19 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public ActionResult deprecatedTable(DeprecatedTableParam param) {
+    public void deprecatedTable(DeprecatedTableParam param) {
         param.setUserId(ContextUtils.getUserId());
-        return deprecatedTableService.deprecatedTable(param);
+        deprecatedTableService.deprecatedTable(param);
     }
 
     @Override
-    public ActionResult deleteDeprecatedTable(DeprecatedTableParam param) {
+    public void deleteDeprecatedTable(DeprecatedTableParam param) {
         param.setUserId(ContextUtils.getUserId());
-        return deprecatedTableService.deleteDeprecatedTable(param);
+        deprecatedTableService.deleteDeprecatedTable(param);
     }
 
     @Override
-    public ListResult<String> queryDeprecatedTables(DeprecatedTableParam param) {
+    public List<String> queryDeprecatedTables(DeprecatedTableParam param) {
         param.setUserId(ContextUtils.getUserId());
         return deprecatedTableService.queryDeprecatedTables(param);
     }
@@ -617,11 +607,10 @@ public class TableServiceImpl implements TableService {
 
 
     @Override
-    public ActionResult truncate(DropParam param) {
+    public void truncate(DropParam param) {
         DBManage metaSchema = Chat2DBContext.getDBManage();
         metaSchema.truncate(Chat2DBContext.getConnection(), param.getDatabaseName(), param.getSchemaName(),
                 param.getTableName());
-        return ActionResult.isSuccess();
     }
 
     @Override
@@ -675,7 +664,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public ListResult<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName) {
+    public List<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName) {
         List<ExecuteResult> results = new ArrayList<>();
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         MetaData metaData = Chat2DBContext.getMetaData();
@@ -705,11 +694,11 @@ public class TableServiceImpl implements TableService {
                         .build());
             }
         }
-        return ListResult.of(results);
+        return results;
     }
 
     @Override
-    public ListResult<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName) {
+    public List<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName) {
         List<ExecuteResult> results = new ArrayList<>();
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         MetaData metaData = Chat2DBContext.getMetaData();
@@ -739,7 +728,7 @@ public class TableServiceImpl implements TableService {
                         .build());
             }
         }
-        return ListResult.of(results);
+        return results;
     }
 
 }

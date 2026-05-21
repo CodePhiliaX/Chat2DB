@@ -5,7 +5,7 @@ import ai.chat2db.server.domain.api.param.TablePageQueryParam;
 import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.service.TableService;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.util.EasyEnumUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
@@ -71,8 +71,8 @@ public class RdbDocController {
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(true);
-        PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
+        ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
         TableQueryParam param = rdbWebConverter.tableRequest2param(request);
         for (TableVO tableVO: tableVOS) {
             param.setTableName(tableVO.getName());

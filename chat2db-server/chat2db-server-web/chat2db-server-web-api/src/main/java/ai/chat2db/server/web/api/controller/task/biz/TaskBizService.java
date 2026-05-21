@@ -6,8 +6,8 @@ import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.api.service.TaskService;
 import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.tools.base.excption.BusinessException;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.common.model.Context;
 import ai.chat2db.server.tools.common.model.LoginUser;
 import ai.chat2db.server.tools.common.util.ContextUtils;
@@ -105,8 +105,8 @@ public class TaskBizService {
             TableSelector tableSelector = new TableSelector();
             tableSelector.setColumnList(true);
             tableSelector.setIndexList(true);
-            PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
-            List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
+            ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
+            List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
 
             SchemaDocExportContext context = SchemaDocExportContext.builder()
                     .tables(tableVOS)

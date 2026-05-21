@@ -2,7 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.DeprecatedTableParam;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 
 import java.util.List;
 
@@ -29,5 +28,5 @@ public interface DeprecatedTableService {
      * @param param
      * @return
      */
-    ListResult<String> queryDeprecatedTables(DeprecatedTableParam param);
+    List<String> queryDeprecatedTables(DeprecatedTableParam param);
 }

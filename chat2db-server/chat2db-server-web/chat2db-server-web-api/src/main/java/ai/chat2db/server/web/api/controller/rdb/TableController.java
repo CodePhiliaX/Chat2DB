@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,10 +24,10 @@ import ai.chat2db.server.domain.api.param.UpdateVirtualFKParam;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.DlTemplateService;
 import ai.chat2db.server.domain.api.service.TableService;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.rdb.converter.RdbWebConverter;
@@ -51,6 +52,7 @@ import ai.chat2db.server.web.api.controller.rdb.vo.SqlVO;
 import ai.chat2db.server.web.api.controller.rdb.vo.SyncResult;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.spi.model.SimpleTable;
+import ai.chat2db.spi.model.Sql;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
@@ -85,10 +87,10 @@ public class TableController {
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(false);
         tableSelector.setIndexList(false);
-        PageResult<Table> tableDTOPageResult = tableService.pageQuery(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
-        return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
-                request.getPageSize(), queryParam.getLastDocId());
+        ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
+        return WebPageResult.of(tableVOS, tablePage.getTotal(), request.getPageNo(),
+                request.getPageSize(), tablePage.getLastDocId());
     }
 
     /**
@@ -100,8 +102,8 @@ public class TableController {
     @GetMapping("/table_list")
     public ListResult<SimpleTable> tableList(@Valid TableBriefQueryRequest request) {
         TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
-        return tableService.queryTables(queryParam);
-
+        List<SimpleTable> tables = tableService.queryTables(queryParam);
+        return ListResult.of(tables);
     }
 
 
@@ -145,7 +147,8 @@ public class TableController {
     @GetMapping("/export")
     public DataResult<String> export(@Valid DdlExportRequest request) {
         ShowCreateTableParam param = rdbWebConverter.ddlExport2showCreate(request);
-        return tableService.showCreateTable(param);
+        String ddl = tableService.showCreateTable(param);
+        return DataResult.of(ddl);
     }
 
     /**
@@ -156,7 +159,8 @@ public class TableController {
      */
     @GetMapping("/create/example")
     public DataResult<String> createExample(@Valid TableCreateDdlQueryRequest request) {
-        return tableService.createTableExample(request.getDbType());
+        String sql = tableService.createTableExample(request.getDbType());
+        return DataResult.of(sql);
     }
 
     /**
@@ -167,7 +171,8 @@ public class TableController {
      */
     @GetMapping("/update/example")
     public DataResult<String> updateExample(@Valid TableUpdateDdlQueryRequest request) {
-        return tableService.alterTableExample(request.getDbType());
+        String sql = tableService.alterTableExample(request.getDbType());
+        return DataResult.of(sql);
     }
 
     /**
@@ -182,9 +187,8 @@ public class TableController {
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(true);
-        return tableService.query(queryParam, tableSelector);
-        //TableVO tableVO = rdbWebConverter.tableDto2vo(tableDTODataResult.getData());
-        //return DataResult.of(tableVO);
+        Table table = tableService.query(queryParam, tableSelector);
+        return DataResult.of(table);
     }
 
     /**
@@ -208,8 +212,9 @@ public class TableController {
             tableIndex.setTableName(table.getName());
             tableIndex.setDatabaseName(request.getDatabaseName());
         }
-        return tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()), table)
-                .map(rdbWebConverter::dto2vo);
+        List<Sql> sqls = tableService.buildSql(rdbWebConverter.tableRequest2param(request.getOldTable()), table);
+        List<SqlVO> sqlVOS = sqls.stream().map(sql -> rdbWebConverter.dto2vo(sql)).collect(Collectors.toList());
+        return ListResult.of(sqlVOS);
     }
 
     /**
@@ -220,7 +225,8 @@ public class TableController {
      */
     @PostMapping("/batch/modify/sql")
     public ListResult<String> batchModifySql(@Valid @RequestBody BatchTableModifySqlRequest request) {
-        return tableService.buildBatchSql(request.getOldTables(), request.getNewTables());
+        List<String> sqls = tableService.buildBatchSql(request.getOldTables(), request.getNewTables());
+        return ListResult.of(sqls);
     }
 
     /**
@@ -253,7 +259,8 @@ public class TableController {
     @PostMapping("/delete")
     public ActionResult delete(@Valid @RequestBody TableDeleteRequest request) {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
-        return tableService.drop(dropParam);
+        tableService.drop(dropParam);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -265,7 +272,8 @@ public class TableController {
     @PostMapping("/truncate")
     public ActionResult truncate(@Valid @RequestBody TableDeleteRequest request) {
         DropParam truncateParam = rdbWebConverter.tableDelete2dropParam(request);
-        return tableService.truncate(truncateParam);
+        tableService.truncate(truncateParam);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -277,7 +285,8 @@ public class TableController {
     @PostMapping("/deprecated")
     public ActionResult deprecated(@Valid @RequestBody DeprecatedTableRequest request) {
         DeprecatedTableParam param = rdbWebConverter.deprecatedTableRequest2param(request);
-        return tableService.deprecatedTable(param);
+        tableService.deprecatedTable(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -289,7 +298,8 @@ public class TableController {
     @PostMapping("/cancel_deprecated")
     public ActionResult cancelDeprecated(@Valid @RequestBody DeprecatedTableRequest request) {
         DeprecatedTableParam param = rdbWebConverter.deprecatedTableRequest2param(request);
-        return tableService.deleteDeprecatedTable(param);
+        tableService.deleteDeprecatedTable(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -305,10 +315,10 @@ public class TableController {
         tableSelector.setColumnList(false);
         tableSelector.setIndexList(false);
 
-        PageResult<Table> tableDTOPageResult = tableService.pageQueryDeprecated(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
+        ServicePage<Table> tablePage = tableService.pageQueryDeprecated(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
 
-        return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
+        return WebPageResult.of(tableVOS, tablePage.getTotal(), request.getPageNo(),
                 request.getPageSize());
     }
 
@@ -320,9 +330,9 @@ public class TableController {
      */
     @PostMapping("/batch/optimize")
     public ListResult<ExecuteResultVO> batchOptimize(@Valid @RequestBody BatchTableOperationRequest request) {
-        ListResult<ExecuteResult> results = tableService.batchOptimizeTables(
+        List<ExecuteResult> results = tableService.batchOptimizeTables(
                 request.getTableNames(), request.getDatabaseName(), request.getSchemaName());
-        List<ExecuteResultVO> voList = results.getData().stream().map(this::executeResult2vo).toList();
+        List<ExecuteResultVO> voList = results.stream().map(this::executeResult2vo).collect(Collectors.toList());
         return ListResult.of(voList);
     }
 
@@ -334,9 +344,9 @@ public class TableController {
      */
     @PostMapping("/batch/analyze")
     public ListResult<ExecuteResultVO> batchAnalyze(@Valid @RequestBody BatchTableOperationRequest request) {
-        ListResult<ExecuteResult> results = tableService.batchAnalyzeTables(
+        List<ExecuteResult> results = tableService.batchAnalyzeTables(
                 request.getTableNames(), request.getDatabaseName(), request.getSchemaName());
-        List<ExecuteResultVO> voList = results.getData().stream().map(this::executeResult2vo).toList();
+        List<ExecuteResultVO> voList = results.stream().map(this::executeResult2vo).collect(Collectors.toList());
         return ListResult.of(voList);
     }
 

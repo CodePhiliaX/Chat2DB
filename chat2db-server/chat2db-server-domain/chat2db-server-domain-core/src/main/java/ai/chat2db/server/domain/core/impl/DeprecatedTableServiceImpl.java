@@ -7,7 +7,6 @@ import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DeprecatedTableDO;
 import ai.chat2db.server.domain.repository.mapper.DeprecatedTableMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -58,7 +57,7 @@ public class DeprecatedTableServiceImpl implements DeprecatedTableService {
     }
 
     @Override
-    public ListResult<String> queryDeprecatedTables(DeprecatedTableParam param) {
+    public List<String> queryDeprecatedTables(DeprecatedTableParam param) {
         List<String> result = new ArrayList<>();
         LambdaQueryWrapper<DeprecatedTableDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DeprecatedTableDO::getUserId, param.getUserId());
@@ -77,6 +76,6 @@ public class DeprecatedTableServiceImpl implements DeprecatedTableService {
         if (!CollectionUtils.isEmpty(list)) {
             result = list.stream().map(deprecatedTableDO -> deprecatedTableDO.getTableName()).collect(Collectors.toList());
         }
-        return ListResult.of(result);
+        return result;
     }
 }

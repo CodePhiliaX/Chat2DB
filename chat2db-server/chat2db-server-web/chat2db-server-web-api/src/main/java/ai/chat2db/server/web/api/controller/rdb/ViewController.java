@@ -67,7 +67,8 @@ public class ViewController {
     @PostMapping("/delete")
     public ActionResult delete(@Valid TableDeleteRequest request) {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
-       return tableService.drop(dropParam);
+        tableService.drop(dropParam);
+        return ActionResult.isSuccess();
     }
 
 }

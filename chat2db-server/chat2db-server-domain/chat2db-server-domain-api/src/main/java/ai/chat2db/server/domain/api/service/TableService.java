@@ -15,10 +15,7 @@ import ai.chat2db.server.domain.api.param.TreeSearchParam;
 import ai.chat2db.server.domain.api.param.TypeQueryParam;
 import ai.chat2db.server.domain.api.param.UpdateVirtualFKParam;
 import ai.chat2db.server.domain.api.service.ForeignKeySyncService;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.ForeignKey;
 import ai.chat2db.spi.model.SimpleTable;
@@ -45,7 +42,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    DataResult<String> showCreateTable(ShowCreateTableParam param);
+    String showCreateTable(ShowCreateTableParam param);
 
     /**
      * 删除表
@@ -53,7 +50,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    ActionResult drop(DropParam param);
+    void drop(DropParam param);
 
 
     /**
@@ -62,7 +59,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    ActionResult truncate(DropParam param);
+    void truncate(DropParam param);
 
     /**
      * 创建表结构的样例
@@ -70,7 +67,7 @@ public interface TableService {
      * @param dbType
      * @return
      */
-    DataResult<String> createTableExample(String dbType);
+    String createTableExample(String dbType);
 
     /**
      * 修改表结构的样例
@@ -78,7 +75,7 @@ public interface TableService {
      * @param dbType
      * @return
      */
-    DataResult<String> alterTableExample(String dbType);
+    String alterTableExample(String dbType);
 
     /**
      * 查询表信息
@@ -86,7 +83,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    DataResult<Table> query(TableQueryParam param, TableSelector selector);
+    Table query(TableQueryParam param, TableSelector selector);
 
     /**
      * 构建sql
@@ -95,14 +92,14 @@ public interface TableService {
      * @param newTable
      * @return
      */
-    ListResult<Sql> buildSql(Table oldTable, Table newTable);
+    List<Sql> buildSql(Table oldTable, Table newTable);
     /**
      * 批量生成sql
      * @param oldTables
      * @param newTables
      * @return
      */
-    ListResult<String> buildBatchSql(List<Table> oldTables, List<Table> newTables);
+    List<String> buildBatchSql(List<Table> oldTables, List<Table> newTables);
 
     /**
      * 分页查询表信息
@@ -110,7 +107,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    PageResult<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
+    ServicePage<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
 
     /**
      * 分页查询已废弃的表信息（回收站）
@@ -118,7 +115,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    PageResult<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector);
+    ServicePage<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector);
 
 
     /**
@@ -126,7 +123,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    ListResult<SimpleTable> queryTables(TablePageQueryParam param);
+    List<SimpleTable> queryTables(TablePageQueryParam param);
 
     /**
      * 查询表包含的字段
@@ -173,21 +170,21 @@ public interface TableService {
      * @param param
      * @return
      */
-    ActionResult deprecatedTable(DeprecatedTableParam param);
+    void deprecatedTable(DeprecatedTableParam param);
 
     /**
      * Delete deprecated table
      * @param param
      * @return
      */
-    ActionResult deleteDeprecatedTable(DeprecatedTableParam param);
+    void deleteDeprecatedTable(DeprecatedTableParam param);
 
     /**
      * Query user deprecated tables
      * @param param
      * @return
      */
-    ListResult<String> queryDeprecatedTables(DeprecatedTableParam param);
+    List<String> queryDeprecatedTables(DeprecatedTableParam param);
 
     /**
      * Batch optimize tables
@@ -196,7 +193,7 @@ public interface TableService {
      * @param schemaName
      * @return
      */
-    ListResult<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName);
+    List<ExecuteResult> batchOptimizeTables(List<String> tableNames, String databaseName, String schemaName);
 
     /**
      * Batch analyze tables
@@ -205,6 +202,6 @@ public interface TableService {
      * @param schemaName
      * @return
      */
-    ListResult<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName);
+    List<ExecuteResult> batchAnalyzeTables(List<String> tableNames, String databaseName, String schemaName);
 
 }
