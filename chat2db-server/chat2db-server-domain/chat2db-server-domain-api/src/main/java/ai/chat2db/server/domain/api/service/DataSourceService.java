@@ -8,10 +8,8 @@ import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
 import ai.chat2db.spi.model.Database;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +29,7 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    DataResult<Long> createWithPermission(DataSourceCreateParam param);
+    Long createWithPermission(DataSourceCreateParam param);
 
     /**
      * 更新数据源连接
@@ -39,7 +37,7 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    DataResult<Long> updateWithPermission(DataSourceUpdateParam param);
+    Long updateWithPermission(DataSourceUpdateParam param);
 
     /**
      * 删除数据源连接
@@ -47,7 +45,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    ActionResult deleteWithPermission(@NotNull Long id);
+    void deleteWithPermission(@NotNull Long id);
 
     /**
      * 根据id查询数据源连接详情
@@ -55,7 +53,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    DataResult<DataSource> queryById(@NotNull Long id);
+    DataSource queryById(@NotNull Long id);
 
     /**
      * 根据id查询数据源连接详情
@@ -64,7 +62,7 @@ public interface DataSourceService {
      * @return
      * @throws ai.chat2db.server.tools.common.exception.DataNotFoundException
      */
-    DataResult<DataSource> queryExistent(@NotNull Long id, DataSourceSelector selector);
+    DataSource queryExistent(@NotNull Long id, DataSourceSelector selector);
 
     /**
      * 克隆连接
@@ -72,7 +70,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    DataResult<Long> copyByIdWithPermission(@NotNull Long id);
+    Long copyByIdWithPermission(@NotNull Long id);
 
     /**
      * 分页查询数据源列表
@@ -81,7 +79,7 @@ public interface DataSourceService {
      * @param selector
      * @return
      */
-    PageResult<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector);
+    ServicePage<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector);
 
     /**
      * 分页查询数据源列表
@@ -92,7 +90,7 @@ public interface DataSourceService {
      * @return
      * @throws PermissionDeniedBusinessException
      */
-    PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector);
+    ServicePage<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector);
 
     /**
      * 通过 ID 列表查询数据源
@@ -101,7 +99,7 @@ public interface DataSourceService {
      * @param selector
      * @return
      */
-    ListResult<DataSource> listQuery(List<Long> idList, DataSourceSelector selector);
+    List<DataSource> listQuery(List<Long> idList, DataSourceSelector selector);
 
     /**
      * 数据源连接测试
@@ -109,7 +107,7 @@ public interface DataSourceService {
      * @param param
      * @return
      */
-    ActionResult preConnect(DataSourcePreConnectParam param);
+    void preConnect(DataSourcePreConnectParam param);
 
     /**
      * 连接数据源
@@ -117,7 +115,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    ListResult<Database> connect(Long id);
+    List<Database> connect(Long id);
 
     /**
      * 关闭数据源连接
@@ -125,7 +123,7 @@ public interface DataSourceService {
      * @param id
      * @return
      */
-    ActionResult close(Long id);
+    void close(Long id);
 
 
     /**

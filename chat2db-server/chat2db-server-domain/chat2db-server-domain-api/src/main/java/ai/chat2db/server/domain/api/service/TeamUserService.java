@@ -5,9 +5,8 @@ import ai.chat2db.server.domain.api.param.team.user.TeamUserComprehensivePageQue
 import ai.chat2db.server.domain.api.param.team.user.TeamUserCreatParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.user.TeamUserSelector;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -24,7 +23,7 @@ public interface TeamUserService {
      * @param selector
      * @return
      */
-    PageResult<TeamUser> pageQuery(TeamUserPageQueryParam param, TeamUserSelector selector);
+    ServicePage<TeamUser> pageQuery(TeamUserPageQueryParam param, TeamUserSelector selector);
 
     /**
      * Comprehensive Paging Query Data
@@ -33,7 +32,7 @@ public interface TeamUserService {
      * @param selector
      * @return
      */
-    PageResult<TeamUser> comprehensivePageQuery(TeamUserComprehensivePageQueryParam param, TeamUserSelector selector);
+    ServicePage<TeamUser> comprehensivePageQuery(TeamUserComprehensivePageQueryParam param, TeamUserSelector selector);
 
     /**
      * Create
@@ -41,7 +40,7 @@ public interface TeamUserService {
      * @param param
      * @return
      */
-    DataResult<Long> create(TeamUserCreatParam param);
+    Long create(TeamUserCreatParam param);
 
     /**
      * delete
@@ -49,5 +48,5 @@ public interface TeamUserService {
      * @param id
      * @return
      */
-    ActionResult delete(@NotNull Long id);
+    void delete(@NotNull Long id);
 }

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/function")
 @RestController
@@ -24,14 +26,14 @@ public class FunctionController {
 
     @GetMapping("/list")
     public WebPageResult<Function> list(@Valid FunctionPageRequest request) {
-        ListResult<Function> functionListResult = functionService.functionsWithCache(request.getDataSourceId(),
+        List<Function> functionList = functionService.functionsWithCache(request.getDataSourceId(),
                 request.getDatabaseName(), request.getSchemaName(), request.getSearchKey(), request.isRefresh());
-        return WebPageResult.of(functionListResult.getData(), Long.valueOf(functionListResult.getData().size()), 1,
-            functionListResult.getData().size());
+        return WebPageResult.of(functionList, Long.valueOf(functionList.size()), 1,
+            functionList.size());
     }
 
     @GetMapping("/detail")
     public DataResult<Function> detail(@Valid FunctionDetailRequest request) {
-        return functionService.detail(request.getDatabaseName(), request.getSchemaName(), request.getFunctionName());
+        return DataResult.of(functionService.detail(request.getDatabaseName(), request.getSchemaName(), request.getFunctionName()));
     }
 }

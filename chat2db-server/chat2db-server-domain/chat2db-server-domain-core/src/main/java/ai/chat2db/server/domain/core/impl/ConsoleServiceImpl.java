@@ -17,14 +17,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsoleServiceImpl implements ConsoleService {
     @Override
-    public ActionResult createConsole(ConsoleConnectParam param) {
+    public void createConsole(ConsoleConnectParam param) {
         Chat2DBContext.getDBManage().connectDatabase(Chat2DBContext.getConnection(),param.getDatabaseName());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ActionResult closeConsole(ConsoleCloseParam param) {
-        return ActionResult.isSuccess();
+    public void closeConsole(ConsoleCloseParam param) {
+        
     }
 
 }

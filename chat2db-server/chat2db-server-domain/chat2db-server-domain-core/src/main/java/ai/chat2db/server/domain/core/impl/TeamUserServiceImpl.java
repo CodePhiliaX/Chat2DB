@@ -18,6 +18,7 @@ import ai.chat2db.server.domain.repository.mapper.TeamUserMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -55,7 +56,7 @@ public class TeamUserServiceImpl implements TeamUserService {
     private TeamConverter teamConverter;
 
     @Override
-    public PageResult<TeamUser> pageQuery(TeamUserPageQueryParam param, TeamUserSelector selector) {
+    public ServicePage<TeamUser> pageQuery(TeamUserPageQueryParam param, TeamUserSelector selector) {
         LambdaQueryWrapper<TeamUserDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(TeamUserDO::getTeamId, param.getTeamId())
             .eq(TeamUserDO::getUserId, param.getUserId())
@@ -69,11 +70,11 @@ public class TeamUserServiceImpl implements TeamUserService {
 
         fillData(list, selector);
 
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public PageResult<TeamUser> comprehensivePageQuery(TeamUserComprehensivePageQueryParam param,
+    public ServicePage<TeamUser> comprehensivePageQuery(TeamUserComprehensivePageQueryParam param,
         TeamUserSelector selector) {
         Page<TeamUserDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
@@ -84,21 +85,21 @@ public class TeamUserServiceImpl implements TeamUserService {
 
         fillData(list, selector);
 
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public DataResult<Long> create(TeamUserCreatParam param) {
+    public Long create(TeamUserCreatParam param) {
         TeamUserDO data = teamUserConverter.param2do(param, ContextUtils.getUserId());
 
         getTeamUserMapper().insert(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public void delete(Long id) {
         getTeamUserMapper().deleteById(id);
-        return ActionResult.isSuccess();
+        
     }
 
     private void fillData(List<TeamUser> list, TeamUserSelector selector) {
@@ -125,3 +126,4 @@ public class TeamUserServiceImpl implements TeamUserService {
         teamConverter.fillDetail(EasyCollectionUtils.toList(list, TeamUser::getTeam));
     }
 }
+

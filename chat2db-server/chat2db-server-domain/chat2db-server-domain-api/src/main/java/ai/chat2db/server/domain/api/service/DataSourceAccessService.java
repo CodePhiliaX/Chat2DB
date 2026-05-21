@@ -5,9 +5,8 @@ import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessComp
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessCreatParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessPageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.access.DataSourceAccessSelector;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -24,7 +23,7 @@ public interface DataSourceAccessService {
      * @param selector
      * @return
      */
-    PageResult<DataSourceAccess> pageQuery(DataSourceAccessPageQueryParam param, DataSourceAccessSelector selector);
+    ServicePage<DataSourceAccess> pageQuery(DataSourceAccessPageQueryParam param, DataSourceAccessSelector selector);
 
     /**
      * Paging Query Data
@@ -33,7 +32,7 @@ public interface DataSourceAccessService {
      * @param selector
      * @return
      */
-    PageResult<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
+    ServicePage<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
         DataSourceAccessSelector selector);
 
 
@@ -43,12 +42,12 @@ public interface DataSourceAccessService {
      * @param param
      * @return
      */
-    DataResult<Long> create(DataSourceAccessCreatParam param);
+    Long create(DataSourceAccessCreatParam param);
     /**
      * delete
      *
      * @param id
      * @return
      */
-    ActionResult delete(@NotNull Long id);
+    void delete(@NotNull Long id);
 }

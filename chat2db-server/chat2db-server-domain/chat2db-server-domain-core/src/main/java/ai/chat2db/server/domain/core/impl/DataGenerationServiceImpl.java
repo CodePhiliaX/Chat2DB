@@ -56,7 +56,7 @@ public class DataGenerationServiceImpl implements DataGenerationService {
     private DataGenerationRuleService ruleService;
 
     @Override
-    public ListResult<ColumnConfigParam> getTableColumns(DataGenerationRequest request) {
+    public List<ColumnConfigParam> getTableColumns(DataGenerationRequest request) {
         try {
             TableQueryParam param = new TableQueryParam();
             param.setDataSourceId(request.getDataSourceId());
@@ -66,15 +66,15 @@ public class DataGenerationServiceImpl implements DataGenerationService {
 
             List<TableColumn> tableColumns = tableService.queryColumns(param);
             if (tableColumns == null) {
-                return ListResult.error("GET_TABLE_COLUMNS_ERROR", "获取表列信息失败");
+                throw new BusinessException("GET_TABLE_COLUMNS_ERROR", new Object[]{"获取表列信息失败"});
             }
 
-            ListResult<ColumnConfigParam> savedConfigs = ruleService.getColumnConfigs(
+            List<ColumnConfigParam> savedConfigs = ruleService.getColumnConfigs(
                     request.getDataSourceId(), request.getDatabaseName(), request.getSchemaName(), request.getTableName());
 
             Map<String, ColumnConfigParam> savedMap = new HashMap<>();
-            if (savedConfigs.success() && savedConfigs.getData() != null) {
-                for (ColumnConfigParam cfg : savedConfigs.getData()) {
+            if (savedConfigs != null && !savedConfigs.isEmpty()) {
+                for (ColumnConfigParam cfg : savedConfigs) {
                     savedMap.put(cfg.getColumnName(), cfg);
                 }
             }
@@ -99,21 +99,21 @@ public class DataGenerationServiceImpl implements DataGenerationService {
                 columns.add(config);
             }
 
-            return ListResult.of(columns);
+            return columns;
         } catch (Exception e) {
             log.error("Failed to get table columns", e);
-            return ListResult.error("GET_TABLE_COLUMNS_ERROR", "获取表列信息失败: " + e.getMessage());
+            throw new BusinessException("GET_TABLE_COLUMNS_ERROR", new Object[]{"获取表列信息失败: " + e.getMessage()});
         }
     }
 
     @Override
-    public DataResult<DataGenerationPreviewVO> generatePreview(DataGenerationRequest request) {
+    public DataGenerationPreviewVO generatePreview(DataGenerationRequest request) {
         try {
             saveConfigs(request);
 
             List<ColumnConfigParam> columns = resolveColumns(request);
             if (columns == null) {
-                return DataResult.error("GET_TABLE_COLUMNS_ERROR", "获取表列信息失败");
+                throw new BusinessException("GET_TABLE_COLUMNS_ERROR", new Object[]{"获取表列信息失败"});
             }
 
             List<Map<String, Object>> previewData = generateDataRows(request, columns, 10);
@@ -132,17 +132,22 @@ public class DataGenerationServiceImpl implements DataGenerationService {
             }
             previewVO.setColumns(columnInfos);
 
-            return DataResult.of(previewVO);
+            return previewVO;
         } catch (Exception e) {
             log.error("Failed to generate preview", e);
-            return DataResult.error("GENERATE_PREVIEW_ERROR", "生成预览失败: " + e.getMessage());
+            throw new BusinessException("GENERATE_PREVIEW_ERROR", new Object[]{"生成预览失败: " + e.getMessage()});
         }
     }
 
     @Override
-    public DataResult<Long> executeDataGeneration(DataGenerationRequest request) {
+    public Long executeDataGeneration(DataGenerationRequest request) {
         try {
             saveConfigs(request);
+
+            List<ColumnConfigParam> columns = resolveColumns(request);
+            if (columns == null) {
+                throw new BusinessException("GET_TABLE_COLUMNS_ERROR", new Object[]{"获取表列信息失败"});
+            }
 
             TaskCreateParam taskParam = new TaskCreateParam();
             taskParam.setDataSourceId(request.getDataSourceId());
@@ -153,12 +158,10 @@ public class DataGenerationServiceImpl implements DataGenerationService {
             taskParam.setTaskName("数据生成 - " + request.getTableName());
             taskParam.setTaskProgress("0");
 
-            DataResult<Long> taskResult = taskService.create(taskParam);
-            if (!taskResult.success()) {
-                return DataResult.error("CREATE_TASK_ERROR", "创建任务失败");
+            Long taskId = taskService.create(taskParam);
+            if (taskId == null) {
+                throw new BusinessException("CREATE_TASK_ERROR", new Object[]{"创建任务失败"});
             }
-
-            Long taskId = taskResult.getData();
 
             LoginUser loginUser = ContextUtils.getLoginUser();
             ConnectInfo connectInfo = Chat2DBContext.getConnectInfo().copy();
@@ -172,16 +175,16 @@ public class DataGenerationServiceImpl implements DataGenerationService {
                 }
             });
 
-            return DataResult.of(taskId);
+            return taskId;
         } catch (Exception e) {
             log.error("Failed to execute data generation", e);
-            return DataResult.error("EXECUTE_GENERATION_ERROR", "执行数据生成失败: " + e.getMessage());
+            throw new BusinessException("EXECUTE_GENERATION_ERROR", new Object[]{"执行数据生成失败: " + e.getMessage()});
         }
     }
 
     @Override
-    public ListResult<GeneratorTemplate> getAllGeneratorTemplates() {
-        return ListResult.of(GeneratorTemplate.getDefaultTemplates());
+    public List<GeneratorTemplate> getAllGeneratorTemplates() {
+        return GeneratorTemplate.getDefaultTemplates();
     }
 
     private void saveConfigs(DataGenerationRequest request) {
@@ -198,11 +201,11 @@ public class DataGenerationServiceImpl implements DataGenerationService {
     }
 
     private List<ColumnConfigParam> resolveColumns(DataGenerationRequest request) {
-        ListResult<ColumnConfigParam> result = getTableColumns(request);
-        if (!result.success()) {
+        List<ColumnConfigParam> result = getTableColumns(request);
+        if (result == null || result.isEmpty()) {
             return null;
         }
-        List<ColumnConfigParam> dbColumns = result.getData();
+        List<ColumnConfigParam> dbColumns = result;
 
         if (request.getColumnConfigs() != null && !request.getColumnConfigs().isEmpty()) {
             Map<String, String> expressionMap = request.getColumnConfigs().stream()
@@ -393,3 +396,4 @@ public class DataGenerationServiceImpl implements DataGenerationService {
         Chat2DBContext.putContext(connectInfo);
     }
 }
+

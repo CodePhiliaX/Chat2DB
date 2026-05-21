@@ -56,8 +56,8 @@ public class SchemaController {
     public ListResult<SchemaVO> list(@Valid DataSourceBaseRequest request) {
         SchemaQueryParam queryParam = SchemaQueryParam.builder().dataSourceId(request.getDataSourceId()).dataBaseName(
                 request.getDatabaseName()).refresh(request.isRefresh()).build();
-        ListResult<Schema> tableColumns = databaseService.querySchema(queryParam);
-        List<SchemaVO> tableVOS = rdbWebConverter.schemaDto2vo(tableColumns.getData());
+        List<Schema> schemas = databaseService.querySchema(queryParam);
+        List<SchemaVO> tableVOS = rdbWebConverter.schemaDto2vo(schemas);
         return ListResult.of(tableVOS);
     }
 
@@ -71,7 +71,8 @@ public class SchemaController {
     public ActionResult deleteSchema(@Valid @RequestBody DataSourceBaseRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
                 .schemaName(request.getSchemaName()).build();
-        return databaseService.deleteSchema(param);
+        databaseService.deleteSchema(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -87,7 +88,7 @@ public class SchemaController {
                 .owner(request.getOwner())
                 .comment(request.getComment())
                 .build();
-        return databaseService.createSchema(schema);
+        return DataResult.of(databaseService.createSchema(schema));
     }
 
     /**
@@ -100,6 +101,7 @@ public class SchemaController {
     public ActionResult modifySchema(@Valid @RequestBody UpdateSchemaRequest request) {
         SchemaOperationParam param = SchemaOperationParam.builder().databaseName(request.getDatabaseName())
                 .schemaName(request.getSchemaName()).newSchemaName(request.getNewSchemaName()).build();
-        return databaseService.modifySchema(param);
+        databaseService.modifySchema(param);
+        return ActionResult.isSuccess();
     }
 }

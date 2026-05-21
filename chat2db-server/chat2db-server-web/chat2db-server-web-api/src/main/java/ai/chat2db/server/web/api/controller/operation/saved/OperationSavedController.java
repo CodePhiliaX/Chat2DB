@@ -8,9 +8,9 @@ import ai.chat2db.server.domain.api.param.operation.OperationQueryParam;
 import ai.chat2db.server.domain.api.param.operation.OperationSavedParam;
 import ai.chat2db.server.domain.api.param.operation.OperationUpdateParam;
 import ai.chat2db.server.domain.api.service.OperationService;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.operation.saved.converter.OperationWebConverter;
@@ -57,7 +57,7 @@ public class OperationSavedController {
     public WebPageResult<OperationVO> list(OperationQueryRequest request) {
         OperationPageQueryParam param = operationWebConverter.queryReq2param(request,ContextUtils.getUserId());
         param.setUserId(ContextUtils.getUserId());
-        PageResult<Operation> dtoPageResult = operationService.queryPage(param);
+        ServicePage<Operation> dtoPageResult = operationService.queryPage(param);
         List<OperationVO> operationVOS = operationWebConverter.dto2vo(dtoPageResult.getData());
         return WebPageResult.of(operationVOS, dtoPageResult.getTotal(), request.getPageNo(), request.getPageSize());
     }
@@ -73,7 +73,11 @@ public class OperationSavedController {
         OperationQueryParam param = new OperationQueryParam();
         param.setId(id);
         param.setUserId(ContextUtils.getUserId());
-        return operationService.queryExistent(param).map(operationWebConverter::dto2vo);
+        Operation result = operationService.queryExistent(param);
+        if (result == null) {
+            return null;
+        }
+        return DataResult.of(operationWebConverter.dto2vo(result));
     }
 
     /**
@@ -86,7 +90,7 @@ public class OperationSavedController {
     public DataResult<Long> create(@RequestBody OperationCreateRequest request) {
         OperationSavedParam param = operationWebConverter.req2param(request);
         param.setTabOpened("y");
-        return operationService.createWithPermission(param);
+        return DataResult.of(operationService.createWithPermission(param));
     }
 
     /**
@@ -98,7 +102,8 @@ public class OperationSavedController {
     @RequestMapping(value = "/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody OperationUpdateRequest request) {
         OperationUpdateParam param = operationWebConverter.updateReq2param(request);
-        return operationService.updateWithPermission(param);
+        operationService.updateWithPermission(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -129,6 +134,7 @@ public class OperationSavedController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable("id") Long id) {
-        return operationService.deleteWithPermission(id);
+        operationService.deleteWithPermission(id);
+        return ActionResult.isSuccess();
     }
 }

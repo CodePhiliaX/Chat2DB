@@ -25,6 +25,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
@@ -63,34 +64,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public DataResult<User> query(Long id) {
-        return DataResult.of(userConverter.do2dto(getDbhubUserMapper().selectById(id)));
+    public User query(Long id) {
+        return userConverter.do2dto(getDbhubUserMapper().selectById(id));
     }
 
     @Override
-    public DataResult<User> query(String userName) {
+    public User query(String userName) {
         LambdaQueryWrapper<DbhubUserDO> query = new LambdaQueryWrapper<>();
         if (Objects.nonNull(userName)) {
             query.eq(DbhubUserDO::getUserName, userName);
         }
         DbhubUserDO dbhubUserDO = getDbhubUserMapper().selectOne(query);
-        return DataResult.of(userConverter.do2dto(dbhubUserDO));
+        return userConverter.do2dto(dbhubUserDO);
     }
 
     @Override
-    public ListResult<User> listQuery(List<Long> idList) {
+    public List<User> listQuery(List<Long> idList) {
         if (CollectionUtils.isEmpty(idList)) {
-            return ListResult.empty();
+            return java.util.Collections.emptyList();
         }
         LambdaQueryWrapper<DbhubUserDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DbhubUserDO::getId, idList);
         List<DbhubUserDO> dataList = getDbhubUserMapper().selectList(queryWrapper);
-        List<User> list = userConverter.do2dto(dataList);
-        return ListResult.of(list);
+        return userConverter.do2dto(dataList);
     }
 
     @Override
-    public PageResult<User> pageQuery(UserPageQueryParam param, UserSelector selector) {
+    public ServicePage<User> pageQuery(UserPageQueryParam param, UserSelector selector) {
         EasyLambdaQueryWrapper<DbhubUserDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(DbhubUserDO::getUserName, "%" + param.getSearchKey() + "%")
@@ -108,11 +108,11 @@ public class UserServiceImpl implements UserService {
         List<User> list = userConverter.do2dto(iPage.getRecords());
 
         fillData(list, selector);
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public DataResult<Long> update(UserUpdateParam param) {
+    public Long update(UserUpdateParam param) {
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(param.getId())) {
             throw new BusinessException("user.canNotOperateSystemAccount");
         }
@@ -133,11 +133,11 @@ public class UserServiceImpl implements UserService {
             data.setRoleCode(null);
         }
         getDbhubUserMapper().updateById(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public void delete(Long id) {
         if (RoleCodeEnum.DESKTOP.getDefaultUserId().equals(id) || RoleCodeEnum.ADMIN.getDefaultUserId().equals(id)) {
             throw new BusinessException("user.canNotOperateSystemAccount");
         }
@@ -152,11 +152,11 @@ public class UserServiceImpl implements UserService {
             .eq(DataSourceAccessDO::getAccessObjectType, AccessObjectTypeEnum.USER.getCode())
         ;
         getDataSourceAccessMapper().delete(dataSourceAccessQueryWrapper);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Long> create(UserCreateParam param) {
+    public Long create(UserCreateParam param) {
         LambdaQueryWrapper<DbhubUserDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.and(wrapper -> wrapper.eq(DbhubUserDO::getUserName, param.getUserName())
             .or()
@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
         String bcryptPassword = DigestUtil.bcrypt(data.getPassword());
         data.setPassword(bcryptPassword);
         getDbhubUserMapper().insert(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     private void fillData(List<User> list, UserSelector selector) {

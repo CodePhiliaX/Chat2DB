@@ -69,11 +69,11 @@ public class RdbDmlController {
     @RequestMapping(value = "/execute", method = {RequestMethod.POST, RequestMethod.PUT})
     public ListResult<ExecuteResultVO> manage(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
+        List<ExecuteResult> resultList = dlTemplateService.execute(param);
 
         // Add Virtual FK suggestions using cached JSqlParser AST
-        if (!resultDTOListResult.getData().isEmpty()) {
-            ExecuteResult firstResult = resultDTOListResult.getData().get(0);
+        if (!resultList.isEmpty()) {
+            ExecuteResult firstResult = resultList.get(0);
             if (firstResult.getJsqlStatement() != null) {
                 List<VirtualForeignKey> existingFKs = foreignKeySyncService.listAllForeignKeys(
                         request.getDataSourceId(),
@@ -91,7 +91,7 @@ public class RdbDmlController {
                 }
             }
         }
-        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
+        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultList);
         return ListResult.of(resultVOS);
     }
 
@@ -137,8 +137,9 @@ public class RdbDmlController {
             // 拼接`tableName`，避免关键字被占用问题
             param.setSql("select * from " + metaData.getMetaDataName(request.getTableName()));
         }
-        return dlTemplateService.execute(param)
-                .map(rdbWebConverter::dto2vo);
+        List<ExecuteResult> resultList = dlTemplateService.execute(param);
+        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultList);
+        return ListResult.of(resultVOS);
     }
 
     /**
@@ -150,11 +151,11 @@ public class RdbDmlController {
     @RequestMapping(value = "/execute_update", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<ExecuteResultVO> executeSelectResultUpdate(@RequestBody DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        DataResult<ExecuteResult> result = dlTemplateService.executeUpdate(param);
-        if (!result.success()) {
-            return DataResult.error(result.getErrorCode(), result.getErrorMessage());
+        ExecuteResult result = dlTemplateService.executeUpdate(param);
+        if (result == null || Boolean.FALSE.equals(result.getSuccess())) {
+            return DataResult.error("EXECUTE_ERROR", result != null ? result.getMessage() : "Unknown error");
         }
-        ExecuteResultVO executeResultVO = rdbWebConverter.dto2vo(result.getData());
+        ExecuteResultVO executeResultVO = rdbWebConverter.dto2vo(result);
         return DataResult.of(executeResultVO);
 
     }
@@ -162,7 +163,7 @@ public class RdbDmlController {
     @RequestMapping(value = "/get_update_sql", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<String> getUpdateSelectResultSql(@RequestBody SelectResultUpdateRequest request) {
         UpdateSelectResultParam param = rdbWebConverter.request2param(request);
-        return dlTemplateService.updateSelectResult(param);
+        return DataResult.of(dlTemplateService.updateSelectResult(param));
     }
 
 
@@ -171,7 +172,7 @@ public class RdbDmlController {
 
         OrderByParam param = rdbWebConverter.request2param(request);
 
-        return dlTemplateService.getOrderBySql(param);
+        return DataResult.of(dlTemplateService.getOrderBySql(param));
     }
 
     /**
@@ -191,8 +192,8 @@ public class RdbDmlController {
                 boolean flag = true;
                 ExecuteResultVO executeResult = null;
                 //connection.setAutoCommit(false);
-                ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
-                List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
+                List<ExecuteResult> resultList = dlTemplateService.execute(param);
+                List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultList);
                 if (!CollectionUtils.isEmpty(resultVOS)) {
                     for (ExecuteResultVO resultVO : resultVOS) {
                         if (!resultVO.getSuccess()) {
@@ -227,7 +228,7 @@ public class RdbDmlController {
      */
     @RequestMapping(value = "/count", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<Long> count(@RequestBody DdlCountRequest request) {
-        return dlTemplateService.count(rdbWebConverter.request2param(request));
+        return DataResult.of(dlTemplateService.count(rdbWebConverter.request2param(request)));
     }
 
 }

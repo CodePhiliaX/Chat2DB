@@ -54,14 +54,14 @@ public class CommonAdminController {
     public ListResult<TeamUserListVO> teamUserList(@Valid CommonQueryRequest request) {
         UserPageQueryParam userPageQueryParam = commonAdminConverter.request2paramUser(request);
         List<TeamUserListVO> result = Lists.newArrayList();
-        result.addAll(userService.pageQuery(userPageQueryParam, null)
-            .mapToList(commonAdminConverter::dto2voTeamUser)
-            .getData());
+        result.addAll(userService.pageQuery(userPageQueryParam, null).getData().stream()
+            .map(commonAdminConverter::dto2voTeamUser)
+            .toList());
 
         TeamPageQueryParam teamPageQueryParam = commonAdminConverter.request2paramTeam(request);
-        result.addAll(teamService.pageQuery(teamPageQueryParam, null)
-            .mapToList(commonAdminConverter::dto2voTeamUser)
-            .getData());
+        result.addAll(teamService.pageQuery(teamPageQueryParam, null).getData().stream()
+            .map(commonAdminConverter::dto2voTeamUser)
+            .toList());
         return ListResult.of(result);
     }
 
@@ -74,8 +74,9 @@ public class CommonAdminController {
      */
     @GetMapping("/user/list")
     public ListResult<SimpleUserVO> userList(@Valid CommonQueryRequest request) {
-        return userService.pageQuery(commonAdminConverter.request2paramUser(request), null)
-            .mapToList(commonAdminConverter::dto2voUser);
+        return ListResult.of(userService.pageQuery(commonAdminConverter.request2paramUser(request), null).getData().stream()
+            .map(commonAdminConverter::dto2voUser)
+            .toList());
     }
 
     /**
@@ -87,8 +88,9 @@ public class CommonAdminController {
      */
     @GetMapping("/team/list")
     public ListResult<SimpleTeamVO> teamList(@Valid CommonQueryRequest request) {
-        return teamService.pageQuery(commonAdminConverter.request2paramTeam(request), null)
-            .mapToList(commonAdminConverter::dto2voTeam);
+        return ListResult.of(teamService.pageQuery(commonAdminConverter.request2paramTeam(request), null).getData().stream()
+            .map(commonAdminConverter::dto2voTeam)
+            .toList());
     }
 
     /**
@@ -100,8 +102,9 @@ public class CommonAdminController {
      */
     @GetMapping("/data_source/list")
     public ListResult<SimpleDataSourceVO> dataSourceList(@Valid CommonQueryRequest request) {
-        return dataSourceService.queryPageWithPermission(commonAdminConverter.request2paramDataSource(request),
-                DATA_SOURCE_SELECTOR)
-            .mapToList(commonAdminConverter::dto2voDataSource);
+        return ListResult.of(dataSourceService.queryPageWithPermission(commonAdminConverter.request2paramDataSource(request),
+                DATA_SOURCE_SELECTOR).getData().stream()
+            .map(commonAdminConverter::dto2voDataSource)
+            .toList());
     }
 }

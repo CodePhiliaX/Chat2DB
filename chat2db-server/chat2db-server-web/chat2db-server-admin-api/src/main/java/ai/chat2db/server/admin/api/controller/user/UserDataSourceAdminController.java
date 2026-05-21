@@ -53,9 +53,11 @@ public class UserDataSourceAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<UserDataSourcePageQueryVO> page(@Valid UserPageCommonQueryRequest request) {
-        return dataSourceAccessService.comprehensivePageQuery(userDataSourcesAdminConverter.request2param(request),
-                DATA_SOURCE_ACCESS_SELECTOR)
-            .mapToWeb(userDataSourcesAdminConverter::dto2vo);
+        var servicePage = dataSourceAccessService.comprehensivePageQuery(userDataSourcesAdminConverter.request2param(request),
+                DATA_SOURCE_ACCESS_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(userDataSourcesAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -74,7 +76,7 @@ public class UserDataSourceAdminController {
                 dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.USER.getCode());
                 dataSourceAccessPageQueryParam.setAccessObjectId(request.getUserId());
                 dataSourceAccessPageQueryParam.queryOne();
-                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).hasData()) {
+                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).isNotEmpty()) {
                     return;
                 }
                 dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
@@ -94,6 +96,7 @@ public class UserDataSourceAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return dataSourceAccessService.delete(id).toBooleaSuccessnDataResult();
+        dataSourceAccessService.delete(id);
+        return DataResult.of(true);
     }
 }

@@ -29,7 +29,7 @@ public class DataGenerationRuleServiceImpl implements DataGenerationRuleService 
     }
 
     @Override
-    public ListResult<ColumnConfigParam> getColumnConfigs(Long dataSourceId, String databaseName, String schemaName, String tableName) {
+    public List<ColumnConfigParam> getColumnConfigs(Long dataSourceId, String databaseName, String schemaName, String tableName) {
         try {
             QueryWrapper<DataGenerationRuleDO> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("data_source_id", dataSourceId);
@@ -43,22 +43,21 @@ public class DataGenerationRuleServiceImpl implements DataGenerationRuleService 
 
             DataGenerationRuleDO rule = getMapper().selectOne(queryWrapper);
             if (rule == null || rule.getColumnConfigs() == null) {
-                return ListResult.of(Collections.emptyList());
+                return Collections.emptyList();
             }
 
-            List<ColumnConfigParam> configs = JSON_MAPPER.readValue(
+            return JSON_MAPPER.readValue(
                     rule.getColumnConfigs(), new TypeReference<List<ColumnConfigParam>>() {});
-            return ListResult.of(configs);
         } catch (Exception e) {
             log.error("Failed to get column configs", e);
-            return ListResult.error("GET_COLUMN_CONFIGS_ERROR", "获取列配置失败: " + e.getMessage());
+            return Collections.emptyList();
         }
     }
 
     @Override
-    public ActionResult saveColumnConfigs(Long dataSourceId, String databaseName, String schemaName, String tableName, Long userId, List<ColumnConfigParam> configs, Integer rowCount) {
+    public void saveColumnConfigs(Long dataSourceId, String databaseName, String schemaName, String tableName, Long userId, List<ColumnConfigParam> configs, Integer rowCount) {
         if (configs == null || configs.isEmpty()) {
-            return ActionResult.isSuccess();
+            return;
         }
         try {
             QueryWrapper<DataGenerationRuleDO> queryWrapper = new QueryWrapper<>();
@@ -77,7 +76,8 @@ public class DataGenerationRuleServiceImpl implements DataGenerationRuleService 
             try {
                 jsonConfigs = JSON_MAPPER.writeValueAsString(configs);
             } catch (JsonProcessingException e) {
-                return ActionResult.fail("SERIALIZE_ERROR", "序列化列配置失败: " + e.getMessage(), null);
+                log.error("Failed to serialize column configs", e);
+                return;
             }
 
             if (existing != null) {
@@ -100,10 +100,9 @@ public class DataGenerationRuleServiceImpl implements DataGenerationRuleService 
                 rule.setGmtModified(now);
                 getMapper().insert(rule);
             }
-            return ActionResult.isSuccess();
+            
         } catch (Exception e) {
             log.error("Failed to save column configs", e);
-            return ActionResult.fail("SAVE_CONFIGS_ERROR", "保存配置失败: " + e.getMessage(), null);
         }
     }
 }

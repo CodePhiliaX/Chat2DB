@@ -51,8 +51,10 @@ public class UserAdminController {
     public WebPageResult<UserPageQueryVO> page(@Valid CommonPageQueryRequest request) {
         UserPageQueryParam param = userAdminConverter.request2param(request);
         param.orderBy(OrderCondition.ID_DESC);
-        return userService.pageQuery(param, USER_SELECTOR)
-            .mapToWeb(userAdminConverter::dto2vo);
+        var servicePage = userService.pageQuery(param, USER_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(userAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -64,7 +66,7 @@ public class UserAdminController {
      */
     @PostMapping("/create")
     public DataResult<Long> create(@Valid @RequestBody UserCreateRequest request) {
-        return userService.create(userAdminConverter.request2param(request));
+        return DataResult.of(userService.create(userAdminConverter.request2param(request)));
     }
 
     /**
@@ -76,7 +78,7 @@ public class UserAdminController {
      */
     @PostMapping("/update")
     public DataResult<Long> update(@RequestBody UserUpdateRequest request) {
-        return userService.update(userAdminConverter.request2param(request));
+        return DataResult.of(userService.update(userAdminConverter.request2param(request)));
     }
 
     /**
@@ -87,6 +89,7 @@ public class UserAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return userService.delete(id).toBooleaSuccessnDataResult();
+        userService.delete(id);
+        return DataResult.of(true);
     }
 }

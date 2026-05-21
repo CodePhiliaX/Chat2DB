@@ -7,10 +7,8 @@ import ai.chat2db.server.domain.api.param.team.TeamCreateParam;
 import ai.chat2db.server.domain.api.param.team.TeamPageQueryParam;
 import ai.chat2db.server.domain.api.param.team.TeamSelector;
 import ai.chat2db.server.domain.api.param.team.TeamUpdateParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import jakarta.validation.constraints.NotNull;
 
 /**
@@ -27,7 +25,7 @@ public interface TeamService {
      * @param selector
      * @return
      */
-    PageResult<Team> pageQuery(TeamPageQueryParam param, TeamSelector selector);
+    ServicePage<Team> pageQuery(TeamPageQueryParam param, TeamSelector selector);
 
     /**
      * List Query Data
@@ -35,7 +33,7 @@ public interface TeamService {
      * @param idList
      * @return
      */
-    ListResult<Team> listQuery(List<Long> idList);
+    List<Team> listQuery(List<Long> idList);
 
     /**
      * Create
@@ -43,7 +41,7 @@ public interface TeamService {
      * @param param
      * @return
      */
-    DataResult<Long> create(TeamCreateParam param);
+    Long create(TeamCreateParam param);
 
     /**
      * update
@@ -51,7 +49,7 @@ public interface TeamService {
      * @param param
      * @return
      */
-    DataResult<Long> update(TeamUpdateParam param);
+    Long update(TeamUpdateParam param);
 
     /**
      * delete
@@ -59,6 +57,6 @@ public interface TeamService {
      * @param id
      * @return
      */
-    ActionResult delete(@NotNull Long id);
+    void delete(@NotNull Long id);
 
 }

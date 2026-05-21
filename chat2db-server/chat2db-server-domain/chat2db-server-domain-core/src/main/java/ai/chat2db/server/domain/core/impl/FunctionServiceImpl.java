@@ -31,12 +31,12 @@ public class FunctionServiceImpl implements FunctionService {
     private LuceneIndexManagerFactory managerFactory;
 
     @Override
-    public ListResult<Function> functions(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().functions(Chat2DBContext.getConnection(),databaseName, schemaName));
+    public List<Function> functions(String databaseName, String schemaName) {
+        return Chat2DBContext.getMetaData().functions(Chat2DBContext.getConnection(),databaseName, schemaName);
     }
 
     @Override
-    public ListResult<Function> functionsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
+    public List<Function> functionsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
         LuceneIndexManager<Function> mgr = managerFactory.getManager(dataSourceId);
         Function queryModel = Function.builder()
                 .databaseName(databaseName)
@@ -49,12 +49,12 @@ public class FunctionServiceImpl implements FunctionService {
         }
 
         List<Function> functions = mgr.search(queryModel, null, searchKey);
-        return ListResult.of(functions);
+        return functions;
     }
 
     @Override
-    public DataResult<Function> detail(String databaseName, String schemaName, String functionName) {
-        return DataResult.of(Chat2DBContext.getMetaData().function(Chat2DBContext.getConnection(), databaseName, schemaName, functionName));
+    public Function detail(String databaseName, String schemaName, String functionName) {
+        return Chat2DBContext.getMetaData().function(Chat2DBContext.getConnection(), databaseName, schemaName, functionName);
     }
 
     @Override
@@ -123,3 +123,4 @@ public class FunctionServiceImpl implements FunctionService {
                 .build();
     }
 }
+

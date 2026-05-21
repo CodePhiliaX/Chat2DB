@@ -32,12 +32,12 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         return Dbutils.getMapper(DataSourceAccessCustomMapper.class);
     }
     @Override
-    public ActionResult checkPermission(@NotNull DataSource dataSource) {
+    public void checkPermission(@NotNull DataSource dataSource) {
         LoginUser loginUser = ContextUtils.getLoginUser();
         // private
         if (DataSourceKindEnum.PRIVATE.getCode().equals(dataSource.getKind())) {
             if (loginUser.getId().equals(dataSource.getUserId())) {
-                return ActionResult.isSuccess();
+                
             } else {
                 throw new PermissionDeniedBusinessException();
             }
@@ -45,7 +45,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
 
         // Administrators can edit anything
         if (loginUser.getAdmin()) {
-            return ActionResult.isSuccess();
+            
         }
 
         // Verify if user have permission
@@ -54,13 +54,13 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.USER.getCode());
         dataSourceAccessPageQueryParam.setAccessObjectId(loginUser.getId());
         dataSourceAccessPageQueryParam.queryOne();
-        if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).hasData()) {
-            return ActionResult.isSuccess();
+        if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).isNotEmpty()) {
+            
         }
 
         // Verify if the team has permission
         if (getMapper().checkTeamPermission(dataSource.getId(), loginUser.getId()) != null) {
-            return ActionResult.isSuccess();
+            
 
         }
         throw new PermissionDeniedBusinessException();

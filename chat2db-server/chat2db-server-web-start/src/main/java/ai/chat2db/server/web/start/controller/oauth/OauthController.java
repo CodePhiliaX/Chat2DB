@@ -52,7 +52,7 @@ public class OauthController {
         String clientFingerprint = getClientFingerprint();
         loginAttemptService.validateAttempt(clientFingerprint);
         // 查询用户
-        User user = userService.query(request.getUserName()).getData();
+        User user = userService.query(request.getUserName());
         this.validateUser(user);
 
         if (!DigestUtil.bcryptCheck(request.getPassword(), user.getPassword())) {

@@ -57,40 +57,40 @@ public class ChartServiceImpl implements ChartService {
     private ChartConverter chartConverter;
 
     @Override
-    public DataResult<Long> createWithPermission(ChartCreateParam param) {
+    public Long createWithPermission(ChartCreateParam param) {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
         param.setUserId(ContextUtils.getUserId());
         ChartDO chartDO = chartConverter.param2do(param);
         getMapper().insert(chartDO);
-        return DataResult.of(chartDO.getId());
+        return chartDO.getId();
     }
 
     @Override
-    public ActionResult updateWithPermission(ChartUpdateParam param) {
-        Chart data = queryExistent(param.getId()).getData();
+    public void updateWithPermission(ChartUpdateParam param) {
+        Chart data = queryExistent(param.getId());
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         param.setGmtModified(LocalDateTime.now());
         ChartDO chartDO = chartConverter.updateParam2do(param);
         getMapper().updateById(chartDO);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Chart> find(Long id) {
+    public Chart find(Long id) {
         ChartDO chartDO = getMapper().selectById(id);
-        if (YesOrNoEnum.YES.getLetter().equals(chartDO.getDeleted())) {
-            return DataResult.empty();
+        if (chartDO == null || YesOrNoEnum.YES.getLetter().equals(chartDO.getDeleted())) {
+            return null;
         }
         Chart chart = chartConverter.do2model(chartDO);
         setDataSourceInfo(Lists.newArrayList(chart));
-        return DataResult.of(chart);
+        return chart;
     }
 
     @Override
-    public DataResult<Chart> queryExistent(ChartQueryParam param) {
+    public Chart queryExistent(ChartQueryParam param) {
         EasyLambdaQueryWrapper<ChartDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper
             .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
@@ -102,20 +102,20 @@ public class ChartServiceImpl implements ChartService {
         }
         Chart data = chartConverter.do2model(page.getRecords().get(0));
         setDataSourceInfo(Lists.newArrayList(data));
-        return DataResult.of(data);
+        return data;
     }
 
     @Override
-    public DataResult<Chart> queryExistent(Long id) {
-        DataResult<Chart> dataResult = find(id);
-        if (dataResult.getData() == null) {
+    public Chart queryExistent(Long id) {
+        Chart chart = find(id);
+        if (chart == null) {
             throw new DataNotFoundException();
         }
-        return dataResult;
+        return chart;
     }
 
     @Override
-    public ListResult<Chart> listQuery(ChartListQueryParam param) {
+    public List<Chart> listQuery(ChartListQueryParam param) {
         EasyLambdaQueryWrapper<ChartDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper
             .eq(ChartDO::getDeleted, YesOrNoEnum.NO.getLetter())
@@ -124,12 +124,12 @@ public class ChartServiceImpl implements ChartService {
         List<ChartDO> queryList = getMapper().selectList(queryWrapper);
         List<Chart> list = chartConverter.do2model(queryList);
         setDataSourceInfo(list);
-        return ListResult.of(list);
+        return list;
     }
 
     @Override
-    public ActionResult deleteWithPermission(Long id) {
-        Chart data = queryExistent(id).getData();
+    public void deleteWithPermission(Long id) {
+        Chart data = queryExistent(id);
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         ChartDO chartDO = new ChartDO();
@@ -143,7 +143,7 @@ public class ChartServiceImpl implements ChartService {
         if (CollectionUtils.isNotEmpty(relationIds)) {
             getDashboardMapper().deleteBatchIds(relationIds);
         }
-        return ActionResult.isSuccess();
+        
     }
 
     /**
@@ -153,8 +153,8 @@ public class ChartServiceImpl implements ChartService {
      */
     private void setDataSourceInfo(List<Chart> result) {
         List<Long> dataSourceIds = result.stream().map(Chart::getDataSourceId).toList();
-        ListResult<DataSource> dataSourceListResult = dataSourceService.listQuery(dataSourceIds, null);
-        Map<Long, DataSource> dataSourceMap = dataSourceListResult.getData().stream().collect(
+        List<DataSource> dataSourceListResult = dataSourceService.listQuery(dataSourceIds, null);
+        Map<Long, DataSource> dataSourceMap = dataSourceListResult.stream().collect(
             Collectors.toMap(DataSource::getId, Function.identity(), (a, b) -> a));
         result.forEach(o -> {
             if (dataSourceMap.containsKey(o.getDataSourceId())) {

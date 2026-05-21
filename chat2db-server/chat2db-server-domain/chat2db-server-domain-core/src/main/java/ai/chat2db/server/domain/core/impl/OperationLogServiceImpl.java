@@ -20,6 +20,7 @@ import ai.chat2db.server.domain.repository.mapper.OperationLogMapper;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasySqlUtils;
@@ -50,17 +51,17 @@ public class OperationLogServiceImpl implements OperationLogService {
     private DataSourceService dataSourceService;
 
     @Override
-    public DataResult<Long> create(OperationLogCreateParam param) {
+    public Long create(OperationLogCreateParam param) {
         OperationLogDO userExecutedDdlDO = operationLogConverter.param2do(param);
         userExecutedDdlDO.setGmtCreate(LocalDateTime.now());
         userExecutedDdlDO.setGmtModified(LocalDateTime.now());
         userExecutedDdlDO.setUserId(ContextUtils.getUserId());
         getMapper().insert(userExecutedDdlDO);
-        return DataResult.of(userExecutedDdlDO.getId());
+        return userExecutedDdlDO.getId();
     }
 
     @Override
-    public PageResult<OperationLog> queryPage(OperationLogPageQueryParam param) {
+    public ServicePage<OperationLog> queryPage(OperationLogPageQueryParam param) {
         EasyLambdaQueryWrapper<OperationLogDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper.likeWhenPresent(OperationLogDO::getDdl, EasySqlUtils.buildLikeRightFuzzy(param.getSearchKey()))
                 .eqWhenPresent(OperationLogDO::getUserId, param.getUserId())
@@ -76,17 +77,17 @@ public class OperationLogServiceImpl implements OperationLogService {
         IPage<OperationLogDO> executedDdlDOIPage = getMapper().selectPage(page, queryWrapper);
         List<OperationLog> executedDdlDTOS = operationLogConverter.do2dto(executedDdlDOIPage.getRecords());
         if (CollectionUtils.isEmpty(executedDdlDTOS)) {
-            return PageResult.empty(param.getPageNo(), param.getPageSize());
+            return ServicePage.empty(param.getPageNo(), param.getPageSize());
         }
         List<Long> dataSourceIds = executedDdlDTOS.stream().map(OperationLog::getDataSourceId).toList();
-        ListResult<DataSource> dataSourceListResult = dataSourceService.listQuery(dataSourceIds, null);
-        Map<Long, DataSource> dataSourceMap = dataSourceListResult.getData().stream().collect(
+        List<DataSource> dataSources = dataSourceService.listQuery(dataSourceIds, null);
+        Map<Long, DataSource> dataSourceMap = dataSources.stream().collect(
             Collectors.toMap(DataSource::getId, Function.identity(), (a, b) -> a));
         executedDdlDTOS.stream().forEach(executeDdl -> {
             if (dataSourceMap.containsKey(executeDdl.getDataSourceId())) {
                 executeDdl.setDataSourceName(dataSourceMap.get(executeDdl.getDataSourceId()).getAlias());
             }
         });
-        return PageResult.of(executedDdlDTOS, executedDdlDOIPage.getTotal(), param);
+        return ServicePage.of(executedDdlDTOS, executedDdlDOIPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 }

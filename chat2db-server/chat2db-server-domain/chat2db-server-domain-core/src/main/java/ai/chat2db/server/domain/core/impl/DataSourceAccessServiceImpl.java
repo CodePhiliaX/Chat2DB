@@ -24,6 +24,7 @@ import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.tools.common.util.EasyCollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -64,7 +65,7 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
     private TeamService teamService;
 
     @Override
-    public PageResult<DataSourceAccess> pageQuery(DataSourceAccessPageQueryParam param, DataSourceAccessSelector selector) {
+    public ServicePage<DataSourceAccess> pageQuery(DataSourceAccessPageQueryParam param, DataSourceAccessSelector selector) {
         LambdaQueryWrapper<DataSourceAccessDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DataSourceAccessDO::getDataSourceId, param.getDataSourceId())
             .eq(DataSourceAccessDO::getAccessObjectType, param.getAccessObjectType())
@@ -79,11 +80,11 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
 
         fillData(list, selector);
 
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public PageResult<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
+    public ServicePage<DataSourceAccess> comprehensivePageQuery(DataSourceAccessComprehensivePageQueryParam param,
         DataSourceAccessSelector selector) {
         Page<DataSourceAccessDO> page = new Page<>(param.getPageNo(), param.getPageSize());
         page.setSearchCount(param.getEnableReturnCount());
@@ -96,21 +97,21 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
 
         fillData(list, selector);
 
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public DataResult<Long> create(DataSourceAccessCreatParam param) {
+    public Long create(DataSourceAccessCreatParam param) {
         DataSourceAccessDO data = dataSourceAccessConverter.param2do(param, ContextUtils.getUserId());
 
         getAccessMapper().insert(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public void delete(Long id) {
         getAccessMapper().deleteById(id);
-        return ActionResult.isSuccess();
+        
     }
 
     private void fillData(List<DataSourceAccess> list, DataSourceAccessSelector selector) {
@@ -144,9 +145,9 @@ public class DataSourceAccessServiceImpl implements DataSourceAccessService {
                 userIdList.add(data.getAccessObjectId());
             }
         }
-        List<User> userList = userService.listQuery(userIdList).getData();
+        List<User> userList = userService.listQuery(userIdList);
         Map<Long, User> userMap = EasyCollectionUtils.toIdentityMap(userList, User::getId);
-        List<Team> teamList = teamService.listQuery(teamIdList).getData();
+        List<Team> teamList = teamService.listQuery(teamIdList);
         Map<Long, Team> teamMap = EasyCollectionUtils.toIdentityMap(teamList, Team::getId);
         for (DataSourceAccess data : list) {
             DataSourceAccessObject dataSourceAccessObject = data.getAccessObject();

@@ -23,6 +23,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.DataAlreadyExistsBusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
@@ -64,19 +65,18 @@ public class TeamServiceImpl implements TeamService {
     private UserConverter userConverter;
 
     @Override
-    public ListResult<Team> listQuery(List<Long> idList) {
+    public List<Team> listQuery(List<Long> idList) {
         if (CollectionUtils.isEmpty(idList)) {
-            return ListResult.empty();
+            return java.util.Collections.emptyList();
         }
         LambdaQueryWrapper<TeamDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TeamDO::getId, idList);
         List<TeamDO> dataList = getTeamMapper().selectList(queryWrapper);
-        List<Team> list = teamConverter.do2dto(dataList);
-        return ListResult.of(list);
+        return teamConverter.do2dto(dataList);
     }
 
     @Override
-    public PageResult<Team> pageQuery(TeamPageQueryParam param, TeamSelector selector) {
+    public ServicePage<Team> pageQuery(TeamPageQueryParam param, TeamSelector selector) {
         EasyLambdaQueryWrapper<TeamDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(TeamDO::getCode, "%" + param.getSearchKey() + "%")
@@ -91,11 +91,11 @@ public class TeamServiceImpl implements TeamService {
 
         fillData(list, selector);
 
-        return PageResult.of(list, iPage.getTotal(), param);
+        return ServicePage.of(list, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public DataResult<Long> create(TeamCreateParam param) {
+    public Long create(TeamCreateParam param) {
         LambdaQueryWrapper<TeamDO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(TeamDO::getCode, param.getCode());
         Page<TeamDO> page = new Page<>(1, 1);
@@ -110,18 +110,18 @@ public class TeamServiceImpl implements TeamService {
 
         TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
         getTeamMapper().insert(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     @Override
-    public DataResult<Long> update(TeamUpdateParam param) {
+    public Long update(TeamUpdateParam param) {
         TeamDO data = teamConverter.param2do(param, ContextUtils.getUserId());
         getTeamMapper().updateById(data);
-        return DataResult.of(data.getId());
+        return data.getId();
     }
 
     @Override
-    public ActionResult delete(Long id) {
+    public void delete(Long id) {
         getTeamMapper().deleteById(id);
 
         LambdaQueryWrapper<TeamUserDO> teamUserQueryWrapper = new LambdaQueryWrapper<>();
@@ -133,7 +133,7 @@ public class TeamServiceImpl implements TeamService {
             .eq(DataSourceAccessDO::getAccessObjectType, AccessObjectTypeEnum.TEAM.getCode())
         ;
         getDataSourceAccessMapper().delete(dataSourceAccessQueryWrapper);
-        return ActionResult.isSuccess();
+        
     }
 
     private void fillData(List<Team> list, TeamSelector selector) {

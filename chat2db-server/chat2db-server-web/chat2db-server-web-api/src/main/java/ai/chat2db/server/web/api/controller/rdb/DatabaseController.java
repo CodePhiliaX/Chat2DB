@@ -20,13 +20,14 @@ import ai.chat2db.spi.model.MetaSchema;
 import ai.chat2db.spi.model.Sql;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * database controller
@@ -59,8 +60,8 @@ public class DatabaseController {
         MetaDataQueryParam queryParam = MetaDataQueryParam.builder().dataSourceId(request.getDataSourceId())
             .refresh(
             request.isRefresh()).build();
-        DataResult<MetaSchema> result = databaseService.queryDatabaseSchema(queryParam);
-        MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result.getData());
+        MetaSchema result = databaseService.queryDatabaseSchema(queryParam);
+        MetaSchemaVO schemaDto2vo = rdbWebConverter.metaSchemaDto2vo(result);
         return DataResult.of(schemaDto2vo);
     }
 
@@ -79,8 +80,8 @@ public class DatabaseController {
         DatabaseQueryAllParam queryParam = DatabaseQueryAllParam.builder().dataSourceId(request.getDataSourceId())
             .refresh(
                 request.isRefresh()).build();
-        ListResult<Database> result = databaseService.queryAll(queryParam);
-        return ListResult.of(rdbWebConverter.databaseDto2vo(result.getData()));
+        List<Database> result = databaseService.queryAll(queryParam);
+        return ListResult.of(rdbWebConverter.databaseDto2vo(result));
     }
 
     /**
@@ -92,7 +93,8 @@ public class DatabaseController {
     @PostMapping("/delete_database")
     public ActionResult deleteDatabase(@Valid @RequestBody DataSourceBaseRequest request) {
         DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName()).build();
-        return databaseService.deleteDatabase(param);
+        databaseService.deleteDatabase(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -107,7 +109,7 @@ public class DatabaseController {
             request.setName(request.getDatabaseName());
         }
         Database database = databaseConverter.request2param(request);
-        return databaseService.createDatabase(database);
+        return DataResult.of(databaseService.createDatabase(database));
     }
 
     /**
@@ -120,6 +122,7 @@ public class DatabaseController {
     public ActionResult modifyDatabase(@Valid @RequestBody UpdateDatabaseRequest request) {
         DatabaseCreateParam param = DatabaseCreateParam.builder().name(request.getDatabaseName())
             .name(request.getNewDatabaseName()).build();
-        return databaseService.modifyDatabase(param);
+        databaseService.modifyDatabase(param);
+        return ActionResult.isSuccess();
     }
 }

@@ -158,10 +158,10 @@ public class AiChatConfig {
     }
 
     private String getConfigValue(String code) {
-        DataResult<Config> result = configService.find(code);
-        if (result.getData() != null && result.getData().getContent() != null
-                && !result.getData().getContent().isEmpty()) {
-            return result.getData().getContent();
+        Config result = configService.find(code);
+        if (result != null && result.getContent() != null
+                && !result.getContent().isEmpty()) {
+            return result.getContent();
         }
         return "";
     }

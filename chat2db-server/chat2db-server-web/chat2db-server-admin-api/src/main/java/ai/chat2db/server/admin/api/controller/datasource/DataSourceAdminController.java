@@ -53,8 +53,10 @@ public class DataSourceAdminController {
     public WebPageResult<DataSourcePageQueryVO> page(@Valid CommonPageQueryRequest request) {
         DataSourcePageQueryParam param = dataSourceAdminConverter.request2param(request);
         param.orderBy(OrderCondition.ID_DESC);
-        return dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR)
-            .mapToWeb(dataSourceAdminConverter::dto2vo);
+        var servicePage = dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(dataSourceAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -67,7 +69,7 @@ public class DataSourceAdminController {
     @PostMapping("/create")
     public DataResult<Long> create(@Valid @RequestBody DataSourceCreateRequest request) {
         DataSourceCreateParam param = dataSourceAdminConverter.createReq2param(request);
-        return dataSourceService.createWithPermission(param);
+        return DataResult.of(dataSourceService.createWithPermission(param));
     }
 
     /**
@@ -80,7 +82,7 @@ public class DataSourceAdminController {
     @PostMapping("/update")
     public DataResult<Long> update(@Valid @RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceAdminConverter.updateReq2param(request);
-        return dataSourceService.updateWithPermission(param);
+        return DataResult.of(dataSourceService.updateWithPermission(param));
     }
 
     /**
@@ -92,7 +94,7 @@ public class DataSourceAdminController {
      */
     @PostMapping("/clone")
     public DataResult<Long> clone(@RequestBody DataSourceCloneRequest request) {
-        return dataSourceService.copyByIdWithPermission(request.getId());
+        return DataResult.of(dataSourceService.copyByIdWithPermission(request.getId()));
     }
 
     /**
@@ -104,6 +106,7 @@ public class DataSourceAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return dataSourceService.deleteWithPermission(id).toBooleaSuccessnDataResult();
+        dataSourceService.deleteWithPermission(id);
+        return DataResult.of(true);
     }
 }

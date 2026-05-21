@@ -28,7 +28,9 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.DataNotFoundException;
+import ai.chat2db.server.tools.base.excption.BusinessException;
 import ai.chat2db.server.tools.common.exception.ParamBusinessException;
 import ai.chat2db.server.tools.common.exception.PermissionDeniedBusinessException;
 import ai.chat2db.server.tools.common.model.LoginUser;
@@ -89,7 +91,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public DataResult<Long> createWithPermission(DataSourceCreateParam param) {
+    public Long createWithPermission(DataSourceCreateParam param) {
         DataSourceKindEnum dataSourceKind = EasyEnumUtils.getEnum(DataSourceKindEnum.class, param.getKind());
         if (dataSourceKind == null) {
             throw new ParamBusinessException("kind");
@@ -106,13 +108,12 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         getMapper().insert(dataSourceDO);
         preWarmingData(dataSourceDO.getId());
-        return DataResult.of(dataSourceDO.getId());
+        return dataSourceDO.getId();
     }
 
     private void preWarmingData(Long dataSourceId) {
-        DataResult<DataSource> dataResult = queryById(dataSourceId);
-        if (dataResult.success() && dataResult.getData() != null) {
-            DataSource dataSource = dataResult.getData();
+        DataSource dataSource = queryById(dataSourceId);
+        if (dataSource != null) {
             DriverConfig driverConfig = dataSource.getDriverConfig();
             if (driverConfig == null || StringUtils.isBlank(driverConfig.getJdbcDriver())) {
                 return;
@@ -132,21 +133,21 @@ public class DataSourceServiceImpl implements DataSourceService {
     }
 
     @Override
-    public DataResult<Long> updateWithPermission(DataSourceUpdateParam param) {
-        DataSource dataSource = queryExistent(param.getId(), null).getData();
+    public Long updateWithPermission(DataSourceUpdateParam param) {
+        DataSource dataSource = queryExistent(param.getId(), null);
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         JdbcUtils.removePropertySameAsDefault(param.getDriverConfig());
         DataSourceDO dataSourceDO = dataSourceConverter.param2do(param);
         dataSourceDO.setGmtModified(DateUtil.date());
         getMapper().updateById(dataSourceDO);
-        return DataResult.of(dataSourceDO.getId());
+        return dataSourceDO.getId();
     }
 
     @Override
-    public ActionResult deleteWithPermission(Long id) {
+    public void deleteWithPermission(Long id) {
 
-        DataSource dataSource = queryExistent(id, null).getData();
+        DataSource dataSource = queryExistent(id, null);
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         getMapper().deleteById(id);
@@ -155,30 +156,30 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSourceAccessQueryWrapper.eq(DataSourceAccessDO::getDataSourceId, id)
         ;
         getAccessMapper().delete(dataSourceAccessQueryWrapper);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<DataSource> queryById(Long id) {
+    public DataSource queryById(Long id) {
         DataSourceDO dataSourceDO = getMapper().selectById(id);
-        return DataResult.of(dataSourceConverter.do2dto(dataSourceDO));
+        return dataSourceConverter.do2dto(dataSourceDO);
     }
 
     @Override
-    public DataResult<DataSource> queryExistent(Long id, DataSourceSelector selector) {
-        DataResult<DataSource> dataResult = queryById(id);
-        if (dataResult.getData() == null) {
+    public DataSource queryExistent(Long id, DataSourceSelector selector) {
+        DataSource dataSource = queryById(id);
+        if (dataSource == null) {
             throw new DataNotFoundException();
         }
 
-        fillData(Lists.newArrayList(dataResult.getData()), selector);
+        fillData(Lists.newArrayList(dataSource), selector);
 
-        return dataResult;
+        return dataSource;
     }
 
     @Override
-    public DataResult<Long> copyByIdWithPermission(Long id) {
-        DataSource dataSource = queryExistent(id, null).getData();
+    public Long copyByIdWithPermission(Long id) {
+        DataSource dataSource = queryExistent(id, null);
         PermissionUtils.checkOperationPermission(dataSource.getUserId());
 
         DataSourceDO dataSourceDO = getMapper().selectById(id);
@@ -188,11 +189,11 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSourceDO.setGmtCreate(DateUtil.date());
         dataSourceDO.setGmtModified(DateUtil.date());
         getMapper().insert(dataSourceDO);
-        return DataResult.of(dataSourceDO.getId());
+        return dataSourceDO.getId();
     }
 
     @Override
-    public PageResult<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector) {
+    public ServicePage<DataSource> queryPage(DataSourcePageQueryParam param, DataSourceSelector selector) {
         LambdaQueryWrapper<DataSourceDO> queryWrapper = new LambdaQueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.and(wrapper -> wrapper.like(DataSourceDO::getAlias, "%" + param.getSearchKey() + "%")
@@ -207,11 +208,11 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         fillData(dataSources, selector);
 
-        return PageResult.of(dataSources, iPage.getTotal(), param);
+        return ServicePage.of(dataSources, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     @Override
-    public PageResult<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector) {
+    public ServicePage<DataSource> queryPageWithPermission(DataSourcePageQueryParam param, DataSourceSelector selector) {
         LoginUser loginUser = ContextUtils.getLoginUser();
 
         IPage<DataSourceDO> iPage = getCustomMapper().selectPageWithPermission(
@@ -223,24 +224,24 @@ public class DataSourceServiceImpl implements DataSourceService {
 
         fillData(dataSources, selector);
 
-        return PageResult.of(dataSources, iPage.getTotal(), param);
+        return ServicePage.of(dataSources, iPage.getTotal(), param.getPageNo(), param.getPageSize());
 
     }
 
     @Override
-    public ListResult<DataSource> listQuery(List<Long> idList, DataSourceSelector selector) {
+    public List<DataSource> listQuery(List<Long> idList, DataSourceSelector selector) {
         if (CollectionUtils.isEmpty(idList)) {
-            return ListResult.empty();
+            return java.util.Collections.emptyList();
         }
         List<DataSourceDO> dataList = getMapper().selectBatchIds(idList);
         List<DataSource> list = dataSourceConverter.do2dto(dataList);
 
         fillData(list, selector);
-        return ListResult.of(list);
+        return list;
     }
 
     @Override
-    public ActionResult preConnect(DataSourcePreConnectParam param) {
+    public void preConnect(DataSourcePreConnectParam param) {
         DataSourceTestParam testParam
                 = dataSourceConverter.param2param(param);
         DriverConfig driverConfig = testParam.getDriverConfig();
@@ -252,25 +253,24 @@ public class DataSourceServiceImpl implements DataSourceService {
                 testParam.getUsername(), testParam.getPassword(), testParam.getDbType(),
                 driverConfig, param.getSsh(), KeyValue.toMap(param.getExtendInfo()));
         if (BooleanUtils.isNotTrue(dataSourceConnect.getSuccess())) {
-            return ActionResult.fail(dataSourceConnect.getMessage(), dataSourceConnect.getDescription(),
-                    dataSourceConnect.getErrorDetail());
+            throw new BusinessException("CONNECT_ERROR", new Object[]{dataSourceConnect.getMessage()});
         }
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ListResult<Database> connect(Long id) {
+    public List<Database> connect(Long id) {
         DatabaseQueryAllParam queryAllParam = new DatabaseQueryAllParam();
         queryAllParam.setDataSourceId(id);
         List<Database> databases = Chat2DBContext.getMetaData().databases(Chat2DBContext.getConnection());
-        return ListResult.of(databases);
+        return databases;
     }
 
     @Override
-    public ActionResult close(Long id) {
+    public void close(Long id) {
         DataSourceCloseParam closeParam = new DataSourceCloseParam();
         closeParam.setDataSourceId(id);
-        return ActionResult.isSuccess();
+        
     }
 
     private void fillData(List<DataSource> list, DataSourceSelector selector) {

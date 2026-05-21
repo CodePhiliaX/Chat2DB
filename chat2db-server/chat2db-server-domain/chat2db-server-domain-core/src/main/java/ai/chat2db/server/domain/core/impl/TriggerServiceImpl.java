@@ -31,12 +31,12 @@ public class TriggerServiceImpl implements TriggerService {
     private LuceneIndexManagerFactory managerFactory;
 
     @Override
-    public ListResult<Trigger> triggers(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().triggers(Chat2DBContext.getConnection(),databaseName, schemaName));
+    public List<Trigger> triggers(String databaseName, String schemaName) {
+        return Chat2DBContext.getMetaData().triggers(Chat2DBContext.getConnection(),databaseName, schemaName);
     }
 
     @Override
-    public ListResult<Trigger> triggersWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
+    public List<Trigger> triggersWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
         LuceneIndexManager<Trigger> mgr = managerFactory.getManager(dataSourceId);
         Trigger queryModel = Trigger.builder()
                 .databaseName(databaseName)
@@ -48,13 +48,12 @@ public class TriggerServiceImpl implements TriggerService {
             loadAndCacheMetadata(mgr, databaseName, schemaName, version);
         }
 
-        List<Trigger> triggers = mgr.search(queryModel, null, searchKey);
-        return ListResult.of(triggers);
+        return mgr.search(queryModel, null, searchKey);
     }
 
     @Override
-    public DataResult<Trigger> detail(String databaseName, String schemaName, String triggerName) {
-        return DataResult.of(Chat2DBContext.getMetaData().trigger(Chat2DBContext.getConnection(), databaseName, schemaName, triggerName));
+    public Trigger detail(String databaseName, String schemaName, String triggerName) {
+        return Chat2DBContext.getMetaData().trigger(Chat2DBContext.getConnection(), databaseName, schemaName, triggerName);
     }
 
     @Override

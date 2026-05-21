@@ -7,10 +7,8 @@ import ai.chat2db.server.domain.api.param.user.UserCreateParam;
 import ai.chat2db.server.domain.api.param.user.UserPageQueryParam;
 import ai.chat2db.server.domain.api.param.user.UserSelector;
 import ai.chat2db.server.domain.api.param.user.UserUpdateParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 
 /**
  * 用户服务
@@ -25,14 +23,14 @@ public interface UserService {
      * @param id
      * @return
      */
-    DataResult<User> query(Long id);
+    User query(Long id);
 
     /**
      * gen
      * @param userName
      * @return
      */
-    DataResult<User> query(String userName);
+    User query(String userName);
 
     /**
      * List Query Data
@@ -40,7 +38,7 @@ public interface UserService {
      * @param idList
      * @return
      */
-    ListResult<User> listQuery(List<Long> idList);
+    List<User> listQuery(List<Long> idList);
 
     /**
      * 查询用户信息
@@ -48,26 +46,26 @@ public interface UserService {
      * @param param
      * @return
      */
-    PageResult<User> pageQuery(UserPageQueryParam param, UserSelector selector);
+    ServicePage<User> pageQuery(UserPageQueryParam param, UserSelector selector);
 
     /**
      * 更新用户信息
      * @param user
      * @return
      */
-    DataResult<Long> update(UserUpdateParam user);
+    Long update(UserUpdateParam user);
 
     /**
      * 删除用户
      * @param id
      * @return
      */
-    ActionResult delete(Long id);
+    void delete(Long id);
 
     /**
      * 创建一个用户
      * @param user
      * @return
      */
-    DataResult<Long> create(UserCreateParam user);
+    Long create(UserCreateParam user);
 }

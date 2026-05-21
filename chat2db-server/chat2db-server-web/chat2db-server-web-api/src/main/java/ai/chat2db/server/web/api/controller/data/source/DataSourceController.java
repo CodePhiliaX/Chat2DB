@@ -15,10 +15,10 @@ import ai.chat2db.server.domain.api.service.DataSourceService;
 import ai.chat2db.server.tools.common.exception.ConnectionException;
 import ai.chat2db.spi.model.Database;
 import ai.chat2db.spi.ssh.SSHManager;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
 import ai.chat2db.server.web.api.controller.data.source.converter.DataSourceWebConverter;
@@ -88,7 +88,8 @@ public class DataSourceController {
     @RequestMapping("/datasource/pre_connect")
     public ActionResult preConnect(@RequestBody DataSourceTestRequest request) {
         DataSourcePreConnectParam param = dataSourceWebConverter.testRequest2param(request);
-        return dataSourceService.preConnect(param);
+        dataSourceService.preConnect(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -121,8 +122,8 @@ public class DataSourceController {
      */
     @GetMapping("/datasource/connect")
     public ListResult<DatabaseVO> attach(@Valid @NotNull DataSourceAttachRequest request) {
-        ListResult<Database> databaseDTOListResult = dataSourceService.connect(request.getId());
-        List<DatabaseVO> databaseVOS = dataSourceWebConverter.databaseDto2vo(databaseDTOListResult.getData());
+        List<Database> databaseList = dataSourceService.connect(request.getId());
+        List<DatabaseVO> databaseVOS = dataSourceWebConverter.databaseDto2vo(databaseList);
         return ListResult.of(databaseVOS);
     }
 
@@ -134,7 +135,8 @@ public class DataSourceController {
      */
     @GetMapping("/datasource/close")
     public ActionResult close(@Valid @NotNull DataSourceCloseRequest request) {
-        return dataSourceService.close(request.getId());
+        dataSourceService.close(request.getId());
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -146,7 +148,8 @@ public class DataSourceController {
     @GetMapping("/console/connect")
     public ActionResult connect(@Valid @NotNull ConsoleConnectRequest request) {
         ConsoleConnectParam consoleConnectParam = dataSourceWebConverter.request2connectParam(request);
-        return consoleService.createConsole(consoleConnectParam);
+        consoleService.createConsole(consoleConnectParam);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -158,7 +161,8 @@ public class DataSourceController {
     @GetMapping("/console/close")
     public ActionResult closeConsole(@Valid @NotNull ConsoleCloseRequest request) {
         ConsoleCloseParam closeParam = dataSourceWebConverter.request2closeParam(request);
-        return consoleService.closeConsole(closeParam);
+        consoleService.closeConsole(closeParam);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -171,7 +175,7 @@ public class DataSourceController {
     @GetMapping("/datasource/list")
     public WebPageResult<DataSourceVO> list(DataSourceQueryRequest request) {
         DataSourcePageQueryParam param = dataSourceWebConverter.queryReq2param(request);
-        PageResult<DataSource> result = dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR);
+        ServicePage<DataSource> result = dataSourceService.queryPageWithPermission(param, DATA_SOURCE_SELECTOR);
         List<DataSourceVO> dataSourceVOS = dataSourceWebConverter.dto2vo(result.getData());
         return WebPageResult.of(dataSourceVOS, result.getTotal(), result.getPageNo(), result.getPageSize());
     }
@@ -184,8 +188,8 @@ public class DataSourceController {
      */
     @GetMapping("/datasource/{id}")
     public DataResult<DataSourceVO> queryById(@PathVariable("id") Long id) {
-        DataResult<DataSource> dataResult = dataSourceService.queryExistent(id, DATA_SOURCE_SELECTOR);
-        DataSourceVO dataSourceVO = dataSourceWebConverter.dto2vo(dataResult.getData());
+        DataSource dataResult = dataSourceService.queryExistent(id, DATA_SOURCE_SELECTOR);
+        DataSourceVO dataSourceVO = dataSourceWebConverter.dto2vo(dataResult);
         if (StringUtils.isNotBlank(dataSourceVO.getUser())) {
             dataSourceVO.setAuthenticationType("1");
         } else {
@@ -203,7 +207,7 @@ public class DataSourceController {
     @PostMapping("/datasource/create")
     public DataResult<Long> create(@RequestBody DataSourceCreateRequest request) {
         DataSourceCreateParam param = dataSourceWebConverter.createReq2param(request);
-        return dataSourceService.createWithPermission(param);
+        return DataResult.of(dataSourceService.createWithPermission(param));
     }
 
     /**
@@ -215,7 +219,7 @@ public class DataSourceController {
     @RequestMapping(value = "/datasource/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public DataResult<Long> update(@RequestBody DataSourceUpdateRequest request) {
         DataSourceUpdateParam param = dataSourceWebConverter.updateReq2param(request);
-        return dataSourceService.updateWithPermission(param);
+        return DataResult.of(dataSourceService.updateWithPermission(param));
     }
 
     /**
@@ -226,7 +230,7 @@ public class DataSourceController {
      */
     @PostMapping("/datasource/clone")
     public DataResult<Long> copy(@RequestBody DataSourceCloneRequest request) {
-        return dataSourceService.copyByIdWithPermission(request.getId());
+        return DataResult.of(dataSourceService.copyByIdWithPermission(request.getId()));
     }
 
     /**
@@ -237,7 +241,8 @@ public class DataSourceController {
      */
     @DeleteMapping("/datasource/{id}")
     public ActionResult delete(@PathVariable Long id) {
-        return dataSourceService.deleteWithPermission(id);
+        dataSourceService.deleteWithPermission(id);
+        return ActionResult.isSuccess();
     }
 
 }

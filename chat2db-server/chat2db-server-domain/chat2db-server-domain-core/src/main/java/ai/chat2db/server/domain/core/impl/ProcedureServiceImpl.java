@@ -31,12 +31,12 @@ public class ProcedureServiceImpl implements ProcedureService {
     private LuceneIndexManagerFactory managerFactory;
 
     @Override
-    public ListResult<Procedure> procedures(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().procedures(Chat2DBContext.getConnection(),databaseName, schemaName));
+    public List<Procedure> procedures(String databaseName, String schemaName) {
+        return Chat2DBContext.getMetaData().procedures(Chat2DBContext.getConnection(),databaseName, schemaName);
     }
 
     @Override
-    public ListResult<Procedure> proceduresWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
+    public List<Procedure> proceduresWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
         LuceneIndexManager<Procedure> mgr = managerFactory.getManager(dataSourceId);
         Procedure queryModel = Procedure.builder()
                 .databaseName(databaseName)
@@ -48,13 +48,12 @@ public class ProcedureServiceImpl implements ProcedureService {
             loadAndCacheMetadata(mgr, databaseName, schemaName, version);
         }
 
-        List<Procedure> procedures = mgr.search(queryModel, null, searchKey);
-        return ListResult.of(procedures);
+        return mgr.search(queryModel, null, searchKey);
     }
 
     @Override
-    public DataResult<Procedure> detail(String databaseName, String schemaName, String procedureName) {
-        return DataResult.of(Chat2DBContext.getMetaData().procedure(Chat2DBContext.getConnection(), databaseName, schemaName, procedureName));
+    public Procedure detail(String databaseName, String schemaName, String procedureName) {
+        return Chat2DBContext.getMetaData().procedure(Chat2DBContext.getConnection(), databaseName, schemaName, procedureName);
     }
 
     @Override

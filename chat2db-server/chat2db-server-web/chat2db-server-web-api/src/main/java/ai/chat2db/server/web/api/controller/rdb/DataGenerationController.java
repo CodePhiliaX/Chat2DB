@@ -30,7 +30,7 @@ public class DataGenerationController {
             @RequestBody DataGenerationRequestVO requestVO) {
         try {
             DataGenerationRequest request = DataGenerationConverter.voToRequest(requestVO);
-            return dataGenerationService.getTableColumns(request);
+            return ListResult.of(dataGenerationService.getTableColumns(request));
         } catch (Exception e) {
             log.error("Failed to get table columns for data generation", e);
             return ListResult.error("获取表列信息失败: " + e.getMessage(), null);
@@ -44,7 +44,7 @@ public class DataGenerationController {
             DataGenerationRequest request = DataGenerationConverter.voToRequest(requestVO);
             request.setPreviewMode(true);
             request.setRowCount(10);
-            return dataGenerationService.generatePreview(request);
+            return DataResult.of(dataGenerationService.generatePreview(request));
         } catch (Exception e) {
             log.error("Failed to generate data preview", e);
             return DataResult.error("GENERATE_PREVIEW_ERROR", "生成预览失败: " + e.getMessage());
@@ -56,7 +56,7 @@ public class DataGenerationController {
             @RequestBody DataGenerationRequestVO requestVO) {
         try {
             DataGenerationRequest request = DataGenerationConverter.voToRequest(requestVO);
-            return dataGenerationService.executeDataGeneration(request);
+            return DataResult.of(dataGenerationService.executeDataGeneration(request));
         } catch (Exception e) {
             log.error("Failed to execute data generation", e);
             return DataResult.error("EXECUTE_GENERATION_ERROR", "执行数据生成失败: " + e.getMessage());
@@ -66,7 +66,7 @@ public class DataGenerationController {
     @GetMapping("/templates")
     public ListResult<ai.chat2db.server.domain.api.param.GeneratorTemplate> getAllGeneratorTemplates() {
         try {
-            return dataGenerationService.getAllGeneratorTemplates();
+            return ListResult.of(dataGenerationService.getAllGeneratorTemplates());
         } catch (Exception e) {
             log.error("Failed to get all generator templates", e);
             return ListResult.error("获取生成模板失败: " + e.getMessage(), null);
@@ -80,7 +80,7 @@ public class DataGenerationController {
             @RequestParam(required = false) String schemaName,
             @RequestParam String tableName) {
         try {
-            return ruleService.getColumnConfigs(dataSourceId, databaseName, schemaName, tableName);
+            return ListResult.of(ruleService.getColumnConfigs(dataSourceId, databaseName, schemaName, tableName));
         } catch (Exception e) {
             log.error("Failed to get column configs", e);
             return ListResult.error("GET_COLUMN_CONFIGS_ERROR", "获取列配置失败: " + e.getMessage());

@@ -47,7 +47,7 @@ public class ErDiagramController {
                 .syncForeignKeys(request.getSyncForeignKeys())
                 .onlyRelatedTables(request.getOnlyRelatedTables())
                 .build();
-        return erDiagramService.queryErDiagram(param);
+        return DataResult.of(erDiagramService.queryErDiagram(param));
     }
 
     /**
@@ -66,6 +66,6 @@ public class ErDiagramController {
                 .tableNameFilter(request.getTableNameFilter())
                 .includeVirtualFk(true)
                 .build();
-        return erDiagramService.inferVirtualForeignKeys(param);
+        return DataResult.of(erDiagramService.inferVirtualForeignKeys(param));
     }
 }

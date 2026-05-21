@@ -147,7 +147,8 @@ public class TaskBizService {
         param.setDataSourceId(datasourceId);
         param.setUserId(ContextUtils.getUserId());
         param.setTaskProgress("0");
-        return taskService.create(param);
+        Long taskId = taskService.create(param);
+        return DataResult.of(taskId);
     }
 
     private void updateStatus(Long id, File file, Throwable throwable) {

@@ -1,12 +1,11 @@
 package ai.chat2db.server.domain.api.service;
 
+import java.util.List;
+
 import ai.chat2db.server.domain.api.param.*;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.*;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 
 /**
  * 数据源管理服务
@@ -23,21 +22,21 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    ListResult<Database> queryAll(DatabaseQueryAllParam param);
+    List<Database> queryAll(DatabaseQueryAllParam param);
 
     /**
      * 查询某个database下的schema
      * @param param
      * @return
      */
-    ListResult<Schema> querySchema(SchemaQueryParam param);
+    List<Schema> querySchema(SchemaQueryParam param);
 
     /**
      * query Database and Schema
      * @param param
      * @return
      */
-    DataResult<MetaSchema> queryDatabaseSchema(MetaDataQueryParam param);
+    MetaSchema queryDatabaseSchema(MetaDataQueryParam param);
 
 
 
@@ -47,7 +46,7 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    ActionResult deleteDatabase(DatabaseCreateParam param);
+    void deleteDatabase(DatabaseCreateParam param);
 
     /**
      * 创建database
@@ -55,14 +54,14 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    DataResult<Sql> createDatabase(Database param);
+    Sql createDatabase(Database param);
 
     /**
      * 修改database
      *
      * @return
      */
-    ActionResult modifyDatabase( DatabaseCreateParam param) ;
+    void modifyDatabase( DatabaseCreateParam param) ;
 
     /**
      * 删除schema
@@ -70,7 +69,7 @@ public interface DatabaseService {
      * @param param
      * @return
      */
-    ActionResult deleteSchema(SchemaOperationParam param) ;
+    void deleteSchema(SchemaOperationParam param) ;
 
     /**
      * 创建schema
@@ -78,7 +77,7 @@ public interface DatabaseService {
      * @param schema
      * @return
      */
-    DataResult<Sql> createSchema(Schema schema);
+    Sql createSchema(Schema schema);
 
     /**
      * 修改 schema
@@ -86,7 +85,7 @@ public interface DatabaseService {
      * @param request
      * @return
      */
-    ActionResult modifySchema( SchemaOperationParam request);
+    void modifySchema( SchemaOperationParam request);
 
     /**
      * 查询单个表的 DDL

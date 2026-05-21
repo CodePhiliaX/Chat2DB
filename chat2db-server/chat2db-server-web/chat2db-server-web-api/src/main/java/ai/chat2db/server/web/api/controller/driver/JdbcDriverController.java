@@ -44,7 +44,7 @@ public class JdbcDriverController {
      */
     @GetMapping("/list")
     public DataResult<DBConfig> list(@RequestParam String dbType) {
-        return jdbcDriverService.getDrivers(dbType);
+        return DataResult.of(jdbcDriverService.getDrivers(dbType));
     }
 
     /**
@@ -56,7 +56,8 @@ public class JdbcDriverController {
 
     @GetMapping("/download")
     public ActionResult download(@RequestParam String dbType) {
-        return jdbcDriverService.download(dbType);
+        jdbcDriverService.download(dbType);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -92,8 +93,9 @@ public class JdbcDriverController {
     @PostMapping("/save")
     public ActionResult save(@RequestBody JdbcDriverRequest request) {
 
-        return jdbcDriverService.upload(request.getDbType(), request.getJdbcDriverClass(),
+        jdbcDriverService.upload(request.getDbType(), request.getJdbcDriverClass(),
             String.join(",", request.getJdbcDriver()));
+        return ActionResult.isSuccess();
     }
 
     ///**

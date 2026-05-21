@@ -66,9 +66,8 @@ public class ConnectionInfoHandler {
     }
 
     public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId, String schemaName) {
-        DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
-        DataSource dataSource = result.getData();
-        if (!result.success() || dataSource == null) {
+        DataSource dataSource = dataSourceService.queryById(dataSourceId);
+        if (dataSource == null) {
             throw new ParamBusinessException("dataSourceId");
         }
 

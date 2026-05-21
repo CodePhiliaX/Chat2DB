@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @ConnectionInfoAspect
 @RequestMapping("/api/rdb/procedure")
 @RestController
@@ -24,14 +26,14 @@ public class ProcedureController {
 
     @GetMapping("/list")
     public WebPageResult<Procedure> list(@Valid ProcedurePageRequest request) {
-        ListResult<Procedure> procedureListResult = procedureService.proceduresWithCache(request.getDataSourceId(),
+        List<Procedure> procedureList = procedureService.proceduresWithCache(request.getDataSourceId(),
                 request.getDatabaseName(), request.getSchemaName(), request.getSearchKey(), request.isRefresh());
-        return WebPageResult.of(procedureListResult.getData(), Long.valueOf(procedureListResult.getData().size()), 1,
-            procedureListResult.getData().size());
+        return WebPageResult.of(procedureList, Long.valueOf(procedureList.size()), 1,
+            procedureList.size());
     }
 
     @GetMapping("/detail")
     public DataResult<Procedure> detail(@Valid ProcedureDetailRequest request) {
-        return procedureService.detail(request.getDatabaseName(), request.getSchemaName(), request.getProcedureName());
+        return DataResult.of(procedureService.detail(request.getDatabaseName(), request.getSchemaName(), request.getProcedureName()));
     }
 }

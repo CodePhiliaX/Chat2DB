@@ -48,9 +48,11 @@ public class DataSourceAccessAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<DataSourceAccessPageQueryVO> page(@Valid DataSourceAccessPageQueryRequest request) {
-        return dataSourceAccessService.comprehensivePageQuery(dataSourceAccessAdminConverter.request2param(request),
-                DATA_SOURCE_ACCESS_SELECTOR)
-            .mapToWeb(dataSourceAccessAdminConverter::dto2vo);
+        var servicePage = dataSourceAccessService.comprehensivePageQuery(dataSourceAccessAdminConverter.request2param(request),
+                DATA_SOURCE_ACCESS_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(dataSourceAccessAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -79,7 +81,8 @@ public class DataSourceAccessAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return dataSourceAccessService.delete(id).toBooleaSuccessnDataResult();
+        dataSourceAccessService.delete(id);
+        return DataResult.of(true);
     }
 
 }

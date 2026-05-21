@@ -25,6 +25,7 @@ import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.DataNotFoundException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
@@ -58,48 +59,48 @@ public class OperationServiceImpl implements OperationService {
     private DataSourceService dataSourceService;
 
     @Override
-    public DataResult<Long> createWithPermission(OperationSavedParam param) {
+    public Long createWithPermission(OperationSavedParam param) {
         OperationSavedDO userSavedDdlDO = operationConverter.param2do(param);
         userSavedDdlDO.setGmtCreate(LocalDateTime.now());
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
         userSavedDdlDO.setUserId(ContextUtils.getUserId());
         getMapper().insert(userSavedDdlDO);
-        return DataResult.of(userSavedDdlDO.getId());
+        return userSavedDdlDO.getId();
     }
 
     @Override
-    public ActionResult updateWithPermission(OperationUpdateParam param) {
-        Operation data = queryExistent(param.getId()).getData();
+    public void updateWithPermission(OperationUpdateParam param) {
+        Operation data = queryExistent(param.getId());
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         OperationSavedDO userSavedDdlDO = operationConverter.param2do(param);
         userSavedDdlDO.setGmtModified(LocalDateTime.now());
         getMapper().updateById(userSavedDdlDO);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Operation> find(Long id) {
+    public Operation find(Long id) {
         OperationSavedDO operationSavedDO = getMapper().selectById(id);
         List<Long> dataSourceIds = Lists.newArrayList(operationSavedDO.getDataSourceId());
         Map<Long, DataSource> dataSourceMap = getDataSourceInfo(dataSourceIds);
         Operation operation = operationConverter.do2dto(operationSavedDO);
         operation.setDataSourceName(dataSourceMap.containsKey(operation.getDataSourceId()) ? dataSourceMap.get(
             operation.getDataSourceId()).getAlias() : null);
-        return DataResult.of(operation);
+        return operation;
     }
 
     @Override
-    public DataResult<Operation> queryExistent(Long id) {
-        DataResult<Operation> dataResult = find(id);
-        if (dataResult.getData() == null) {
+    public Operation queryExistent(Long id) {
+        Operation dataResult = find(id);
+        if (dataResult == null) {
             throw new DataNotFoundException();
         }
         return dataResult;
     }
 
     @Override
-    public DataResult<Operation> queryExistent(OperationQueryParam param) {
+    public Operation queryExistent(OperationQueryParam param) {
         EasyLambdaQueryWrapper<OperationSavedDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper.eqWhenPresent(OperationSavedDO::getId, param.getId())
             .eqWhenPresent(OperationSavedDO::getUserId, param.getUserId());
@@ -107,20 +108,20 @@ public class OperationServiceImpl implements OperationService {
         if (CollectionUtils.isEmpty(page.getRecords())) {
             throw new DataNotFoundException();
         }
-        return DataResult.of(operationConverter.do2dto(page.getRecords().get(0)));
+        return operationConverter.do2dto(page.getRecords().get(0));
     }
 
     @Override
-    public ActionResult deleteWithPermission(Long id) {
-        Operation data = queryExistent(id).getData();
+    public void deleteWithPermission(Long id) {
+        Operation data = queryExistent(id);
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         getMapper().deleteById(id);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public PageResult<Operation> queryPage(OperationPageQueryParam param) {
+    public ServicePage<Operation> queryPage(OperationPageQueryParam param) {
         QueryWrapper<OperationSavedDO> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(param.getSearchKey())) {
             queryWrapper.like("name", param.getSearchKey());
@@ -156,30 +157,30 @@ public class OperationServiceImpl implements OperationService {
         IPage<OperationSavedDO> iPage = getMapper().selectPage(page, queryWrapper);
         List<Operation> userSavedDdlDOS = operationConverter.do2dto(iPage.getRecords());
         if (CollectionUtils.isEmpty(userSavedDdlDOS)) {
-            return PageResult.empty(param.getPageNo(), param.getPageSize());
+            return ServicePage.empty(param.getPageNo(), param.getPageSize());
         }
         List<Long> dataSourceIds = userSavedDdlDOS.stream().map(Operation::getDataSourceId).toList();
         Map<Long, DataSource> dataSourceMap = getDataSourceInfo(dataSourceIds);
         userSavedDdlDOS.forEach(userSavedDdl -> userSavedDdl.setDataSourceName(
             dataSourceMap.containsKey(userSavedDdl.getDataSourceId()) ? dataSourceMap.get(
                 userSavedDdl.getDataSourceId()).getAlias() : null));
-        return PageResult.of(userSavedDdlDOS, iPage.getTotal(), param);
+        return ServicePage.of(userSavedDdlDOS, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 
     /**
      * 查询数据源信息
      *
      * @param dataSourceIds
-     * @return
-     */
+     * @return */
     private Map<Long, DataSource> getDataSourceInfo(List<Long> dataSourceIds) {
         if (CollectionUtils.isEmpty(dataSourceIds)) {
             return Maps.newHashMap();
         }
-        ListResult<DataSource> dataSourceListResult = dataSourceService.listQuery(dataSourceIds, null);
-        Map<Long, DataSource> dataSourceMap = dataSourceListResult.getData().stream().collect(
+        List<DataSource> dataSourceListResult = dataSourceService.listQuery(dataSourceIds, null);
+        Map<Long, DataSource> dataSourceMap = dataSourceListResult.stream().collect(
             Collectors.toMap(DataSource::getId, Function.identity(), (a, b) -> a));
         return dataSourceMap;
     }
 }
+
 

@@ -2,8 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.model.TreeNode;
 import ai.chat2db.server.domain.api.param.TreeSearchParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Procedure;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -17,7 +15,7 @@ public interface ProcedureService {
      * @param databaseName
      * @return
      */
-    ListResult<Procedure> procedures(@NotEmpty String databaseName, String schemaName);
+    List<Procedure> procedures(@NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all procedures under a schema with Lucene cache.
@@ -29,7 +27,7 @@ public interface ProcedureService {
      * @param refresh if true, refresh the cache
      * @return
      */
-    ListResult<Procedure> proceduresWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
+    List<Procedure> proceduresWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
 
     /**
      * Querying procedure information.
@@ -38,7 +36,7 @@ public interface ProcedureService {
      * @param procedureName
      * @return
      */
-    DataResult<Procedure> detail(String databaseName, String schemaName, String procedureName);
+    Procedure detail(String databaseName, String schemaName, String procedureName);
 
     /**
      * Search tree nodes for procedures.

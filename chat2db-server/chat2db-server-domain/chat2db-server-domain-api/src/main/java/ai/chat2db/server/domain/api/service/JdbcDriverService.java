@@ -1,7 +1,5 @@
 package ai.chat2db.server.domain.api.service;
 
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.config.DBConfig;
 
 public interface JdbcDriverService {
@@ -12,7 +10,7 @@ public interface JdbcDriverService {
      * @param dbType
      * @return
      */
-    DataResult<DBConfig> getDrivers(String dbType);
+    DBConfig getDrivers(String dbType);
 
     /**
      * Upload the driver
@@ -22,7 +20,7 @@ public interface JdbcDriverService {
      * @param jdbcDriver
      * @return
      */
-    ActionResult upload(String dbType, String jdbcDriverClass, String jdbcDriver);
+    void upload(String dbType, String jdbcDriverClass, String jdbcDriver);
 
     /**
      * Upload the driver
@@ -30,5 +28,5 @@ public interface JdbcDriverService {
      * @param dbType
      * @return
      */
-    ActionResult download(String dbType);
+    void download(String dbType);
 }

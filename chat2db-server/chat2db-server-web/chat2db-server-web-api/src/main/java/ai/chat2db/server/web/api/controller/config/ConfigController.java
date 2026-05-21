@@ -55,14 +55,14 @@ public class ConfigController {
 
     @GetMapping("/system_config/{code}")
     public DataResult<Config> getSystemConfig(@PathVariable("code") String code) {
-        DataResult<Config> result = configService.find(code);
-        return DataResult.of(result.getData());
+        Config result = configService.find(code);
+        return DataResult.of(result);
     }
 
     private String getConfigValue(String code) {
-        DataResult<Config> result = configService.find(code);
-        if (result.getData() != null && StringUtils.isNotBlank(result.getData().getContent())) {
-            return result.getData().getContent();
+        Config result = configService.find(code);
+        if (result != null && StringUtils.isNotBlank(result.getContent())) {
+            return result.getContent();
         }
         return "";
     }

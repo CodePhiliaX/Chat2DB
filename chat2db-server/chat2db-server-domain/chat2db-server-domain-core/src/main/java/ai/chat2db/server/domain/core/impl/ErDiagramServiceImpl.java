@@ -41,7 +41,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
     private ForeignKeySyncService foreignKeySyncService;
 
     @Override
-    public DataResult<ErDiagram> queryErDiagram(ErDiagramQueryParam param) {
+    public ErDiagram queryErDiagram(ErDiagramQueryParam param) {
         if (Boolean.TRUE.equals(param.getSyncForeignKeys())) {
             foreignKeySyncService.syncForeignKeys(
                     param.getDataSourceId(),
@@ -69,7 +69,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
                     .collect(Collectors.toList());
         }
         
-        return DataResult.of(ErDiagram.builder().nodes(nodes).edges(edges).build());
+        return ErDiagram.builder().nodes(nodes).edges(edges).build();
     }
 
     private List<Table> queryTables(ErDiagramQueryParam param) {
@@ -133,7 +133,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
     }
 
     @Override
-    public DataResult<InferVirtualFkResultVO> inferVirtualForeignKeys(ErDiagramQueryParam param) {
+    public InferVirtualFkResultVO inferVirtualForeignKeys(ErDiagramQueryParam param) {
         List<VirtualForeignKey> beforeInfer = foreignKeySyncService.queryAllVirtualForeignKeys(
                 param.getDataSourceId(),
                 param.getDatabaseName(),
@@ -220,7 +220,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
                 .deleted(deletedItems)
                 .build();
 
-        return DataResult.of(result);
+        return result;
     }
 
     /**

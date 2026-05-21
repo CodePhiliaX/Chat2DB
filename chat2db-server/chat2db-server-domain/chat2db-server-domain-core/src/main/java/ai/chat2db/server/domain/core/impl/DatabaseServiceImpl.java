@@ -54,13 +54,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     private TableService tableService;
 
     @Override
-    public ListResult<Database> queryAll(DatabaseQueryAllParam param) {
+    public List<Database> queryAll(DatabaseQueryAllParam param) {
         List<Database> databases = CacheManage.getList(getDataBasesKey(param.getDataSourceId()), Database.class,
                 (key) -> param.isRefresh(),
                 (key) -> getDatabases(param.getDbType(), param.getConnection() == null ? Chat2DBContext.getConnection()
                         : param.getConnection())
         );
-        return ListResult.of(databases);
+        return databases;
     }
 
     private List<Database> getDatabases(String dbType, Connection connection) {
@@ -68,7 +68,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public ListResult<Schema> querySchema(SchemaQueryParam param) {
+    public List<Schema> querySchema(SchemaQueryParam param) {
         List<Schema> schemas = CacheManage.getList(getSchemasKey(param.getDataSourceId(), param.getDataBaseName()),
                 Schema.class,
                 (key) -> param.isRefresh(), (key) -> {
@@ -76,7 +76,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             : param.getConnection();
                     return getSchemaList(param.getDataBaseName(), connection);
                 });
-        return ListResult.of(schemas);
+        return schemas;
     }
 
 
@@ -112,7 +112,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public DataResult<MetaSchema> queryDatabaseSchema(MetaDataQueryParam param) {
+    public MetaSchema queryDatabaseSchema(MetaDataQueryParam param) {
         MetaSchema metaSchema = new MetaSchema();
         MetaData metaData = Chat2DBContext.getMetaData();
         MetaSchema ms = CacheManage.get(getDataSourceKey(param.getDataSourceId()), MetaSchema.class,
@@ -145,47 +145,47 @@ public class DatabaseServiceImpl implements DatabaseService {
                     return metaSchema;
                 });
 
-        return DataResult.of(ms);
+        return ms;
     }
 
     @Override
-    public ActionResult deleteDatabase(DatabaseCreateParam param) {
+    public void deleteDatabase(DatabaseCreateParam param) {
         Chat2DBContext.getDBManage().dropDatabase(Chat2DBContext.getConnection(), param.getName());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Sql> createDatabase(Database database) {
+    public Sql createDatabase(Database database) {
         String sql = Chat2DBContext.getSqlBuilder().buildCreateDatabaseSql(database);
-        return DataResult.of(Sql.builder().sql(sql).build());
+        return Sql.builder().sql(sql).build();
     }
 
     @Override
-    public ActionResult modifyDatabase(DatabaseCreateParam param) {
+    public void modifyDatabase(DatabaseCreateParam param) {
         Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getName(),
                 param.getName());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ActionResult deleteSchema(SchemaOperationParam param) {
+    public void deleteSchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().dropSchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
                 param.getSchemaName());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Sql> createSchema(Schema schema) {
+    public Sql createSchema(Schema schema) {
         String sql = Chat2DBContext.getSqlBuilder().buildCreateSchemaSql(schema);
-        return DataResult.of(Sql.builder().sql(sql).build());
+        return Sql.builder().sql(sql).build();
     }
 
     @Override
-    public ActionResult modifySchema(SchemaOperationParam param) {
+    public void modifySchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().modifySchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
                 param.getSchemaName(),
                 param.getNewSchemaName());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
@@ -295,9 +295,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             param.setDataSourceId(dataSourceId);
             param.setDataBaseName(databaseName);
 
-            ListResult<Schema> schemaListResult = querySchema(param);
+            List<Schema> schemaListResult = querySchema(param);
             List<String> keyNames = new ArrayList<>();
-            String properties = schemaListResult.getData()
+            String properties = schemaListResult
                     .stream()
                     .peek(schema -> keyNames.add(schema.getName()))
                     .map(schema -> schema.getName() + ":*(" + schema.getKeyType() + ")")

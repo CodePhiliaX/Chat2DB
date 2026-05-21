@@ -57,11 +57,10 @@ public class DlTemplateServiceImpl implements DlTemplateService {
     private CommandConverter commandConverter;
 
     @Override
-    public ListResult<ExecuteResult> execute(DlExecuteParam param) {
+    public List<ExecuteResult> execute(DlExecuteParam param) {
         CommandExecutor executor = Chat2DBContext.getMetaData().getCommandExecutor();
         Command command = commandConverter.param2model(param);
         List<ExecuteResult> results = executor.execute(command);
-        ListResult<ExecuteResult> listResult = ListResult.of(results);
         for (ExecuteResult executeResult : results) {
             List<Header> headers = executeResult.getHeaderList();
             if (executeResult.getSuccess() && executeResult.isCanEdit() && CollectionUtils.isNotEmpty(headers)) {
@@ -69,28 +68,16 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                         param.getDatabaseName());
                 executeResult.setHeaderList(headers);
             }
-            if (!executeResult.getSuccess()) {
-                listResult.setSuccess(false);
-                listResult.errorCode(executeResult.getDescription());
-                listResult.setErrorMessage(executeResult.getMessage());
-            }
             addOperationLog(executeResult);
         }
-        return listResult;
-
-//        if ("SQLSERVER".equalsIgnoreCase(type)) {
-//            RemoveSpecialGO(param);
-//        }
-
-
+        return results;
     }
 
     @Override
-    public DataResult<ExecuteResult> executeUpdate(DlExecuteParam param) {
+    public ExecuteResult executeUpdate(DlExecuteParam param) {
         CommandExecutor executor = Chat2DBContext.getMetaData().getCommandExecutor();
-        DataResult<ExecuteResult> dataResult = new DataResult<>();
-        dataResult.setSuccess(true);
-        //RemoveSpecialGO(param);
+        ExecuteResult result = new ExecuteResult();
+        result.setSuccess(true);
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
         List<String> sqlList = SqlUtils.parse(param.getSql(), dbType);
@@ -99,26 +86,25 @@ public class DlTemplateServiceImpl implements DlTemplateService {
             connection.setAutoCommit(false);
             for (String originalSql : sqlList) {
                 ExecuteResult executeResult = executor.executeUpdate(originalSql, connection, 1);
-                dataResult.setData(executeResult);
+                result = executeResult;
                 addOperationLog(executeResult);
             }
             connection.commit();
         } catch (Exception e) {
             log.error("executeUpdate error", e);
-            dataResult.setSuccess(false);
-            dataResult.setErrorCode("connection error");
-            dataResult.setErrorMessage(e.getMessage());
+            result.setSuccess(false);
+            result.setMessage(e.getMessage());
         }
-        return dataResult;
+        return result;
     }
 
 
 
 
     @Override
-    public DataResult<Long> count(DlCountParam param) {
+    public Long count(DlCountParam param) {
         if (StringUtils.isBlank(param.getSql())) {
-            return DataResult.of(0L);
+            return 0L;
         }
         DbType dbType =
                 JdbcUtils.parse2DruidDbType(Chat2DBContext.getConnectInfo().getDbType());
@@ -145,7 +131,7 @@ public class DlTemplateServiceImpl implements DlTemplateService {
 
         List<List<String>> dataList = executeResult.getDataList();
         if (CollectionUtils.isEmpty(dataList)) {
-            return DataResult.of(0L);
+            return 0L;
         }
         String count = EasyCollectionUtils.stream(executeResult.getDataList())
                 .findFirst()
@@ -153,22 +139,22 @@ public class DlTemplateServiceImpl implements DlTemplateService {
                 .stream()
                 .findFirst()
                 .orElse("0");
-        return DataResult.of(Long.valueOf(count));
+        return Long.valueOf(count);
     }
 
     @Override
-    public DataResult<String> updateSelectResult(UpdateSelectResultParam param) {
+    public String updateSelectResult(UpdateSelectResultParam param) {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         String sql = sqlBuilder.generateSqlBasedOnResults(param.getTableName(), param.getHeaderList(),
                 param.getOperations());
-        return DataResult.of(sql);
+        return sql;
     }
 
     @Override
-    public DataResult<String> getOrderBySql(OrderByParam param) {
+    public String getOrderBySql(OrderByParam param) {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         String orderSql = sqlBuilder.buildOrderBySql(param.getOriginSql(), param.getOrderByList());
-        return DataResult.of(orderSql);
+        return orderSql;
     }
 
 

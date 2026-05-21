@@ -6,8 +6,8 @@ import ai.chat2db.server.domain.api.model.OperationLog;
 import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
 import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.service.OperationLogService;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.controller.operation.log.converter.OperationLogWebConverter;
@@ -49,7 +49,7 @@ public class OperationLogController {
     public WebPageResult<OperationLogVO> list(OperationLogQueryRequest request) {
         OperationLogPageQueryParam param = operationLogWebConverter.req2param(request);
         param.setUserId(ContextUtils.getUserId());
-        PageResult<OperationLog> result = operationLogService.queryPage(param);
+        ServicePage<OperationLog> result = operationLogService.queryPage(param);
         List<OperationLogVO> operationLogVOList = operationLogWebConverter.dto2vo(result.getData());
         return WebPageResult.of(operationLogVOList, result.getTotal(), result.getPageNo(), result.getPageSize());
     }
@@ -63,7 +63,7 @@ public class OperationLogController {
     @PostMapping("/create")
     public DataResult<Long> create(@RequestBody OperationLogCreateRequest request) {
         OperationLogCreateParam param = operationLogWebConverter.createReq2param(request);
-        return operationLogService.create(param);
+        return DataResult.of(operationLogService.create(param));
     }
 
 

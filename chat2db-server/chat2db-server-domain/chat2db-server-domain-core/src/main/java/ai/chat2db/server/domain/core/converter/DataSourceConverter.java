@@ -210,7 +210,7 @@ public abstract class DataSourceConverter {
             return;
         }
         List<Long> idList = EasyCollectionUtils.toList(list, DataSource::getId);
-        List<DataSource> queryList = dataSourceService.listQuery(idList, selector).getData();
+        List<DataSource> queryList = dataSourceService.listQuery(idList, selector);
         Map<Long, DataSource> queryMap = EasyCollectionUtils.toIdentityMap(queryList, DataSource::getId);
         for (DataSource data : list) {
             if (data == null || data.getId() == null) {

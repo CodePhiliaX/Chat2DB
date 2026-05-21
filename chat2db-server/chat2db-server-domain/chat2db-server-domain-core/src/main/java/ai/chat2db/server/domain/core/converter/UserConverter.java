@@ -86,7 +86,7 @@ public abstract class UserConverter {
             return;
         }
         List<Long> idList = EasyCollectionUtils.toList(list, User::getId);
-        List<User> queryList = userService.listQuery(idList).getData();
+        List<User> queryList = userService.listQuery(idList);
         Map<Long, User> queryMap = EasyCollectionUtils.toIdentityMap(queryList, User::getId);
         for (User data : list) {
             if (data == null || data.getId() == null) {

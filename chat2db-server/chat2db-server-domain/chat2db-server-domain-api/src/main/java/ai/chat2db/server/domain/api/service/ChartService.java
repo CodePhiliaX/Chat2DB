@@ -7,9 +7,6 @@ import ai.chat2db.server.domain.api.chart.ChartListQueryParam;
 import ai.chat2db.server.domain.api.chart.ChartQueryParam;
 import ai.chat2db.server.domain.api.chart.ChartUpdateParam;
 import ai.chat2db.server.domain.api.model.Chart;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,7 +22,7 @@ public interface ChartService {
      * @param param
      * @return
      */
-    DataResult<Long> createWithPermission(ChartCreateParam param);
+    Long createWithPermission(ChartCreateParam param);
 
     /**
      * 更新报表
@@ -33,7 +30,7 @@ public interface ChartService {
      * @param param
      * @return
      */
-    ActionResult updateWithPermission(ChartUpdateParam param);
+    void updateWithPermission(ChartUpdateParam param);
 
     /**
      * 根据id查询
@@ -41,7 +38,7 @@ public interface ChartService {
      * @param id
      * @return
      */
-    DataResult<Chart> find(@NotNull Long id);
+    Chart find(@NotNull Long id);
 
     /**
      * 查询一条数据
@@ -49,7 +46,7 @@ public interface ChartService {
      * @param param
      * @return
      */
-    DataResult<Chart> queryExistent(@NotNull ChartQueryParam param);
+    Chart queryExistent(@NotNull ChartQueryParam param);
 
     /**
      * 查询一条数据
@@ -57,7 +54,7 @@ public interface ChartService {
      * @param id
      * @return
      */
-    DataResult<Chart> queryExistent(@NotNull Long id);
+    Chart queryExistent(@NotNull Long id);
 
     /**
      * 查询多条数据
@@ -65,7 +62,7 @@ public interface ChartService {
      * @param param
      * @return
      */
-    ListResult<Chart> listQuery(@NotNull ChartListQueryParam param);
+    List<Chart> listQuery(@NotNull ChartListQueryParam param);
 
     /**
      * 删除
@@ -73,6 +70,6 @@ public interface ChartService {
      * @param id
      * @return
      */
-    ActionResult deleteWithPermission(@NotNull Long id);
+    void deleteWithPermission(@NotNull Long id);
 
 }

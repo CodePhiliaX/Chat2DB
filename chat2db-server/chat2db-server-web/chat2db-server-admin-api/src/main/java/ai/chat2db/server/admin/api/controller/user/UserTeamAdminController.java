@@ -47,8 +47,10 @@ public class UserTeamAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<UserTeamPageQueryVO> page(@Valid UserPageCommonQueryRequest request) {
-        return teamUserService.comprehensivePageQuery(userTeamAdminConverter.request2param(request), TEAM_USER_SELECTOR)
-            .mapToWeb(userTeamAdminConverter::dto2vo);
+        var servicePage = teamUserService.comprehensivePageQuery(userTeamAdminConverter.request2param(request), TEAM_USER_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(userTeamAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -66,7 +68,7 @@ public class UserTeamAdminController {
                 teamUserPageQueryParam.setTeamId(teamId);
                 teamUserPageQueryParam.setUserId(request.getUserId());
                 teamUserPageQueryParam.queryOne();
-                if (teamUserService.pageQuery(teamUserPageQueryParam, null).hasData()) {
+                if (teamUserService.pageQuery(teamUserPageQueryParam, null).isNotEmpty()) {
                     return;
                 }
                 teamUserService.create(TeamUserCreatParam.builder()
@@ -85,6 +87,7 @@ public class UserTeamAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return teamUserService.delete(id).toBooleaSuccessnDataResult();
+        teamUserService.delete(id);
+        return DataResult.of(true);
     }
 }

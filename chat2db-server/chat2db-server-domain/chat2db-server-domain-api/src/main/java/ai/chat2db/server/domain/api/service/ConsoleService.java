@@ -2,7 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.ConsoleCloseParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 
 /**
  * 数据源管理服务
@@ -19,7 +18,7 @@ public interface ConsoleService {
      * @param param
      * @return
      */
-    ActionResult createConsole(ConsoleConnectParam param);
+    void createConsole(ConsoleConnectParam param);
 
     /**
      * 关闭连接
@@ -27,6 +26,6 @@ public interface ConsoleService {
      * @param param
      * @return
      */
-    ActionResult closeConsole(ConsoleCloseParam param);
+    void closeConsole(ConsoleCloseParam param);
 
 }

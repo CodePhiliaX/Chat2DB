@@ -4,8 +4,8 @@ import java.util.List;
 
 import ai.chat2db.server.domain.api.model.Environment;
 import ai.chat2db.server.domain.api.param.EnvironmentPageQueryParam;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 
 /**
  * environment
@@ -20,7 +20,7 @@ public interface EnvironmentService {
      * @param idList
      * @return
      */
-    ListResult<Environment> listQuery(List<Long> idList);
+    List<Environment> listQuery(List<Long> idList);
 
     /**
      * Paging Query Data
@@ -28,6 +28,6 @@ public interface EnvironmentService {
      * @param param
      * @return
      */
-    PageResult<Environment> pageQuery(EnvironmentPageQueryParam param);
+    ServicePage<Environment> pageQuery(EnvironmentPageQueryParam param);
 
 }

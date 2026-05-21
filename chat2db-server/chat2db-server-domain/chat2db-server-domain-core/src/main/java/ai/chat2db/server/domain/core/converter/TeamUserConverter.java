@@ -75,7 +75,7 @@ public abstract class TeamUserConverter {
             return;
         }
         List<Long> idList = EasyCollectionUtils.toList(list, Environment::getId);
-        List<Environment> queryList = environmentService.listQuery(idList).getData();
+        List<Environment> queryList = environmentService.listQuery(idList);
         Map<Long, Environment> queryMap = EasyCollectionUtils.toIdentityMap(queryList, Environment::getId);
         for (Environment data : list) {
             if (data == null || data.getId() == null) {

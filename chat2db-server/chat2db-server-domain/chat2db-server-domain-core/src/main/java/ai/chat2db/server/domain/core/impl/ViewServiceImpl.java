@@ -31,12 +31,12 @@ public class ViewServiceImpl implements ViewService {
     private LuceneIndexManagerFactory managerFactory;
 
     @Override
-    public ListResult<Table> views(String databaseName, String schemaName) {
-        return ListResult.of(Chat2DBContext.getMetaData().views(Chat2DBContext.getConnection(),databaseName, schemaName));
+    public List<Table> views(String databaseName, String schemaName) {
+        return Chat2DBContext.getMetaData().views(Chat2DBContext.getConnection(),databaseName, schemaName);
     }
 
     @Override
-    public ListResult<Table> viewsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
+    public List<Table> viewsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
         LuceneIndexManager<Table> mgr = managerFactory.getManager(dataSourceId);
         Table queryModel = Table.builder()
                 .databaseName(databaseName)
@@ -49,14 +49,14 @@ public class ViewServiceImpl implements ViewService {
         }
 
         List<Table> views = mgr.search(queryModel, null, searchKey);
-        return ListResult.of(views);
+        return views;
     }
 
     @Override
-    public DataResult<Table> detail(String databaseName, String schemaName, String tableName) {
+    public Table detail(String databaseName, String schemaName, String tableName) {
         MetaData metaSchema = Chat2DBContext.getMetaData();
         Table table = metaSchema.view(Chat2DBContext.getConnection(), databaseName, schemaName, tableName);
-        return DataResult.of(table);
+        return table;
     }
 
     @Override

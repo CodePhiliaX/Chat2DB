@@ -3,8 +3,8 @@ package ai.chat2db.server.domain.api.service;
 import ai.chat2db.server.domain.api.param.operation.OperationLogPageQueryParam;
 import ai.chat2db.server.domain.api.model.OperationLog;
 import ai.chat2db.server.domain.api.param.operation.OperationLogCreateParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 
 /**
  * 用户执行ddl
@@ -21,7 +21,7 @@ public interface OperationLogService {
      * @param param
      * @return
      */
-    DataResult<Long> create(OperationLogCreateParam param);
+    Long create(OperationLogCreateParam param);
 
     /**
      * 查询用户执行的ddl记录
@@ -29,5 +29,5 @@ public interface OperationLogService {
      * @param param
      * @return
      */
-    PageResult<OperationLog> queryPage(OperationLogPageQueryParam param);
+    ServicePage<OperationLog> queryPage(OperationLogPageQueryParam param);
 }

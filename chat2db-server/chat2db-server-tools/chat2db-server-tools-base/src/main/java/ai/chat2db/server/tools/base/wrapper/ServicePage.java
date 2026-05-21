@@ -81,4 +81,11 @@ public class ServicePage<T> implements Serializable {
     public static <T> ServicePage<T> empty(Integer pageNo, Integer pageSize) {
         return of(Collections.emptyList(), 0L, pageNo, pageSize);
     }
+
+    /**
+     * Check if data is not empty
+     */
+    public boolean isNotEmpty() {
+        return data != null && !data.isEmpty();
+    }
 }

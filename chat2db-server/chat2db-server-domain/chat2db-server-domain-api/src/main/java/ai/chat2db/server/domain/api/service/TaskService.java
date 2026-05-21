@@ -4,9 +4,8 @@ import ai.chat2db.server.domain.api.model.Task;
 import ai.chat2db.server.domain.api.param.TaskCreateParam;
 import ai.chat2db.server.domain.api.param.TaskPageParam;
 import ai.chat2db.server.domain.api.param.TaskUpdateParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 
 public interface TaskService {
 
@@ -16,7 +15,7 @@ public interface TaskService {
      * @param param task param
      * @return task id
      */
-    DataResult<Long> create(TaskCreateParam param);
+    Long create(TaskCreateParam param);
 
     /**
      * update task status
@@ -24,7 +23,7 @@ public interface TaskService {
      * @param param task param
      * @return action result
      */
-    ActionResult updateStatus(TaskUpdateParam param);
+    void updateStatus(TaskUpdateParam param);
 
 
     /**
@@ -33,7 +32,7 @@ public interface TaskService {
      * @param param task id
      * @return task
      */
-    PageResult<Task> page(TaskPageParam param);
+    ServicePage<Task> page(TaskPageParam param);
 
     /**
      * get task
@@ -41,5 +40,5 @@ public interface TaskService {
      * @param id task id
      * @return task
      */
-    DataResult<Task> get(Long id);
+    Task get(Long id);
 }

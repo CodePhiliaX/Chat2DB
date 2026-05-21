@@ -53,9 +53,11 @@ public class TeamDataSourceAdminController {
      */
     @GetMapping("/page")
     public WebPageResult<TeamDataSourcePageQueryVO> page(@Valid TeamPageCommonQueryRequest request) {
-        return dataSourceAccessService.comprehensivePageQuery(teamDataSourcesAdminConverter.request2param(request),
-                DATA_SOURCE_ACCESS_SELECTOR)
-            .mapToWeb(teamDataSourcesAdminConverter::dto2vo);
+        var servicePage = dataSourceAccessService.comprehensivePageQuery(teamDataSourcesAdminConverter.request2param(request),
+                DATA_SOURCE_ACCESS_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(teamDataSourcesAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -74,7 +76,7 @@ public class TeamDataSourceAdminController {
                 dataSourceAccessPageQueryParam.setAccessObjectType(AccessObjectTypeEnum.TEAM.getCode());
                 dataSourceAccessPageQueryParam.setAccessObjectId(request.getTeamId());
                 dataSourceAccessPageQueryParam.queryOne();
-                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).hasData()) {
+                if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).isNotEmpty()) {
                     return;
                 }
                 dataSourceAccessService.create(DataSourceAccessCreatParam.builder()
@@ -94,6 +96,7 @@ public class TeamDataSourceAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return dataSourceAccessService.delete(id).toBooleaSuccessnDataResult();
+        dataSourceAccessService.delete(id);
+        return DataResult.of(true);
     }
 }

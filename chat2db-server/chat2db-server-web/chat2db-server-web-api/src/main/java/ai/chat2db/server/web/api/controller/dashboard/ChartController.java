@@ -4,6 +4,7 @@ import ai.chat2db.server.domain.api.chart.ChartCreateParam;
 import ai.chat2db.server.domain.api.chart.ChartListQueryParam;
 import ai.chat2db.server.domain.api.chart.ChartQueryParam;
 import ai.chat2db.server.domain.api.chart.ChartUpdateParam;
+import ai.chat2db.server.domain.api.model.Chart;
 import ai.chat2db.server.domain.api.service.ChartService;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 保存图表类
@@ -53,8 +56,11 @@ public class ChartController {
         ChartQueryParam param = new ChartQueryParam();
         param.setId(id);
         param.setUserId(ContextUtils.getUserId());
-        return chartService.queryExistent(param)
-            .map(chartWebConverter::model2vo);
+        Chart result = chartService.queryExistent(param);
+        if (result == null) {
+            return null;
+        }
+        return DataResult.of(chartWebConverter.model2vo(result));
     }
 
     /**
@@ -68,8 +74,11 @@ public class ChartController {
         ChartListQueryParam param = new ChartListQueryParam();
         param.setIdList(request.getIds());
         param.setUserId(ContextUtils.getUserId());
-        return chartService.listQuery(param)
-            .map(chartWebConverter::model2vo);
+        List<Chart> result = chartService.listQuery(param);
+        if (result == null) {
+            return null;
+        }
+        return ListResult.of(chartWebConverter.model2vo(result));
     }
 
     /**
@@ -81,7 +90,7 @@ public class ChartController {
     @PostMapping("/create")
     public DataResult<Long> create(@Valid @RequestBody ChartCreateRequest request) {
         ChartCreateParam chartCreateParam = chartWebConverter.req2param(request);
-        return chartService.createWithPermission(chartCreateParam);
+        return DataResult.of(chartService.createWithPermission(chartCreateParam));
     }
 
     /**
@@ -93,7 +102,8 @@ public class ChartController {
     @RequestMapping(value = "/update", method = {RequestMethod.POST, RequestMethod.PUT})
     public ActionResult update(@RequestBody ChartUpdateRequest request) {
         ChartUpdateParam param = chartWebConverter.req2updateParam(request);
-        return chartService.updateWithPermission(param);
+        chartService.updateWithPermission(param);
+        return ActionResult.isSuccess();
     }
 
     /**
@@ -104,7 +114,8 @@ public class ChartController {
      */
     @DeleteMapping("/{id}")
     public ActionResult delete(@PathVariable("id") Long id) {
-        return chartService.deleteWithPermission(id);
+        chartService.deleteWithPermission(id);
+        return ActionResult.isSuccess();
     }
 
 }

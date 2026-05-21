@@ -43,7 +43,7 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
     }
 
     @Override
-    public DataResult<DBConfig> getDrivers(String dbType) {
+    public DBConfig getDrivers(String dbType) {
         Map<String, DriverConfig> driverConfigMap = new LinkedHashMap<>();
         LambdaQueryWrapper<JdbcDriverDO> query = new LambdaQueryWrapper<JdbcDriverDO>();
         query.eq(JdbcDriverDO::getDbType, dbType);
@@ -70,7 +70,7 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
             }
         }
         dbConfig.setDriverConfigList(driverConfigMap.isEmpty() ? null : Lists.newArrayList(driverConfigMap.values()));
-        return DataResult.of(dbConfig);
+        return dbConfig;
     }
 
 
@@ -88,7 +88,7 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
     }
 
     @Override
-    public ActionResult upload(String dbType, String jdbcDriverClass, String localPath) {
+    public void upload(String dbType, String jdbcDriverClass, String localPath) {
         JdbcDriverDO driverDO = new JdbcDriverDO();
         driverDO.setJdbcDriverClass(jdbcDriverClass);
         driverDO.setDbType(dbType);
@@ -100,11 +100,11 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
             throw new RuntimeException("Driver error,please check the driver file", e);
         }
         getMapper().insert(driverDO);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ActionResult download(String dbType) {
+    public void download(String dbType) {
         DBConfig dbConfig = Chat2DBContext.PLUGIN_MAP.get(dbType).getDBConfig();
         List<DriverConfig> driverConfigList = dbConfig.getDriverConfigList();
         for (DriverConfig driverConfig : driverConfigList) {
@@ -117,6 +117,6 @@ public class JdbcDriverServiceImpl implements JdbcDriverService {
                 }
             }
         }
-        return ActionResult.isSuccess();
+        
     }
 }

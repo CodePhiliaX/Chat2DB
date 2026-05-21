@@ -150,7 +150,7 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
      * @return DataResult<VirtualForeignKey> 创建结果，包含成功或失败信息
      */
     @Override
-    public DataResult<VirtualForeignKey> createVirtualFK(CreateVirtualFKParam param) {
+    public VirtualForeignKey createVirtualFK(CreateVirtualFKParam param) {
         LambdaQueryWrapper<VirtualForeignKeyDO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(VirtualForeignKeyDO::getDataSourceId, param.getDataSourceId())
                 .eq(VirtualForeignKeyDO::getDatabaseName, param.getDatabaseName())
@@ -187,7 +187,7 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
                 .virtualProperty("User-defined virtual foreign key")
                 .build();
 
-        return DataResult.of(vk);
+        return vk;
     }
 
     /**
@@ -198,10 +198,10 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
      * @return DataResult<VirtualForeignKey> 更新结果，包含成功或失败信息
      */
     @Override
-    public DataResult<VirtualForeignKey> updateVirtualFK(UpdateVirtualFKParam param) {
+    public VirtualForeignKey updateVirtualFK(UpdateVirtualFKParam param) {
         VirtualForeignKeyDO existing = getVFKMapper().selectById(param.getId());
         if (existing == null) {
-            return DataResult.error("VIRTUAL_FK_NOT_FOUND", "虚拟外键不存在");
+            throw new BusinessException("VIRTUAL_FK_NOT_FOUND", new Object[]{"虚拟外键不存在"});
         }
 
         VirtualForeignKeyDO updateDO = new VirtualForeignKeyDO();
@@ -222,7 +222,7 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
         getVFKMapper().updateById(updateDO);
 
         VirtualForeignKeyDO updated = getVFKMapper().selectById(param.getId());
-        VirtualForeignKey vk = VirtualForeignKey.builder()
+        return VirtualForeignKey.builder()
                 .name(updated.getVkName())
                 .tableName(updated.getTableName())
                 .column(updated.getColumnName())
@@ -231,8 +231,6 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
                 .comment(updated.getComment())
                 .virtualProperty("User-defined virtual foreign key")
                 .build();
-
-        return DataResult.of(vk);
     }
 
     /**
@@ -240,16 +238,14 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
      * 该方法根据ID删除指定的虚拟外键记录
      *
      * @param id 虚拟外键的ID
-     * @return ActionResult 删除操作结果，包含成功或失败信息
      */
     @Override
-    public ActionResult deleteVirtualFK(Long id) {
+    public void deleteVirtualFK(Long id) {
         VirtualForeignKeyDO existing = getVFKMapper().selectById(id);
         if (existing == null) {
-            return ActionResult.fail("VIRTUAL_FK_NOT_FOUND", "虚拟外键不存在", "Virtual foreign key not found");
+            throw new BusinessException("VIRTUAL_FK_NOT_FOUND", new Object[]{"虚拟外键不存在"});
         }
         getVFKMapper().deleteById(id);
-        return ActionResult.isSuccess();
     }
 
     /**
@@ -257,13 +253,13 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
      * 该方法不仅从本地H2数据库删除外键记录，还会生成对应的DROP FOREIGN KEY SQL语句
      *
      * @param id 真实外键的ID
-     * @return DataResult<String> 包含DROP SQL语句的结果，或错误信息
+     * @return String DROP SQL语句
      */
     @Override
-    public DataResult<String> deleteRealFK(Long id) {
+    public String deleteRealFK(Long id) {
         ForeignKeyDO existing = getFKMapper().selectById(id);
         if (existing == null) {
-            return DataResult.error("FK_NOT_FOUND", "外键不存在");
+            throw new BusinessException("FK_NOT_FOUND", new Object[]{"外键不存在"});
         }
 
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
@@ -281,7 +277,7 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
 
         getFKMapper().deleteById(id);
 
-        return DataResult.of(dropFKSql);
+        return dropFKSql;
     }
 
     /**
@@ -526,3 +522,4 @@ public class ForeignKeySyncServiceImpl implements ForeignKeySyncService {
         );
     }
 }
+

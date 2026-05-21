@@ -50,8 +50,8 @@ public class WsService {
 
     public ListResult<ExecuteResultVO> execute(DmlRequest request) {
         DlExecuteParam param = rdbWebConverter.request2param(request);
-        ListResult<ExecuteResult> resultDTOListResult = dlTemplateService.execute(param);
-        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultDTOListResult.getData());
+        List<ExecuteResult> resultList = dlTemplateService.execute(param);
+        List<ExecuteResultVO> resultVOS = rdbWebConverter.dto2vo(resultList);
         return ListResult.of(resultVOS);
     }
 
@@ -59,7 +59,7 @@ public class WsService {
     public LoginUser doLogin(String token) {
         Long userId = RoleCodeEnum.DESKTOP.getDefaultUserId();
         LoginUser loginUser = MemoryCacheManage.computeIfAbsent(CacheKey.getLoginUserKey(userId), () -> {
-            User user = userService.query(userId).getData();
+            User user = userService.query(userId);
             if (user == null) {
                 return null;
             }
@@ -79,9 +79,8 @@ public class WsService {
     }
 
     public ConnectInfo toInfo(Long dataSourceId, String database, Long consoleId, String schemaName) {
-        DataResult<DataSource> result = dataSourceService.queryById(dataSourceId);
-        DataSource dataSource = result.getData();
-        if (!result.success() || dataSource == null) {
+        DataSource dataSource = dataSourceService.queryById(dataSourceId);
+        if (dataSource == null) {
             throw new ParamBusinessException("dataSourceId");
         }
         // Verify permissions

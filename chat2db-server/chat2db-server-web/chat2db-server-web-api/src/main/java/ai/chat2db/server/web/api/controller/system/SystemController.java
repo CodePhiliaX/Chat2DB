@@ -82,9 +82,9 @@ public class SystemController {
             appVersionVO.setVersion(currentVersion);
             appVersionVO.setType("manual");
         }
-        DataResult<Config> updateType = configService.find(UPDATE_TYPE);
-        if (updateType.getData() != null) {
-            appVersionVO.setType(updateType.getData().getContent());
+        Config updateType = configService.find(UPDATE_TYPE);
+        if (updateType != null) {
+            appVersionVO.setType(updateType.getContent());
         }
         // In this mode, no user login is required, so only local access is available
         appVersionVO.setDesktop(true);

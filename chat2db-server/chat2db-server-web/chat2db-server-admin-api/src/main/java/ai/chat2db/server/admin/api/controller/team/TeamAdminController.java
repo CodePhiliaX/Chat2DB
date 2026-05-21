@@ -50,8 +50,10 @@ public class TeamAdminController {
     public WebPageResult<TeamPageQueryVO> page(@Valid CommonPageQueryRequest request) {
         TeamPageQueryParam param = teamAdminConverter.request2param(request);
         param.orderBy(OrderCondition.ID_DESC);
-        return teamService.pageQuery(param, TEAM_SELECTOR)
-            .mapToWeb(teamAdminConverter::dto2vo);
+        var servicePage = teamService.pageQuery(param, TEAM_SELECTOR);
+        return WebPageResult.of(servicePage.getData().stream()
+            .map(teamAdminConverter::dto2vo)
+            .toList(), servicePage.getTotal(), servicePage.getPageNo(), servicePage.getPageSize());
     }
 
     /**
@@ -63,7 +65,7 @@ public class TeamAdminController {
      */
     @PostMapping("/create")
     public DataResult<Long> create(@RequestBody TeamCreateRequest request) {
-        return teamService.create(teamAdminConverter.request2param(request));
+        return DataResult.of(teamService.create(teamAdminConverter.request2param(request)));
     }
 
     /**
@@ -75,7 +77,7 @@ public class TeamAdminController {
      */
     @PostMapping("/update")
     public DataResult<Long> update(@RequestBody TeamUpdateRequest request) {
-        return teamService.update(teamAdminConverter.request2param(request));
+        return DataResult.of(teamService.update(teamAdminConverter.request2param(request)));
     }
 
     /**
@@ -86,6 +88,7 @@ public class TeamAdminController {
      */
     @DeleteMapping("/{id}")
     public DataResult<Boolean> delete(@PathVariable Long id) {
-        return teamService.delete(id).toBooleaSuccessnDataResult();
+        teamService.delete(id);
+        return DataResult.of(true);
     }
 }

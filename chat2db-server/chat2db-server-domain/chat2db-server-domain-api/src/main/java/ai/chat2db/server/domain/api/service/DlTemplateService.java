@@ -1,13 +1,13 @@
 package ai.chat2db.server.domain.api.service;
 
+import java.util.List;
+
 import ai.chat2db.server.domain.api.param.DlCountParam;
 import ai.chat2db.server.domain.api.param.DlExecuteParam;
 import ai.chat2db.server.domain.api.param.OrderByParam;
 import ai.chat2db.server.domain.api.param.UpdateSelectResultParam;
 import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 
 /**
  * 数据源管理服务
@@ -24,7 +24,7 @@ public interface DlTemplateService {
      * @param param
      * @return
      */
-    ListResult<ExecuteResult> execute(DlExecuteParam param);
+    List<ExecuteResult> execute(DlExecuteParam param);
 
 
     /**
@@ -33,7 +33,7 @@ public interface DlTemplateService {
      * @param param
      * @return
      */
-    DataResult<ExecuteResult> executeUpdate(DlExecuteParam param);
+    ExecuteResult executeUpdate(DlExecuteParam param);
 
     /**
      * 执行统计sql
@@ -41,7 +41,7 @@ public interface DlTemplateService {
      * @param param
      * @return
      */
-    DataResult<Long> count(DlCountParam param);
+    Long count(DlCountParam param);
 
 
     /**
@@ -49,7 +49,7 @@ public interface DlTemplateService {
      * @param param
      * @return
      */
-    DataResult<String> updateSelectResult(UpdateSelectResultParam param);
+    String updateSelectResult(UpdateSelectResultParam param);
 
 
     /**
@@ -57,6 +57,6 @@ public interface DlTemplateService {
      * @param param
      * @return
      */
-    DataResult<String> getOrderBySql(OrderByParam param);
+    String getOrderBySql(OrderByParam param);
 
 }

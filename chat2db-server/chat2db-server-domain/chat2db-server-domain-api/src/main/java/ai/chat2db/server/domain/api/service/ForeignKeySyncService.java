@@ -2,8 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.param.CreateVirtualFKParam;
 import ai.chat2db.server.domain.api.param.UpdateVirtualFKParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.spi.model.ForeignKey;
 import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.VirtualForeignKey;
@@ -16,13 +14,13 @@ public interface ForeignKeySyncService {
 
     List<ForeignKey> listAllForeignKeys(Long dataSourceId, String databaseName, String schemaName, String tableName);
 
-    DataResult<VirtualForeignKey> createVirtualFK(CreateVirtualFKParam param);
+    VirtualForeignKey createVirtualFK(CreateVirtualFKParam param);
 
-    DataResult<VirtualForeignKey> updateVirtualFK(UpdateVirtualFKParam param);
+    VirtualForeignKey updateVirtualFK(UpdateVirtualFKParam param);
 
-    ActionResult deleteVirtualFK(Long id);
+    void deleteVirtualFK(Long id);
 
-    DataResult<String> deleteRealFK(Long id);
+    String deleteRealFK(Long id);
 
     List<String> generateForeignKeyDDL(Table oldTable, Table newTable);
 

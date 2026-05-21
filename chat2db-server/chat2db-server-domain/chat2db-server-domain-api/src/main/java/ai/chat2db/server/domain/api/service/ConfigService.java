@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 import ai.chat2db.server.domain.api.model.Config;
 import ai.chat2db.server.domain.api.param.SystemConfigParam;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 
 /**
  * @author jipengfei
@@ -20,7 +18,7 @@ public interface ConfigService {
      * @param param
      * @return
      */
-    ActionResult create(SystemConfigParam param);
+    void create(SystemConfigParam param);
 
     /**
      * 修改配置
@@ -28,14 +26,14 @@ public interface ConfigService {
      * @param param
      * @return
      */
-    ActionResult update(SystemConfigParam param);
+    void update(SystemConfigParam param);
 
     /**
      * 插入或者更新
      * @param param
      * @return
      */
-    ActionResult createOrUpdate(SystemConfigParam param);
+    void createOrUpdate(SystemConfigParam param);
 
     /**
      * 根据code查询
@@ -43,7 +41,7 @@ public interface ConfigService {
      * @param code
      * @return
      */
-    DataResult<Config> find(@NotNull String code);
+    Config find(@NotNull String code);
 
     /**
      * 删除
@@ -51,5 +49,5 @@ public interface ConfigService {
      * @param code
      * @return
      */
-    ActionResult delete(@NotNull String code);
+    void delete(@NotNull String code);
 }

@@ -178,7 +178,8 @@ public class ImportBizService {
         param.setDataSourceId(request.getDataSourceId());
         param.setUserId(ContextUtils.getUserId());
         param.setTaskProgress("0");
-        return taskService.create(param);
+        Long taskId = taskService.create(param);
+        return DataResult.of(taskId);
     }
 
     private void updateImportStatus(Long id, Throwable throwable) {

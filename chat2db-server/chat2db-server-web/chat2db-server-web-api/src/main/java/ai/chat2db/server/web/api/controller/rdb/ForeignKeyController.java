@@ -87,7 +87,7 @@ public class ForeignKeyController {
                 .referencedColumnName(request.getReferencedColumnName())
                 .comment(request.getComment())
                 .build();
-        return foreignKeySyncService.createVirtualFK(param);
+        return DataResult.of(foreignKeySyncService.createVirtualFK(param));
     }
 
     @PostMapping("/virtual/update")
@@ -99,7 +99,7 @@ public class ForeignKeyController {
                 .referencedColumnName(request.getReferencedColumnName())
                 .vkName(request.getVkName())
                 .build();
-        return foreignKeySyncService.updateVirtualFK(param);
+        return DataResult.of(foreignKeySyncService.updateVirtualFK(param));
     }
 
     @PostMapping("/delete")
@@ -108,8 +108,7 @@ public class ForeignKeyController {
             foreignKeySyncService.deleteVirtualFK(request.getId());
             return DataResult.of(DeleteFKResult.builder().executedDDL(null).build());
         } else {
-            DataResult<String> result = foreignKeySyncService.deleteRealFK(request.getId());
-            String ddl = result.getData();
+            String ddl = foreignKeySyncService.deleteRealFK(request.getId());
             return DataResult.of(DeleteFKResult.builder().executedDDL(ddl).build());
         }
     }

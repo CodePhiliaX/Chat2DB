@@ -83,7 +83,7 @@ public abstract class TeamConverter {
             return;
         }
         List<Long> idList = EasyCollectionUtils.toList(list, Team::getId);
-        List<Team> queryList = teamService.listQuery(idList).getData();
+        List<Team> queryList = teamService.listQuery(idList);
         Map<Long, Team> queryMap = EasyCollectionUtils.toIdentityMap(queryList, Team::getId);
         for (Team data : list) {
             if (data == null || data.getId() == null) {

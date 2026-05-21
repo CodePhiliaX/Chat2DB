@@ -21,6 +21,7 @@ import ai.chat2db.server.tools.base.enums.YesOrNoEnum;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.exception.DataNotFoundException;
 import ai.chat2db.server.tools.common.model.EasyLambdaQueryWrapper;
 import ai.chat2db.server.tools.common.util.ContextUtils;
@@ -53,7 +54,7 @@ public class DashboardServiceImpl implements DashboardService {
     private DashboardConverter dashboardConverter;
 
     @Override
-    public DataResult<Long> createWithPermission(DashboardCreateParam param) {
+    public Long createWithPermission(DashboardCreateParam param) {
         param.setGmtCreate(LocalDateTime.now());
         param.setGmtModified(LocalDateTime.now());
         param.setDeleted(YesOrNoEnum.NO.getLetter());
@@ -61,30 +62,30 @@ public class DashboardServiceImpl implements DashboardService {
         DashboardDO dashboardDO = dashboardConverter.param2do(param);
         getMapper().insert(dashboardDO);
         insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
-        return DataResult.of(dashboardDO.getId());
+        return dashboardDO.getId();
     }
 
     @Override
-    public ActionResult updateWithPermission(DashboardUpdateParam param) {
-        Dashboard data = queryExistent(param.getId()).getData();
+    public void updateWithPermission(DashboardUpdateParam param) {
+        Dashboard data = queryExistent(param.getId());
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         param.setGmtModified(LocalDateTime.now());
         DashboardDO dashboardDO = dashboardConverter.updateParam2do(param);
         getMapper().updateById(dashboardDO);
         if (CollectionUtils.isEmpty(param.getChartIds())) {
-            return ActionResult.isSuccess();
+            
         }
         deleteDashboardRelation(dashboardDO.getId());
         insertDashboardRelation(dashboardDO.getId(), param.getChartIds());
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public DataResult<Dashboard> find(Long id) {
+    public Dashboard find(Long id) {
         DashboardDO dashboardDO = getMapper().selectById(id);
         if (YesOrNoEnum.YES.getLetter().equals(dashboardDO.getDeleted())) {
-            return DataResult.empty();
+            return null;
         }
         Dashboard dashboard = dashboardConverter.do2model(dashboardDO);
         LambdaQueryWrapper<DashboardChartRelationDO> queryWrapper = new LambdaQueryWrapper<>();
@@ -92,11 +93,11 @@ public class DashboardServiceImpl implements DashboardService {
         List<DashboardChartRelationDO> relationDO = getMapper1().selectList(queryWrapper);
         List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
         dashboard.setChartIds(chartIds);
-        return DataResult.of(dashboard);
+        return dashboard;
     }
 
     @Override
-    public DataResult<Dashboard> queryExistent(DashboardQueryParam param) {
+    public Dashboard queryExistent(DashboardQueryParam param) {
         EasyLambdaQueryWrapper<DashboardDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper
             .eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter())
@@ -113,21 +114,21 @@ public class DashboardServiceImpl implements DashboardService {
             dashboardChartRelationQueryWrapper);
         List<Long> chartIds = relationDO.stream().map(DashboardChartRelationDO::getChartId).toList();
         data.setChartIds(chartIds);
-        return DataResult.of(data);
+        return data;
     }
 
     @Override
-    public DataResult<Dashboard> queryExistent(Long id) {
-        DataResult<Dashboard> dataResult = find(id);
-        if (dataResult.getData() == null) {
+    public Dashboard queryExistent(Long id) {
+        Dashboard dataResult = find(id);
+        if (dataResult == null) {
             throw new DataNotFoundException();
         }
         return dataResult;
     }
 
     @Override
-    public ActionResult deleteWithPermission(Long id) {
-        Dashboard data = queryExistent(id).getData();
+    public void deleteWithPermission(Long id) {
+        Dashboard data = queryExistent(id);
         PermissionUtils.checkOperationPermission(data.getUserId());
 
         DashboardDO dashboardDO = new DashboardDO();
@@ -135,7 +136,7 @@ public class DashboardServiceImpl implements DashboardService {
         dashboardDO.setDeleted(YesOrNoEnum.YES.getLetter());
         getMapper().updateById(dashboardDO);
         deleteDashboardRelation(id);
-        return ActionResult.isSuccess();
+        
     }
 
     /**
@@ -174,7 +175,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public PageResult<Dashboard> queryPage(DashboardPageQueryParam param) {
+    public ServicePage<Dashboard> queryPage(DashboardPageQueryParam param) {
         EasyLambdaQueryWrapper<DashboardDO> queryWrapper = new EasyLambdaQueryWrapper<>();
         queryWrapper
             .eq(DashboardDO::getDeleted, YesOrNoEnum.NO.getLetter())
@@ -185,6 +186,6 @@ public class DashboardServiceImpl implements DashboardService {
         Page<DashboardDO> page = new Page<>(start, offset);
         IPage<DashboardDO> iPage = getMapper().selectPage(page, queryWrapper);
         List<Dashboard> dashboards = dashboardConverter.do2model(iPage.getRecords());
-        return PageResult.of(dashboards, iPage.getTotal(), param);
+        return ServicePage.of(dashboards, iPage.getTotal(), param.getPageNo(), param.getPageSize());
     }
 }

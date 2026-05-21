@@ -33,44 +33,44 @@ public class ConfigServiceImpl implements ConfigService {
     private ConfigConverter configConverter;
 
     @Override
-    public ActionResult create(SystemConfigParam param) {
+    public void create(SystemConfigParam param) {
         SystemConfigDO systemConfigDO = configConverter.param2do(param);
         systemConfigDO.setGmtCreate(LocalDateTime.now());
         systemConfigDO.setGmtModified(LocalDateTime.now());
         getMapper().insert(systemConfigDO);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ActionResult update(SystemConfigParam param) {
+    public void update(SystemConfigParam param) {
         SystemConfigDO systemConfigDO = configConverter.param2do(param);
         UpdateWrapper<SystemConfigDO> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("code", param.getCode());
         getMapper().update(systemConfigDO, updateWrapper);
-        return ActionResult.isSuccess();
+        
     }
 
     @Override
-    public ActionResult createOrUpdate(SystemConfigParam param) {
+    public void createOrUpdate(SystemConfigParam param) {
         SystemConfigDO systemConfigDO = getMapper().selectOne(
             new UpdateWrapper<SystemConfigDO>().eq("code", param.getCode()));
         if (systemConfigDO == null) {
-            return create(param);
+            create(param);
         } else {
-            return update(param);
+            update(param);
         }
     }
 
     @Override
-    public DataResult<Config> find(String code) {
+    public Config find(String code) {
         SystemConfigDO systemConfigDO = getMapper().selectOne(
             new UpdateWrapper<SystemConfigDO>().eq("code", code));
-        return DataResult.of(configConverter.do2model(systemConfigDO));
+        return configConverter.do2model(systemConfigDO);
     }
 
     @Override
-    public ActionResult delete(String code) {
+    public void delete(String code) {
         getMapper().delete(new UpdateWrapper<SystemConfigDO>().eq("code", code));
-        return ActionResult.isSuccess();
+        
     }
 }

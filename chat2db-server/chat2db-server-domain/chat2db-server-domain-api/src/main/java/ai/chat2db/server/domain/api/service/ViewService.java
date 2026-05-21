@@ -2,8 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.model.TreeNode;
 import ai.chat2db.server.domain.api.param.TreeSearchParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Table;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -21,7 +19,7 @@ public interface ViewService {
      * @param databaseName
      * @return
      */
-    ListResult<Table> views(@NotEmpty String databaseName, String schemaName);
+    List<Table> views(@NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all views under a schema with Lucene cache.
@@ -33,7 +31,7 @@ public interface ViewService {
      * @param refresh if true, refresh the cache
      * @return
      */
-    ListResult<Table> viewsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
+    List<Table> viewsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
 
 
     /**
@@ -42,7 +40,7 @@ public interface ViewService {
      * @param databaseName
      * @return
      */
-    DataResult<Table> detail(@NotEmpty String databaseName, String schemaName,String tableName);
+    Table detail(@NotEmpty String databaseName, String schemaName,String tableName);
 
     /**
      * Search tree nodes for views.

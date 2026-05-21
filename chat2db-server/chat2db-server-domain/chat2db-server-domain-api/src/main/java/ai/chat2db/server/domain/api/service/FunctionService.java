@@ -2,8 +2,6 @@ package ai.chat2db.server.domain.api.service;
 
 import ai.chat2db.server.domain.api.model.TreeNode;
 import ai.chat2db.server.domain.api.param.TreeSearchParam;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.model.Function;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -21,7 +19,7 @@ public interface FunctionService {
      * @param databaseName
      * @return
      */
-    ListResult<Function> functions(@NotEmpty String databaseName, String schemaName);
+    List<Function> functions(@NotEmpty String databaseName, String schemaName);
 
     /**
      * Querying all functions under a schema with Lucene cache.
@@ -33,7 +31,7 @@ public interface FunctionService {
      * @param refresh if true, refresh the cache
      * @return
      */
-    ListResult<Function> functionsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
+    List<Function> functionsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh);
 
     /**
      * Querying function information.
@@ -42,7 +40,7 @@ public interface FunctionService {
      * @param functionName
      * @return
      */
-    DataResult<Function> detail(String databaseName, String schemaName, String functionName);
+    Function detail(String databaseName, String schemaName, String functionName);
 
     /**
      * Search tree nodes for functions.

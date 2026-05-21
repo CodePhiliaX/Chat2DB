@@ -3,8 +3,8 @@ package ai.chat2db.server.web.api.controller.task;
 import ai.chat2db.server.domain.api.model.Task;
 import ai.chat2db.server.domain.api.param.TaskPageParam;
 import ai.chat2db.server.domain.api.service.TaskService;
+import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import ai.chat2db.server.tools.common.util.ContextUtils;
 import ai.chat2db.server.web.api.aspect.ConnectionInfoAspect;
@@ -40,29 +40,29 @@ public class TaskController {
         taskPageParam.setPageNo(1);
         taskPageParam.setPageSize(10);
         taskPageParam.setUserId(ContextUtils.getUserId());
-        PageResult<Task> task = taskService.page(taskPageParam);
+        ServicePage<Task> task = taskService.page(taskPageParam);
         return WebPageResult.of(task.getData(), 100L, 1, 10);
     }
 
     @GetMapping("/get/{id}")
     public DataResult<Task> get(@PathVariable Long id) {
-        DataResult<Task> task = taskService.get(id);
-        return task;
+        Task task = taskService.get(id);
+        return DataResult.of(task);
     }
 
     @GetMapping("/download/{id}")
     public ResponseEntity<Resource> download(@PathVariable Long id) {
-        DataResult<Task> task = taskService.get(id);
-        if(task.getData() == null){
+        Task task = taskService.get(id);
+        if(task == null){
             log.error("task is null");
             throw new RuntimeException("task is null");
         }
-        if(!ContextUtils.getUserId().equals(task.getData().getUserId())){
+        if(!ContextUtils.getUserId().equals(task.getUserId())){
             log.error("task is not belong to user");
             throw new RuntimeException("task is not belong to user");
         }
 
-        String downloadUrl = task.getData().getDownloadUrl();
+        String downloadUrl = task.getDownloadUrl();
         if(downloadUrl == null || downloadUrl.isEmpty()){
             log.error("download url is null");
             throw new RuntimeException("download url is null");

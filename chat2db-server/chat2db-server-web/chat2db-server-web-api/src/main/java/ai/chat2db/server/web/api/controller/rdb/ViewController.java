@@ -41,10 +41,10 @@ public class ViewController {
 
     @GetMapping("/list")
     public WebPageResult<TableVO> list(@Valid TableBriefQueryRequest request) {
-        ListResult<Table> tableDTOPageResult = viewService.viewsWithCache(request.getDataSourceId(),
+        List<Table> tableList = viewService.viewsWithCache(request.getDataSourceId(),
                 request.getDatabaseName(), request.getSchemaName(), request.getSearchKey(), request.isRefresh());
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
-        Integer pageSize = tableDTOPageResult.getData() != null ? tableDTOPageResult.getData().size() : 0;
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableList);
+        Integer pageSize = tableList != null ? tableList.size() : 0;
         return WebPageResult.of(tableVOS, Long.valueOf(tableVOS.size()), 1, pageSize);
     }
 
@@ -60,8 +60,8 @@ public class ViewController {
 
     @GetMapping("/detail")
     public DataResult<TableVO> detail(@Valid TableDetailQueryRequest request) {
-        DataResult<Table> dataResult = viewService.detail(request.getDatabaseName(),request.getSchemaName(),request.getTableName());
-        TableVO tableVO = rdbWebConverter.tableDto2vo(dataResult.getData());
+        Table dataResult = viewService.detail(request.getDatabaseName(),request.getSchemaName(),request.getTableName());
+        TableVO tableVO = rdbWebConverter.tableDto2vo(dataResult);
         return DataResult.of(tableVO);
     }
     @PostMapping("/delete")
