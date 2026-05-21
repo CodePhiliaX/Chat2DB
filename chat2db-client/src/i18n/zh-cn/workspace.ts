@@ -102,6 +102,7 @@ export default {
   'workspace.table.import.mode.pkRequired': '需要主键',
   'workspace.table.import.mode.replaceConfirm': '将清空目标表所有数据后重新导入，确定继续？',
   'workspace.table.import.export.title': '导出数据',
+  'workspace.table.export.progress.title': '导出进度',
   'workspace.table.export.progress.rows': '已导出行数',
   'workspace.table.export.title': '导出数据',
   'workspace.table.export.sourceTable': '源表',
