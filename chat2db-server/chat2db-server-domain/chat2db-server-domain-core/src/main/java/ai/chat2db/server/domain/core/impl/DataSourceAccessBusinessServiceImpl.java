@@ -37,7 +37,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         // private
         if (DataSourceKindEnum.PRIVATE.getCode().equals(dataSource.getKind())) {
             if (loginUser.getId().equals(dataSource.getUserId())) {
-                
+                return;
             } else {
                 throw new PermissionDeniedBusinessException();
             }
@@ -45,7 +45,7 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
 
         // Administrators can edit anything
         if (loginUser.getAdmin()) {
-            
+            return;
         }
 
         // Verify if user have permission
@@ -55,13 +55,12 @@ public class DataSourceAccessBusinessServiceImpl implements DataSourceAccessBusi
         dataSourceAccessPageQueryParam.setAccessObjectId(loginUser.getId());
         dataSourceAccessPageQueryParam.queryOne();
         if (dataSourceAccessService.pageQuery(dataSourceAccessPageQueryParam, null).isNotEmpty()) {
-            
+            return;
         }
 
         // Verify if the team has permission
         if (getMapper().checkTeamPermission(dataSource.getId(), loginUser.getId()) != null) {
-            
-
+            return;
         }
         throw new PermissionDeniedBusinessException();
     }
