@@ -11,6 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration;
+import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -43,8 +45,11 @@ import org.springframework.stereotype.Indexed;
  *
  * @author Jiaju Zhuang
  */
-@SpringBootApplication
-@ComponentScan(value = {"ai.chat2db.server"})
+@SpringBootApplication(exclude = {
+    MailSenderAutoConfiguration.class,
+    QuartzAutoConfiguration.class
+})
+@ComponentScan(value = {"ai.chat2db.server"}, lazyInit = true)
 @Indexed
 @EnableCaching
 @EnableScheduling

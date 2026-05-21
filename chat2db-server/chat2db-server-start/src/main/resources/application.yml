@@ -4,6 +4,8 @@ spring:
     active: dev
   main:
     allow-bean-definition-overriding: true
+    # 延迟初始化 Bean，显著提升启动速度
+    lazy-initialization: true
   flyway:
     enabled: false
   messages:
@@ -12,10 +14,15 @@ spring:
     fallbackToSystemLocale: true
   jmx:
     enabled: false
+  # 排除不需要的自动配置
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+      - org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration
   # thymeleaf
   thymeleaf:
     prefix: classpath:/thymeleaf/
-    check-template-location: true
+    check-template-location: false
     suffix: .html
     servlet:
       content-type: text/html
