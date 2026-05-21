@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ai.chat2db.server.domain.api.param.CreateVirtualFKParam;
+import ai.chat2db.server.domain.api.param.DeprecatedTableParam;
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
@@ -33,6 +34,7 @@ import ai.chat2db.server.web.api.controller.rdb.request.BatchTableModifySqlReque
 import ai.chat2db.server.web.api.controller.rdb.request.BatchTableOperationRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.CreateVirtualFKRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.DdlExportRequest;
+import ai.chat2db.server.web.api.controller.rdb.request.DeprecatedTableRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.ForeignKeySyncRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableBriefQueryRequest;
 import ai.chat2db.server.web.api.controller.rdb.request.TableCreateDdlQueryRequest;
@@ -252,6 +254,62 @@ public class TableController {
     public ActionResult delete(@Valid @RequestBody TableDeleteRequest request) {
         DropParam dropParam = rdbWebConverter.tableDelete2dropParam(request);
         return tableService.drop(dropParam);
+    }
+
+    /**
+     * 截断表
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/truncate")
+    public ActionResult truncate(@Valid @RequestBody TableDeleteRequest request) {
+        DropParam truncateParam = rdbWebConverter.tableDelete2dropParam(request);
+        return tableService.truncate(truncateParam);
+    }
+
+    /**
+     * 废弃表
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/deprecated")
+    public ActionResult deprecated(@Valid @RequestBody DeprecatedTableRequest request) {
+        DeprecatedTableParam param = rdbWebConverter.deprecatedTableRequest2param(request);
+        return tableService.deprecatedTable(param);
+    }
+
+    /**
+     * 取消废弃表
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/cancel_deprecated")
+    public ActionResult cancelDeprecated(@Valid @RequestBody DeprecatedTableRequest request) {
+        DeprecatedTableParam param = rdbWebConverter.deprecatedTableRequest2param(request);
+        return tableService.deleteDeprecatedTable(param);
+    }
+
+    /**
+     * 查询回收站中的废弃表列表
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/deprecated_list")
+    public WebPageResult<TableVO> deprecatedList(@Valid TableBriefQueryRequest request) {
+        TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
+        TableSelector tableSelector = new TableSelector();
+        tableSelector.setColumnList(false);
+        tableSelector.setIndexList(false);
+
+        PageResult<Table> tableDTOPageResult = tableService.pageQueryDeprecated(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tableDTOPageResult.getData());
+
+        return WebPageResult.of(tableVOS, tableDTOPageResult.getTotal(), request.getPageNo(),
+                request.getPageSize());
     }
 
     /**

@@ -102,16 +102,6 @@ public class PromptTemplateRegistry {
         return templates.getOrDefault(type, getDefaultTemplate());
     }
 
-    /**
-     * 根据代码获取模板
-     *
-     * @param code 类型代码
-     * @return 模板
-     */
-    public PromptTemplate getTemplate(String code) {
-        PromptType type = PromptType.valueOf(code);
-        return getTemplate(type);
-    }
 
     private PromptTemplate getDefaultTemplate() {
         return templates.getOrDefault(PromptType.NL_2_SQL, buildDefaultTemplate());

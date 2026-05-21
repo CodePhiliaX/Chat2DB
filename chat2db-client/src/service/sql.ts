@@ -211,33 +211,33 @@ export interface IMessage {
   tool_calls?: IToolCall[];
 }
 
-const deleteTable = createRequest<ITableParams, void>('/api/rdb/ddl/delete', { method: 'post' });
-const truncateTable = createRequest<ITableParams, void>('/api/rdb/ddl/truncate', { method: 'post' });
-const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/create/example', {
+const deleteTable = createRequest<ITableParams, void>('/api/rdb/table/delete', { method: 'post' });
+const truncateTable = createRequest<ITableParams, void>('/api/rdb/table/truncate', { method: 'post' });
+const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/table/create/example', {
   method: 'get',
 });
-const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/ddl/update/example', {
+const updateTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/table/update/example', {
   method: 'get',
 });
-const exportCreateTableSql = createRequest<ITableParams, string>('/api/rdb/ddl/export', { method: 'get' });
-const executeTable = createRequest<IExecuteTableParams, string>('/api/rdb/ddl/execute', { method: 'post' });
+const exportCreateTableSql = createRequest<ITableParams, string>('/api/rdb/table/export', { method: 'get' });
+const executeTable = createRequest<IExecuteTableParams, string>('/api/rdb/dml/execute', { method: 'post' });
 
-const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/column_list', {
+const getColumnList = createRequest<ITableParams, IColumn[]>('/api/rdb/table/column_list', {
   method: 'get',
   delayTime: 200,
 });
-const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/ddl/index_list', {
+const getIndexList = createRequest<ITableParams, IColumn[]>('/api/rdb/table/index_list', {
   method: 'get',
   delayTime: 200,
 });
 const getKeyList = createRequest<ITableParams, IForeignKey[]>('/api/rdb/fk/list', { method: 'get', delayTime: 200 });
-const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/ddl/schema_list', {
+const getSchemaList = createRequest<ISchemaParams, ISchemaResponse[]>('/api/rdb/schema/list', {
   method: 'get',
   delayTime: 200,
 });
 
 const getDatabaseSchemaList = createRequest<{ dataSourceId: number }, MetaSchemaVO>(
-  '/api/rdb/ddl/database_schema_list',
+  '/api/rdb/database/database_schema_list',
   { method: 'get' },
 );
 
@@ -245,11 +245,11 @@ const addTablePin = createRequest<IUniversalTableParams, void>('/api/pin/table/a
 
 const deleteTablePin = createRequest<IUniversalTableParams, void>('/api/pin/table/delete', { method: 'post' });
 
-const deprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/ddl/deprecated', { method: 'post' });
+const deprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/table/deprecated', { method: 'post' });
 
-const restoreDeprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/ddl/cancel_deprecated', { method: 'post' });
+const restoreDeprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/table/cancel_deprecated', { method: 'post' });
 
-const getDeprecatedTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/ddl/deprecated_list', { method: 'get' });
+const getDeprecatedTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/table/deprecated_list', { method: 'get' });
 
 /** 获取当前执行SQL 所有行 */
 const getDMLCount = createRequest<IExecuteSqlParams, number>('/api/rdb/dml/count', { method: 'post' });
