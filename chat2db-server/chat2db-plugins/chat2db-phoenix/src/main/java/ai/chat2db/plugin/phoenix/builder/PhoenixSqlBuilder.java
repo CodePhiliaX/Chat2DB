@@ -19,6 +19,9 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
+        if(StringUtils.isNotBlank(table.getAiComment())){
+            script.append(" -- ").append(table.getAiComment());
+        }
         script.append("CREATE TABLE ");
 
         // 添加数据库名
@@ -44,9 +47,6 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
 
         script.append(";");
 
-        if(StringUtils.isNotBlank(table.getAiComment())){
-            script.append(" -- ").append(table.getAiComment());
-        }
         return script.toString();
     }
 

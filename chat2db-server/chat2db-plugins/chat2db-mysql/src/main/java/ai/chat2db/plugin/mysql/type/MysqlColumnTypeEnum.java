@@ -167,6 +167,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
 
         script.append(buildComment(column,type)).append(" ");
 
+        script.append(buildPrimaryKey(column,type)).append(" ");
+
         return script.toString();
     }
 
@@ -218,6 +220,13 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             return "";
         }
         return StringUtils.join("COMMENT '",column.getComment(),"'");
+    }
+
+    private String buildPrimaryKey(TableColumn column, MysqlColumnTypeEnum type) {
+        if (Boolean.TRUE.equals(column.getPrimaryKey())) {
+            return "PRIMARY KEY";
+        }
+        return "";
     }
 
     private String buildExt(TableColumn column, MysqlColumnTypeEnum type) {

@@ -29,7 +29,6 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import org.apache.commons.lang3.math.NumberUtils;
 
 public class DefaultSqlBuilder implements SqlBuilder {
 
@@ -37,6 +36,9 @@ public class DefaultSqlBuilder implements SqlBuilder {
     @Override
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
+        if(StringUtils.isNotBlank(table.getAiComment())){
+            script.append(" -- ").append(table.getAiComment());
+        }
         script.append("CREATE TABLE ");
 
         // 添加数据库名
@@ -65,9 +67,6 @@ public class DefaultSqlBuilder implements SqlBuilder {
 
         script.append(";");
 
-        if(StringUtils.isNotBlank(table.getAiComment())){
-            script.append(" -- ").append(table.getAiComment());
-        }
         return script.toString();
     }
 
@@ -113,7 +112,7 @@ public class DefaultSqlBuilder implements SqlBuilder {
             }
 
             // 移除最后的逗号
-            if (script.length() > 0) {
+            if (!script.isEmpty()) {
                 script.setLength(script.length() - 2);
             }
 
