@@ -15,6 +15,7 @@ import DatabaseTableEditor from '@/blocks/DatabaseTableEditor';
 import SQLExecute from '../SQLExecute';
 import ViewAllTable from '../ViewAllTable';
 import ERDiagram from '../ERDiagram';
+import SchemaDiffPanel from '@/blocks/SchemaDiff';
 import Iconfont from '@/components/Iconfont';
 import ShortcutKey from '@/components/ShortcutKey';
 
@@ -476,8 +477,10 @@ const WorkspaceTabs = memo(() => {
         return renderSearchResult(item);
       case WorkspaceTabType.ViewAllTable:
         return renderViewAllTable(item);
-      case WorkspaceTabType.ViewERDiagram: // 添加对查看 ER 图的支持
+      case WorkspaceTabType.ViewERDiagram:
         return renderViewERDiagram(item);
+      case WorkspaceTabType.SchemaDiff:
+        return <SchemaDiffPanel />;
       default:
         return <div>Unknown</div>;
     }

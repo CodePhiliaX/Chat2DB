@@ -217,6 +217,23 @@ export const useGetRightClickMenu = (props: IProps) => {
         },
       },
 
+      // 结构对比
+      [OperationColumn.SchemaDiff]: {
+        text: i18n('schemaDiff.title'),
+        icon: '\ue6f3',
+        handle: () => {
+          addWorkspaceTab({
+            id: uuid(),
+            type: WorkspaceTabType.SchemaDiff,
+            title: i18n('schemaDiff.title'),
+            uniqueData: {
+              dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+              databaseType: treeNodeData.extraParams!.databaseType!,
+            },
+          });
+        },
+      },
+
       // 创建表
       [OperationColumn.CreateTable]: {
         text: i18n('editTable.button.createTable'),

@@ -1,0 +1,90 @@
+.schemaDiffPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  overflow-y: auto;
+  background: #fff;
+
+  .header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+
+    .sourceSelector,
+    .targetSelector {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 6px;
+
+      .selectorLabel {
+        font-weight: 600;
+        font-size: 13px;
+        white-space: nowrap;
+        min-width: 32px;
+      }
+    }
+
+    .selectorArrow {
+      font-size: 20px;
+      color: #999;
+      line-height: 30px;
+      padding-top: 20px;
+    }
+
+    .compareActions {
+      display: flex;
+      align-items: flex-end;
+      padding-top: 16px;
+    }
+  }
+
+  .options {
+    display: flex;
+    gap: 16px;
+    padding: 8px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+
+    .optionCheckbox {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: #666;
+
+      input {
+        margin: 0;
+      }
+    }
+  }
+
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
+  }
+
+  .summaryBar {
+    display: flex;
+    gap: 20px;
+    padding: 10px 14px;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+
+    .summaryItem {
+      &.added strong { color: #52c41a; }
+      &.removed strong { color: #ff4d4f; }
+      &.modified strong { color: #faad14; }
+      &.unchanged strong { color: #999; }
+      &.excluded strong { color: #999; }
+    }
+  }
+}

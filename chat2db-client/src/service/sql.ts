@@ -9,6 +9,12 @@ import {
     ITable,
     IUniversalTableParams,
 } from '@/typings';
+import {
+    ISchemaCompareParams,
+    ISchemaDiffResult,
+    ISchemaMigrateParams,
+    IMigrateResult,
+} from '@/typings/schemaDiff';
 import { ExportSizeEnum, ExportTypeEnum } from '@/typings/resultTable';
 import createRequest from './base';
 
@@ -568,6 +574,10 @@ const batchAnalyzeTables = createRequest<{
   tableNames: string[];
 }, any[]>('/api/rdb/table/batch/analyze', { method: 'post' });
 
+const compareSchema = createRequest<ISchemaCompareParams, ISchemaDiffResult>('/api/rdb/schema/diff/compare', { method: 'post' });
+
+const migrateSchema = createRequest<ISchemaMigrateParams, IMigrateResult>('/api/rdb/schema/diff/migrate', { method: 'post' });
+
 export default {
   searchTree,
   getCreateSchemaSql,
@@ -622,4 +632,6 @@ export default {
   syncForeignKeys,
   batchOptimizeTables,
   batchAnalyzeTables,
+  compareSchema,
+  migrateSchema,
 };

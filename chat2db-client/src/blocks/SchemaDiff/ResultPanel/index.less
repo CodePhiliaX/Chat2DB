@@ -1,0 +1,109 @@
+.resultPanel {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  min-height: 200px;
+
+  .tableList {
+    width: 320px;
+    min-width: 260px;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    overflow-y: auto;
+    background: #fafafa;
+
+    .listHeader {
+      padding: 8px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+
+      .count {
+        color: #999;
+        font-weight: 400;
+        margin-left: 4px;
+      }
+    }
+
+    .tableItem {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #e6f7ff;
+      }
+
+      &.active {
+        background: #bae7ff;
+      }
+
+      .tableItemHeader {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        input[type="checkbox"] {
+          margin: 0;
+        }
+
+        .diffBadge {
+          font-size: 11px;
+          padding: 0 4px;
+          border-radius: 3px;
+          font-weight: 500;
+
+          &.added { background: #f6ffed; color: #52c41a; }
+          &.removed { background: #fff2f0; color: #ff4d4f; }
+          &.modified { background: #fffbe6; color: #faad14; }
+          &.unchanged { background: #f5f5f5; color: #999; }
+        }
+
+        .tableItemName {
+          font-weight: 500;
+          font-size: 13px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .tableItemMeta {
+        display: flex;
+        gap: 8px;
+        font-size: 11px;
+        color: #999;
+        margin-top: 2px;
+        padding-left: 38px;
+      }
+    }
+
+    .noData {
+      padding: 40px;
+      text-align: center;
+      color: #999;
+    }
+  }
+
+  .detailArea {
+    flex: 1;
+    border: 1px solid #f0f0f0;
+    border-radius: 6px;
+    overflow-y: auto;
+    background: #fff;
+
+    .noSelection {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      color: #ccc;
+      font-size: 14px;
+    }
+  }
+}

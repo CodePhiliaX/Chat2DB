@@ -106,3 +106,15 @@ export interface IDefaultValue {
 export interface IForeignKey {
 
 }
+
+/** 数据库列表项 */
+export interface IDatabaseItem {
+  name: string;
+  comment?: string;
+}
+
+/** Schema列表项 */
+export interface ISchemaItem {
+  name: string;
+  comment?: string;
+}

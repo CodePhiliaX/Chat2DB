@@ -160,7 +160,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
           });
       });
     },
-    operationColumn: [OperationColumn.EditSource, OperationColumn.Refresh, OperationColumn.ShiftOut],
+    operationColumn: [OperationColumn.EditSource, OperationColumn.SchemaDiff, OperationColumn.Refresh, OperationColumn.ShiftOut],
     next: TreeNodeType.DATABASE,
   },
 

@@ -58,4 +58,5 @@ export enum OperationColumn {
   DeprecatedTable = 'deprecatedTable', // 废弃表
   RestoreTable = 'restoreTable', // 恢复废弃表
   GenerateData = 'generateData', // 生成数据
+  SchemaDiff = 'schemaDiff', // 结构对比
 }

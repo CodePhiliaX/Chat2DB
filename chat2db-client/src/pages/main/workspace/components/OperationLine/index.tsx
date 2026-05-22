@@ -1,16 +1,18 @@
 import React, { memo, useMemo, useState } from 'react';
 import i18n from '@/i18n';
 import styles from './index.less';
-import { Input } from 'antd';
+import { Input, Tooltip } from 'antd';
 
 // ----- constants -----
-import { DatabaseTypeCode } from '@/constants';
+import { DatabaseTypeCode, WorkspaceTabType } from '@/constants';
 
 // ----- components -----
 import Iconfont from '@/components/Iconfont';
 
 // ----- store -----
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { addWorkspaceTab } from '@/pages/main/workspace/store/console';
+import { v4 as uuid } from 'uuid';
 
 interface IProps {
   searchValue: string;
@@ -74,6 +76,25 @@ const OperationLine = (props: IProps) => {
             boxSize={20}
             size={14}
           />
+          <Tooltip title={i18n('schemaDiff.title')}>
+            <Iconfont
+              onClick={() => {
+                addWorkspaceTab({
+                  id: uuid(),
+                  type: WorkspaceTabType.SchemaDiff,
+                  title: i18n('schemaDiff.title'),
+                  uniqueData: {
+                    dataSourceId: currentConnectionDetails?.id,
+                    databaseType: currentConnectionDetails?.type,
+                  },
+                });
+              }}
+              code="&#xe6f3;"
+              box
+              boxSize={20}
+              size={14}
+            />
+          </Tooltip>
           {/* {searchIng ? (
             <Iconfont
               onClick={() => {

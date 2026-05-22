@@ -11,6 +11,7 @@ import login from './login';
 import editTable from './editTable';
 import editTableData from './editTableData';
 import sqlEditor from './sqlEditor'
+import schemaDiff from './schemaDiff';
 
 export default {
   lang: LangType.ZH_CN,
@@ -26,5 +27,6 @@ export default {
   ...login,
   ...editTable,
   ...editTableData,
-  ...sqlEditor
+  ...sqlEditor,
+  ...schemaDiff,
 };
