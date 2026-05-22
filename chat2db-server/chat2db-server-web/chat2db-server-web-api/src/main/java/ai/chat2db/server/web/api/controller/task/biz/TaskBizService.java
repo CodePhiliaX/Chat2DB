@@ -106,10 +106,9 @@ public class TaskBizService {
             tableSelector.setColumnList(true);
             tableSelector.setIndexList(true);
             ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
-            List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
 
             SchemaDocExportContext context = SchemaDocExportContext.builder()
-                    .tables(tableVOS)
+                    .tables(tablePage.getData())
                     .databaseName(request.getDatabaseName())
                     .file(file)
                     .exportOptions(new ExportOptions())

@@ -8,6 +8,7 @@ import ai.chat2db.server.web.api.controller.rdb.doc.constant.CommonConstant;
 import ai.chat2db.server.web.api.controller.rdb.doc.constant.PatternConstant;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
 import ai.chat2db.server.web.api.util.StringUtils;
+import ai.chat2db.spi.model.Table;
 import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableIndexColumn;
@@ -87,7 +88,7 @@ public abstract class AbstractSchemaDocExportStrategy implements SchemaDocExport
         Map<String, List<TableParameter>> listMap = new LinkedHashMap<>();
         boolean isExportIndex = Optional.ofNullable(context.getExportOptions().getIsExportIndex()).orElse(false);
 
-        for (TableVO table : context.getTables()) {
+        for (Table table : context.getTables()) {
             TableParameter t = new TableParameter();
             t.setFieldName(table.getName() + "[" + StringUtils.isNull(table.getComment()) + "]");
             List<TableParameter> colForTable = new LinkedList<>();

@@ -4,6 +4,7 @@ import ai.chat2db.server.domain.api.model.TableParameter;
 import ai.chat2db.server.domain.api.model.IndexInfo;
 import ai.chat2db.server.web.api.controller.rdb.doc.conf.ExportOptions;
 import ai.chat2db.server.web.api.controller.rdb.vo.TableVO;
+import ai.chat2db.spi.model.Table;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @Builder
 public class SchemaDocExportContext {
 
-    private List<TableVO> tables;
+    private List<Table> tables;
 
     private String databaseName;
 

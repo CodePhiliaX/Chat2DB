@@ -367,6 +367,10 @@ public class TableServiceImpl implements TableService {
         }
         long total = luceneMgr.getTotal();
         log.info("total:{}", total);
+        if (param.getLastDocId() == null) {
+            tables = pinTable(tables, param);
+            tables = deprecatedTable(tables, param);
+        }
         for (Table table : tables) {
             TableQueryParam queryParam = TableQueryParam.builder()
                     .dataSourceId(param.getDataSourceId())
@@ -397,10 +401,7 @@ public class TableServiceImpl implements TableService {
             }
 
         }
-        if (param.getLastDocId() == null) {
-            tables = pinTable(tables, param);
-            tables = deprecatedTable(tables, param);
-        }
+
         param.setLastDocId(luceneMgr.getLastDocId());
 
         return ServicePage.of(tables, total, param.getPageNo(), param.getPageSize(), luceneMgr.getLastDocId());
@@ -570,7 +571,7 @@ public class TableServiceImpl implements TableService {
                 mgr.getLock().writeLock().unlock();
             }
         }
-        return (List<TableColumn>) mgr.search(param, null, null);
+        return mgr.search(param, null, null);
     }
 
     @Override

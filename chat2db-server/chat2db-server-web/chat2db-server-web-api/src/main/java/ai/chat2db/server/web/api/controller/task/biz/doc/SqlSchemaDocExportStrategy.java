@@ -25,15 +25,7 @@ public class SqlSchemaDocExportStrategy extends AbstractSchemaDocExportStrategy 
     protected void doExport(OutputStream outputStream, SchemaDocExportContext context) throws Exception {
         SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
         try (OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            for (TableVO tableVO : context.getTables()) {
-                Table table = Table.builder()
-                        .name(tableVO.getName())
-                        .comment(tableVO.getComment())
-                        .databaseName(context.getDatabaseName())
-                        .schemaName(tableVO.getName())
-                        .columnList(tableVO.getColumnList())
-                        .indexList(tableVO.getIndexList())
-                        .build();
+            for (Table table : context.getTables()) {
                 String ddl = sqlBuilder.buildCreateTableSql(table);
                 writer.write(ddl);
                 writer.write("\n\n");

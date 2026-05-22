@@ -1,7 +1,5 @@
 package ai.chat2db.spi.model;
 
-import com.alibaba.fastjson2.annotation.JSONField;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,14 +29,12 @@ public class TableColumn implements IndexModel {
     /**
      * 列名
      */
-    @JSONField(alternateNames = {"COLUMN_NAME", "column_name"})
     @LuceneField(name = "name", type = LuceneFieldType.TEXT, sort = true)
     private String name;
 
     /**
      * 表名
      */
-    @JSONField(alternateNames = {"TABLE_NAME", "table_name"})
     @LuceneField(name = "tableName", type = LuceneFieldType.STRING)
     private String tableName;
 
@@ -46,7 +42,6 @@ public class TableColumn implements IndexModel {
      * 列的类型
      * 比如 varchar(100) ,double(10,6)
      */
-    @JSONField(alternateNames = {"TYPE_NAME", "type_name"})
     @LuceneField(name = "columnType", type = LuceneFieldType.TEXT)
     private String columnType;
 
@@ -54,14 +49,12 @@ public class TableColumn implements IndexModel {
      * 列的数据类型
      * 比如 varchar ,double
      */
-    @JSONField(alternateNames = {"DATA_TYPE", "data_type"})
     private String dataType;
 
 
     /**
      * 默认值
      */
-    @JSONField(alternateNames = {"COLUMN_DEF", "column_def"})
     private String defaultValue;
 
 
@@ -69,13 +62,11 @@ public class TableColumn implements IndexModel {
      * 是否自增
      * 为空 代表没有值 数据库的实际语义是 false
      */
-    @JSONField(alternateNames = {"IS_AUTOINCREMENT"})
     private Boolean autoIncrement;
 
     /**
      * 注释
      */
-    @JSONField(alternateNames = {"REMARKS", "remarks"})
     @LuceneField(name = "comment", type = LuceneFieldType.TEXT)
     private String comment;
 
@@ -94,20 +85,17 @@ public class TableColumn implements IndexModel {
     /**
      * 主键顺序
      */
-    @JSONField(alternateNames = {"KEY_SEQ"})
     private int primaryKeyOrder;
 
     /**
      * 空间名
      */
-    @JSONField(alternateNames = {"TABLE_SCHEM", "table_schem"})
     @LuceneField(name = "schemaName", type = LuceneFieldType.STRING)
     private String schemaName;
 
     /**
      * 数据库名
      */
-    @JSONField(alternateNames = {"TABLE_CAT", "table_cat"})
     @LuceneField(name = "databaseName", type = LuceneFieldType.STRING)
     private String databaseName;
 
@@ -120,7 +108,6 @@ public class TableColumn implements IndexModel {
      * column size.
      */
 
-    @JSONField(alternateNames = {"COLUMN_SIZE", "column_size"})
     private Integer columnSize;
 
     /**
@@ -132,14 +119,12 @@ public class TableColumn implements IndexModel {
      * the number of fractional digits. Null is returned for data types where DECIMAL_DIGITS is not applicable.
      */
 
-    @JSONField(alternateNames = {"DECIMAL_DIGITS", "decimal_digits"})
     private Integer decimalDigits;
 
     /**
      * Radix (typically either 10 or 2)
      */
 
-    @JSONField(alternateNames = {"NUM_PREC_RADIX", "num_prec_radix"})
     private Integer numPrecRadix;
 
 
@@ -163,13 +148,11 @@ public class TableColumn implements IndexModel {
      * index of column in table (starting at 1)
      */
 
-    @JSONField(alternateNames = {"ORDINAL_POSITION", "ordinal_position"})
     private Integer ordinalPosition;
 
     /**
      * ISO rules are used to determine the nullability for a column.
      */
-    @JSONField(alternateNames = {"NULLABLE", "nullable"})
     private Integer nullable;
 
     /**
