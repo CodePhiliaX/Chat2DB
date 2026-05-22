@@ -1,5 +1,7 @@
 package ai.chat2db.server.domain.core.cache;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,28 +16,44 @@ import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.util.BytesRef;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.util.ReflectionUtils;
 
 import ai.chat2db.spi.model.LuceneField;
 import ai.chat2db.spi.model.LuceneFieldType;
-import lombok.SneakyThrows;
 
 /**
  * 基于注解的 Lucene 文档构建器
  * 通过读取字段上的 @LuceneField 注解自动构建 Lucene Document
- * 使用缓存避免重复反射，提升性能
+ * 使用 MethodHandle + 缓存机制优化性能，支持 AOT 编译
  */
 public class AnnotationBasedDocumentBuilder {
 
+    private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
+
     /**
      * 带注解的字段信息
+     * 使用 MethodHandle 替代 Field 提升访问性能，AOT 友好
      */
     static class AnnotatedFieldInfo {
-        final Field field;
+        final MethodHandle getter;
         final LuceneField annotation;
 
         AnnotatedFieldInfo(Field field, LuceneField annotation) {
-            this.field = field;
             this.annotation = annotation;
+            try {
+                this.getter = LOOKUP.unreflectGetter(field);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Failed to create MethodHandle for field: " + field.getName(), e);
+            }
+        }
+
+        Object getValue(Object source) {
+            try {
+                return getter.invoke(source);
+            } catch (Throwable e) {
+                throw new RuntimeException("Failed to get field value", e);
+            }
         }
     }
 
@@ -76,13 +94,13 @@ public class AnnotationBasedDocumentBuilder {
 
         collectStringFieldsRecursive(clazz.getSuperclass(), stringFields);
 
-        for (Field field : clazz.getDeclaredFields()) {
-            LuceneField annotation = field.getAnnotation(LuceneField.class);
+        ReflectionUtils.doWithLocalFields(clazz, field -> {
+            LuceneField annotation = AnnotatedElementUtils.findMergedAnnotation(field, LuceneField.class);
             if (annotation != null && annotation.type() == LuceneFieldType.STRING) {
-                field.setAccessible(true);
+                ReflectionUtils.makeAccessible(field);
                 stringFields.add(new AnnotatedFieldInfo(field, annotation));
             }
-        }
+        });
     }
 
     /**
@@ -91,7 +109,6 @@ public class AnnotationBasedDocumentBuilder {
      * @param source 源对象
      * @return Lucene 文档
      */
-    @SneakyThrows
     public org.apache.lucene.document.Document buildDocument(Object source) {
         if (source == null) {
             return new org.apache.lucene.document.Document();
@@ -100,12 +117,10 @@ public class AnnotationBasedDocumentBuilder {
         org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
         Class<?> clazz = source.getClass();
 
-        // 从缓存获取或解析字段信息
         List<AnnotatedFieldInfo> annotatedFields = fieldCache.computeIfAbsent(clazz.getName(), k -> collectAnnotatedFields(clazz));
 
-        // 直接使用缓存的字段信息构建文档
         for (AnnotatedFieldInfo info : annotatedFields) {
-            Object value = info.field.get(source);
+            Object value = info.getValue(source);
             addFieldToDocument(doc, info.annotation, value);
         }
 
@@ -129,17 +144,15 @@ public class AnnotationBasedDocumentBuilder {
             return;
         }
 
-        // 先处理父类
         collectAnnotatedFieldsRecursive(clazz.getSuperclass(), fields);
 
-        // 再处理当前类
-        for (Field field : clazz.getDeclaredFields()) {
-            LuceneField annotation = field.getAnnotation(LuceneField.class);
+        ReflectionUtils.doWithLocalFields(clazz, field -> {
+            LuceneField annotation = AnnotatedElementUtils.findMergedAnnotation(field, LuceneField.class);
             if (annotation != null) {
-                field.setAccessible(true);
+                ReflectionUtils.makeAccessible(field);
                 fields.add(new AnnotatedFieldInfo(field, annotation));
             }
-        }
+        });
     }
 
     /**
@@ -180,10 +193,8 @@ public class AnnotationBasedDocumentBuilder {
      * 添加文本字段
      */
     private void addTextField(org.apache.lucene.document.Document doc, String fieldName, String value, boolean sort, boolean store) {
-        // 文本字段用于全文搜索
         doc.add(new TextField(fieldName, value, store ? org.apache.lucene.document.Field.Store.YES : org.apache.lucene.document.Field.Store.NO));
 
-        // 如果需要排序，添加 SortedDocValuesField
         if (sort) {
             doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
         }
@@ -193,10 +204,8 @@ public class AnnotationBasedDocumentBuilder {
      * 添加字符串字段
      */
     private void addStringField(org.apache.lucene.document.Document doc, String fieldName, String value, boolean sort, boolean store) {
-        // 字符串字段用于精确匹配
         doc.add(new StringField(fieldName, value, store ? org.apache.lucene.document.Field.Store.YES : org.apache.lucene.document.Field.Store.NO));
 
-        // 如果需要排序，添加 SortedDocValuesField
         if (sort) {
             doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
         }
@@ -206,15 +215,12 @@ public class AnnotationBasedDocumentBuilder {
      * 添加长整型字段
      */
     private void addLongField(org.apache.lucene.document.Document doc, String fieldName, Long value, boolean sort, boolean store) {
-        // LongPoint 用于范围查询
         doc.add(new LongPoint(fieldName, value));
 
-        // 如果需要排序，添加 NumericDocValuesField
         if (sort) {
             doc.add(new NumericDocValuesField(fieldName, value));
         }
 
-        // 如果需要存储，添加 StoredField
         if (store) {
             doc.add(new StoredField(fieldName, value));
         }
@@ -224,7 +230,6 @@ public class AnnotationBasedDocumentBuilder {
      * 添加整型字段
      */
     private void addIntegerField(org.apache.lucene.document.Document doc, String fieldName, Integer value, boolean sort, boolean store) {
-        // 转换为 Long 处理
         Long longValue = value.longValue();
         doc.add(new LongPoint(fieldName, longValue));
 
@@ -241,10 +246,8 @@ public class AnnotationBasedDocumentBuilder {
      * 添加双精度浮点字段
      */
     private void addDoubleField(org.apache.lucene.document.Document doc, String fieldName, Double value, boolean sort, boolean store) {
-        // DoublePoint 用于范围查询
         doc.add(new org.apache.lucene.document.DoublePoint(fieldName, value));
 
-        // 如果需要排序，添加 SortedNumericDocValuesField
         if (sort) {
             long encoded = Double.doubleToLongBits(value);
             doc.add(new org.apache.lucene.document.SortedNumericDocValuesField(fieldName, encoded));
