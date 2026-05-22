@@ -385,7 +385,18 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         connectInfo.setConsoleOwn(false);
 
         Plugin plugin = Chat2DBContext.PLUGIN_MAP.get(dataSource.getType());
-        return plugin.getDBManage().getConnection(connectInfo);
+        
+        ConnectInfo previousInfo = Chat2DBContext.getConnectInfo();
+        try {
+            Chat2DBContext.putContext(connectInfo);
+            return plugin.getDBManage().getConnection(connectInfo);
+        } finally {
+            if (previousInfo != null) {
+                Chat2DBContext.putContext(previousInfo);
+            } else {
+                Chat2DBContext.remove();
+            }
+        }
     }
 
     private Set<String> queryDeprecatedTableNames(Long dataSourceId, String databaseName, String schemaName) {

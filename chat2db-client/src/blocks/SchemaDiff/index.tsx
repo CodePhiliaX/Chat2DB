@@ -42,6 +42,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
   useEffect(() => {
     if (sourceDataSource?.id) {
       setSourceDbLoading(true);
+      setSourceDatabases([]);
       connectionService.getDatabaseList({ dataSourceId: sourceDataSource.id })
         .then((res) => {
           setSourceDatabases(res?.data || []);
@@ -60,6 +61,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
   useEffect(() => {
     if (targetDataSource?.id) {
       setTargetDbLoading(true);
+      setTargetDatabases([]);
       connectionService.getDatabaseList({ dataSourceId: targetDataSource.id })
         .then((res) => {
           setTargetDatabases(res?.data || []);
@@ -78,6 +80,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
   useEffect(() => {
     if (sourceDataSource?.id && sourceDatabase) {
       setSourceSchemaLoading(true);
+      setSourceSchemas([]);
       connectionService.getSchemaList({ dataSourceId: sourceDataSource.id, databaseName: sourceDatabase })
         .then((res) => {
           setSourceSchemas(res?.data || []);
@@ -96,6 +99,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
   useEffect(() => {
     if (targetDataSource?.id && targetDatabase) {
       setTargetSchemaLoading(true);
+      setTargetSchemas([]);
       connectionService.getSchemaList({ dataSourceId: targetDataSource.id, databaseName: targetDatabase })
         .then((res) => {
           setTargetSchemas(res?.data || []);
