@@ -38,7 +38,6 @@ import com.google.common.collect.Sets;
 
 import ai.chat2db.spi.model.BaseModel;
 import ai.chat2db.spi.model.IndexModel;
-import ai.chat2db.spi.model.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -60,8 +59,6 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
     @Getter
     private Integer lastDocId;
 
-    @Getter
-    private long total = 0;
 
     /**
      * 读写锁
@@ -175,7 +172,7 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
     @SneakyThrows
     private Map<String, JSONObject> buildSourceMap(BooleanQuery query, int maxHits) {
         TopDocs topDocs = searcher.search(query, maxHits);
-        total = topDocs.totalHits.value;
+        long total = topDocs.totalHits.value;
         if (total == 0) {
             return Collections.emptyMap();
         }
@@ -192,6 +189,7 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
 
     /**
      * 批量更新文档到Lucene索引,version留空则初始化
+     *
      * @param sources
      * @param version
      */
@@ -455,11 +453,13 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
                 // 不使用排序
                 topDocs = searcher.searchAfter(lastScoreDoc, booleanQuery, 1000);
             }
-
+            long total = topDocs.totalHits.value;
+            if (total >= 1000) {
+                this.lastDocId = topDocs.scoreDocs[topDocs.scoreDocs.length - 1].doc;
+            }
             return Arrays.stream(topDocs.scoreDocs)
                     .map(scoreDoc -> {
                         T doc = (T) getDocument(queryModel.getClassType(), scoreDoc.doc);
-                        this.lastDocId = scoreDoc.doc;
                         return doc;
                     })
                     .collect(Collectors.toList());

@@ -343,8 +343,6 @@ public class TableServiceImpl implements TableService {
         } else {
             tables = luceneMgr.search(param, param.getLastDocId(), param.getSearchKey());
         }
-        long total = luceneMgr.getTotal();
-        log.info("total:{}", total);
         if (param.getLastDocId() == null) {
             tables = pinTable(tables, param);
             tables = deprecatedTable(tables, param);

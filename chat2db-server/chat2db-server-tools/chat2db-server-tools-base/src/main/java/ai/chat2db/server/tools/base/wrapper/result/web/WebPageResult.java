@@ -76,9 +76,9 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
         this.data = new Page<>(data, total, pageNo, pageSize);
     }
 
-    private WebPageResult(List<T> data, Long total, Integer pageNo, Integer pageSize, Integer lastDocId) {
+    private WebPageResult(List<T> data, Integer lastDocId) {
         this.success = Boolean.TRUE;
-        this.data = new Page<>(data, total, pageNo, pageSize, lastDocId);
+        this.data = new Page<>(data, lastDocId);
     }
 
     /**
@@ -109,8 +109,8 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
         return new WebPageResult<>(data, total, pageNo, pageSize);
     }
 
-    public static <T> WebPageResult<T> of(List<T> data, Long total, Integer pageNo, Integer pageSize, Integer lastDocId) {
-        return new WebPageResult<>(data, total, pageNo, pageSize, lastDocId);
+    public static <T> WebPageResult<T> of(List<T> data, Integer lastDocId) {
+        return new WebPageResult<>(data, lastDocId);
     }
 
     /**
@@ -331,17 +331,12 @@ public class WebPageResult<T> implements Serializable, Result<List<T>> {
             }
         }
 
-        private Page(List<T> data, Long total, Integer pageNo, Integer pageSize, Integer lastDocId) {
+        private Page(List<T> data, Integer lastDocId) {
             this();
             this.data = data;
-            this.total = total;
-            if (pageNo != null) {
-                this.pageNo = pageNo;
-            }
-            if (pageSize != null) {
-                this.pageSize = pageSize;
-            }
-            if (lastDocId != null) {
+            if (lastDocId == null) {
+                this.hasNextPage = false;
+            } else {
                 this.lastDocId = lastDocId;
             }
         }

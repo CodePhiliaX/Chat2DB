@@ -3,6 +3,7 @@ package ai.chat2db.server.web.api.controller.rdb;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ai.chat2db.server.tools.base.wrapper.result.web.WebPageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,14 +70,14 @@ public class TableController {
      * @return
      */
     @GetMapping("/list")
-    public ListResult<TableVO> list(@Valid TableBriefQueryRequest request) {
+    public WebPageResult<TableVO> list(@Valid TableBriefQueryRequest request) {
         TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(false);
         tableSelector.setIndexList(false);
         List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
         List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tables);
-        return ListResult.of(tableVOS);
+        return WebPageResult.of(tableVOS, queryParam.getLastDocId());
     }
 
     /**
@@ -107,7 +108,6 @@ public class TableController {
         List<ColumnVO> tableVOS = rdbWebConverter.columnDto2vo(tableColumns);
         return ListResult.of(tableVOS);
     }
-
 
 
     /**
