@@ -47,6 +47,11 @@ import ai.chat2db.spi.sql.Chat2DBContext;
 import ai.chat2db.spi.sql.ConnectInfo;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Schema diff and migration service implementation.
+ * Provides functionality to compare database structures between source and target,
+ * and execute DDL migration statements.
+ */
 @Service
 @Slf4j
 public class SchemaDiffServiceImpl implements SchemaDiffService {
@@ -60,11 +65,19 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
     @Autowired
     private DeprecatedTableService deprecatedTableService;
 
+    /**
+     * Compare database structures between source and target.
+     * Supports case-sensitive and case-insensitive comparison modes.
+     * 
+     * @param param comparison parameters including source/target connection info and options
+     * @return schema diff result containing table differences and DDL statements
+     */
     @Override
     public SchemaDiffResult compare(SchemaCompareParam param) {
         Connection sourceConn = null;
         Connection targetConn = null;
         try {
+            // Get database plugins for source and target
             String sourceDbType = getDbType(param.getSourceDataSourceId());
             String targetDbType = getDbType(param.getTargetDataSourceId());
 
@@ -79,16 +92,19 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
             MetaData sourceMeta = sourcePlugin.getMetaData();
             MetaData targetMeta = targetPlugin.getMetaData();
 
+            // Create connections to source and target databases
             sourceConn = createConnection(param.getSourceDataSourceId(), param.getSourceDatabaseName(),
                     param.getSourceSchemaName());
             targetConn = createConnection(param.getTargetDataSourceId(), param.getTargetDatabaseName(),
                     param.getTargetSchemaName());
 
+            // Initialize compare options with defaults
             CompareOption option = param.getCompareOption();
             if (option == null) {
                 option = new CompareOption();
             }
 
+            // Query deprecated tables to exclude if option is enabled
             Set<String> sourceDeprecated = Collections.emptySet();
             Set<String> targetDeprecated = Collections.emptySet();
             if (option.isExcludeDeprecated()) {
@@ -98,11 +114,13 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                         param.getTargetDatabaseName(), param.getTargetSchemaName());
             }
 
+            // Get table lists from source and target
             List<String> sourceTableNames = listTableNames(sourceConn, sourceMeta,
                     param.getSourceDatabaseName(), param.getSourceSchemaName(), param.getTableNames(), sourceDeprecated);
             List<String> targetTableNames = listTableNames(targetConn, targetMeta,
                     param.getTargetDatabaseName(), param.getTargetSchemaName(), param.getTableNames(), targetDeprecated);
 
+            // Compare tables based on case sensitivity option
             Set<String> allTableNames = new HashSet<>();
             allTableNames.addAll(sourceTableNames);
             allTableNames.addAll(targetTableNames);
@@ -110,11 +128,13 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
             List<TableDiff> tableDiffs = new ArrayList<>();
             int onlyInSource = 0, onlyInTarget = 0, modified = 0, unchanged = 0;
 
+            // Case-sensitive comparison: exact string matching
             if (option.isCaseSensitive()) {
                 for (String tableName : allTableNames) {
                     boolean inSource = sourceTableNames.contains(tableName);
                     boolean inTarget = targetTableNames.contains(tableName);
 
+                    // Table exists only in source -> ADDED
                     if (inSource && !inTarget) {
                         Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
                                 param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
@@ -132,7 +152,9 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                                 .ddlStatements(Collections.singletonList(ddl))
                                 .build());
                         onlyInSource++;
-                    } else if (!inSource && inTarget) {
+                    }
+                    // Table exists only in target -> REMOVED
+                    else if (!inSource && inTarget) {
                         Table targetTable = fetchTableDetails(targetConn, targetMeta,
                                 param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
                         tableDiffs.add(TableDiff.builder()
@@ -142,7 +164,9 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                                 .ddlStatements(Collections.emptyList())
                                 .build());
                         onlyInTarget++;
-                    } else {
+                    }
+                    // Table exists in both -> compare details
+                    else {
                         Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
                                 param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
                         Table targetTable = fetchTableDetails(targetConn, targetMeta,
@@ -194,7 +218,10 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                         }
                     }
                 }
-            } else {
+            }
+            // Case-insensitive comparison: normalize table names to lowercase for matching
+            else {
+                // Build lowercase -> original name mappings
                 Map<String, String> sourceTableMap = sourceTableNames.stream()
                         .collect(Collectors.toMap(String::toLowerCase, n -> n, (a, b) -> a));
                 Map<String, String> targetTableMap = targetTableNames.stream()
@@ -327,6 +354,13 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         }
     }
 
+    /**
+     * Execute DDL migration statements on the target database.
+     * Supports transaction mode and continue-on-error mode.
+     * 
+     * @param param migration parameters including DDL statements and execution options
+     * @return migration result with per-statement execution status
+     */
     @Override
     public MigrateResult migrate(SchemaMigrateParam param) {
         if (CollectionUtils.isEmpty(param.getDdlStatements())) {
@@ -445,11 +479,18 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         }
     }
 
+    /**
+     * Get database type from data source.
+     */
     private String getDbType(Long dataSourceId) {
         DataSource ds = dataSourceService.queryById(dataSourceId);
         return ds.getType();
     }
 
+    /**
+     * Create a database connection with proper context management.
+     * Sets up Chat2DBContext for the plugin to access connection info.
+     */
     private Connection createConnection(Long dataSourceId, String databaseName, String schemaName) {
         DataSource dataSource = dataSourceService.queryById(dataSourceId);
         if (dataSource == null) {
@@ -496,6 +537,9 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         }
     }
 
+    /**
+     * Query deprecated table names for exclusion during comparison.
+     */
     private Set<String> queryDeprecatedTableNames(Long dataSourceId, String databaseName, String schemaName) {
         DeprecatedTableParam param = new DeprecatedTableParam();
         param.setUserId(ContextUtils.getUserId());
@@ -506,6 +550,9 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         return new HashSet<>(list);
     }
 
+    /**
+     * List table names from database metadata, filtering by specific tables and deprecated set.
+     */
     private List<String> listTableNames(Connection conn, MetaData meta, String databaseName, String schemaName,
                                          List<String> specificTables, Set<String> deprecatedSet) {
         List<Table> tables = meta.tables(conn, databaseName, schemaName, null);
@@ -519,6 +566,10 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Fetch complete table details including columns, indexes, and foreign keys.
+     * Handles fetch errors gracefully by returning empty lists.
+     */
     private Table fetchTableDetails(Connection conn, MetaData meta, String databaseName, String schemaName,
                                      String tableName) {
         List<Table> tables = meta.tables(conn, databaseName, schemaName, tableName);
@@ -547,6 +598,12 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         return table;
     }
 
+    /**
+     * Compare columns between source and target tables.
+     * 
+     * @param caseSensitive whether to use case-sensitive name matching
+     * @return list of column differences with change types
+     */
     private List<ColumnDiff> compareColumns(List<TableColumn> sourceCols, List<TableColumn> targetCols, boolean caseSensitive) {
         List<ColumnDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceCols) && CollectionUtils.isEmpty(targetCols)) {
@@ -604,6 +661,12 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 && Objects.equals(a.getColumnType(), b.getColumnType());
     }
 
+    /**
+     * Compare indexes between source and target tables.
+     * 
+     * @param caseSensitive whether to use case-sensitive name matching
+     * @return list of index differences with change types
+     */
     private List<IndexDiff> compareIndexes(List<TableIndex> sourceIdxs, List<TableIndex> targetIdxs, boolean caseSensitive) {
         List<IndexDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceIdxs) && CollectionUtils.isEmpty(targetIdxs)) {
@@ -655,6 +718,12 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 && Objects.equals(a.getComment(), b.getComment());
     }
 
+    /**
+     * Compare foreign keys between source and target tables.
+     * 
+     * @param caseSensitive whether to use case-sensitive name matching
+     * @return list of foreign key differences with change types
+     */
     private List<ForeignKeyDiff> compareForeignKeys(List<ForeignKey> sourceFKs, List<ForeignKey> targetFKs, boolean caseSensitive) {
         List<ForeignKeyDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceFKs) && CollectionUtils.isEmpty(targetFKs)) {
@@ -717,6 +786,12 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 && Objects.equals(a.getIncrementValue(), b.getIncrementValue());
     }
 
+    /**
+     * Build a target table with edit status flags set based on diff results.
+     * Used for generating ALTER TABLE DDL statements.
+     * 
+     * @param caseSensitive whether to use case-sensitive name matching
+     */
     private Table buildTableWithEditStatus(Table sourceTable, Table targetTable,
                                             List<ColumnDiff> columnDiffs, List<IndexDiff> indexDiffs,
                                             List<ForeignKeyDiff> fkDiffs, boolean caseSensitive) {

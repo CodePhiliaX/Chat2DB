@@ -14,7 +14,17 @@ import ResultPanel from './ResultPanel';
 import MigrationPanel from './MigrationPanel';
 import styles from './index.less';
 
+/**
+ * SchemaDiffPanel - Database schema comparison component.
+ * 
+ * Allows users to:
+ * 1. Select source and target data sources, databases, and schemas
+ * 2. Configure comparison options (columns, indexes, foreign keys, case sensitivity)
+ * 3. View comparison results with diff details and DDL statements
+ * 4. Execute migration to apply changes to the target database
+ */
 const SchemaDiffPanel: React.FC = memo(() => {
+  // Store state
   const {
     sourceDataSource, targetDataSource,
     sourceDatabase, targetDatabase,
@@ -24,6 +34,8 @@ const SchemaDiffPanel: React.FC = memo(() => {
   } = useSchemaDiffStore();
 
   const connectionList = useConnectionStore((s) => s.connectionList);
+  
+  // Local state for database/schema lists and loading indicators
   const [sourceDatabases, setSourceDatabases] = useState<IDatabaseItem[]>([]);
   const [targetDatabases, setTargetDatabases] = useState<IDatabaseItem[]>([]);
   const [sourceSchemas, setSourceSchemas] = useState<ISchemaItem[]>([]);
@@ -33,12 +45,14 @@ const SchemaDiffPanel: React.FC = memo(() => {
   const [sourceSchemaLoading, setSourceSchemaLoading] = useState(false);
   const [targetSchemaLoading, setTargetSchemaLoading] = useState(false);
 
+  // Load connection list on mount
   useEffect(() => {
     if (!connectionList) {
       getConnectionList();
     }
   }, [connectionList]);
 
+  // Load databases when source data source changes
   useEffect(() => {
     if (sourceDataSource?.id) {
       setSourceDbLoading(true);
@@ -115,6 +129,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
     }
   }, [targetDataSource?.id, targetDatabase]);
 
+  // Execute schema comparison
   const handleCompare = useCallback(async () => {
     if (!sourceDataSource || !targetDataSource || !sourceDatabase || !targetDatabase) {
       message.warning(i18n('schemaDiff.selectSource'));
@@ -148,12 +163,14 @@ const SchemaDiffPanel: React.FC = memo(() => {
     }
   }, [sourceDataSource, targetDataSource, sourceDatabase, targetDatabase, sourceSchema, targetSchema, compareOption]);
 
+  // Calculate total number of changes for display
   const totalChanges = compareResult
     ? (compareResult.summary?.tablesOnlyInSource || 0)
     + (compareResult.summary?.tablesOnlyInTarget || 0)
     + (compareResult.summary?.modifiedTables || 0)
     : 0;
 
+  // Render: header with selectors, options, loading spinner, and results
   return (
     <div className={styles.schemaDiffPanel}>
       <div className={styles.header}>
