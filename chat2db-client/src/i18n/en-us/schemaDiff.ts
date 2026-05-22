@@ -10,6 +10,7 @@ export default {
   'schemaDiff.compareForeignKey': 'Compare Foreign Keys',
   'schemaDiff.compareTableOption': 'Compare Table Options',
   'schemaDiff.excludeDeprecated': 'Exclude Deprecated Tables',
+  'schemaDiff.caseSensitive': 'Case Sensitive',
   'schemaDiff.summary': 'Summary',
   'schemaDiff.totalTables': 'Total Tables',
   'schemaDiff.tablesAdded': 'Added',

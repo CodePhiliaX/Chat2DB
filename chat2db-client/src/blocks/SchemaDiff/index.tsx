@@ -45,7 +45,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
       setSourceDatabases([]);
       connectionService.getDatabaseList({ dataSourceId: sourceDataSource.id })
         .then((res) => {
-          setSourceDatabases(res?.data || []);
+          setSourceDatabases(Array.isArray(res) ? res : []);
         })
         .catch(() => {
           message.error(i18n('schemaDiff.loadDatabaseFail'));
@@ -64,7 +64,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
       setTargetDatabases([]);
       connectionService.getDatabaseList({ dataSourceId: targetDataSource.id })
         .then((res) => {
-          setTargetDatabases(res?.data || []);
+          setTargetDatabases(Array.isArray(res) ? res : []);
         })
         .catch(() => {
           message.error(i18n('schemaDiff.loadDatabaseFail'));
@@ -83,7 +83,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
       setSourceSchemas([]);
       connectionService.getSchemaList({ dataSourceId: sourceDataSource.id, databaseName: sourceDatabase })
         .then((res) => {
-          setSourceSchemas(res?.data || []);
+          setSourceSchemas(Array.isArray(res) ? res : []);
         })
         .catch(() => {
           message.error(i18n('schemaDiff.loadSchemaFail'));
@@ -102,7 +102,7 @@ const SchemaDiffPanel: React.FC = memo(() => {
       setTargetSchemas([]);
       connectionService.getSchemaList({ dataSourceId: targetDataSource.id, databaseName: targetDatabase })
         .then((res) => {
-          setTargetSchemas(res?.data || []);
+          setTargetSchemas(Array.isArray(res) ? res : []);
         })
         .catch(() => {
           message.error(i18n('schemaDiff.loadSchemaFail'));
@@ -254,6 +254,9 @@ const SchemaDiffPanel: React.FC = memo(() => {
         </Checkbox>
         <Checkbox checked={compareOption.excludeDeprecated} onChange={(e) => setCompareOption({ ...compareOption, excludeDeprecated: e.target.checked })}>
           {i18n('schemaDiff.excludeDeprecated')}
+        </Checkbox>
+        <Checkbox checked={compareOption.caseSensitive} onChange={(e) => setCompareOption({ ...compareOption, caseSensitive: e.target.checked })}>
+          {i18n('schemaDiff.caseSensitive')}
         </Checkbox>
       </div>
 

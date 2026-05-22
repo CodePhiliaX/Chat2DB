@@ -10,6 +10,7 @@ export default {
   'schemaDiff.compareForeignKey': '对比外键',
   'schemaDiff.compareTableOption': '对比表选项',
   'schemaDiff.excludeDeprecated': '排除废弃的表',
+  'schemaDiff.caseSensitive': '区分大小写',
   'schemaDiff.summary': '汇总',
   'schemaDiff.totalTables': '总表数',
   'schemaDiff.tablesAdded': '新增',

@@ -110,86 +110,183 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
             List<TableDiff> tableDiffs = new ArrayList<>();
             int onlyInSource = 0, onlyInTarget = 0, modified = 0, unchanged = 0;
 
-            for (String tableName : allTableNames) {
-                boolean inSource = sourceTableNames.contains(tableName);
-                boolean inTarget = targetTableNames.contains(tableName);
+            if (option.isCaseSensitive()) {
+                for (String tableName : allTableNames) {
+                    boolean inSource = sourceTableNames.contains(tableName);
+                    boolean inTarget = targetTableNames.contains(tableName);
 
-                if (inSource && !inTarget) {
-                    Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                            param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
-                    if (sourceTable == null) {
-                        log.warn("Source table {} not found, skipping", tableName);
+                    if (inSource && !inTarget) {
+                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
+                                param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
+                        if (sourceTable == null) {
+                            log.warn("Source table {} not found, skipping", tableName);
+                            onlyInSource++;
+                            continue;
+                        }
+                        String ddl = sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
+                        tableDiffs.add(TableDiff.builder()
+                                .tableName(tableName)
+                                .diffType(TableDiffType.ADDED)
+                                .sourceTable(sourceTable)
+                                .ddlStatement(ddl)
+                                .ddlStatements(Collections.singletonList(ddl))
+                                .build());
                         onlyInSource++;
-                        continue;
-                    }
-                    String ddl = sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
-                    tableDiffs.add(TableDiff.builder()
-                            .tableName(tableName)
-                            .diffType(TableDiffType.ADDED)
-                            .sourceTable(sourceTable)
-                            .ddlStatement(ddl)
-                            .ddlStatements(Collections.singletonList(ddl))
-                            .build());
-                    onlyInSource++;
-                } else if (!inSource && inTarget) {
-                    Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                            param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
-                    tableDiffs.add(TableDiff.builder()
-                            .tableName(tableName)
-                            .diffType(TableDiffType.REMOVED)
-                            .targetTable(targetTable)
-                            .ddlStatements(Collections.emptyList())
-                            .build());
-                    onlyInTarget++;
-                } else {
-                    Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                            param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
-                    Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                            param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
-
-                    List<ColumnDiff> columnDiffs = option.isCompareColumn()
-                            ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList())
-                            : Collections.emptyList();
-                    List<IndexDiff> indexDiffs = option.isCompareIndex()
-                            ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList())
-                            : Collections.emptyList();
-                    List<ForeignKeyDiff> fkDiffs = option.isCompareForeignKey()
-                            ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList())
-                            : Collections.emptyList();
-
-                    boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
-
-                    if (option.isCompareTableOption()) {
-                        hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
-                    }
-
-                    if (hasChanges) {
-                        Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable, columnDiffs, indexDiffs, fkDiffs);
-                        SqlBuilder sqlBuilder = targetPlugin.getMetaData().getSqlBuilder();
-                        String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
-
+                    } else if (!inSource && inTarget) {
+                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
+                                param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
                         tableDiffs.add(TableDiff.builder()
                                 .tableName(tableName)
-                                .diffType(TableDiffType.MODIFIED)
-                                .sourceTable(sourceTable)
+                                .diffType(TableDiffType.REMOVED)
                                 .targetTable(targetTable)
-                                .columnDiffs(columnDiffs)
-                                .indexDiffs(indexDiffs)
-                                .foreignKeyDiffs(fkDiffs)
-                                .ddlStatement(alterDdl)
-                                .ddlStatements(StringUtils.isNotBlank(alterDdl)
-                                        ? Collections.singletonList(alterDdl)
-                                        : Collections.emptyList())
+                                .ddlStatements(Collections.emptyList())
                                 .build());
-                        modified++;
+                        onlyInTarget++;
                     } else {
+                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
+                                param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
+                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
+                                param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
+
+                        List<ColumnDiff> columnDiffs = option.isCompareColumn()
+                                ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList(), true)
+                                : Collections.emptyList();
+                        List<IndexDiff> indexDiffs = option.isCompareIndex()
+                                ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList(), true)
+                                : Collections.emptyList();
+                        List<ForeignKeyDiff> fkDiffs = option.isCompareForeignKey()
+                                ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList(), true)
+                                : Collections.emptyList();
+
+                        boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
+
+                        if (option.isCompareTableOption()) {
+                            hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
+                        }
+
+                        if (hasChanges) {
+                            Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable, columnDiffs, indexDiffs, fkDiffs, true);
+                            SqlBuilder sqlBuilder = targetPlugin.getMetaData().getSqlBuilder();
+                            String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
+
+                            tableDiffs.add(TableDiff.builder()
+                                    .tableName(tableName)
+                                    .diffType(TableDiffType.MODIFIED)
+                                    .sourceTable(sourceTable)
+                                    .targetTable(targetTable)
+                                    .columnDiffs(columnDiffs)
+                                    .indexDiffs(indexDiffs)
+                                    .foreignKeyDiffs(fkDiffs)
+                                    .ddlStatement(alterDdl)
+                                    .ddlStatements(StringUtils.isNotBlank(alterDdl)
+                                            ? Collections.singletonList(alterDdl)
+                                            : Collections.emptyList())
+                                    .build());
+                            modified++;
+                        } else {
+                            tableDiffs.add(TableDiff.builder()
+                                    .tableName(tableName)
+                                    .diffType(TableDiffType.UNCHANGED)
+                                    .sourceTable(sourceTable)
+                                    .targetTable(targetTable)
+                                    .build());
+                            unchanged++;
+                        }
+                    }
+                }
+            } else {
+                Map<String, String> sourceTableMap = sourceTableNames.stream()
+                        .collect(Collectors.toMap(String::toLowerCase, n -> n, (a, b) -> a));
+                Map<String, String> targetTableMap = targetTableNames.stream()
+                        .collect(Collectors.toMap(String::toLowerCase, n -> n, (a, b) -> a));
+
+                Set<String> allLowerTableNames = new HashSet<>();
+                allLowerTableNames.addAll(sourceTableMap.keySet());
+                allLowerTableNames.addAll(targetTableMap.keySet());
+
+                for (String lowerTableName : allLowerTableNames) {
+                    String sourceTableName = sourceTableMap.get(lowerTableName);
+                    String targetTableName = targetTableMap.get(lowerTableName);
+                    boolean inSource = sourceTableName != null;
+                    boolean inTarget = targetTableName != null;
+
+                    if (inSource && !inTarget) {
+                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
+                                param.getSourceDatabaseName(), param.getSourceSchemaName(), sourceTableName);
+                        if (sourceTable == null) {
+                            log.warn("Source table {} not found, skipping", sourceTableName);
+                            onlyInSource++;
+                            continue;
+                        }
+                        String ddl = sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
                         tableDiffs.add(TableDiff.builder()
-                                .tableName(tableName)
-                                .diffType(TableDiffType.UNCHANGED)
+                                .tableName(sourceTableName)
+                                .diffType(TableDiffType.ADDED)
                                 .sourceTable(sourceTable)
-                                .targetTable(targetTable)
+                                .ddlStatement(ddl)
+                                .ddlStatements(Collections.singletonList(ddl))
                                 .build());
-                        unchanged++;
+                        onlyInSource++;
+                    } else if (!inSource && inTarget) {
+                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
+                                param.getTargetDatabaseName(), param.getTargetSchemaName(), targetTableName);
+                        tableDiffs.add(TableDiff.builder()
+                                .tableName(targetTableName)
+                                .diffType(TableDiffType.REMOVED)
+                                .targetTable(targetTable)
+                                .ddlStatements(Collections.emptyList())
+                                .build());
+                        onlyInTarget++;
+                    } else {
+                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
+                                param.getSourceDatabaseName(), param.getSourceSchemaName(), sourceTableName);
+                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
+                                param.getTargetDatabaseName(), param.getTargetSchemaName(), targetTableName);
+
+                        List<ColumnDiff> columnDiffs = option.isCompareColumn()
+                                ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList(), false)
+                                : Collections.emptyList();
+                        List<IndexDiff> indexDiffs = option.isCompareIndex()
+                                ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList(), false)
+                                : Collections.emptyList();
+                        List<ForeignKeyDiff> fkDiffs = option.isCompareForeignKey()
+                                ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList(), false)
+                                : Collections.emptyList();
+
+                        boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
+
+                        if (option.isCompareTableOption()) {
+                            hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
+                        }
+
+                        if (hasChanges) {
+                            Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable, columnDiffs, indexDiffs, fkDiffs, false);
+                            SqlBuilder sqlBuilder = targetPlugin.getMetaData().getSqlBuilder();
+                            String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
+
+                            tableDiffs.add(TableDiff.builder()
+                                    .tableName(sourceTableName)
+                                    .diffType(TableDiffType.MODIFIED)
+                                    .sourceTable(sourceTable)
+                                    .targetTable(targetTable)
+                                    .columnDiffs(columnDiffs)
+                                    .indexDiffs(indexDiffs)
+                                    .foreignKeyDiffs(fkDiffs)
+                                    .ddlStatement(alterDdl)
+                                    .ddlStatements(StringUtils.isNotBlank(alterDdl)
+                                            ? Collections.singletonList(alterDdl)
+                                            : Collections.emptyList())
+                                    .build());
+                            modified++;
+                        } else {
+                            tableDiffs.add(TableDiff.builder()
+                                    .tableName(sourceTableName)
+                                    .diffType(TableDiffType.UNCHANGED)
+                                    .sourceTable(sourceTable)
+                                    .targetTable(targetTable)
+                                    .build());
+                            unchanged++;
+                        }
                     }
                 }
             }
@@ -450,7 +547,7 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         return table;
     }
 
-    private List<ColumnDiff> compareColumns(List<TableColumn> sourceCols, List<TableColumn> targetCols) {
+    private List<ColumnDiff> compareColumns(List<TableColumn> sourceCols, List<TableColumn> targetCols, boolean caseSensitive) {
         List<ColumnDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceCols) && CollectionUtils.isEmpty(targetCols)) {
             return diffs;
@@ -458,11 +555,11 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         Map<String, TableColumn> sourceMap = CollectionUtils.isEmpty(sourceCols)
                 ? Collections.emptyMap()
                 : sourceCols.stream().filter(c -> c.getName() != null)
-                        .collect(Collectors.toMap(TableColumn::getName, c -> c, (a, b) -> a));
+                        .collect(Collectors.toMap(c -> caseSensitive ? c.getName() : c.getName().toLowerCase(), c -> c, (a, b) -> a));
         Map<String, TableColumn> targetMap = CollectionUtils.isEmpty(targetCols)
                 ? Collections.emptyMap()
                 : targetCols.stream().filter(c -> c.getName() != null)
-                        .collect(Collectors.toMap(TableColumn::getName, c -> c, (a, b) -> a));
+                        .collect(Collectors.toMap(c -> caseSensitive ? c.getName() : c.getName().toLowerCase(), c -> c, (a, b) -> a));
 
         for (Map.Entry<String, TableColumn> entry : targetMap.entrySet()) {
             String colName = entry.getKey();
@@ -507,7 +604,7 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 && Objects.equals(a.getColumnType(), b.getColumnType());
     }
 
-    private List<IndexDiff> compareIndexes(List<TableIndex> sourceIdxs, List<TableIndex> targetIdxs) {
+    private List<IndexDiff> compareIndexes(List<TableIndex> sourceIdxs, List<TableIndex> targetIdxs, boolean caseSensitive) {
         List<IndexDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceIdxs) && CollectionUtils.isEmpty(targetIdxs)) {
             return diffs;
@@ -515,11 +612,11 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         Map<String, TableIndex> sourceMap = CollectionUtils.isEmpty(sourceIdxs)
                 ? Collections.emptyMap()
                 : sourceIdxs.stream().filter(i -> i.getName() != null)
-                        .collect(Collectors.toMap(TableIndex::getName, i -> i, (a, b) -> a));
+                        .collect(Collectors.toMap(i -> caseSensitive ? i.getName() : i.getName().toLowerCase(), i -> i, (a, b) -> a));
         Map<String, TableIndex> targetMap = CollectionUtils.isEmpty(targetIdxs)
                 ? Collections.emptyMap()
                 : targetIdxs.stream().filter(i -> i.getName() != null)
-                        .collect(Collectors.toMap(TableIndex::getName, i -> i, (a, b) -> a));
+                        .collect(Collectors.toMap(i -> caseSensitive ? i.getName() : i.getName().toLowerCase(), i -> i, (a, b) -> a));
 
         for (Map.Entry<String, TableIndex> entry : targetMap.entrySet()) {
             String idxName = entry.getKey();
@@ -558,7 +655,7 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
                 && Objects.equals(a.getComment(), b.getComment());
     }
 
-    private List<ForeignKeyDiff> compareForeignKeys(List<ForeignKey> sourceFKs, List<ForeignKey> targetFKs) {
+    private List<ForeignKeyDiff> compareForeignKeys(List<ForeignKey> sourceFKs, List<ForeignKey> targetFKs, boolean caseSensitive) {
         List<ForeignKeyDiff> diffs = new ArrayList<>();
         if (CollectionUtils.isEmpty(sourceFKs) && CollectionUtils.isEmpty(targetFKs)) {
             return diffs;
@@ -566,11 +663,11 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         Map<String, ForeignKey> sourceMap = CollectionUtils.isEmpty(sourceFKs)
                 ? Collections.emptyMap()
                 : sourceFKs.stream().filter(fk -> fk.getName() != null)
-                        .collect(Collectors.toMap(ForeignKey::getName, fk -> fk, (a, b) -> a));
+                        .collect(Collectors.toMap(fk -> caseSensitive ? fk.getName() : fk.getName().toLowerCase(), fk -> fk, (a, b) -> a));
         Map<String, ForeignKey> targetMap = CollectionUtils.isEmpty(targetFKs)
                 ? Collections.emptyMap()
                 : targetFKs.stream().filter(fk -> fk.getName() != null)
-                        .collect(Collectors.toMap(ForeignKey::getName, fk -> fk, (a, b) -> a));
+                        .collect(Collectors.toMap(fk -> caseSensitive ? fk.getName() : fk.getName().toLowerCase(), fk -> fk, (a, b) -> a));
 
         for (Map.Entry<String, ForeignKey> entry : targetMap.entrySet()) {
             String fkName = entry.getKey();
@@ -622,7 +719,7 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
 
     private Table buildTableWithEditStatus(Table sourceTable, Table targetTable,
                                             List<ColumnDiff> columnDiffs, List<IndexDiff> indexDiffs,
-                                            List<ForeignKeyDiff> fkDiffs) {
+                                            List<ForeignKeyDiff> fkDiffs, boolean caseSensitive) {
         Table result = new Table();
         result.setName(targetTable.getName());
         result.setComment(targetTable.getComment());
@@ -640,16 +737,14 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         } else {
             List<TableColumn> columns = new ArrayList<>();
             if (targetTable.getColumnList() != null) {
-                Map<String, TableColumn> targetColMap = targetTable.getColumnList().stream()
-                        .filter(c -> c.getName() != null)
-                        .collect(Collectors.toMap(TableColumn::getName, c -> c, (a, b) -> a));
                 Map<String, ColumnDiff> addModifyMap = columnDiffs.stream()
                         .filter(d -> d.getChangeType() == EditStatus.ADD || d.getChangeType() == EditStatus.MODIFY)
                         .filter(d -> d.getTargetColumn() != null && d.getTargetColumn().getName() != null)
-                        .collect(Collectors.toMap(d -> d.getTargetColumn().getName(), d -> d, (a, b) -> a));
+                        .collect(Collectors.toMap(d -> caseSensitive ? d.getTargetColumn().getName() : d.getTargetColumn().getName().toLowerCase(), d -> d, (a, b) -> a));
 
                 for (TableColumn col : targetTable.getColumnList()) {
-                    ColumnDiff diff = addModifyMap.get(col.getName());
+                    String key = caseSensitive ? col.getName() : col.getName().toLowerCase();
+                    ColumnDiff diff = addModifyMap.get(key);
                     if (diff != null) {
                         col.setEditStatus(diff.getChangeType().name());
                         if (diff.getChangeType() == EditStatus.MODIFY && diff.getSourceColumn() != null
@@ -678,15 +773,13 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         } else {
             List<TableIndex> indexes = new ArrayList<>();
             if (targetTable.getIndexList() != null) {
-                Map<String, TableIndex> targetIdxMap = targetTable.getIndexList().stream()
-                        .filter(i -> i.getName() != null)
-                        .collect(Collectors.toMap(TableIndex::getName, i -> i, (a, b) -> a));
                 Map<String, IndexDiff> addModifyMap = indexDiffs.stream()
                         .filter(d -> d.getChangeType() == EditStatus.ADD || d.getChangeType() == EditStatus.MODIFY)
                         .filter(d -> d.getTargetIndex() != null && d.getTargetIndex().getName() != null)
-                        .collect(Collectors.toMap(d -> d.getTargetIndex().getName(), d -> d, (a, b) -> a));
+                        .collect(Collectors.toMap(d -> caseSensitive ? d.getTargetIndex().getName() : d.getTargetIndex().getName().toLowerCase(), d -> d, (a, b) -> a));
                 for (TableIndex idx : targetTable.getIndexList()) {
-                    IndexDiff diff = addModifyMap.get(idx.getName());
+                    String key = caseSensitive ? idx.getName() : idx.getName().toLowerCase();
+                    IndexDiff diff = addModifyMap.get(key);
                     if (diff != null) {
                         idx.setEditStatus(diff.getChangeType().name());
                         if (diff.getChangeType() == EditStatus.MODIFY && diff.getSourceIndex() != null) {
@@ -714,15 +807,13 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
         } else {
             List<ForeignKey> fks = new ArrayList<>();
             if (targetTable.getForeignKeyList() != null) {
-                Map<String, ForeignKey> targetFKMap = targetTable.getForeignKeyList().stream()
-                        .filter(fk -> fk.getName() != null)
-                        .collect(Collectors.toMap(ForeignKey::getName, fk -> fk, (a, b) -> a));
                 Map<String, ForeignKeyDiff> addModifyMap = fkDiffs.stream()
                         .filter(d -> d.getChangeType() == EditStatus.ADD || d.getChangeType() == EditStatus.MODIFY)
                         .filter(d -> d.getTargetForeignKey() != null && d.getTargetForeignKey().getName() != null)
-                        .collect(Collectors.toMap(d -> d.getTargetForeignKey().getName(), d -> d, (a, b) -> a));
+                        .collect(Collectors.toMap(d -> caseSensitive ? d.getTargetForeignKey().getName() : d.getTargetForeignKey().getName().toLowerCase(), d -> d, (a, b) -> a));
                 for (ForeignKey fk : targetTable.getForeignKeyList()) {
-                    ForeignKeyDiff diff = addModifyMap.get(fk.getName());
+                    String key = caseSensitive ? fk.getName() : fk.getName().toLowerCase();
+                    ForeignKeyDiff diff = addModifyMap.get(key);
                     if (diff != null) {
                         fk.setEditStatus(diff.getChangeType().name());
                     }
