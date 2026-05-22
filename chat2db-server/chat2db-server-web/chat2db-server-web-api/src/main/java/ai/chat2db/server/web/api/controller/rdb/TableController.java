@@ -82,15 +82,14 @@ public class TableController {
      * @return
      */
     @GetMapping("/list")
-    public WebPageResult<TableVO> list(@Valid TableBriefQueryRequest request) {
+    public ListResult<TableVO> list(@Valid TableBriefQueryRequest request) {
         TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(false);
         tableSelector.setIndexList(false);
-        ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
-        return WebPageResult.of(tableVOS, tablePage.getTotal(), request.getPageNo(),
-                request.getPageSize(), tablePage.getLastDocId());
+        List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tables);
+        return ListResult.of(tableVOS);
     }
 
     /**
@@ -309,17 +308,16 @@ public class TableController {
      * @return
      */
     @GetMapping("/deprecated_list")
-    public WebPageResult<TableVO> deprecatedList(@Valid TableBriefQueryRequest request) {
+    public ListResult<TableVO> deprecatedList(@Valid TableBriefQueryRequest request) {
         TablePageQueryParam queryParam = rdbWebConverter.tablePageRequest2param(request);
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(false);
         tableSelector.setIndexList(false);
 
-        ServicePage<Table> tablePage = tableService.pageQueryDeprecated(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
+        List<Table> tables = tableService.pageQueryDeprecated(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tables);
 
-        return WebPageResult.of(tableVOS, tablePage.getTotal(), request.getPageNo(),
-                request.getPageSize());
+        return ListResult.of(tableVOS);
     }
 
     /**

@@ -105,10 +105,10 @@ public class TaskBizService {
             TableSelector tableSelector = new TableSelector();
             tableSelector.setColumnList(true);
             tableSelector.setIndexList(true);
-            ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
+            List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
 
             SchemaDocExportContext context = SchemaDocExportContext.builder()
-                    .tables(tablePage.getData())
+                    .tables(tables)
                     .databaseName(request.getDatabaseName())
                     .file(file)
                     .exportOptions(new ExportOptions())

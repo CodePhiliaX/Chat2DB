@@ -1,35 +1,20 @@
 package ai.chat2db.server.domain.core.impl;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import ai.chat2db.spi.enums.IndexTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 
 import ai.chat2db.server.domain.api.model.TreeNode;
 import ai.chat2db.server.domain.api.param.DeprecatedTableParam;
-import ai.chat2db.server.domain.api.param.DropKeyParam;
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.PinTableParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
@@ -45,12 +30,8 @@ import ai.chat2db.server.domain.api.service.ForeignKeySyncService;
 import ai.chat2db.server.domain.core.cache.LuceneIndexManager;
 import ai.chat2db.server.domain.core.cache.LuceneIndexManagerFactory;
 import ai.chat2db.server.domain.core.converter.PinTableConverter;
-import ai.chat2db.server.domain.repository.Dbutils;
-import ai.chat2db.server.domain.repository.entity.VirtualForeignKeyDO;
-import ai.chat2db.server.domain.repository.mapper.VirtualForeignKeyMapper;
 import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.server.tools.common.util.ContextUtils;
-import ai.chat2db.server.tools.common.util.I18nUtils;
 import ai.chat2db.spi.DBManage;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.SqlBuilder;
@@ -58,7 +39,6 @@ import ai.chat2db.spi.CommandExecutor;
 import ai.chat2db.spi.enums.EditStatus;
 import ai.chat2db.spi.model.ExecuteResult;
 import ai.chat2db.spi.model.ForeignKey;
-import ai.chat2db.spi.model.IndexModel;
 import ai.chat2db.spi.model.IndexType;
 import ai.chat2db.spi.model.SimpleTable;
 import ai.chat2db.spi.model.Sql;
@@ -70,8 +50,6 @@ import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.model.Type;
 import ai.chat2db.spi.model.VirtualForeignKey;
 import ai.chat2db.spi.sql.Chat2DBContext;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -352,7 +330,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public ServicePage<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
+    public List<Table> pageQuery(TablePageQueryParam param, TableSelector selector) {
         LuceneIndexManager<Table> luceneMgr = managerFactory.getManager(param.getDataSourceId());
         Long version = luceneMgr.getMaxVersion(param);
         if (needRefreshCache(param, version)) {
@@ -403,8 +381,7 @@ public class TableServiceImpl implements TableService {
         }
 
         param.setLastDocId(luceneMgr.getLastDocId());
-
-        return ServicePage.of(tables, total, param.getPageNo(), param.getPageSize(), luceneMgr.getLastDocId());
+        return tables;
     }
 
 
@@ -497,7 +474,7 @@ public class TableServiceImpl implements TableService {
     }
 
     @Override
-    public ServicePage<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector) {
+    public List<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector) {
         DeprecatedTableParam deprecatedTableParam = new DeprecatedTableParam();
         deprecatedTableParam.setDataSourceId(param.getDataSourceId());
         deprecatedTableParam.setDatabaseName(param.getDatabaseName());
@@ -505,7 +482,7 @@ public class TableServiceImpl implements TableService {
         deprecatedTableParam.setUserId(ContextUtils.getUserId());
         List<String> tableNames = deprecatedTableService.queryDeprecatedTables(deprecatedTableParam);
         if (CollectionUtils.isEmpty(tableNames)) {
-            return ServicePage.empty(param.getPageNo(), param.getPageSize());
+            return Collections.emptyList();
         }
         Set<String> deprecatedTableNames = new java.util.HashSet<>(tableNames);
         List<Table> allTables = queryAllTables(param);
@@ -516,7 +493,7 @@ public class TableServiceImpl implements TableService {
                 deprecatedTables.add(table);
             }
         }
-        return ServicePage.of(deprecatedTables, (long) deprecatedTables.size(), param.getPageNo(), param.getPageSize());
+        return deprecatedTables;
     }
 
     private List<Table> queryAllTables(TablePageQueryParam param) {

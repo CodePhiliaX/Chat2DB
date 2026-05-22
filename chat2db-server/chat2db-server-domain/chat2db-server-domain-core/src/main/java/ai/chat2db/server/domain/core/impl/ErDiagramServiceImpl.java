@@ -83,7 +83,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
         selector.setColumnList(true);
         selector.setIndexList(true);
         selector.setForeignKey(true);
-        return tableService.pageQuery(tablePageQueryParam, selector).getData();
+        return tableService.pageQuery(tablePageQueryParam, selector);
     }
 
     private List<ErDiagram.Node> buildNodes(List<Table> tables) {
@@ -307,7 +307,7 @@ public class ErDiagramServiceImpl implements ErDiagramService {
                         .searchKey(referencedTableName)
                         .build(),
                 selector
-        ).getData();
+        );
 
         // 排除自关联
         Table targetTable = tables.stream()

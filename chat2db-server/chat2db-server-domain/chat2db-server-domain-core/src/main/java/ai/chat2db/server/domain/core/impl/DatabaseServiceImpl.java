@@ -202,10 +202,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             tableSelector.setIndexList(true);
             tableSelector.setForeignKey(true);
 
-            ServicePage<Table> tables = tableService.pageQuery(param, tableSelector);
-            SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
-            if (!CollectionUtils.isEmpty(tables.getData())) {
-                return sqlBuilder.buildCreateTableSql(tables.getData().get(0));
+            List<Table> tables = tableService.pageQuery(param, tableSelector);
+            if (!CollectionUtils.isEmpty(tables)) {
+                SqlBuilder sqlBuilder = Chat2DBContext.getSqlBuilder();
+                return sqlBuilder.buildCreateTableSql(tables.get(0));
             }
         } catch (Exception e) {
             log.error("query table ddl error, tableName:{}", tableName, e);
@@ -245,8 +245,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     .foreignKey(true)
                     .build();
 
-            ServicePage<Table> tables = tableService.pageQuery(queryParam, tableSelector);
-            return tables.getData().stream().map(table -> {
+            List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
+            return tables.stream().map(table -> {
                 StringBuilder sb = new StringBuilder(table.getName());
                 String comment = StringUtils.defaultString(table.getComment(), table.getAiComment());
                 List<ForeignKey> foreignKeys = table.getForeignKeyList();

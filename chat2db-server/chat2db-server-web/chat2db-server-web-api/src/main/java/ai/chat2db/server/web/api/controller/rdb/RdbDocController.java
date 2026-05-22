@@ -71,8 +71,8 @@ public class RdbDocController {
         TableSelector tableSelector = new TableSelector();
         tableSelector.setColumnList(true);
         tableSelector.setIndexList(true);
-        ServicePage<Table> tablePage = tableService.pageQuery(queryParam, tableSelector);
-        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tablePage.getData());
+        List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
+        List<TableVO> tableVOS = rdbWebConverter.tableDto2vo(tables);
         TableQueryParam param = rdbWebConverter.tableRequest2param(request);
         for (TableVO tableVO: tableVOS) {
             param.setTableName(tableVO.getName());

@@ -3,9 +3,7 @@ package ai.chat2db.server.domain.api.service;
 import java.util.List;
 
 import ai.chat2db.server.domain.api.model.TreeNode;
-import ai.chat2db.server.domain.api.param.CreateVirtualFKParam;
 import ai.chat2db.server.domain.api.param.DeprecatedTableParam;
-import ai.chat2db.server.domain.api.param.DropKeyParam;
 import ai.chat2db.server.domain.api.param.DropParam;
 import ai.chat2db.server.domain.api.param.ShowCreateTableParam;
 import ai.chat2db.server.domain.api.param.TablePageQueryParam;
@@ -13,11 +11,7 @@ import ai.chat2db.server.domain.api.param.TableQueryParam;
 import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.param.TreeSearchParam;
 import ai.chat2db.server.domain.api.param.TypeQueryParam;
-import ai.chat2db.server.domain.api.param.UpdateVirtualFKParam;
-import ai.chat2db.server.domain.api.service.ForeignKeySyncService;
-import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import ai.chat2db.spi.model.ExecuteResult;
-import ai.chat2db.spi.model.ForeignKey;
 import ai.chat2db.spi.model.SimpleTable;
 import ai.chat2db.spi.model.Sql;
 import ai.chat2db.spi.model.Table;
@@ -25,7 +19,6 @@ import ai.chat2db.spi.model.TableColumn;
 import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.model.TableMeta;
 import ai.chat2db.spi.model.Type;
-import ai.chat2db.spi.model.VirtualForeignKey;
 
 /**
  * 数据源管理服务
@@ -107,7 +100,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    ServicePage<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
+    List<Table> pageQuery(TablePageQueryParam param, TableSelector selector);
 
     /**
      * 分页查询已废弃的表信息（回收站）
@@ -115,7 +108,7 @@ public interface TableService {
      * @param param
      * @return
      */
-    ServicePage<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector);
+    List<Table> pageQueryDeprecated(TablePageQueryParam param, TableSelector selector);
 
 
     /**
