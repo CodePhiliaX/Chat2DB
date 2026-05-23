@@ -527,6 +527,95 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
         return index;
     }
 
+    /**
+     * 批量查询外键的 SQL 模板
+     * 使用 information_schema.KEY_COLUMN_USAGE 和 REFERENTIAL_CONSTRAINTS 可以一次性获取所有表的外键信息
+     */
+    private static final String SELECT_FOREIGN_KEYS_SQL = 
+            "SELECT kcu.TABLE_NAME, kcu.CONSTRAINT_NAME, kcu.COLUMN_NAME, " +
+            "kcu.REFERENCED_TABLE_NAME, kcu.REFERENCED_COLUMN_NAME, " +
+            "kcu.ORDINAL_POSITION, rc.UPDATE_RULE, rc.DELETE_RULE " +
+            "FROM information_schema.KEY_COLUMN_USAGE kcu " +
+            "JOIN information_schema.REFERENTIAL_CONSTRAINTS rc " +
+            "  ON kcu.CONSTRAINT_NAME = rc.CONSTRAINT_NAME " +
+            "  AND kcu.TABLE_SCHEMA = rc.CONSTRAINT_SCHEMA " +
+            "WHERE kcu.TABLE_SCHEMA = '%s' %s " +
+            "AND kcu.REFERENCED_TABLE_NAME IS NOT NULL " +
+            "ORDER BY kcu.TABLE_NAME, kcu.CONSTRAINT_NAME, kcu.ORDINAL_POSITION";
+
+    @Override
+    public List<ForeignKey> foreignKeys(Connection connection, String databaseName, String schemaName, String tableName) {
+        // 构建 SQL 查询：支持单表查询和批量查询
+        String tableCondition = (tableName != null) 
+                ? String.format("AND kcu.TABLE_NAME = '%s'", tableName) 
+                : "";
+        String sql = String.format(SELECT_FOREIGN_KEYS_SQL, databaseName, tableCondition);
+        
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            // 使用 Map 存储外键：key 为 "tableName.constraintName"
+            Map<String, ForeignKey> foreignKeyMap = new LinkedHashMap<>();
+            
+            while (resultSet.next()) {
+                String currentTableName = resultSet.getString("TABLE_NAME");
+                String constraintName = resultSet.getString("CONSTRAINT_NAME");
+                String columnName = resultSet.getString("COLUMN_NAME");
+                String referencedTableName = resultSet.getString("REFERENCED_TABLE_NAME");
+                String referencedColumnName = resultSet.getString("REFERENCED_COLUMN_NAME");
+                
+                // 构建唯一键
+                String key = currentTableName + "." + constraintName;
+                
+                ForeignKey foreignKey = foreignKeyMap.get(key);
+                if (foreignKey == null) {
+                    // 创建新的外键记录
+                    foreignKey = new ForeignKey();
+                    foreignKey.setDatabaseName(databaseName);
+                    foreignKey.setSchemaName(schemaName);
+                    foreignKey.setTableName(currentTableName);
+                    foreignKey.setName(constraintName);
+                    foreignKey.setReferencedTable(referencedTableName);
+                    foreignKey.setColumn(columnName);
+                    foreignKey.setReferencedColumn(referencedColumnName);
+                    
+                    // 获取更新和删除规则
+                    String updateRule = resultSet.getString("UPDATE_RULE");
+                    String deleteRule = resultSet.getString("DELETE_RULE");
+                    foreignKey.setUpdateRule(convertRuleToInt(updateRule));
+                    foreignKey.setDeleteRule(convertRuleToInt(deleteRule));
+                    
+                    foreignKeyMap.put(key, foreignKey);
+                } else {
+                    // 如果是复合外键（多列），只添加第一列的信息
+                    // 注意：当前 ForeignKey 模型只支持单列，多列情况需要扩展模型
+                    // 这里保持与原有实现兼容
+                }
+            }
+            
+            return new ArrayList<>(foreignKeyMap.values());
+        });
+    }
+
+    /**
+     * 将规则名称转换为整数常量
+     * 对应 java.sql.DatabaseMetaData 中的常量
+     */
+    private int convertRuleToInt(String rule) {
+        if (rule == null) {
+            return java.sql.DatabaseMetaData.importedKeyNoAction;
+        }
+        switch (rule.toUpperCase()) {
+            case "CASCADE":
+                return java.sql.DatabaseMetaData.importedKeyCascade;
+            case "SET NULL":
+                return java.sql.DatabaseMetaData.importedKeySetNull;
+            case "RESTRICT":
+                return java.sql.DatabaseMetaData.importedKeyRestrict;
+            case "NO ACTION":
+            default:
+                return java.sql.DatabaseMetaData.importedKeyNoAction;
+        }
+    }
+
     private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
         TableIndexColumn tableIndexColumn = new TableIndexColumn();
         tableIndexColumn.setColumnName(resultSet.getString("Column_name"));

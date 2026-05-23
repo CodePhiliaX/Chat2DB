@@ -223,9 +223,9 @@ public interface MetaData {
      * @param connection
      * @param databaseName
      * @param schemaName
-     * @param tableName
+     * @param tableName if null, returns foreign keys for all tables
      * @return List of foreign keys
      */
-    List<ForeignKey> foreignKeys(Connection connection, @NotEmpty String databaseName, String schemaName, @NotEmpty String tableName);
+    List<ForeignKey> foreignKeys(Connection connection, @NotEmpty String databaseName, String schemaName, String tableName);
 
 }
