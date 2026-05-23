@@ -4,11 +4,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ai.chat2db.spi.SqlBuilder;
@@ -72,286 +75,420 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
      * @param param comparison parameters including source/target connection info and options
      * @return schema diff result containing table differences and DDL statements
      */
+    /**
+     * 数据库比较上下文，封装比较过程中的所有必要信息
+     */
+    private static class CompareContext {
+        final Plugin sourcePlugin;
+        final Plugin targetPlugin;
+        final MetaData sourceMeta;
+        final MetaData targetMeta;
+        final Connection sourceConn;
+        final Connection targetConn;
+        final CompareOption option;
+        final Set<String> sourceDeprecated;
+        final Set<String> targetDeprecated;
+        final List<String> sourceTableNames;
+        final List<String> targetTableNames;
+        final Map<String, Table> sourceTableDetails;
+        final Map<String, Table> targetTableDetails;
+
+        CompareContext(Plugin sourcePlugin, Plugin targetPlugin, MetaData sourceMeta, MetaData targetMeta,
+                      Connection sourceConn, Connection targetConn, CompareOption option,
+                      Set<String> sourceDeprecated, Set<String> targetDeprecated,
+                      List<String> sourceTableNames, List<String> targetTableNames,
+                      Map<String, Table> sourceTableDetails, Map<String, Table> targetTableDetails) {
+            this.sourcePlugin = sourcePlugin;
+            this.targetPlugin = targetPlugin;
+            this.sourceMeta = sourceMeta;
+            this.targetMeta = targetMeta;
+            this.sourceConn = sourceConn;
+            this.targetConn = targetConn;
+            this.option = option;
+            this.sourceDeprecated = sourceDeprecated;
+            this.targetDeprecated = targetDeprecated;
+            this.sourceTableNames = sourceTableNames;
+            this.targetTableNames = targetTableNames;
+            this.sourceTableDetails = sourceTableDetails;
+            this.targetTableDetails = targetTableDetails;
+        }
+    }
+
+    /**
+     * 表比较结果统计
+     */
+    private static class CompareStats {
+        int onlyInSource = 0;
+        int onlyInTarget = 0;
+        int modified = 0;
+        int unchanged = 0;
+    }
+
     @Override
     public SchemaDiffResult compare(SchemaCompareParam param) {
-        Connection sourceConn = null;
-        Connection targetConn = null;
-        try {
-            // Get database plugins for source and target
-            String sourceDbType = getDbType(param.getSourceDataSourceId());
-            String targetDbType = getDbType(param.getTargetDataSourceId());
+        long startTime = System.currentTimeMillis();
+        log.info("Schema compare started, source: {}, target: {}", 
+                param.getSourceDataSourceId(), param.getTargetDataSourceId());
+        
+        // 步骤1：获取数据库插件
+        final Plugin sourcePlugin = getPlugin(param.getSourceDataSourceId());
+        final Plugin targetPlugin = getPlugin(param.getTargetDataSourceId());
+        final MetaData sourceMeta = sourcePlugin.getMetaData();
+        final MetaData targetMeta = targetPlugin.getMetaData();
 
-            Plugin sourcePlugin = Chat2DBContext.PLUGIN_MAP.get(sourceDbType);
-            Plugin targetPlugin = Chat2DBContext.PLUGIN_MAP.get(targetDbType);
+        // 步骤2：创建数据库连接（使用 try-with-resources 自动关闭）
+        long connStartTime = System.currentTimeMillis();
+        try (Connection sourceConn = createConnection(param.getSourceDataSourceId(), param.getSourceDatabaseName(),
+                        param.getSourceSchemaName());
+             Connection targetConn = createConnection(param.getTargetDataSourceId(), param.getTargetDatabaseName(),
+                        param.getTargetSchemaName())) {
+            
+            log.info("Connections created in {} ms", System.currentTimeMillis() - connStartTime);
 
-            if (sourcePlugin == null || targetPlugin == null) {
-                throw new RuntimeException("Plugin not found for database type: " +
-                        (sourcePlugin == null ? sourceDbType : targetDbType));
-            }
+            // 步骤3：初始化比较选项和废弃表
+            final CompareOption option = validateAndGetOption(param.getCompareOption());
+            final Set<String> sourceDeprecated = queryDeprecatedIfNeeded(param, option, true);
+            final Set<String> targetDeprecated = queryDeprecatedIfNeeded(param, option, false);
 
-            MetaData sourceMeta = sourcePlugin.getMetaData();
-            MetaData targetMeta = targetPlugin.getMetaData();
+            // 步骤4：并行获取表列表
+            List<String> sourceTableNames = fetchTableListsParallel(
+                    sourceConn, sourceMeta, param, sourceDeprecated, true);
+            List<String> targetTableNames = fetchTableListsParallel(
+                    targetConn, targetMeta, param, targetDeprecated, false);
 
-            // Create connections to source and target databases
-            sourceConn = createConnection(param.getSourceDataSourceId(), param.getSourceDatabaseName(),
-                    param.getSourceSchemaName());
-            targetConn = createConnection(param.getTargetDataSourceId(), param.getTargetDatabaseName(),
-                    param.getTargetSchemaName());
+            // 步骤5：批量获取表详情
+            Map<String, Table> sourceTableDetails = batchFetchTableDetails(
+                    sourceConn, sourceMeta, param.getSourceDatabaseName(),
+                    param.getSourceSchemaName(), sourceTableNames);
+            Map<String, Table> targetTableDetails = batchFetchTableDetails(
+                    targetConn, targetMeta, param.getTargetDatabaseName(),
+                    param.getTargetSchemaName(), targetTableNames);
 
-            // Initialize compare options with defaults
-            CompareOption option = param.getCompareOption();
-            if (option == null) {
-                option = new CompareOption();
-            }
+            // 步骤6：构建比较上下文
+            CompareContext context = new CompareContext(
+                    sourcePlugin, targetPlugin, sourceMeta, targetMeta,
+                    sourceConn, targetConn, option,
+                    sourceDeprecated, targetDeprecated,
+                    sourceTableNames, targetTableNames,
+                    sourceTableDetails, targetTableDetails);
 
-            // Query deprecated tables to exclude if option is enabled
-            Set<String> sourceDeprecated = Collections.emptySet();
-            Set<String> targetDeprecated = Collections.emptySet();
-            if (option.isExcludeDeprecated()) {
-                sourceDeprecated = queryDeprecatedTableNames(param.getSourceDataSourceId(),
-                        param.getSourceDatabaseName(), param.getSourceSchemaName());
-                targetDeprecated = queryDeprecatedTableNames(param.getTargetDataSourceId(),
-                        param.getTargetDatabaseName(), param.getTargetSchemaName());
-            }
+            // 步骤7：并行比较所有表
+            List<TableDiff> tableDiffs = compareTablesParallel(context);
+            CompareStats stats = calculateStats(tableDiffs);
 
-            // Get table lists from source and target
-            List<String> sourceTableNames = listTableNames(sourceConn, sourceMeta,
-                    param.getSourceDatabaseName(), param.getSourceSchemaName(), param.getTableNames(), sourceDeprecated);
-            List<String> targetTableNames = listTableNames(targetConn, targetMeta,
-                    param.getTargetDatabaseName(), param.getTargetSchemaName(), param.getTableNames(), targetDeprecated);
-
-            // Compare tables based on case sensitivity option
-            Set<String> allTableNames = new HashSet<>();
-            allTableNames.addAll(sourceTableNames);
-            allTableNames.addAll(targetTableNames);
-
-            List<TableDiff> tableDiffs = new ArrayList<>();
-            int onlyInSource = 0, onlyInTarget = 0, modified = 0, unchanged = 0;
-
-            // Case-sensitive comparison: exact string matching
-            if (option.isCaseSensitive()) {
-                for (String tableName : allTableNames) {
-                    boolean inSource = sourceTableNames.contains(tableName);
-                    boolean inTarget = targetTableNames.contains(tableName);
-
-                    // Table exists only in source -> ADDED
-                    if (inSource && !inTarget) {
-                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                                param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
-                        if (sourceTable == null) {
-                            log.warn("Source table {} not found, skipping", tableName);
-                            onlyInSource++;
-                            continue;
-                        }
-                        String ddl = sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
-                        tableDiffs.add(TableDiff.builder()
-                                .tableName(tableName)
-                                .diffType(TableDiffType.ADDED)
-                                .sourceTable(sourceTable)
-                                .ddlStatement(ddl)
-                                .ddlStatements(Collections.singletonList(ddl))
-                                .build());
-                        onlyInSource++;
-                    }
-                    // Table exists only in target -> REMOVED
-                    else if (!inSource && inTarget) {
-                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                                param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
-                        tableDiffs.add(TableDiff.builder()
-                                .tableName(tableName)
-                                .diffType(TableDiffType.REMOVED)
-                                .targetTable(targetTable)
-                                .ddlStatements(Collections.emptyList())
-                                .build());
-                        onlyInTarget++;
-                    }
-                    // Table exists in both -> compare details
-                    else {
-                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                                param.getSourceDatabaseName(), param.getSourceSchemaName(), tableName);
-                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                                param.getTargetDatabaseName(), param.getTargetSchemaName(), tableName);
-
-                        List<ColumnDiff> columnDiffs = option.isCompareColumn()
-                                ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList(), true)
-                                : Collections.emptyList();
-                        List<IndexDiff> indexDiffs = option.isCompareIndex()
-                                ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList(), true)
-                                : Collections.emptyList();
-                        List<ForeignKeyDiff> fkDiffs = option.isCompareForeignKey()
-                                ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList(), true)
-                                : Collections.emptyList();
-
-                        boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
-
-                        if (option.isCompareTableOption()) {
-                            hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
-                        }
-
-                        if (hasChanges) {
-                            Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable, columnDiffs, indexDiffs, fkDiffs, true);
-                            SqlBuilder sqlBuilder = targetPlugin.getMetaData().getSqlBuilder();
-                            String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
-
-                            tableDiffs.add(TableDiff.builder()
-                                    .tableName(tableName)
-                                    .diffType(TableDiffType.MODIFIED)
-                                    .sourceTable(sourceTable)
-                                    .targetTable(targetTable)
-                                    .columnDiffs(columnDiffs)
-                                    .indexDiffs(indexDiffs)
-                                    .foreignKeyDiffs(fkDiffs)
-                                    .ddlStatement(alterDdl)
-                                    .ddlStatements(StringUtils.isNotBlank(alterDdl)
-                                            ? Collections.singletonList(alterDdl)
-                                            : Collections.emptyList())
-                                    .build());
-                            modified++;
-                        } else {
-                            tableDiffs.add(TableDiff.builder()
-                                    .tableName(tableName)
-                                    .diffType(TableDiffType.UNCHANGED)
-                                    .sourceTable(sourceTable)
-                                    .targetTable(targetTable)
-                                    .build());
-                            unchanged++;
-                        }
-                    }
-                }
-            }
-            // Case-insensitive comparison: normalize table names to lowercase for matching
-            else {
-                // Build lowercase -> original name mappings
-                Map<String, String> sourceTableMap = sourceTableNames.stream()
-                        .collect(Collectors.toMap(String::toLowerCase, n -> n, (a, b) -> a));
-                Map<String, String> targetTableMap = targetTableNames.stream()
-                        .collect(Collectors.toMap(String::toLowerCase, n -> n, (a, b) -> a));
-
-                Set<String> allLowerTableNames = new HashSet<>();
-                allLowerTableNames.addAll(sourceTableMap.keySet());
-                allLowerTableNames.addAll(targetTableMap.keySet());
-
-                for (String lowerTableName : allLowerTableNames) {
-                    String sourceTableName = sourceTableMap.get(lowerTableName);
-                    String targetTableName = targetTableMap.get(lowerTableName);
-                    boolean inSource = sourceTableName != null;
-                    boolean inTarget = targetTableName != null;
-
-                    if (inSource && !inTarget) {
-                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                                param.getSourceDatabaseName(), param.getSourceSchemaName(), sourceTableName);
-                        if (sourceTable == null) {
-                            log.warn("Source table {} not found, skipping", sourceTableName);
-                            onlyInSource++;
-                            continue;
-                        }
-                        String ddl = sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
-                        tableDiffs.add(TableDiff.builder()
-                                .tableName(sourceTableName)
-                                .diffType(TableDiffType.ADDED)
-                                .sourceTable(sourceTable)
-                                .ddlStatement(ddl)
-                                .ddlStatements(Collections.singletonList(ddl))
-                                .build());
-                        onlyInSource++;
-                    } else if (!inSource && inTarget) {
-                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                                param.getTargetDatabaseName(), param.getTargetSchemaName(), targetTableName);
-                        tableDiffs.add(TableDiff.builder()
-                                .tableName(targetTableName)
-                                .diffType(TableDiffType.REMOVED)
-                                .targetTable(targetTable)
-                                .ddlStatements(Collections.emptyList())
-                                .build());
-                        onlyInTarget++;
-                    } else {
-                        Table sourceTable = fetchTableDetails(sourceConn, sourceMeta,
-                                param.getSourceDatabaseName(), param.getSourceSchemaName(), sourceTableName);
-                        Table targetTable = fetchTableDetails(targetConn, targetMeta,
-                                param.getTargetDatabaseName(), param.getTargetSchemaName(), targetTableName);
-
-                        List<ColumnDiff> columnDiffs = option.isCompareColumn()
-                                ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList(), false)
-                                : Collections.emptyList();
-                        List<IndexDiff> indexDiffs = option.isCompareIndex()
-                                ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList(), false)
-                                : Collections.emptyList();
-                        List<ForeignKeyDiff> fkDiffs = option.isCompareForeignKey()
-                                ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList(), false)
-                                : Collections.emptyList();
-
-                        boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
-
-                        if (option.isCompareTableOption()) {
-                            hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
-                        }
-
-                        if (hasChanges) {
-                            Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable, columnDiffs, indexDiffs, fkDiffs, false);
-                            SqlBuilder sqlBuilder = targetPlugin.getMetaData().getSqlBuilder();
-                            String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
-
-                            tableDiffs.add(TableDiff.builder()
-                                    .tableName(sourceTableName)
-                                    .diffType(TableDiffType.MODIFIED)
-                                    .sourceTable(sourceTable)
-                                    .targetTable(targetTable)
-                                    .columnDiffs(columnDiffs)
-                                    .indexDiffs(indexDiffs)
-                                    .foreignKeyDiffs(fkDiffs)
-                                    .ddlStatement(alterDdl)
-                                    .ddlStatements(StringUtils.isNotBlank(alterDdl)
-                                            ? Collections.singletonList(alterDdl)
-                                            : Collections.emptyList())
-                                    .build());
-                            modified++;
-                        } else {
-                            tableDiffs.add(TableDiff.builder()
-                                    .tableName(sourceTableName)
-                                    .diffType(TableDiffType.UNCHANGED)
-                                    .sourceTable(sourceTable)
-                                    .targetTable(targetTable)
-                                    .build());
-                            unchanged++;
-                        }
-                    }
-                }
-            }
-
-            int excluded = 0;
-            if (option.isExcludeDeprecated()) {
-                excluded = (int) (sourceDeprecated.size() + targetDeprecated.size()
-                        - new HashSet<>(sourceDeprecated).stream().filter(targetDeprecated::contains).count());
-            }
-
-            DiffSummary summary = DiffSummary.builder()
-                    .totalTables(allTableNames.size() + excluded)
-                    .tablesOnlyInSource(onlyInSource)
-                    .tablesOnlyInTarget(onlyInTarget)
-                    .modifiedTables(modified)
-                    .unchangedTables(unchanged)
-                    .excludedDeprecatedTables(excluded)
-                    .build();
-
-            String sourceKey = param.getSourceDataSourceId() + "." + param.getSourceDatabaseName()
-                    + (param.getSourceSchemaName() != null ? "." + param.getSourceSchemaName() : "");
-            String targetKey = param.getTargetDataSourceId() + "." + param.getTargetDatabaseName()
-                    + (param.getTargetSchemaName() != null ? "." + param.getTargetSchemaName() : "");
-
-            return SchemaDiffResult.builder()
-                    .sourceKey(sourceKey)
-                    .targetKey(targetKey)
-                    .summary(summary)
-                    .tableDiffs(tableDiffs)
-                    .build();
+            // 步骤8：构建结果
+            return buildCompareResult(param, context, tableDiffs, stats, startTime);
 
         } catch (Exception e) {
             log.error("Schema compare failed", e);
             throw new RuntimeException("Schema compare failed: " + e.getMessage(), e);
-        } finally {
-            closeQuietly(sourceConn);
-            closeQuietly(targetConn);
         }
+    }
+
+    /**
+     * 获取数据库插件并验证
+     */
+    private Plugin getPlugin(Long dataSourceId) {
+        String dbType = getDbType(dataSourceId);
+        Plugin plugin = Chat2DBContext.PLUGIN_MAP.get(dbType);
+        if (plugin == null) {
+            throw new RuntimeException("Plugin not found for database type: " + dbType);
+        }
+        return plugin;
+    }
+
+    /**
+     * 验证并获取比较选项
+     */
+    private CompareOption validateAndGetOption(CompareOption option) {
+        if (option == null) {
+            throw new RuntimeException("Compare option is required");
+        }
+        return option;
+    }
+
+    /**
+     * 根据选项查询废弃表
+     */
+    private Set<String> queryDeprecatedIfNeeded(SchemaCompareParam param, CompareOption option, boolean isSource) {
+        if (!option.isExcludeDeprecated()) {
+            return Collections.emptySet();
+        }
+        
+        Long dataSourceId = isSource ? param.getSourceDataSourceId() : param.getTargetDataSourceId();
+        String databaseName = isSource ? param.getSourceDatabaseName() : param.getTargetDatabaseName();
+        String schemaName = isSource ? param.getSourceSchemaName() : param.getTargetSchemaName();
+        
+        return queryDeprecatedTableNames(dataSourceId, databaseName, schemaName);
+    }
+
+    /**
+     * 并行获取表列表
+     */
+    private List<String> fetchTableListsParallel(Connection conn, MetaData meta, SchemaCompareParam param,
+                                                  Set<String> deprecatedSet, boolean isSource) {
+        long tableListTime = System.currentTimeMillis();
+        
+        CompletableFuture<List<String>> tablesFuture = CompletableFuture.supplyAsync(() ->
+                listTableNames(conn, meta,
+                        isSource ? param.getSourceDatabaseName() : param.getTargetDatabaseName(),
+                        isSource ? param.getSourceSchemaName() : param.getTargetSchemaName(),
+                        param.getTableNames(), deprecatedSet));
+        
+        List<String> tableNames = tablesFuture.join();
+        log.info("Table lists fetched in {} ms ({}: {} tables)",
+                System.currentTimeMillis() - tableListTime,
+                isSource ? "source" : "target", tableNames.size());
+        
+        return tableNames;
+    }
+
+    /**
+     * 并行比较所有表
+     */
+    private List<TableDiff> compareTablesParallel(CompareContext context) {
+        long compareTime = System.currentTimeMillis();
+        
+        // 构建表名映射
+        Function<String, String> normalizer = context.option.isCaseSensitive()
+                ? Function.identity()
+                : String::toLowerCase;
+        
+        Map<String, String> sourceTableMap = context.sourceTableNames.stream()
+                .collect(Collectors.toMap(normalizer, n -> n, (a, b) -> a));
+        Map<String, String> targetTableMap = context.targetTableNames.stream()
+                .collect(Collectors.toMap(normalizer, n -> n, (a, b) -> a));
+
+        Set<String> allNormalizedNames = new HashSet<>();
+        allNormalizedNames.addAll(sourceTableMap.keySet());
+        allNormalizedNames.addAll(targetTableMap.keySet());
+
+        log.info("Comparing {} tables in parallel", allNormalizedNames.size());
+
+        // 创建并行比较任务
+        List<CompletableFuture<TableDiff>> diffFutures = allNormalizedNames.stream()
+                .map(normalizedName -> createCompareTask(normalizedName, sourceTableMap, targetTableMap, context))
+                .collect(Collectors.toList());
+
+        // 收集结果
+        List<TableDiff> tableDiffs = diffFutures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        log.info("Tables compared in {} ms", System.currentTimeMillis() - compareTime);
+        return tableDiffs;
+    }
+
+    /**
+     * 创建单个表的比较任务
+     */
+    private CompletableFuture<TableDiff> createCompareTask(String normalizedName,
+                                                            Map<String, String> sourceTableMap,
+                                                            Map<String, String> targetTableMap,
+                                                            CompareContext context) {
+        String sourceTableName = sourceTableMap.get(normalizedName);
+        String targetTableName = targetTableMap.get(normalizedName);
+        boolean inSource = sourceTableName != null;
+        boolean inTarget = targetTableName != null;
+
+        final String sourceName = sourceTableName;
+        final String targetName = targetTableName;
+        final boolean inSourceFinal = inSource;
+        final boolean inTargetFinal = inTarget;
+
+        return CompletableFuture.supplyAsync(() -> {
+            // 仅在源库 -> ADDED
+            if (inSourceFinal && !inTargetFinal) {
+                return compareTableOnlyInSource(sourceName, context);
+            }
+            // 仅在目标库 -> REMOVED
+            else if (!inSourceFinal && inTargetFinal) {
+                return compareTableOnlyInTarget(targetName, context);
+            }
+            // 两边都存在 -> 比较详情
+            else {
+                return compareTableInBoth(sourceName, targetName, context);
+            }
+        });
+    }
+
+    /**
+     * 比较仅在源库中存在的表
+     */
+    private TableDiff compareTableOnlyInSource(String sourceName, CompareContext context) {
+        Table sourceTable = context.sourceTableDetails.get(sourceName);
+        if (sourceTable == null) {
+            log.warn("Source table {} not found, skipping", sourceName);
+            return null;
+        }
+        
+        String ddl = context.sourcePlugin.getMetaData().getSqlBuilder().buildCreateTableSql(sourceTable);
+        return TableDiff.builder()
+                .tableName(sourceName)
+                .diffType(TableDiffType.ADDED)
+                .sourceTable(sourceTable)
+                .ddlStatement(ddl)
+                .ddlStatements(Collections.singletonList(ddl))
+                .build();
+    }
+
+    /**
+     * 比较仅在目标库中存在的表
+     */
+    private TableDiff compareTableOnlyInTarget(String targetName, CompareContext context) {
+        Table targetTable = context.targetTableDetails.get(targetName);
+        if (targetTable == null) {
+            log.warn("Target table {} not found, skipping", targetName);
+            return null;
+        }
+        
+        return TableDiff.builder()
+                .tableName(targetName)
+                .diffType(TableDiffType.REMOVED)
+                .targetTable(targetTable)
+                .ddlStatements(Collections.emptyList())
+                .build();
+    }
+
+    /**
+     * 比较两边都存在的表
+     */
+    private TableDiff compareTableInBoth(String sourceName, String targetName, CompareContext context) {
+        Table sourceTable = context.sourceTableDetails.get(sourceName);
+        Table targetTable = context.targetTableDetails.get(targetName);
+        
+        if (sourceTable == null || targetTable == null) {
+            log.warn("Table details missing: source={}, target={}", sourceName, targetName);
+            return null;
+        }
+
+        // 比较列、索引、外键
+        List<ColumnDiff> columnDiffs = context.option.isCompareColumn()
+                ? compareColumns(sourceTable.getColumnList(), targetTable.getColumnList(), context.option.isCaseSensitive())
+                : Collections.emptyList();
+        List<IndexDiff> indexDiffs = context.option.isCompareIndex()
+                ? compareIndexes(sourceTable.getIndexList(), targetTable.getIndexList(), context.option.isCaseSensitive())
+                : Collections.emptyList();
+        List<ForeignKeyDiff> fkDiffs = context.option.isCompareForeignKey()
+                ? compareForeignKeys(sourceTable.getForeignKeyList(), targetTable.getForeignKeyList(), context.option.isCaseSensitive())
+                : Collections.emptyList();
+
+        boolean hasChanges = !columnDiffs.isEmpty() || !indexDiffs.isEmpty() || !fkDiffs.isEmpty();
+
+        if (context.option.isCompareTableOption()) {
+            hasChanges = hasChanges || !tableOptionsEqual(sourceTable, targetTable);
+        }
+
+        if (hasChanges) {
+            return buildModifiedTableDiff(sourceName, sourceTable, targetTable,
+                    columnDiffs, indexDiffs, fkDiffs, context);
+        } else {
+            return TableDiff.builder()
+                    .tableName(sourceName)
+                    .diffType(TableDiffType.UNCHANGED)
+                    .sourceTable(sourceTable)
+                    .targetTable(targetTable)
+                    .build();
+        }
+    }
+
+    /**
+     * 构建有变更的表差异
+     */
+    private TableDiff buildModifiedTableDiff(String sourceName, Table sourceTable, Table targetTable,
+                                              List<ColumnDiff> columnDiffs, List<IndexDiff> indexDiffs,
+                                              List<ForeignKeyDiff> fkDiffs, CompareContext context) {
+        Table tableForDDL = buildTableWithEditStatus(sourceTable, targetTable,
+                columnDiffs, indexDiffs, fkDiffs, context.option.isCaseSensitive());
+        SqlBuilder sqlBuilder = context.targetPlugin.getMetaData().getSqlBuilder();
+        String alterDdl = sqlBuilder.buildModifyTaleSql(sourceTable, tableForDDL);
+
+        return TableDiff.builder()
+                .tableName(sourceName)
+                .diffType(TableDiffType.MODIFIED)
+                .sourceTable(sourceTable)
+                .targetTable(targetTable)
+                .columnDiffs(columnDiffs)
+                .indexDiffs(indexDiffs)
+                .foreignKeyDiffs(fkDiffs)
+                .ddlStatement(alterDdl)
+                .ddlStatements(StringUtils.isNotBlank(alterDdl)
+                        ? Collections.singletonList(alterDdl)
+                        : Collections.emptyList())
+                .build();
+    }
+
+    /**
+     * 计算比较统计
+     */
+    private CompareStats calculateStats(List<TableDiff> tableDiffs) {
+        CompareStats stats = new CompareStats();
+        for (TableDiff diff : tableDiffs) {
+            switch (diff.getDiffType()) {
+                case ADDED:
+                    stats.onlyInSource++;
+                    break;
+                case REMOVED:
+                    stats.onlyInTarget++;
+                    break;
+                case MODIFIED:
+                    stats.modified++;
+                    break;
+                case UNCHANGED:
+                    stats.unchanged++;
+                    break;
+            }
+        }
+        return stats;
+    }
+
+    /**
+     * 构建比较结果
+     */
+    private SchemaDiffResult buildCompareResult(SchemaCompareParam param, CompareContext context,
+                                                 List<TableDiff> tableDiffs, CompareStats stats, long startTime) {
+        // 计算排除的废弃表数量
+        int excluded = 0;
+        if (context.option.isExcludeDeprecated()) {
+            excluded = (int) (context.sourceDeprecated.size() + context.targetDeprecated.size()
+                    - new HashSet<>(context.sourceDeprecated).stream()
+                            .filter(context.targetDeprecated::contains).count());
+        }
+
+        // 计算总表数
+        Function<String, String> normalizer = context.option.isCaseSensitive()
+                ? Function.identity()
+                : String::toLowerCase;
+        Set<String> allNormalizedNames = new HashSet<>();
+        allNormalizedNames.addAll(context.sourceTableNames.stream().map(normalizer).collect(Collectors.toSet()));
+        allNormalizedNames.addAll(context.targetTableNames.stream().map(normalizer).collect(Collectors.toSet()));
+
+        DiffSummary summary = DiffSummary.builder()
+                .totalTables(allNormalizedNames.size() + excluded)
+                .tablesOnlyInSource(stats.onlyInSource)
+                .tablesOnlyInTarget(stats.onlyInTarget)
+                .modifiedTables(stats.modified)
+                .unchangedTables(stats.unchanged)
+                .excludedDeprecatedTables(excluded)
+                .build();
+
+        String sourceKey = param.getSourceDataSourceId() + "." + param.getSourceDatabaseName()
+                + (param.getSourceSchemaName() != null ? "." + param.getSourceSchemaName() : "");
+        String targetKey = param.getTargetDataSourceId() + "." + param.getTargetDatabaseName()
+                + (param.getTargetSchemaName() != null ? "." + param.getTargetSchemaName() : "");
+
+        long totalTime = System.currentTimeMillis() - startTime;
+        log.info("Schema compare completed in {} ms. Total tables: {}, Added: {}, Removed: {}, Modified: {}, Unchanged: {}",
+                totalTime, summary.getTotalTables(), stats.onlyInSource, stats.onlyInTarget,
+                stats.modified, stats.unchanged);
+
+        return SchemaDiffResult.builder()
+                .sourceKey(sourceKey)
+                .targetKey(targetKey)
+                .summary(summary)
+                .tableDiffs(tableDiffs)
+                .build();
     }
 
     /**
@@ -567,11 +704,155 @@ public class SchemaDiffServiceImpl implements SchemaDiffService {
     }
 
     /**
+     * 批量获取所有表的完整详情（列、索引、外键）。
+     * 核心优化：通过一次查询获取所有表的元数据，避免 N+1 查询问题。
+     * 优化前：每个表 4 次查询（表信息 + 列 + 索引 + 外键），N 个表 = 4N 次查询
+     * 优化后：每个类型 1 次查询，总共 4 次查询（表 + 列 + 索引 + 外键）
+     * 
+     * @param conn 数据库连接
+     * @param meta 元数据访问接口
+     * @param databaseName 数据库名
+     * @param schemaName 模式名
+     * @param tableNames 需要获取详情的表名列表
+     * @return Map<表名, 表详情>
+     */
+    private Map<String, Table> batchFetchTableDetails(Connection conn, MetaData meta, 
+                                                       String databaseName, String schemaName,
+                                                       List<String> tableNames) {
+        if (CollectionUtils.isEmpty(tableNames)) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, Table> tableMap = new HashMap<>();
+        
+        // 第一步：批量获取所有表的基本信息
+        try {
+            List<Table> tables = meta.tables(conn, databaseName, schemaName, null);
+            if (CollectionUtils.isNotEmpty(tables)) {
+                for (Table table : tables) {
+                    if (tableNames.contains(table.getName())) {
+                        tableMap.put(table.getName(), table);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to batch fetch tables: {}", e.getMessage());
+        }
+
+        if (tableMap.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // 第二步：批量获取所有列并按表名分组
+        try {
+            List<TableColumn> allColumns = meta.columns(conn, databaseName, schemaName, null);
+            if (CollectionUtils.isNotEmpty(allColumns)) {
+                Map<String, List<TableColumn>> columnsByTable = allColumns.stream()
+                        .filter(col -> col.getTableName() != null)
+                        .collect(Collectors.groupingBy(TableColumn::getTableName));
+                
+                for (Map.Entry<String, Table> entry : tableMap.entrySet()) {
+                    List<TableColumn> columns = columnsByTable.getOrDefault(entry.getKey(), Collections.emptyList());
+                    entry.getValue().setColumnList(columns);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to batch fetch columns: {}", e.getMessage());
+            // 如果批量获取失败，逐个表获取作为降级方案
+            for (String tableName : tableNames) {
+                Table table = tableMap.get(tableName);
+                if (table != null) {
+                    try {
+                        table.setColumnList(meta.columns(conn, databaseName, schemaName, tableName));
+                    } catch (Exception ex) {
+                        log.warn("Failed to fetch columns for table {}: {}", tableName, ex.getMessage());
+                        table.setColumnList(Collections.emptyList());
+                    }
+                }
+            }
+        }
+
+        // 第三步：批量获取所有索引并按表名分组
+        try {
+            List<TableIndex> allIndexes = meta.indexes(conn, databaseName, schemaName, null);
+            if (CollectionUtils.isNotEmpty(allIndexes)) {
+                Map<String, List<TableIndex>> indexesByTable = allIndexes.stream()
+                        .filter(idx -> idx.getTableName() != null)
+                        .collect(Collectors.groupingBy(TableIndex::getTableName));
+                
+                for (Map.Entry<String, Table> entry : tableMap.entrySet()) {
+                    List<TableIndex> indexes = indexesByTable.getOrDefault(entry.getKey(), Collections.emptyList());
+                    entry.getValue().setIndexList(indexes);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to batch fetch indexes: {}", e.getMessage());
+            for (String tableName : tableNames) {
+                Table table = tableMap.get(tableName);
+                if (table != null) {
+                    try {
+                        table.setIndexList(meta.indexes(conn, databaseName, schemaName, tableName));
+                    } catch (Exception ex) {
+                        log.warn("Failed to fetch indexes for table {}: {}", tableName, ex.getMessage());
+                        table.setIndexList(Collections.emptyList());
+                    }
+                }
+            }
+        }
+
+        // 第四步：批量获取所有外键并按表名分组
+        try {
+            List<ForeignKey> allFKs = meta.foreignKeys(conn, databaseName, schemaName, null);
+            if (CollectionUtils.isNotEmpty(allFKs)) {
+                Map<String, List<ForeignKey>> fksByTable = allFKs.stream()
+                        .filter(fk -> fk.getTableName() != null)
+                        .collect(Collectors.groupingBy(ForeignKey::getTableName));
+                
+                for (Map.Entry<String, Table> entry : tableMap.entrySet()) {
+                    List<ForeignKey> fks = fksByTable.getOrDefault(entry.getKey(), Collections.emptyList());
+                    entry.getValue().setForeignKeyList(fks);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to batch fetch foreign keys: {}", e.getMessage());
+            for (String tableName : tableNames) {
+                Table table = tableMap.get(tableName);
+                if (table != null) {
+                    try {
+                        table.setForeignKeyList(meta.foreignKeys(conn, databaseName, schemaName, tableName));
+                    } catch (Exception ex) {
+                        log.warn("Failed to fetch foreign keys for table {}: {}", tableName, ex.getMessage());
+                        table.setForeignKeyList(Collections.emptyList());
+                    }
+                }
+            }
+        }
+
+        // 确保所有表都有非空的列表
+        for (Table table : tableMap.values()) {
+            if (table.getColumnList() == null) {
+                table.setColumnList(Collections.emptyList());
+            }
+            if (table.getIndexList() == null) {
+                table.setIndexList(Collections.emptyList());
+            }
+            if (table.getForeignKeyList() == null) {
+                table.setForeignKeyList(Collections.emptyList());
+            }
+        }
+
+        return tableMap;
+    }
+
+    /**
      * Fetch complete table details including columns, indexes, and foreign keys.
      * Handles fetch errors gracefully by returning empty lists.
+     * 
+     * @deprecated 使用 {@link #batchFetchTableDetails} 替代，批量查询性能更优
      */
+    @Deprecated
     private Table fetchTableDetails(Connection conn, MetaData meta, String databaseName, String schemaName,
-                                     String tableName) {
+                                      String tableName) {
         List<Table> tables = meta.tables(conn, databaseName, schemaName, tableName);
         if (CollectionUtils.isEmpty(tables)) {
             return null;
