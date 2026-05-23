@@ -88,6 +88,11 @@ public class CacheManage {
         myCache.put(s, JSON.toJSONString(value));
     }
 
+    public static void remove(String key) {
+        Cache<String, String> myCache = cacheManager.getCache(CACHE, String.class, String.class);
+        myCache.remove(key);
+    }
+
     public static void close() {
         cacheManager.close();
     }

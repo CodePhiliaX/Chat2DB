@@ -16,6 +16,8 @@ import ai.chat2db.server.domain.api.param.TableSelector;
 import ai.chat2db.server.domain.api.service.DatabaseService;
 import ai.chat2db.server.domain.api.service.TableService;
 import ai.chat2db.server.domain.core.cache.CacheManage;
+import ai.chat2db.server.domain.core.cache.LuceneIndexManager;
+import ai.chat2db.server.domain.core.cache.LuceneIndexManagerFactory;
 import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
@@ -52,6 +54,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Autowired
     private TableService tableService;
+
+    @Autowired
+    private LuceneIndexManagerFactory luceneIndexManagerFactory;
 
     @Override
     public List<Database> queryAll(DatabaseQueryAllParam param) {
@@ -150,8 +155,23 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     @Override
     public void deleteDatabase(DatabaseCreateParam param) {
-        Chat2DBContext.getDBManage().dropDatabase(Chat2DBContext.getConnection(), param.getName());
-        
+        String databaseName = param.getName();
+        Long dataSourceId = Chat2DBContext.getConnectInfo().getDataSourceId();
+
+        // 1. 执行 DROP DATABASE SQL
+        Chat2DBContext.getDBManage().dropDatabase(Chat2DBContext.getConnection(), databaseName);
+
+        // 2. 级联删除 Lucene 索引中该数据库相关的所有文档
+        try {
+            LuceneIndexManager<?> luceneMgr = luceneIndexManagerFactory.getManager(dataSourceId);
+            luceneMgr.deleteByDatabase(databaseName);
+        } catch (Exception e) {
+            log.warn("Failed to clean Lucene index for database: {}", databaseName, e);
+        }
+
+        // 3. 清除 EHCache 中该数据库相关的缓存
+        CacheManage.remove(getDataBasesKey(dataSourceId));
+        CacheManage.remove(getSchemasKey(dataSourceId, databaseName));
     }
 
     @Override

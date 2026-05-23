@@ -405,6 +405,28 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
     }
 
     /**
+     * 删除指定数据库下的所有索引文档
+     *
+     * @param databaseName 数据库名称
+     */
+    @SneakyThrows
+    public void deleteByDatabase(String databaseName) {
+        if (StringUtils.isBlank(databaseName)) {
+            return;
+        }
+        lock.writeLock().lock();
+        try {
+            BooleanQuery query = new BooleanQuery.Builder()
+                    .add(new TermQuery(new Term("databaseName", databaseName)), BooleanClause.Occur.MUST)
+                    .build();
+            writer.deleteDocuments(query);
+            reload();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    /**
      * 搜索文档
      *
      * @param lastDocId 上一次搜索结果中的最后一个文档ID，用于分页搜索
