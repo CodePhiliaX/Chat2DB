@@ -20,7 +20,7 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
         if(StringUtils.isNotBlank(table.getAiComment())){
-            script.append(" -- ").append(table.getAiComment());
+            script.append(" -- ").append(table.getAiComment()).append("\n");
         }
         script.append("CREATE TABLE ");
 
@@ -141,7 +141,7 @@ public class PhoenixSqlBuilder extends DefaultSqlBuilder implements SqlBuilder{
             script.append("\t").append("AUTO_INCREMENT=").append(newTable.getIncrementValue()).append(",\n");
         }
         if(StringUtils.isNotBlank(newTable.getAiComment())){
-            script.append(" -- ").append(newTable.getAiComment());
+            script.append(" -- ").append(newTable.getAiComment()).append(",\n");
         }
     }
 }

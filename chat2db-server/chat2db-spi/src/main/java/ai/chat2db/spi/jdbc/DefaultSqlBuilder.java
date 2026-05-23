@@ -37,7 +37,7 @@ public class DefaultSqlBuilder implements SqlBuilder {
     public String buildCreateTableSql(Table table) {
         StringBuilder script = new StringBuilder();
         if(StringUtils.isNotBlank(table.getAiComment())){
-            script.append(" -- ").append(table.getAiComment());
+            script.append(" -- ").append(table.getAiComment()).append("\n");
         }
         script.append("CREATE TABLE ");
 
