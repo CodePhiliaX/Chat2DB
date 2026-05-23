@@ -59,4 +59,5 @@ export enum OperationColumn {
   RestoreTable = 'restoreTable', // 恢复废弃表
   GenerateData = 'generateData', // 生成数据
   SchemaDiff = 'schemaDiff', // 结构对比
+  DeleteDatabase = 'deleteDatabase', // 删除数据库
 }

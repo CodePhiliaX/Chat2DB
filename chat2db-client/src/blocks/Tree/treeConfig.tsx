@@ -199,6 +199,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       // OperationColumn.CreateTable,
       OperationColumn.CopyName,
       OperationColumn.Refresh,
+      OperationColumn.DeleteDatabase,
     ],
     next: TreeNodeType.SCHEMAS,
   },

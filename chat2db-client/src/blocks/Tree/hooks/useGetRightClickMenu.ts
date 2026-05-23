@@ -19,6 +19,7 @@ import { addWorkspaceTab, createConsole } from '@/pages/main/workspace/store/con
 
 // ---- functions -----
 import { deleteTable } from '../functions/deleteTable';
+import { deleteDatabase } from '../functions/deleteDatabase';
 import { truncateTable } from '../functions/truncateTable';
 import { openFunction, openProcedure, openTrigger, openView } from '../functions/openAsyncSql';
 import { handelPinTable } from '../functions/pinTable';
@@ -410,6 +411,15 @@ export const useGetRightClickMenu = (props: IProps) => {
         icon: '\ue816',
         handle: () => {
           handelOpenCreateDatabaseModal('database');
+        },
+      },
+
+      // 删除数据库
+      [OperationColumn.DeleteDatabase]: {
+        text: i18n('workspace.menu.deleteDatabase'),
+        icon: '\ue6a7',
+        handle: () => {
+          deleteDatabase(treeNodeData, loadData);
         },
       },
 

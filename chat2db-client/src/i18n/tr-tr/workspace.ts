@@ -14,6 +14,7 @@ export default {
   'workspace.menu.queryConsole': 'Sorgu Konsolu',
   'workspace.menu.viewAllTable': 'Tüm Tabloları Görüntüle',
   'workspace.menu.createDatabase': 'Veritabanı Oluştur',
+  'workspace.menu.deleteDatabase': 'Veritabanını Sil',
   'workspace.menu.createSchema': 'Şema Oluştur',
   'workspace.menu.deprecatedTable': 'Tabloyu Kullanımdan Kaldır',
   'workspace.menu.restoreTable': 'Kullanımdan Kaldırılan Tabloyu Geri Yükle',
@@ -40,5 +41,6 @@ export default {
   'workspace.tree.search.placeholder': 'Genişletilmiş düğümde arama yapın',
   'workspace.tree.delete.tip': 'Bu işlemin kalıcı olarak silindiğini anlıyorum',
   'workspace.tree.delete.table.tip': '{1} tablosunu silmek istediğinizden emin misiniz?',
+  'workspace.tree.delete.database.tip': '{1} veritabanını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
   'workspace.tips.noConnection': 'Henüz bir bağlantı oluşturmadınız',
 };

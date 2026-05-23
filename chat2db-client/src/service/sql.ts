@@ -218,6 +218,7 @@ export interface IMessage {
 }
 
 const deleteTable = createRequest<ITableParams, void>('/api/rdb/table/delete', { method: 'post' });
+const deleteDatabase = createRequest<{ dataSourceId: number; databaseName: string }, void>('/api/rdb/database/delete_database', { method: 'post' });
 const truncateTable = createRequest<ITableParams, void>('/api/rdb/table/truncate', { method: 'post' });
 const createTableExample = createRequest<{ dbType: DatabaseTypeCode }, string>('/api/rdb/table/create/example', {
   method: 'get',
@@ -605,6 +606,7 @@ export default {
   executeTable,
   connectConsole,
   deleteTable,
+  deleteDatabase,
   createTableExample,
   updateTableExample,
   exportCreateTableSql,

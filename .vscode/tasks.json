@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Frontend Dev (Node 24)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "nvm use 24; yarn start:web:hot"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/chat2db-client"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
