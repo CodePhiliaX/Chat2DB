@@ -53,6 +53,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
                 continue;
             }
             MysqlIndexTypeEnum mysqlIndexTypeEnum = MysqlIndexTypeEnum.getByType(tableIndex.getType());
+            if (mysqlIndexTypeEnum == null) {
+                continue;
+            }
             script.append("\t").append(mysqlIndexTypeEnum.buildIndexScript(tableIndex)).append(",\n");
         }
     }

@@ -381,6 +381,9 @@ public class TableServiceImpl implements TableService {
                         table.getName());
                 table.setVirtualForeignKeyList(virtualForeignKeys);
             }
+            if (Boolean.TRUE.equals(selector.getColumnList()) && Boolean.TRUE.equals(selector.getIndexList())) {
+                setPrimaryKey(table);
+            }
 
         }
 
