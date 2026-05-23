@@ -86,6 +86,7 @@ public class FunctionServiceImpl implements FunctionService {
             MetaData meta = Chat2DBContext.getMetaData();
             List<Function> functions = meta.functions(conn, databaseName, schemaName);
             if (CollectionUtils.isEmpty(functions)) {
+                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
                 return;
             }
             mgr.updateDocuments(functions, version);

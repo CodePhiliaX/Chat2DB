@@ -85,6 +85,7 @@ public class ProcedureServiceImpl implements ProcedureService {
             MetaData meta = Chat2DBContext.getMetaData();
             List<Procedure> procedures = meta.procedures(conn, databaseName, schemaName);
             if (CollectionUtils.isEmpty(procedures)) {
+                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
                 return;
             }
             mgr.updateDocuments(procedures, currentVersion);

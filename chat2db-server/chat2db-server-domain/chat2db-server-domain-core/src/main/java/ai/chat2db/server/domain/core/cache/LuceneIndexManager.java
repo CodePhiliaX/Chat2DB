@@ -404,22 +404,20 @@ public class LuceneIndexManager<T extends IndexModel> implements AutoCloseable {
         }
     }
 
-    /**
-     * 删除指定数据库下的所有索引文档
-     *
-     * @param databaseName 数据库名称
-     */
+
     @SneakyThrows
-    public void deleteByDatabase(String databaseName) {
+    public void deleteByDatabaseAndSchema(String databaseName, String schemaName) {
         if (StringUtils.isBlank(databaseName)) {
             return;
         }
         lock.writeLock().lock();
         try {
-            BooleanQuery query = new BooleanQuery.Builder()
-                    .add(new TermQuery(new Term("databaseName", databaseName)), BooleanClause.Occur.MUST)
-                    .build();
-            writer.deleteDocuments(query);
+            BooleanQuery.Builder builder = new BooleanQuery.Builder()
+                    .add(new TermQuery(new Term("databaseName", databaseName)), BooleanClause.Occur.MUST);
+            if (StringUtils.isNotBlank(schemaName)) {
+                builder.add(new TermQuery(new Term("schemaName", schemaName)), BooleanClause.Occur.MUST);
+            }
+            writer.deleteDocuments(builder.build());
             reload();
         } finally {
             lock.writeLock().unlock();

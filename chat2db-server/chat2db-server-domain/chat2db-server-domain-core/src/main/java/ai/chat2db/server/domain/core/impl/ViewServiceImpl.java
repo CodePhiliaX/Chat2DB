@@ -88,6 +88,7 @@ public class ViewServiceImpl implements ViewService {
             MetaData meta = Chat2DBContext.getMetaData();
             List<Table> views = meta.views(conn, databaseName, schemaName);
             if (CollectionUtils.isEmpty(views)) {
+                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
                 return;
             }
             mgr.updateDocuments(views, currentVersion);

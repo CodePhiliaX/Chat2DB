@@ -85,6 +85,7 @@ public class TriggerServiceImpl implements TriggerService {
             MetaData meta = Chat2DBContext.getMetaData();
             List<Trigger> triggers = meta.triggers(conn, databaseName, schemaName);
             if (CollectionUtils.isEmpty(triggers)) {
+                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
                 return;
             }
             mgr.updateDocuments(triggers, currentVersion);

@@ -106,7 +106,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         int num = -1;
         for (int i = 0; i < schemas.size(); i++) {
             String schema = schemas.get(i).getName();
-            if (StringUtils.isNotBlank(ulr) && schema!=null && ulr.contains(schema)) {
+            if (StringUtils.isNotBlank(ulr) && schema != null && ulr.contains(schema)) {
                 num = i;
                 break;
             }
@@ -164,7 +164,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         // 2. 级联删除 Lucene 索引中该数据库相关的所有文档
         try {
             LuceneIndexManager<?> luceneMgr = luceneIndexManagerFactory.getManager(dataSourceId);
-            luceneMgr.deleteByDatabase(databaseName);
+            luceneMgr.deleteByDatabaseAndSchema(databaseName, null);
         } catch (Exception e) {
             log.warn("Failed to clean Lucene index for database: {}", databaseName, e);
         }
@@ -184,14 +184,14 @@ public class DatabaseServiceImpl implements DatabaseService {
     public void modifyDatabase(DatabaseCreateParam param) {
         Chat2DBContext.getDBManage().modifyDatabase(Chat2DBContext.getConnection(), param.getName(),
                 param.getName());
-        
+
     }
 
     @Override
     public void deleteSchema(SchemaOperationParam param) {
         Chat2DBContext.getDBManage().dropSchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
                 param.getSchemaName());
-        
+
     }
 
     @Override
@@ -205,7 +205,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         Chat2DBContext.getDBManage().modifySchema(Chat2DBContext.getConnection(), param.getDatabaseName(),
                 param.getSchemaName(),
                 param.getNewSchemaName());
-        
+
     }
 
     @Override

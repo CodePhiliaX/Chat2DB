@@ -420,6 +420,10 @@ public class TableServiceImpl implements TableService {
             Connection conn = Chat2DBContext.getConnection();
             MetaData meta = Chat2DBContext.getMetaData();
             List<Table> tables = meta.tables(conn, databaseName, schemaName, null);
+            if (CollectionUtils.isEmpty(tables)) {
+                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
+                return;
+            }
             mgr.updateDocuments(tables, version);
         } catch (Exception e) {
             log.error("loadAndCacheMetadata error,version:{}", version, e);
