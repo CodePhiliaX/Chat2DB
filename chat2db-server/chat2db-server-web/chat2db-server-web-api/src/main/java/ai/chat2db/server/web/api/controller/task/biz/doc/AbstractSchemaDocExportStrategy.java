@@ -86,7 +86,6 @@ public abstract class AbstractSchemaDocExportStrategy implements SchemaDocExport
 
     private Map<String, List<TableParameter>> buildTableParameterMap(SchemaDocExportContext context) {
         Map<String, List<TableParameter>> listMap = new LinkedHashMap<>();
-        boolean isExportIndex = Optional.ofNullable(context.getExportOptions().getIsExportIndex()).orElse(false);
 
         for (Table table : context.getTables()) {
             TableParameter t = new TableParameter();
@@ -105,12 +104,6 @@ public abstract class AbstractSchemaDocExportStrategy implements SchemaDocExport
             }
             String key = context.getDatabaseName() + DatabaseExportService.JOINER + t.getFieldName();
             listMap.put(key, colForTable);
-
-            if (isExportIndex) {
-                int index = key.lastIndexOf("[");
-                String str = key.substring(0, index);
-                context.getIndexMap().put(str, vo2Info(table.getIndexList()));
-            }
         }
 
         for (Map.Entry<String, List<TableParameter>> map : listMap.entrySet()) {
@@ -123,7 +116,16 @@ public abstract class AbstractSchemaDocExportStrategy implements SchemaDocExport
     }
 
     private Map<String, List<IndexInfo>> buildIndexMap(SchemaDocExportContext context) {
-        return new HashMap<>();
+        Map<String, List<IndexInfo>> indexMap = new LinkedHashMap<>();
+        boolean isExportIndex = Optional.ofNullable(context.getExportOptions().getIsExportIndex()).orElse(false);
+        if (!isExportIndex) {
+            return indexMap;
+        }
+        for (Table table : context.getTables()) {
+            String key = context.getDatabaseName() + DatabaseExportService.JOINER + table.getName();
+            indexMap.put(key, vo2Info(table.getIndexList()));
+        }
+        return indexMap;
     }
 
     private List<IndexInfo> vo2Info(List<TableIndex> indexList) {

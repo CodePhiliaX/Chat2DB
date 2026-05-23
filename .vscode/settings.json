@@ -89,5 +89,7 @@
   ],
   "java.compile.nullAnalysis.mode": "automatic",
   "java.debug.settings.onBuildFailureProceed": true,
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "npm.packageManager": "yarn",
+  "js/ts.tsdk.path": "chat2db-client/node_modules/typescript/lib"
 }

@@ -107,11 +107,14 @@ public class TaskBizService {
             tableSelector.setIndexList(true);
             List<Table> tables = tableService.pageQuery(queryParam, tableSelector);
 
+            ExportOptions exportOptions = new ExportOptions();
+            exportOptions.setIsExportIndex(true);
+
             SchemaDocExportContext context = SchemaDocExportContext.builder()
                     .tables(tables)
                     .databaseName(request.getDatabaseName())
                     .file(file)
-                    .exportOptions(new ExportOptions())
+                    .exportOptions(exportOptions)
                     .build();
 
             SchemaDocExportStrategy strategy = schemaDocExportStrategyFactory.getStrategy(request.getExportType());

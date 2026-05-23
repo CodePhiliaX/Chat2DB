@@ -360,6 +360,12 @@ public class TableServiceImpl implements TableService {
                 List<TableColumn> columnList = getTableColumns((LuceneIndexManager) luceneMgr, queryParam);
                 table.setColumnList(columnList);
             }
+            if (Boolean.TRUE.equals(selector.getIndexList())) {
+                MetaData metaSchema = Chat2DBContext.getMetaData();
+                List<TableIndex> indexList = metaSchema.indexes(Chat2DBContext.getConnection(),
+                        table.getDatabaseName(), table.getSchemaName(), table.getName());
+                table.setIndexList(indexList);
+            }
             if (Boolean.TRUE.equals(selector.getForeignKey())) {
                 List<ForeignKey> foreignKeys = foreignKeySyncService.queryRealForeignKeys(
                         param.getDataSourceId(),
