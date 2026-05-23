@@ -72,6 +72,7 @@ export interface IExportSchemaDocParams {
   dataSourceId?: number;
   databaseName?: string;
   schemaName?: string;
+  refresh?: boolean;
 }
 
 const exportResultData = createRequest<IExportResultDataParams, number>('/api/export/export_data', { method: 'post' });

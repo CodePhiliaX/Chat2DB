@@ -125,6 +125,8 @@ export default {
   'workspace.schemaDoc.export.close': 'Close',
   'workspace.schemaDoc.export.progress.log': 'Export Log',
   'workspace.schemaDoc.export.progress.taskName': 'Task Name',
+  'workspace.schemaDoc.export.refreshLatest': 'Get Latest',
+  'workspace.schemaDoc.export.refreshLatestTip': 'Fetch table structure from database in real-time (slower)',
   'workspace.tree.view': 'View',
   'workspace.tree.trigger': 'Trigger',
   'workspace.tree.function': 'Function',

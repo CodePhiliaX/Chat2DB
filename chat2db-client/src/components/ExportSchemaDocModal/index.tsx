@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, message, Button, Radio } from 'antd';
+import { Modal, message, Button, Radio, Checkbox } from 'antd';
 import i18n from '@/i18n';
 import taskService, { ITask } from '@/service/task';
 import { setOpenExportSchemaDocModal } from '@/pages/main/workspace/store/modal';
@@ -14,6 +14,7 @@ const ExportSchemaDocModal = () => {
   const [open, setOpen] = useState(false);
   const [params, setParams] = useState<IExportSchemaDocModalParams | null>(null);
   const [exportType, setExportType] = useState<string>('SQL');
+  const [refreshLatest, setRefreshLatest] = useState<boolean>(false);
   const [exportModalVisible, setExportModalVisible] = useState<boolean>(false);
   const [exporting, setExporting] = useState<boolean>(false);
   const [logs, setLogs] = useState<string[]>([]);
@@ -54,6 +55,7 @@ const ExportSchemaDocModal = () => {
         dataSourceId: params.dataSourceId,
         databaseName: params.databaseName,
         schemaName: params.schemaName,
+        refresh: refreshLatest,
       });
 
       addLog(`Task created: ${taskId}`);
@@ -178,6 +180,14 @@ const ExportSchemaDocModal = () => {
                 <Radio key={t.value} value={t.value} style={{ display: 'block', marginBottom: 8 }}>{t.label}</Radio>
               ))}
             </Radio.Group>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <Checkbox checked={refreshLatest} onChange={(e) => setRefreshLatest(e.target.checked)} disabled={exporting}>
+              {i18n('workspace.schemaDoc.export.refreshLatest')}
+            </Checkbox>
+            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 4 }}>
+              {i18n('workspace.schemaDoc.export.refreshLatestTip')}
+            </div>
           </div>
         </div>
       </Modal>

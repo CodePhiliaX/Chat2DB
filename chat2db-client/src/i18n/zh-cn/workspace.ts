@@ -125,6 +125,8 @@ export default {
   'workspace.schemaDoc.export.close': '关闭',
   'workspace.schemaDoc.export.progress.log': '导出日志',
   'workspace.schemaDoc.export.progress.taskName': '任务名称',
+  'workspace.schemaDoc.export.refreshLatest': '获取最新',
+  'workspace.schemaDoc.export.refreshLatestTip': '从数据库实时获取表结构(较慢)',
   'workspace.tree.view': '视图',
   'workspace.tree.trigger': '触发器',
   'workspace.tree.function': '函数',
