@@ -432,52 +432,99 @@ public class MysqlMetaData extends DefaultMetaService implements MetaData {
     }
 
 
+    /**
+     * 批量查询索引的 SQL 模板
+     * 使用 information_schema.STATISTICS 可以一次性获取所有表的索引信息
+     */
+    private static final String SELECT_INDEXES_SQL = 
+            "SELECT TABLE_NAME, INDEX_NAME, NON_UNIQUE, INDEX_TYPE, COLUMN_NAME, SEQ_IN_INDEX, " +
+            "COLLATION, CARDINALITY, SUB_PART, INDEX_COMMENT " +
+            "FROM information_schema.STATISTICS " +
+            "WHERE TABLE_SCHEMA = '%s' %s " +
+            "ORDER BY TABLE_NAME, INDEX_NAME, SEQ_IN_INDEX";
+
     @Override
     public List<TableIndex> indexes(Connection connection, String databaseName, String schemaName, String tableName) {
-        StringBuilder queryBuf = new StringBuilder("SHOW INDEX FROM ");
-        queryBuf.append("`").append(tableName).append("`");
-        queryBuf.append(" FROM ");
-        queryBuf.append("`").append(databaseName).append("`");
-        return SQLExecutor.getInstance().execute(connection, queryBuf.toString(), resultSet -> {
-            LinkedHashMap<String, TableIndex> map = new LinkedHashMap();
+        // 构建 SQL 查询：支持单表查询和批量查询
+        String tableCondition = (tableName != null) 
+                ? String.format("AND TABLE_NAME = '%s'", tableName) 
+                : "";
+        String sql = String.format(SELECT_INDEXES_SQL, databaseName, tableCondition);
+        
+        return SQLExecutor.getInstance().execute(connection, sql, resultSet -> {
+            // 使用嵌套 Map：外层 key 为 tableName，内层 key 为 indexName
+            Map<String, LinkedHashMap<String, TableIndex>> tableIndexMap = new HashMap<>();
+            
             while (resultSet.next()) {
-                String keyName = resultSet.getString("Key_name");
-                TableIndex tableIndex = map.get(keyName);
+                String currentTableName = resultSet.getString("TABLE_NAME");
+                String keyName = resultSet.getString("INDEX_NAME");
+                
+                // 获取或创建当前表的索引映射
+                LinkedHashMap<String, TableIndex> indexMap = tableIndexMap.computeIfAbsent(
+                        currentTableName, k -> new LinkedHashMap<>());
+                
+                TableIndex tableIndex = indexMap.get(keyName);
                 if (tableIndex != null) {
+                    // 索引已存在，添加列信息
                     List<TableIndexColumn> columnList = tableIndex.getColumnList();
                     columnList.add(getTableIndexColumn(resultSet));
-                    columnList = columnList.stream().sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
-                            .collect(Collectors.toList());
-                    tableIndex.setColumnList(columnList);
+                    // 保持按 Seq_in_index 排序
+                    columnList.sort(Comparator.comparing(TableIndexColumn::getOrdinalPosition));
                 } else {
-                    TableIndex index = new TableIndex();
-                    index.setDatabaseName(databaseName);
-                    index.setSchemaName(schemaName);
-                    index.setTableName(tableName);
-                    index.setName(keyName);
-                    index.setUnique(!resultSet.getBoolean("Non_unique"));
-                    index.setType(resultSet.getString("Index_type"));
-                    index.setComment(resultSet.getString("Index_comment"));
-                    List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
-                    tableIndexColumns.add(getTableIndexColumn(resultSet));
-                    index.setColumnList(tableIndexColumns);
-                    if ("PRIMARY".equalsIgnoreCase(keyName)) {
-                        index.setType(MysqlIndexTypeEnum.PRIMARY_KEY.getName());
-                    } else if (index.getUnique()) {
-                        index.setType(MysqlIndexTypeEnum.UNIQUE.getName());
-                    } else if ("SPATIAL".equalsIgnoreCase(index.getType())) {
-                        index.setType(MysqlIndexTypeEnum.SPATIAL.getName());
-                    } else if ("FULLTEXT".equalsIgnoreCase(index.getType())) {
-                        index.setType(MysqlIndexTypeEnum.FULLTEXT.getName());
-                    } else {
-                        index.setType(MysqlIndexTypeEnum.NORMAL.getName());
-                    }
-                    map.put(keyName, index);
+                    // 新索引，创建并初始化
+                    TableIndex index = createTableIndex(resultSet, databaseName, schemaName, currentTableName, keyName);
+                    indexMap.put(keyName, index);
                 }
             }
-            return map.values().stream().collect(Collectors.toList());
+            
+            // 如果指定了 tableName，只返回该表的索引
+            if (tableName != null) {
+                LinkedHashMap<String, TableIndex> indexMap = tableIndexMap.get(tableName);
+                return indexMap != null 
+                        ? new ArrayList<>(indexMap.values()) 
+                        : Collections.emptyList();
+            }
+            
+            // 否则返回所有表的索引
+            List<TableIndex> allIndexes = new ArrayList<>();
+            tableIndexMap.values().forEach(indexMap -> allIndexes.addAll(indexMap.values()));
+            return allIndexes;
         });
+    }
 
+    /**
+     * 从 ResultSet 创建 TableIndex 对象
+     */
+    private TableIndex createTableIndex(ResultSet resultSet, String databaseName, String schemaName, 
+                                         String tableName, String keyName) throws SQLException {
+        TableIndex index = new TableIndex();
+        index.setDatabaseName(databaseName);
+        index.setSchemaName(schemaName);
+        index.setTableName(tableName);
+        index.setName(keyName);
+        index.setUnique(!resultSet.getBoolean("NON_UNIQUE"));
+        
+        String indexType = resultSet.getString("INDEX_TYPE");
+        index.setComment(resultSet.getString("INDEX_COMMENT"));
+        
+        List<TableIndexColumn> tableIndexColumns = new ArrayList<>();
+        tableIndexColumns.add(getTableIndexColumn(resultSet));
+        index.setColumnList(tableIndexColumns);
+        
+        // 根据索引名称和属性判断索引类型
+        if ("PRIMARY".equalsIgnoreCase(keyName)) {
+            index.setType(MysqlIndexTypeEnum.PRIMARY_KEY.getName());
+        } else if (index.getUnique()) {
+            index.setType(MysqlIndexTypeEnum.UNIQUE.getName());
+        } else if ("SPATIAL".equalsIgnoreCase(indexType)) {
+            index.setType(MysqlIndexTypeEnum.SPATIAL.getName());
+        } else if ("FULLTEXT".equalsIgnoreCase(indexType)) {
+            index.setType(MysqlIndexTypeEnum.FULLTEXT.getName());
+        } else {
+            index.setType(MysqlIndexTypeEnum.NORMAL.getName());
+        }
+        
+        return index;
     }
 
     private TableIndexColumn getTableIndexColumn(ResultSet resultSet) throws SQLException {
