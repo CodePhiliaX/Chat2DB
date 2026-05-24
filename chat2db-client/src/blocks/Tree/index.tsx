@@ -344,11 +344,22 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
   const { treeData, setTreeData, searchTreeData, setSearchTreeData } = useContext(Context);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // 加载数据
   function loadData(_props?: { refresh: boolean; pageNo: number; lastDocId:number; treeNodeData?: ITreeNode }) {
     const _treeNodeData = _props?.treeNodeData || props.data;
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
+
+    if (_props?.refresh) {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      abortControllerRef.current = new AbortController();
+    }
+
+    const signal = abortControllerRef.current?.signal;
+
     setIsLoading(true);
     if (_props?.pageNo === 1 || !_props?.pageNo) {
       insertData(treeData!, _treeNodeData.uuid!, null,[treeData, setTreeData]);
@@ -365,8 +376,10 @@ const TreeNode = memo((props: TreeNodeIProps) => {
         },
         refresh: _props?.refresh || false,
         pageNo: _props?.pageNo || 1,
-      })
+        lastDocId: _props?.lastDocId,
+      }, { signal })
       .then((res: any) => {
+        if (signal?.aborted) return;
         if (res.length || res.data) {
           if (res.data) {
             insertData(treeData!, _treeNodeData.uuid!, res.data, [treeData, setTreeData]);
@@ -388,7 +401,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           }
           setIsLoading(false);
         } else {
-          // 处理树可能出现不连续的情况
+          if (signal?.aborted) return;
           if (treeNodeConfig.next) {
             _treeNodeData.pretendNodeType = treeNodeConfig.next;
             loadData();
@@ -401,7 +414,8 @@ const TreeNode = memo((props: TreeNodeIProps) => {
           }
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        if (signal?.aborted || error?.name === 'AbortError') return;
         setIsLoading(false);
       });
   }

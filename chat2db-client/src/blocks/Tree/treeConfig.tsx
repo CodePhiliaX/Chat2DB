@@ -102,14 +102,14 @@ export interface ITreeConfigItem {
 
 export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   [TreeNodeType.DATA_SOURCES]: {
-    getChildren: () => {
+    getChildren: (_params, options) => {
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         const p = {
           pageNo: 1,
           pageSize: 1000,
         };
         connectionService
-          .getList(p)
+          .getList(p, options)
           .then((res) => {
             const data: ITreeNode[] = res.data.map((t: IConnectionDetails) => {
               return {
@@ -126,20 +126,20 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(data);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },
   },
 
   [TreeNodeType.DATA_SOURCE]: {
-    getChildren: (params: { dataSourceId: number; dataSourceName: string; extraParams: any }) => {
+    getChildren: (params: { dataSourceId: number; dataSourceName: string; extraParams: any }, options) => {
       return new Promise((r, j) => {
         const _extraParams = params.extraParams;
         delete params.extraParams;
         connectionService
-          .getDatabaseList(params)
+          .getDatabaseList(params, options)
           .then((res) => {
             const data: ITreeNode[] = res.map((t: any) => {
               return {
@@ -155,8 +155,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(data);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },
@@ -166,12 +166,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.DATABASE]: {
     icon: '\ue62c',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[], b?: any) => void, j) => {
         connectionService
-          .getSchemaList(params)
+          .getSchemaList(params, options)
           .then((res) => {
             const data: ITreeNode[] = res.map((t: any) => {
               return {
@@ -188,8 +188,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(data);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },
@@ -430,12 +430,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.VIEWS]: {
     icon: '\ue70c',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getViewList(params)
+          .getViewList(params, options)
           .then((res) => {
             const viewList: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -463,12 +463,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.FUNCTIONS]: {
     icon: '\ue76a',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getFunctionList(params)
+          .getFunctionList(params, options)
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -502,12 +502,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.PROCEDURES]: {
     icon: '\ue73c',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getProcedureList(params)
+          .getProcedureList(params, options)
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -541,12 +541,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.TRIGGERS]: {
     icon: '\ue64a',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getTriggerList(params)
+          .getTriggerList(params, options)
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -599,12 +599,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.VIEWCOLUMNS]: {
     icon: '\ue647',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getViewColumnList(params)
+          .getViewColumnList(params, options)
           .then((res) => {
             const list: ITreeNode[] = res.data?.map((t: any) => {
               return {
@@ -635,12 +635,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
 
   [TreeNodeType.COLUMNS]: {
     icon: '\ueac5',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getColumnList(params)
+          .getColumnList(params, options)
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               return {
@@ -656,8 +656,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },
@@ -669,12 +669,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.KEYS]: {
     icon: '\ueac5',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getKeyList(params)
+          .getKeyList(params, options)
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               const isVirtual = item.sourceType === 'VIRTUAL' || item.editable;
@@ -689,8 +689,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },
@@ -702,12 +702,12 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
   },
   [TreeNodeType.INDEXES]: {
     icon: '\ueac5',
-    getChildren: (params) => {
+    getChildren: (params, options) => {
       const _extraParams = params.extraParams;
       delete params.extraParams;
       return new Promise((r: (value: ITreeNode[]) => void, j) => {
         mysqlServer
-          .getIndexList(params)
+          .getIndexList(params, options)
           .then((res) => {
             const tableList: ITreeNode[] = res?.map((item) => {
               return {
@@ -721,8 +721,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r(tableList);
           })
-          .catch(() => {
-            j();
+          .catch((error) => {
+            j(error);
           });
       });
     },

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import mysqlService from '@/service/sql';
-import { Button, Checkbox } from 'antd';
+import { Button, Checkbox, message } from 'antd';
 import { openModal } from '@/store/common/components';
 import styles from './deleteTable.less';
 import i18n from '@/i18n';
@@ -22,11 +22,16 @@ export const DeleteDatabaseModalContent = (params: { treeNodeData: any; loadData
       databaseName: treeNodeData.name,
     };
     mysqlService.deleteDatabase(p).then(() => {
-      loadData({
-        refresh: true,
-        treeNodeData: treeNodeData.parentNode,
-      });
+      if (treeNodeData.parentNode) {
+        loadData({
+          refresh: true,
+          treeNodeData: treeNodeData.parentNode,
+        });
+      }
       openModal(false);
+    }).catch((error) => {
+      console.error('Error deleting database:', error);
+      message.error(i18n('workspace.tree.delete.database.error') || 'Failed to delete database');
     });
   };
 
