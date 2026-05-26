@@ -1,27 +1,6 @@
 <div align="center">
-  <h2>🚀 Zoer is Launching</h2>
-  <p><strong>Powered by Chat2DB Team - AI-powered app builder that creates professional applications in minutes, no coding required</strong></p>
-  
-  <a href="https://zoer.ai/?utm_source=chat2db&utm_medium=banner&utm_campaign=github" target="_blank">
-    <img width="1000" height="auto" alt="Zoer - AI App Builder" src="https://github.com/user-attachments/assets/2f2a682d-9cc0-4470-93d3-19b4f1f6589e" style="border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" />
-  </a>
-  
-  <br/><br/>
-  
-  ---
-  
-  <br/>
-  
-  <a href="https://trendshift.io/repositories/11808" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11808" alt="CodePhiliaX%2FChat2DB | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
-  </a>
-</div>
-
-<div align="center">
-  <h3>New Open-Source Project from the Chat2DB Team: <a href="https://github.com/CodePhiliaX/youClaw">youClaw</a></h3>
-  <p>If Chat2DB has been useful to you, we'd appreciate a quick star on <strong>youClaw</strong>. Early stars help new open-source projects get discovered, attract contributors, and keep us building in public.</p>
-  <a href="https://github.com/CodePhiliaX/youClaw">
-    <img alt="Star youClaw on GitHub" src="https://img.shields.io/badge/Star-youClaw-181717?style=for-the-badge&logo=github" />
-  </a>
+  <h1>Chat2DB</h1>
+  <p><strong>An intelligent and versatile general-purpose SQL client and reporting tool for databases which integrates ChatGPT capabilities.</strong></p>
 </div>
 
 <div align="center">
