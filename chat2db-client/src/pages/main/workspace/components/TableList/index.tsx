@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { memo, useEffect, useState, useRef } from 'react';
 import styles from './index.less';
 import classnames from 'classnames';
 
@@ -24,11 +24,20 @@ export default memo<IProps>((props) => {
 
   const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   const getTreeData = (refresh = false) => {
     if (!currentConnectionDetails?.id) {
       setTreeData([]);
       return;
     }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     const treeNodeType = currentConnectionDetails.supportDatabase ? TreeNodeType.DATA_SOURCE : TreeNodeType.DATABASE;
     setTreeData(null);
     treeConfig[treeNodeType]
@@ -41,11 +50,13 @@ export default memo<IProps>((props) => {
           dataSourceName: currentConnectionDetails.alias,
           databaseType: currentConnectionDetails.type,
         },
-      })
+      }, { signal })
       .then((res) => {
+        if (signal.aborted) return;
         setTreeData(res);
       })
       .catch(() => {
+        if (signal.aborted) return;
         setTreeData([]);
       });
   };
@@ -53,6 +64,14 @@ export default memo<IProps>((props) => {
   useEffect(() => {
     getTreeData();
   }, [currentConnectionDetails]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <div className={classnames(styles.treeContainer, className)}>
