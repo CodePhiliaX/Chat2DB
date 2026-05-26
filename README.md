@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Chat2DB</h1>
-  <p><strong>An intelligent and versatile general-purpose SQL client and reporting tool for databases which integrates ChatGPT capabilities.</strong></p>
+  <p><strong><p><strong>An AI-powered database client and SQL workspace for developers, DBAs, analysts, and data teams.</strong></p></strong></p>
 </div>
 
 <div align="center">
@@ -55,30 +55,25 @@ Chat2DB Pro supports database table structure synchronization to help you sync d
   <tr>
     <th align="center">Feature</th>
     <th align="center">Community Open Source</th>
-    <th align="center">Local</th>
-    <th align="center">Pro </th>
+    <th align="center">Pro</th>
   </tr>
   <tr>
     <td align="center">Database Types</td>
     <td align="center">16+</td>
-    <td align="center">Target 100+</td>
     <td align="center">Target 100+</td>
   </tr>
   <tr>
     <td align="center">Supported AI</td>
     <td align="center">Requires AI Configuration</td>
     <td align="center">AI ready on installation</td>
-    <td align="center">AI ready on installation</td>
   </tr>
   <tr>
     <td align="center">AI Capabilities</td>
     <td align="center">Basic</td>
     <td align="center">Varied</td>
-    <td align="center">Varied</td>
   </tr>
   <tr>
     <td align="center">Visual Table Editor</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
@@ -86,11 +81,9 @@ Chat2DB Pro supports database table structure synchronization to help you sync d
     <td align="center">SQL Console</td>
     <td align="center">✅</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">SQL Formatting</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
@@ -98,11 +91,9 @@ Chat2DB Pro supports database table structure synchronization to help you sync d
     <td align="center">Save Query Records</td>
     <td align="center">✅</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Theme Color Settings</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
@@ -110,113 +101,94 @@ Chat2DB Pro supports database table structure synchronization to help you sync d
     <td align="center">Data Structure Sync</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Database Grouping</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Database Structure Import/Export</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Data Import/Export</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Data Migration</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Copy/Clear Table</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Open and Run SQL Files</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">UML Diagram</td>
     <td align="center">❌</td>
-    <td align="center">In Development</td>
     <td align="center">In Development</td>
   </tr>
   <tr>
     <td align="center">Generate Code</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Copy Results as Insert/Update</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Modify Query Results</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Intelligent SQL Editor</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">AI Table Creation</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">AI Data Sets</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Chat2Excel</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Intelligent Dashboard</td>
     <td align="center">❌</td>
-    <td align="center">✅</td>
     <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Editor Settings</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Custom Shortcuts</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
-    <td align="center">✅</td>
   </tr>
   <tr>
     <td align="center">Cross-device Usage</td>
-    <td align="center">❌</td>
     <td align="center">❌</td>
     <td align="center">✅</td>
   </tr>
@@ -225,7 +197,6 @@ Chat2DB Pro supports database table structure synchronization to help you sync d
 ## Download and Installation
 Chat2DB is a cross-platform application that supports Windows, MacOS, and Linux. You can download Chat2DB from the following links:
 - [Download Pro Version](https://chat2db.ai/download)
-- [Download Local Version](https://chat2db.ai/download)
 - [Download Open Source Version](https://github.com/CodePhiliaX/Chat2DB/releases/tag/v0.3.6)
 
 ## Community Edition Docker Installation
@@ -287,6 +258,15 @@ $ npm run build:web:prod
 $ cp -r dist ../chat2db-server/chat2db-server-start/src/main/resources/static/front 
 $ cp -r dist/index.html ../chat2db-server/chat2db-server-start/src/main/resources/thymeleaf
 ```
+## Contributing
+
+We welcome bug reports, feature requests, documentation improvements, testing feedback, and pull requests from the community.
+
+Before opening an issue or submitting a pull request, please read our [Contributing Guide](./CONTRIBUTING.md). It explains how to report bugs, suggest improvements, and make contributions easier for maintainers to review.
+
+- For bugs and feature requests, please use [GitHub Issues](https://github.com/CodePhiliaX/Chat2DB/issues).
+- For questions, setup help, and open-ended discussions, please use [GitHub Discussions](https://github.com/CodePhiliaX/Chat2DB/discussions).
+- If your pull request is related to an issue, please link it in the PR description.
 
 ##  Contact Us
 
