@@ -1,3 +1,72 @@
 .editorContainer {
   height: 100%;
 }
+
+.aiDiffWidget {
+  min-width: 360px;
+  max-width: min(760px, 70vw);
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--color-text, #1f2328);
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  background: var(--color-bg, #fff);
+  border: 1px solid var(--color-border-secondary, #d0d7de);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(31, 35, 40, 0.12);
+}
+
+.aiDiffHeader {
+  padding: 6px 10px;
+  color: var(--color-text-secondary, #57606a);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 16px;
+  background: var(--color-bg-subtle, #f6f8fa);
+  border-bottom: 1px solid var(--color-border-secondary, #d0d7de);
+}
+
+.aiDiffBody {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.aiDiffRemoveLine,
+.aiDiffAddLine,
+.aiDiffSameLine {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  width: max-content;
+  min-width: 100%;
+  min-height: 20px;
+  white-space: pre;
+}
+
+.aiDiffRemoveLine {
+  background: rgba(248, 81, 73, 0.12);
+}
+
+.aiDiffAddLine {
+  background: rgba(46, 160, 67, 0.14);
+}
+
+.aiDiffSameLine {
+  color: var(--color-text-secondary, #57606a);
+  background: transparent;
+}
+
+.aiDiffMarker {
+  padding: 1px 8px;
+  user-select: none;
+  opacity: 0.78;
+}
+
+.aiDiffCode {
+  min-width: 0;
+  padding: 1px 10px 1px 0;
+}
+
+.aiDiffOriginalRange {
+  background: rgba(248, 81, 73, 0.12);
+}

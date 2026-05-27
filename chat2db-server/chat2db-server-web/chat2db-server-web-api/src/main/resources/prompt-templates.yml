@@ -222,6 +222,7 @@ prompts:
       {schema}
       
       **可用的 datafaker 表达式示例**:
+      - 车辆: #{Vehicle.vin}, #{Vehicle.driveType}, #{Vehicle.licensePlate}
       - 姓名: #{Name.first_name}, #{Name.last_name}, #{Name.full_name}
       - 邮箱: #{Internet.email_address}, #{Internet.url}
       - 电话: #{PhoneNumber.cell_phone}, #{PhoneNumber.phone_number}
@@ -230,8 +231,8 @@ prompts:
       - 数值: #{Number.number_between '1','1000'}, #{Number.random_double '2','0','9999'}
       - 文本: #{Lorem.sentence}, #{Lorem.word}, #{Lorem.paragraph}
       - 公司: #{Company.name}, #{Company.industry}, #{Company.catch_phrase}
-      - ID: #{Code.isbn}, #{Code.asin}, #{Number.uuid}
-      - 布尔: #{bool.bool}
+      - ID: #{Code.isbn10}, #{Code.asin}, #{Number.uuid}
+      - 布尔: #{Bool.bool}
       
       **要求**:
       1. 根据字段名、数据类型、注释推荐合适的表达式
@@ -292,3 +293,27 @@ prompts:
       1. 修复后的SQL必须是完整可执行的
       2. 使用 ```sql 代码块包裹SQL
       3. 保持简洁，不要过多解释
+
+  # SQL 补全
+  sql_completion:
+    name: "sql_completion"
+    description: "SQL补全"
+    template: |
+      ### 任务：根据当前 SQL 编辑器内容生成一段完整、可执行的 SQL。
+
+      **数据库类型**: {db_type}
+
+      **表结构信息**:
+      {schema}
+
+      **当前编辑器上下文**:
+      {message}
+
+      **额外上下文**:
+      {ext}
+
+      **输出要求**:
+      1. 只输出一段完整 SQL，不要输出 Markdown、代码块、解释、标题或多余文本。
+      2. SQL 必须适配当前数据库类型和表结构。
+      3. 如果当前编辑器已有 SQL，请在理解用户意图后生成最合理的完整 SQL。
+      4. 如果上下文不足，请生成最接近当前内容的合法 SQL，不要询问用户。

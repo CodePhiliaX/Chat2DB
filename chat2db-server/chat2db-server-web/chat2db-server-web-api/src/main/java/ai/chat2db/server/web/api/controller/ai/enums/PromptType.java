@@ -70,6 +70,11 @@ public enum PromptType implements BaseEnum<String> {
      * SQL错误修复
      */
     SQL_FIX("SQL错误修复"),
+
+    /**
+     * SQL 补全
+     */
+    SQL_COMPLETION("SQL补全"),
     ;
 
     final String description;
@@ -82,7 +87,8 @@ public enum PromptType implements BaseEnum<String> {
      */
     public boolean isSimpleTask() {
         return this == SELECT_TABLES || this == TITLE_GENERATION || this == NL_2_COMMENT_BATCH
-                || this == NL_2_COMMENT || this == NL_2_FIELD_MAPPING || this == NL_2_DATA_EXPRESSION;
+                || this == NL_2_COMMENT || this == NL_2_FIELD_MAPPING || this == NL_2_DATA_EXPRESSION
+                || this == SQL_COMPLETION;
     }
 
     PromptType(String description) {

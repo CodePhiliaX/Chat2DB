@@ -38,6 +38,14 @@ interface IProps {
   shortcutKey?: (editor, monaco, isActive: boolean) => void;
   focusChange?: (isActive: boolean) => void;
   boundInfo?: IBoundInfo;
+  aiCompletion?: {
+    id: string;
+    text: string;
+    range: monaco.IRange;
+    replaceRange?: monaco.IRange;
+    originalText?: string;
+  } | null;
+  onContentChange?: (event: IEditorContentChangeEvent) => void;
 }
 
 export interface IExportRefFunction {
@@ -58,10 +66,14 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     appendValue,
     shortcutKey,
     boundInfo,
+    aiCompletion,
+    onContentChange,
   } = props;
   const editorRef = useRef<IEditorIns>();
   const quickInputCommand = useRef<any>();
   const sqlAutocompleteDisposable = useRef<ISqlAutocompleteDisposable | null>(null);
+  const aiCompletionWidgetRef = useRef<monaco.editor.IContentWidget | null>(null);
+  const aiCompletionDecorationsRef = useRef<string[]>([]);
   const [appTheme] = useTheme();
   const [isActive, setIsActive] = React.useState(false);
 
@@ -105,6 +117,9 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     });
 
     createAction(editorIns);
+    editorIns.onDidChangeModelContent((event) => {
+      onContentChange?.(event);
+    });
 
     // Initialize SQL autocomplete if boundInfo is provided
     if (boundInfo && language === 'sql') {
@@ -119,6 +134,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       if (sqlAutocompleteDisposable.current) {
         sqlAutocompleteDisposable.current.dispose();
       }
+      clearAiCompletionPreview(editorRef.current);
       if (props.needDestroy) {
         editorRef.current && editorRef.current.dispose();
       }
@@ -144,7 +160,6 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     // };
   }, []);
 
-
   useEffect(() => {
     if (editorRef.current) {
       // eg:
@@ -153,6 +168,14 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
       shortcutKey?.(editorRef.current, monaco, isActive);
     }
   }, [editorRef.current, isActive]);
+
+  useEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+
+    renderAiCompletionPreview(editorRef.current, aiCompletion || null);
+  }, [aiCompletion]);
 
   useEffect(() => {
     // 监听浏览器窗口大小变化，重新渲染编辑器
@@ -272,6 +295,169 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
         },
       });
     });
+  };
+
+  const clearAiCompletionPreview = (editor?: IEditorIns) => {
+    if (!editor) {
+      return;
+    }
+
+    if (aiCompletionWidgetRef.current) {
+      editor.removeContentWidget(aiCompletionWidgetRef.current);
+      aiCompletionWidgetRef.current = null;
+    }
+    aiCompletionDecorationsRef.current = editor.deltaDecorations(aiCompletionDecorationsRef.current, []);
+  };
+
+  type AiDiffLineType = 'same' | 'remove' | 'add';
+
+  interface IAiDiffLine {
+    type: AiDiffLineType;
+    line: string;
+  }
+
+  const normalizeSqlDiffLine = (line: string) => {
+    const compactLine = line.trim().replace(/\s+/g, ' ');
+    return compactLine.toLowerCase();
+  };
+
+  const buildLineDiff = (originalLines: string[], suggestionLines: string[]) => {
+    const normalizedOriginalLines = originalLines.map(normalizeSqlDiffLine);
+    const normalizedSuggestionLines = suggestionLines.map(normalizeSqlDiffLine);
+    const rowCount = originalLines.length + 1;
+    const columnCount = suggestionLines.length + 1;
+    const lcsLengths = Array.from({ length: rowCount }, () => Array<number>(columnCount).fill(0));
+
+    for (let rowIndex = originalLines.length - 1; rowIndex >= 0; rowIndex -= 1) {
+      for (let columnIndex = suggestionLines.length - 1; columnIndex >= 0; columnIndex -= 1) {
+        if (normalizedOriginalLines[rowIndex] === normalizedSuggestionLines[columnIndex]) {
+          lcsLengths[rowIndex][columnIndex] = lcsLengths[rowIndex + 1][columnIndex + 1] + 1;
+        } else {
+          lcsLengths[rowIndex][columnIndex] = Math.max(
+            lcsLengths[rowIndex + 1][columnIndex],
+            lcsLengths[rowIndex][columnIndex + 1],
+          );
+        }
+      }
+    }
+
+    const diffLines: IAiDiffLine[] = [];
+    let originalIndex = 0;
+    let suggestionIndex = 0;
+    while (originalIndex < originalLines.length && suggestionIndex < suggestionLines.length) {
+      if (normalizedOriginalLines[originalIndex] === normalizedSuggestionLines[suggestionIndex]) {
+        diffLines.push({ type: 'same', line: originalLines[originalIndex] });
+        originalIndex += 1;
+        suggestionIndex += 1;
+      } else if (lcsLengths[originalIndex + 1][suggestionIndex] >= lcsLengths[originalIndex][suggestionIndex + 1]) {
+        diffLines.push({ type: 'remove', line: originalLines[originalIndex] });
+        originalIndex += 1;
+      } else {
+        diffLines.push({ type: 'add', line: suggestionLines[suggestionIndex] });
+        suggestionIndex += 1;
+      }
+    }
+
+    while (originalIndex < originalLines.length) {
+      diffLines.push({ type: 'remove', line: originalLines[originalIndex] });
+      originalIndex += 1;
+    }
+
+    while (suggestionIndex < suggestionLines.length) {
+      diffLines.push({ type: 'add', line: suggestionLines[suggestionIndex] });
+      suggestionIndex += 1;
+    }
+
+    return diffLines;
+  };
+
+  const getRemovedLineDecorations = (replaceRange: monaco.IRange, diffLines: IAiDiffLine[]) => {
+    const decorations: monaco.editor.IModelDeltaDecoration[] = [];
+    let lineNumber = replaceRange.startLineNumber;
+
+    diffLines.forEach((diffLine) => {
+      if (diffLine.type === 'add') {
+        return;
+      }
+
+      if (diffLine.type === 'remove') {
+        decorations.push({
+          range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+          options: {
+            className: styles.aiDiffOriginalRange,
+            isWholeLine: true,
+          },
+        });
+      }
+
+      lineNumber += 1;
+    });
+
+    return decorations;
+  };
+
+  const createDiffLine = (line: string, type: AiDiffLineType) => {
+    const row = document.createElement('div');
+    row.className =
+      type === 'remove' ? styles.aiDiffRemoveLine : type === 'add' ? styles.aiDiffAddLine : styles.aiDiffSameLine;
+
+    const markerNode = document.createElement('span');
+    markerNode.className = styles.aiDiffMarker;
+    markerNode.textContent = type === 'remove' ? '-' : type === 'add' ? '+' : ' ';
+
+    const codeNode = document.createElement('span');
+    codeNode.className = styles.aiDiffCode;
+    codeNode.textContent = line || ' ';
+
+    row.appendChild(markerNode);
+    row.appendChild(codeNode);
+    return row;
+  };
+
+  const renderAiCompletionPreview = (editor: IEditorIns, completion: IProps['aiCompletion']) => {
+    clearAiCompletionPreview(editor);
+    if (!completion) {
+      return;
+    }
+
+    const replaceRange = completion.replaceRange || completion.range;
+    const widgetNode = document.createElement('div');
+    widgetNode.className = styles.aiDiffWidget;
+    widgetNode.tabIndex = -1;
+
+    const headerNode = document.createElement('div');
+    headerNode.className = styles.aiDiffHeader;
+    headerNode.textContent = 'AI SQL suggestion';
+    widgetNode.appendChild(headerNode);
+
+    const bodyNode = document.createElement('div');
+    bodyNode.className = styles.aiDiffBody;
+
+    const originalLines = (completion.originalText || '').split(/\r?\n/);
+    const suggestionLines = completion.text.split(/\r?\n/);
+    const diffLines = buildLineDiff(originalLines, suggestionLines);
+    diffLines.forEach(({ line, type }) => bodyNode.appendChild(createDiffLine(line, type)));
+    widgetNode.appendChild(bodyNode);
+
+    const widget: monaco.editor.IContentWidget = {
+      getId: () => `chat2db.aiDiff.${completion.id}`,
+      getDomNode: () => widgetNode,
+      getPosition: () => ({
+        position: {
+          lineNumber: replaceRange.endLineNumber,
+          column: replaceRange.endColumn,
+        },
+        preference: [monaco.editor.ContentWidgetPositionPreference.BELOW],
+      }),
+    };
+
+    aiCompletionWidgetRef.current = widget;
+    editor.addContentWidget(widget);
+    aiCompletionDecorationsRef.current = editor.deltaDecorations(
+      aiCompletionDecorationsRef.current,
+      getRemovedLineDecorations(replaceRange, diffLines),
+    );
+    editor.revealLineInCenterIfOutsideViewport(replaceRange.endLineNumber);
   };
 
   return <div ref={ref as any} id={`monaco-editor-${id}`} className={cs(className, styles.editorContainer)} />;

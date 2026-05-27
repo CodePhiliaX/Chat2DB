@@ -1,2 +1,6 @@
+sandbox_mode = "danger-full-access"
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
+
+[sandbox_workspace_write]
+network_access = true
