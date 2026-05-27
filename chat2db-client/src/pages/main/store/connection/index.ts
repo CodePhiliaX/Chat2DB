@@ -5,6 +5,7 @@ import { StoreApi } from 'zustand';
 
 import { IConnectionListItem, IConnectionEnv } from '@/typings/connection';
 import connectionService from '@/service/connection';
+import { sortConnectionList } from './utils';
 
 import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
@@ -42,7 +43,7 @@ export const getConnectionList: () => Promise<IConnectionListItem[]> = () => {
         refresh: true,
       })
       .then((res) => {
-        const connectionList = res?.data || [];
+        const connectionList = sortConnectionList(res?.data || []);
         useConnectionStore.setState({ connectionList });
         resolve(connectionList);
 

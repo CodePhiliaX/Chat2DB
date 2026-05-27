@@ -10,6 +10,7 @@ import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSortUpdateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceTestParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.param.datasource.DatabaseQueryAllParam;
@@ -21,9 +22,11 @@ import ai.chat2db.server.domain.core.util.PermissionUtils;
 import ai.chat2db.server.domain.repository.Dbutils;
 import ai.chat2db.server.domain.repository.entity.DataSourceAccessDO;
 import ai.chat2db.server.domain.repository.entity.DataSourceDO;
+import ai.chat2db.server.domain.repository.entity.DataSourceSortDO;
 import ai.chat2db.server.domain.repository.mapper.DataSourceAccessMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceCustomMapper;
 import ai.chat2db.server.domain.repository.mapper.DataSourceMapper;
+import ai.chat2db.server.domain.repository.mapper.DataSourceSortMapper;
 import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
 import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
@@ -88,6 +91,10 @@ public class DataSourceServiceImpl implements DataSourceService {
     private EnvironmentConverter environmentConverter;
     private DataSourceAccessMapper getAccessMapper() {
         return Dbutils.getMapper(DataSourceAccessMapper.class);
+    }
+
+    private DataSourceSortMapper getSortMapper() {
+        return Dbutils.getMapper(DataSourceSortMapper.class);
     }
 
     @Override
@@ -190,6 +197,28 @@ public class DataSourceServiceImpl implements DataSourceService {
         dataSourceDO.setGmtModified(DateUtil.date());
         getMapper().insert(dataSourceDO);
         return dataSourceDO.getId();
+    }
+
+    @Override
+    public void updateSortWithPermission(DataSourceSortUpdateParam param) {
+        if (param == null || CollectionUtils.isEmpty(param.getIdList())) {
+            return;
+        }
+
+        Long userId = ContextUtils.getUserId();
+        LambdaQueryWrapper<DataSourceSortDO> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(DataSourceSortDO::getUserId, userId);
+        getSortMapper().delete(deleteWrapper);
+
+        for (int index = 0; index < param.getIdList().size(); index++) {
+            DataSourceSortDO sortDO = new DataSourceSortDO();
+            sortDO.setGmtCreate(DateUtil.date());
+            sortDO.setGmtModified(DateUtil.date());
+            sortDO.setUserId(userId);
+            sortDO.setDataSourceId(param.getIdList().get(index));
+            sortDO.setSort(index);
+            getSortMapper().insert(sortDO);
+        }
     }
 
     @Override

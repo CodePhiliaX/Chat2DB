@@ -55,6 +55,8 @@ const remove = createRequest<{ id: number }, void>('/api/connection/datasource/:
 
 const clone = createRequest<{ id: number }, number>('/api/connection/datasource/clone', { method: 'post' });
 
+const updateSort = createRequest<{ idList: number[] }, void>('/api/connection/datasource/sort', { method: 'post' });
+
 const getDatabaseList = createRequest<{ dataSourceId: number; refresh?: boolean }, any>('/api/rdb/database/list', {
   method: 'get',
 });
@@ -95,6 +97,7 @@ export default {
   update,
   remove,
   clone,
+  updateSort,
   getDatabaseList,
   getSchemaList,
   close,

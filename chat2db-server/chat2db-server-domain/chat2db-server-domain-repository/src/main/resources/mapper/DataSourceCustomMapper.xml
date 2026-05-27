@@ -5,6 +5,7 @@
     <select id="selectPageWithPermission" resultType="ai.chat2db.server.domain.repository.entity.DataSourceDO">
         select ds.*
         from DATA_SOURCE ds
+        left join DATA_SOURCE_SORT dss on dss.DATA_SOURCE_ID = ds.ID and dss.USER_ID = #{userId}
         <where>
             <choose>
                 <when test="kind == 'PRIVATE'">
@@ -35,9 +36,14 @@
             <if test="kind != null">
                 and ds.kind = #{kind}
             </if>
-            <if test="orderBy != null ">
-                ${orderBy}
-            </if>
         </where>
+        <choose>
+            <when test="orderBy != null ">
+                ${orderBy}
+            </when>
+            <otherwise>
+                order by dss.SORT is null, dss.SORT asc, ds.ID desc
+            </otherwise>
+        </choose>
     </select>
 </mapper>

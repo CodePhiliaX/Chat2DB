@@ -24,7 +24,6 @@ export interface IConnectionListItem {
   supportSchema: boolean;
 }
 
-
 export interface IConnectionDetails {
   id: number;
   alias: string;
@@ -46,14 +45,5 @@ export interface IConnectionDetails {
   [key: string]: any;
 }
 
-export interface IConnectionListItem {
-  id: number;
-  alias: string;
-  environment: IConnectionEnv;
-  type: DatabaseTypeCode;
-  supportDatabase: boolean; 
-  supportSchema: boolean;
-}
-
-export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>
+export type ICreateConnectionDetails = Omit<IConnectionDetails, 'id'>;
 

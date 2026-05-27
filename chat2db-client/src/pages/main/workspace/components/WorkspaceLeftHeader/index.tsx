@@ -5,6 +5,7 @@ import styles from './index.less';
 
 // ---- store ----
 import { useConnectionStore } from '@/pages/main/store/connection';
+import { groupConnectionList } from '@/pages/main/store/connection/utils';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 
@@ -35,7 +36,7 @@ export default memo(() => {
         {/* <Tag className={styles.menuLabelTag} color={item.environment.color.toLocaleLowerCase()}>
           {item.environment.shortName}
         </Tag> */}
-        <span className={styles.envTag} style={{ background: item.environment.color.toLocaleLowerCase() }} />
+        <span className={styles.envTag} style={{ background: item.environment?.color?.toLocaleLowerCase() }} />
         <div className={styles.menuLabelIconBox}>
           <Iconfont className={classnames(styles.menuLabelIcon)} code={databaseMap[item.type]?.icon} />
         </div>
@@ -46,13 +47,20 @@ export default memo(() => {
 
   const connectionItems = useMemo(() => {
     return (
-      connectionList?.map((item) => {
+      groupConnectionList(connectionList || []).map((group) => {
         return {
-          key: item.id,
-          label: renderConnectionLabel(item),
-          onClick: () => {
-            setCurrentConnectionDetails(item);
-          },
+          type: 'group' as const,
+          key: group.key,
+          label: group.environment?.name || '',
+          children: group.connections.map((item) => {
+            return {
+              key: item.id,
+              label: renderConnectionLabel(item),
+              onClick: () => {
+                setCurrentConnectionDetails(item);
+              },
+            };
+          }),
         };
       }) || []
     );

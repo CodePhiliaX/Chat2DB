@@ -1,5 +1,6 @@
-import React, { useRef, useState, Fragment, useEffect } from 'react';
-import { Button, Dropdown } from 'antd';
+import { DragOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Dropdown, Tooltip } from 'antd';
 import classnames from 'classnames';
 import i18n from '@/i18n';
 // import RefreshLoadingButton from '@/components/RefreshLoadingButton';
@@ -21,7 +22,12 @@ import MenuLabel from '@/components/MenuLabel';
 import useClickAndDoubleClick from '@/hooks/useClickAndDoubleClick';
 
 // ----- store -----
-import { useConnectionStore, getConnectionList } from '@/pages/main/store/connection';
+import { getConnectionList, setConnectionList, useConnectionStore } from '@/pages/main/store/connection';
+import {
+  ConnectionSortMode,
+  groupConnectionList,
+  sortConnectionList,
+} from '@/pages/main/store/connection/utils';
 import { setMainPageActiveTab } from '@/pages/main/store/main';
 import { setCurrentConnectionDetails } from '@/pages/main/workspace/store/common';
 import { getOpenConsoleList } from '@/pages/main/workspace/store/console';
@@ -37,6 +43,12 @@ const ConnectionsPage = () => {
   const volatileRef = useRef<any>();
   const [connectionActiveId, setConnectionActiveId] = useState<IConnectionListItem['id'] | null>(null);
   const [connectionDetail, setConnectionDetail] = useState<IConnectionDetails | null | undefined>(null);
+  const [sortMode, setSortMode] = useState<ConnectionSortMode>('manual');
+  const [dragConnectionId, setDragConnectionId] = useState<IConnectionListItem['id'] | null>(null);
+
+  const connectionGroups = useMemo(() => {
+    return groupConnectionList(connectionList || [], sortMode);
+  }, [connectionList, sortMode]);
 
   // 处理列表单击事件
   const handleMenuItemSingleClick = (t: IConnectionListItem) => {
@@ -98,7 +110,7 @@ const ConnectionsPage = () => {
         getConnectionList();
         setConnectionActiveId(res);
       });
-    }
+    };
 
     return [
       {
@@ -119,36 +131,108 @@ const ConnectionsPage = () => {
     ];
   };
 
+  const handleDragConnection = (targetConnection: IConnectionListItem) => {
+    if (!connectionList || !dragConnectionId || dragConnectionId === targetConnection.id) {
+      return;
+    }
+
+    // Manual mode uses the backend-returned order as the source of truth.
+    const sortedConnectionList = sortConnectionList(connectionList, 'manual');
+    const currentIndex = sortedConnectionList.findIndex((item) => item.id === dragConnectionId);
+    const targetIndex = sortedConnectionList.findIndex((item) => item.id === targetConnection.id);
+
+    if (currentIndex === -1 || targetIndex === -1) {
+      return;
+    }
+
+    const nextConnectionList = [...sortedConnectionList];
+    const [dragItem] = nextConnectionList.splice(currentIndex, 1);
+    nextConnectionList.splice(targetIndex, 0, dragItem);
+    setConnectionList(nextConnectionList);
+    setSortMode('manual');
+    // Optimistically update the list, then roll back from the server if saving fails.
+    connectionService.updateSort({ idList: nextConnectionList.map((item) => item.id) }).catch(() => {
+      getConnectionList();
+    });
+  };
+
+  const switchSortMode = () => {
+    // Cycle through manual order and temporary name sorts without overwriting the saved order.
+    const nextSortMode = sortMode === 'manual' ? 'asc' : sortMode === 'asc' ? 'desc' : 'manual';
+    setSortMode(nextSortMode);
+  };
+
+  const sortTooltip = useMemo(() => {
+    if (sortMode === 'manual') {
+      return i18n('connection.sort.asc');
+    }
+
+    if (sortMode === 'asc') {
+      return i18n('connection.sort.desc');
+    }
+
+    return i18n('connection.sort.manual');
+  }, [sortMode]);
+
   const renderConnectionMenuList = () => {
-    return connectionList?.map((t) => {
+    return connectionGroups.map((group) => {
       return (
-        <Dropdown
-          key={t.id}
-          trigger={['contextMenu']}
-          menu={{
-            items: createDropdownItems(t),
-          }}
-        >
-          <div
-            className={classnames(styles.menuItem, {
-              [styles.menuItemActive]: connectionActiveId === t.id,
-            })}
-            onClick={() => {
-              handleClickConnectionMenu(t);
-            }}
-          >
-            <div className={classnames(styles.menuItemsTitle)}>
-              <span className={styles.envTag} style={{ background: t.environment.color.toLocaleLowerCase() }} />
-              <span className={styles.databaseTypeIcon}>
-                {<Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />}
-              </span>
-              <span className={styles.name}>{t.alias}</span>
-              {/* <Tag color={t.environment.color.toLocaleLowerCase()}>
-              {t.environment.shortName}
-            </Tag> */}
-            </div>
+        <div key={group.key} className={styles.connectionGroup}>
+          <div className={styles.groupTitle}>
+            <span
+              className={styles.envTag}
+              style={{ background: group.environment?.color?.toLocaleLowerCase() }}
+            />
+            <span className={styles.groupName}>{group.environment?.name || i18n('connection.group.unknown')}</span>
+            <span className={styles.groupCount}>{group.connections.length}</span>
           </div>
-        </Dropdown>
+          {group.connections.map((t) => {
+            return (
+              <Dropdown
+                key={t.id}
+                trigger={['contextMenu']}
+                menu={{
+                  items: createDropdownItems(t),
+                }}
+              >
+                <div
+                  draggable={sortMode === 'manual'}
+                  className={classnames(styles.menuItem, {
+                    [styles.menuItemActive]: connectionActiveId === t.id,
+                    [styles.menuItemDragging]: dragConnectionId === t.id,
+                  })}
+                  onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = 'move';
+                    setDragConnectionId(t.id);
+                  }}
+                  onDragOver={(event) => {
+                    if (sortMode === 'manual') {
+                      event.preventDefault();
+                    }
+                  }}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    handleDragConnection(t);
+                  }}
+                  onDragEnd={() => {
+                    setDragConnectionId(null);
+                  }}
+                  onClick={() => {
+                    handleClickConnectionMenu(t);
+                  }}
+                >
+                  <div className={classnames(styles.menuItemsTitle)}>
+                    {sortMode === 'manual' && <DragOutlined className={styles.dragIcon} />}
+                    <span className={styles.databaseTypeIcon}>
+                      {<Iconfont className={styles.menuItemIcon} code={databaseMap[t.type]?.icon} />}
+                    </span>
+                    <span className={styles.name}>{t.alias}</span>
+                  </div>
+                </div>
+              </Dropdown>
+            );
+          })}
+        </div>
       );
     });
   };
@@ -168,7 +252,25 @@ const ConnectionsPage = () => {
     <>
       <div className={styles.box}>
         <div ref={volatileRef} className={styles.layoutLeft}>
-          <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
+          <div className={styles.pageHeader}>
+            <div className={styles.pageTitle}>{i18n('connection.title.connections')}</div>
+            <Tooltip title={sortTooltip}>
+              <Button
+                type="text"
+                size="small"
+                className={styles.sortButton}
+                onClick={switchSortMode}
+              >
+                {sortMode === 'manual' ? (
+                  <DragOutlined />
+                ) : sortMode === 'asc' ? (
+                  <SortAscendingOutlined />
+                ) : (
+                  <SortDescendingOutlined />
+                )}
+              </Button>
+            </Tooltip>
+          </div>
           <div className={styles.menuBox}>{renderConnectionMenuList()}</div>
           {connectionActiveId && (
             <Button

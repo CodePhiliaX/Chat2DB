@@ -7,6 +7,7 @@ import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSortUpdateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.ServicePage;
@@ -71,6 +72,13 @@ public interface DataSourceService {
      * @return
      */
     Long copyByIdWithPermission(@NotNull Long id);
+
+    /**
+     * 更新当前用户的数据源连接排序
+     *
+     * @param param
+     */
+    void updateSortWithPermission(DataSourceSortUpdateParam param);
 
     /**
      * 分页查询数据源列表

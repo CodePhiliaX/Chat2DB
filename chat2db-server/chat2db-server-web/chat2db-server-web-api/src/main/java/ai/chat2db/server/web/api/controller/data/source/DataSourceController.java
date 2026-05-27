@@ -9,6 +9,7 @@ import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceSelector;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSortUpdateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.domain.api.service.ConsoleService;
 import ai.chat2db.server.domain.api.service.DataSourceService;
@@ -30,6 +31,7 @@ import ai.chat2db.server.web.api.controller.data.source.request.DataSourceCloneR
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceCloseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceCreateRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceQueryRequest;
+import ai.chat2db.server.web.api.controller.data.source.request.DataSourceSortUpdateRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceTestRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceUpdateRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.SSHTestRequest;
@@ -231,6 +233,19 @@ public class DataSourceController {
     @PostMapping("/datasource/clone")
     public DataResult<Long> copy(@RequestBody DataSourceCloneRequest request) {
         return DataResult.of(dataSourceService.copyByIdWithPermission(request.getId()));
+    }
+
+    /**
+     * 更新当前用户的数据源连接排序
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/datasource/sort")
+    public ActionResult updateSort(@RequestBody DataSourceSortUpdateRequest request) {
+        DataSourceSortUpdateParam param = dataSourceWebConverter.sortUpdateReq2param(request);
+        dataSourceService.updateSortWithPermission(param);
+        return ActionResult.isSuccess();
     }
 
     /**

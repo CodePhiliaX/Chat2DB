@@ -9,11 +9,13 @@ import ai.chat2db.server.domain.api.param.ConsoleConnectParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceCreateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePageQueryParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourcePreConnectParam;
+import ai.chat2db.server.domain.api.param.datasource.DataSourceSortUpdateParam;
 import ai.chat2db.server.domain.api.param.datasource.DataSourceUpdateParam;
 import ai.chat2db.server.web.api.controller.data.source.request.ConsoleCloseRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.ConsoleConnectRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceCreateRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceQueryRequest;
+import ai.chat2db.server.web.api.controller.data.source.request.DataSourceSortUpdateRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceTestRequest;
 import ai.chat2db.server.web.api.controller.data.source.request.DataSourceUpdateRequest;
 import ai.chat2db.server.web.api.controller.data.source.vo.DataSourceVO;
@@ -61,6 +63,14 @@ public abstract class DataSourceWebConverter {
      * @return
      */
     public abstract DataSourcePageQueryParam queryReq2param(DataSourceQueryRequest request);
+
+    /**
+     * 参数转换
+     *
+     * @param request
+     * @return
+     */
+    public abstract DataSourceSortUpdateParam sortUpdateReq2param(DataSourceSortUpdateRequest request);
 
     /**
      * 模型转换
