@@ -14,7 +14,7 @@
 [![Reddit][reddit-image]][reddit-url]
 [![Gmail][gmail-image]][gmail-url]
 
-[Modelscope-image]: https://modelscope.oss-cn-beijing.aliyuncs.com/modelscope.gif
+[Modelscope-image]: https://img.shields.io/badge/modelscope-blue?style=flat-square\&logo=modelscope
 [Modelscope-url]: https://modelscope.cn/
 [readmex-image]: https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg
 [readmex-url]: https://readmex.com/CodePhiliaX/Chat2DB
