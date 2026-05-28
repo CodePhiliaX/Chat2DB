@@ -18,7 +18,10 @@ const ExecuteSqlStatementModal = () => {
   const [open, setOpen] = useState(false);
   const [params, setParams] = useState<IExecuteSqlStatementModalParams | null>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [fileContent, setFileContent] = useState<string>('');
   const [progress, setProgress] = useState<number>(0);
+  const [processedCount, setProcessedCount] = useState<number>(0);
+  const [totalStatements, setTotalStatements] = useState<number>(0);
   const [importing, setImporting] = useState<boolean>(false);
   const [logs, setLogs] = useState<string[]>([]);
   const executedCallbackRef = useRef<IExecuteSqlStatementModalParams['executedCallback']>();
@@ -28,6 +31,9 @@ const ExecuteSqlStatementModal = () => {
     if (!open) {
       setFile(null);
       setProgress(0);
+      setProcessedCount(0);
+      setTotalStatements(0);
+      setFileContent('');
       setLogs([]);
       setImporting(false);
     }
@@ -54,6 +60,9 @@ const ExecuteSqlStatementModal = () => {
     setImporting(true);
     setLogs([]);
     setProgress(0);
+    setProcessedCount(0);
+    const totalCount = estimateStatementCount(fileContent);
+    setTotalStatements(totalCount);
     addLog('start------');
 
     try {
@@ -64,7 +73,7 @@ const ExecuteSqlStatementModal = () => {
         schemaName: params.schemaName,
       });
       addLog(`Task created: ${taskId}`);
-      startPolling(taskId);
+      startPolling(taskId, totalCount);
     } catch (error: any) {
       addLog(`Error: ${error.message}`);
       setImporting(false);
@@ -72,20 +81,31 @@ const ExecuteSqlStatementModal = () => {
     }
   };
 
-  const startPolling = (taskId: number) => {
+  const startPolling = (taskId: number, totalCount: number) => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
     }
     pollingRef.current = setInterval(async () => {
       try {
         const task = await taskService.getTask({ id: taskId });
-        const processedCount = parseInt(task.taskProgress || '0', 10);
-        setProgress(processedCount);
-        addLog(`Progress: ${processedCount} statements executed`);
+        const latestProcessedCount = parseInt(task.taskProgress || '0', 10) || 0;
+        setProcessedCount(latestProcessedCount);
+        setProgress((prev) => {
+          if (totalCount > 0) {
+            return Math.min(Math.round((latestProcessedCount / totalCount) * 100), 99);
+          }
+          return prev;
+        });
+        addLog(
+          totalCount > 0
+            ? `Progress: ${latestProcessedCount}/${totalCount} statements executed`
+            : `Progress: ${latestProcessedCount} statements executed`,
+        );
         if (task.taskStatus === 'FINISH') {
           clearInterval(pollingRef.current!);
           pollingRef.current = null;
           setImporting(false);
+          setProgress(100);
           addLog('Execute completed successfully');
           message.success(i18n('common.text.importSuccess'));
           executedCallbackRef.current?.();
@@ -117,6 +137,34 @@ const ExecuteSqlStatementModal = () => {
     }
   };
 
+  const estimateStatementCount = (content: string) => {
+    if (!content) {
+      return 0;
+    }
+    let count = 0;
+    const lines = content.split('\n');
+    let current = '';
+    for (const line of lines) {
+      current += `${line}\n`;
+      if (line.trim().endsWith(';')) {
+        const sql = current.trim();
+        if (sql && !sql.startsWith('--')) {
+          count += 1;
+        }
+        current = '';
+      }
+    }
+    const remaining = current.trim();
+    if (remaining && !remaining.startsWith('--')) {
+      count += 1;
+    }
+    return count;
+  };
+
+  const readSelectedFileContent = async (uploadFile: File) => {
+    setFileContent(await uploadFile.text());
+  };
+
   return !!params && (
     <Modal
       title={i18n('workspace.menu.executeSqlStatement')}
@@ -140,6 +188,7 @@ const ExecuteSqlStatementModal = () => {
           showUploadList={false}
           beforeUpload={(uploadFile: File) => {
             setFile(uploadFile);
+            readSelectedFileContent(uploadFile).catch(() => undefined);
             return false;
           }}
         >
@@ -168,7 +217,16 @@ const ExecuteSqlStatementModal = () => {
           </div>
         ))}
       </div>
-      <Progress percent={progress > 0 ? Math.min(progress, 100) : 0} status={importing ? 'active' : 'normal'} />
+      <Progress
+        percent={Math.min(progress, 100)}
+        status={importing ? 'active' : 'normal'}
+        showInfo={totalStatements > 0 || !importing}
+      />
+      <div style={{ marginTop: 6, color: 'var(--color-text-secondary)', fontSize: 12 }}>
+        {totalStatements > 0
+          ? `${processedCount}/${totalStatements} statements`
+          : `${processedCount} statements`}
+      </div>
     </Modal>
   );
 };
