@@ -65,7 +65,7 @@ export const IntelligentEditorContext = createContext<IIntelligentEditorContext>
 
 interface IAiCompletionContext {
   message: string;
-  ext: string;
+  ext?: string;
   replaceRange: any;
   originalText: string;
 }
@@ -306,7 +306,6 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
         }
       : findStatementBoundary(currentSql, cursorOffset);
     const statementSql = selectedText || currentSql.slice(boundary.start, boundary.end);
-    const cursorOffsetInStatement = Math.max(0, Math.min(cursorOffset - boundary.start, statementSql.length));
     const startPosition = model.getPositionAt(boundary.start);
     const endPosition = model.getPositionAt(boundary.end);
     const replaceRange = new monaco.Range(
@@ -317,24 +316,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     );
 
     return {
-      message: [
-        `当前语句:`,
-        statementSql || '(空)',
-        '',
-        `语句内光标前内容:`,
-        statementSql.slice(0, cursorOffsetInStatement) || '(空)',
-        '',
-        `语句内光标后内容:`,
-        statementSql.slice(cursorOffsetInStatement) || '(空)',
-      ].join('\n'),
-      ext: JSON.stringify({
-        mode: 'FULL_SQL',
-        scope: selectedText ? 'SELECTION' : 'CURRENT_STATEMENT',
-        statementStartOffset: boundary.start,
-        statementEndOffset: boundary.end,
-        cursorOffsetInStatement,
-        selectedText,
-      }),
+      message: [`${selectedText ? '选中 SQL' : '当前语句'}:`, statementSql || '(空)'].join('\n'),
       replaceRange,
       originalText: statementSql,
     };

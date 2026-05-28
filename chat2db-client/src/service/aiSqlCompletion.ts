@@ -6,7 +6,7 @@ import { IBoundInfo } from '@/typings';
 export interface IAiSqlCompletionParams {
   boundInfo: IBoundInfo;
   message: string;
-  ext: string;
+  ext?: string;
 }
 
 export interface IAiSqlCompletionTask {
