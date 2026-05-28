@@ -4,7 +4,8 @@
 </div>
 
 <div align="center">
-  
+
+[![Modelscope][Modelscope-image]][Modelscope-url]
 [![ReadmeX][readmex-image]][readmex-url]
 [![Discord][discord-image]][discord-url]
 [![Twitter][twitter-image]][twitter-url]
@@ -13,6 +14,8 @@
 [![Reddit][reddit-image]][reddit-url]
 [![Gmail][gmail-image]][gmail-url]
 
+[Modelscope-image]: https://g.alicdn.com/sail-web/maas/2.13.80/favicon/128.ico
+[Modelscope-url]: https://modelscope.cn/
 [readmex-image]: https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg
 [readmex-url]: https://readmex.com/CodePhiliaX/Chat2DB
 [discord-image]: https://img.shields.io/badge/-Join%20us%20on%20Discord-%237289DA.svg?style=flat&logo=discord&logoColor=white
