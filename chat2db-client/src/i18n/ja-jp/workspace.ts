@@ -16,6 +16,8 @@ export default {
   'workspace.menu.createDatabase': 'データベースを作成',
   'workspace.menu.deleteDatabase': 'データベースを削除',
   'workspace.menu.createSchema': 'スキーマを作成',
+  'workspace.menu.exportSchemaDoc': 'データ構造をエクスポート',
+  'workspace.menu.executeSqlStatement': 'SQL文を実行',
   'workspace.menu.deprecatedTable': 'テーブルを非推奨にする',
   'workspace.menu.restoreTable': '非推奨テーブルを復元',
   'workspace.menu.deleteTablePlaceHolder': '削除するテーブル名を入力してください',

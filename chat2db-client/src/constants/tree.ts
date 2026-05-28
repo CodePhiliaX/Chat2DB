@@ -55,6 +55,7 @@ export enum OperationColumn {
   ImportData = 'importData', // 导入数据
   ExportData = 'exportData', // 导出数据
   ExportSchemaDoc = 'exportSchemaDoc', // 导出数据结构
+  ExecuteSqlStatement = 'executeSqlStatement', // 执行sql语句
   DeprecatedTable = 'deprecatedTable', // 废弃表
   RestoreTable = 'restoreTable', // 恢复废弃表
   GenerateData = 'generateData', // 生成数据

@@ -59,6 +59,9 @@ public class ImportBizService {
     public DataResult<Long> importData(MultipartFile file, DataImportRequest request) {
         Assert.notNull(file, "file can not be null");
         Assert.notBlank(request.getTableName(), "tableName can not be blank");
+        if ("SQL".equalsIgnoreCase(request.getFileType())) {
+            throw new BusinessException("dataSource.importSqlNotSupported");
+        }
 
         DataResult<Long> dataResult = createImportTask(request);
 

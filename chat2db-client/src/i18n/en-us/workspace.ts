@@ -47,6 +47,7 @@ export default {
   'workspace.menu.exportData': 'Export Data',
   'workspace.menu.generateData': 'Generate Data',
   'workspace.menu.exportSchemaDoc': 'Export Schema Doc',
+  'workspace.menu.executeSqlStatement': 'Execute SQL Statement',
   'workspace.menu.truncateTable': 'Truncate Table',
   'workspace.menu.deprecatedTable': 'Deprecate Table',
   'workspace.menu.restoreTable': 'Restore Deprecated Table',

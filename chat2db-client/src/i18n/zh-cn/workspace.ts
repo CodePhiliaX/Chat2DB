@@ -47,6 +47,7 @@ export default {
   'workspace.menu.exportData': '导出数据',
   'workspace.menu.generateData': '生成数据',
   'workspace.menu.exportSchemaDoc': '导出数据结构',
+  'workspace.menu.executeSqlStatement': '执行sql语句',
   'workspace.menu.deprecatedTable': '废弃表',
   'workspace.menu.restoreTable': '恢复废弃表',
   'workspace.menu.deleteTablePlaceHolder': '请输入你要删除的表名',

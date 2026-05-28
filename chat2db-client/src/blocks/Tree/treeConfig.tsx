@@ -195,6 +195,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
     },
     operationColumn: [
       OperationColumn.CreateConsole,
+      OperationColumn.ExecuteSqlStatement,
+      OperationColumn.ExportSchemaDoc,
       OperationColumn.CreateSchema,
       // OperationColumn.CreateTable,
       OperationColumn.CopyName,
@@ -301,7 +303,6 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       OperationColumn.CreateConsole,
       OperationColumn.ViewAllTable,
       OperationColumn.ViewERDiagram,
-      OperationColumn.ExportSchemaDoc,
       OperationColumn.CreateTable,
       OperationColumn.Refresh,
     ],

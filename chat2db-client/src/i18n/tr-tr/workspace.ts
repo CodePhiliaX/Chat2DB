@@ -16,6 +16,8 @@ export default {
   'workspace.menu.createDatabase': 'Veritabanı Oluştur',
   'workspace.menu.deleteDatabase': 'Veritabanını Sil',
   'workspace.menu.createSchema': 'Şema Oluştur',
+  'workspace.menu.exportSchemaDoc': 'Şema Dokümanı Dışa Aktar',
+  'workspace.menu.executeSqlStatement': 'SQL İfadesini Çalıştır',
   'workspace.menu.deprecatedTable': 'Tabloyu Kullanımdan Kaldır',
   'workspace.menu.restoreTable': 'Kullanımdan Kaldırılan Tabloyu Geri Yükle',
   'workspace.menu.deleteTablePlaceHolder': 'Silmek istediğiniz tablonun adını giriniz',

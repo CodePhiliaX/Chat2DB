@@ -80,6 +80,6 @@ public class SqlImportStrategy implements ImportStrategy {
 
     @Override
     public boolean supports(String fileType) {
-        return "SQL".equalsIgnoreCase(fileType);
+        return false;
     }
 }

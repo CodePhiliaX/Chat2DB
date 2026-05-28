@@ -18,7 +18,7 @@ public class DataImportRequest extends DataSourceBaseRequest {
     private String tableName;
 
     /**
-     * 文件类型：CSV, XLSX, XLS, SQL
+     * 文件类型：CSV, XLSX, XLS
      */
     @NotNull
     private String fileType;

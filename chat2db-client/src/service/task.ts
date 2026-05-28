@@ -48,6 +48,13 @@ export interface IPreviewHeadersParams {
   schemaName?: string;
 }
 
+export interface IExecuteSqlFileParams {
+  file: File;
+  dataSourceId?: number;
+  databaseName?: string;
+  schemaName?: string;
+}
+
 export interface ITableColumnInfo {
   name: string;
   type: string;
@@ -94,12 +101,14 @@ const previewFileHeaders = (params: IPreviewHeadersParams): Promise<IPreviewHead
     method: 'POST',
     credentials: 'include',
     body: formData,
-  }).then((res) => res.json()).then((res) => {
-    if (res.success) {
-      return res.data;
-    }
-    throw new Error(res.errorMessage || 'Preview failed');
-  });
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.success) {
+        return res.data;
+      }
+      throw new Error(res.errorMessage || 'Preview failed');
+    });
 };
 
 const importData = (params: IImportDataParams): Promise<number> => {
@@ -117,18 +126,46 @@ const importData = (params: IImportDataParams): Promise<number> => {
     method: 'POST',
     credentials: 'include',
     body: formData,
-  }).then((res) => res.json()).then((res) => {
-    if (res.success) {
-      return res.data;
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.success) {
+        return res.data;
+      }
+      throw new Error(res.errorMessage || 'Import failed');
+    });
+};
+
+const executeSqlFile = (params: IExecuteSqlFileParams): Promise<number> => {
+  const { file, ...restParams } = params;
+  const formData = new FormData();
+  formData.append('file', file);
+  Object.keys(restParams).forEach((key) => {
+    const value = (restParams as any)[key];
+    if (value !== undefined && value !== null) {
+      formData.append(key, String(value));
     }
-    throw new Error(res.errorMessage || 'Import failed');
   });
+
+  return fetch('/api/sql/execute_file', {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      if (res.success) {
+        return res.data;
+      }
+      throw new Error(res.errorMessage || 'Execute SQL failed');
+    });
 };
 
 export default {
   exportResultData,
   exportSchemaDoc,
   importData,
+  executeSqlFile,
   getTask,
   previewFileHeaders,
 };

@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Modal, Upload, Select, message, Button, Progress, Steps, Table, Space, Spin, Radio, Popconfirm } from 'antd';
+import { Modal, Upload, Select, message, Button, Progress, Steps, Table, Spin, Radio, Popconfirm } from 'antd';
 import { UploadOutlined, BulbFilled } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import i18n from '@/i18n';
-import taskService, { IPreviewHeadersResult, ITableColumnInfo, IAutoMapping } from '@/service/task';
+import taskService, { IPreviewHeadersResult } from '@/service/task';
 import { setOpenImportDataModal } from '@/pages/main/workspace/store/modal';
-import { setPendingAiChat, setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
-import { IFieldMappingResult } from '@/pages/main/workspace/store/common';
+import { setPendingAiChat, setCurrentWorkspaceExtend, IFieldMappingResult } from '@/pages/main/workspace/store/common';
 
 const { Dragger } = Upload;
 const { Step } = Steps;
@@ -136,37 +135,6 @@ const ImportDataModal = () => {
   const handleNextToMapping = async () => {
     if (!file || !params) {
       message.error(i18n('workspace.table.import.selectFile'));
-      return;
-    }
-
-    // SQL 文件跳过映射和模式选择，直接开始导入
-    if (fileType === 'SQL') {
-      setImporting(true);
-      setImportModalVisible(true);
-      setImportProgress(0);
-      setLogs([]);
-      addLog('start------');
-
-      try {
-        const taskId = await taskService.importData({
-          file,
-          tableName: params.tableName,
-          fileType,
-          dataSourceId: params.dataSourceId,
-          databaseName: params.databaseName,
-          schemaName: params.schemaName,
-          importMode: 'INSERT',
-        } as any);
-
-        addLog(`Task created: ${taskId}`);
-        startImportPolling(taskId);
-        setCurrentStep(3);
-      } catch (error: any) {
-        addLog(`Error: ${error.message}`);
-        message.error(i18n('common.text.importFailed'));
-        setImporting(false);
-        setImportModalVisible(false);
-      }
       return;
     }
 
@@ -325,7 +293,6 @@ const ImportDataModal = () => {
     { label: i18n('workspace.table.import.fileType.csv'), value: 'CSV' },
     { label: i18n('workspace.table.import.fileType.xlsx'), value: 'XLSX' },
     { label: i18n('workspace.table.import.fileType.xls'), value: 'XLS' },
-    { label: i18n('workspace.table.import.fileType.sql'), value: 'SQL' },
   ];
 
   // 字段映射表格列定义

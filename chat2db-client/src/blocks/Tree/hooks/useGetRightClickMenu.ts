@@ -491,6 +491,24 @@ export const useGetRightClickMenu = (props: IProps) => {
         },
       },
 
+      [OperationColumn.ExecuteSqlStatement]: {
+        text: i18n('workspace.menu.executeSqlStatement'),
+        icon: '\ue619',
+        handle: () => {
+          const { openExecuteSqlStatementModal } = useWorkspaceStore.getState();
+          openExecuteSqlStatementModal?.({
+            dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+            databaseName: treeNodeData.extraParams?.databaseName,
+            schemaName: treeNodeData.extraParams?.schemaName,
+            executedCallback: () => {
+              loadData?.({
+                refresh: true,
+              });
+            },
+          });
+        },
+      },
+
       // 废弃表
       [OperationColumn.DeprecatedTable]: {
         text: i18n('workspace.menu.deprecatedTable'),
@@ -527,7 +545,7 @@ export const useGetRightClickMenu = (props: IProps) => {
           const { openDataGenerationModal } = useWorkspaceStore.getState();
           openDataGenerationModal?.({
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-            databaseName: treeNodeData.extraParams?.databaseName!,
+            databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
             tableName: treeNodeData.name!,
           });
@@ -913,6 +931,24 @@ export const getRightClickMenu = (props: IProps) => {
       },
     },
 
+    [OperationColumn.ExecuteSqlStatement]: {
+      text: i18n('workspace.menu.executeSqlStatement'),
+      icon: '\ue619',
+      handle: () => {
+        const { openExecuteSqlStatementModal } = useWorkspaceStore.getState();
+        openExecuteSqlStatementModal?.({
+          dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+          databaseName: treeNodeData.extraParams?.databaseName,
+          schemaName: treeNodeData.extraParams?.schemaName,
+          executedCallback: () => {
+            loadData?.({
+              refresh: true,
+            });
+          },
+        });
+      },
+    },
+
     // 废弃表
     [OperationColumn.DeprecatedTable]: {
       text: i18n('workspace.menu.deprecatedTable'),
@@ -959,7 +995,7 @@ export const getRightClickMenu = (props: IProps) => {
         const { openDataGenerationModal } = useWorkspaceStore.getState();
         openDataGenerationModal?.({
           dataSourceId: treeNodeData.extraParams!.dataSourceId!,
-          databaseName: treeNodeData.extraParams?.databaseName!,
+          databaseName: treeNodeData.extraParams?.databaseName,
           schemaName: treeNodeData.extraParams?.schemaName,
           tableName: treeNodeData.name!,
         });
