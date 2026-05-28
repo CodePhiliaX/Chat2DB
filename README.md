@@ -14,7 +14,7 @@
 [![Reddit][reddit-image]][reddit-url]
 [![Gmail][gmail-image]][gmail-url]
 
-[Modelscope-image]: https://cdn.chat2db-ai.com/download/modelscope.png
+[Modelscope-image]:  https://img.shields.io/badge/Modelscope
 [Modelscope-url]: https://modelscope.cn/
 [readmex-image]: https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg
 [readmex-url]: https://readmex.com/CodePhiliaX/Chat2DB
