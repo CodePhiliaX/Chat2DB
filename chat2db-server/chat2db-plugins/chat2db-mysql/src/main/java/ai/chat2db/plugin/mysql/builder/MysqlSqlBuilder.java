@@ -2,8 +2,10 @@ package ai.chat2db.plugin.mysql.builder;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,13 +24,16 @@ import ai.chat2db.spi.model.TableIndex;
 import ai.chat2db.spi.MetaData;
 import cn.hutool.core.util.ArrayUtil;
 
-import java.util.List;
-
 public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
 
     // 添加列的方法
     @Override
     protected void appendColumns(StringBuilder script, List<TableColumn> columns) {
+        Set<String> primaryKeyColumns = getPrimaryKeyColumns(columns);
+        boolean hasPrimaryKeyIndexMetadata = columns.stream()
+                .anyMatch(column -> Boolean.TRUE.equals(column.getPrimaryKey())
+                        && StringUtils.isNotBlank(column.getPrimaryKeyName()));
+        boolean suppressInlinePrimaryKey = hasPrimaryKeyIndexMetadata || primaryKeyColumns.size() > 1;
         for (TableColumn column : columns) {
             String columnType = column.getDataType();
             if (StringUtils.isBlank(columnType)) {
@@ -41,8 +46,25 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
             if (typeEnum == null) {
                 continue;
             }
+            Boolean originalPrimaryKey = column.getPrimaryKey();
+            if (suppressInlinePrimaryKey && primaryKeyColumns.contains(column.getName())) {
+                column.setPrimaryKey(false);
+            }
             script.append("\t").append(typeEnum.buildCreateColumnSql(column)).append(",\n");
+            if (suppressInlinePrimaryKey && primaryKeyColumns.contains(column.getName())) {
+                column.setPrimaryKey(originalPrimaryKey);
+            }
         }
+    }
+
+    private Set<String> getPrimaryKeyColumns(List<TableColumn> columns) {
+        Set<String> primaryKeyColumns = new HashSet<>();
+        for (TableColumn column : columns) {
+            if (Boolean.TRUE.equals(column.getPrimaryKey()) && StringUtils.isNotBlank(column.getName())) {
+                primaryKeyColumns.add(column.getName());
+            }
+        }
+        return primaryKeyColumns;
     }
 
     // 添加索引的方法

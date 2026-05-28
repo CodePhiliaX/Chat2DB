@@ -136,7 +136,6 @@ public class TableServiceImpl implements TableService {
         }
         Map<String, TableColumn> columnMap = columns.stream()
                 .collect(Collectors.toMap(TableColumn::getName, Function.identity()));
-        List<TableIndex> indexes = new ArrayList<>();
         for (TableIndex tableIndex : tableIndices) {
             if ("Primary".equalsIgnoreCase(tableIndex.getType())) {
                 List<TableIndexColumn> indexColumns = tableIndex.getColumnList();
@@ -150,11 +149,8 @@ public class TableServiceImpl implements TableService {
                         }
                     }
                 }
-            } else {
-                indexes.add(tableIndex);
             }
         }
-        table.setIndexList(indexes);
     }
 
     @Override
@@ -275,6 +271,15 @@ public class TableServiceImpl implements TableService {
         List<TableIndexColumn> tableIndexColumns = keyIndex.getColumnList();
         if (tableIndexColumns == null) {
             tableIndexColumns = new ArrayList<>();
+        }
+        boolean exists = tableIndexColumns.stream()
+                .anyMatch(indexColumn -> StringUtils.equalsIgnoreCase(indexColumn.getColumnName(), column.getName()));
+        if (exists) {
+            keyIndex.setColumnList(tableIndexColumns.stream()
+                    .sorted(Comparator.comparing(TableIndexColumn::getOrdinalPosition))
+                    .collect(Collectors.toList()));
+            newTable.setIndexList(indexes);
+            return;
         }
         TableIndexColumn indexColumn = new TableIndexColumn();
         indexColumn.setColumnName(column.getName());

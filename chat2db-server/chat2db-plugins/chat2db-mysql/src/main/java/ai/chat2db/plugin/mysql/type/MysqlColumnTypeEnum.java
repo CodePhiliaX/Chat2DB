@@ -297,8 +297,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
         }
 
 
-        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE,TINYINT).contains(type)) {
-            if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
+        if (Arrays.asList(DECIMAL, FLOAT, DOUBLE).contains(type)) {
+            if (column.getColumnSize() == null && column.getDecimalDigits() == null) {
                 return columnType;
             }
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
@@ -309,8 +309,8 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             }
         }
 
-        if (Arrays.asList(DECIMAL_UNSIGNED, FLOAT_UNSIGNED, DECIMAL_UNSIGNED,TINYINT_UNSIGNED).contains(type)) {
-            if (column.getColumnSize() == null || column.getDecimalDigits() == null) {
+        if (Arrays.asList(DECIMAL_UNSIGNED, FLOAT_UNSIGNED, DOUBLE_UNSIGNED).contains(type)) {
+            if (column.getColumnSize() == null && column.getDecimalDigits() == null) {
                 return columnType;
             }
             if (column.getColumnSize() != null && column.getDecimalDigits() == null) {
@@ -319,6 +319,16 @@ public enum MysqlColumnTypeEnum implements ColumnBuilder {
             if (column.getColumnSize() != null && column.getDecimalDigits() != null) {
                 return unsignedDataType(columnType, "(" + column.getColumnSize() + "," + column.getDecimalDigits() + ")");
             }
+        }
+
+        if (Arrays.asList(TINYINT, TINYINT_UNSIGNED).contains(type)) {
+            if (column.getColumnSize() == null || column.getColumnSize() == 0) {
+                return columnType;
+            }
+            if (TINYINT_UNSIGNED == type) {
+                return unsignedDataType(columnType, "(" + column.getColumnSize() + ")");
+            }
+            return StringUtils.join(columnType, "(", column.getColumnSize(), ")");
         }
 
         if(Arrays.asList(SET,ENUM).contains(type)){
