@@ -14,7 +14,7 @@
 [![Reddit][reddit-image]][reddit-url]
 [![Gmail][gmail-image]][gmail-url]
 
-[Modelscope-image]: https://g.alicdn.com/sail-web/maas/2.13.80/favicon/128.ico
+[Modelscope-image]: https://cdn.chat2db-ai.com/download/modelscope.png
 [Modelscope-url]: https://modelscope.cn/
 [readmex-image]: https://raw.githubusercontent.com/CodePhiliaX/resource-trusteeship/main/readmex.svg
 [readmex-url]: https://readmex.com/CodePhiliaX/Chat2DB
