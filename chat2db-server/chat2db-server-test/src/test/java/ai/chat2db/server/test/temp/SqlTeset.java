@@ -48,15 +48,15 @@ public class SqlTeset extends BaseTest {
         dataSourceCreateParam.setUrl(mysqlDialectProperties.getUrl());
         dataSourceCreateParam.setUser(mysqlDialectProperties.getUsername());
         dataSourceCreateParam.setPassword(mysqlDialectProperties.getPassword());
-        ActionResult actionResult = dataSourceService.preConnect(dataSourceCreateParam);
+        dataSourceService.preConnect(dataSourceCreateParam);
 
-        DataResult<String> createTable = tableService.createTableExample("MYSQL");
-        log.info("sql1：{}", createTable.getData());
+        String createTable = tableService.createTableExample("MYSQL");
+        log.info("sql1：{}", createTable);
         SqlAnalyseParam sqlAnalyseParam = new SqlAnalyseParam();
         sqlAnalyseParam.setDataSourceId(1L);
-        sqlAnalyseParam.setSql(createTable.getData());
+        sqlAnalyseParam.setSql(createTable);
         List<Sql> sqlList = new ArrayList<>();
-        sqlList.add(Sql.builder().sql(createTable.getData()).build());
+        sqlList.add(Sql.builder().sql(createTable).build());
 
         // 创建控制台
         ConsoleConnectParam consoleCreateParam = new ConsoleConnectParam();
@@ -70,7 +70,7 @@ public class SqlTeset extends BaseTest {
         templateQueryParam.setConsoleId(1L);
         templateQueryParam.setDataSourceId(1L);
         templateQueryParam.setSql("drop table test;");
-        ListResult<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
+        List<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
         log.info("result:{}", JSON.toJSONString(executeResult));
 
         // 创建表结构

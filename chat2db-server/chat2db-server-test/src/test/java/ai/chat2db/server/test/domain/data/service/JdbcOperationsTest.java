@@ -90,8 +90,8 @@ public class JdbcOperationsTest extends BaseTest {
             templateQueryParam.setConsoleId(consoleId);
             templateQueryParam.setDataSourceId(dataSourceId);
             templateQueryParam.setSql(dialectProperties.getInsertSql(TABLE_NAME, DATE, NUMBER, STRING));
-            ListResult<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
-            Assertions.assertTrue(executeResult.getSuccess(), "查询数据失败");
+            List<ExecuteResult> executeResult = dlTemplateService.execute(templateQueryParam);
+            Assertions.assertFalse(executeResult.isEmpty(), "查询数据失败");
             // Assertions.assertEquals(1, listResult.getUpdateCount(), "查询数据失败");
 
             // 查询
@@ -101,12 +101,12 @@ public class JdbcOperationsTest extends BaseTest {
             templateQueryParam.setSql(dialectProperties.getSelectSqlById(TABLE_NAME, 1L));
             executeResult = dlTemplateService.execute(templateQueryParam);
             log.info("返回数据:{}", JSON.toJSONString(executeResult));
-            Assertions.assertTrue(executeResult.getSuccess(), "查询数据失败");
-            List<Header> headerList = executeResult.getData().get(0).getHeaderList();
+            Assertions.assertFalse(executeResult.isEmpty(), "查询数据失败");
+            List<Header> headerList = executeResult.get(0).getHeaderList();
             Assertions.assertEquals(4L, headerList.size(), "查询数据失败");
             Assertions.assertEquals(dialectProperties.toCase("ID"), headerList.get(0).getName(), "查询数据失败");
 
-            List<List<String>> dataList = executeResult.getData().get(0).getDataList();
+            List<List<String>> dataList = executeResult.get(0).getDataList();
             Assertions.assertEquals(1L, dataList.size(), "查询数据失败");
             List<String> data1 = dataList.get(0);
             Assertions.assertEquals(Long.toString(NUMBER), data1.get(0), "查询数据失败");
@@ -123,8 +123,8 @@ public class JdbcOperationsTest extends BaseTest {
             templateQueryParam.setSql(dialectProperties.getTableNotFoundSqlById(TABLE_NAME));
             executeResult = dlTemplateService.execute(templateQueryParam);
             log.info("异常sql执行结果:{}", JSON.toJSONString(executeResult));
-            Assertions.assertFalse(executeResult.getSuccess(), "异常sql错误");
-            Assertions.assertNotNull(executeResult.getErrorMessage(), "异常sql错误");
+            Assertions.assertFalse(executeResult.get(0).getSuccess(), "异常sql错误");
+            Assertions.assertNotNull(executeResult.get(0).getMessage(), "异常sql错误");
 
             removeConnect();
         }

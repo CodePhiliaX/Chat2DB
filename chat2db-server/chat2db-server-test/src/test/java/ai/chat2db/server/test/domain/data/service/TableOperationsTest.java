@@ -108,10 +108,10 @@ public class TableOperationsTest extends BaseTest {
                 showCreateTableParam.setSchemaName("public");
             }
 
-            DataResult<String> createTable = tableService.showCreateTable(showCreateTableParam);
-            log.info("建表语句:{}", createTable.getData());
+            String createTable = tableService.showCreateTable(showCreateTableParam);
+            log.info("建表语句:{}", createTable);
             if (dialectProperties.getDbType() != "H2") {
-                Assertions.assertTrue(createTable.getData().contains(dialectProperties.toCase(TABLE_NAME)),
+                Assertions.assertTrue(createTable.contains(dialectProperties.toCase(TABLE_NAME)),
                     "查询表结构失败");
             }
 
@@ -126,7 +126,7 @@ public class TableOperationsTest extends BaseTest {
             List<Table> tableList = tableService.pageQuery(tablePageQueryParam, TableSelector.builder()
                 .columnList(Boolean.TRUE)
                 .indexList(Boolean.TRUE)
-                .build()).getData();
+                .build());
             log.info("分析数据返回{}", JSON.toJSONString(tableList));
             Assertions.assertNotEquals(0L, tableList.size(), "查询表结构失败");
             Table table = tableList.get(0);
@@ -193,7 +193,7 @@ public class TableOperationsTest extends BaseTest {
             tableList = tableService.pageQuery(tablePageQueryParam, TableSelector.builder()
                 .columnList(Boolean.TRUE)
                 .indexList(Boolean.TRUE)
-                .build()).getData();
+                .build());
             log.info("删除表后数据返回{}", JSON.toJSONString(tableList));
             Assertions.assertEquals(0L, tableList.size(), "查询表结构失败");
 
@@ -309,7 +309,7 @@ public class TableOperationsTest extends BaseTest {
                     .build()))
             .build());
         // 构建sql
-        List<Sql> buildTableSqlList = tableService.buildSql(null, newTable).getData();
+        List<Sql> buildTableSqlList = tableService.buildSql(null, newTable);
         log.info("创建表的结构语句是:{}", JSON.toJSONString(buildTableSqlList));
         for (Sql sql : buildTableSqlList) {
             DlExecuteParam templateQueryParam = new DlExecuteParam();
@@ -330,7 +330,7 @@ public class TableOperationsTest extends BaseTest {
         Table table = tableService.query(tablePageQueryParam, TableSelector.builder()
             .columnList(Boolean.TRUE)
             .indexList(Boolean.TRUE)
-            .build()).getData();
+            .build());
         log.info("分析数据返回{}", JSON.toJSONString(table));
         Assertions.assertNotNull(table, "查询表结构失败");
         Table oldTable = table;
@@ -341,7 +341,7 @@ public class TableOperationsTest extends BaseTest {
         // 构建sql
         log.info("oldTable：{}", JSON.toJSONString(oldTable));
         log.info("newTable：{}", JSON.toJSONString(newTable));
-        buildTableSqlList = tableService.buildSql(oldTable, newTable).getData();
+        buildTableSqlList = tableService.buildSql(oldTable, newTable);
         log.info("修改表结构是:{}", JSON.toJSONString(buildTableSqlList));
         Assertions.assertTrue(!buildTableSqlList.isEmpty(), "构建sql失败");
         //  重新去查询下 这样有2个对象
@@ -352,7 +352,7 @@ public class TableOperationsTest extends BaseTest {
         newTable = tableService.query(tablePageQueryParam, TableSelector.builder()
             .columnList(Boolean.TRUE)
             .indexList(Boolean.TRUE)
-            .build()).getData();
+            .build());
 
         // 修改字段
 
@@ -377,7 +377,7 @@ public class TableOperationsTest extends BaseTest {
         // 查询表结构变更
         log.info("oldTable：{}", JSON.toJSONString(oldTable));
         log.info("newTable：{}", JSON.toJSONString(newTable));
-        buildTableSqlList = tableService.buildSql(oldTable, newTable).getData();
+        buildTableSqlList = tableService.buildSql(oldTable, newTable);
         log.info("修改表结构是:{}", JSON.toJSONString(buildTableSqlList));
 
         // 删除表结构
@@ -400,7 +400,7 @@ public class TableOperationsTest extends BaseTest {
         List<Table> tableList = tableService.pageQuery(tablePageQueryParam, TableSelector.builder()
             .columnList(Boolean.TRUE)
             .indexList(Boolean.TRUE)
-            .build()).getData();
+            .build());
         log.info("删除表后数据返回{}", JSON.toJSONString(tableList));
         Assertions.assertEquals(0L, tableList.size(), "查询表结构失败");
     }
@@ -414,7 +414,7 @@ public class TableOperationsTest extends BaseTest {
         List<Table> tableList = tableService.pageQuery(tablePageQueryParam, TableSelector.builder()
             .columnList(Boolean.TRUE)
             .indexList(Boolean.TRUE)
-            .build()).getData();
+            .build());
 
         log.info("分析数据返回{}", JSON.toJSONString(tableList));
         Assertions.assertEquals(1L, tableList.size(), "查询表结构失败");

@@ -56,10 +56,10 @@ public class DatabaseOperationsTest extends BaseTest {
 
             DatabaseQueryAllParam databaseQueryAllParam = new DatabaseQueryAllParam();
             databaseQueryAllParam.setDataSourceId(dataSourceId);
-            ListResult<Database> databaseList = databaseService.queryAll(databaseQueryAllParam);
+            List<Database> databaseList = databaseService.queryAll(databaseQueryAllParam);
             log.info("查询数据库返回:{}", JSON.toJSONString(databaseList));
 
-            Database Database = databaseList.getData().stream()
+            Database Database = databaseList.stream()
                 .filter(database -> dialectProperties.getDatabaseName().equals(database.getName()))
                 .findFirst()
                 .orElse(null);
