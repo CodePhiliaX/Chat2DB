@@ -33,6 +33,7 @@ import { assign } from 'lodash';
 interface IProps {
   treeNodeData: ITreeNode;
   loadData: any;
+  refreshRootData?: (refresh?: boolean) => void;
 }
 
 interface IOperationColumnConfigItem {
@@ -90,7 +91,7 @@ const groupDataOperations = (list: IRightClickMenu[]): IRightClickMenu[] => {
 };
 
 export const useGetRightClickMenu = (props: IProps) => {
-  const { treeNodeData, loadData } = props;
+  const { treeNodeData, loadData, refreshRootData } = props;
 
   const { openCreateDatabaseModal, currentConnectionDetails } = useWorkspaceStore((state) => {
     return {
@@ -419,7 +420,11 @@ export const useGetRightClickMenu = (props: IProps) => {
         text: i18n('workspace.menu.deleteDatabase'),
         icon: '\ue6a7',
         handle: () => {
-          deleteDatabase(treeNodeData, loadData);
+          console.log('[Chat2DB][deleteDatabase] menu clicked', {
+            currentNode: treeNodeData,
+            parentNode: treeNodeData.parentNode,
+          });
+          deleteDatabase(treeNodeData, loadData, refreshRootData);
         },
       },
 

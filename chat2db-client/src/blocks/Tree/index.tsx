@@ -22,11 +22,13 @@ interface IProps {
   className?: string;
   treeData: ITreeNode[] | null;
   searchValue: string;
+  refreshRootData?: (refresh?: boolean) => void;
 }
 
 interface TreeNodeIProps {
   data: ITreeNode;
   level: number;
+  refreshRootData?: (refresh?: boolean) => void;
 }
 
 interface IContext {
@@ -110,7 +112,7 @@ const itemHeight = 26; // 每个 item 的高度
 const paddingCount = 2;
 
 const Tree = (props: IProps) => {
-  const { className, treeData: outerTreeData, searchValue } = props;
+  const { className, treeData: outerTreeData, searchValue, refreshRootData } = props;
   const [treeData, setTreeData] = useState<ITreeNode[] | null>(null);
   const [smoothTreeData, setSmoothTreeData] = useState<ITreeNode[]>([]);
   const [searchTreeData, setSearchTreeData] = useState<ITreeNode[] | null>(null); // 前端搜索结果
@@ -165,11 +167,12 @@ const Tree = (props: IProps) => {
   }, [searchTreeData]);
 
   const treeNodes = useMemo(() => {
-    const realNodeList = (backendSmoothTreeData || searchSmoothTreeData || smoothTreeData).slice(startIdx, startIdx + 50);
+    const realNodeList = (backendSmoothTreeData || searchSmoothTreeData || smoothTreeData)
+      .slice(startIdx, startIdx + 50);
     return realNodeList.map((item) => {
-      return <TreeNode key={item.uuid} level={item.level || 0} data={item} />;
+      return <TreeNode key={item.uuid} level={item.level || 0} data={item} refreshRootData={refreshRootData} />;
     });
-  }, [smoothTreeData, searchSmoothTreeData, backendSmoothTreeData, startIdx]);
+  }, [smoothTreeData, searchSmoothTreeData, backendSmoothTreeData, startIdx, refreshRootData]);
 
   useEffect(() => {
     if (searchValue && treeData) {
@@ -340,18 +343,40 @@ const Tree = (props: IProps) => {
 };
 
 const TreeNode = memo((props: TreeNodeIProps) => {
-  const { data: treeNodeData, level } = props;
+  const { data: treeNodeData, level, refreshRootData } = props;
   const [isLoading, setIsLoading] = useState(false);
   const indentArr = new Array(level).fill('indent');
   const { treeData, setTreeData, searchTreeData, setSearchTreeData } = useContext(Context);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // 加载数据
-  function loadData(_props?: { refresh: boolean; pageNo: number; lastDocId:number; treeNodeData?: ITreeNode }) {
+  function loadData(_props?: {
+    refresh?: boolean;
+    pageNo?: number;
+    lastDocId?: number;
+    treeNodeData?: ITreeNode;
+    deletedNodeName?: string;
+  }) {
     const _treeNodeData = _props?.treeNodeData || props.data;
     const treeNodeConfig: ITreeConfigItem = treeConfig[_treeNodeData.pretendNodeType || _treeNodeData.treeNodeType];
 
+    console.log('[Chat2DB][Tree.loadData] called', {
+      refresh: _props?.refresh || false,
+      pageNo: _props?.pageNo || 1,
+      nodeUuid: _treeNodeData.uuid,
+      nodeName: _treeNodeData.name,
+      nodeType: _treeNodeData.treeNodeType,
+      pretendNodeType: _treeNodeData.pretendNodeType,
+      fromNodeUuid: props.data.uuid,
+      fromNodeName: props.data.name,
+    });
+
     if (_props?.refresh) {
+      console.log('[Chat2DB][Tree.loadData] refresh requested', {
+        nodeUuid: _treeNodeData.uuid,
+        nodeName: _treeNodeData.name,
+        nodeType: _treeNodeData.treeNodeType,
+      });
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -380,23 +405,32 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       }, { signal })
       .then((res: any) => {
         if (signal?.aborted) return;
-        if (res.length || res.data) {
-          if (res.data) {
-            insertData(treeData!, _treeNodeData.uuid!, res.data, [treeData, setTreeData]);
+        console.log('[Chat2DB][Tree.loadData] getChildren success', {
+          refresh: _props?.refresh || false,
+          nodeUuid: _treeNodeData.uuid,
+          nodeName: _treeNodeData.name,
+          hasDataProperty: !!res?.data,
+          resultLength: Array.isArray(res) ? res.length : res?.data?.length,
+        });
+        const filteredRes = filterDeletedNode(res, _props?.deletedNodeName);
+        if (filteredRes.length || filteredRes.data) {
+          if (filteredRes.data) {
+            insertData(treeData!, _treeNodeData.uuid!, filteredRes.data, [treeData, setTreeData]);
             if(searchTreeData){
-              insertData(searchTreeData!, _treeNodeData.uuid!, res.data,[searchTreeData, setSearchTreeData]);
+              insertData(searchTreeData!, _treeNodeData.uuid!, filteredRes.data,[searchTreeData, setSearchTreeData]);
             }
-            if (res.hasNextPage) {
+            if (filteredRes.hasNextPage) {
               loadData({
                 refresh: _props?.refresh || false,
-                pageNo: res.pageNo + 1,
-                lastDocId: res.lastDocId,
+                pageNo: filteredRes.pageNo + 1,
+                lastDocId: filteredRes.lastDocId,
+                deletedNodeName: _props?.deletedNodeName,
               });
             }
           } else {
-            insertData(treeData!, _treeNodeData.uuid!, res,[treeData, setTreeData]);
+            insertData(treeData!, _treeNodeData.uuid!, filteredRes,[treeData, setTreeData]);
             if(searchTreeData){
-              insertData(searchTreeData!, _treeNodeData.uuid!, res,[searchTreeData, setSearchTreeData]);
+              insertData(searchTreeData!, _treeNodeData.uuid!, filteredRes,[searchTreeData, setSearchTreeData]);
             }
           }
           setIsLoading(false);
@@ -416,9 +450,31 @@ const TreeNode = memo((props: TreeNodeIProps) => {
       })
       .catch((error) => {
         if (signal?.aborted || error?.name === 'AbortError') return;
+        console.log('[Chat2DB][Tree.loadData] getChildren failed', {
+          refresh: _props?.refresh || false,
+          nodeUuid: _treeNodeData.uuid,
+          nodeName: _treeNodeData.name,
+          error,
+        });
         setIsLoading(false);
       });
   }
+
+  const filterDeletedNode = (res: any, deletedNodeName?: string) => {
+    if (!deletedNodeName) {
+      return res;
+    }
+    if (res?.data) {
+      return {
+        ...res,
+        data: res.data.filter((item: ITreeNode) => item.name !== deletedNodeName),
+      };
+    }
+    if (Array.isArray(res)) {
+      return res.filter((item: ITreeNode) => item.name !== deletedNodeName);
+    }
+    return res;
+  };
 
   // 当前节点是否是focus
   const isFocus = useTreeStore((state) => state.focusId) === treeNodeData.uuid;
@@ -430,6 +486,13 @@ const TreeNode = memo((props: TreeNodeIProps) => {
     for (let i = 0; i < _treeData?.length; i++) {
       if (_treeData[i].uuid === uuid) {
         result = _treeData[i];
+        console.log('[Chat2DB][Tree.insertData] target found', {
+          uuid,
+          nodeName: result.name,
+          nodeType: result.treeNodeType,
+          dataLength: Array.isArray(data) ? data.length : data?.length,
+          clearChildren: !data,
+        });
         if (data) {
           data.map((item: any) => {
             item.parentNode = result;
@@ -522,6 +585,7 @@ const TreeNode = memo((props: TreeNodeIProps) => {
   const rightClickMenu = useGetRightClickMenu({
     treeNodeData,
     loadData,
+    refreshRootData,
   });
 
   const treeNodeDom = useMemo(() => {

@@ -5,15 +5,25 @@ import { openModal } from '@/store/common/components';
 import styles from './deleteTable.less';
 import i18n from '@/i18n';
 
-export const deleteDatabase = (treeNodeData, loadData) => {
+export const deleteDatabase = (treeNodeData, loadData, refreshRootData?: (refresh?: boolean) => void) => {
   openModal({
     width: '450px',
-    content: <DeleteDatabaseModalContent treeNodeData={treeNodeData} loadData={loadData} />,
+    content: (
+      <DeleteDatabaseModalContent
+        treeNodeData={treeNodeData}
+        loadData={loadData}
+        refreshRootData={refreshRootData}
+      />
+    ),
   });
 };
 
-export const DeleteDatabaseModalContent = (params: { treeNodeData: any; loadData: any }) => {
-  const { treeNodeData, loadData } = params;
+export const DeleteDatabaseModalContent = (params: {
+  treeNodeData: any;
+  loadData: any;
+  refreshRootData?: (refresh?: boolean) => void;
+}) => {
+  const { treeNodeData, loadData, refreshRootData } = params;
   const [userChecked, setUserChecked] = useState<boolean>(false);
 
   const onOk = () => {
@@ -21,18 +31,39 @@ export const DeleteDatabaseModalContent = (params: { treeNodeData: any; loadData
       dataSourceId: treeNodeData.extraParams.dataSourceId,
       databaseName: treeNodeData.name,
     };
-    mysqlService.deleteDatabase(p).then(() => {
-      if (treeNodeData.parentNode) {
-        loadData({
-          refresh: true,
-          treeNodeData: treeNodeData.parentNode,
-        });
-      }
-      openModal(false);
-    }).catch((error) => {
-      console.error('Error deleting database:', error);
-      message.error(i18n('workspace.tree.delete.database.error') || 'Failed to delete database');
+    console.log('[Chat2DB][deleteDatabase] confirm delete', {
+      params: p,
+      currentNode: treeNodeData,
+      parentNode: treeNodeData.parentNode,
     });
+    mysqlService
+      .deleteDatabase(p)
+      .then(() => {
+        console.log('[Chat2DB][deleteDatabase] delete api success', {
+          deletedDatabase: treeNodeData.name,
+          hasParentNode: !!treeNodeData.parentNode,
+          parentNode: treeNodeData.parentNode,
+        });
+        if (treeNodeData.parentNode) {
+          console.log('[Chat2DB][deleteDatabase] refresh parent tree node', {
+            parentUuid: treeNodeData.parentNode.uuid,
+            parentName: treeNodeData.parentNode.name,
+            parentType: treeNodeData.parentNode.treeNodeType,
+          });
+          loadData({
+            refresh: true,
+            treeNodeData: treeNodeData.parentNode,
+          });
+        } else {
+          console.log('[Chat2DB][deleteDatabase] refresh root tree because parentNode is empty');
+          refreshRootData?.(true);
+        }
+        openModal(false);
+      })
+      .catch((error) => {
+        console.error('Error deleting database:', error);
+        message.error(i18n('workspace.tree.delete.database.error') || 'Failed to delete database');
+      });
   };
 
   return (
