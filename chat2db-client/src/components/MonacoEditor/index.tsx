@@ -52,6 +52,7 @@ export interface IExportRefFunction {
   getCurrentSelectContent: () => string;
   getAllContent: () => string;
   setValue: (text: any, range?: IRangeType) => void;
+  locateStatement: (startLine: number, endLine?: number, errorLine?: number) => void;
   // toFocus: () => void;
 }
 
@@ -74,6 +75,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
   const sqlAutocompleteDisposable = useRef<ISqlAutocompleteDisposable | null>(null);
   const aiCompletionWidgetRef = useRef<monaco.editor.IContentWidget | null>(null);
   const aiCompletionDecorationsRef = useRef<string[]>([]);
+  const statementDecorationsRef = useRef<string[]>([]);
   const [appTheme] = useTheme();
   const [isActive, setIsActive] = React.useState(false);
 
@@ -224,6 +226,7 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
     getCurrentSelectContent,
     getAllContent,
     setValue,
+    locateStatement,
     // toFocus,
   }));
 
@@ -235,6 +238,40 @@ function MonacoEditor(props: IProps, ref: ForwardedRef<IExportRefFunction>) {
 
   const setValue = (text: any, range?: IRangeType) => {
     appendMonacoValue(editorRef.current, text, range);
+  };
+
+  const locateStatement = (startLine: number, endLine?: number, errorLine?: number) => {
+    const editor = editorRef.current;
+    const model = editor?.getModel();
+    if (!editor || !model || !startLine) {
+      return;
+    }
+    const modelLastLine = model.getLineCount();
+    const safeStartLine = Math.max(1, Math.min(startLine, modelLastLine));
+    const safeEndLine = Math.max(safeStartLine, Math.min(endLine || safeStartLine, modelLastLine));
+    const targetLine = Math.max(safeStartLine, Math.min(errorLine || safeStartLine, safeEndLine));
+    const endColumn = model.getLineMaxColumn(safeEndLine);
+    const range = new monaco.Range(safeStartLine, 1, safeEndLine, endColumn);
+
+    statementDecorationsRef.current = editor.deltaDecorations(statementDecorationsRef.current, [
+      {
+        range,
+        options: {
+          isWholeLine: true,
+          className: styles.statementLocateHighlight,
+        },
+      },
+      {
+        range: new monaco.Range(targetLine, 1, targetLine, model.getLineMaxColumn(targetLine)),
+        options: {
+          isWholeLine: true,
+          className: styles.statementErrorLineHighlight,
+        },
+      },
+    ]);
+    editor.setSelection(range);
+    editor.revealLineInCenterIfOutsideViewport(targetLine);
+    editor.focus();
   };
 
   // const toFocus = () => {

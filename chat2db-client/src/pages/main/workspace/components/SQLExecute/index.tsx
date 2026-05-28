@@ -41,15 +41,17 @@ const SQLExecute = memo<IProps>((props) => {
 
   useEffect(() => {
     if (loadSQL) {
-      loadSQL().then((sql) => {
-        if (sql) {
-          consoleRef.current?.editorRef?.setValue(sql, 'cover');
-        } else {
-          console.warn('loadSQL returned empty value');
-        }
-      }).catch((err) => {
-        console.error('Failed to load SQL:', err);
-      });
+      loadSQL()
+        .then((sql) => {
+          if (sql) {
+            consoleRef.current?.editorRef?.setValue(sql, 'cover');
+          } else {
+            console.warn('loadSQL returned empty value');
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to load SQL:', err);
+        });
     }
   }, [loadSQL]);
 
@@ -75,6 +77,13 @@ const SQLExecute = memo<IProps>((props) => {
             isActive={activeConsoleId === boundInfo.consoleId}
             ref={searchResultRef}
             executeSqlParams={boundInfo}
+            onLocateStatement={(result) => {
+              consoleRef.current?.editorRef?.locateStatement(
+                result.statementStartLine || 1,
+                result.statementEndLine || result.statementStartLine || 1,
+                result.errorLine,
+              );
+            }}
           />
         </div>
       </DraggableContainer>

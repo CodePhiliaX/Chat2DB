@@ -8,11 +8,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -64,6 +67,7 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
  */
 @Slf4j
 public class SQLExecutor implements CommandExecutor {
+    private static final Pattern ERROR_LINE_PATTERN = Pattern.compile("(?i)\\bline\\s+(\\d+)\\b");
 
     /**
      * Singleton instance of SQLExecutor.
@@ -582,12 +586,146 @@ public class SQLExecutor implements CommandExecutor {
             throw new BusinessException("dataSource.sqlAnalysisError");
         }
         List<ExecuteResult> result = new ArrayList<>();
+        List<StatementPosition> statementPositions = buildStatementPositions(command.getScript(), sqlList);
         // 执行sql
-        for (String originalSql : sqlList) {
+        for (int i = 0; i < sqlList.size(); i++) {
+            String originalSql = sqlList.get(i);
             ExecuteResult executeResult = executeSQL(originalSql, dbType, command);
+            applyStatementPosition(executeResult, statementPositions, i);
             result.add(executeResult);
         }
         return result;
+    }
+
+    private void applyStatementPosition(ExecuteResult executeResult, List<StatementPosition> statementPositions, int index) {
+        executeResult.setStatementIndex(index + 1);
+        if (CollectionUtils.isEmpty(statementPositions) || index < 0 || index >= statementPositions.size()) {
+            return;
+        }
+        StatementPosition position = statementPositions.get(index);
+        executeResult.setStatementStartLine(position.startLine());
+        executeResult.setStatementEndLine(position.endLine());
+        if (Boolean.TRUE.equals(executeResult.getSuccess()) || StringUtils.isBlank(executeResult.getMessage())) {
+            return;
+        }
+        Matcher matcher = ERROR_LINE_PATTERN.matcher(executeResult.getMessage());
+        if (!matcher.find()) {
+            return;
+        }
+        Integer lineInStatement = Integer.valueOf(matcher.group(1));
+        executeResult.setErrorLineInStatement(lineInStatement);
+        executeResult.setErrorLine(position.startLine() + Math.max(lineInStatement - 1, 0));
+    }
+
+    private List<StatementPosition> buildStatementPositions(String script, List<String> sqlList) {
+        if (StringUtils.isBlank(script) || CollectionUtils.isEmpty(sqlList)) {
+            return Collections.emptyList();
+        }
+        List<StatementPosition> rawPositions = splitStatementPositionsFromScript(script);
+        if (CollectionUtils.isEmpty(rawPositions)) {
+            return Collections.emptyList();
+        }
+        int size = Math.min(rawPositions.size(), sqlList.size());
+        return new ArrayList<>(rawPositions.subList(0, size));
+    }
+
+    private List<StatementPosition> splitStatementPositionsFromScript(String script) {
+        List<StatementPosition> positions = new ArrayList<>();
+        int start = 0;
+        Character quote = null;
+        boolean inLineComment = false;
+        boolean inBlockComment = false;
+        int len = script.length();
+
+        for (int i = 0; i < len; i++) {
+            char ch = script.charAt(i);
+            char next = i + 1 < len ? script.charAt(i + 1) : '\0';
+
+            if (inLineComment) {
+                if (ch == '\n' || ch == '\r') {
+                    inLineComment = false;
+                }
+                continue;
+            }
+            if (inBlockComment) {
+                if (ch == '*' && next == '/') {
+                    inBlockComment = false;
+                    i++;
+                }
+                continue;
+            }
+            if (quote != null) {
+                if (quote == '\'' && ch == '\'' && next == '\'') {
+                    i++;
+                    continue;
+                }
+                if (quote == '"' && ch == '"' && next == '"') {
+                    i++;
+                    continue;
+                }
+                if (quote == '`' && ch == '`' && next == '`') {
+                    i++;
+                    continue;
+                }
+                if ((quote == '\'' && ch == '\'') || (quote == '"' && ch == '"') || (quote == '`' && ch == '`')
+                        || (quote == '[' && ch == ']')) {
+                    quote = null;
+                }
+                continue;
+            }
+            if (ch == '-' && next == '-') {
+                inLineComment = true;
+                i++;
+                continue;
+            }
+            if (ch == '/' && next == '*') {
+                inBlockComment = true;
+                i++;
+                continue;
+            }
+            if (ch == '\'' || ch == '"' || ch == '`' || ch == '[') {
+                quote = ch;
+                continue;
+            }
+            if (ch == ';') {
+                addTrimmedStatementPosition(positions, script, start, i);
+                start = i + 1;
+            }
+        }
+        addTrimmedStatementPosition(positions, script, start, len);
+        return positions;
+    }
+
+    private void addTrimmedStatementPosition(List<StatementPosition> positions, String script, int start, int endExclusive) {
+        int realStart = start;
+        int realEndExclusive = Math.max(start, endExclusive);
+        while (realStart < realEndExclusive && Character.isWhitespace(script.charAt(realStart))) {
+            realStart++;
+        }
+        while (realEndExclusive > realStart && Character.isWhitespace(script.charAt(realEndExclusive - 1))) {
+            realEndExclusive--;
+        }
+        if (realStart >= realEndExclusive) {
+            return;
+        }
+        positions.add(new StatementPosition(
+                getLineNumber(script, realStart),
+                getLineNumber(script, realEndExclusive - 1)
+        ));
+    }
+
+    private int getLineNumber(String script, int indexInclusive) {
+        int line = 1;
+        int max = Math.min(Math.max(indexInclusive, 0), script.length());
+        for (int i = 0; i < max; i++) {
+            if (script.charAt(i) == '\n') {
+                line++;
+            }
+        }
+        return line;
+    }
+
+    private record StatementPosition(int startLine, int endLine) {
     }
 
     private ExecuteResult executeSQL(String originalSql, DbType dbType, Command param) {

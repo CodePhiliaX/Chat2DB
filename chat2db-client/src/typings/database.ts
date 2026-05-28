@@ -20,6 +20,11 @@ export interface ITableHeaderItem {
 }
 
 export interface IManageResultData {
+  statementIndex?: number;
+  statementStartLine?: number;
+  statementEndLine?: number;
+  errorLineInStatement?: number;
+  errorLine?: number;
   dataList: string[][];
   headerList: ITableHeaderItem[];
   description: string;

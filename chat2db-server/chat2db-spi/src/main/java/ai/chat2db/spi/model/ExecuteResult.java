@@ -19,6 +19,31 @@ import lombok.experimental.SuperBuilder;
 public class ExecuteResult {
 
     /**
+     * 语句序号（从1开始）
+     */
+    private Integer statementIndex;
+
+    /**
+     * 语句在原始脚本中的起始行（从1开始）
+     */
+    private Integer statementStartLine;
+
+    /**
+     * 语句在原始脚本中的结束行（从1开始）
+     */
+    private Integer statementEndLine;
+
+    /**
+     * 错误在当前语句内的行号（从1开始，解析失败时为空）
+     */
+    private Integer errorLineInStatement;
+
+    /**
+     * 错误在整段脚本中的绝对行号（从1开始，解析失败时为空）
+     */
+    private Integer errorLine;
+
+    /**
      * 是否成功标志位
      */
     private Boolean success;

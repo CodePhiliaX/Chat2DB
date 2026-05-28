@@ -13,7 +13,6 @@ import React, {
 import classnames from 'classnames';
 import Tabs, { ITabItem } from '@/components/Tabs';
 import Iconfont from '@/components/Iconfont';
-import StateIndicator from '@/components/StateIndicator';
 // import Output from '@/components/Output';
 import { IManageResultData, IResultConfig } from '@/typings';
 import TableBox from './components/TableBox';
@@ -24,8 +23,7 @@ import i18n from '@/i18n';
 import sqlServer, { IExecuteSqlParams, ICreateVirtualFKParams } from '@/service/sql';
 import { v4 as uuidV4 } from 'uuid';
 import { Spin, Modal, message, Button } from 'antd';
-import { setPendingAiChat } from '@/pages/main/workspace/store/common';
-import { setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
+import { setPendingAiChat, setCurrentWorkspaceExtend } from '@/pages/main/workspace/store/common';
 
 interface IProps {
   className?: string;
@@ -34,6 +32,7 @@ interface IProps {
   concealTabHeader?: boolean;
   viewTable?: boolean;
   isActive?: boolean;
+  onLocateStatement?: (result: IManageResultData) => void;
 }
 
 const defaultResultConfig: IResultConfig = {
@@ -86,8 +85,8 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
         originalSql,
         errorMessage,
       }),
-      onSqlFixed: (sql) => {
-        console.log('[SearchResult] SQL fixed:', sql);
+      onSqlFixed: (fixedSql) => {
+        console.log('[SearchResult] SQL fixed:', fixedSql);
       },
     });
     setCurrentWorkspaceExtend('ai');
@@ -188,7 +187,11 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
   const onChange = useCallback((uuid) => {
     // activeTabIdRef.current = uuid;
     setActiveTabId(uuid);
-  }, []);
+    const currentResult = resultDataList?.find((item) => item.uuid === uuid);
+    if (currentResult) {
+      props.onLocateStatement?.(currentResult);
+    }
+  }, [resultDataList, props.onLocateStatement]);
 
   const renderResult = (queryResultData) => {
     function renderSuccessResult() {
@@ -239,6 +242,12 @@ export default forwardRef((props: IProps, ref: ForwardedRef<ISearchResultRef>) =
               >
                 <Iconfont code="&#xe6ae;" />
                 {i18n('common.button.aiFix')}
+              </Button>
+              <Button
+                style={{ marginLeft: 8 }}
+                onClick={() => props.onLocateStatement?.(queryResultData)}
+              >
+                {`定位 SQL 行 ${queryResultData.errorLine || queryResultData.statementStartLine || '-'}`}
               </Button>
             </div>
           </div>
