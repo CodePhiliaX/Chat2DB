@@ -20,6 +20,7 @@ import ai.chat2db.server.tools.base.wrapper.result.DataResult;
 import ai.chat2db.server.tools.base.wrapper.result.ListResult;
 import ai.chat2db.spi.MetaData;
 import ai.chat2db.spi.model.Table;
+import ai.chat2db.spi.model.View;
 import ai.chat2db.spi.sql.Chat2DBContext;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,8 +38,8 @@ public class ViewServiceImpl implements ViewService {
 
     @Override
     public List<Table> viewsWithCache(Long dataSourceId, String databaseName, String schemaName, String searchKey, boolean refresh) {
-        LuceneIndexManager<Table> mgr = managerFactory.getManager(dataSourceId);
-        Table queryModel = Table.builder()
+        LuceneIndexManager<View> mgr = managerFactory.getManager(dataSourceId);
+        View queryModel = View.builder()
                 .databaseName(databaseName)
                 .schemaName(schemaName)
                 .build();
@@ -48,8 +49,7 @@ public class ViewServiceImpl implements ViewService {
             loadAndCacheMetadata(mgr, databaseName, schemaName, version);
         }
 
-        List<Table> views = mgr.search(queryModel, null, searchKey);
-        return views;
+        return new ArrayList<>(mgr.search(queryModel, null, searchKey));
     }
 
     @Override
@@ -61,8 +61,8 @@ public class ViewServiceImpl implements ViewService {
 
     @Override
     public List<TreeNode> searchTreeNodes(TreeSearchParam param) {
-        LuceneIndexManager<Table> mgr = managerFactory.getManager(param.getDataSourceId());
-        Table queryModel = Table.builder()
+        LuceneIndexManager<View> mgr = managerFactory.getManager(param.getDataSourceId());
+        View queryModel = View.builder()
                 .databaseName(param.getDatabaseName())
                 .schemaName(param.getSchemaName())
                 .build();
@@ -72,7 +72,7 @@ public class ViewServiceImpl implements ViewService {
             loadAndCacheMetadata(mgr, param.getDatabaseName(), param.getSchemaName(), version);
         }
 
-        List<Table> views = mgr.search(queryModel, null, param.getSearchKey());
+        List<View> views = mgr.search(queryModel, null, param.getSearchKey());
         List<TreeNode> result = new ArrayList<>();
         for (Table view : views) {
             TreeNode node = buildTreeNode(view);
@@ -81,14 +81,19 @@ public class ViewServiceImpl implements ViewService {
         return result;
     }
 
-    private void loadAndCacheMetadata(LuceneIndexManager<Table> mgr, String databaseName, String schemaName, Long currentVersion) {
+    private void loadAndCacheMetadata(LuceneIndexManager<View> mgr, String databaseName, String schemaName, Long currentVersion) {
         mgr.getLock().writeLock().lock();
         try {
             Connection conn = Chat2DBContext.getConnection();
             MetaData meta = Chat2DBContext.getMetaData();
-            List<Table> views = meta.views(conn, databaseName, schemaName);
+            List<View> views = meta.views(conn, databaseName, schemaName).stream()
+                    .map(View::from)
+                    .toList();
             if (CollectionUtils.isEmpty(views)) {
-                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
+                mgr.deleteByDatabaseAndSchema(View.builder()
+                        .databaseName(databaseName)
+                        .schemaName(schemaName)
+                        .build());
                 return;
             }
             mgr.updateDocuments(views, currentVersion);

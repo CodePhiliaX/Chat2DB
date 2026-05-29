@@ -421,7 +421,7 @@ public class SQLExecutor implements CommandExecutor {
                 if (majorVersion < 8) {
                     if (CollectionUtils.isNotEmpty(tables)) {
                         for (Table table : tables) {
-                            setTableComment(connection, table);
+                            setTableComment(connection, databaseName, table);
                         }
                         return tables;
                     }
@@ -434,8 +434,18 @@ public class SQLExecutor implements CommandExecutor {
         }
     }
 
-    private void setTableComment(Connection connection, Table table) {
-        String sql = "SHOW TABLE STATUS WHERE Name = '" + table.getName() + "'";
+    private void setTableComment(Connection connection, String databaseName, Table table) {
+        // VIEW 不支持通过 SHOW TABLE STATUS 获取注释，直接跳过
+        if (table == null || !"TABLE".equalsIgnoreCase(table.getType())) {
+            return;
+        }
+        String targetDatabase = StringUtils.defaultIfBlank(databaseName, table.getDatabaseName());
+        StringBuilder sqlBuilder = new StringBuilder("SHOW TABLE STATUS");
+        if (StringUtils.isNotBlank(targetDatabase)) {
+            sqlBuilder.append(" FROM `").append(targetDatabase).append("`");
+        }
+        sqlBuilder.append(" WHERE Name = '").append(table.getName()).append("'");
+        String sql = sqlBuilder.toString();
         try (Statement stmt = connection.createStatement()) {
             boolean query = stmt.execute(sql);
             if (query) {
@@ -446,8 +456,9 @@ public class SQLExecutor implements CommandExecutor {
                 }
             }
         } catch (SQLException e) {
-            // 处理异常，可以选择记录日志或抛出运行时异常
-            throw new RuntimeException("获取表注释失败: " + table.getName(), e);
+            // 注释是补充信息，失败不应影响元数据主流程
+            log.warn("[Table] load comment failed, databaseName={}, tableName={}, sql={}",
+                    targetDatabase, table.getName(), sql, e);
         }
     }
 

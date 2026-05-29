@@ -426,7 +426,10 @@ public class TableServiceImpl implements TableService {
             MetaData meta = Chat2DBContext.getMetaData();
             List<Table> tables = meta.tables(conn, databaseName, schemaName, null);
             if (CollectionUtils.isEmpty(tables)) {
-                mgr.deleteByDatabaseAndSchema(databaseName, schemaName);
+                mgr.deleteByDatabaseAndSchema(Table.builder()
+                        .databaseName(databaseName)
+                        .schemaName(schemaName)
+                        .build());
                 return;
             }
             mgr.updateDocuments(tables, version);
