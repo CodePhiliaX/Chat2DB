@@ -422,6 +422,7 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
       OperationColumn.CopyName,
       OperationColumn.ImportData,
       OperationColumn.ExportData,
+      OperationColumn.DataTransfer,
       OperationColumn.GenerateData,
       OperationColumn.Refresh,
       OperationColumn.DeleteTable,

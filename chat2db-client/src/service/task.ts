@@ -82,8 +82,19 @@ export interface IExportSchemaDocParams {
   refresh?: boolean;
 }
 
+export interface IDataTransferParams {
+  sourceDataSourceId: number;
+  sourceDatabaseName?: string;
+  sourceSchemaName?: string;
+  targetDataSourceId: number;
+  targetDatabaseName?: string;
+  targetSchemaName?: string;
+  tableNames: string[];
+}
+
 const exportResultData = createRequest<IExportResultDataParams, number>('/api/export/export_data', { method: 'post' });
 const exportSchemaDoc = createRequest<IExportSchemaDocParams, number>('/api/export/export_doc', { method: 'post' });
+const transferData = createRequest<IDataTransferParams, number>('/api/transfer/data', { method: 'post' });
 const getTask = createRequest<{ id: number }, ITask>('/api/task/get/:id', { method: 'get' });
 const getTaskList = createRequest<Record<string, never>, ITask[]>('/api/task/list', { method: 'get' });
 const cleanupTasks = createRequest<Record<string, never>, number>('/api/task/cleanup', { method: 'post' });
@@ -172,4 +183,5 @@ export default {
   getTaskList,
   cleanupTasks,
   previewFileHeaders,
+  transferData,
 };

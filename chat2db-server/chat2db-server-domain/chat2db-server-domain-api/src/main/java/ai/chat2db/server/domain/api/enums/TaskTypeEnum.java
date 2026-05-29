@@ -26,4 +26,9 @@ public enum TaskTypeEnum {
      * generate table data
      */
     GENERATE_TABLE_DATA,
+
+    /**
+     * transfer table data
+     */
+    TRANSFER_TABLE_DATA,
 }

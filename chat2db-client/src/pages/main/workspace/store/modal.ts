@@ -6,6 +6,7 @@ import { IExportDataModalParams } from '@/components/ExportDataModal';
 import { IExportSchemaDocModalParams } from '@/components/ExportSchemaDocModal';
 import { IDataGenerationModalParams } from '@/components/DataGenerationModal';
 import { IExecuteSqlStatementModalParams } from '@/components/ExecuteSqlStatementModal';
+import { IDataTransferModalParams } from '@/components/DataTransferModal';
 
 export interface IModalStore {
   openCreateDatabaseModal: ((params: {
@@ -22,6 +23,7 @@ export interface IModalStore {
   openExportSchemaDocModal: ((params: IExportSchemaDocModalParams) => void) | null;
   openDataGenerationModal: ((params: IDataGenerationModalParams) => void) | null;
   openExecuteSqlStatementModal: ((params: IExecuteSqlStatementModalParams) => void) | null;
+  openDataTransferModal: ((params: IDataTransferModalParams) => void) | null;
 }
 
 export const initModalStore: IModalStore = {
@@ -31,6 +33,7 @@ export const initModalStore: IModalStore = {
   openExportSchemaDocModal: null,
   openDataGenerationModal: null,
   openExecuteSqlStatementModal: null,
+  openDataTransferModal: null,
 };
 
 export const setOpenCreateDatabaseModal = (fn: any) => {
@@ -55,4 +58,8 @@ export const setOpenDataGenerationModal = (fn: any) => {
 
 export const setOpenExecuteSqlStatementModal = (fn: any) => {
   useWorkspaceStore.setState({ openExecuteSqlStatementModal: fn });
+};
+
+export const setOpenDataTransferModal = (fn: any) => {
+  useWorkspaceStore.setState({ openDataTransferModal: fn });
 };

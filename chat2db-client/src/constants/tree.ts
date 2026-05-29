@@ -54,6 +54,7 @@ export enum OperationColumn {
   TruncateTable = 'truncateTable', // 截断表
   ImportData = 'importData', // 导入数据
   ExportData = 'exportData', // 导出数据
+  DataTransfer = 'dataTransfer', // 数据传输
   ExportSchemaDoc = 'exportSchemaDoc', // 导出数据结构
   ExecuteSqlStatement = 'executeSqlStatement', // 执行sql语句
   DeprecatedTable = 'deprecatedTable', // 废弃表

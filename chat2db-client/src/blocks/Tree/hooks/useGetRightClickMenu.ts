@@ -60,6 +60,7 @@ interface IRightClickMenu {
 const DATA_OPS: (OperationColumn | string)[] = [
   OperationColumn.ImportData,
   OperationColumn.ExportData,
+  OperationColumn.DataTransfer,
   OperationColumn.GenerateData,
 ];
 
@@ -478,6 +479,26 @@ export const useGetRightClickMenu = (props: IProps) => {
             dataSourceId: treeNodeData.extraParams!.dataSourceId!,
             databaseName: treeNodeData.extraParams?.databaseName,
             schemaName: treeNodeData.extraParams?.schemaName,
+          });
+        },
+      },
+
+      // 数据传输
+      [OperationColumn.DataTransfer]: {
+        text: '数据传输',
+        icon: '\ue60e',
+        handle: () => {
+          const { openDataTransferModal } = useWorkspaceStore.getState();
+          openDataTransferModal?.({
+            dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+            databaseName: treeNodeData.extraParams?.databaseName,
+            schemaName: treeNodeData.extraParams?.schemaName,
+            tableNames: [treeNodeData.name],
+            executedCallback: () => {
+              loadData?.({
+                refresh: true,
+              });
+            },
           });
         },
       },
@@ -918,6 +939,26 @@ export const getRightClickMenu = (props: IProps) => {
           dataSourceId: treeNodeData.extraParams!.dataSourceId!,
           databaseName: treeNodeData.extraParams?.databaseName,
           schemaName: treeNodeData.extraParams?.schemaName,
+        });
+      },
+    },
+
+    // 数据传输
+    [OperationColumn.DataTransfer]: {
+      text: '数据传输',
+      icon: '\ue60e',
+      handle: () => {
+        const { openDataTransferModal } = useWorkspaceStore.getState();
+        openDataTransferModal?.({
+          dataSourceId: treeNodeData.extraParams!.dataSourceId!,
+          databaseName: treeNodeData.extraParams?.databaseName,
+          schemaName: treeNodeData.extraParams?.schemaName,
+          tableNames: [treeNodeData.name],
+          executedCallback: () => {
+            loadData?.({
+              refresh: true,
+            });
+          },
         });
       },
     },

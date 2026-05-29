@@ -19,6 +19,7 @@ import { deprecatedTable } from '@/blocks/Tree/functions/deprecatedTable';
 
 // ----- store -----
 import { addWorkspaceTab } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
 
 const { Search } = Input;
 
@@ -452,6 +453,27 @@ export default memo<IProps>((props) => {
     });
   };
 
+  const openDataTransfer = () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('请先选择需要传输的表');
+      return;
+    }
+    const selectedTables = tableData?.filter((item) => selectedRowKeys.includes(item.key)) || [];
+    const { openDataTransferModal } = useWorkspaceStore.getState();
+    openDataTransferModal?.({
+      dataSourceId: Number(uniqueData.dataSourceId),
+      databaseName: uniqueData.databaseName,
+      schemaName: uniqueData.schemaName,
+      tableNames: selectedTables.map((table) => table.name),
+      executedCallback: () => {
+        getTable({
+          pageNo: currentPageNo,
+          pageSize: 1000,
+        });
+      },
+    });
+  };
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys: React.Key[]) => {
@@ -603,6 +625,13 @@ export default memo<IProps>((props) => {
                 style={{ marginLeft: 8 }}
               >
                 {i18n('common.viewAllTable.batchAnalyze')}
+              </Button>
+              <Button
+                onClick={openDataTransfer}
+                disabled={selectedRowKeys.length === 0}
+                style={{ marginLeft: 8 }}
+              >
+                数据传输
               </Button>
               <Button onClick={startEditing} style={{ marginLeft: 8 }}>
                 {i18n('common.button.editAll')}
