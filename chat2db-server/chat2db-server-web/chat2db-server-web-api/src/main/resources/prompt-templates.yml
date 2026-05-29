@@ -41,6 +41,8 @@ prompts:
       #
       # {schema}
       #
+      ### SQL Execution Plan (EXPLAIN):
+      # {explain_plan}
       #
       ### SQL input: {message}
 

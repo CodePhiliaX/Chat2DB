@@ -15,6 +15,12 @@ public enum ChatEvent {
     AUTO_SELECT_DONE,
     /** Schema已获取 */
     SCHEMA_FETCHED,
+    /** EXPLAIN执行完成 */
+    EXPLAIN_EXECUTED,
+    /** EXPLAIN执行失败 */
+    EXPLAIN_FAILED,
+    /** 不需要EXPLAIN */
+    EXPLAIN_NOT_NEEDED,
     /** Prompt已构建 */
     PROMPT_BUILT,
     /** 流式响应完成 */

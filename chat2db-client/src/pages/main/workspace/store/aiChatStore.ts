@@ -4,6 +4,7 @@ export type ChatStateType =
   | 'IDLE'
   | 'AUTO_SELECTING_TABLES'
   | 'FETCHING_TABLE_SCHEMA'
+  | 'EXECUTING_EXPLAIN'
   | 'BUILDING_PROMPT'
   | 'STREAMING'
   | 'COMPLETED'
@@ -24,6 +25,7 @@ export interface AiChatSession {
   currentThinking: string;
   selectedTables?: string[];
   schemaInfo?: string;
+  explainResult?: { sql: string; plan: string[][]; formatted: string; success: boolean };
   error?: string;
 }
 
@@ -48,6 +50,7 @@ interface IAiChatStore {
   addMessage: (sessionId: string, message: IChatMessage) => void;
   setSelectedTables: (sessionId: string, tables: string[]) => void;
   setSchemaInfo: (sessionId: string, ddl: string) => void;
+  setExplainResult: (sessionId: string, explain: AiChatSession['explainResult']) => void;
   setError: (sessionId: string, error: string) => void;
   setLastRequest: (req: ILastRequest) => void;
   clearSession: (sessionId: string) => void;
@@ -130,6 +133,17 @@ export const useAiChatStore = create<IAiChatStore>((set, get) => ({
       const session = sessions.get(sessionId);
       if (session) {
         sessions.set(sessionId, { ...session, schemaInfo: ddl });
+      }
+      return { sessions };
+    });
+  },
+
+  setExplainResult: (sessionId: string, explain: AiChatSession['explainResult']) => {
+    set((state) => {
+      const sessions = new Map(state.sessions);
+      const session = sessions.get(sessionId);
+      if (session) {
+        sessions.set(sessionId, { ...session, explainResult: explain });
       }
       return { sessions };
     });

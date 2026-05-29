@@ -18,6 +18,7 @@ import ai.chat2db.server.web.api.controller.ai.statemachine.actions.BuildPromptA
 import ai.chat2db.server.web.api.controller.ai.statemachine.actions.FetchSchemaAction;
 import ai.chat2db.server.web.api.controller.ai.statemachine.actions.SaveAiCommentAction;
 import ai.chat2db.server.web.api.controller.ai.statemachine.actions.StreamAction;
+import ai.chat2db.server.web.api.controller.ai.statemachine.actions.ExplainAction;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,6 +39,9 @@ public class ChatStateMachineConfig extends StateMachineConfigurerAdapter<ChatSt
     private StreamAction streamAction;
 
     @Autowired
+    private ExplainAction explainAction;
+
+    @Autowired
     private SaveAiCommentAction saveAiCommentAction;
 
     @Override
@@ -47,6 +51,7 @@ public class ChatStateMachineConfig extends StateMachineConfigurerAdapter<ChatSt
             .initial(ChatState.IDLE)
             .state(ChatState.AUTO_SELECTING_TABLES, selectTablesAction)
             .state(ChatState.FETCHING_TABLE_SCHEMA, fetchSchemaAction)
+            .state(ChatState.EXECUTING_EXPLAIN, explainAction)
             .state(ChatState.BUILDING_PROMPT, buildPromptAction)
             .state(ChatState.STREAMING, streamAction)
             .end(ChatState.COMPLETED)
@@ -77,12 +82,24 @@ public class ChatStateMachineConfig extends StateMachineConfigurerAdapter<ChatSt
                 .event(ChatEvent.AUTO_SELECT_FAILED)
             .and()
             .withExternal()
-                .source(ChatState.FETCHING_TABLE_SCHEMA).target(ChatState.BUILDING_PROMPT)
+                .source(ChatState.FETCHING_TABLE_SCHEMA).target(ChatState.EXECUTING_EXPLAIN)
                 .event(ChatEvent.SCHEMA_FETCHED)
             .and()
             .withExternal()
                 .source(ChatState.FETCHING_TABLE_SCHEMA).target(ChatState.FAILED)
                 .event(ChatEvent.FETCH_SCHEMA_FAILED)
+            .and()
+            .withExternal()
+                .source(ChatState.EXECUTING_EXPLAIN).target(ChatState.BUILDING_PROMPT)
+                .event(ChatEvent.EXPLAIN_EXECUTED)
+            .and()
+            .withExternal()
+                .source(ChatState.EXECUTING_EXPLAIN).target(ChatState.BUILDING_PROMPT)
+                .event(ChatEvent.EXPLAIN_FAILED)
+            .and()
+            .withExternal()
+                .source(ChatState.EXECUTING_EXPLAIN).target(ChatState.BUILDING_PROMPT)
+                .event(ChatEvent.EXPLAIN_NOT_NEEDED)
             .and()
             .withExternal()
                 .source(ChatState.BUILDING_PROMPT).target(ChatState.STREAMING)

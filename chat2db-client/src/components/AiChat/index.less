@@ -175,6 +175,75 @@
       align-self: flex-start;
       max-width: 80%;
     }
+
+    .explainPanel {
+      padding: 12px 16px;
+      background-color: #f0f5ff;
+      border-radius: 6px;
+      border: 1px solid #adc6ff;
+      align-self: flex-start;
+      max-width: 90%;
+
+      .explainHeader {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #1d39c4;
+        padding: 4px 0;
+        user-select: none;
+
+        &:hover {
+          color: #0d1a7a;
+        }
+      }
+
+      .explainContent {
+        margin-top: 12px;
+
+        .explainSql {
+          margin-bottom: 12px;
+          padding: 8px;
+          background-color: #fafafa;
+          border-radius: 4px;
+          font-size: 12px;
+          overflow-x: auto;
+
+          code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #333;
+          }
+        }
+
+        .explainTable {
+          overflow-x: auto;
+
+          .explainTableInner {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+
+            th, td {
+              padding: 6px 10px;
+              border: 1px solid #d9d9d9;
+              text-align: left;
+              white-space: nowrap;
+            }
+
+            th {
+              background-color: #e6f7ff;
+              font-weight: 600;
+              color: #1d39c4;
+            }
+
+            tr:nth-child(2n) {
+              background-color: #fafafa;
+            }
+          }
+        }
+      }
+    }
   }
 
   .inputFormArea {

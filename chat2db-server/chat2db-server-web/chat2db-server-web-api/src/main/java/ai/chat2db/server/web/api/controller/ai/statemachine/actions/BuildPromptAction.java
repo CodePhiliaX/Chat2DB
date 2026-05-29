@@ -62,6 +62,7 @@ public class BuildPromptAction extends BaseChatAction {
                     .message(request.getMessage())
                     .ext(request.getExt())
                     .schemaDdl(schemaDdl)
+                    .explainPlan(chatContext.getExplainResult())
                     .dataSourceType(dataSourceService.queryDatabaseType(request.getDataSourceId()))
                     .targetSqlType(request.getDestSqlType())
                     .sourceFields(sourceFields)

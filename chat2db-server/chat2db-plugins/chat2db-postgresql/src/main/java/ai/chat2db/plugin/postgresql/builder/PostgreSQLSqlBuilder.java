@@ -266,4 +266,9 @@ public class PostgreSQLSqlBuilder extends DefaultSqlBuilder implements SqlBuilde
         String tableRef = schemaName != null ? "\"" + schemaName + "\".\"" + tableName + "\"" : "\"" + tableName + "\"";
         return "ANALYZE " + tableRef;
     }
+
+    @Override
+    public String buildExplainSql(String originalSql) {
+        return "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT TEXT) " + originalSql;
+    }
 }

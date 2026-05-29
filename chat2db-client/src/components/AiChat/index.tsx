@@ -16,6 +16,7 @@ const STATE_LABELS: Record<ChatStateType, { text: string; color: string }> = {
   IDLE: { text: '等待中', color: 'default' },
   AUTO_SELECTING_TABLES: { text: '选择表...', color: 'processing' },
   FETCHING_TABLE_SCHEMA: { text: '获取表结构...', color: 'processing' },
+  EXECUTING_EXPLAIN: { text: '分析执行计划...', color: 'processing' },
   BUILDING_PROMPT: { text: '构建提示...', color: 'processing' },
   STREAMING: { text: 'AI生成中', color: 'processing' },
   COMPLETED: { text: '完成', color: 'success' },
@@ -24,7 +25,7 @@ const STATE_LABELS: Record<ChatStateType, { text: string; color: string }> = {
 
 const isActiveState = (state?: ChatStateType): boolean => {
   return state
-    ? ['AUTO_SELECTING_TABLES', 'FETCHING_TABLE_SCHEMA', 'BUILDING_PROMPT', 'STREAMING'].includes(state)
+    ? ['AUTO_SELECTING_TABLES', 'FETCHING_TABLE_SCHEMA', 'EXECUTING_EXPLAIN', 'BUILDING_PROMPT', 'STREAMING'].includes(state)
     : false;
 };
 
@@ -40,6 +41,57 @@ const ThinkingBlock = memo<{ thinking: string; collapsed?: boolean }>(({ thinkin
       {!isCollapsed && (
         <div className={styles.thinkingContent}>
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{thinking}</ReactMarkdown>
+        </div>
+      )}
+    </div>
+  );
+});
+
+interface ExplainPanelProps {
+  explainResult: { sql: string; plan: string[][]; formatted: string; success: boolean };
+}
+
+const ExplainPanel = memo<ExplainPanelProps>(({ explainResult }) => {
+  const [collapsed, setCollapsed] = useState(true);
+
+  if (!explainResult || !explainResult.success || !explainResult.plan.length) {
+    return null;
+  }
+
+  const headers = explainResult.plan[0];
+  const rows = explainResult.plan.slice(1);
+
+  return (
+    <div className={styles.explainPanel}>
+      <div className={styles.explainHeader} onClick={() => setCollapsed(!collapsed)}>
+        {collapsed ? <RightOutlined /> : <DownOutlined />}
+        <span>SQL 执行计划 (EXPLAIN)</span>
+      </div>
+      {!collapsed && (
+        <div className={styles.explainContent}>
+          <div className={styles.explainSql}>
+            <code>{explainResult.sql}</code>
+          </div>
+          <div className={styles.explainTable}>
+            <table className={styles.explainTableInner}>
+              <thead>
+                <tr>
+                  {headers.map((h, i) => (
+                    <th key={i}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => (
+                      <td key={ci}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
@@ -326,6 +378,10 @@ export default memo<IProps>((props) => {
           console.log('[AiChat] Schema fetched, ddl length:', ddl?.length);
           setSchemaInfo(sessionId, ddl);
         },
+        onExplain: (data) => {
+          console.log('[AiChat] Explain result:', data);
+          useAiChatStore.getState().setExplainResult(sessionId, data);
+        },
         onDone: () => {
           console.log('[AiChat] onDone callback, sessionId:', sessionId);
           updateState(sessionId, 'COMPLETED');
@@ -546,6 +602,9 @@ export default memo<IProps>((props) => {
             </div>
           );
         })}
+        {currentSession?.explainResult && currentSession.explainResult.success && (
+          <ExplainPanel explainResult={currentSession.explainResult} />
+        )}
         {currentSession?.state === 'STREAMING' && (currentSession.currentContent || currentSession.currentThinking) && (
           <div className={styles.aiBlock}>
             <Spin size="small">

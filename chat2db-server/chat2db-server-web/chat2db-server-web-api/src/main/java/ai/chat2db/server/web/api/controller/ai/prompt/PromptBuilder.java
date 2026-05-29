@@ -38,6 +38,14 @@ public interface PromptBuilder {
     PromptBuilder schema(String schemaDdl);
 
     /**
+     * 设置 EXPLAIN 执行计划
+     *
+     * @param explainPlan 执行计划
+     * @return 构建器
+     */
+    PromptBuilder explainPlan(String explainPlan);
+
+    /**
      * 设置数据源类型
      *
      * @param dataSourceType 数据源类型

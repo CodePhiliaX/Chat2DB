@@ -58,6 +58,15 @@ public class PromptBuilderImpl implements PromptBuilder {
     }
 
     @Override
+    public PromptBuilder explainPlan(String explainPlan) {
+        if (this.context == null) {
+            this.context = new PromptContext();
+        }
+        this.context.setExplainPlan(explainPlan);
+        return this;
+    }
+
+    @Override
     public PromptBuilder dataSourceType(String dataSourceType) {
         if (this.context == null) {
             this.context = new PromptContext();
@@ -130,6 +139,7 @@ public class PromptBuilderImpl implements PromptBuilder {
                 .replace("{ext}", Objects.toString(context.getExt(), ""))
                 .replace("{db_type}", Objects.toString(context.getDataSourceType(), "MYSQL"))
                 .replace("{schema}", Objects.toString(context.getSchemaDdl(), ""))
+                .replace("{explain_plan}", Objects.toString(context.getExplainPlan(), ""))
                 .replace("{message}", Objects.toString(context.getMessage(), ""))
                 .replace("{target_sql_type}", Objects.toString(context.getTargetSqlType(),
                         Objects.toString(context.getDataSourceType(), "MYSQL")));

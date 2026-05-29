@@ -11,10 +11,16 @@ interface EventSourceOptions {
   onDone?: () => void;
   onTablesSelected?: (tables: string[]) => void;
   onSchemaFetched?: (ddl: string) => void;
+  onExplain?: (data: { sql: string; plan: string[][]; formatted: string; success: boolean }) => void;
 }
 
-const connectToEventSource = (options: EventSourceOptions): (() => void) => {
-  const { url, uid, onOpen, onMessage, onStateChange, onError, onDone, onTablesSelected, onSchemaFetched } = options;
+const connectToEventSource = (
+  options: EventSourceOptions
+): (() => void) => {
+  const {
+    url, uid, onOpen, onMessage, onStateChange,
+    onError, onDone, onTablesSelected, onSchemaFetched, onExplain
+  } = options;
 
   if (!url) {
     throw new Error('url is required');
@@ -79,6 +85,15 @@ const connectToEventSource = (options: EventSourceOptions): (() => void) => {
       onSchemaFetched?.(ddl);
     } catch (e) {
       console.error('Failed to parse schema_fetched event', e);
+    }
+  });
+
+  eventSource.addEventListener('explain', (event: any) => {
+    try {
+      const data = JSON.parse(event.data);
+      onExplain?.(data);
+    } catch (e) {
+      console.error('Failed to parse explain event', e);
     }
   });
 

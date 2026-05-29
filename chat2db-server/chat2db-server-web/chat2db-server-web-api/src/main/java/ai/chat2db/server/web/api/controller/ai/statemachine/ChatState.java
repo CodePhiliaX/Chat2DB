@@ -13,6 +13,9 @@ public enum ChatState {
     /** 获取表结构状态，正在获取选中表的schema信息 */
     FETCHING_TABLE_SCHEMA,
     
+    /** 执行EXPLAIN状态，正在获取SQL执行计划 */
+    EXECUTING_EXPLAIN,
+    
     /** 构建提示词状态，正在构造发送给AI的prompt */
     BUILDING_PROMPT,
     

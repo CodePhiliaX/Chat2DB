@@ -36,6 +36,11 @@ public class PromptContext {
     private String schemaDdl;
 
     /**
+     * SQL执行计划结果 (EXPLAIN)
+     */
+    private String explainPlan;
+
+    /**
      * 数据源类型
      */
     private String dataSourceType;

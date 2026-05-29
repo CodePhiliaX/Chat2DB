@@ -21,6 +21,8 @@ public class ChatContext {
     private String builtPrompt;
     private List<String> selectedTables;
     private String schemaDdl;
+    private String explainSql;
+    private String explainResult;
     private volatile boolean cancelled;
     private LoginUser loginUser;
     private ConnectInfo connectInfo;

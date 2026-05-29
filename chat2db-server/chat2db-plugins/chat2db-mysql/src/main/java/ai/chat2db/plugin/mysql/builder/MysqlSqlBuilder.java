@@ -329,4 +329,9 @@ public class MysqlSqlBuilder extends DefaultSqlBuilder implements SqlBuilder {
         return "ANALYZE TABLE `" + databaseName + "`.`" + tableName + "`";
     }
 
+    @Override
+    public String buildExplainSql(String originalSql) {
+        return "EXPLAIN " + originalSql;
+    }
+
 }

@@ -122,4 +122,15 @@ public interface SqlBuilder {
         return null;
     }
 
+    /**
+     * Generate EXPLAIN SQL for query execution plan
+     * Returns null if not supported by this database
+     *
+     * @param originalSql the SQL statement to explain
+     * @return EXPLAIN SQL statement
+     */
+    default String buildExplainSql(String originalSql) {
+        return null;
+    }
+
 }
