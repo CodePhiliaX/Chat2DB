@@ -22,8 +22,8 @@ public final class PatternConstant {
     public static String TABLE_BODY = "|%s|%s|%s|%s|%s|%s|%s|%s|";
     public static String TABLE_SEPARATOR = "|:----:|----|----|----|----|----|----|----|";
     public static String ALL_INDEX_TABLE_HEADER = "";
-    public static String INDEX_TABLE_BODY = "|%s|%s|%s|%s|";
-    public static String INDEX_TABLE_SEPARATOR = "|:----:|----|----|----|";
+    public static String INDEX_TABLE_BODY = "|%s|%s|%s|%s|%s|";
+    public static String INDEX_TABLE_SEPARATOR = "|:----:|----|----|----|----|";
 
     /**
      * Html
@@ -34,5 +34,5 @@ public final class PatternConstant {
     public static String HTML_TABLE_HEADER = "";
     public static String HTML_TABLE_BODY = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>";
     public static String HTML_INDEX_TABLE_HEADER = "";
-    public static String HTML_INDEX_TABLE_BODY = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>";
+    public static String HTML_INDEX_TABLE_BODY = "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>";
 }

@@ -60,15 +60,17 @@ public class PdfSchemaDocExportStrategy extends AbstractSchemaDocExportStrategy 
 
                 if (isExportIndex && !context.getIndexMap().isEmpty()) {
                     PdfPTable table = new PdfPTable(CommonConstant.INDEX_HEAD_NAMES.length);
-                    process(table, CommonConstant.INDEX_HEAD_NAMES, font);
+                    process(table, CommonConstant.INDEX_HEAD_NAMES, headFont);
                     String name = parameterMap.getKey().split("\\[")[0];
                     List<IndexInfo> indexInfoVOList = context.getIndexMap().get(name);
                     if (indexInfoVOList != null) {
                         for (IndexInfo indexInfo : indexInfoVOList) {
-                            process(table, getIndexValues(indexInfo), font);
+                            processWithObjects(table, getIndexValues(indexInfo), font);
                         }
                     }
-                    table.setPaddingTop(5);
+                    table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
+                    table.setSpacingBefore(10f);
+                    table.setSpacingAfter(20f);
                     document.add(table);
                 }
                 document.add(new Paragraph());
@@ -77,7 +79,7 @@ public class PdfSchemaDocExportStrategy extends AbstractSchemaDocExportStrategy 
                 PdfPTable table = new PdfPTable(CommonConstant.COLUMN_HEAD_NAMES.length);
                 process(table, CommonConstant.COLUMN_HEAD_NAMES, headFont);
                 for (TableParameter tableParameter : exportList) {
-                    process(table, getColumnValues(tableParameter), font);
+                    processWithObjects(table, getColumnValues(tableParameter), font);
                 }
                 table.setSpacingBefore(10f);
                 table.setSpacingAfter(20f);
@@ -91,9 +93,21 @@ public class PdfSchemaDocExportStrategy extends AbstractSchemaDocExportStrategy 
     public static <T> void process(PdfPTable table, T[] line, Font font) {
         for (T s : line) {
             if (Objects.isNull(s)) {
-                return;
+                continue;
             }
             PdfPCell cell = new PdfPCell(new Paragraph(s.toString(), font));
+            cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            cell.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
+            cell.setPaddingTop(5);
+            cell.setPaddingBottom(5);
+            table.addCell(cell);
+        }
+    }
+
+    private static void processWithObjects(PdfPTable table, Object[] line, Font font) {
+        for (Object obj : line) {
+            String value = Objects.isNull(obj) ? "" : obj.toString();
+            PdfPCell cell = new PdfPCell(new Paragraph(value, font));
             cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
             cell.setVerticalAlignment(PdfPCell.ALIGN_CENTER);
             cell.setPaddingTop(5);
