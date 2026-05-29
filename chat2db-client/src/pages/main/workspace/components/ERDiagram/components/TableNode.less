@@ -59,6 +59,74 @@
   font-size: 10px;
 }
 
+.columnLoading {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
+.columnList {
+  max-height: 180px;
+  margin-top: 6px;
+  overflow-y: auto;
+  border-top: 1px solid #f0f0f0;
+}
+
+.columnItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 3px 0;
+  color: #595959;
+  cursor: grab;
+  user-select: none;
+  border-bottom: 1px solid #fafafa;
+
+  &:hover {
+    color: #1677ff;
+    background: #f5faff;
+  }
+}
+
+.columnName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.columnType {
+  flex-shrink: 0;
+  max-width: 70px;
+  overflow: hidden;
+  color: #bfbfbf;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.primaryKey {
+  flex-shrink: 0;
+  padding: 0 3px;
+  color: #fa8c16;
+  font-size: 9px;
+  line-height: 14px;
+  background: #fff7e6;
+  border: 1px solid #ffd591;
+  border-radius: 3px;
+}
+
+.primaryColumn {
+  color: #262626;
+  font-weight: 500;
+}
+
+.draggingColumn {
+  color: #1677ff;
+  background: #e6f4ff;
+}
+
 .handle {
   width: 6px !important;
   height: 6px !important;

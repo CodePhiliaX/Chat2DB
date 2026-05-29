@@ -3,8 +3,8 @@
  * 使用ReactFlow渲染数据库表之间的外键关系图
  * 支持表过滤、布局切换、虚拟外键显示/推断/删除、缩放控制、PNG导出等功能
  */
-import React, { useCallback, useEffect, useRef } from 'react';
-import { message, Modal } from 'antd';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Empty, message, Modal, Spin } from 'antd';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -15,21 +15,22 @@ import {
   useEdgesState,
   Node,
   Edge,
-  OnNodeClick,
-  OnPaneClick,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from '@dagrejs/dagre';
 import { toPng } from 'html-to-image';
-import { Spin, Empty } from 'antd';
+import { WorkspaceTabType } from '@/constants';
 import i18n from '@/i18n';
+import sqlService, { IColumn, IInferVirtualFkItem } from '@/service/sql';
+import { createConsole } from '@/pages/main/workspace/store/console';
+import { useWorkspaceStore } from '@/pages/main/workspace/store';
+import { compatibleDataBaseName } from '@/utils/database';
 import useErDiagramStore, { LayoutType } from './store';
-import TableNode from './components/TableNode';
+import TableNode, { IErDiagramFieldDragPayload } from './components/TableNode';
 import RelationEdge from './components/RelationEdge';
 import Toolbar from './components/Toolbar';
 import TableFilter from './components/TableFilter';
 import Legend from './components/Legend';
-import { IInferVirtualFkItem } from '@/service/sql';
 import styles from './index.less';
 
 /** ER图组件Props */
@@ -39,6 +40,8 @@ interface IERDiagramProps {
     dataSourceId: number;
     schemaName?: string;
     tableName: string;
+    dataSourceName?: string;
+    databaseType?: any;
   };
 }
 
@@ -68,7 +71,9 @@ const getDagreLayout = (nodes: Node[], edges: Edge[], direction: 'TB' | 'LR' = '
   dagreGraph.setGraph({ rankdir: direction, nodesep: 50, ranksep: 80 });
 
   connectedNodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: 160, height: 60 });
+    const nodeData = node.data as any;
+    const columnLength = nodeData?.columnsExpanded ? Math.min(nodeData?.columns?.length || 4, 8) : 0;
+    dagreGraph.setNode(node.id, { width: 220, height: 70 + columnLength * 24 });
   });
 
   edges.forEach((edge) => {
@@ -219,6 +224,11 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [inferring, setInferring] = React.useState(false);
+  const [expandedTableNames, setExpandedTableNames] = useState<Set<string>>(new Set());
+  const [columnMap, setColumnMap] = useState<Record<string, IColumn[]>>({});
+  const [columnLoadingMap, setColumnLoadingMap] = useState<Record<string, boolean>>({});
+  const [virtualFkDragField, setVirtualFkDragField] = useState<IErDiagramFieldDragPayload | null>(null);
+  const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
 
   const fetchData = useCallback(
     (syncForeignKeys?: boolean) => {
@@ -238,6 +248,159 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
   useEffect(() => {
     fetchData();
   }, [uniqueData.dataSourceId, uniqueData.databaseName, uniqueData.schemaName, showOnlyRelatedTables]);
+
+  const getIdentifier = useCallback(
+    (name: string) => compatibleDataBaseName(name, (uniqueData.databaseType || currentConnectionDetails?.type) as any),
+    [currentConnectionDetails?.type, uniqueData.databaseType],
+  );
+
+  const handleCopyTableName = useCallback(async (tableName: string) => {
+    try {
+      await navigator.clipboard.writeText(tableName);
+      message.success(i18n('workspace.erDiagram.copyTableNameSuccess'));
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = tableName;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      message.success(i18n('workspace.erDiagram.copyTableNameSuccess'));
+    }
+  }, []);
+
+  const handleToggleColumns = useCallback(
+    async (tableName: string) => {
+      const shouldExpand = !expandedTableNames.has(tableName);
+      setExpandedTableNames((prev) => {
+        const next = new Set(prev);
+        if (shouldExpand) {
+          next.add(tableName);
+        } else {
+          next.delete(tableName);
+        }
+        return next;
+      });
+
+      if (!shouldExpand || columnMap[tableName]) return;
+
+      setColumnLoadingMap((prev) => ({ ...prev, [tableName]: true }));
+      try {
+        const columns = await sqlService.getColumnList({
+          dataSourceId: uniqueData.dataSourceId,
+          databaseName: uniqueData.databaseName,
+          schemaName: uniqueData.schemaName,
+          tableName,
+        });
+        setColumnMap((prev) => ({ ...prev, [tableName]: columns || [] }));
+      } catch {
+        message.error(i18n('workspace.erDiagram.loadColumnsError'));
+      } finally {
+        setColumnLoadingMap((prev) => ({ ...prev, [tableName]: false }));
+      }
+    },
+    [columnMap, expandedTableNames, uniqueData],
+  );
+
+  const buildJoinQuery = useCallback(
+    (tableName: string) => {
+      const relatedEdges = (erDiagramData?.edges || []).filter(
+        (edge) => edge.source === tableName || edge.target === tableName,
+      );
+      const baseAlias = 't0';
+      const aliasMap = new Map<string, string>([[tableName, baseAlias]]);
+      const joinMap = new Map<string, string[]>();
+
+      relatedEdges.forEach((edge) => {
+        const joinTable = edge.source === tableName ? edge.target : edge.source;
+        if (!aliasMap.has(joinTable)) {
+          aliasMap.set(joinTable, `t${aliasMap.size}`);
+        }
+        const joinAlias = aliasMap.get(joinTable)!;
+        const condition =
+          edge.source === tableName
+            ? `${baseAlias}.${getIdentifier(edge.sourceColumn)} = ${joinAlias}.${getIdentifier(edge.targetColumn)}`
+            : `${joinAlias}.${getIdentifier(edge.sourceColumn)} = ${baseAlias}.${getIdentifier(
+                edge.targetColumn,
+              )}`;
+        const conditions = joinMap.get(joinTable);
+        if (conditions) {
+          conditions.push(condition);
+        } else {
+          joinMap.set(joinTable, [condition]);
+        }
+      });
+
+      const lines = [`SELECT ${baseAlias}.*`, `FROM ${getIdentifier(tableName)} ${baseAlias}`];
+      joinMap.forEach((conditions, joinTable) => {
+        lines.push(`LEFT JOIN ${getIdentifier(joinTable)} ${aliasMap.get(joinTable)} ON ${conditions.join(' AND ')}`);
+      });
+
+      return `${lines.join('\n')};`;
+    },
+    [erDiagramData?.edges, getIdentifier],
+  );
+
+  const handleCreateQuery = useCallback(
+    (tableName: string) => {
+      createConsole({
+        name: `${tableName} join query`,
+        ddl: buildJoinQuery(tableName),
+        dataSourceId: uniqueData.dataSourceId,
+        dataSourceName: uniqueData.dataSourceName || currentConnectionDetails?.alias || '',
+        databaseType: uniqueData.databaseType || currentConnectionDetails?.type,
+        databaseName: uniqueData.databaseName,
+        schemaName: uniqueData.schemaName,
+        operationType: WorkspaceTabType.CONSOLE,
+      });
+    },
+    [buildJoinQuery, currentConnectionDetails, uniqueData],
+  );
+
+  const handleFinishVirtualFkDrag = useCallback(
+    (targetField: IErDiagramFieldDragPayload) => {
+      if (!virtualFkDragField) return;
+      const sourceField = virtualFkDragField;
+      setVirtualFkDragField(null);
+
+      if (sourceField.tableName === targetField.tableName && sourceField.columnName === targetField.columnName) return;
+
+      Modal.confirm({
+        title: i18n('workspace.erDiagram.createVirtualFk'),
+        content: `${sourceField.tableName}.${sourceField.columnName} -> ${targetField.tableName}.${
+          targetField.columnName
+        }`,
+        okText: i18n('common.button.confirm'),
+        cancelText: i18n('common.button.cancel'),
+        onOk: async () => {
+          try {
+            await sqlService.createVirtualForeignKey({
+              dataSourceId: uniqueData.dataSourceId,
+              databaseName: uniqueData.databaseName,
+              schemaName: uniqueData.schemaName,
+              tableName: sourceField.tableName,
+              columnName: sourceField.columnName,
+              referencedTable: targetField.tableName,
+              referencedColumnName: targetField.columnName,
+            });
+            message.success(i18n('workspace.erDiagram.createVirtualFkSuccess'));
+            setIncludeVirtualFk(true);
+            fetchErDiagram({
+              dataSourceId: uniqueData.dataSourceId,
+              databaseName: uniqueData.databaseName,
+              schemaName: uniqueData.schemaName,
+              tableNameFilter: filterText || undefined,
+              includeVirtualFk: true,
+              onlyRelatedTables: showOnlyRelatedTables,
+            });
+          } catch {
+            message.error(i18n('workspace.erDiagram.createVirtualFkError'));
+          }
+        },
+      });
+    },
+    [fetchErDiagram, filterText, setIncludeVirtualFk, showOnlyRelatedTables, uniqueData, virtualFkDragField],
+  );
 
   useEffect(() => {
     if (!erDiagramData) return;
@@ -283,6 +446,15 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
         ...n,
         isHighlighted: selectedTableId ? selectedRelatedNodeIds.has(n.id) : false,
         isDimmed: selectedTableId ? !selectedRelatedNodeIds.has(n.id) : false,
+        columns: columnMap[n.name],
+        columnsExpanded: expandedTableNames.has(n.name),
+        columnsLoading: columnLoadingMap[n.name],
+        virtualFkDragField,
+        onCopyTableName: handleCopyTableName,
+        onToggleColumns: handleToggleColumns,
+        onCreateQuery: handleCreateQuery,
+        onStartVirtualFkDrag: setVirtualFkDragField,
+        onFinishVirtualFkDrag: handleFinishVirtualFkDrag,
       },
     }));
 
@@ -309,16 +481,32 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
     const laidOutNodes = applyLayout(rfNodes, rfEdges, layoutType);
     setNodes(laidOutNodes);
     setEdges(rfEdges);
-  }, [erDiagramData, filterText, layoutType, selectedTableId, showOnlyRelatedTables, setNodes, setEdges]);
+  }, [
+    erDiagramData,
+    filterText,
+    layoutType,
+    selectedTableId,
+    showOnlyRelatedTables,
+    columnMap,
+    expandedTableNames,
+    columnLoadingMap,
+    virtualFkDragField,
+    handleCopyTableName,
+    handleToggleColumns,
+    handleCreateQuery,
+    handleFinishVirtualFkDrag,
+    setNodes,
+    setEdges,
+  ]);
 
-  const handleNodeClick: OnNodeClick = useCallback(
+  const handleNodeClick = useCallback(
     (_event, node) => {
       setSelectedTableId(selectedTableId === node.id ? null : node.id);
     },
     [selectedTableId, setSelectedTableId],
   );
 
-  const handlePaneClick: OnPaneClick = useCallback(() => {
+  const handlePaneClick = useCallback(() => {
     setSelectedTableId(null);
   }, [setSelectedTableId]);
 
