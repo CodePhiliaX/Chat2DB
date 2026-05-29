@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +49,11 @@ public class TaskController {
     public DataResult<Task> get(@PathVariable Long id) {
         Task task = taskService.get(id);
         return DataResult.of(task);
+    }
+
+    @PostMapping("/cleanup")
+    public DataResult<Integer> cleanup() {
+        return DataResult.of(taskService.cleanupFinishedTasks(ContextUtils.getUserId()));
     }
 
     @GetMapping("/download/{id}")

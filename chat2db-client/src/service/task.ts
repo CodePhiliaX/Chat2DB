@@ -86,6 +86,7 @@ const exportResultData = createRequest<IExportResultDataParams, number>('/api/ex
 const exportSchemaDoc = createRequest<IExportSchemaDocParams, number>('/api/export/export_doc', { method: 'post' });
 const getTask = createRequest<{ id: number }, ITask>('/api/task/get/:id', { method: 'get' });
 const getTaskList = createRequest<Record<string, never>, ITask[]>('/api/task/list', { method: 'get' });
+const cleanupTasks = createRequest<Record<string, never>, number>('/api/task/cleanup', { method: 'post' });
 
 const previewFileHeaders = (params: IPreviewHeadersParams): Promise<IPreviewHeadersResult> => {
   const { file, ...restParams } = params;
@@ -97,7 +98,7 @@ const previewFileHeaders = (params: IPreviewHeadersParams): Promise<IPreviewHead
       formData.append(key, String(value));
     }
   });
-  
+
   return fetch('/api/import/preview_headers', {
     method: 'POST',
     credentials: 'include',
@@ -122,7 +123,7 @@ const importData = (params: IImportDataParams): Promise<number> => {
       formData.append(key, String(value));
     }
   });
-  
+
   return fetch('/api/import/import_data', {
     method: 'POST',
     credentials: 'include',
@@ -169,5 +170,6 @@ export default {
   executeSqlFile,
   getTask,
   getTaskList,
+  cleanupTasks,
   previewFileHeaders,
 };

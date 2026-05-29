@@ -28,7 +28,14 @@
                 and TASK_STATUS = #{param.taskStatus}
             </if>
             <if test="param.deleted != null ">
-                and DELETED = #{param.deleted}
+                <choose>
+                    <when test='param.deleted == "N"'>
+                        and (DELETED = #{param.deleted} or DELETED is null)
+                    </when>
+                    <otherwise>
+                        and DELETED = #{param.deleted}
+                    </otherwise>
+                </choose>
             </if>
         </where>
     </select>

@@ -46,9 +46,11 @@ export default {
   'workspace.erDiagram.createVirtualFk': 'Create virtual foreign key',
   'workspace.erDiagram.createVirtualFkSuccess': 'Virtual foreign key created',
   'workspace.erDiagram.createVirtualFkError': 'Failed to create virtual foreign key',
-  'workspace.erDiagram.invalidVirtualFkConnection': 'Drag from the field right green handle to the target field left green handle',
+  'workspace.erDiagram.invalidVirtualFkConnection':
+    'Drag from the field right green handle to the target field left green handle',
   'workspace.erDiagram.invalidVirtualFkSameField': 'Cannot create a virtual foreign key on the same field',
-  'workspace.erDiagram.virtualFkConnectHint': 'Create virtual FK: drag from the foreign-key field right green dot to the referenced field left green dot. Dragging field text does not create a relation.',
+  'workspace.erDiagram.virtualFkConnectHint':
+    'Create virtual FK: drag from the foreign-key field right green dot to the referenced field left green dot. Dragging field text does not create a relation.',
   'workspace.erDiagram.virtualFkSourceHandle': 'Drag from here: foreign key field',
   'workspace.erDiagram.virtualFkTargetHandle': 'Drop here: referenced field',
   'workspace.erDiagram.createJoinQuery': 'Create query',
@@ -100,7 +102,8 @@ export default {
   'workspace.table.import.next': 'Next',
   'workspace.table.import.previous': 'Previous',
   'workspace.table.import.fieldMapping.title': 'Define Field Mapping',
-  'workspace.table.import.fieldMapping.description': 'You can define field mappings. Set mappings to specify the correspondence between source fields and target fields.',
+  'workspace.table.import.fieldMapping.description':
+    'You can define field mappings. Set mappings to specify the correspondence between source fields and target fields.',
   'workspace.table.import.fieldMapping.source': 'Source',
   'workspace.table.import.fieldMapping.targetTable': 'Target Table',
   'workspace.table.import.fieldMapping.sourceField': 'Source Field',
@@ -117,7 +120,8 @@ export default {
   'workspace.table.import.mode.delete': 'Delete (Delete existing records from target table)',
   'workspace.table.import.mode.replace': 'Replace (Clear all records, then import)',
   'workspace.table.import.mode.pkRequired': 'Primary key required',
-  'workspace.table.import.mode.replaceConfirm': 'This will clear all data in the target table and re-import. Are you sure?',
+  'workspace.table.import.mode.replaceConfirm':
+    'This will clear all data in the target table and re-import. Are you sure?',
   'workspace.table.export.progress.title': 'Exporting...',
   'workspace.table.export.progress.rows': 'Rows exported',
   'workspace.table.export.title': 'Export Data',
@@ -150,7 +154,8 @@ export default {
   'workspace.tree.search.placeholder': 'Search in the expand node',
   'workspace.tree.delete.tip': 'I understand that this operation is permanently deleted',
   'workspace.tree.delete.table.tip': 'Are you sure you want to delete the table {1}?',
-  'workspace.tree.delete.database.tip': 'Are you sure you want to delete the database {1}? This operation cannot be undone.',
+  'workspace.tree.delete.database.tip':
+    'Are you sure you want to delete the database {1}? This operation cannot be undone.',
   'workspace.tips.noConnection': 'You have not created a connection yet',
   'workspace.tips.maxConsole': 'You can only open up to 20 consoles',
   'workspace.tips.openExecutiveLogging': 'Open this executive logging',
@@ -170,6 +175,11 @@ export default {
   'workspace.taskCenter.status.error': 'Failed',
   'workspace.taskCenter.download': 'Download',
   'workspace.taskCenter.refresh': 'Refresh',
+  'workspace.taskCenter.cleanup': 'Clean Up',
+  'workspace.taskCenter.cleanupConfirmTitle': 'Clean finished and failed tasks?',
+  'workspace.taskCenter.cleanupConfirmDescription':
+    'This will delete task records and related temporary download files.',
+  'workspace.taskCenter.cleanupSuccess': 'Cleaned {1} tasks',
   'workspace.taskCenter.dataSource': 'Data Source',
   'workspace.taskCenter.database': 'Database',
   'workspace.taskCenter.table': 'Table',

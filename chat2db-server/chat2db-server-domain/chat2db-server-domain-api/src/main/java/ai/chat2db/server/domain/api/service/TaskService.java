@@ -41,4 +41,12 @@ public interface TaskService {
      * @return task
      */
     Task get(Long id);
+
+    /**
+     * clean finished and failed tasks for user
+     *
+     * @param userId user id
+     * @return cleaned task count
+     */
+    int cleanupFinishedTasks(Long userId);
 }

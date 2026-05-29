@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Table, Tag, Button, Progress, Tooltip, Empty } from 'antd';
-import { DownloadOutlined, SyncOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Progress, Tooltip, Empty, Popconfirm, message } from 'antd';
+import { ClearOutlined, DownloadOutlined, SyncOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
 import taskService, { ITask } from '@/service/task';
@@ -10,6 +10,7 @@ import styles from './index.less';
 
 const statusMap: Record<string, { color: string; text: string }> = {
   INIT: { color: 'default', text: i18n('workspace.taskCenter.status.pending') },
+  PROCESSING: { color: 'processing', text: i18n('workspace.taskCenter.status.running') },
   RUNNING: { color: 'processing', text: i18n('workspace.taskCenter.status.running') },
   FINISH: { color: 'success', text: i18n('workspace.taskCenter.status.finish') },
   ERROR: { color: 'error', text: i18n('workspace.taskCenter.status.error') },
@@ -26,6 +27,7 @@ const typeMap: Record<string, string> = {
 const TaskCenter: React.FC = () => {
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(false);
+  const [cleanupLoading, setCleanupLoading] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchTasks = async () => {
@@ -64,6 +66,19 @@ const TaskCenter: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleCleanup = async () => {
+    setCleanupLoading(true);
+    try {
+      const count = await taskService.cleanupTasks({});
+      message.success(i18n('workspace.taskCenter.cleanupSuccess', count || 0));
+      await fetchTasks();
+    } catch (error) {
+      console.error('Failed to cleanup tasks:', error);
+    } finally {
+      setCleanupLoading(false);
+    }
   };
 
   const columns: ColumnsType<ITask> = [
@@ -107,7 +122,9 @@ const TaskCenter: React.FC = () => {
             <Progress
               percent={isNaN(percent) ? 0 : Math.min(percent, 100)}
               size="small"
-              status={record.taskStatus === 'ERROR' ? 'exception' : record.taskStatus === 'FINISH' ? 'success' : 'active'}
+              status={
+                record.taskStatus === 'ERROR' ? 'exception' : record.taskStatus === 'FINISH' ? 'success' : 'active'
+              }
             />
           </div>
         );
@@ -126,7 +143,7 @@ const TaskCenter: React.FC = () => {
       dataIndex: 'dataSourceId',
       key: 'dataSourceId',
       width: 100,
-      render: (id) => id ? `#${id}` : '-',
+      render: (id) => (id ? `#${id}` : '-'),
     },
     {
       title: i18n('workspace.taskCenter.download'),
@@ -150,15 +167,35 @@ const TaskCenter: React.FC = () => {
     <div className={styles.taskCenter}>
       <div className={styles.header}>
         <h3 className={styles.title}>{i18n('workspace.taskCenter.title')}</h3>
-        <Button
-          type="text"
-          size="small"
-          icon={<SyncOutlined spin={loading} />}
-          onClick={fetchTasks}
-          disabled={loading}
-        >
-          {i18n('workspace.taskCenter.refresh')}
-        </Button>
+        <div className={styles.actions}>
+          <Popconfirm
+            title={i18n('workspace.taskCenter.cleanupConfirmTitle')}
+            description={i18n('workspace.taskCenter.cleanupConfirmDescription')}
+            okText={i18n('common.button.confirm')}
+            cancelText={i18n('common.button.cancel')}
+            onConfirm={handleCleanup}
+          >
+            <Button
+              type="text"
+              size="small"
+              danger
+              icon={<ClearOutlined />}
+              loading={cleanupLoading}
+              disabled={cleanupLoading}
+            >
+              {i18n('workspace.taskCenter.cleanup')}
+            </Button>
+          </Popconfirm>
+          <Button
+            type="text"
+            size="small"
+            icon={<SyncOutlined spin={loading} />}
+            onClick={fetchTasks}
+            disabled={loading}
+          >
+            {i18n('workspace.taskCenter.refresh')}
+          </Button>
+        </div>
       </div>
       <div className={styles.content}>
         <Table
@@ -169,12 +206,7 @@ const TaskCenter: React.FC = () => {
           size="small"
           pagination={false}
           locale={{
-            emptyText: (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={i18n('workspace.taskCenter.empty')}
-              />
-            ),
+            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={i18n('workspace.taskCenter.empty')} />,
           }}
         />
       </div>
