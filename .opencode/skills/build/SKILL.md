@@ -34,7 +34,7 @@ $env:JAVA_HOME="D:\tool\Java\jdk-17"; cd chat2db-server; mvn clean compile -Dski
 编译前端：
 
 ```powershell
-nvm use 21; cd chat2db-client; yarn install; yarn run build:web
+nvm use 20; cd chat2db-client; yarn install; yarn run build:web
 ```
 
 开发模式运行前端：

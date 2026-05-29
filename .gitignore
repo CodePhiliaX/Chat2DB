@@ -32,3 +32,4 @@ package-lock.json
 /chat2db-gateway/target
 .playwright-mcp
 *.png
+logs
