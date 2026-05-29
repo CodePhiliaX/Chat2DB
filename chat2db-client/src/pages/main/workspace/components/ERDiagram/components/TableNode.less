@@ -73,13 +73,14 @@
 }
 
 .columnItem {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
   min-height: 22px;
-  padding: 3px 0;
+  padding: 3px 10px;
   color: #595959;
-  cursor: grab;
+  cursor: default;
   user-select: none;
   border-bottom: 1px solid #fafafa;
 
@@ -122,9 +123,15 @@
   font-weight: 500;
 }
 
-.draggingColumn {
-  color: #1677ff;
-  background: #e6f4ff;
+.virtualFkHint {
+  margin-top: 4px;
+  padding: 4px 6px;
+  color: #8c8c8c;
+  font-size: 10px;
+  line-height: 16px;
+  background: #f6ffed;
+  border: 1px solid #d9f7be;
+  border-radius: 4px;
 }
 
 .handle {
@@ -132,6 +139,29 @@
   height: 6px !important;
   background: #1890ff !important;
   border: 1px solid #fff !important;
+}
+
+.fieldHandle {
+  z-index: 10;
+  width: 10px !important;
+  height: 10px !important;
+  background: #52c41a !important;
+  border: 1px solid #fff !important;
+  opacity: 0.65;
+  cursor: crosshair;
+
+  &:hover {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.fieldTargetHandle {
+  left: -5px !important;
+}
+
+.fieldSourceHandle {
+  right: -5px !important;
 }
 
 .highlighted {

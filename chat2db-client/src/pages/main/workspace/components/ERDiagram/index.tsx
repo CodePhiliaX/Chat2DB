@@ -15,6 +15,7 @@ import {
   useEdgesState,
   Node,
   Edge,
+  Connection,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from '@dagrejs/dagre';
@@ -26,7 +27,7 @@ import { createConsole } from '@/pages/main/workspace/store/console';
 import { useWorkspaceStore } from '@/pages/main/workspace/store';
 import { compatibleDataBaseName } from '@/utils/database';
 import useErDiagramStore, { LayoutType } from './store';
-import TableNode, { IErDiagramFieldDragPayload } from './components/TableNode';
+import TableNode, { IErDiagramFieldHandlePayload } from './components/TableNode';
 import RelationEdge from './components/RelationEdge';
 import Toolbar from './components/Toolbar';
 import TableFilter from './components/TableFilter';
@@ -48,6 +49,7 @@ interface IERDiagramProps {
 /** 自定义节点和边类型映射 */
 const nodeTypes = { tableNode: TableNode };
 const edgeTypes = { relationEdge: RelationEdge };
+const FIELD_HANDLE_PREFIX = 'field:';
 
 /** dagre图对象，用于层级布局计算 */
 const dagreGraph = new dagre.graphlib.Graph({ multigraph: true, compound: false });
@@ -199,6 +201,22 @@ const applyLayout = (nodes: Node[], edges: Edge[], layoutType: LayoutType): Node
   return getForceLayout(nodes, edges);
 };
 
+const parseFieldHandle = (handleId?: string | null): IErDiagramFieldHandlePayload | null => {
+  if (!handleId?.startsWith(FIELD_HANDLE_PREFIX)) return null;
+
+  const [, encodedTableName, encodedColumnName] = handleId.split(':');
+  if (!encodedTableName || !encodedColumnName) return null;
+
+  try {
+    return {
+      tableName: decodeURIComponent(encodedTableName),
+      columnName: decodeURIComponent(encodedColumnName),
+    };
+  } catch {
+    return null;
+  }
+};
+
 /** ER图内部组件，需要ReactFlowProvider包裹 */
 const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
   const chartRef = useRef<HTMLDivElement>(null);
@@ -227,7 +245,6 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
   const [expandedTableNames, setExpandedTableNames] = useState<Set<string>>(new Set());
   const [columnMap, setColumnMap] = useState<Record<string, IColumn[]>>({});
   const [columnLoadingMap, setColumnLoadingMap] = useState<Record<string, boolean>>({});
-  const [virtualFkDragField, setVirtualFkDragField] = useState<IErDiagramFieldDragPayload | null>(null);
   const currentConnectionDetails = useWorkspaceStore((state) => state.currentConnectionDetails);
 
   const fetchData = useCallback(
@@ -357,13 +374,12 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
     [buildJoinQuery, currentConnectionDetails, uniqueData],
   );
 
-  const handleFinishVirtualFkDrag = useCallback(
-    (targetField: IErDiagramFieldDragPayload) => {
-      if (!virtualFkDragField) return;
-      const sourceField = virtualFkDragField;
-      setVirtualFkDragField(null);
-
-      if (sourceField.tableName === targetField.tableName && sourceField.columnName === targetField.columnName) return;
+  const createVirtualForeignKeyByFields = useCallback(
+    (sourceField: IErDiagramFieldHandlePayload, targetField: IErDiagramFieldHandlePayload) => {
+      if (sourceField.tableName === targetField.tableName && sourceField.columnName === targetField.columnName) {
+        message.warning(i18n('workspace.erDiagram.invalidVirtualFkSameField'));
+        return;
+      }
 
       Modal.confirm({
         title: i18n('workspace.erDiagram.createVirtualFk'),
@@ -399,7 +415,22 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
         },
       });
     },
-    [fetchErDiagram, filterText, setIncludeVirtualFk, showOnlyRelatedTables, uniqueData, virtualFkDragField],
+    [fetchErDiagram, filterText, setIncludeVirtualFk, showOnlyRelatedTables, uniqueData],
+  );
+
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      const sourceField = parseFieldHandle(connection.sourceHandle);
+      const targetField = parseFieldHandle(connection.targetHandle);
+
+      if (!connection.source || !connection.target || !sourceField || !targetField) {
+        message.warning(i18n('workspace.erDiagram.invalidVirtualFkConnection'));
+        return;
+      }
+
+      createVirtualForeignKeyByFields(sourceField, targetField);
+    },
+    [createVirtualForeignKeyByFields],
   );
 
   useEffect(() => {
@@ -449,12 +480,9 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
         columns: columnMap[n.name],
         columnsExpanded: expandedTableNames.has(n.name),
         columnsLoading: columnLoadingMap[n.name],
-        virtualFkDragField,
         onCopyTableName: handleCopyTableName,
         onToggleColumns: handleToggleColumns,
         onCreateQuery: handleCreateQuery,
-        onStartVirtualFkDrag: setVirtualFkDragField,
-        onFinishVirtualFkDrag: handleFinishVirtualFkDrag,
       },
     }));
 
@@ -490,11 +518,9 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
     columnMap,
     expandedTableNames,
     columnLoadingMap,
-    virtualFkDragField,
     handleCopyTableName,
     handleToggleColumns,
     handleCreateQuery,
-    handleFinishVirtualFkDrag,
     setNodes,
     setEdges,
   ]);
@@ -662,6 +688,7 @@ const ERDiagramInner: React.FC<IERDiagramProps> = ({ uniqueData }) => {
           onNodeClick={handleNodeClick}
           onPaneClick={handlePaneClick}
           onEdgeContextMenu={handleEdgeContextMenu}
+          onConnect={handleConnect}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView

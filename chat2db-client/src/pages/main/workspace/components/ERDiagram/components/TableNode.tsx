@@ -2,18 +2,21 @@
  * ER图自定义节点组件
  * 用于显示数据库表的节点，包含表名、注释、列数量和字段列表
  */
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import { TableOutlined } from '@ant-design/icons';
-import { Handle, NodeProps, Position } from '@xyflow/react';
+import { Handle, NodeProps, Position, useUpdateNodeInternals } from '@xyflow/react';
 import { Dropdown, MenuProps, Spin, Tooltip } from 'antd';
 import i18n from '@/i18n';
 import { IColumn, IErNode } from '@/service/sql';
 import styles from './TableNode.less';
 
-export interface IErDiagramFieldDragPayload {
+export interface IErDiagramFieldHandlePayload {
   tableName: string;
   columnName: string;
 }
+
+export const getFieldHandleId = (tableName: string, columnName: string) =>
+  `field:${encodeURIComponent(tableName)}:${encodeURIComponent(columnName)}`;
 
 /** 节点数据接口，扩展基础节点数据 */
 export interface TableNodeData extends IErNode {
@@ -24,16 +27,14 @@ export interface TableNodeData extends IErNode {
   columns?: IColumn[];
   columnsExpanded?: boolean;
   columnsLoading?: boolean;
-  virtualFkDragField?: IErDiagramFieldDragPayload | null;
   onCopyTableName?: (tableName: string) => void;
   onToggleColumns?: (tableName: string) => void;
   onCreateQuery?: (tableName: string) => void;
-  onStartVirtualFkDrag?: (field: IErDiagramFieldDragPayload) => void;
-  onFinishVirtualFkDrag?: (field: IErDiagramFieldDragPayload) => void;
 }
 
-const TableNode = memo(({ data }: NodeProps) => {
+const TableNode = memo(({ id, data }: NodeProps) => {
   const nodeData = data as unknown as TableNodeData;
+  const updateNodeInternals = useUpdateNodeInternals();
   const menuItems: MenuProps['items'] = [
     {
       key: 'copy-table-name',
@@ -54,6 +55,10 @@ const TableNode = memo(({ data }: NodeProps) => {
     },
   ];
 
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [id, nodeData.columns?.length, nodeData.columnsExpanded, updateNodeInternals]);
+
   const renderColumns = () => {
     if (!nodeData.columnsExpanded) return null;
 
@@ -66,39 +71,37 @@ const TableNode = memo(({ data }: NodeProps) => {
     }
 
     return (
-      <div className={styles.columnList}>
+      <div className={`${styles.columnList} nodrag nopan`}>
         {(nodeData.columns || []).map((column) => {
-          const isDragging =
-            nodeData.virtualFkDragField?.tableName === nodeData.name &&
-            nodeData.virtualFkDragField?.columnName === column.name;
+          const handleId = getFieldHandleId(nodeData.name, column.name);
 
           return (
             <div
               key={column.name}
-              className={`${styles.columnItem} ${column.primaryKey ? styles.primaryColumn : ''} ${
-                isDragging ? styles.draggingColumn : ''
-              }`}
+              className={`${styles.columnItem} ${column.primaryKey ? styles.primaryColumn : ''} nodrag nopan`}
               onContextMenu={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
               }}
-              onMouseDown={(event) => {
-                if (event.button !== 2) return;
-                event.preventDefault();
-                event.stopPropagation();
-                nodeData.onStartVirtualFkDrag?.({ tableName: nodeData.name, columnName: column.name });
-              }}
-              onMouseUp={(event) => {
-                if (event.button !== 2) return;
-                event.preventDefault();
-                event.stopPropagation();
-                nodeData.onFinishVirtualFkDrag?.({ tableName: nodeData.name, columnName: column.name });
-              }}
               title={`${nodeData.name}.${column.name}${column.columnType ? ` ${column.columnType}` : ''}`}
             >
+              <Handle
+                id={handleId}
+                type="target"
+                position={Position.Left}
+                className={`${styles.handle} ${styles.fieldHandle} ${styles.fieldTargetHandle} nodrag nopan`}
+                title={i18n('workspace.erDiagram.virtualFkTargetHandle')}
+              />
               <span className={styles.columnName}>{column.name}</span>
               {column.primaryKey && <span className={styles.primaryKey}>PK</span>}
               {column.columnType && <span className={styles.columnType}>{column.columnType}</span>}
+              <Handle
+                id={handleId}
+                type="source"
+                position={Position.Right}
+                className={`${styles.handle} ${styles.fieldHandle} ${styles.fieldSourceHandle} nodrag nopan`}
+                title={i18n('workspace.erDiagram.virtualFkSourceHandle')}
+              />
             </div>
           );
         })}
@@ -129,6 +132,9 @@ const TableNode = memo(({ data }: NodeProps) => {
                 {nodeData.comment && <div className={styles.tableComment}>{nodeData.comment}</div>}
                 {nodeData.columnCount != null && (
                   <div className={styles.columnCount}>{nodeData.columnCount} columns</div>
+                )}
+                {nodeData.columnsExpanded && (
+                  <div className={styles.virtualFkHint}>{i18n('workspace.erDiagram.virtualFkConnectHint')}</div>
                 )}
                 {renderColumns()}
               </div>
