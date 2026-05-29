@@ -256,7 +256,7 @@ const deprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/tab
 
 const restoreDeprecatedTable = createRequest<IUniversalTableParams, void>('/api/rdb/table/cancel_deprecated', { method: 'post' });
 
-const getDeprecatedTableList = createRequest<IGetTableListParams, IPageResponse<ITable>>('/api/rdb/table/deprecated_list', { method: 'get' });
+const getDeprecatedTableList = createRequest<IGetTableListParams, ITable[]>('/api/rdb/table/deprecated_list', { method: 'get' });
 
 /** 获取当前执行SQL 所有行 */
 const getDMLCount = createRequest<IExecuteSqlParams, number>('/api/rdb/dml/count', { method: 'post' });

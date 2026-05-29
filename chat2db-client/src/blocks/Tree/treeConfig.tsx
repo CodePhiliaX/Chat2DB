@@ -318,7 +318,8 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
         mysqlServer
           .getDeprecatedTableList(params, options)
           .then((res) => {
-            const tableList: ITreeNode[] = res.data?.map((t: any) => {
+            const deprecatedTables = Array.isArray(res) ? res : res?.data || [];
+            const tableList: ITreeNode[] = deprecatedTables.map((t: any) => {
               return {
                 uuid: uuid(),
                 name: t.name,
@@ -333,10 +334,10 @@ export const treeConfig: { [key in TreeNodeType]: ITreeConfigItem } = {
             });
             r({
               data: tableList,
-              pageNo: res.pageNo,
-              pageSize: res.pageSize,
-              total: res.total,
-              hasNextPage: res.hasNextPage,
+              pageNo: 1,
+              pageSize: tableList.length,
+              total: tableList.length,
+              hasNextPage: false,
             } as any);
           })
           .catch((error) => {
