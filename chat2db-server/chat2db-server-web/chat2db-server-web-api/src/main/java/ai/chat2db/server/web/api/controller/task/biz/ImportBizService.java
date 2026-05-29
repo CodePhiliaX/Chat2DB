@@ -236,8 +236,12 @@ public class ImportBizService {
         Connection connection = Chat2DBContext.getConnection();
 
         Map<String, Integer> columnOrderMap = new HashMap<>();
+        Map<String, String> columnTypeMap = new HashMap<>();
         for (int i = 0; i < headerList.size(); i++) {
             columnOrderMap.put(headerList.get(i), i);
+        }
+        for (TableColumn column : columns) {
+            columnTypeMap.put(column.getName(), column.getColumnType());
         }
 
         ImportContext importContext = ImportContext.builder()
@@ -245,6 +249,7 @@ public class ImportBizService {
                 .tableName(request.getTableName())
                 .headerList(headerList)
                 .columnOrderMap(columnOrderMap)
+                .columnTypeMap(columnTypeMap)
                 .columnCount(headerList.size())
                 .connection(connection)
                 .progressUpdater(count -> updateProgressCount(taskId, count))

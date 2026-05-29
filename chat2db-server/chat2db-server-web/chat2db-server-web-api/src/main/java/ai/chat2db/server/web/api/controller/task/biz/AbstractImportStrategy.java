@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,35 +112,89 @@ public abstract class AbstractImportStrategy implements ImportStrategy {
             // UPDATE: SET 非主键列 WHERE 主键列
             for (String col : allColumns) {
                 if (pkColumns == null || !pkColumns.contains(col)) {
-                    ps.setObject(paramIndex++, rowData.getOrDefault(col, null));
+                    ps.setObject(paramIndex++, normalizeValue(col, rowData.getOrDefault(col, null), importContext));
                 }
             }
             if (pkColumns != null) {
                 for (String pk : pkColumns) {
-                    ps.setObject(paramIndex++, rowData.getOrDefault(pk, null));
+                    ps.setObject(paramIndex++, normalizeValue(pk, rowData.getOrDefault(pk, null), importContext));
                 }
             } else {
                 for (String col : allColumns) {
-                    ps.setObject(paramIndex++, rowData.getOrDefault(col, null));
+                    ps.setObject(paramIndex++, normalizeValue(col, rowData.getOrDefault(col, null), importContext));
                 }
             }
         } else if ("DELETE".equals(mode)) {
             // DELETE: WHERE 主键列（或所有列）
             if (pkColumns != null && !pkColumns.isEmpty()) {
                 for (String pk : pkColumns) {
-                    ps.setObject(paramIndex++, rowData.getOrDefault(pk, null));
+                    ps.setObject(paramIndex++, normalizeValue(pk, rowData.getOrDefault(pk, null), importContext));
                 }
             } else {
                 for (String col : allColumns) {
-                    ps.setObject(paramIndex++, rowData.getOrDefault(col, null));
+                    ps.setObject(paramIndex++, normalizeValue(col, rowData.getOrDefault(col, null), importContext));
                 }
             }
         } else {
             // INSERT / UPSERT / INSERT_IGNORE / REPLACE(已转为INSERT): 所有列
             for (String col : allColumns) {
-                ps.setObject(paramIndex++, rowData.getOrDefault(col, null));
+                ps.setObject(paramIndex++, normalizeValue(col, rowData.getOrDefault(col, null), importContext));
             }
         }
+    }
+
+    private Object normalizeValue(String columnName, String rawValue, ImportContext importContext) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        String value = rawValue.trim();
+        if (value.isEmpty()) {
+            return null;
+        }
+
+        String dataType = null;
+        if (importContext.getColumnTypeMap() != null) {
+            dataType = importContext.getColumnTypeMap().get(columnName);
+        }
+        if (dataType == null) {
+            return value;
+        }
+
+        String lowerType = dataType.toLowerCase();
+        if (isNumericType(lowerType)) {
+            String normalizedBoolean = normalizeBooleanToNumeric(value);
+            return normalizedBoolean != null ? normalizedBoolean : value;
+        }
+
+        if (isBooleanType(lowerType)) {
+            String normalizedBoolean = normalizeBooleanToNumeric(value);
+            if (normalizedBoolean != null) {
+                return "1".equals(normalizedBoolean);
+            }
+        }
+
+        return value;
+    }
+
+    private boolean isNumericType(String lowerType) {
+        return Arrays.asList("tinyint", "smallint", "mediumint", "int", "integer", "bigint", "decimal", "numeric",
+                "float", "double", "real", "bit").stream().anyMatch(lowerType::contains);
+    }
+
+    private boolean isBooleanType(String lowerType) {
+        return lowerType.contains("boolean") || lowerType.contains("bool");
+    }
+
+    private String normalizeBooleanToNumeric(String value) {
+        String lowerValue = value.toLowerCase();
+        if (Arrays.asList("true", "yes", "y", "on").contains(lowerValue)) {
+            return "1";
+        }
+        if (Arrays.asList("false", "no", "n", "off").contains(lowerValue)) {
+            return "0";
+        }
+        return null;
     }
 
     private void validateMappings(List<String> fileHeaders, ImportContext importContext) {

@@ -18,6 +18,7 @@ public class ImportContext {
     private String tableName;
     private List<String> headerList;
     private Map<String, Integer> columnOrderMap;
+    private Map<String, String> columnTypeMap;
     private int columnCount;
     private Connection connection;
     private Consumer<Integer> progressUpdater;
