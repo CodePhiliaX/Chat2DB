@@ -41,7 +41,7 @@ public class TaskController {
         taskPageParam.setPageSize(10);
         taskPageParam.setUserId(ContextUtils.getUserId());
         ServicePage<Task> task = taskService.page(taskPageParam);
-        return WebPageResult.of(task.getData(), 100L, 1, 10);
+        return WebPageResult.of(task.getData(), task.getTotal(), task.getPageNo(), task.getPageSize());
     }
 
     @GetMapping("/get/{id}")

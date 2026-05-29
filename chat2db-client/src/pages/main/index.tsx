@@ -29,6 +29,7 @@ import Dashboard from './dashboard';
 import Connection from './connection';
 import Team from './team';
 import Setting from '@/blocks/Setting';
+import TaskCenter from '@/components/TaskCenter';
 
 import styles from './index.less';
 import { useUpdateEffect } from '@/hooks';
@@ -60,12 +61,12 @@ const initNavConfig: INavItem[] = [
     name: i18n('connection.title'),
   },
   {
-    key: 'github',
-    icon: '\ue885',
-    iconFontSize: 26,
+    key: 'taskCenter',
+    icon: '\ue63d',
+    iconFontSize: 22,
     isLoad: false,
-    openBrowser: 'https://github.com/chat2db/Chat2DB/',
-    name: 'Github',
+    component: <TaskCenter />,
+    name: i18n('workspace.taskCenter.title'),
   },
 ];
 
@@ -144,12 +145,8 @@ function MainPage() {
   };
 
   const switchingNav = (key: string) => {
-    if (key === 'github') {
-      window.open('https://github.com/chat2db/Chat2DB/', '_blank');
-    } else {
-      setActiveNavKey(key);
-      setMainPageActiveTab(key);
-    }
+    setActiveNavKey(key);
+    setMainPageActiveTab(key);
   };
 
   const handleLogout = () => {

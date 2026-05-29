@@ -15,5 +15,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface TaskMapper extends BaseMapper<TaskDO> {
 
-    IPage<TaskDO> pageQuery(IPage<TaskDO> page, @Param("userId") Long userId,@Param("deleted") String deleted);
+    IPage<TaskDO> pageQuery(IPage<TaskDO> page, @Param("param") Object param);
 }

@@ -3,33 +3,32 @@
 <mapper namespace="ai.chat2db.server.domain.repository.mapper.TaskMapper">
 
     <select id="pageQuery" resultType="ai.chat2db.server.domain.repository.entity.TaskDO">
-        select ID,GMT_CREATE,GMT_MODIFIED,
-               DATA_SOURCE_ID,DATABASE_NAME,SCHEMA_NAME,TABLE_NAME,DELETED,USER_ID,TASK_TYPE,TASK_STATUS,
+        select ID,GMT_CREATE,GMT_MODIFIED,DATA_SOURCE_ID,DATABASE_NAME,SCHEMA_NAME,TABLE_NAME,DELETED,USER_ID,TASK_TYPE,TASK_STATUS,TASK_PROGRESS,TASK_NAME,DOWNLOAD_URL,CONTENT
         from TASK
         <where>
-            <if test="dataSourceId != null ">
-                and DATA_SOURCE_ID = #{dataSourceId}
+            <if test="param.dataSourceId != null ">
+                and DATA_SOURCE_ID = #{param.dataSourceId}
             </if>
-            <if test="databaseName != null and databaseName != '' ">
-                and DATABASE_NAME = #{databaseName}
+            <if test="param.databaseName != null and param.databaseName != '' ">
+                and DATABASE_NAME = #{param.databaseName}
             </if>
-            <if test="tableName != null and tableName != '' ">
-                and TABLE_NAME = #{tableName}
+            <if test="param.tableName != null and param.tableName != '' ">
+                and TABLE_NAME = #{param.tableName}
             </if>
-            <if test="schemaName != null and schemaName != '' ">
-                and SCHEMA_NAME = #{schemaName}
+            <if test="param.schemaName != null and param.schemaName != '' ">
+                and SCHEMA_NAME = #{param.schemaName}
             </if>
-            <if test="userId != null ">
-                and USER_ID = #{userId}
+            <if test="param.userId != null ">
+                and USER_ID = #{param.userId}
             </if>
-            <if test="taskType != null and taskType != '' ">
-                and TASK_TYPE = #{taskType}
+            <if test="param.taskType != null and param.taskType != '' ">
+                and TASK_TYPE = #{param.taskType}
             </if>
-            <if test="taskStatus != null and taskStatus != '' ">
-                and TASK_STATUS = #{taskStatus}
+            <if test="param.taskStatus != null and param.taskStatus != '' ">
+                and TASK_STATUS = #{param.taskStatus}
             </if>
-            <if test="deleted != null ">
-                and DELETED = #{deleted}
+            <if test="param.deleted != null ">
+                and DELETED = #{param.deleted}
             </if>
         </where>
     </select>

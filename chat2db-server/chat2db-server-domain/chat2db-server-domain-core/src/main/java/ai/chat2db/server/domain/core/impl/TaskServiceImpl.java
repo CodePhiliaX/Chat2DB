@@ -10,9 +10,6 @@ import ai.chat2db.server.domain.api.service.TaskService;
 import ai.chat2db.server.domain.core.converter.TaskConverter;
 import ai.chat2db.server.domain.repository.MapperUtils;
 import ai.chat2db.server.domain.repository.entity.TaskDO;
-import ai.chat2db.server.tools.base.wrapper.result.ActionResult;
-import ai.chat2db.server.tools.base.wrapper.result.DataResult;
-import ai.chat2db.server.tools.base.wrapper.result.PageResult;
 import ai.chat2db.server.tools.base.wrapper.ServicePage;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
@@ -57,7 +54,7 @@ public class TaskServiceImpl implements TaskService {
         page.setCurrent(param.getPageNo());
         page.setSize(param.getPageSize());
         page.setOrders(Lists.newArrayList(OrderItem.desc("gmt_create")));
-        IPage<TaskDO> iPage = MapperUtils.getTaskMapper().pageQuery(page, param.getUserId(), DeletedTypeEnum.N.name());
+        IPage<TaskDO> iPage = MapperUtils.getTaskMapper().pageQuery(page, param);
         if (iPage != null) {
             return ServicePage.of(taskConverter.toModel(iPage.getRecords()), iPage.getTotal(), param.getPageNo(), param.getPageSize());
         }

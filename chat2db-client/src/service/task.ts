@@ -85,6 +85,7 @@ export interface IExportSchemaDocParams {
 const exportResultData = createRequest<IExportResultDataParams, number>('/api/export/export_data', { method: 'post' });
 const exportSchemaDoc = createRequest<IExportSchemaDocParams, number>('/api/export/export_doc', { method: 'post' });
 const getTask = createRequest<{ id: number }, ITask>('/api/task/get/:id', { method: 'get' });
+const getTaskList = createRequest<Record<string, never>, ITask[]>('/api/task/list', { method: 'get' });
 
 const previewFileHeaders = (params: IPreviewHeadersParams): Promise<IPreviewHeadersResult> => {
   const { file, ...restParams } = params;
@@ -167,5 +168,6 @@ export default {
   importData,
   executeSqlFile,
   getTask,
+  getTaskList,
   previewFileHeaders,
 };
