@@ -250,6 +250,8 @@ public abstract class RdbWebConverter {
     @Mappings({
         @Mapping(source = "columnList", target = "columnList"),
         @Mapping(source = "indexList", target = "indexList"),
+        @Mapping(source = "comment", target = "rawComment"),
+        @Mapping(source = "aiComment", target = "aiComment"),
         @Mapping(target = "comment", expression = "java(getComment(dto))")
     })
     public abstract TableVO tableDto2vo(Table dto);

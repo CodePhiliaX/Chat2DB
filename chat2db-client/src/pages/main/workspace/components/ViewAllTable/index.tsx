@@ -84,6 +84,8 @@ export default memo<IProps>((props) => {
             key: t.name,
             pinned: t.pinned,
             comment: t.comment,
+            rawComment: t.rawComment ?? null,
+            aiComment: t.aiComment ?? null,
             rowCount: t.rowCount,
             extraParams: {
               ...uniqueData,
@@ -248,7 +250,10 @@ export default memo<IProps>((props) => {
           dataSourceId: uniqueData.dataSourceId,
           schemaName: uniqueData.schemaName,
           refresh: true,
-          oldTables: tableData,
+          oldTables: tableData.map((item) => ({
+            ...item,
+            comment: item.rawComment,
+          })),
           newTables: newData,
         };
         // 调用批量获取修改表的SQL语句的API

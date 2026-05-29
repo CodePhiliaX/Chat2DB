@@ -27,6 +27,16 @@ public class TableVO {
     private String comment;
 
     /**
+     * 数据库原始注释
+     */
+    private String rawComment;
+
+    /**
+     * AI 生成注释
+     */
+    private String aiComment;
+
+    /**
      * 列
      */
     private List<TableColumn> columnList;

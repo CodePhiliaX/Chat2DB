@@ -52,6 +52,14 @@ export interface ITable {
     */
    comment?: string | null;
    /**
+    * 数据库中的原始注释
+    */
+   rawComment?: string | null;
+   /**
+    * AI 生成注释
+    */
+   aiComment?: string | null;
+   /**
     * 表名称
     */
    name: string | null;
