@@ -3,6 +3,7 @@ import { monacoSqlAutocomplete } from './index';
 import sqlService, { IForeignKeyVO } from '@/service/sql';
 import { IBoundInfo } from '@/typings/workspace';
 import { ICompletionItem, ITableInfo, IJoinTableInfo, ICursorInfo } from '../sql-parser/base/define';
+import { getDialectCompletion } from './dialects';
 
 export interface ISqlAutocompleteOptions {
   monaco: typeof monaco;
@@ -57,20 +58,50 @@ const cleanIdentifier = (name: string): string => {
   return name.replace(/^[`'"[\]]+|[`'"[\]]+$/g, '');
 };
 
+const matchesInputValue = (word: string, inputValue?: string) => {
+  const trimmedInputValue = inputValue?.trim();
+  if (!trimmedInputValue) {
+    return true;
+  }
+
+  return word.toLowerCase().startsWith(trimmedInputValue.toLowerCase());
+};
+
+const noParenthesesFunctionNames = new Set([
+  'CURRENT_DATE',
+  'CURRENT_ROLE',
+  'CURRENT_TIME',
+  'CURRENT_TIMESTAMP',
+  'CURRENT_USER',
+  'LOCALTIME',
+  'LOCALTIMESTAMP',
+  'SESSION_USER',
+  'SYSDATE',
+  'SYSTEM_USER',
+]);
+
+const shouldAppendFunctionParentheses = (functionName: string) => {
+  const normalizedFunctionName = functionName.toUpperCase();
+  return /^[A-Z_][A-Z0-9_]*$/.test(normalizedFunctionName) && !noParenthesesFunctionNames.has(normalizedFunctionName);
+};
+
+const getFunctionInsertText = (functionName: string) => {
+  if (!shouldAppendFunctionParentheses(functionName)) {
+    return functionName;
+  }
+
+  return `${functionName}($0)`;
+};
+
 export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutocompleteDisposable => {
   const { monaco, editor, boundInfo, parserType } = options;
-  
+
   const effectiveParserType = parserType || mapDatabaseTypeToParser(boundInfo.databaseType || 'MYSQL');
 
   // Register completion provider and store the disposable
   const completionProviderDisposable = monacoSqlAutocomplete(monaco, editor, {
     language: 'sql',
     parserType: effectiveParserType,
-    
-    onParse: (parseResult) => {
-      if (parseResult.error && parseResult.error.reason === 'incomplete') {
-      }
-    },
 
     onSuggestTableNames: async (cursorInfo?: ICursorInfo<ITableInfo>) => {
       try {
@@ -79,9 +110,9 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
           databaseName: boundInfo.databaseName,
           schemaName: boundInfo.schemaName,
         });
-        
+
         const parentName = boundInfo.schemaName || boundInfo.databaseName || '';
-        
+
         return data.map((table) => {
           const name = table.name;
           const label = parentName ? `${name} (${parentName})` : name;
@@ -105,30 +136,40 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
         const joinInfo = cursorInfo?.joinTableInfo;
         if (!joinInfo || !joinInfo.currentTable) {
           console.warn('[SQL 补全 - JOIN] 无当前表信息，返回所有表');
-          return await sqlService.getAllTableList({
-            dataSourceId: boundInfo.dataSourceId,
-            databaseName: boundInfo.databaseName,
-            schemaName: boundInfo.schemaName,
-          }).then((data) => {
-            const parentName = boundInfo.schemaName || boundInfo.databaseName || '';
-            return data.map((table) => {
-              const name = table.name;
-              const alias = name.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
-              const label = parentName ? `${name} (${parentName})` : name;
-              return {
-                label,
-                insertText: `${name} ${alias}`,
-                sortText: `Z${name}`,
-                kind: monaco.languages.CompletionItemKind.Struct as any,
-                detail: `(表) ${table.comment || ''}`,
-                documentation: table.comment || `表: ${name}`,
-              };
+          return await sqlService
+            .getAllTableList({
+              dataSourceId: boundInfo.dataSourceId,
+              databaseName: boundInfo.databaseName,
+              schemaName: boundInfo.schemaName,
+            })
+            .then((data) => {
+              const parentName = boundInfo.schemaName || boundInfo.databaseName || '';
+              return data.map((table) => {
+                const name = table.name;
+                const alias = name
+                  .split(/[_\s]+/)
+                  .map((word) => word.charAt(0).toLowerCase())
+                  .join('');
+                const label = parentName ? `${name} (${parentName})` : name;
+                return {
+                  label,
+                  insertText: `${name} ${alias}`,
+                  sortText: `Z${name}`,
+                  kind: monaco.languages.CompletionItemKind.Struct as any,
+                  detail: `(表) ${table.comment || ''}`,
+                  documentation: table.comment || `表: ${name}`,
+                };
+              });
             });
-          });
         }
 
         const currentTableName = joinInfo.currentTable.tableName?.value;
-        const currentTableAlias = joinInfo.currentTableAlias || joinInfo.currentTable.tableName?.value.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
+        const currentTableAlias =
+          joinInfo.currentTableAlias ||
+          joinInfo.currentTable.tableName?.value
+            .split(/[_\s]+/)
+            .map((word) => word.charAt(0).toLowerCase())
+            .join('');
         if (!currentTableName) {
           console.warn('[SQL 补全 - JOIN] 当前表名为空，返回所有表');
           return [];
@@ -148,9 +189,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
         console.log('[SQL 补全 - JOIN] 外键数量:', foreignKeys.length);
 
         // 过滤掉已经在 JOIN 中使用的表
-        const joinedTableNames = new Set(
-          (joinInfo.joinedTables || []).map(t => t.tableName?.value).filter(Boolean)
-        );
+        const joinedTableNames = new Set((joinInfo.joinedTables || []).map((t) => t.tableName?.value).filter(Boolean));
 
         // 获取所有表用于填充未找到外键时的默认列表
         const allTables = await sqlService.getAllTableList({
@@ -163,7 +202,10 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
 
         // 生成表别名：取首字母，如果冲突则加数字
         const generateAlias = (tableName: string, usedAliases: Set<string>): string => {
-          let alias = tableName.split(/[_\s]+/).map(word => word.charAt(0).toLowerCase()).join('');
+          let alias = tableName
+            .split(/[_\s]+/)
+            .map((word) => word.charAt(0).toLowerCase())
+            .join('');
           if (usedAliases.has(alias)) {
             let i = 1;
             while (usedAliases.has(`${alias}${i}`)) {
@@ -195,7 +237,9 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
             const alias = generateAlias(refTable, usedAliases);
 
             // 使用 snippet 格式：表名 别名 ON 当前表.外键列 = 关联表.主键列
-            const snippetText = `${refTable} ${alias} ON ${currentTableAlias}.${fk.columnName} = ${alias}.${fk.referencedColumnName}`;
+            const snippetText =
+              `${refTable} ${alias} ON ` +
+              `${currentTableAlias}.${fk.columnName} = ${alias}.${fk.referencedColumnName}`;
 
             const label = parentName ? `${refTable} (${parentName})` : refTable;
             relatedTableItems.push({
@@ -213,7 +257,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
 
           // 然后返回其他未关联的表（Z 开头，排在后面）
           const unrelatedTableItems = allTables
-            .filter(t => !processedTables.has(t.name) && !joinedTableNames.has(t.name))
+            .filter((t) => !processedTables.has(t.name) && !joinedTableNames.has(t.name))
             .map((table) => {
               const name = table.name;
               const alias = generateAlias(name, usedAliases);
@@ -234,7 +278,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
         // 如果没有外键，返回所有表（排除已 JOIN 的）
         console.log('[SQL 补全 - JOIN] 无外键，返回所有表');
         return allTables
-          .filter(t => !joinedTableNames.has(t.name))
+          .filter((t) => !joinedTableNames.has(t.name))
           .map((table) => {
             const name = table.name;
             const alias = generateAlias(name, usedAliases);
@@ -257,8 +301,10 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
     onSuggestTableFields: async (tableInfo?: ITableInfo, cursorValue?: string, rootStatement?: any) => {
       const rawTableName = tableInfo?.tableName?.value;
       const tableName = cleanIdentifier(rawTableName);
-      
-      const cacheKey = `${boundInfo.dataSourceId}_${boundInfo.databaseName || ''}_${boundInfo.schemaName || ''}_${tableName}`;
+
+      const cacheKey = `${boundInfo.dataSourceId}_${boundInfo.databaseName || ''}_${
+        boundInfo.schemaName || ''
+      }_${tableName}`;
       if (fieldCache.has(cacheKey)) {
         const cachedData = fieldCache.get(cacheKey);
         return cachedData.map((column) => {
@@ -275,7 +321,7 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
           };
         });
       }
-      
+
       try {
         if (!tableName) {
           console.warn('[SQL 补全 - API] 表名为空，返回空数组');
@@ -288,9 +334,9 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
           schemaName: boundInfo.schemaName,
           tableName,
         });
-        
+
         fieldCache.set(cacheKey, data);
-        
+
         return data.map((column) => {
           const name = column.name;
           const label = tableName ? `${name} (${tableName})` : name;
@@ -311,44 +357,42 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
     },
 
     onSuggestFunctionName: async (inputValue?: string) => {
-      const keywords = [
-        'SELECT', 'FROM', 'WHERE', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN',
-        'GROUP BY', 'ORDER BY', 'HAVING', 'LIMIT',
-        'AND', 'OR', 'NOT', 'IN', 'EXISTS', 'BETWEEN', 'LIKE',
-        'AS', 'DISTINCT', 'NULL', 'IS NULL', 'IS NOT NULL',
-        'ASC', 'DESC', 'NULLS FIRST', 'NULLS LAST',
-        'UNION', 'UNION ALL', 'INTERSECT', 'EXCEPT',
-        'CASE', 'WHEN', 'THEN', 'ELSE', 'END',
-        'WITH', 'RECURSIVE',
-      ];
-      
-      const functions = [
-        'COUNT', 'SUM', 'AVG', 'MAX', 'MIN',
-        'CAST', 'CONVERT', 'TRIM', 'SUBSTRING', 'LENGTH',
-        'UPPER', 'LOWER', 'CONCAT', 'REPLACE', 'COALESCE', 'IFNULL', 'NULLIF',
-        'DATE', 'TIME', 'TIMESTAMP', 'EXTRACT',
-        'ABS', 'CEIL', 'FLOOR', 'ROUND', 'MOD', 'POWER', 'SQRT',
-        'NOW', 'CURRENT_DATE', 'CURRENT_TIME', 'CURRENT_TIMESTAMP',
-        'IF', 'IIF',
-      ];
-      
-      const keywordItems = keywords.map((kw) => ({
-        label: kw,
-        insertText: kw,
-        sortText: `C${kw}`,
-        kind: monaco.languages.CompletionItemKind.Keyword as any,
-        detail: '(关键字)',
-      }));
-      
-      const functionItems = functions.map((func) => ({
-        label: func,
-        insertText: func,
-        sortText: `D${func}`,
-        kind: monaco.languages.CompletionItemKind.Function as any,
-        detail: '(函数)',
-      }));
-      
-      return [...keywordItems, ...functionItems];
+      const dialectCompletion = getDialectCompletion(boundInfo.databaseType);
+
+      const keywordItems = dialectCompletion.keywords
+        .filter((kw) => matchesInputValue(kw, inputValue))
+        .map((kw) => ({
+          label: kw,
+          insertText: kw,
+          sortText: `C${kw}`,
+          kind: monaco.languages.CompletionItemKind.Keyword as any,
+          detail: '(关键字)',
+        }));
+
+      const functionItems = dialectCompletion.functions
+        .filter((func) => matchesInputValue(func, inputValue))
+        .map((func) => ({
+          label: func,
+          insertText: getFunctionInsertText(func),
+          insertTextRules: shouldAppendFunctionParentheses(func)
+            ? monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet
+            : undefined,
+          sortText: `D${func}`,
+          kind: monaco.languages.CompletionItemKind.Function as any,
+          detail: '(函数)',
+        }));
+
+      const dataTypeItems = dialectCompletion.dataTypes
+        .filter((dataType) => matchesInputValue(dataType, inputValue))
+        .map((dataType) => ({
+          label: dataType,
+          insertText: dataType,
+          sortText: `E${dataType}`,
+          kind: monaco.languages.CompletionItemKind.TypeParameter as any,
+          detail: '(数据类型)',
+        }));
+
+      return [...keywordItems, ...functionItems, ...dataTypeItems];
     },
 
     onSuggestFieldGroup: (tableNameOrAlias?: string) => {
@@ -377,15 +421,11 @@ export const initSqlAutocomplete = (options: ISqlAutocompleteOptions): ISqlAutoc
     },
 
     onHoverTableName: async (cursorInfo?: ICursorInfo) => {
-      return [
-        { value: `**Table:** ${cursorInfo?.token?.value || ''}` },
-      ];
+      return [{ value: `**Table:** ${cursorInfo?.token?.value || ''}` }];
     },
 
     onHoverFunctionName: async (functionName?: string) => {
-      return [
-        { value: `**Function:** ${functionName || ''}` },
-      ];
+      return [{ value: `**Function:** ${functionName || ''}` }];
     },
   });
 
