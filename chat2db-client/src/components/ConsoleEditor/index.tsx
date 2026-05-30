@@ -15,7 +15,13 @@ import React, {
   useState,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import MonacoEditor, { IEditorIns, IEditorOptions, IExportRefFunction, IRangeType } from '../MonacoEditor';
+import MonacoEditor, {
+  IEditorIns,
+  IEditorOptions,
+  IExportRefFunction,
+  IRangeType,
+  registerVinPasteTransform,
+} from '../MonacoEditor';
 import OperationLine from './components/OperationLine';
 import styles from './index.less';
 
@@ -189,6 +195,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   const { boundInfo, setBoundInfo, appendValue, hasSaveBtn = true, source, defaultValue, isActive } = props;
   const uid = useMemo(() => uuidv4(), []);
   const editorRef = useRef<IExportRefFunction>();
+  const disposeVinPasteTransformRef = useRef<(() => void) | undefined>();
   const shortcutRegisteredRef = useRef(false);
   const aiCompletionTaskRef = useRef<IAiSqlCompletionTask | null>(null);
   const triggerAiCompletionRef = useRef<(editor: IEditorIns, monaco: any) => void>();
@@ -232,6 +239,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
   useEffect(() => {
     return () => {
       aiCompletionTaskRef.current?.cancel();
+      disposeVinPasteTransformRef.current?.();
     };
   }, []);
 
@@ -251,6 +259,12 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
     }
     props.onExecuteSQL && props.onExecuteSQL(sqlContent);
   };
+
+  const handleEditorDidMount = useCallback((editor: IEditorIns) => {
+    // SQL consoles support pasting Excel VIN rows directly inside IN (...).
+    disposeVinPasteTransformRef.current?.();
+    disposeVinPasteTransformRef.current = registerVinPasteTransform(editor);
+  }, []);
 
   // 打开 AI 聊天面板并发送选中内容
   const openAiChatWithMessage = (selectedText: string, promptType: IAiChatPromptType) => {
@@ -528,6 +542,7 @@ function ConsoleEditor(props: IProps, ref: ForwardedRef<IConsoleRef>) {
             className={styles.consoleEditor}
             addAction={addAction}
             options={props.editorOptions}
+            didMount={handleEditorDidMount}
             shortcutKey={registerShortcutKey}
             boundInfo={boundInfo}
             aiCompletion={aiCompletion}

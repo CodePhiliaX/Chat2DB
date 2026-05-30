@@ -25,6 +25,185 @@ const databaseTypeList = Object.keys(DatabaseTypeCode).map((d) => ({
   label: d,
 }));
 
+const vinRegExp = /^[A-HJ-NPR-Z0-9]{17}$/i;
+type SqlQuote = "'" | '"' | '`' | '[';
+
+const getFirstExcelColumn = (line: string) => {
+  const [firstColumn] = line.split('\t');
+  return firstColumn.trim().replace(/^["']|["']$/g, '');
+};
+
+// Converts Excel-copied VIN rows into SQL string literals for IN clauses.
+const buildVinSqlValueList = (clipboardText: string) => {
+  const vinList = clipboardText
+    .split(/\r\n|\r|\n/)
+    .map(getFirstExcelColumn)
+    .filter(Boolean);
+  const invalidVinList = vinList.filter((vin) => !vinRegExp.test(vin));
+
+  if (!vinList.length || invalidVinList.length) {
+    return null;
+  }
+
+  return vinList.map((vin) => `'${vin.toUpperCase().replace(/'/g, "''")}'`).join(', ');
+};
+
+// Finds the innermost unclosed parenthesis before the cursor while ignoring SQL strings and comments.
+const getOpenInParenOffset = (sql: string, cursorOffset: number) => {
+  const parenStack: number[] = [];
+  let quote: SqlQuote | null = null;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let index = 0; index < cursorOffset; index++) {
+    const char = sql[index];
+    const next = sql[index + 1];
+
+    if (inLineComment) {
+      if (char === '\n' || char === '\r') {
+        inLineComment = false;
+      }
+      continue;
+    }
+
+    if (inBlockComment) {
+      if (char === '*' && next === '/') {
+        inBlockComment = false;
+        index++;
+      }
+      continue;
+    }
+
+    if (quote) {
+      if (quote === "'" && char === "'" && next === "'") {
+        index++;
+        continue;
+      }
+      if (quote === '"' && char === '"' && next === '"') {
+        index++;
+        continue;
+      }
+      if (quote === '`' && char === '`' && next === '`') {
+        index++;
+        continue;
+      }
+      if (
+        (quote === "'" && char === "'") ||
+        (quote === '"' && char === '"') ||
+        (quote === '`' && char === '`') ||
+        (quote === '[' && char === ']')
+      ) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === '-' && next === '-') {
+      inLineComment = true;
+      index++;
+      continue;
+    }
+
+    if (char === '/' && next === '*') {
+      inBlockComment = true;
+      index++;
+      continue;
+    }
+
+    if (char === "'" || char === '"' || char === '`' || char === '[') {
+      quote = char as SqlQuote;
+      continue;
+    }
+
+    if (char === '(') {
+      parenStack.push(index);
+      continue;
+    }
+
+    if (char === ')') {
+      parenStack.pop();
+    }
+  }
+
+  return parenStack[parenStack.length - 1];
+};
+
+const isCursorInsideInParens = (editor: IEditorIns) => {
+  const model = editor.getModel();
+  const position = editor.getPosition();
+  if (!model || !position) {
+    return false;
+  }
+
+  const sql = model.getValue();
+  const cursorOffset = model.getOffsetAt(position);
+  const openParenOffset = getOpenInParenOffset(sql, cursorOffset);
+  if (openParenOffset === undefined) {
+    return false;
+  }
+
+  const beforeOpenParen = sql.slice(0, openParenOffset);
+  return /\bin\s*$/i.test(beforeOpenParen);
+};
+
+export const registerVinPasteTransform = (editor: IEditorIns) => {
+  const domNode = editor.getDomNode();
+  if (!domNode) {
+    return undefined;
+  }
+
+  const pasteHandler = (event: ClipboardEvent) => {
+    const eventTarget = event.target;
+    if (!(eventTarget instanceof Node) || !domNode.contains(eventTarget)) {
+      return;
+    }
+
+    const clipboardText = event.clipboardData?.getData('text/plain') || '';
+    const vinSqlValueList = buildVinSqlValueList(clipboardText);
+    const isInsideInParens = isCursorInsideInParens(editor);
+    if (!vinSqlValueList || !isInsideInParens) {
+      return;
+    }
+
+    const position = editor.getPosition();
+    const selection =
+      editor.getSelection() ||
+      (position
+        ? new monaco.Selection(position.lineNumber, position.column, position.lineNumber, position.column)
+        : null);
+    if (!selection) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const endPosition = {
+      lineNumber: selection.startLineNumber,
+      column: selection.startColumn + vinSqlValueList.length,
+    };
+    editor.executeEdits(
+      'vinPasteTransform',
+      [
+        {
+          range: selection,
+          text: vinSqlValueList,
+          forceMoveMarkers: true,
+        },
+      ],
+      () => [
+        new monaco.Selection(endPosition.lineNumber, endPosition.column, endPosition.lineNumber, endPosition.column),
+      ],
+    );
+    editor.focus();
+  };
+
+  document.addEventListener('paste', pasteHandler, true);
+  return () => {
+    document.removeEventListener('paste', pasteHandler, true);
+  };
+};
+
 interface IProps {
   id: string;
   language?: string;

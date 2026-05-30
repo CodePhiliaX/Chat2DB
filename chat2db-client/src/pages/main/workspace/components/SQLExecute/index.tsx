@@ -24,8 +24,6 @@ const SQLExecute = memo<IProps>((props) => {
   const [boundInfo, setBoundInfo] = useState<IBoundInfo>(_boundInfo);
   const activeConsoleId = useWorkspaceStore((state) => state.activeConsoleId);
 
-  console.log('[SQLExecute] Render, loadSQL exists:', !!loadSQL);
-
   // 注册 consoleRef 到全局 map 中
   useEffect(() => {
     const consoleId = boundInfo.consoleId;
